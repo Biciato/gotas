@@ -1,0 +1,55 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file     webroot/css/styles/cupons/imprime_brinde_shower.css
+  * @date     18/08/2017
+  */
+
+.logo-rti-brinde {
+    height: 50%;
+    width: 50%;
+}
+
+.impressao-cupom-shower{
+    display: none;
+}
+
+.print_area {
+    width: 300px;
+    height: auto;
+}
+
+@media print {
+    /* @page {
+        height: 40mm;
+    }; */
+    .print_area {
+        display: block;
+    }
+}
+
+img {
+    /* width: 60%; */
+}
+
+
+/* .header-cupom {
+    width: 50%;
+} */
+
+.brinde-shower.user-result {
+    display: none;
+}
+
+.brinde-shower.user-result-names {
+    display: none;
+}
+
+.brinde-shower.user-result-plates {
+    display: none;
+}
+
+.tabela-produtos {
+    /* background-color: aqua; */
+    margin: 0px auto;
+    font-size: 10px;
+}

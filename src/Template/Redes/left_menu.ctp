@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * @author   Gustavo Souza Gonçalves
+ * @file     src/Template/Redes/left_menu.ctp
+ * @date     21/11/2017
+ */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+
+$mode = isset($mode) ? $mode : false;
+
+$show_reports = isset($show_reports) ? $show_reports : false;
+?>
+
+    <nav class="col-lg-3 col-md-2" id="actions-sidebar">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active">
+                <?= $this->Html->link(__('Menu'), []) ?>
+            </li>
+
+            <?php if ($mode == 'details') : ?>
+
+                <li>
+                    <?= $this->Html->link(__("Usuários da Rede"), ['controller' => 'usuarios', 'action' => 'usuarios_rede', $redes_id]) ?>
+                </li>
+
+                <li>
+                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
+                </li>
+
+                <li>
+                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
+                </li>
+
+            <?php endif; ?>
+            <li class="active">
+                <?= $this->Html->link(__('Ações'), []) ?>
+            </li>
+
+            <?php if ($mode == 'view') : ?>
+
+                <li>
+                    <?= $this->Html->link(__("Nova Rede"), ['controller' => 'redes', 'action' => 'adicionar_rede']) ?>
+                </li>
+
+            <?php elseif ($mode == 'details') : ?>
+
+                <li>
+                    <?= $this->Html->link(__("Editar Rede"), ['controller' => 'redes', 'action' => 'editar', $redes_id]) ?>
+                </li>
+
+                <li>
+                    <?= $this->Html->link(
+                        __(
+                            'Remover Rede',
+                            $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
+                        ),
+                        '#',
+                        [
+                            'title' => 'Deletar',
+                            'class' => 'text-danger bg-danger',
+                            'data-toggle' => 'modal',
+                            'data-target' => '#modal-delete-with-message',
+                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede->nome_rede),
+                            'data-action' => Router::url(
+                                [
+                                    'controller' => 'redes',
+                                    'action' => 'delete',
+                                    '?' =>
+                                        [
+                                        'rede_id' => $rede->id,
+                                        'return_url' =>
+                                            [
+                                            'controller' => 'redes',
+                                            'action' => 'index'
+                                        ]
+                                    ]
+                                ]
+                            ),
+                            'escape' => false
+                        ],
+                        false
+                    );
+                    ?>
+                </li>
+
+                <li>
+                    <?= $this->Html->link(__("Nova Unidade de Rede"), ['controller' => 'clientes', 'action' => 'adicionar', $redes_id]) ?>
+                </li>
+
+            <?php endif; ?>
+
+            <?php if ($show_reports) : ?>
+
+            <li class="active">
+                <?= $this->Html->link(__('Relatórios'), []) ?>
+            </li>
+
+            <li>
+                <?= $this->Html->link(__("Redes"), ['controller' => 'redes', 'action' => 'relatorio_redes']) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__("Unidades de Redes"), ['controller' => 'redes_has_clientes', 'action' => 'relatorio_unidades_redes']) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__("Equipe de uma Rede"), ['controller' => 'usuarios', 'action' => 'relatorio_equipe_redes']) ?>
+            </li>
+
+
+            <?php endif; ?>
+
+        </ul>
+    </nav>

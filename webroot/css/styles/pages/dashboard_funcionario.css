@@ -1,0 +1,47 @@
+#cadastro-rapido {
+    display: none;
+    overflow: auto;
+    height: 80vh;
+}
+
+#atribuicao-gotas {
+    display: none;
+}
+
+.form-add-buttons {
+    display: none;
+}
+
+.display-content {
+    display: none;
+}
+
+img {
+    /* max-width: 200px; */
+}
+
+.dashboard-funcionario-content {
+    /* overflow-x: hidden;
+    overflow-y: auto;
+    height: 76vh; */
+}
+
+@media screen and (max-width: 1200px) {
+
+    #cadastro-rapido {
+        display: none;
+        overflow: auto;
+        height: 100vh;
+    }
+
+    .dashboard-funcionario-content {
+        overflow-x: hidden;
+        overflow-y: auto;
+        /* height: 101vh; */
+        /* background-color: #D42323; */
+    }
+}
+
+.video-gotas-captured-region {
+    display: none;
+}

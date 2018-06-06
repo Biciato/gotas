@@ -1,0 +1,21 @@
+
+/* .image-container {
+    height: 750px;
+    width: 500px;
+}
+
+.image-rotate {
+    -webkit-transform: rotate(-90deg);
+    -webkit-transform-origin: 0 0;
+    position: relative;
+    top: 100%;
+    width: 500px;
+}
+
+.image-receipt {
+    width: 740px;
+} */
+
+.image-receipt {
+    width: 100%;
+}

@@ -1,0 +1,33 @@
+.logo-rti-shower {
+    height: 50%;
+    width: 50%;
+}
+
+.print_area {
+    display: none;
+    width: 300px;
+    height: 200px;
+}
+
+@media print {
+    /* @page {
+        height: 40mm;
+    }; */
+    .print_area {
+        display: block;
+    }
+}
+
+.print_area center {
+    margin: 0 auto;
+}
+
+.product {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.contact {
+    font-weight: bold;
+    font-size: 16px;
+}

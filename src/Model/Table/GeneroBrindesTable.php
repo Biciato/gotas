@@ -1,0 +1,220 @@
+<?php
+namespace App\Model\Table;
+
+use ArrayObject;
+use Cake\Core\Configure;
+use Cake\Event\Event;
+use Cake\Log\Log;
+use Cake\ORM\Query;
+use Cake\ORM\RulesChecker;
+use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
+
+/**
+ * GeneroBrindes Model
+ *
+ * @property \App\Model\Table\ClientesTable|\Cake\ORM\Association\BelongsToMany $Clientes
+ *
+ * @method \App\Model\Entity\GeneroBrinde get($primaryKey, $options = [])
+ * @method \App\Model\Entity\GeneroBrinde newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\GeneroBrinde[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\GeneroBrinde|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\GeneroBrinde patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\GeneroBrinde[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\GeneroBrinde findOrCreate($search, callable $callback = null, $options = [])
+ */
+class GeneroBrindesTable extends GenericTable
+{
+
+    /**
+     * -------------------------------------------------------------
+     * Fields
+     * -------------------------------------------------------------
+     */
+    protected $generoBrindeTable = null;
+
+    /**
+     * -------------------------------------------------------------
+     * Properties
+     * -------------------------------------------------------------
+     */
+
+    /**
+     * Método para obter tabela de Genero Brindes
+     *
+     * @return Cake\ORM\Table Table object
+     */
+    private function _getGeneroBrindeTable()
+    {
+        if (is_null($this->generoBrindeTable)) {
+            $this->_setGeneroBrindeTable();
+        }
+        return $this->generoBrindeTable;
+    }
+
+    /**
+     * Method set of brinde table property
+     *
+     * @return void
+     */
+    private function _setGeneroBrindeTable()
+    {
+        $this->generoBrindeTable = TableRegistry::get('GeneroBrindes');
+    }
+
+    /**
+     * Initialize method
+     *
+     * @param array $config The configuration for the Table.
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        parent::initialize($config);
+
+        $this->setTable('genero_brindes');
+        $this->setDisplayField('nome_necessidades_especiais');
+        $this->setPrimaryKey('id');
+
+        $this->belongsToMany('Clientes', [
+            'foreignKey' => 'genero_brindes_id',
+            'targetForeignKey' => 'clientes_id',
+            'joinTable' => 'genero_brindes_clientes'
+        ]);
+    }
+
+    /**
+     * Default validation rules.
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     * @return \Cake\Validation\Validator
+     */
+    public function validationDefault(Validator $validator)
+    {
+        $validator
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->requirePresence('nome', 'create')
+            ->notEmpty('nome');
+
+        $validator
+            ->boolean('equipamento_rti')
+            ->requirePresence('equipamento_rti', 'create')
+            ->notEmpty('equipamento_rti');
+
+        $validator
+            ->boolean('brinde_necessidades_especiais')
+            ->requirePresence('brinde_necessidades_especiais', 'create')
+            ->notEmpty('brinde_necessidades_especiais ');
+
+        $validator
+            ->boolean('habilitado')
+            ->requirePresence('habilitado', 'create')
+            ->notEmpty('habilitado');
+
+        $validator
+            ->boolean('atribuir_automatico')
+            ->requirePresence('atribuir_automatico', 'create')
+            ->notEmpty('atribuir_automatico');
+
+        $validator
+            ->dateTime('audit_insert')
+            ->allowEmpty('audit_insert');
+
+        $validator
+            ->dateTime('audit_update')
+            ->allowEmpty('audit_update');
+
+        return $validator;
+    }
+
+    /**
+     * ---------------------------------------------------------------
+     * Métodos CRUD
+     * ---------------------------------------------------------------
+     */
+
+    /* -------------------------- Create/Update ----------------------------- */
+
+    /**
+     * GeneroBrindesTable::saveGeneroBrindes()
+     *
+     * Salva um Gênero de Brinde. Atualiza se informar o Id
+     *
+     * @param array $generoBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 31/05/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     */
+    public function saveGeneroBrindes(array $generoBrindes = array())
+    {
+        try {
+            $generoBrindesSave = null;
+
+            // Atualiza se o id está setado. Novo se id = null
+            if (!empty($generoBrindes["id"]) && isset($generoBrindes["id"]) && $generoBrindes["id"] > 0) {
+                $generoBrindesSave = $this->_getGeneroBrindeTable()->find('all')
+                    ->where(["id" => $generoBrindes["id"]])->first();
+            } else {
+                $generoBrindesSave = $this->_getGeneroBrindeTable()->newEntity();
+            }
+
+            $generoBrindesSave->nome = $generoBrindes["nome"];
+            $generoBrindesSave->equipamento_rti = $generoBrindes["equipamento_rti"];
+            $generoBrindesSave->brinde_necessidades_especiais = $generoBrindes["brinde_necessidades_especiais"];
+            $generoBrindesSave->habilitado = $generoBrindes["habilitado"];
+            $generoBrindesSave->atribuir_automatico = $generoBrindes["atribuir_automatico"];
+
+            return $this->_getGeneroBrindeTable()->save($generoBrindesSave);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao salvar gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /* -------------------------- Read  ----------------------------- */
+
+    /**
+     * GeneroBrindesTable::findGeneroBrindes()
+     *
+     * Obtem Gênero de Brindes conforme condições passadas
+     *
+     * @param array $whereConditions Condições de Where
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 31/05/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde[] $generoBrindes Objetos da consulta
+     */
+    public function findGeneroBrindes(array $whereConditions = array(), int $limit = null)
+    {
+        try {
+            $generoBrindes = $this->_getGeneroBrindeTable()->find("all")
+                ->where($whereConditions);
+
+            if (!empty($limit) && isset($limit)) {
+                if ($limit == 1) {
+                    $generoBrindes = $generoBrindes->first();
+                } else {
+                    $generoBrindes = $generoBrindes->limit($limit);
+                }
+            } else {
+                $generoBrindes = $generoBrindes->limit(999);
+            }
+            return $generoBrindes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+}

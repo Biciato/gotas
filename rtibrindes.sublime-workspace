@@ -1,0 +1,1923 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"matr",
+				"matriz_id"
+			],
+			[
+				"redir",
+				"redirectUrl\tCakePHP: $this->Auth->redirectUrl()"
+			],
+			[
+				"clientesHasBrindesHabilitadosPreco",
+				"ClientesHasBrindesHabilitadosPreco"
+			],
+			[
+				"getclienteshas",
+				"getClientesHasBrindesHabilitadosPrecoTable"
+			],
+			[
+				"clientes",
+				"clientes_has_brindes_habilitados_preco_id"
+			],
+			[
+				"clietneshasbrin",
+				"clientes_has_brindes_habilitado"
+			],
+			[
+				"clienteshasbrindeshabilitado",
+				"clientes_has_brindes_habilitado"
+			],
+			[
+				"paginator",
+				"Paginator"
+			],
+			[
+				"toa",
+				"toArray"
+			],
+			[
+				"matrizid",
+				"matriz_id"
+			],
+			[
+				"clien",
+				"clientes_has_brindes_habilitados_id"
+			],
+			[
+				"clientesHasBrindesHabilitados",
+				"ClientesHasBrindesHabilitadosPreco"
+			],
+			[
+				"clienteshasbrindeshabii",
+				"ClientesHasBrindesHabilitadosPreco"
+			],
+			[
+				"clie",
+				"clientes_id"
+			],
+			[
+				"clientehasbrinde",
+				"clienteHasBrindeHabilitado"
+			],
+			[
+				"ClientesHasBrindesHabilitado",
+				"clientesHasBrindesHabilitado"
+			],
+			[
+				"client",
+				"clientesTemBrindes"
+			],
+			[
+				"clienteshas",
+				"clientesHasBrindesHabilitado"
+			],
+			[
+				"habilitados",
+				"ClientesHasBrindesHabilitados"
+			],
+			[
+				"usuarios",
+				"usuarios_id"
+			],
+			[
+				"getpont",
+				"getPontuacoesTable"
+			],
+			[
+				"brindeshab",
+				"brindes_habilitados_id"
+			],
+			[
+				"pontos",
+				"totalPontosAGastar"
+			],
+			[
+				"usua",
+				"usuarios_id"
+			],
+			[
+				"estoque",
+				"brindeEstoque"
+			],
+			[
+				"estoq",
+				"estoqueAtual"
+			],
+			[
+				"usuarioshasve",
+				"usuarios_has_veiculos"
+			],
+			[
+				"ids",
+				"array_ids"
+			],
+			[
+				"log",
+				"Log"
+			],
+			[
+				"getpontu",
+				"getPontuacoesQuery"
+			],
+			[
+				"data",
+				"required_data"
+			],
+			[
+				"requi",
+				"required_tipo_operacao"
+			],
+			[
+				"serial",
+				"_serialize"
+			],
+			[
+				"clienteshasbrindes",
+				"ClientesHasBrindesEstoque"
+			],
+			[
+				"clientesHas",
+				"ClientesHasBrindesEstoque"
+			],
+			[
+				"habit",
+				"ClientesHasBrindesHabilitados"
+			],
+			[
+				"Estoque",
+				"ClientesHasBrindesEstoque"
+			],
+			[
+				"clienteshasbrindeshabil",
+				"clientes_has_brindes_habilitados_id"
+			],
+			[
+				"brindes",
+				"Brindes"
+			],
+			[
+				"clientehasbrindeshabilitados",
+				"ClientesHasBrindesHabilitados"
+			],
+			[
+				"flash",
+				"Flash"
+			],
+			[
+				"clienteshasb",
+				"ClientesHasBrindesHabilitadosPreco"
+			],
+			[
+				"html",
+				"Html"
+			],
+			[
+				"logged",
+				"getUserLogged"
+			],
+			[
+				"histori",
+				"historicoPrecos"
+			],
+			[
+				"historic",
+				"historicoPrecosTmp"
+			],
+			[
+				"clienteshasbrindeshab",
+				"ClientesHasBrindesHabilitados"
+			],
+			[
+				"clientehasbr",
+				"clienteHasBrindeHabilitado"
+			],
+			[
+				"clientes_has",
+				"clientes_has_brindes_habilitados_id"
+			],
+			[
+				"Brindes",
+				"brindes"
+			],
+			[
+				"read",
+				"read\tCakePHP: Configure::read('key')"
+			],
+			[
+				"newentit",
+				"newEntity"
+			],
+			[
+				"gettabl",
+				"getBrindesHabilitadosPrecoTable"
+			],
+			[
+				"getclienteshasbrinds",
+				"getClientesHasBrindesHabilitadosQuery"
+			],
+			[
+				"clientehasbrindeshabilitadostable",
+				"ClientesHasBrindesHabilitadosTable"
+			],
+			[
+				"newent",
+				"newEntity"
+			],
+			[
+				"prec",
+				"preco_padrao"
+			],
+			[
+				"newEntit",
+				"newEntity"
+			],
+			[
+				"brindes_habili",
+				"brindes_habilitados_id"
+			],
+			[
+				"brinde",
+				"brindesHabilitadosQuery"
+			],
+			[
+				"brindesHabi",
+				"brindesHabilitadosTable"
+			],
+			[
+				"ready",
+				"ready\t$(document).ready"
+			],
+			[
+				"Sec",
+				"security"
+			],
+			[
+				"Clien",
+				"Clientes"
+			],
+			[
+				"Cliente",
+				"cliente"
+			],
+			[
+				"transpo",
+				"transportadora"
+			],
+			[
+				"Transportadora",
+				"transportadora"
+			],
+			[
+				"dash",
+				"dashboardGestor"
+			],
+			[
+				"dashboar",
+				"dashboardFuncionario"
+			],
+			[
+				"Usuarios",
+				"usuarios"
+			],
+			[
+				"Clientes",
+				"ClientesHasUsuarios"
+			],
+			[
+				"transpor",
+				"transportadoraData"
+			],
+			[
+				"stop",
+				"stopScanDocument"
+			],
+			[
+				"TransportadorasHas",
+				"TransportadorasHasUsuarios"
+			],
+			[
+				"patch",
+				"patchEntity"
+			],
+			[
+				"Transpo",
+				"TransportadorasHasUsuarios"
+			],
+			[
+				"usu",
+				"usuarioHasVeiculo"
+			],
+			[
+				"transportador",
+				"transportadoraHasUsuario"
+			],
+			[
+				"usuarioshasveiculos",
+				"UsuariosHasVeiculos"
+			],
+			[
+				"tra",
+				"transportadoraData"
+			],
+			[
+				"veiculos",
+				"Veiculos"
+			],
+			[
+				"transportadora",
+				"transportadoraPath"
+			],
+			[
+				"DATA",
+				"data"
+			],
+			[
+				"transo",
+				"transporterPath"
+			],
+			[
+				"cnpj",
+				"cnpj_validation"
+			],
+			[
+				"endere",
+				"endereco_complemento"
+			],
+			[
+				"veic",
+				"Veiculos"
+			],
+			[
+				"transporta",
+				"Transportadora"
+			],
+			[
+				"Trans",
+				"transportadora"
+			],
+			[
+				"com",
+				"endereco_complemento"
+			],
+			[
+				"base",
+				"base64_string"
+			],
+			[
+				"check",
+				"checkCPFIsValid"
+			],
+			[
+				"datanasc",
+				"data_nasc"
+			],
+			[
+				"tenta",
+				"tentativas_login"
+			],
+			[
+				"DIFF",
+				"date_diff"
+			],
+			[
+				"tentativas",
+				"tentativasLogin"
+			],
+			[
+				"cli",
+				"clientSaved"
+			],
+			[
+				"userquery",
+				"getUserQuery"
+			],
+			[
+				"con",
+				"context"
+			],
+			[
+				"getve",
+				"getVehiclesQuery"
+			],
+			[
+				"Usua",
+				"UsuariosHasVeiculos"
+			],
+			[
+				"Usu",
+				"Usuarios"
+			],
+			[
+				"getuserhas",
+				"getUserHasVehiclesTable"
+			],
+			[
+				"userhasve",
+				"userHasVehiclesQuery"
+			],
+			[
+				"vei",
+				"veiculos"
+			],
+			[
+				"json",
+				"json_encode"
+			],
+			[
+				"token",
+				"token_senha"
+			],
+			[
+				"url",
+				"Url"
+			],
+			[
+				"admin",
+				"AdminNetworkProfileType"
+			],
+			[
+				"remove",
+				"removeClienteHasUsuario"
+			],
+			[
+				"usuario",
+				"usuario"
+			],
+			[
+				"table",
+				"usuariosTable"
+			],
+			[
+				"bootstra",
+				"bootstrap-datetimepicker"
+			],
+			[
+				"form",
+				"Form"
+			],
+			[
+				"pagin",
+				"Paginator"
+			],
+			[
+				"clientehasusuario",
+				"ClientesHasUsuario"
+			],
+			[
+				"Tabl",
+				"TableRegistry"
+			],
+			[
+				"Clientehasusu",
+				"ClientesHasUsuarios"
+			],
+			[
+				"Client",
+				"ClientesHasUsuarios"
+			],
+			[
+				"usuarioloja",
+				"usuarioLoja"
+			],
+			[
+				"matri",
+				"matriz"
+			],
+			[
+				"id",
+				"idMatriz"
+			],
+			[
+				"isn",
+				"is_null"
+			],
+			[
+				"boots",
+				"bootstrap-theme"
+			],
+			[
+				"fore",
+				"foreign_key"
+			],
+			[
+				"backgr",
+				"background-position"
+			],
+			[
+				"INT",
+				"intA"
+			],
+			[
+				"inta",
+				"intA"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 173.0,
+		"last_filter": "func",
+		"selected_items":
+		[
+			[
+				"func",
+				"Snippet: Function"
+			],
+			[
+				"installpk",
+				"Package Control: Install Package"
+			],
+			[
+				"function",
+				"Snippet: Function"
+			],
+			[
+				"beforerende",
+				"Snippet: CakePHP: beforeRender()"
+			],
+			[
+				"func\t",
+				"Snippet: Function"
+			],
+			[
+				"doc\t",
+				"Snippet: document.ready - $(function(){})"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"addrepo",
+				"Package Control: Add Repository"
+			],
+			[
+				"document",
+				"Snippet: document.ready - $(function(){})"
+			],
+			[
+				"todo",
+				"TodoReview: Project and Open Files"
+			],
+			[
+				"TODO",
+				"TodoReview: Project and Open Files"
+			],
+			[
+				"funct",
+				"Snippet: Function"
+			],
+			[
+				"fu",
+				"Snippet: Function"
+			],
+			[
+				"fun",
+				"Snippet: Function"
+			],
+			[
+				"field",
+				"View: Toggle Open Files in Side Bar"
+			],
+			[
+				"properti",
+				"Set Syntax: Java Properties"
+			],
+			[
+				"proper",
+				"Set Syntax: Java Properties"
+			],
+			[
+				"get",
+				"Snippet: GET['…']"
+			],
+			[
+				"functio",
+				"Snippet: Function"
+			],
+			[
+				"signa\t",
+				"Snippet: Function Signature"
+			],
+			[
+				"method",
+				"Snippet: method"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"date",
+				"Word Wrap: Toggle"
+			],
+			[
+				"functi",
+				"Snippet: Function"
+			],
+			[
+				"Package Control: package",
+				"Package Control: Install Package"
+			],
+			[
+				"header",
+				"Snippet: method-header"
+			],
+			[
+				"syntax: php",
+				"Set Syntax: PHP"
+			],
+			[
+				"",
+				"Set Syntax: LaTeX"
+			],
+			[
+				"Snippet: try",
+				"Snippet: Wrap in try { … } catch (…) { … }"
+			]
+		],
+		"width": 456.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Console",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Controller",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/Brindes",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/ClientesHasBrindesEstoque",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/ClientesHasBrindesHabilitados",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/ClientesHasBrindesHabilitadosPreco",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/Usuarios",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/View",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/View/Helper",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/css",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/css/styles",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/css/styles/pages",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/css/styles/pages/brindes",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/css/styles/pages/usuarios",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/js",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/js/scripts",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/webroot/js/scripts/brindes"
+	],
+	"file_history":
+	[
+		"/D/GERAES/TFS/Prototipos/VacinaVoce/.nuget/nuget.config",
+		"/E/GERAES/Dropbox/2-ADM/1-RH/DocumentosPessoais/DadosResumidosSocios.txt",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Documentos/Banco de Dados/2-Backups/201709300026rtibrindes.sql",
+		"/D/xampp/php/php.ini",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Documentos/Banco de Dados/2-Backups/201709012056rtibrindes.sql",
+		"/C/Program Files (x86)/IObit/IObit Uninstaller/History.txt",
+		"/D/xampp/apache/conf/extra/httpd-ssl.conf",
+		"/D/xampp/apache/conf/extra/httpd-vhosts.conf",
+		"/D/xampp/apache/conf/httpd.conf",
+		"/D/Gustavo/Projetos/TFS/200001-RTIBrindes/Programas/Web/rtibrindes/src/Template/Cupoms/tickets_my_network.ctp"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"D:\\Gustavo\\Projetos\\TFS\\200001-RTIBrindes\\Programas\\Web\\",
+			"D:\\Gustavo\\Projetos\\TFS\\200001-RTIBrindes\\Programas\\Web\\rtibrindes\\src\\Model",
+			"D:\\Gustavo\\Projetos\\TFS\\200001-RTIBrindes\\Programas\\Web\\",
+			"D:\\Gustavo\\Projetos\\TFS\\200001-RTIBrindes\\Programas\\Web\\rtibrindes",
+			"D:\\Gustavo\\Projetos\\TFS\\200001-RTIBrindes\\Programas\\Web\\rtibrindes\\src",
+			"manageColaborator",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"date.timezone",
+			" ",
+			"-",
+			"value",
+			"findUsu",
+			"searchBrin",
+			"Usuario",
+			"search",
+			"usuarios",
+			"user",
+			"\\",
+			"ssl",
+			"debug",
+			"mbstring",
+			"DELIMITER ;",
+			"$$",
+			"DELIMITER $$",
+			"upload",
+			"Phone",
+			"addBrindeHabilitadoPreco",
+			"autorizacao_pendente",
+			"aguardando_autorizacao",
+			"getPrecoAwaitingAuthorizationByClientesId",
+			"hasPrecoAwaitingAuthorizationByClientesId",
+			"brindesHabilitadosPreco",
+			"Clientes",
+			"medium",
+			"large",
+			"filiais",
+			"value",
+			"addBrindeHabilitadoPreco",
+			"brindes_id",
+			"findBrindesById(",
+			"php_x",
+			"'preco'",
+			"preco",
+			"hasAccessClient",
+			"addBrindeHabilitadoPreco",
+			"getAllPrecoForBrindeHabilitadoId",
+			"getBrindeHabilitadoByBrindeId",
+			"cliente_",
+			"cliene_",
+			"clienteSession",
+			"BrindeHabilitadoPrecoAtual",
+			"getBrindeHabilitadoById",
+			"Log",
+			"join(",
+			"$this->log($stringError);",
+			"getBrindesByClienteId",
+			"login",
+			"enabled",
+			"checkbox",
+			"Brindes",
+			"clientes",
+			"Clientes",
+			"pontuacaoUsuario",
+			"sum",
+			"hidden",
+			"usuariosId",
+			"usuarios",
+			"usuariosId",
+			"tag",
+			"form",
+			"Form",
+			"form",
+			"Pesquisar",
+			"clientes",
+			"clientes_id",
+			"usuarios_has_vei",
+			"4",
+			"Placa",
+			"placa",
+			"Placa",
+			"findVeiculo",
+			"placa",
+			"findUsuarioBy",
+			"findUsuarioByEmail",
+			"findusuarioByN",
+			"findUsuario",
+			"log(",
+			"getMatrizByClienteLojaId",
+			"Matriz",
+			"query",
+			"pontuacoess",
+			"pontuacoes'",
+			"pontuacoes",
+			"find",
+			"findUsuario",
+			"validation-message",
+			"findUsuarioByCPF",
+			"cpf",
+			"step",
+			"number",
+			"security",
+			"loadNecessaryModels",
+			"BrindesEstoqueAtual",
+			"brindes/left_menu",
+			"ClientesHasBrindesEstoque",
+			"BrindeHabilitadoPrecoAtual",
+			"Estoque",
+			"json_encode",
+			"json",
+			"getClientesHasBrindesHabilitadosQuery",
+			"brinde",
+			"\n            $conditions = [];\n\n            array_push($conditions, ['clientes_has_brindes_habilitados_id' => $brindes_id]);\n\n            if (!is_null($quantidade))\n            {\n                array_push($conditions, ['quantidade' => $quantidade]);\n            }\n\n            $brinde = $this->getClientesHasBrindesHabilitadosQuery()->find('all')\n            ->where($conditions)\n            ->contain(['Brindes', 'BrindeHabilitadoPrecoAtual'])->first()\n            ;\n\n            if (!is_null($quantidade))\n            {\n                $brinde = $brinde->first();\n            }\n\n            return $brinde;",
+			"brinde ",
+			"brinde",
+			"Habilitados",
+			"Brindes",
+			"addBrindeHabilitadoForCliente",
+			"findBrindesHabilitadosById",
+			"BrindesHabilitado",
+			"BrindesHabilitadosTable",
+			"brindes_estoque",
+			"addClienteHasBrindeHabilitado",
+			"clientesHasBrindesHabilitado",
+			"clienteHasBrindeHabilitado",
+			"gifts_filter",
+			"ClientesHasBrindesHabilitados/left_menu",
+			"delete",
+			"preco",
+			"session",
+			"redirect",
+			"medium",
+			"large",
+			"checkUserAccessToCliente",
+			"clientTable",
+			"checkUserIsClienteRouteAllowed"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"",
+			"Brinde",
+			"gifts",
+			"/",
+			"",
+			"Gift",
+			"aguardando_autorizacao",
+			"getPrecoAwaitingAuthorizationByClientesId",
+			"brindeAguardandoAutorizacao",
+			"col-md",
+			"col-lg",
+			"getBrindesById(",
+			"Log::write('error', $stringError);",
+			"usuarios",
+			"Usuarios",
+			"usuarios_id",
+			"3",
+			"modelo",
+			"Modelo",
+			"getVeiculo",
+			"getUsuarioBy",
+			"estoque",
+			"",
+			"BrindesEstoque",
+			"clientes_has_brindes_estoque",
+			"brindesDesabilitado",
+			"clientesHasBrindesHabilitados",
+			"col-md",
+			"col-lg",
+			"clientesHasBrindesHabilitadosPreco",
+			"ClientesHasBrindesHabilitadosPreco",
+			"clientesHasBrindesEstoque",
+			"ClientesHasBrindesEstoque",
+			"$clienteHasBrindeHabilitado",
+			"clienteHasBrindeHabilitado",
+			"col-md",
+			"col-lg",
+			"clientesHasBrindeHabilitado",
+			"checkUserAccessToCliente",
+			"checkUserIsClienteRouteAllowed",
+			"delete",
+			"col-md",
+			"col-lg",
+			"lg",
+			"clientes_has_brindes_habilitados_id",
+			"clientesHasBrindes",
+			"ClientesHasBrindes",
+			"delete",
+			"clienteHasBrindeHabilitado",
+			"etBr",
+			"brindesHasBrindes",
+			"BrindesHabilitadosPreco",
+			"brindesHabilitadosPreco",
+			"clientesId",
+			"etClientesHasBrindesHabilitados",
+			"HasBrindes",
+			"sH",
+			"clientesHasBrindesHabilitados",
+			"BrindesHabilitados",
+			"otasT",
+			"Gota",
+			"gota",
+			"col-md",
+			"col-lg",
+			"Ações",
+			"col-md",
+			"col-lg",
+			"------------------------------------------------------------",
+			"getClienteFiliais",
+			"getClienteMatrizLinkedToUsuario",
+			"getClienteLinkedToUsuario",
+			"Ações",
+			"col-md",
+			"col-lg",
+			"*/",
+			"col-md",
+			"col-lg",
+			"    ",
+			"brinde",
+			"Brinde",
+			"Usuario",
+			"usuario",
+			"transportadora",
+			"Ações",
+			"Listar",
+			"Novo",
+			"deleteStore",
+			"deleteNetwork",
+			"Ações",
+			"col-md",
+			"col-lg",
+			"col-md",
+			"col-lg",
+			"setAdministrator",
+			"col-lg-2",
+			"<span",
+			"span>",
+			"",
+			"cpf_box",
+			"findUsuarioByEmail",
+			"suarioHasVeiculos",
+			"",
+			"veiculo",
+			"transportadoraPath",
+			"transporter",
+			"Transporter",
+			"transporterPath",
+			"col-md",
+			"col-lg",
+			"resto",
+			"soma",
+			"checkCPFRepeated",
+			"users",
+			"col-md",
+			"col-lg",
+			"reactivateAccount",
+			"user",
+			"ClienteHasUsuario",
+			"lienteQ",
+			"clienteT",
+			"ClienteT",
+			"client",
+			"Vehicles",
+			"$usuarioHasVeiculo",
+			"$item",
+			"Ações",
+			"col-md",
+			"col-lg"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 341.0
+	},
+	"output.find_results":
+	{
+		"height": 225.0
+	},
+	"output.xdebug":
+	{
+		"height": 164.0
+	},
+	"pinned_build_system": "Packages/User/php.sublime-build",
+	"project": "rtibrindes.sublime-project",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"ticketsmynetowk",
+				"src\\Template\\Cupoms\\tickets_my_network.ctp"
+			],
+			[
+				"",
+				"src\\Model\\Table\\ClientesTable.php"
+			],
+			[
+				"d",
+				"logs\\debug.log"
+			],
+			[
+				"giftdeta",
+				"src\\Template\\ClientesHasBrindesHabilitados\\gift_details.ctp"
+			],
+			[
+				"usuarioscon",
+				"src\\Controller\\UsuariosController.php"
+			],
+			[
+				"xde",
+				"Xdebug Watch"
+			],
+			[
+				"giftsajax",
+				"webroot\\js\\scripts\\brindes\\gifts_filter_shower_ajax.js"
+			],
+			[
+				"usersfilterajax",
+				"webroot\\js\\scripts\\usuarios\\users_filter_ajax.js"
+			],
+			[
+				"userfilterajax",
+				"src\\Template\\Usuarios\\users_filter_ajax.ctp"
+			],
+			[
+				"security",
+				"src\\Custom\\RTI\\Security.php"
+			],
+			[
+				"x",
+				"Xdebug Watch"
+			],
+			[
+				"nav-bar-righ",
+				"src\\Template\\Element\\nav-bar-right.ctp"
+			],
+			[
+				"app.ph",
+				"config\\app.php"
+			],
+			[
+				"cupomstable",
+				"src\\Model\\Table\\CupomsTable.php"
+			],
+			[
+				"app.php",
+				"config\\app.php"
+			],
+			[
+				"giftdetails",
+				"src\\Template\\ClientesHasBrindesHabilitados\\gift_details.ctp"
+			],
+			[
+				"clienteshasbrindeshabilitadosta",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"clienteshasbrindeshabilitadoscontr",
+				"src\\Controller\\ClientesHasBrindesHabilitadosController.php"
+			],
+			[
+				"dashboard",
+				"src\\Template\\Pages\\dashboard_administrador.ctp"
+			],
+			[
+				"rtibrindes",
+				"rtibrindes.sublime-project"
+			],
+			[
+				"pagescon",
+				"src\\Controller\\PagesController.php"
+			],
+			[
+				"leftmenu",
+				"src\\Template\\ClientesHasBrindesHabilitadosPreco\\left_menu.ctp"
+			],
+			[
+				"appcont",
+				"src\\Controller\\AppController.php"
+			],
+			[
+				"precotable.php",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosPrecoTable.php"
+			],
+			[
+				"giftdetai",
+				"src\\Template\\ClientesHasBrindesHabilitados\\gift_details.ctp"
+			],
+			[
+				"clienteshasbrindeshabilitadosprecocon",
+				"src\\Controller\\ClientesHasBrindesHabilitadosPrecoController.php"
+			],
+			[
+				"brinc",
+				"src\\Controller\\BrindesController.php"
+			],
+			[
+				"appcontro",
+				"src\\Controller\\AppController.php"
+			],
+			[
+				"clientestable",
+				"src\\Model\\Table\\ClientesTable.php"
+			],
+			[
+				"pagescn",
+				"src\\Controller\\PagesController.php"
+			],
+			[
+				"error.",
+				"logs\\error.log"
+			],
+			[
+				"brindestable",
+				"src\\Model\\Table\\BrindesTable.php"
+			],
+			[
+				"precocontroller.php",
+				"src\\Controller\\ClientesHasBrindesHabilitadosPrecoController.php"
+			],
+			[
+				"brindes",
+				"src\\Controller\\BrindesController.php"
+			],
+			[
+				"habilitados/leftmenu",
+				"src\\Template\\ClientesHasBrindesHabilitados\\left_menu.ctp"
+			],
+			[
+				"myactivated",
+				"src\\Template\\ClientesHasBrindesHabilitados\\my_activated_gifts.ctp"
+			],
+			[
+				"navbari",
+				"src\\Template\\Element\\nav-bar-right.ctp"
+			],
+			[
+				"habilitadoscontroller.php",
+				"src\\Controller\\ClientesHasBrindesHabilitadosController.php"
+			],
+			[
+				"myactiva",
+				"src\\Template\\ClientesHasBrindesHabilitados\\my_activated_gifts.ctp"
+			],
+			[
+				"error",
+				"logs\\error.log"
+			],
+			[
+				"debug",
+				"logs\\debug.log"
+			],
+			[
+				"activate",
+				"src\\Template\\ClientesHasBrindesHabilitados\\activate_gifts.ctp"
+			],
+			[
+				"clienteshasbrindeshabilitadostable",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"clienteshasbrindeshabilitadoscontro",
+				"src\\Controller\\ClientesHasBrindesHabilitadosController.php"
+			],
+			[
+				"nav-bar-ri",
+				"src\\Template\\Element\\nav-bar-right.ctp"
+			],
+			[
+				"session",
+				"vendor\\cakephp\\cakephp\\src\\Network\\Session.php"
+			],
+			[
+				"appcon",
+				"src\\Controller\\AppController.php"
+			],
+			[
+				"clien",
+				"src\\Controller\\ClientesController.php"
+			],
+			[
+				"usurioscont",
+				"src\\Controller\\UsuariosController.php"
+			],
+			[
+				"navbaright",
+				"src\\Template\\Element\\nav-bar-right.ctp"
+			],
+			[
+				"brindescon",
+				"src\\Controller\\BrindesController.php"
+			],
+			[
+				"giftsmynet",
+				"src\\Template\\Brindes\\gifts_my_network.ctp"
+			],
+			[
+				"nav-bar-right",
+				"src\\Template\\Element\\nav-bar-right.ctp"
+			],
+			[
+				"template_ad",
+				"src\\Template\\Layout\\template_administrador.ctp"
+			],
+			[
+				"habilitadostable.php",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"clienteshasbrindestable",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"viewgift",
+				"src\\Template\\Brindes\\view_gift_network.ctp"
+			],
+			[
+				"giftsmyne",
+				"src\\Template\\Brindes\\gifts_my_network.ctp"
+			],
+			[
+				"brindescont",
+				"src\\Controller\\BrindesController.php"
+			],
+			[
+				"giftsform",
+				"src\\Template\\Brindes\\brindes_form.ctp"
+			],
+			[
+				"addgiftnet",
+				"src\\Template\\Brindes\\add_gift_network.ctp"
+			],
+			[
+				"formgif",
+				"webroot\\js\\scripts\\brindes\\brindes_form.js"
+			],
+			[
+				"editgift",
+				"src\\Template\\Brindes\\edit_gift_network.ctp"
+			],
+			[
+				"estoqueconroller",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"pontuacoestable",
+				"src\\Model\\Table\\PontuacoesTable.php"
+			],
+			[
+				"clienteshascontroller.php",
+				"src\\Controller\\ClientesHasBrindesHabilitadosController.php"
+			],
+			[
+				"clienteshasbrindesestoquetable",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"clienteshasbrindeshabilitados",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"usuarioshasbrindestable",
+				"src\\Model\\Table\\UsuariosHasBrindesTable.php"
+			],
+			[
+				"brindeestoquetable",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"clienteshasbrindeshabi",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"clienteshasbrindeses",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"usuariostable",
+				"src\\Model\\Table\\UsuariosTable.php"
+			],
+			[
+				"clienteshasbrindesestable",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"clienteshasbrindesestoque",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"usuarioscont",
+				"src\\Controller\\UsuariosController.php"
+			],
+			[
+				"pontuacoes",
+				"src\\Model\\Table\\PontuacoesTable.php"
+			],
+			[
+				"giftstockform",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"usersajax",
+				"webroot\\js\\scripts\\usuarios\\users_filter_ajax.js"
+			],
+			[
+				"usuario",
+				"src\\Controller\\UsuariosController.php"
+			],
+			[
+				"giftst",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"gift_stock",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"sell",
+				"src\\Template\\ClientesHasBrindesEstoque\\sell_stock.ctp"
+			],
+			[
+				"stockform",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"sellstock",
+				"src\\Template\\ClientesHasBrindesEstoque\\sell_stock.ctp"
+			],
+			[
+				"veiculostable",
+				"src\\Model\\Table\\VeiculosTable.php"
+			],
+			[
+				"usersfilterajax.css",
+				"webroot\\css\\styles\\pages\\usuarios\\users_filter_ajax.css"
+			],
+			[
+				"usuarioshasveiculosta",
+				"src\\Model\\Table\\UsuariosHasVeiculosTable.php"
+			],
+			[
+				"usersfilterajaxctp",
+				"src\\Template\\Usuarios\\users_filter_ajax.ctp"
+			],
+			[
+				"usuarioshasveiculostable",
+				"src\\Model\\Table\\UsuariosHasVeiculosTable.php"
+			],
+			[
+				"userfilterajax.css",
+				"webroot\\css\\styles\\pages\\usuarios\\users_filter_ajax.css"
+			],
+			[
+				"estoquecontroller",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"debu",
+				"logs\\debug.log"
+			],
+			[
+				"pontuacoescon",
+				"src\\Controller\\PontuacoesController.php"
+			],
+			[
+				"pontuacoestabl",
+				"src\\Model\\Table\\PontuacoesTable.php"
+			],
+			[
+				"giftstock",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"home-rti",
+				"webroot\\css\\home-rti.css"
+			],
+			[
+				"boolean",
+				"src\\View\\Helper\\BooleanHelper.php"
+			],
+			[
+				"usersfilter",
+				"src\\Template\\Usuarios\\filtro_usuarios.ctp"
+			],
+			[
+				"estoquecontroller.php",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"managestock",
+				"src\\Template\\ClientesHasBrindesEstoque\\manage_stock.ctp"
+			],
+			[
+				"addstock",
+				"src\\Template\\ClientesHasBrindesEstoque\\add_stock.ctp"
+			],
+			[
+				"giftform",
+				"src\\Template\\ClientesHasBrindesEstoque\\gift_stock_form.ctp"
+			],
+			[
+				"leftmen",
+				"src\\Template\\ClientesHasBrindesEstoque\\left_menu.ctp"
+			],
+			[
+				"stock",
+				"src\\Template\\ClientesHasBrindesEstoque\\add_stock.ctp"
+			],
+			[
+				"brindeshabilitadostable.php",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"brindesestoquecontrol",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"giftsmyn",
+				"src\\Template\\Brindes\\gifts_my_network.ctp"
+			],
+			[
+				"clienteshabrinds",
+				"src\\Controller\\ClientesHasBrindesHabilitadosController.php"
+			],
+			[
+				"clienteshasbrindesprecocontro",
+				"src\\Controller\\ClientesHasBrindesHabilitadosPrecoController.php"
+			],
+			[
+				"clienteshasbrindesestoquecon",
+				"src\\Controller\\ClientesHasBrindesEstoqueController.php"
+			],
+			[
+				"clientebrindesestoquetable",
+				"src\\Model\\Table\\ClientesHasBrindesEstoqueTable.php"
+			],
+			[
+				"appcontr",
+				"src\\Controller\\AppController.php"
+			],
+			[
+				"genericta",
+				"src\\Model\\Table\\GenericTable.php"
+			],
+			[
+				"clienteshasbrintable",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"brindsleftmenu",
+				"src\\Template\\Brindes\\left_menu.ctp"
+			],
+			[
+				"activategif",
+				"src\\Template\\ClientesHasBrindesHabilitados\\activate_gifts.ctp"
+			],
+			[
+				"secu",
+				"src\\Custom\\RTI\\Security.php"
+			],
+			[
+				"clientescon",
+				"src\\Controller\\ClientesController.php"
+			],
+			[
+				"clientetable",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"giftdet",
+				"src\\Template\\ClientesHasBrindesHabilitados\\gift_details.ctp"
+			],
+			[
+				"clienteshasbrindeshabilitadotable",
+				"src\\Model\\Table\\ClientesHasBrindesHabilitadosTable.php"
+			],
+			[
+				"error.l",
+				"logs\\error.log"
+			],
+			[
+				"brindesestoquetable",
+				"src\\Model\\Table\\BrindesEstoqueTable.php"
+			],
+			[
+				"app/confi",
+				"vendor\\robmorgan\\phinx\\src\\Phinx\\Config\\Config.php"
+			],
+			[
+				"left_menu",
+				"src\\Template\\ClientesHasBrindesHabilitados\\left_menu.ctp"
+			],
+			[
+				"brindescontro",
+				"src\\Controller\\BrindesController.php"
+			],
+			[
+				"giftsfilter",
+				"src\\Template\\Brindes\\gifts_filter.ctp"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"xdebug":
+		{
+			"hide_conflict": false,
+			"restore_index":
+			{
+				"100":
+				{
+					"group": 0,
+					"index": 19
+				},
+				"113":
+				{
+					"group": 0,
+					"index": 49
+				},
+				"116":
+				{
+					"group": 0,
+					"index": 10
+				},
+				"123":
+				{
+					"group": 0,
+					"index": 16
+				},
+				"125":
+				{
+					"group": 0,
+					"index": 15
+				},
+				"126":
+				{
+					"group": 0,
+					"index": 11
+				},
+				"130":
+				{
+					"group": 0,
+					"index": 12
+				},
+				"137":
+				{
+					"group": 2,
+					"index": 1
+				},
+				"138":
+				{
+					"group": 1,
+					"index": 0
+				},
+				"139":
+				{
+					"group": 2,
+					"index": 0
+				},
+				"140":
+				{
+					"group": 1,
+					"index": 1
+				},
+				"141":
+				{
+					"group": 0,
+					"index": 13
+				},
+				"156":
+				{
+					"group": 0,
+					"index": 5
+				},
+				"157":
+				{
+					"group": 0,
+					"index": 4
+				},
+				"159":
+				{
+					"group": 0,
+					"index": 32
+				},
+				"16":
+				{
+					"group": 0,
+					"index": 1
+				},
+				"160":
+				{
+					"group": 0,
+					"index": 14
+				},
+				"17":
+				{
+					"group": 0,
+					"index": 2
+				},
+				"18":
+				{
+					"group": 0,
+					"index": 3
+				},
+				"19":
+				{
+					"group": 0,
+					"index": 6
+				},
+				"20":
+				{
+					"group": 0,
+					"index": 7
+				},
+				"21":
+				{
+					"group": 0,
+					"index": 48
+				},
+				"24":
+				{
+					"group": 0,
+					"index": 21
+				},
+				"25":
+				{
+					"group": 0,
+					"index": 22
+				},
+				"26":
+				{
+					"group": 0,
+					"index": 0
+				},
+				"27":
+				{
+					"group": 0,
+					"index": 23
+				},
+				"28":
+				{
+					"group": 0,
+					"index": 24
+				},
+				"29":
+				{
+					"group": 0,
+					"index": 25
+				},
+				"30":
+				{
+					"group": 0,
+					"index": 26
+				},
+				"31":
+				{
+					"group": 0,
+					"index": 27
+				},
+				"32":
+				{
+					"group": 0,
+					"index": 28
+				},
+				"33":
+				{
+					"group": 0,
+					"index": 29
+				},
+				"34":
+				{
+					"group": 0,
+					"index": 30
+				},
+				"35":
+				{
+					"group": 0,
+					"index": 31
+				},
+				"36":
+				{
+					"group": 0,
+					"index": 33
+				},
+				"37":
+				{
+					"group": 0,
+					"index": 34
+				},
+				"38":
+				{
+					"group": 0,
+					"index": 35
+				},
+				"39":
+				{
+					"group": 0,
+					"index": 36
+				},
+				"40":
+				{
+					"group": 0,
+					"index": 37
+				},
+				"41":
+				{
+					"group": 0,
+					"index": 38
+				},
+				"42":
+				{
+					"group": 0,
+					"index": 39
+				},
+				"43":
+				{
+					"group": 0,
+					"index": 40
+				},
+				"44":
+				{
+					"group": 0,
+					"index": 41
+				},
+				"45":
+				{
+					"group": 0,
+					"index": 42
+				},
+				"46":
+				{
+					"group": 0,
+					"index": 43
+				},
+				"48":
+				{
+					"group": 0,
+					"index": 45
+				},
+				"49":
+				{
+					"group": 0,
+					"index": 46
+				},
+				"50":
+				{
+					"group": 0,
+					"index": 47
+				},
+				"81":
+				{
+					"group": 0,
+					"index": 20
+				},
+				"93":
+				{
+					"group": 0,
+					"index": 8
+				},
+				"94":
+				{
+					"group": 0,
+					"index": 9
+				},
+				"95":
+				{
+					"group": 0,
+					"index": 44
+				},
+				"98":
+				{
+					"group": 0,
+					"index": 17
+				},
+				"99":
+				{
+					"group": 0,
+					"index": 18
+				}
+			},
+			"restore_layout":
+			{
+				"cells":
+				[
+					[
+						0,
+						0,
+						2,
+						1
+					],
+					[
+						0,
+						1,
+						1,
+						2
+					],
+					[
+						1,
+						1,
+						2,
+						2
+					]
+				],
+				"cols":
+				[
+					0.0,
+					0.5,
+					1.0
+				],
+				"rows":
+				[
+					0.0,
+					0.600709219858,
+					1.0
+				]
+			}
+		}
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 261.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+		"max_columns": 1
+	}
+}

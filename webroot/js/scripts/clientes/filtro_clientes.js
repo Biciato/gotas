@@ -1,0 +1,25 @@
+/**
+ * @author Gustavo Souza Gonçalves
+ * @file webroot\js\scripts\clientes\filtro_clientes.js
+ * @date 22/10/2017
+ * 
+ */
+
+$(document).ready(function () {
+
+    // ------------------------------------------------------------------
+    // Métodos de inicialização
+
+    $("#opcoes").on('change', function () {
+        console.log($(this).val());
+        if ($(this).val() == 'cnpj') {
+            $("#parametro").mask("##.###.###/####-##");
+
+        }
+        else {
+            $("#parametro").unmask();
+            $("#parametro").val(null);
+        }
+    });
+
+});

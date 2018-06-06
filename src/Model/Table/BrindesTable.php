@@ -1,0 +1,397 @@
+<?php
+namespace App\Model\Table;
+
+use ArrayObject;
+use Cake\Event\Event;
+use Cake\Log\Log;
+use Cake\ORM\Query;
+use Cake\ORM\RulesChecker;
+use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
+
+/**
+ * Brindes Model
+ *
+ * @property \App\Model\Table\ClientesTable|\Cake\ORM\Association\BelongsTo $Clientes
+ *
+ * @method \App\Model\Entity\Brinde get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Brinde newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\Brinde[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Brinde|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Brinde patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Brinde[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Brinde findOrCreate($search, callable $callback = null, $options = [])
+ */
+class BrindesTable extends GenericTable
+{
+
+    /**
+     * -------------------------------------------------------------
+     * Fields
+     * -------------------------------------------------------------
+     */
+    protected $brindeTable = null;
+
+    /**
+     * -------------------------------------------------------------
+     * Properties
+     * -------------------------------------------------------------
+     */
+
+    /**
+     * Method get of brinde table property
+     *
+     * @return [Cake\ORM\Table] Table object
+     */
+    private function _getBrindeTable()
+    {
+        if (is_null($this->brindeTable)) {
+            $this->_setBrindeTable();
+        }
+        return $this->brindeTable;
+    }
+
+    /**
+     * Method set of brinde table property
+     *
+     * @return void
+     */
+    private function _setBrindeTable()
+    {
+        $this->brindeTable = TableRegistry::get('Brindes');
+    }
+
+    /**
+     * Initialize method
+     *
+     * @param array $config The configuration for the Table.
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        parent::initialize($config);
+
+        $this->setTable('brindes');
+        $this->setDisplayField('id');
+        $this->setPrimaryKey('id');
+
+        // relacionamento de brindes com matriz
+        $this->belongsTo('Clientes', [
+            'foreignKey' => 'clientes_id',
+            'joinType' => 'INNER'
+        ]);
+
+        $this->hasMany(
+            'ClientesHasBrindesHabilitados',
+            [
+                'foreignKey' => 'brindes_id',
+                'joinType' => 'INNER'
+            ]
+        );
+
+        $this->hasMany(
+            'BrindesNaoHabilitados',
+            [
+                'className' => 'ClientesHasBrindesHabilitados',
+                'foreignKey' => 'clientes_id',
+                'strategy' => 'select'
+            ]
+        );
+    }
+
+    /**
+     * Default validation rules.
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     * @return \Cake\Validation\Validator
+     */
+    public function validationDefault(Validator $validator)
+    {
+        $validator
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->requirePresence('nome', 'create')
+            ->notEmpty('nome');
+
+        $validator
+            ->boolean('equipamento_rti_shower');
+
+        $validator
+            ->integer('ilimitado')
+            ->requirePresence('ilimitado', 'create')
+            ->notEmpty('ilimitado');
+
+        $validator
+            ->decimal('preco_padrao')
+            ->requirePresence('preco_padrao', 'create')
+            ->notEmpty('preco_padrao');
+
+        $validator
+            ->dateTime('audit_insert')
+            ->allowEmpty('audit_insert');
+
+        $validator
+            ->dateTime('audit_update')
+            ->allowEmpty('audit_update');
+
+        return $validator;
+    }
+
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules)
+    {
+        $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
+
+        return $rules;
+    }
+
+    /**
+     * -------------------------------------------------------------
+     * Methods
+     * -------------------------------------------------------------
+     */
+
+    /* ------------------------ Create ------------------------ */
+
+    /* ------------------------ Read ------------------------ */
+
+
+    /**
+     * Find Brindes by Clientes Id
+     *
+     * @param int $clientes_ids Ids de Clientes
+     *
+     * @return \App\Model\Entity\Brindes $brinde
+     **/
+    public function findBrindes(array $where_parameters = [])
+    {
+        try {
+            return $this->_getBrindeTable()->find('all')
+                ->where($where_parameters)->contain('Clientes');
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            $this->Flash->error($stringError);
+        }
+    }
+
+    /**
+     * Find Brindes by Id
+     *
+     * @param int $clientes_id Id de Clientes
+     *
+     * @return \App\Model\Entity\Brindes $brinde
+     **/
+    public function getBrindesById($brindes_id)
+    {
+        try {
+            return $this->_getBrindeTable()->get($brindes_id);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            $this->Flash->error($stringError);
+        }
+    }
+
+    /**
+     * Find Brindes by Nome
+     *
+     * @param [string] $nome
+     * @return \App\Model\Entity\Brindes $brinde
+     * @author
+     **/
+    public function findBrindesByName($nome)
+    {
+        try {
+
+            return $this->_getBrindeTable()->find('all')
+                ->where(['nome' => $nome])->contain('Clientes')->first();
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtem lista de brindes através de array de clientes
+     *
+     * @param array $clientes_ids Ids de clientes
+     *
+     * @return App\Model\Entity\Brinde $brindes[]
+     */
+    public function getBrindesByClientes(array $clientes_ids)
+    {
+        try {
+
+            return $this->_getBrindeTable()->find('all')
+                ->where(['clientes_id in ' => $clientes_ids]);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtêm brindes que não estão habilitados
+     *
+     * @param int   $clientes_id      Id da unidade que irá ativar os brindes
+     * @param int   $matriz_id        Id da unidade principal
+     * @param array $where_conditions Condições de Pesquisa extra
+     *
+     * @return App\Model\Entity\Brinde $brindes[]
+     **/
+    public function getBrindesHabilitarByClienteId(int $clientes_id, int $matriz_id, array $where_conditions = [])
+    {
+        try {
+
+            $matriz_conditions = [];
+            $clientes_conditions = [];
+
+            foreach ($where_conditions as $key => $value) {
+                array_push($matriz_conditions, $value);
+            }
+
+            array_push($matriz_conditions, ['Brindes.clientes_id' => $matriz_id]);
+
+            foreach ($where_conditions as $key => $value) {
+                array_push($clientes_conditions, $value);
+            }
+
+            array_push($clientes_conditions, ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id]);
+
+            $brindes = $this->_getBrindeTable()->find('all')->where($matriz_conditions);
+
+            $brindes_cliente = $this->_getBrindeTable()->ClientesHasBrindesHabilitados->find('all')->where($clientes_conditions)->contain(['Brindes']);
+
+            $arrayToReturn = $brindes->toArray();
+
+            // preciso percorrer item a item para ver quais items já estão habilitados
+            foreach ($brindes as $key => $brinde) {
+
+                foreach ($brindes_cliente as $key => $clienteBrinde) {
+
+                    if ($brinde['id'] == $clienteBrinde['brindes_id']) {
+                        $index = array_search($brinde, $arrayToReturn);
+                        unset($arrayToReturn[$index]);
+                    }
+                }
+            }
+
+            return $arrayToReturn;
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /* ------------------------ Update ------------------------ */
+
+    /**
+     * Define todos os preços de brindes habilitados de um cliente para a matriz
+     *
+     * @param int $clientes_id Id de Cliente
+     * @param int $matriz_id   Id da Matriz
+     *
+     * @return boolean
+     */
+    public function setBrindesToMainCliente(int $clientes_id, int $matriz_id)
+    {
+        try {
+            return $this->updateAll(
+                [
+                    'clientes_id' => $matriz_id,
+                    'habilitado' => false
+                ],
+                [
+                    'clientes_id' => $clientes_id
+                ]
+            );
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['result' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+
+    /* ------------------------ Delete ------------------------ */
+
+    /**
+     * Apaga todos os brindes de um cliente
+     *
+     * @param array $clientes_ids Ids de clientes
+     *
+     * @return boolean
+     */
+    public function deleteAllBrindesByClientesIds(array $clientes_ids)
+    {
+
+        try {
+            return $this->_getBrindeTable()
+                ->deleteAll(['clientes_id in' => $clientes_ids]);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['result' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+
+}

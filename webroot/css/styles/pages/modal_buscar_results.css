@@ -1,0 +1,14 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file webroot/css/styles/pages/modal_buscar_results.css
+  * @date     25/01/2018
+  */
+
+.network_image_content {
+    opacity: 1;
+    width: 100%;
+    height: 190px;
+    background: #444;
+    padding: 4px;
+    border-radius: 10px;
+}

@@ -1,0 +1,25 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file     webroot/css/styles/cupons/imprime_brinde_comum.css
+  * @date     31/01/2018
+  */
+
+img {
+    /* height: 300px; */
+}
+
+.brinde-comum.user-result {
+    display: none;
+}
+
+.brinde-comum.user-result-names {
+    display: none;
+}
+
+.brinde-comum.user-result-plates {
+    display: none;
+}
+
+.container-confirmacao-cupom-comum{
+    display: none;
+}

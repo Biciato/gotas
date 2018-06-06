@@ -1,0 +1,11 @@
+/** Configuração para área de inserção manual pelo modo de instascan
+*/
+
+.gotas-instascan-manual-insert {
+    display: none;
+}
+
+.qr_code_reader{
+    -webkit-text-security: disc;
+    
+}

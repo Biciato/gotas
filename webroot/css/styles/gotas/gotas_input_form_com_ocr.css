@@ -1,0 +1,93 @@
+/* Configuracoes de estilo para container de QR Code */
+
+.group-video-capture-gotas video {
+    width: 100%;
+    zoom: 0.5;
+}
+
+.group-video-capture-gotas img {
+    width: 100%;
+}
+
+.video-gotas-scanning-container {
+    display: none;
+}
+
+.video-gotas-instascan-container {
+    transform: rotate(270deg);
+    margin-top: 140px;
+}
+
+.video-receipt-capture-container {
+    display: none;
+}
+
+.video-receipt-captured-region {
+    display: none;
+}
+
+.video-gotas-captured-region {
+    display: none;
+}
+.video-gotas-instascan-container-row {
+    height: 530px;
+}
+
+.video-cam-container-row {
+    height: 645px;
+}
+
+.video-receipt-captured-row {
+    height: 800px;
+}
+
+.video-gotas-captured-row{
+    height: 800px;
+}
+
+.video-receipt-captured canvas {
+    margin: 0 auto;
+    display: block;
+    transform: rotate(270deg);
+}
+
+.video-receipt-snapshot {
+    text-align: center;
+}
+
+.video-receipt-snapshot .btn {
+    margin: 5px auto;
+    display: block;
+    width: 130px;
+    padding: 10px;
+}
+
+.video-receipt-snapshot div span {
+    vertical-align: super;
+}
+
+.video-receipt-confirm div {
+    margin: 5px auto;
+    display: block;
+    width: 100px;
+}
+
+.buttons-region {
+    text-align: center;
+}
+
+.buttons-region .btn {
+    padding: 10px;
+    margin: 10px;
+    width: 130px;
+}
+
+.buttons-region .btn span {
+    vertical-align: super;
+}
+
+.gotas-products-table-container {
+    height: 230px;
+    max-height: 500px;
+    overflow-y: auto;
+}

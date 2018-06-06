@@ -1,0 +1,1960 @@
+<?php
+namespace App\Model\Table;
+
+use ArrayObject;
+use App\View\Helper;
+use App\Controller\AppController;
+use Cake\Auth\DefaultPasswordHasher;
+use Cake\Core\Configure;
+use Cake\Log\Log;
+use Cake\Event\Event;
+use Cake\ORM\Query;
+use Cake\ORM\RulesChecker;
+use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
+
+/**
+ * Usuarios Model
+ *
+ * @method \App\Model\Entity\Usuario get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Usuario newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\Usuario[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Usuario|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Usuario patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Usuario[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Usuario findOrCreate($search, callable $callback = null, $options = [])
+ */
+class UsuariosTable extends GenericTable
+{
+
+    /**
+     * -------------------------------------------------------------
+     * Fields
+     * -------------------------------------------------------------
+     */
+    protected $usuarioTable = null;
+
+    /**
+     * -------------------------------------------------------------
+     * Properties
+     * -------------------------------------------------------------
+     */
+
+    /**
+     * Method get of usuario table property
+     * @return Cake\ORM\Table Table object
+     */
+    private function _getUsuarioTable()
+    {
+        if (is_null($this->usuarioTable)) {
+            $this->_setUsuarioTable();
+        }
+        return $this->usuarioTable;
+    }
+
+    /**
+     * Method set of usuario table property
+     *
+     * @return void
+     */
+    private function _setUsuarioTable()
+    {
+        $this->usuarioTable = TableRegistry::get('Usuarios');
+    }
+
+    /**
+     * Initialize method
+     *
+     * @param array $config The configuration for the Table.
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        parent::initialize($config);
+
+        $this->setTable('usuarios');
+        $this->setDisplayField('nome');
+        $this->setPrimaryKey('id');
+
+        $this->hasMany(
+            'ClientesHasUsuarios',
+            [
+                'foreignKey' => 'usuarios_id',
+                'join' => 'INNER'
+            ]
+        );
+
+        $this->hasMany('UsuariosHasVeiculos')
+            ->setForeignKey('usuarios_id');
+
+        $this->hasMany('TransportadorasHasUsuarios')
+            ->setForeignKey('usuarios_id');
+
+        $this->hasMany(
+            'Pontuacoes',
+            [
+                'class' => 'Pontuacoes',
+                'foreignKey' => 'usuarios_id',
+                'joinType' => 'INNER'
+            ]
+        );
+    }
+
+    /**
+     * Default validation rules.
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     * @return \Cake\Validation\Validator
+     */
+    public function validationDefault(Validator $validator)
+    {
+        $validator
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->allowEmpty('matriz_id');
+
+        $validator
+            ->integer('tipo_perfil')
+            ->requirePresence('tipo_perfil', 'create')
+            ->notEmpty('tipo_perfil', 'Tipo de perfil é necessário informar')
+            ->add(
+                'tipo_perfil',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1', '2', '3', '4', '5', '6', '998', '999']],
+                    'message' => 'Por favor informe um tipo de perfil',
+                    'allowEmpty' => false
+                ]
+            );
+
+        $validator
+            ->requirePresence('nome', 'create')
+            ->notEmpty('nome');
+
+        $validator
+            ->allowEmpty('cpf')
+            ->add(
+                'cpf',
+                'unique',
+                [
+                    'rule' => 'validateUnique',
+                    'provider' => 'table',
+                    'message' => 'Este CPF já está em uso'
+                ]
+            );
+                                    // ;
+        $validator
+            ->integer('sexo')
+            ->requirePresence('sexo', 'create')
+            ->notEmpty('sexo', 'Por favor informe o sexo')
+            ->add(
+                'sexo',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1']],
+                    'message' => 'Por favor informe o sexo'
+                ]
+            );
+
+        $validator
+            ->requirePresence('data_nasc', 'create')
+            ->notEmpty('data_nasc');
+
+        $validator
+            ->email('email')
+            ->requirePresence('email', 'create')
+            ->add(
+                'email',
+                'unique',
+                [
+                    'rule' => 'validateUnique',
+                    'provider' => 'table',
+                    'message' => 'Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"'
+                ]
+            )
+            ->notEmpty('email', 'Você deve informar um e-mail', 'create');
+
+        $validator
+            ->requirePresence('senha', 'create')
+            ->notEmpty('senha', 'Você deve inserir uma senha', 'create')
+            ->add(
+                'senha',
+                [
+                    'custom' =>
+                        [
+                        'provider' => 'table',
+                        'rule' => [$this, 'checkPasswordUsuario'],
+                        'message' => 'A senha deve conter 4 dígitos, somente números',
+
+                    ],
+                    [
+                        'provider' => 'table',
+                        'rule' => [$this, 'checkPasswordWorker'],
+                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                    ]
+                ]
+            );
+
+        $validator
+            ->requirePresence('confirm_senha', 'create')
+            ->notEmpty('confirm_senha', 'Você deve redigir a senha', 'create')
+            ->allowEmpty('confirm_senha', 'update')
+            ->add('confirm_senha', 'compareWith', [
+                'rule' => ['compareWith', 'senha'],
+                'message' => 'Senhas não conferem.'
+            ]);
+
+        $validator
+            ->allowEmpty('telefone');
+
+        $validator
+            ->allowEmpty('endereco');
+
+        $validator
+            ->integer('endereco_numero')
+            ->allowEmpty('endereco_numero');
+
+        $validator
+            ->allowEmpty('endereco_complemento');
+
+        $validator
+            ->allowEmpty('bairro');
+
+        $validator
+            ->allowEmpty('municipio');
+
+        $validator
+            ->allowEmpty('estado');
+
+        $validator
+            ->allowEmpty('cep');
+
+        $validator
+            ->dateTime('audit_insert')
+            ->allowEmpty('audit_insert');
+
+        $validator
+            ->dateTime('audit_update')
+            ->allowEmpty('audit_update');
+
+        return $validator;
+    }
+
+    /**
+     * Default validation rules.
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     * @return \Cake\Validation\Validator
+     */
+    public function validationCadastroEstrangeiro(Validator $validator)
+    {
+        $validator
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->allowEmpty('matriz_id');
+
+        $validator
+            ->integer('tipo_perfil')
+            ->requirePresence('tipo_perfil', 'create')
+            ->notEmpty('tipo_perfil', 'Tipo de perfil é necessário informar')
+            ->add(
+                'tipo_perfil',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1', '2', '3', '4', '5', '6', '998', '999']],
+                    'message' => 'Por favor informe um tipo de perfil',
+                    'allowEmpty' => false
+                ]
+            );
+
+        $validator
+            ->requirePresence('nome', 'create')
+            ->notEmpty('nome');
+
+        $validator
+            ->integer('sexo')
+            ->requirePresence('sexo', 'create')
+            ->notEmpty('sexo', 'Por favor informe o sexo')
+            ->add(
+                'sexo',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1']],
+                    'message' => 'Por favor informe o sexo'
+                ]
+            );
+
+        $validator
+            ->requirePresence('data_nasc', 'create')
+            ->notEmpty('data_nasc');
+
+        $validator
+            ->email('email')
+            ->requirePresence('email', 'create')
+            ->add(
+                'email',
+                'unique',
+                [
+                    'rule' => 'validateUnique',
+                    'provider' => 'table',
+                    'message' => 'Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"'
+                ]
+            )
+            ->notEmpty('email', 'Você deve informar um e-mail', 'create');
+
+        $validator
+            ->requirePresence('senha', 'create')
+            ->notEmpty('senha', 'Você deve inserir uma senha', 'create')
+            ->add(
+                'senha',
+                [
+                    'custom' =>
+                        [
+                        'provider' => 'table',
+                        'rule' => [$this, 'checkPasswordUsuario'],
+                        'message' => 'A senha deve conter 4 dígitos, somente números',
+                    ],
+                    [
+                        'provider' => 'table',
+                        'rule' => [$this, 'checkPasswordWorker'],
+                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                    ]
+                ]
+            );
+
+        $validator
+            ->requirePresence('confirm_senha', 'create')
+            ->notEmpty('confirm_senha', 'Você deve redigir a senha', 'create')
+            ->allowEmpty('confirm_senha', 'update')
+            ->add(
+                'confirm_senha',
+                'compareWith',
+                [
+                    'rule' => ['compareWith', 'senha'],
+                    'message' => 'Senhas não conferem.'
+                ]
+            );
+
+        $validator
+            ->allowEmpty('telefone');
+
+        $validator
+            ->allowEmpty('endereco');
+
+        $validator
+            ->integer('endereco_numero')
+            ->allowEmpty('endereco_numero');
+
+        $validator
+            ->allowEmpty('endereco_complemento');
+
+        $validator
+            ->allowEmpty('bairro');
+
+        $validator
+            ->allowEmpty('municipio');
+
+        $validator
+            ->allowEmpty('estado');
+
+        $validator
+            ->allowEmpty('cep');
+
+        $validator
+            ->dateTime('audit_insert')
+            ->allowEmpty('audit_insert');
+
+        $validator
+            ->dateTime('audit_update')
+            ->allowEmpty('audit_update');
+
+        return $validator;
+    }
+
+    /**
+     * Default validation rules.
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     *
+     * @return \Cake\Validation\Validator
+     */
+    public function validationEditUsuarioInfo(Validator $validator)
+    {
+        $validator
+            ->integer('tipo_perfil')
+            ->requirePresence('tipo_perfil', 'create')
+            ->notEmpty('tipo_perfil', 'Tipo de perfil é necessário informar')
+            ->add(
+                'tipo_perfil',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1', '2', '3', '4', '5', '6', '998', '999']],
+                    'message' => 'Por favor informe um tipo de perfil',
+                    'allowEmpty' => false
+                ]
+            );
+
+        $validator
+            ->requirePresence('nome')
+            ->notEmpty('nome');
+
+        $validator
+            ->allowEmpty('cpf')
+            ->add(
+                'cpf',
+                'unique',
+                [
+                    'rule' => 'validateUnique',
+                    'provider' => 'table',
+                    'message' => 'Este CPF já está em uso'
+                ]
+            );
+
+        $validator
+            ->integer('sexo')
+            ->requirePresence('sexo', 'create')
+            ->notEmpty('sexo', 'Por favor informe o sexo')
+            ->add('sexo', 'inList', [
+                'rule' => ['inList', ['0', '1']],
+                'message' => 'Por favor informe o sexo'
+            ]);
+
+        $validator
+            ->allowEmpty('senha');
+
+        $validator
+            ->allowEmpty('confirm_senha');
+
+        $validator
+            ->requirePresence('data_nasc', 'create')
+            ->notEmpty('data_nasc');
+
+        $validator
+            ->email('email')
+            ->requirePresence('email', 'create')
+            ->add('email', 'unique', [
+                'rule' => 'validateUnique',
+                'provider' => 'table',
+                'message' => 'Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"'
+            ])
+            ->notEmpty('email', 'Você deve informar um e-mail', 'create');
+
+        $validator
+            ->allowEmpty('telefone');
+
+        $validator
+            ->allowEmpty('endereco');
+
+        $validator
+            ->integer('endereco_numero')
+            ->allowEmpty('endereco_numero');
+
+        $validator
+            ->allowEmpty('endereco_complemento');
+
+        $validator
+            ->allowEmpty('bairro');
+
+        $validator
+            ->allowEmpty('municipio');
+
+        $validator
+            ->allowEmpty('estado');
+
+        $validator
+            ->allowEmpty('cep');
+
+        return $validator;
+    }
+
+    /**
+     * Regras para resgatar um brinde
+     *
+     * @param \Cake\Validation\Validator $validator Validator instance.
+     *
+     * @return \Cake\Validation\Validator
+     */
+    public function validationRedeemItem(Validator $validator)
+    {
+        $validator
+            ->notEmpty('current_password')
+            ->add(
+                'current_password',
+                'custom',
+                [
+                    'rule' =>
+                        function ($value, $context) {
+                        $query = $this->find()->where(
+                            ['id' => $context['data']['id']]
+                        )->first();
+
+                        $data = $query->toArray();
+
+                        return (new DefaultPasswordHasher)->check($value, $data['senha']);
+                    },
+                    'message' => 'Senha não confere com o cadastro!'
+                ]
+            );
+        return $validator;
+    }
+
+    /**
+     * Executes before validation when insert or edit happens
+     *
+     * @return entity $data object
+     * @author Gustavo Souza Gonçalves
+     */
+    public function beforeMarshal(Event $event, ArrayObject $data)
+    {
+        if (isset($data['nome'])) {
+            if (isset($data['matriz_id'])) {
+                $data->matriz_id = $data['matriz_id'];
+            }
+
+            if (isset($data["tipo_perfil"])) {
+                $data['tipo_perfil'] = $data['tipo_perfil'];
+            }
+            $data['nome'] = $data['nome'];
+
+            if (isset($data['cpf'])) {
+                $data['cpf'] = $this->cleanNumber($data['cpf']);
+            }
+
+            $data['sexo'] = $data['sexo'];
+            $data['data_nasc'] = date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d');
+
+            if (isset($data["email"])) {
+                $data['email'] = $data['email'];
+            }
+            $data['telefone'] = isset($data['telefone']) ? $this->cleanNumber($data['telefone']) : null;
+            $data['endereco'] = isset($data['endereco']) ? $data['endereco'] : null;
+            $data['endereco_numero'] = isset($data['endereco_numero']) ? $data['endereco_numero'] : null;
+            $data['endereco_complemento'] = isset($data['endereco_complemento']) ? $data['endereco_complemento'] : null;
+            $data['bairro'] = isset($data['bairro']) ? $data['bairro'] : null;
+            $data['municipio'] = isset($data['municipio']) ? $data['municipio'] : null;
+            $data['estado'] = isset($data['estado']) ? $data['estado'] : null;
+            $data['cep'] = isset($data['cep']) ? $this->cleanNumber($data['cep']) : null;
+        }
+
+
+        return $data;
+    }
+
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules)
+    {
+        $rules->add($rules->isUnique(['email']));
+        // cpf não pode estar na lista pois em caso de cadastro estrangeiro, ele deve ser nulo
+        // $rules->add($rules->isUnique(['cpf' ]));
+
+        return $rules;
+    }
+
+    /**
+     * -------------------------------------------------------------
+     * Methods
+     * -------------------------------------------------------------
+     */
+
+    /* ------------------------ Insert ------------------------ */
+
+    /**
+     * Adiciona um novo usuario ao sistema
+     */
+    public function addUsuario($usuario = null)
+    {
+        try {
+            $usuarioAdd = $this->_getUsuarioTable()
+                ->newEntity();
+            $usuarioAdd = $this->formatUsuario(0, $usuario);
+
+            return $this->_getUsuarioTable()->save($usuarioAdd);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao inserir registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Edita usuario
+     */
+    public function addUpdateUsuario($usuario = null)
+    {
+        try {
+            $usuario = $this->_getUsuarioTable()->save($usuario);
+
+            return $usuario;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /* ------------------------ Find ------------------------ */
+
+    /**
+     * Verifica se usuario está travado e qual tipo
+     *
+     * @return object conteúdo informando se conta está bloqueada
+     * @author
+     */
+    public function checkUsuarioIsLocked($usuario)
+    {
+        try {
+            $usuario = $this->getUsuarioByEmail($usuario['email']);
+
+            $message = '';
+
+            /**
+             * 0 = nothing
+             * 1 = inactive
+             * 2 = blocked
+             * 3 = too much retries
+             */
+            $actionNeeded = 0;
+
+            if (is_null($usuario)) {
+                $message = __("usuario ou senha ínvalidos, tente novamente");
+                $actionNeeded = 1;
+            } else {
+                // verifica se é uma conta sem ser usuário.
+                // se não for, verifica se a rede a qual ele se encontra está desativada
+
+                if ($usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
+                    // pega o vínculo do usuário com a rede
+
+                    $cliente_has_usuario_table = TableRegistry::get('ClientesHasUsuarios');
+
+                    $cliente_has_usuario = $cliente_has_usuario_table->findClienteHasUsuario(
+                        [
+                            'ClientesHasUsuarios.usuarios_id' => $usuario['id'],
+                            'ClientesHasUsuarios.tipo_perfil' => $usuario['tipo_perfil']
+                        ]
+                    );
+
+                    // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
+
+                    $cliente = null;
+
+                    if (sizeof($cliente_has_usuario->toArray()) > 0) {
+                        $cliente = $cliente_has_usuario->toArray()[0]->cliente;
+
+                        // verifica se a unidade está ativa. Se está, a rede também está
+
+                        if (!$cliente->ativado) {
+                            $message = __("A unidade/rede à qual esta conta está vinculada está desativada. O acesso não é permitido.");
+                            $actionNeeded = 2;
+                        }
+                    }
+                }
+
+                if ($actionNeeded == 0) {
+
+                    if ($usuario['conta_ativa'] == 0) {
+                        if ($usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
+                            $message = __("A conta encontra-se desativada. Somente seu administrador poderá reativá-la.");
+                            $actionNeeded = 2;
+                        } else {
+                            $message = __("A conta encontra-se desativada. Para reativar, será necessário confirmar alguns dados.");
+                            $actionNeeded = 1;
+                        }
+                    } elseif ($usuario['conta_bloqueada'] == true) {
+                        $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de abastecimento.");
+                        $actionNeeded = 2;
+                    } else {
+                        $tentativas_login = $usuario['tentativas_login'];
+                        $ultima_tentativa_login = $usuario['ultima_tentativa_login'];
+
+                        if (!is_null($tentativas_login) && !is_null($ultima_tentativa_login)) {
+                            $format = 'Y-m-d H:i:s';
+
+
+                            $fromTime = strtotime($ultima_tentativa_login->format($format));
+
+                            $toTime = strtotime(date($format));
+
+                            $diff = round(abs($fromTime - $toTime) / 60, 0);
+
+                            if ($tentativas_login >= 5 && ($diff < 10)) {
+                                $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa', (10 - (int)$diff));
+
+                                $actionNeeded = 3;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $result = ['message' => $message, 'actionNeeded' => $actionNeeded];
+
+            return $result;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * Encontra usuario por tipo
+     *
+     * @return void
+     * @author
+     */
+    public function findUsuariosByType($type)
+    {
+        try {
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where(['tipo_perfil' => $type]);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario por Documento Estrangeiro
+     *
+     * @param string $doc_estrangeiro  Documento Estrangeiro do usuário
+     * @param int    $matriz_id        Id da matriz
+     * @param array  $where_conditions Condições extras
+     *
+     * @return entity\usuario $usuario
+     * @author Gustavo Souza Gonçalves
+     */
+    public function getFuncionariosClienteByDocumentoEstrangeiro(string $doc_estrangeiro = null, int $matriz_id, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push(
+                $conditions,
+                [
+                    'doc_estrangeiro like ' => '%' . $doc_estrangeiro . '%'
+                ]
+            );
+
+            $data = $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->join(
+                    [
+                        'clientes_has_usuarios'
+                            =>
+                            [
+                            'table' => 'clientes_has_usuarios',
+                            'type' => 'inner',
+                            'conditions' => [
+                                'clientes_has_usuarios.usuarios_id = usuarios.id'
+                            ]
+                        ]
+                    ]
+                )
+                ->group(['usuarios.id']);
+
+            return $data->toArray();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return [
+                'result' => false,
+                'data' => $stringError
+            ];
+        }
+    }
+
+    /**
+     * Usuarios::getFuncionarioFicticio
+     *
+     * Obtem funcionário fictício utilizado para Vendas em Mobile API
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 2018/05/08
+     *
+     * @return Usuario $usuario
+     */
+    public function getFuncionarioFicticio()
+    {
+        try {
+            return $this->_getUsuarioTable()->find('all')
+                ->where(['tipo_perfil' => (int)Configure::read("profileTypes")["DummyWorkerProfileType"]])->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao consultar usuários: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario por Id
+     *
+     * @param int $id Id do usuário
+     *
+     * @return entity\usuario $usuario
+     *
+     * @author Gustavo Souza Gonçalves
+     */
+    public function getUsuarioById($id = null)
+    {
+        try {
+            return $this->_getUsuarioTable()->get($id);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario por cpf
+     *
+     * @param string $cpf              CPF do usuário
+     * @param array  $where_conditions Condições Extras
+     *
+     * @return entity\usuario $usuario
+     */
+    public function getUsuarioByCPF($cpf = null, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push(
+                $conditions,
+                [
+                    'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
+                ]
+            );
+
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario por e-mail
+     *
+     * @param string $email Email do usuário
+     *
+     * @return entity\usuario $usuario
+     * @author Gustavo Souza Gonçalves
+     */
+    public function getUsuarioByEmail($email = null)
+    {
+        try {
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where(['email like ' => $email])->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario por Documento Estrangeiro
+     *
+     * @param string $doc_estrangeiro  Documento Estrangeiro do usuário
+     * @param array  $where_conditions Condições extras
+     *
+     * @return entity\usuario $usuario
+     * @author Gustavo Souza Gonçalves
+     */
+    public function getUsuariosByDocumentoEstrangeiro(string $doc_estrangeiro = null, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push(
+                $conditions,
+                [
+                    'doc_estrangeiro like ' => '%' . $doc_estrangeiro . '%'
+                ]
+            );
+
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra funcionário por cpf
+     *
+     * @param string $cpf              CPF do usuário
+     * @param int    $matriz_id        Id da matriz
+     * @param array  $where_conditions Condições Extras
+     *
+     * @return entity\usuario $usuario
+     */
+    public function getFuncionarioClienteByCPF(string $cpf, int $matriz_id, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push(
+                $conditions,
+                [
+                    'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
+                ]
+            );
+
+            $data = $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->join(
+                    [
+                        'clientes_has_usuarios'
+                            => [
+                            'table' => 'clientes_has_usuarios',
+                            'type' => 'left',
+                            'conditions' => [
+                                'clientes_has_usuarios.usuarios_id = usuarios.id'
+                            ]
+                        ]
+                    ]
+                )
+                ->first();
+
+                // se não achou registro, pode não estar vinculado ainda. faz a pesquisa sem a tabela join
+
+            if (is_null($data)) {
+
+                $data = $this->_getUsuarioTable()
+                    ->find('all')
+                    ->where(
+                        [
+                            'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
+                        ]
+                    )
+                    ->first();
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return [
+                'result' => false,
+                'data' => $stringError
+            ];
+        }
+    }
+
+    /**
+     * Obtem todos os usuários (funcionários) por Nome pelo id da Rede
+     *
+     * @param string $nome             Nome do usuário
+     * @param int    $clientes_id      Id da matriz
+     * @param array  $where_conditions Condições extras
+     *
+     * @return usuario $usuario
+     **/
+    public function getFuncionariosClienteByName(string $nome, int $clientes_id, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
+
+            $data = $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->join(
+                    [
+                        'clientes_has_usuarios'
+                            => [
+                            'table' => 'clientes_has_usuarios',
+                            'type' => 'inner',
+                            'conditions' => [
+                                'clientes_has_usuarios.clientes_id' => $clientes_id,
+                                'clientes_has_usuarios.usuarios_id = usuarios.id'
+                            ]
+                        ]
+                    ]
+                )
+                ->group(['usuarios.id']);
+
+            return ['result' => true, 'data' => $data];
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return [
+                'result' => false,
+                'data' => $stringError
+            ];
+        }
+    }
+
+    /**
+     * Obtem todos os usuários por Name
+     *
+     * @param string $nome             Nome do usuário
+     * @param array  $where_conditions Condições extras
+     *
+     * @return entity\usuario $usuario
+     **/
+    public function getUsuariosByName(string $nome, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
+
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * UsuariosTable::getUsuariosByProfileType
+     *
+     * Busca usuários por tipo de perfil
+     *
+     * @param integer $tipoPerfil Tipo de Perfil
+     * @return \App\Model\Entity\Usuarios[]
+     */
+    public function getUsuariosByProfileType(int $tipoPerfil, int $limit = 999)
+    {
+        try {
+            $usuarios = $this->_getUsuarioTable()
+                ->find('all')
+                ->where(['tipo_perfil' => $tipoPerfil]);
+
+            if (!isset($limit)) {
+                $limit = 999;
+            }
+
+            if ($limit == 1) {
+                return $usuarios->first();
+            }
+
+            return $usuarios->limit($limit);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao consultar usuários: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Busca usuários aguardando aprovação
+     *
+     * @param array $where_conditions Array de condições
+     *
+     * @return App\Model\Entity\Usuarios $usuarios
+     */
+    public function findUsuariosAwaitingApproval(array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $value) {
+                array_push($conditions, $condition);
+            }
+
+            array_push($conditions, ['aguardando_aprovacao' => true]);
+
+            return $this->_getUsuarioTable()->find('all')
+                ->where($conditions);
+                // ->contain('ClientesHasUsuarios.Clientes');
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Encontra usuario aguardando reset de senha
+     *
+     * @param string   $tokenSenha         token de senha
+     * @param dateTime $dataExpiracaoToken data de expiração do token
+     *
+     * @return entity\usuario $usuario
+     */
+    public function findUsuarioAwaitingPasswordReset($tokenSenha = null, $dataExpiracaoToken = null)
+    {
+        try {
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where([
+                    'token_senha' => $tokenSenha,
+                    'data_expiracao_token >= ' => $dataExpiracaoToken
+                ])
+                ->first();
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Busca todos os usuários conforme parâmetros
+     *
+     * @param array $where_conditions Condições
+     *
+     * @return array $usuarios Lista de Usuários
+     */
+    public function findAllUsuarios(array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+            return $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->contain(['ClientesHasUsuarios.Cliente.RedeHasCliente.Redes']);
+
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Busca todos os usuários conforme parâmetros
+     *
+     * @param array $redesConditions    Condições de Redes
+     * @param array $usuariosConditions Condições de Usuários
+     *
+     * @return array $usuarios Lista de Usuários
+     */
+    public function findAllUsuariosByRede(int $redesId, array $usuariosConditions = [])
+    {
+        try {
+            $redes = $this->_getUsuarioTable()->ClientesHasUsuarios->Clientes->RedeHasCliente->Redes->getAllRedes('all', ['id' => $redesId]);
+
+            $redes = $redes->toArray();
+
+            $clientes_ids = [];
+
+            foreach ($redes as $key => $rede) {
+                foreach ($rede->redes_has_clientes as $key => $value) {
+                    $clientes_ids[] = $value->clientes_id;
+                }
+            }
+
+            $clientesHasUsuariosTable = TableRegistry::get('Clientes_Has_Usuarios');
+
+            $usuariosIdArray = [];
+
+            $clientesHasUsuarios = $clientesHasUsuariosTable->find('all')
+                ->where(
+                    [
+                        'clientes_id in ' => $clientes_ids
+                    ]
+                )->toArray();
+
+            $usuariosIdsArray = [];
+
+            foreach ($clientesHasUsuarios as $key => $clienteHasUsuario) {
+                $usuariosIdsArray[] = $clienteHasUsuario->usuarios_id;
+            }
+
+            $conditions = [];
+
+            $conditions[] = ['id in' => $usuariosIdsArray];
+
+            foreach ($usuariosConditions as $key => $value) {
+                $conditions[] = $value;
+            }
+
+            $usuarios = null;
+
+            if (sizeof($usuariosIdsArray) > 0) {
+                $usuarios = $this->_getUsuarioTable()->find('all')
+                    ->where($conditions)
+                    ->contain('ClientesHasUsuarios');
+            }
+
+            return $usuarios;
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtêm todos os funcionários de uma rede
+     *
+     * @param int   $redes_id         Id da rede
+     * @param array $clientes_ids     Array de Id de clientes (Se for toda a rede, passar todos os ids de clientes_ids)
+     * @param array $where_conditions Condições extras de pesquisa
+     *
+     * @return entity\usuarios[] $usuarios
+     */
+    public function findFuncionariosRede(int $redes_id, array $clientes_ids, array $where_conditions = array())
+    {
+        try {
+
+            // condições de pesquisa
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            /**
+             * Pega o usuário informado e vê qual é a permissão dele.
+             * Admin:
+             * RTI/de Rede -> lista tudo
+             * Admin regional -> lista os quais se encontra alocado
+             * Admin comum/Gerente -> lista somente da sua unidade
+             */
+
+            $redes_table = TableRegistry::get("Redes");
+
+            $rede = $redes_table->find('all')
+                ->where(['Redes.id' => $redes_id])
+                ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
+                ->first();
+
+            // se a pesquisa é pela rede inteira, pega o id
+            // de usuários de todas as unidades às quais o
+            // usuário tem acesso (informado na chamada)
+
+            $usuarios_ids_array = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+                ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientes_ids])
+                ->contain(['Usuarios'])
+                ->select(['ClientesHasUsuarios.usuarios_id'])->toArray();
+
+            $usuarios_ids = [];
+
+            foreach ($usuarios_ids_array as $key => $value) {
+                $usuarios_ids[] = $value['usuarios_id'];
+            }
+
+            if (sizeof($usuarios_ids) == 0) {
+                $usuarios_ids[] = 0;
+            }
+
+            array_push($conditions, ['Usuarios.id IN ' => $usuarios_ids]);
+
+            array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
+
+            $usuarios = $this->_getUsuarioTable()->find('all')
+                ->where($conditions)
+                ->contain(['ClientesHasUsuarios.Cliente']);
+
+            return $usuarios;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: {0}, em {1} ", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtêm todos os usuários de um cliente (loja)
+     *
+     * @param array $where_conditions Array de condições
+     *
+     * @return array lista de usuários
+     */
+    public function getUsuarios(array $where_conditions)
+    {
+        try {
+            $conditions = [];
+
+            $tipo_perfil = Configure::read('profileTypes')['UserProfileType'];
+            array_push(
+                $conditions,
+                [
+                    'ClientesHasUsuarios.tipo_perfil '
+                        => $tipo_perfil
+                ]
+            );
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            $usuarios = $this->_getUsuarioTable()->find('all')
+                ->where($conditions)
+                ->group(['usuarios.id'])
+                ->join(
+                    [
+                        'ClientesHasUsuarios'
+                            =>
+                            [
+                            'table' => 'clientes_has_usuarios',
+                            'type' => 'inner',
+                            'conditions' => [
+                                'ClientesHasUsuarios.usuarios_id = usuarios.id'
+                            ]
+                        ]
+                    ]
+                );
+
+
+            return $usuarios;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param int $clientes_id
+     * @param array $where_conditions
+     *
+     * @return void
+     */
+    public function getPendingWorkersNetwork(int $clientes_id, array $where_conditions = array())
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            array_push($conditions, ['chu.id is ' => null]);
+
+            $usuarios = $this->_getUsuarioTable()
+                ->find('all')
+                ->where($conditions)
+                ->join(
+                    [
+                        'ClientesHasUsuarios' =>
+                            [
+                            'table' => 'clientes_has_usuarios',
+                            'alias' => 'chu',
+                            'type' => 'left',
+                            'conditions' =>
+                                [
+                                'chu.usuarios_id = Usuarios.id'
+                            ],
+                            'where' =>
+                                [
+                                'chu.id' => null
+                            ]
+
+                        ]
+                    ]
+                );
+
+            return $usuarios;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+
+
+    /**
+     * Obtem usuários que estão associados à um 'cliente'
+     *
+     * @param Entity\Cliente $client           Objeto cliente
+     * @param int            $minProfileType   Mínimo tipo de perfil
+     * @param int            $maxProfileType   Máximo tipo de perfil
+     * @param array          $where_conditions Condições extras
+     *
+     * @return List<\Entity\Usuarios> $usuarios
+     */
+    public function getUsuariosAssociatedWithClient($client = null, $minProfileType = null, $maxProfileType = null, array $where_conditions = [])
+    {
+        try {
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $condition) {
+                array_push($conditions, $condition);
+            }
+
+            $id = isset($client->matriz_id) ? $client->matriz_id : $client->id;
+
+            $usuarios = null;
+
+            if (is_null($client->matriz_id)) {
+                array_push($conditions, ['Usuarios.matriz_id' => $client->id]);
+
+                $usuarios = $this->_getUsuarioTable()->find('all')
+                    ->where($conditions)
+                    ->join(['ClientesHasUsuarios' =>
+                        [
+                        'table' => 'clientes_has_usuarios',
+                        'alias' => 'chu',
+                        'type' => 'left',
+                        'conditions' =>
+                            [
+                            'usuarios.id = chu.usuarios_id',
+                        ]
+
+                    ]])
+                    ->select([
+                        'usuarios.id',
+                        'usuarios.matriz_id',
+                        'usuarios.tipo_perfil',
+                        'usuarios.nome',
+                        'usuarios.cpf',
+                        'usuarios.sexo',
+                        'usuarios.data_nasc',
+                        'usuarios.email',
+                        'usuarios.senha',
+                        'usuarios.telefone',
+                        'usuarios.endereco',
+                        'usuarios.endereco_numero',
+                        'usuarios.endereco_complemento',
+                        'usuarios.bairro',
+                        'usuarios.municipio',
+                        'usuarios.estado',
+                        'usuarios.cep',
+                        'usuarios.audit_insert',
+                        'usuarios.audit_update',
+                        'chu.id',
+                        'chu.matriz_id',
+                        'chu.clientes_id',
+                        'chu.usuarios_id'
+                    ]);
+            } else {
+                array_push($conditions, ['usuarios.matriz_id' => $id]);
+
+                $usuarios = $this->_getUsuarioTable()->find('all')
+                    ->where($conditions)
+                    ->join(['ClientesHasUsuarios' =>
+                        [
+                        'table' => 'clientes_has_usuarios',
+                        'alias' => 'chu',
+                        'type' => 'left',
+                        'conditions' =>
+                            [
+                            'usuarios.id = chu.usuarios_id',
+                        ]
+                    ]])
+                    ->select([
+                        'usuarios.id',
+                        'usuarios.matriz_id',
+                        'usuarios.tipo_perfil',
+                        'usuarios.nome',
+                        'usuarios.cpf',
+                        'usuarios.sexo',
+                        'usuarios.data_nasc',
+                        'usuarios.email',
+                        'usuarios.senha',
+                        'usuarios.telefone',
+                        'usuarios.endereco',
+                        'usuarios.endereco_numero',
+                        'usuarios.endereco_complemento',
+                        'usuarios.bairro',
+                        'usuarios.municipio',
+                        'usuarios.estado',
+                        'usuarios.cep',
+                        'usuarios.audit_insert',
+                        'usuarios.audit_update',
+                        'chu.id',
+                        'chu.matriz_id',
+                        'chu.clientes_id',
+                        'chu.usuarios_id'
+                    ]);
+            }
+
+            if (isset($minProfileType)) {
+                $usuarios->where(['tipo_perfil >= ' => $minProfileType]);
+            }
+
+            if (isset($maxProfileType)) {
+                $usuarios->where(['tipo_perfil <= ' => $maxProfileType]);
+            }
+
+            return $usuarios;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /* ------------------------ Update ------------------------ */
+
+    /**
+     * Altera estado de conta ativa do usuário informado
+     *
+     * @param int  $usuarios_id Id de usuário
+     * @param bool $conta_ativa Conta Ativa (True/False)
+     *
+     * @return bool $usuario Registro atualizado
+     */
+    public function changeAccountEnabledByUsuarioId(int $usuarios_id, bool $conta_ativa)
+    {
+        try {
+            $usuario = $this->getUsuarioById($usuarios_id);
+
+            $usuario['conta_ativa'] = $conta_ativa;
+
+            return $this->_getUsuarioTable()->save($usuario);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao reativar conta: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Reativa conta para usuário
+     *
+     * @param int $id Id da conta
+     *
+     * @return void
+     */
+    public function reativarConta(int $id)
+    {
+        try {
+            $usuario = $this->getUsuarioById($id);
+
+            $usuario['conta_ativa'] = true;
+
+            $this->addUpdateUsuario($usuario);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao reativar conta: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Atualiza login sem sucesso
+     *
+     * @param entity\usuario $usuario
+     * @param boolean $type
+     * @return string $message
+     * @author Gustavo Souza Gonçalves
+     */
+    public function updateLoginRetry($usuario = null, $type)
+    {
+        try {
+            $message = '';
+
+            $usuario = $this->getUsuarioByEmail($usuario['email']);
+
+            if ($type) {
+            } else {
+                $tentativas_login = $usuario['tentativas_login'];
+                $ultima_tentativa_login = $usuario['ultima_tentativa_login'];
+
+                $format = 'Y-m-d H:i:s';
+
+                if (is_null($ultima_tentativa_login)) {
+                    $ultima_tentativa_login = new \DateTime('now');
+                }
+
+
+                $fromTime = strtotime($ultima_tentativa_login->format($format));
+
+                $toTime = strtotime(date($format));
+
+                $diff = round(abs($fromTime - $toTime) / 60, 0);
+
+                if ($tentativas_login >= 5 && ($diff < 10)) {
+                    $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa', (10 - (int)$diff));
+                } else {
+                    if ($tentativas_login >= 5) {
+                        $tentativas_login = 0;
+                    } else {
+                        $ultima_tentativa_login = date("Y-m-d H:i:s");
+                        $usuario['ultima_tentativa_login'] = $ultima_tentativa_login;
+                    }
+
+                    $tentativas_login = $tentativas_login + 1;
+
+                    $usuario['tentativas_login'] = $tentativas_login;
+
+                    $message = __("usuario ou senha ínvalidos, tente novamente");
+                    $usuario = $this->addUpdateUsuario($usuario);
+                }
+            }
+
+            return $message;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Seta token e data de expiração para usuário requisição reset de senha
+     *
+     * @param string $usuarioId
+     * @param string $tokenSenha
+     * @param datetime $dataExpiracaoToken
+     * @return void
+     * @author Gustavo Souza Gonçalves
+     */
+    public function setUsuarioTokenPasswordRequest($usuarioId = null, $tokenSenha = null, $dataExpiracaoToken = null)
+    {
+        try {
+            $usuario = $this->getUsuarioById($usuarioId);
+
+            $usuario->token_senha = $tokenSenha;
+            $usuario->data_expiracao_token = $dataExpiracaoToken;
+
+            $this->_getUsuarioTable()->addUpdateUsuario($usuario);
+
+            return true;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Desabilita os usuários de um cliente
+     *
+     * @param int   $clientes_id      Id de Cliente
+     * @param array $where_conditions Condições extras
+     *
+     * @return boolean
+     */
+    public function disableUsuariosOfCliente(int $clientes_id, array $where_conditions = [])
+    {
+        try {
+
+            $clientes_has_usuarios = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+                ->where(['clientes_id' => $clientes_id])->select(['id']);
+
+            $clientes_has_usuarios_ids = [];
+
+            foreach ($clientes_has_usuarios as $key => $value) {
+                array_push($clientes_has_usuarios_ids, $value['id']);
+            }
+
+            $conditions = [];
+
+            foreach ($where_conditions as $key => $value) {
+                array_push($conditions, $value);
+            }
+
+            array_push($conditions, ['id in ' => $clientes_has_usuarios_ids]);
+
+            if (sizeof($clientes_has_usuarios_ids) > 0) {
+
+                return $this->updateAll(
+                    [
+                        'conta_bloqueada' => true
+                    ],
+                    $conditions
+                );
+            } else {
+                return true;
+            }
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['result' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+    /* ------------------------ Delete ------------------------ */
+
+    /**
+     * Undocumented function
+     *
+     * @param array $clientes_ids     Ids de Clientes
+     * @param array $where_conditions Condições extras
+     *
+     * @return void
+     */
+    public function deleteAllUsuariosByClienteIds(array $clientes_ids, array $where_conditions = [])
+    {
+        try {
+
+            // pegar id de brindes que estão vinculados em um cliente
+
+            $usuarios_clientes_id = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+                ->where(['clientes_id in' => $clientes_ids])
+                ->select(['usuarios_id']);
+
+            $usuarios_clientes_ids = [];
+
+            foreach ($usuarios_clientes_id as $key => $value) {
+                array_push($usuarios_clientes_ids, $value['usuarios_id']);
+            }
+
+            if (sizeof($usuarios_clientes_ids) > 0) {
+
+                $conditions = [];
+
+                foreach ($where_conditions as $key => $value) {
+                    $conditions[] = $value;
+                }
+
+                $conditions[] = ['id in' => $usuarios_clientes_ids];
+
+                return $this->_getUsuarioTable()
+                    ->deleteAll($conditions);
+            } else {
+                return true;
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['result' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Helpers
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * Verifica regras de senha para usuário cliente
+     *
+     * @param type $password
+     * @param array $context
+     * @return boolean
+     */
+    public function checkPasswordUsuario($password, array $context)
+    {
+        if (($context['data']['tipo_perfil'] == 6) && (preg_match("#[0-9]#", $password) && strlen($password) != 4)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Verifica regras de senha para funcionário
+     *
+     * @param type $password
+     * @param array $context
+     * @return boolean
+     */
+    public function checkPasswordWorker($password, array $context)
+    {
+        if (($context['data']['tipo_perfil'] < 6) && (strlen($password) != 8)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Checks password for a single instance of each:
+     * number, uppercase, lowercase, and special character
+     *
+     * @param type $password
+     * @param array $context
+     * @return boolean
+     */
+    public function checkCharacters($password, array $context)
+    {
+                    // number
+        if (!preg_match("#[0-9]#", $password)) {
+            return false;
+        }
+                    // Uppercase
+        if (!preg_match("#[A-Z]#", $password)) {
+            return false;
+        }
+                    // lowercase
+        if (!preg_match("#[a-z]#", $password)) {
+            return false;
+        }
+                    // special characters
+        if (!preg_match("#\W+#", $password)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Format usuario to insert/update into database
+     *
+     * @return Entity\Usuarios $usuario
+     * @author Gustavo Souza Gonçalves
+     */
+    public function formatUsuario($id = null, $usuario = null)
+    {
+        if ($id > 0) {
+            $usuario->id = $id;
+        }
+
+        if (isset($usuario['matriz_id'])) {
+            $usuario->matriz_id = $usuario['matriz_id'];
+        }
+
+        $usuario->tipo_perfil = $usuario['tipo_perfil'];
+        $usuario->nome = $usuario['nome'];
+
+        if (strlen($usuario['cpf']) > 0) {
+            $usuario->cpf = $this->cleanNumber($usuario['cpf']);
+        }
+
+        $usuario->sexo = $usuario['sexo'];
+
+        $usuario->data_nasc = date_format(date_create_from_format('d/m/Y', $usuario['data_nasc']->format('d/m/Y')), 'Y-m-d');
+        $usuario->email = $usuario['email'];
+
+        $usuario->telefone = isset($usuario['telefone']) ? $this->cleanNumber($usuario['telefone']) : null;
+        $usuario->endereco = isset($usuario['endereco']) ? $usuario['endereco'] : null;
+        $usuario->endereco_numero = isset($usuario['endereco_numero']) ? $usuario['endereco_numero'] : null;
+        $usuario->endereco_complemento = isset($usuario['endereco_complemento']) ? $usuario['endereco_complemento'] : null;
+        $usuario->bairro = isset($usuario['bairro']) ? $usuario['bairro'] : null;
+        $usuario->municipio = isset($usuario['municipio']) ? $usuario['municipio'] : null;
+        $usuario->estado = isset($usuario['estado']) ? $usuario['estado'] : null;
+        $usuario->cep = isset($usuario['cep']) ? $usuario['cep'] : null;
+
+        return $usuario;
+    }
+}

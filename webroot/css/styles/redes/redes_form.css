@@ -1,0 +1,40 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file     webroot/css/styles/pages/redes/redes_form.css
+  * @date     2018/05/21
+  */
+
+  .img-crop {
+    overflow: hidden;
+    max-height: 300px;
+    max-width: 400px;
+    height: 300px;
+    width: 480px;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-preview {
+    display: none;
+    overflow: hidden;
+    max-height: 300px;
+    max-width: 400px;
+
+    height: 300px;
+    width: 480px;
+    border: 5px solid black;
+    border-radius: 5px;
+    left: 0;
+    right: 0;
+    float: none;
+    text-align: center;
+    margin: auto;
+}
+
+.img-crop-container {
+    display: none;
+}
