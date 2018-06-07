@@ -43,7 +43,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
             <?php if ($mode == 'view') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Atribuir Gênero"), ['controller' => 'genero_brindes_clientes', 'action' => 'adicionar_genero_brindes_cliente', $clientesId]) ?>
+                    <?= $this->Html->link(__("Adicionar Gênero"), ['controller' => 'genero_brindes_clientes', 'action' => 'adicionar_genero_brindes_cliente', $clientesId]) ?>
                 </li>
 
             <?php endif; ?>
