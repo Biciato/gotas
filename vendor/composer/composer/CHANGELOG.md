@@ -1,3 +1,87 @@
+### [1.6.5] 2018-05-04
+
+  * Fixed regression in 1.6.4 causing strange update behaviors with dev packages
+  * Fixed regression in 1.6.4 color support detection for Windows
+  * Fixed issues dealing with broken symlinks when switching branches and using path repositories
+  * Fixed JSON schema for package repositories
+  * Fixed issues on computers set to Turkish locale
+  * Fixed classmap parsing of files using short-open-tags when they are disabled in php
+
+### [1.6.4] 2018-04-13
+
+  * Security fixes in some edge case scenarios, recommended update for all users
+  * Fixed regression in version guessing of path repositories
+  * Fixed removing aliased packages from the repository, which might resolve some odd update bugs
+  * Fixed updating of package URLs for GitLab
+  * Fixed run-script --list failing when script handlers were defined
+  * Fixed init command not respecting the current php version when selecting package versions
+  * Fixed handling of uppercase package names in why/why-not commands
+  * Fixed exclude-from-classmap symlink handling
+  * Fixed filesystem permissions of PEAR binaries
+  * Improved performance of subversion repos
+  * Other minor fixes
+
+### [1.6.3] 2018-01-31
+
+  * Fixed GitLab downloads failing in some edge cases
+  * Fixed ctrl-C handling during create-project
+  * Fixed GitHub VCS repositories not prompting for a token in some conditions
+  * Fixed SPDX license identifiers being case sensitive
+  * Fixed and clarified a few dependency resolution error reporting strings
+  * Fixed SVN commit log fetching in verbose mode when using private repositories
+
+### [1.6.2] 2018-01-05
+
+  * Fixed more autoloader regressions
+  * Fixed support for updating dist refs in gitlab URLs
+
+### [1.6.1] 2018-01-04
+
+  * Fixed upgrade regression due to some autoloader cleanups
+  * Fixed some overly loose version constraints
+
+### [1.6.0] 2018-01-04
+
+  * Added support for SPDX license identifiers v3.0, deprecates GPL/LGPL/AGPL identifiers, which should now have a `-only` or `-or-later` suffix added.
+  * Added support for COMPOSER_MEMORY_LIMIT env var to make Composer set the PHP memory limit explicitly
+  * Added support for simple strings for the `bin`
+  * Fixed `check-platform-reqs` bug in version checking
+
+### [1.6.0-RC] 2017-12-19
+
+  * Improved performance of installs and updates from git clones when checking out known commits
+  * Added `check-platform-reqs` command that checks that your PHP and extensions versions match the platform requirements of the installed packages
+  * Added `--with-all-dependencies` to the `update` and `require` commands which updates all dependencies of the listed packages, including those that are direct root requirements
+  * Added `scripts-descriptions` key to composer.json to customize the description and document your custom commands
+  * Added support for the uppercase NO_PROXY env var
+  * Added support for COMPOSER_DEFAULT_{AUTHOR,LICENSE,EMAIL,VENDOR} env vars to pre-populate init command values
+  * Added support for local fossil repositories
+  * Added suggestions for alternative spellings when entering packages in `init` and `require` commands and nothing can be found
+  * Fixed installed.json data to be sorted alphabetically by package name
+  * Fixed compatibility with Symfony 4.x components that Composer uses
+
+### [1.5.6] - 2017-12-18
+
+  * Fixed root package version guessed when a tag is checked out
+  * Fixed support for GitLab repos hosted on non-standard ports
+  * Fixed regression in require command when requiring unstable packages, part 3
+
+### [1.5.5] - 2017-12-01
+
+  * Fixed regression in require command when requiring unstable packages, part 2
+
+### [1.5.4] - 2017-12-01
+
+  * Fixed regression in require command when requiring unstable packages
+
+### [1.5.3] - 2017-11-30
+
+  * Fixed require/remove commands reverting the composer.json change when a non-solver-related error occurs
+  * Fixed GitLabDriver to support installations of GitLab not at the root of the domain
+  * Fixed create-project not following the optimize-autoloader flag of the root package
+  * Fixed Authorization header being forwarded across domains after a redirect
+  * Improved some error messages for clarity
+
 ### [1.5.2] - 2017-09-11
 
   * Fixed GitLabDriver looping endlessly in some conditions
@@ -543,7 +627,7 @@
   * Added autoloading support for root packages that use target-dir
   * Added awareness of the root package presence and support for it's provide/replace/conflict keys
   * Added IOInterface::isDecorated to test for colored output support
-  * Added validation of licenses based on the [SPDX registry](http://www.spdx.org/licenses/)
+  * Added validation of licenses based on the [SPDX registry](https://spdx.org/licenses/)
   * Improved repository protocol to have large cacheable parts
   * Fixed various bugs relating to package aliasing, proxy configuration, binaries
   * Various bug fixes and docs improvements
@@ -567,6 +651,17 @@
 
   * Initial release
 
+[1.6.5]: https://github.com/composer/composer/compare/1.6.4...1.6.5
+[1.6.4]: https://github.com/composer/composer/compare/1.6.3...1.6.4
+[1.6.3]: https://github.com/composer/composer/compare/1.6.2...1.6.3
+[1.6.2]: https://github.com/composer/composer/compare/1.6.1...1.6.2
+[1.6.1]: https://github.com/composer/composer/compare/1.6.0...1.6.1
+[1.6.0]: https://github.com/composer/composer/compare/1.6.0-RC...1.6.0
+[1.6.0-RC]: https://github.com/composer/composer/compare/1.5.6...1.6.0-RC
+[1.5.6]: https://github.com/composer/composer/compare/1.5.5...1.5.6
+[1.5.5]: https://github.com/composer/composer/compare/1.5.4...1.5.5
+[1.5.4]: https://github.com/composer/composer/compare/1.5.3...1.5.4
+[1.5.3]: https://github.com/composer/composer/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/composer/composer/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/composer/composer/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/composer/composer/compare/1.4.3...1.5.0

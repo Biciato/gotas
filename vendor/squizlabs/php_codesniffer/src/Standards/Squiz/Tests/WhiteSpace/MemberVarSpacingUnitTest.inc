@@ -153,7 +153,7 @@ class Foo
 
 }
 
-// @codingStandardsChangeSetting Squiz.WhiteSpace.MemberVarSpacing spacing 2
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacing 2
 
 class MyClass
 {
@@ -166,8 +166,8 @@ class MyClass
 
 }//end class
 
-// @codingStandardsChangeSetting Squiz.WhiteSpace.MemberVarSpacing spacing 1
-// @codingStandardsChangeSetting Squiz.WhiteSpace.MemberVarSpacing spacingBeforeFirst 0
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacing 1
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacingBeforeFirst 0
 
 class MyClass
 {
@@ -191,7 +191,7 @@ class MyClass
 
 }//end class
 
-// @codingStandardsChangeSetting Squiz.WhiteSpace.MemberVarSpacing spacing 0
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacing 0
 
 class MyClass
 {
@@ -212,3 +212,82 @@ interface MyInterface
     public $var3 = 'value';
 
 }//end class
+
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacing 0
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacingBeforeFirst 0
+
+class phpcsCommentTest {
+
+
+    // phpcs:disable Standard.Category.Sniff
+
+    public $var1 = 'value';
+
+
+    // phpcs:enable Standard.Category.Sniff
+
+    public $var1 = 'value';
+
+}
+
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacing 1
+// phpcs:set Squiz.WhiteSpace.MemberVarSpacing spacingBeforeFirst 1
+
+class phpcsCommentTest {
+
+
+    // phpcs:disable Standard.Category.Sniff
+
+    public $var1 = 'value';
+
+
+    // phpcs:enable Standard.Category.Sniff
+
+    public $var1 = 'value';
+
+}
+
+class MyOtherClass
+{
+    public
+        $varK = array( 'a', 'b' );
+    protected static
+        $varK,
+        $varL,
+        $varM;
+
+
+
+    private
+        $varO = true,
+        $varP = array( 'a' => 'a', 'b' => 'b' ),
+        $varQ = 'string',
+        $varR = 123;
+}
+
+// Make sure the determination of whether a property is the first property or not is done correctly.
+class ClassUsingSimpleTraits
+{
+    use HelloWorld;
+
+
+    /* comment */
+    public $firstVar = array( 'a', 'b' );
+    protected $secondVar = true;
+}
+
+class ClassUsingComplexTraits
+{
+    use A, B {
+        B::smallTalk insteadof A;
+        A::bigTalk insteadof B;
+    }
+
+
+
+    public $firstVar = array( 'a', 'b' );
+
+
+    /* comment */
+    protected $secondVar = true;
+}
