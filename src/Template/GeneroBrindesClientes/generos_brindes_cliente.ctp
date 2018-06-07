@@ -78,6 +78,7 @@ echo $this->Breadcrumbs->render(
 
                     <?php
                         $vinculado = count($generoBrindeItem->clientes_has_brindes_habilitados) > 0;
+                        $banhoSmart = $generoBrindeItem->genero_brinde["id"] <= 4;
                     ?>
                     <tr>
                         <td><?= $generoBrindeItem->genero_brinde->nome . ($generoBrindeItem->genero_brinde->brinde_necessidades_especiais == 1 ? " (PNE)" : null) ?> </td>
@@ -105,7 +106,7 @@ echo $this->Breadcrumbs->render(
                             ) ?>
                             <!-- Editar -->
 
-                            <?php if (!$vinculado):  ?>
+                            <?php if (!$vinculado && !$banhoSmart):  ?>
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -160,7 +161,7 @@ echo $this->Breadcrumbs->render(
 
                             <?php endif; ?>
                             <!-- Delete -->
-                            <?php if (!$vinculado):  ?>
+                            <?php if (!$vinculado && !$banhoSmart):  ?>
 
                                 <?= $this->Html->link(
                                     __(

@@ -86,55 +86,59 @@ class GeneroBrindesClientesController extends AppController
 
                 $data["clientes_id"] = $cliente->id;
 
-                // Verifica se este cliente não tem um cadastro com a mesma configuração, não pode ter repetido
+                // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
-                $whereConditions = array(["clientes_id" => $clientesId, "genero_brindes_id" => $data["genero_brindes_id"]]);
-
-                $generoBrindesCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
-
-                if (!empty($generoBrindesCheck)) {
-                    $this->Flash->error(__("Já existe um gênero de brinde configurado para este cliente, conforme informações passadas!"));
-
+                if ($data["genero_brindes_id"] > 4 && $data["tipo_principal_codigo_brinde"] <= 4) {
+                    $this->Flash->error("O brinde selecionado não deve ter um tipo menor ou igual à 4, pois estes valores são para SMART Shower!");
                 } else {
+                    // Verifica se este cliente não tem um cadastro com a mesma configuração, não pode ter repetido
 
-                    /**
-                     * Agora verifica se o mesmo código primário / secundário já não existe
-                     * Cada Gênero deve pertencer a uma combinação única
-                     */
-                    echo 'oi';
-                    $whereConditions = array(
-                        [
-                            "clientes_id" => $clientesId,
-                            "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
-                        ]
-                    );
-
-                    if ($data["tipo_principal_codigo_brinde"] <= 4) {
-                        $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
-                    }
+                    $whereConditions = array(["clientes_id" => $clientesId, "genero_brindes_id" => $data["genero_brindes_id"]]);
 
                     $generoBrindesCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
 
                     if (!empty($generoBrindesCheck)) {
-                        $this->Flash->error(__("Já existe um gênero de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
+                        $this->Flash->error(__("Já existe um gênero de brinde configurado para este cliente, conforme informações passadas!"));
 
                     } else {
+
+                        /**
+                         * Agora verifica se o mesmo código primário / secundário já não existe
+                         * Cada Gênero deve pertencer a uma combinação única
+                         */
+                        $whereConditions = array(
+                            [
+                                "clientes_id" => $clientesId,
+                                "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                            ]
+                        );
+
+                        if ($data["tipo_principal_codigo_brinde"] <= 4) {
+                            $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
+                        }
+
+                        $generoBrindesCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
+
+                        if (!empty($generoBrindesCheck)) {
+                            $this->Flash->error(__("Já existe um gênero de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
+
+                        } else {
                         // Verifica se o brinde que está sendo cadastrado é um banho.
                         // Brindes de banho tem id de 1 a 4. então o campo tipo_secundario_codigo_brinde deve ser 00
                         // Pois esses campos são calculados conforme o tempo do brinde
 
-                        if ($data["tipo_principal_codigo_brinde"] <= 4) {
-                            $data["tipo_secundario_codigo_brinde"] = "00";
-                        }
+                            if ($data["tipo_principal_codigo_brinde"] <= 4) {
+                                $data["tipo_secundario_codigo_brinde"] = "00";
+                            }
 
-                        if ($this->GeneroBrindesClientes->saveGeneroBrindeCliente($data)) {
-                            $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+                            if ($this->GeneroBrindesClientes->saveGeneroBrindeCliente($data)) {
+                                $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                            return $this->redirect(['action' => 'generos_brindes_cliente', $clientesId]);
+                                return $this->redirect(['action' => 'generos_brindes_cliente', $clientesId]);
+                            }
+                            $this->Flash->error(__(Configure::read("messageSavedError")));
                         }
-                        $this->Flash->error(__(Configure::read("messageSavedError")));
                     }
-
                 }
             }
 
@@ -181,13 +185,34 @@ class GeneroBrindesClientesController extends AppController
             $generoBrindes = $this->GeneroBrindes->find('list');
 
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $generoBrindesCliente = $this->GeneroBrindesClientes->patchEntity($generoBrindesCliente, $this->request->getData());
-                if ($this->GeneroBrindesClientes->save($generoBrindesCliente)) {
-                    $this->Flash->success(__('The genero brindes cliente has been saved.'));
 
-                    return $this->redirect(['action' => 'index']);
+                $data = $this->request->getData();
+                /**
+                 * Verifica se há algum outro gênero de brinde cadastrado para este usuário,
+                 * onde o tipo principal e secundário batem com outro mas o id é diferente do que
+                 * está sendo modificado.
+                 */
+
+                $whereConditions = array(
+                    "id != " => $id,
+                    "tipo_principal_codigo_brinde" => $data["tipo_principal_codigo_brinde"],
+                    "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
+                );
+
+                $generoBrindeClienteCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
+
+                if (!empty($generoBrindeClienteCheck)) {
+                    $this->Flash->error(__("Já existe um brinde com a configuração de tipo principal e tipo secundário de código!"));
+                } else {
+
+                    $generoBrindesCliente = $this->GeneroBrindesClientes->patchEntity($generoBrindesCliente, $this->request->getData());
+                    if ($this->GeneroBrindesClientes->save($generoBrindesCliente)) {
+                        $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                        return $this->redirect(['action' => 'generos_brindes_cliente', $cliente["id"]]);
+                    }
+                    $this->Flash->error(__(Configure::read("messageSavedSuccess")));
                 }
-                $this->Flash->error(__('The genero brindes cliente could not be saved. Please, try again.'));
             }
 
             $arraySet = [

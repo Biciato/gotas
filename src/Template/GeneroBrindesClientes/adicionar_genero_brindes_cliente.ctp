@@ -55,6 +55,5 @@ echo $this->element("../GeneroBrindesClientes/left_menu");
         <legend><?= __($title) ?></legend>
         <?= $this->element("../GeneroBrindesClientes/form_genero_brindes_cliente") ?>
     </fieldset>
-    <?= $this->Form->button(__('Submit')) ?>
     <?= $this->Form->end() ?>
 </div>

@@ -35,13 +35,40 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
 
 <div class="form-group row">
     <div class="col-lg-4">
-        <?= $this->Form->control('genero_brindes_id', ["type" => "select", "options" => $generoBrindes, "disabled" => $selectGeneroBrindesEnabled]); ?>
+        <?= $this->Form->control(
+            'genero_brindes_id',
+            [
+                "id" => "genero_brindes_id",
+                "class" => "genero_brindes_id",
+                "type" => "select",
+                "options" => $generoBrindes,
+                "disabled" => $selectGeneroBrindesEnabled
+            ]
+        ); ?>
     </div>
     <div class="col-lg-4">
-        <?= $this->Form->control('tipo_principal_codigo_brinde', ["type" => "number", "min" => 0, "max" => 9,  "step" => 1]); ?>
+        <?= $this->Form->control(
+            'tipo_principal_codigo_brinde',
+            [
+                "id" => 'tipo_principal_codigo_brinde',
+                "type" => "number",
+                "min" => 0,
+                "max" => 9,
+                "step" => 1
+            ]
+        ); ?>
     </div>
     <div class="col-lg-4">
-        <?= $this->Form->control('tipo_secundario_codigo_brinde'); ?>
+        <?= $this->Form->control(
+            'tipo_secundario_codigo_brinde',
+            [
+                "id" => 'tipo_secundario_codigo_brinde',
+                "type" => "number",
+                "min" => 00,
+                "max" => 99,
+                "step" => 1
+            ]
+        ); ?>
     </div>
 </div>
 
@@ -50,3 +77,15 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
         <?= $this->Form->control('habilitado', ["Genero Habilitado para Cliente?"]); ?>
     </div>
 </div>
+
+<?= $this->element("../Element/Buttons/confirm", ["titleButton" => "Salvar"]); ?>
+
+
+<?php if (Configure::read("debug")) {
+
+    echo $this->Html->script("scripts/genero_brindes_clientes/form_genero_brindes_clientes");
+} else {
+    echo $this->Html->script("scripts/genero_brindes_clientes/form_genero_brindes_clientes.min");
+}
+echo $this->fetch("script");
+?>
