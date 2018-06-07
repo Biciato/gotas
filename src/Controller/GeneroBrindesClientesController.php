@@ -183,11 +183,11 @@ class GeneroBrindesClientesController extends AppController
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $generoBrindesCliente = $this->GeneroBrindesClientes->patchEntity($generoBrindesCliente, $this->request->getData());
                 if ($this->GeneroBrindesClientes->save($generoBrindesCliente)) {
-                    $this->Flash->success(__('The genero brindes cliente has been saved.'));
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                    return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'generos_brindes_cliente', $cliente["id"]]);
                 }
-                $this->Flash->error(__('The genero brindes cliente could not be saved. Please, try again.'));
+                $this->Flash->error(__(Configure::read("messageSavedSuccess")));
             }
 
             $arraySet = [

@@ -1,4 +1,6 @@
-/vendor/*
-/config/app.php
 /tmp/*
 /logs/*
+/webroot/src/*
+/webroot/img/tmp/*
+/webroot/img/users/*
+/webroot/img/receipts/*

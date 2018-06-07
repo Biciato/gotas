@@ -50,3 +50,5 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
         <?= $this->Form->control('habilitado', ["Genero Habilitado para Cliente?"]); ?>
     </div>
 </div>
+
+<?= $this->element("../Element/Buttons/confirm", ["titleButton" => "Salvar"]); ?>
