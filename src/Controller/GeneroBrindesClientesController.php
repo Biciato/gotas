@@ -245,20 +245,32 @@ class GeneroBrindesClientesController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $generoBrindesCliente = $this->GeneroBrindesClientes->get($id);
-        if ($this->GeneroBrindesClientes->delete($generoBrindesCliente)) {
-            $this->Flash->success(__('The genero brindes cliente has been deleted.'));
-        } else {
-            $this->Flash->error(__('The genero brindes cliente could not be deleted. Please, try again.'));
+        try {
+            $query = $this->request->query;
+            $this->request->allowMethod(['post', 'delete']);
+
+            $generoBrindesClienteId = $query["genero_brindes_cliente_id"];
+
+            $returnUrl = $query["return_url"];
+
+            $generoBrindesCliente = $this->GeneroBrindesClientes->get($generoBrindesClienteId);
+            if ($this->GeneroBrindesClientes->delete($generoBrindesCliente)) {
+                $this->Flash->success(__(Configure::read("messageDeleteSuccess")));
+            } else {
+                $this->Flash->error(__(Configure::read("messageDeleteError")));
+            }
+
+            return $this->redirect($returnUrl);
+        } catch (\Exception $e) {
+
+            $messageString = __("Não foi possível remover um Gênero de Brindes!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
         }
-
-        return $this->redirect(['action' => 'index']);
     }
-
-    /**
-     * Métodos Internos
-     */
-
 
 }

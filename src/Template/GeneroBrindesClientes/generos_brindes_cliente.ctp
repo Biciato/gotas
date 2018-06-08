@@ -180,8 +180,9 @@ echo $this->Breadcrumbs->render(
                                                 'action' => 'delete', $generoBrindeItem->id,
                                                 '?' =>
                                                     [
-                                                    'genero_brinde_id' => $generoBrindeItem->id,
-                                                    'return_url' => 'index'
+                                                    'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                                    'return_url' => array("controller" => "genero_brindes_clientes",
+                                                    "action" => 'generos_brindes_cliente', $cliente["id"])
                                                 ]
                                             ]
                                         ),

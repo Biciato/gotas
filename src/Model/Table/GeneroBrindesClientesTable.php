@@ -305,20 +305,57 @@ class GeneroBrindesClientesTable extends GenericTable
      */
     public function getGenerosBrindesClientesDisponiveis(int $clientesId)
     {
-        $generoBrindesIds = array();
-        $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
+        try {
+            $generoBrindesIds = array();
+            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
 
-        foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
-            $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
+                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            }
+
+            $generoBrindes = $this->GeneroBrindes->find('list');
+
+            if (sizeof($generoBrindesIds) > 0) {
+                $generoBrindes = $generoBrindes->where(["id not in" => $generoBrindesIds]);
+            }
+
+            return $generoBrindes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
         }
 
-        $generoBrindes = $this->GeneroBrindes->find('list');
-
-        if (sizeof($generoBrindesIds) > 0) {
-            $generoBrindes = $generoBrindes->where(["id not in" => $generoBrindesIds]);
-        }
-
-        return $generoBrindes;
     }
 
+    /* -------------------------- Delete ----------------------------- */
+
+    /**
+     * GeneroBrindesClientesTable::deleteGeneroBrindesClientesById
+     *
+     * Remove um registro pelo Id
+     *
+     * @param integer $generoBrindesClientesId Id do registro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 08/06/2018
+     *
+     * @return boolean
+     */
+    public function deleteGeneroBrindesClientesById(int $generoBrindesClientesId)
+    {
+        try {
+            $generoBrindesCliente = $this->_getGeneroBrindesClientesTable()->get($generoBrindesClientesId);
+
+            return $this->_getGeneroBrindesClientesTable->delete($generoBrindesCliente);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao remover gênero de brindes do cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
 }
