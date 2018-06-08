@@ -41,6 +41,7 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
                 "id" => "genero_brindes_id",
                 "class" => "genero_brindes_id",
                 "type" => "select",
+                "empty" => "<Selecionar>",
                 "options" => $generoBrindes,
                 "disabled" => $selectGeneroBrindesEnabled
             ]

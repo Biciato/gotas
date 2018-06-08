@@ -273,4 +273,53 @@ class GeneroBrindesClientesController extends AppController
         }
     }
 
+    /**
+     * Altera o estado de um Gênero de Brinde de Cliente
+     *
+     * @param  $query["genero_brindes_cliente_id"]
+     * @param  $query["clientes_id"]
+     * @param  $query["estado"]
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   2018/06/08
+     *
+     * @return void
+     */
+    public function alteraEstadoGeneroBrindesCliente()
+    {
+        try {
+
+            $query = $this->request->query;
+
+            $generoBrindesClienteId = $query["genero_brindes_cliente_id"];
+            $clientesId = $query["clientes_id"];
+            $estado = $query["estado"];
+
+            if ($this->GeneroBrindesClientes->updateHabilitadoGeneroBrindeCliente($generoBrindesClienteId, $estado)) {
+
+                $mensagemAviso = $estado ? __(Configure::read("messageEnableSuccess")) : __(Configure::read("messageDisableSuccess"));
+
+                $this->Flash->success(__($mensagemAviso));
+
+                return $this->redirect(array("controller" => "genero_brindes_clientes", "action" => "generos_brindes_cliente", $clientesId));
+            }
+
+            $mensagemErro = $estado ? __(Configure::read("messageEnableError")) : __(Configure::read("messageDisableError"));
+
+            $this->Flash->error(__($mensagemErro));
+
+            return $this->redirect(array("controller" => "genero_brindes_clientes", "action" => "generos_brindes_cliente", $clientesId));
+        } catch (\Exception $e) {
+
+            $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Gênero de Brindes de Cliente!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+    }
+
 }

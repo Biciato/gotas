@@ -53,7 +53,7 @@ echo $this->Breadcrumbs->render(
                     <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
                     <th scope="col"><?= __("Vinculado?") ?> </th>
-                    <th scope="col"><?= $this->Paginator->sort("habilitado") ?> </th>
+                    <th scope="col"><?= $this->Paginator->sort("habilitado", ["label" => "Estado"]) ?> </th>
                     <th scope="col" class="actions">
                         <?= __('Ações') ?>
                         <?= $this->Html->tag(
@@ -77,8 +77,8 @@ echo $this->Breadcrumbs->render(
                 <?php foreach ($generoBrindesClientes as $key => $generoBrindeItem) : ?>
 
                     <?php
-                        $vinculado = count($generoBrindeItem->clientes_has_brindes_habilitados) > 0;
-                        $banhoSmart = $generoBrindeItem->genero_brinde["id"] <= 4;
+                    $vinculado = count($generoBrindeItem->clientes_has_brindes_habilitados) > 0;
+                    $banhoSmart = $generoBrindeItem->genero_brinde["id"] <= 4;
                     ?>
                     <tr>
                         <td><?= $generoBrindeItem->genero_brinde->nome . ($generoBrindeItem->genero_brinde->brinde_necessidades_especiais == 1 ? " (PNE)" : null) ?> </td>
@@ -106,7 +106,7 @@ echo $this->Breadcrumbs->render(
                             ) ?>
                             <!-- Editar -->
 
-                            <?php if (!$vinculado && !$banhoSmart):  ?>
+                            <?php if (!$vinculado && !$banhoSmart) : ?>
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -132,13 +132,23 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        'action' => 'editar_genero_brinde',
-                                        $generoBrindeItem->id
+                                        "controller" => "genero_brindes_clientes",
+                                        'action' => 'alteraEstadoGeneroBrindesCliente',
+                                        '?' =>
+                                            array(
+                                            'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                            'return_url' => array(
+                                                "controller" => "genero_brindes_clientes",
+                                                "action" => 'generos_brindes_cliente', $cliente["id"]
+                                            ),
+                                            "estado" => false,
+                                            "clientes_id" => $cliente["id"]
+                                        )
                                     ],
                                     [
                                         'class' => 'btn btn-danger btn-xs',
                                         'escape' => false,
-                                        "title" => "Editar"
+                                        "title" => "Desabilitar"
                                     ]
                                 ) ?>
                             <?php else : ?>
@@ -149,19 +159,29 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        'action' => 'editar_genero_brinde',
-                                        $generoBrindeItem->id
+                                        "controller" => "genero_brindes_clientes",
+                                        'action' => 'alteraEstadoGeneroBrindesCliente',
+                                        '?' =>
+                                            array(
+                                            'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                            'return_url' => array(
+                                                "controller" => "genero_brindes_clientes",
+                                                "action" => 'generos_brindes_cliente', $cliente["id"]
+                                            ),
+                                            "estado" => true,
+                                            "clientes_id" => $cliente["id"]
+                                        )
                                     ],
                                     [
                                         'class' => 'btn btn-primary btn-xs',
                                         'escape' => false,
-                                        "title" => "Editar"
+                                        "title" => "Habilitar"
                                     ]
                                 ) ?>
 
                             <?php endif; ?>
                             <!-- Delete -->
-                            <?php if (!$vinculado && !$banhoSmart):  ?>
+                            <?php if (!$vinculado && !$banhoSmart) : ?>
 
                                 <?= $this->Html->link(
                                     __(
@@ -181,8 +201,10 @@ echo $this->Breadcrumbs->render(
                                                 '?' =>
                                                     [
                                                     'genero_brindes_cliente_id' => $generoBrindeItem->id,
-                                                    'return_url' => array("controller" => "genero_brindes_clientes",
-                                                    "action" => 'generos_brindes_cliente', $cliente["id"])
+                                                    'return_url' => array(
+                                                        "controller" => "genero_brindes_clientes",
+                                                        "action" => 'generos_brindes_cliente', $cliente["id"]
+                                                    )
                                                 ]
                                             ]
                                         ),

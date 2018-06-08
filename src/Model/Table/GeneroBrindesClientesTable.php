@@ -191,6 +191,36 @@ class GeneroBrindesClientesTable extends GenericTable
         }
     }
 
+    /**
+     * GeneroBrindesClientesTable::updateHabilitadoGeneroBrindeCliente
+     *
+     * Undocumented function
+     *
+     * @param integer $id
+     * @param boolean $habilitado
+     * @return \App\Model\Entity\GeneroBrindesCliente Registro atualizado
+     */
+    public function updateHabilitadoGeneroBrindeCliente(int $id, bool $habilitado)
+    {
+        try {
+
+            if (empty($id) || $id == 0) {
+                throw new \Exception("Id não informado!");
+            }
+            $itemSave = $this->_getGeneroBrindesClientesTable()->get($id);
+
+            $itemSave["habilitado"] = $habilitado;
+
+            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao atualizar estado de gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
     /* -------------------------- Create/Update ----------------------------- */
 
     /**

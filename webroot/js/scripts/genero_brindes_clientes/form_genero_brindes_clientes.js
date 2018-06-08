@@ -22,11 +22,11 @@ $(document).ready(function () {
         if (obj.target.value <= 4) {
             $("#tipo_principal_codigo_brinde").val(obj.target.value);
             $("#tipo_secundario_codigo_brinde").val("00");
-            $("#tipo_principal_codigo_brinde").attr("disabled", true);
-            $("#tipo_secundario_codigo_brinde").attr("disabled", true);
+            $("#tipo_principal_codigo_brinde").attr("readonly", true);
+            $("#tipo_secundario_codigo_brinde").attr("readonly", true);
         } else {
-            $("#tipo_principal_codigo_brinde").attr("disabled", false);
-            $("#tipo_secundario_codigo_brinde").attr("disabled", false);
+            $("#tipo_principal_codigo_brinde").attr("readonly", false);
+            $("#tipo_secundario_codigo_brinde").attr("readonly", false);
         }
     });
 
