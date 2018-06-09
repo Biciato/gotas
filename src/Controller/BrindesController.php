@@ -260,6 +260,8 @@ class BrindesController extends AppController
 
             $brinde = $this->Brindes->newEntity();
 
+            // $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($clientesId);
+
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
             }
@@ -349,8 +351,14 @@ class BrindesController extends AppController
                     $this->Flash->error(__(Configure::read('messageSavedError')));
                 }
             }
-            $this->set(compact('brinde', 'clientesId'));
-            $this->set('_serialize', ['brinde']);
+            $arraySet = array(
+                "brinde",
+                "clientesId",
+                // "generoBrindesCliente"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
         }
     }

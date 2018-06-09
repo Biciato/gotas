@@ -13,10 +13,11 @@ use Cake\Core\Configure;
 <?= $this->Form->hidden('clientes_id', ['value' => $clientesId]); ?>
 
 <div class="form-group row">
-    <div class="col-lg-6">
+    <!-- <div class="col-lg-6"> -->
+    <div class="col-lg-12">
         <?= $this->Form->input('nome', ['id' => 'nome']); ?>
     </div>
-    <div class="col-lg-6">
+    <!-- <div class="col-lg-6">
         <?= $this->Form->input(
             'genero_brinde',
             [
@@ -24,57 +25,56 @@ use Cake\Core\Configure;
                 "id" => "genero_brinde_id",
                 "label" => "Selecione o tipo de brinde",
                 "empty" => "<Selecionar>",
-                "options" => [
-                    500 => "Calibragem Pneu",
-                    501 => "Estacionamento",
-                    502 => "Lava Rápido",
-
-                ]
+                "options" => $generoBrindesCliente
             ]
         ) ?>
 
-    </div>
+    </div> -->
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4">
+    <div class="col-lg-6">
 
         <?= $this->Form->input(
             'tempo_rti_shower',
             [
                 'type' => 'number',
                 'id' => 'tempo_rti_shower',
-                'label' => 'Tempo de Banho',
+                'label' => 'Se for Smart Shower, informe o Tempo de Banho',
                 'min' => 0,
                 'max' => 20,
-                'readonly' => true
+                'readonly' => false
             ]
         ) ?>
     </div>
-    <div class="col-lg-4">
-        <div class="form-group">
-            <?= $this->Form->input(
-                'ilimitado',
-                [
-                    'type' => 'checkbox',
-                    'id' => 'ilimitado',
-                    'label' => false,
-                    "class" => "form-check-input",
-                    'required' => false
-                    ]
-                ); ?>
-                <label for="ilimitado" class="form-check-label">Estoque de Brinde Ilimitado?</label>
-        </div>
-    </div>
-    <div class="col-lg-4">
+
+<div class="col-lg-6">
     <?= $this->Form->input(
-            'preco_padrao',
+        'preco_padrao',
+        [
+            'type' => 'text',
+            'id' => 'preco_padrao',
+            'label' => 'Preço Padrão em Gotas'
+        ]
+    ); ?>
+    </div>
+</div>
+
+<!-- Conferir o por que o botão está ficando desalinhado -->
+<div class="form-group row">
+    <div class="col-lg-12">
+        <?= $this->Form->input(
+            'ilimitado',
             [
-                'type' => 'text',
-                'id' => 'preco_padrao',
-                'label' => 'Preço Padrão em Gotas'
+                'type' => 'checkbox',
+                'id' => 'ilimitado',
+                'label' => false,
+                'required' => false
             ]
         ); ?>
+        <label for="ilimitado" class="form-check-label">
+            Estoque de Brinde Ilimitado?
+        </label>
     </div>
 </div>
 
@@ -118,7 +118,7 @@ use Cake\Core\Configure;
     <div class="form-group row hidden">
         <div class="row">
             <div class="col-lg-12">
-                <?= $this->Form->input('img-upload', ["type" => "text", "label" => false, "id" => "img-upload", "class" => "img-upload", "readonly" => true ]) ?>
+                <?= $this->Form->input('img-upload', ["type" => "text", "label" => false, "id" => "img-upload", "class" => "img-upload", "readonly" => true]) ?>
             </div>
         </div>
         <div class="row ">

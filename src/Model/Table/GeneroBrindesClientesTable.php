@@ -346,7 +346,56 @@ class GeneroBrindesClientesTable extends GenericTable
             $generoBrindes = $this->GeneroBrindes->find('list');
 
             if (sizeof($generoBrindesIds) > 0) {
-                $generoBrindes = $generoBrindes->where(["id not in" => $generoBrindesIds]);
+                $generoBrindes = $generoBrindes->where(
+                    [
+                        "id not in" => $generoBrindesIds,
+                        "habilitado" => 1
+                    ]
+                );
+            }
+
+            return $generoBrindes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+
+    }
+
+    /**
+     * GeneroBrindesClientesTable::getGenerosBrindesClientesDisponiveis
+     *
+     * Obtem GêneroBrindes Vinculados a um cliente
+     *
+     * @param integer $clientesId Id de Cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 08/06/2018
+     *
+     * @return \App\Model\Entity\array[] $list
+     */
+    public function getGenerosBrindesClientesVinculados(int $clientesId)
+    {
+        try {
+            $generoBrindesIds = array();
+            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
+
+            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
+                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            }
+
+            $generoBrindes = $this->GeneroBrindes->find('list');
+
+            if (sizeof($generoBrindesIds) > 0) {
+                $generoBrindes = $generoBrindes->where(
+                    [
+                        "id in" => $generoBrindesIds,
+                        "habilitado" => 1
+                    ]
+                );
             }
 
             return $generoBrindes;

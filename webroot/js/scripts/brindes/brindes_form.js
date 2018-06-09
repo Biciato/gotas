@@ -1,33 +1,41 @@
-$(document).ready(function() {
+$(document).ready(function () {
     $("#preco_padrao").maskMoney();
     $("#preco_padrao").attr('maxlength', 10);
 
-    // Refazer lógica que indica se é equipamento RTI
-    // if ($("#equipamento_rti_shower")[0].checked) {
-    //     $("#nome").attr('readonly', true);
-    //     $("#tempo_rti_shower").attr('readonly', false);
-    // }
-    // else {
-    //     $("#nome").attr('readonly', false);
-    //     $("#tempo_rti_shower").attr('readonly', true);
-    // }
+    $("#genero_brinde_id").on("change", function (obj) {
 
-    $("#tempo_rti_shower").on('blur', function() {
+        var nome = (this.value != undefined && this.value.length > 0) ? $("#genero_brinde_id option:selected").text() : "";
 
-        if ($("#equipamento_rti_shower")[0].checked) {
+        $("#nome").val(nome);
+
+        if (this.value != undefined && this.value <= 4 && this.value.length > 0) {
+            $("#tempo_rti_shower").attr('readonly', false);
+
+            $("#ilimitado").attr('checked', true);
+            $("#ilimitado").attr('disabled', true);
+        } else {
+            $("#tempo_rti_shower").attr('readonly', true);
+            $("#ilimitado").attr('checked', false);
+            $("#ilimitado").attr('disabled', false);
+        }
+    })
+    $("#tempo_rti_shower").on('blur', function () {
+
+        if ($("#genero_brinde_id").val() <= 4) {
             if (this.value > 20) {
                 this.value = 20;
             } else if (this.value < 0) {
                 this.value = 0;
             }
-            console.log(this.value);
 
-            $("#nome").val("Smart Shower Tempo de Banho: " + this.value + " minutos");
+            var nome = $("#genero_brinde_id option:selected").text() + this.value + " minutos";
+
+            $("#nome").val(nome);
+
         }
-
     });
 
-    $("#equipamento_rti_shower").on('change', function() {
+    $("#equipamento_rti_shower").on('change', function () {
 
         if (this.checked) {
             $("#nome").attr('readonly', true);
