@@ -22,7 +22,7 @@ echo $this->Breadcrumbs->render(
 
 
 ?>
-<?= $this->element('../Brindes/left_menu', ['clientes_id' => $cliente->id, 'mode' => 'view']) ?>
+<?= $this->element('../Brindes/left_menu', ['clientes_id' => $brinde->clientes_id, 'mode' => 'view']) ?>
 <div class="brindes view col-lg-9 col-md-8">
     <h3><?= h($brinde->nome) ?></h3>
     <table class="table table-striped table-hover">
@@ -30,10 +30,10 @@ echo $this->Breadcrumbs->render(
             <th>Nome</th>
             <td><?= h($brinde->nome) ?></td>
         </tr>
-       
+
         <tr>
             <th>Estoque Ilimitado</th>
-            <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
+            <td><?= !empty($brinde) ? $this->Boolean->convertBooleanToString($brinde->ilimitado) : null;?></td>
         </tr>
         <tr>
             <th>Preco (em gotas):</th>
@@ -52,6 +52,13 @@ echo $this->Breadcrumbs->render(
             <td><?= h(__("{0} minutos", $brinde->tempo_rti_shower)) ?></td>
         </tr>
         <?php endif; ?>
-        
+
+        <tr>
+            <th>Imagem do Brinde</th>
+
+            <?= $brinde->nome_img ?>
+            <td><img src="<?= strlen($brinde->nome_img) >0 ? $brinde->nome_img : ''  ?>" alt="<?= strlen($brinde->nome_img) > 0 ? "Imagem do Brinde" : '' ?>"></td>
+        </tr>
+
     </table>
 </div>

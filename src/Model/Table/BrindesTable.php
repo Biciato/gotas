@@ -216,16 +216,26 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes $brinde
      * @author
      **/
-    public function findBrindesByName($nome)
+    public function findBrindesByName($nome, $id = null)
     {
         try {
 
+            $whereConditions = array();
+
+            $whereConditions[] = array('nome' => $nome);
+
+            if (!empty($id)) {
+                $whereConditions[] = array("Brindes.id != " => $id);
+            }
+
             return $this->_getBrindeTable()->find('all')
-                ->where(['nome' => $nome])->contain('Clientes')->first();
+                ->where($whereConditions)
+                ->contain('Clientes')
+                ->first();
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 

@@ -10,12 +10,26 @@ use Cake\Core\Configure;
 
 ?>
 
-<?= $this->Form->hidden('clientes_id', ['value' => $clientesId]); ?>
+<?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
 
 <div class="form-group row">
-    <div class="col-lg-12">
+    <div class="col-lg-6">
+        <?= $this->Form->input(
+            'genero_brinde',
+            [
+                "type" => "select",
+                "id" => "genero_brinde_id",
+                "label" => "Nome para Brinde baseado nos tipos disponíveis ",
+                "empty" => "<Selecionar>",
+                "options" => $generoBrindesCliente
+            ]
+        ) ?>
+    </div>
+
+    <div class="col-lg-6">
         <?= $this->Form->input('nome', ['id' => 'nome']); ?>
     </div>
+
 </div>
 
 <div class="form-group row">
@@ -64,19 +78,21 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<!-- TODO: isto irá ser removido, pois agora os brindes de leitura de máquina serão todos vinculados a um gênero de brinde
+<?php
 
-    <div class="form-group">
-    <label for="equipamento_rti_shower">Marque se este Brinde é um Smart Shower</label>
-    <?= $this->Form->input(
-        'equipamento_rti_shower',
-        [
-            'type' => 'checkbox',
-            'id' => 'equipamento_rti_shower',
-            'label' => false
-        ]
-    ) ?>
-</div> -->
+$exibirImagemAtual = isset($imagemOriginal) ? true : false;
+
+if ($exibirImagemAtual) :
+?>
+
+<div class="form-group row">
+    <div class="col-lg-12">
+        <label>Imagem Atual do Brinde</label>
+        <div><img src="<?= $imagemOriginal ?>" alt="Imagem do Brinde"></div>
+    </div>
+</div>
+
+<?php endif; ?>
 
 <div class="col-lg-12">
     <?= $this->Form->input(

@@ -201,9 +201,12 @@ class BrindesController extends AppController
      */
     public function verBrindeRede($id = null)
     {
+
         try {
+
             $user_admin = $this->request->session()->read('User.RootLogged');
             $user_managed = $this->request->session()->read('User.ToManage');
+            $rede = $this->request->session()->read('Network.Main');
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
@@ -212,19 +215,32 @@ class BrindesController extends AppController
             $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
                 $this->user_logged,
                 $this->Clientes,
-                $this->ClientesHasUsuarios
+                $this->ClientesHasUsuarios,
+                array(),
+                $rede["id"]
             );
 
-            $brinde = $this->Brindes->get(
-                $id,
-                [
-                    'contain' => ['Clientes']
-                ]
+            $brinde = $this->Brindes->get($id);
+
+            if (is_null($brinde) && !isset($brinde)) {
+                throw new \Exception("Brinde não encontrado!");
+
+                return $this->redirect(array("controller" => "Brindes", "action" => "brindes_minha_rede", $rede["id"]));
+            }
+
+            $brinde["nome_img"] = $brinde["nome_img"] ? __("{0}{1}{2}{3}", Configure::read("appAddress"), "webroot", Configure::read("imageGiftPathRead"), $brinde["nome_img"]) : null;
+
+            $arraySet = array(
+                "brinde",
+                "cliente"
             );
 
-            $this->set(compact(['brinde', 'cliente']));
-            $this->set('_serialize', ['brinde', 'cliente']);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
+            $this->Flash->error("Houve um erro: " . $e->getMessage());
+            return $this->redirect(array("controller" => "Brindes", "action" => "brindes_minha_rede", $rede["id"]));
+
         }
     }
 
@@ -244,6 +260,8 @@ class BrindesController extends AppController
                 $this->user_logged = $user_managed;
             }
 
+            $clientesId = $clientesId;
+
             // verifica se usuário é pelo menos administrador.
 
             if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
@@ -260,7 +278,7 @@ class BrindesController extends AppController
 
             $brinde = $this->Brindes->newEntity();
 
-            // $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($clientesId);
+            $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($clientesId);
 
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
@@ -278,33 +296,16 @@ class BrindesController extends AppController
 
                     $brinde->ilimitado = $brinde->equipamento_rti_shower ? true : $brinde->ilimitado;
 
-                    // Faz tratamento de imagem
+                    $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
-                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
-
-                    // obtem dados de redimensionamento
-
-                    $height = $data["crop-height"];
-                    $width = $data["crop-width"];
-                    $valueX = $data["crop-x1"];
-                    $valueY = $data["crop-y1"];
-
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageGiftPathTemp"), $data["img-upload"]);
-
-                    $imagemDestino = __("{0}{1}", Configure::read("imageGiftPath"), $data["img-upload"]);
-
-                    // TODO: Conferir diâmetros de imagem de brinde
-                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 300, 130, $valueX, $valueY, $width, $height, 90);
-
-                    // Se imagem foi redimensionada, move e atribui o nome para gravação
-
-                    if ($resizeSucesso == 1) {
-                        rename($imagemOrigem, $imagemDestino);
-
-                        $brinde["nome_img"] = $data["img-upload"];
+                    if ($enviouNovaImagem) {
+                        $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
                     }
 
-                    if ($this->Brindes->save($brinde)) {
+                    $brinde["clientes_id"] = $clientesId;
+
+                    $brinde = $this->Brindes->save($brinde);
+                    if ($brinde) {
                         // habilita brinde para venda em uma rede/loja
                         $clienteHasBrindeHabilitado
                             = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
@@ -352,15 +353,17 @@ class BrindesController extends AppController
                     $this->Flash->error(__(Configure::read('messageSavedError')));
                 }
             }
+            echo 'oi';
             $arraySet = array(
                 "brinde",
                 "clientesId",
-                // "generoBrindesCliente"
+                "generoBrindesCliente"
             );
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
+            $this->Flash->error($e->getMessage());
         }
     }
 
@@ -373,10 +376,19 @@ class BrindesController extends AppController
      */
     public function editarBrindeRede($id = null)
     {
-        $brinde = $this->Brindes->get($id, ['contain' => []]);
+        $brinde = $this->Brindes->get($id);
+
+        $imagemOriginal = null;
+        $imagemOriginalDisco = null;
+
+        if (strlen($brinde->nome_img) > 0) {
+            $imagemOriginal = __("{0}{1}{2}{3}", Configure::read("appAddress"), "webroot", Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
+            $imagemOriginalDisco = __("{0}{1}{2}", WWW_ROOT, Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
+        }
 
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
+        $rede = $this->request->session()->read("Network.Main");
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
@@ -385,25 +397,56 @@ class BrindesController extends AppController
         $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
             $this->user_logged,
             $this->Clientes,
-            $this->ClientesHasUsuarios
+            $this->ClientesHasUsuarios,
+            array(),
+            $rede["id"]
         );
 
+        $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($brinde["clientes_id"]);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
+            $data = $this->request->getData();
 
-            $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+            if ($this->Brindes->findBrindesByName($data['nome'], $brinde["id"])) {
+                $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
+            } else {
+                $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
-            if ($this->Brindes->save($brinde)) {
-                $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+                $brinde = $this->Brindes->patchEntity($brinde, $data);
 
-                return $this->redirect(['action' => 'brindes_minha_rede']);
+                $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+
+                if ($enviouNovaImagem) {
+                    $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
+                }
+
+                if ($this->Brindes->save($brinde)) {
+                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                // Se mandou imagem nova
+
+                    if ($enviouNovaImagem && strlen($imagemOriginalDisco) > 0) {
+                    // Apaga o arquivo do disco
+                        $deleteStatus = unlink($imagemOriginalDisco);
+                        Log::write("info", "Excluiu imagem: {$deleteStatus}");
+                    }
+
+                    return $this->redirect(['action' => 'brindes_minha_rede']);
+                }
+                $this->Flash->error(__(Configure::read('messageSavedError')));
             }
-            $this->Flash->error(__(Configure::read('messageSavedError')));
+
         }
 
-        $this->set(compact('brinde', 'clientes'));
-        $this->set('clientesId', $brinde->clientes_id);
-        $this->set('_serialize', ['brinde']);
+        $arraySet = array(
+            "brinde",
+            "imagemOriginal",
+            "clientes",
+            "generoBrindesCliente"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -556,6 +599,45 @@ class BrindesController extends AppController
 
         $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
         $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
+    }
+
+    /**
+     * BrindesController::_preparaImagemBrindeParaGravacao
+     *
+     * Prepara imagem do brinde para gravação no diretório
+     *
+     * @param array $data Contendo informações da imagem enviada
+     *
+     * @author Gustavo Souza GOnçalves <gustavosouzagoncalves@outlook.com>
+     * @date 10/06/2018
+     *
+     * @return string Nome da imagem para gravação no banco
+     */
+    public function _preparaImagemBrindeParaGravacao(array $data)
+    {
+        // Faz tratamento de imagem
+        // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
+
+        // obtem dados de redimensionamento
+        $height = $data["crop-height"];
+        $width = $data["crop-width"];
+        $valueX = $data["crop-x1"];
+        $valueY = $data["crop-y1"];
+
+        $imagemOrigem = __("{0}{1}", Configure::read("imageGiftPathTemp"), $data["img-upload"]);
+        $imagemDestino = __("{0}{1}", Configure::read("imageGiftPath"), $data["img-upload"]);
+
+        // TODO: Conferir diâmetros de imagem de brinde
+        $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 300, 130, $valueX, $valueY, $width, $height, 90);
+
+        // Se imagem foi redimensionada, move e atribui o nome para gravação
+        if ($resizeSucesso == 1) {
+            rename($imagemOrigem, $imagemDestino);
+
+            $nomeImagem = $data["img-upload"];
+        }
+
+        return $nomeImagem;
     }
 
     /**
