@@ -1,3 +1,6 @@
 .vscode/*
 /tmp/*
 /logs/*
+/webroot/img/products/*
+/webroot/img/tmp/*
+/webroot/img/gifts/*

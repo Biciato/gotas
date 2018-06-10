@@ -267,6 +267,7 @@ class BrindesController extends AppController
             }
 
             if ($this->request->is('post')) {
+                $data = $this->request->getData();
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
                 $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);

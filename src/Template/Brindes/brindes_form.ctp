@@ -13,23 +13,9 @@ use Cake\Core\Configure;
 <?= $this->Form->hidden('clientes_id', ['value' => $clientesId]); ?>
 
 <div class="form-group row">
-    <!-- <div class="col-lg-6"> -->
     <div class="col-lg-12">
         <?= $this->Form->input('nome', ['id' => 'nome']); ?>
     </div>
-    <!-- <div class="col-lg-6">
-        <?= $this->Form->input(
-            'genero_brinde',
-            [
-                "type" => "select",
-                "id" => "genero_brinde_id",
-                "label" => "Selecione o tipo de brinde",
-                "empty" => "<Selecionar>",
-                "options" => $generoBrindesCliente
-            ]
-        ) ?>
-
-    </div> -->
 </div>
 
 <div class="form-group row">

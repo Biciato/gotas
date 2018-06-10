@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -209,7 +210,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             return $this->_getClientesHasBrindesHabilitadosTable()->save($clienteHasBrindeHabilitado);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao inserir registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao inserir registro: {0} em: {1}", $e->getMessage(), $trace);
 
             Log::write('error', $stringError);
 
