@@ -24,6 +24,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <div class="brindes form col-lg-9 col-md-10 columns content">
     <?= $this->Form->create($brinde) ?>
     <fieldset>
+
+
         <legend><?= 'Cadastrar Brinde' ?></legend>
            <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, 'clientesId' => $clientesId]); ?>
     </fieldset>

@@ -56,7 +56,6 @@ echo $this->Breadcrumbs->render(
         <tr>
             <th>Imagem do Brinde</th>
 
-            <?= $brinde->nome_img ?>
             <td><img src="<?= strlen($brinde->nome_img) >0 ? $brinde->nome_img : ''  ?>" alt="<?= strlen($brinde->nome_img) > 0 ? "Imagem do Brinde" : '' ?>"></td>
         </tr>
 

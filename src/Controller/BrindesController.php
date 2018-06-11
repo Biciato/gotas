@@ -251,6 +251,8 @@ class BrindesController extends AppController
      */
     public function adicionarBrindeRede($clientesId)
     {
+        $editMode = 0;
+
         try {
             $rede = $this->request->session()->read("Network.Main");
             $user_admin = $this->request->session()->read('User.RootLogged');
@@ -355,6 +357,7 @@ class BrindesController extends AppController
             }
             echo 'oi';
             $arraySet = array(
+                "editMode",
                 "brinde",
                 "clientesId",
                 "generoBrindesCliente"
@@ -376,7 +379,11 @@ class BrindesController extends AppController
      */
     public function editarBrindeRede($id = null)
     {
+        $editMode = 1;
+
         $brinde = $this->Brindes->get($id);
+
+        $generoBrindesId = $brinde["genero_brindes_id"];
 
         $imagemOriginal = null;
         $imagemOriginalDisco = null;
@@ -414,6 +421,9 @@ class BrindesController extends AppController
 
                 $brinde = $this->Brindes->patchEntity($brinde, $data);
 
+                // Preserva o id base de gênero brindes
+                $brinde["genero_brindes_id"] = $generoBrindesId;
+
                 $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
 
                 if ($enviouNovaImagem) {
@@ -423,10 +433,9 @@ class BrindesController extends AppController
                 if ($this->Brindes->save($brinde)) {
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                // Se mandou imagem nova
-
+                    // Se mandou imagem nova
                     if ($enviouNovaImagem && strlen($imagemOriginalDisco) > 0) {
-                    // Apaga o arquivo do disco
+                        // Apaga o arquivo do disco
                         $deleteStatus = unlink($imagemOriginalDisco);
                         Log::write("info", "Excluiu imagem: {$deleteStatus}");
                     }
@@ -439,6 +448,7 @@ class BrindesController extends AppController
         }
 
         $arraySet = array(
+            "editMode",
             "brinde",
             "imagemOriginal",
             "clientes",

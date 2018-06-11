@@ -11,14 +11,14 @@ use Cake\Core\Configure;
 ?>
 
 <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
-
+<?= $this->Form->hidden("edit-mode", ["id" => "edit_mode", "value" => $editMode]) ?>
 <div class="form-group row">
     <div class="col-lg-6">
         <?= $this->Form->input(
-            'genero_brinde',
+            'genero_brindes_id',
             [
                 "type" => "select",
-                "id" => "genero_brinde_id",
+                "id" => "genero_brindes_id",
                 "label" => "Nome para Brinde baseado nos tipos disponíveis ",
                 "empty" => "<Selecionar>",
                 "options" => $generoBrindesCliente
