@@ -419,45 +419,101 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         try {
             $conditions = [];
 
-            array_push($conditions, ['Brindes.habilitado' => true]);
+            // obtem todas as unidades que estão vinculada à aquela unidade
 
-            foreach ($where_conditions as $key => $value) {
-                array_push($conditions, $value);
+            $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+            // Cliente que quero aplicar a configuração
+            $clienteAplicarConfiguracaoId = $clientes_ids[0];
+
+            // Brindes já configurados para aquela unidade
+
+            $brindesHabilitadosUnidade = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+                ->where(array(
+                    "ClientesHasBrindesHabilitados.clientes_id" => $clienteAplicarConfiguracaoId
+                )
+            );
+
+            debug($brindesHabilitadosUnidade->toArray());
+
+            $clientesIdsQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByClientesId($clienteAplicarConfiguracaoId);
+            $clientesIds = array();
+
+            foreach ($clientesIdsQuery as $key => $value) {
+                $clientesIds[] = $value["clientes_id"];
             }
 
-            $brindes_cliente = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                ->where($where_conditions)
-                ->rightJoin(
-                    'Brindes',
-                    [
-                        'ClientesHasBrindesHabilitados.brindes_id  = Brindes.id',
-                        'ClientesHasBrindesHabilitados.clientes_id in' => $clientes_ids,
+            /**
+             * Obtem os brindes daquela rede
+             */
 
-                    ]
+            $brindesRede = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+                ->where(array(
+                    "ClientesHasBrindesHabilitados.habilitado" => 1,
+                    "ClientesHasBrindesHabilitados.clientes_id in " => $clientesIds
                 )
-                ->select(
-                    [
-                        'ClientesHasBrindesHabilitados.id',
+            )->contain(["Brindes"]);
 
-                        'ClientesHasBrindesHabilitados.brindes_id',
-                        'ClientesHasBrindesHabilitados.clientes_id',
-                        'ClientesHasBrindesHabilitados.habilitado',
-                        'ClientesHasBrindesHabilitados.audit_insert',
-                        'ClientesHasBrindesHabilitados.audit_update',
-                        'Brindes.id',
-                        'Brindes.clientes_id',
-                        'Brindes.nome',
-                        'Brindes.equipamento_rti_shower',
-                        'Brindes.tempo_rti_shower',
-                        'Brindes.ilimitado',
-                        'Brindes.habilitado',
-                        'Brindes.preco_padrao',
-                        'Brindes.audit_insert',
-                        'Brindes.audit_update',
+            debug($brindesRede->toArray());
 
-                    ]
+            // Obtem os brindes não configurados para aquela unidade
+
+            $outrosClientesMesmaUnidadeIds = array();
+
+            foreach ($clientesIds as $key => $clienteId) {
+                if ($clienteId != $clienteAplicarConfiguracaoId) {
+                    $outrosClientesMesmaUnidadeIds[] = $clienteId;
+                }
+            }
+
+            $brindesPendenteConfiguracao = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+                ->where(array(
+                    "ClientesHasBrindesHabilitados.habilitado" => 1,
+                    "ClientesHasBrindesHabilitados.clientes_id in " => $outrosClientesMesmaUnidadeIds
                 )
-                ->order(['ClientesHasBrindesHabilitados.id' => 'asc']);
+            )->contain(["Brindes"]);
+
+            debug($brindesPendenteConfiguracao->toArray());
+
+
+            // array_push($conditions, ['Brindes.habilitado' => true]);
+            // array_push($conditions, ['Brindes.clientes_id in ' => $clientes_ids]);
+
+            // foreach ($where_conditions as $key => $value) {
+            //     array_push($conditions, $value);
+            // }
+
+            // $brindes_cliente = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+            //     ->where($where_conditions)
+            //     ->rightJoin(
+            //         'Brindes',
+            //         [
+            //             'ClientesHasBrindesHabilitados.brindes_id  = Brindes.id',
+            //             'ClientesHasBrindesHabilitados.clientes_id in' => $clientes_ids,
+            //         ]
+            //     )
+            //     ->select(
+            //         [
+            //             'ClientesHasBrindesHabilitados.id',
+            //             'ClientesHasBrindesHabilitados.brindes_id',
+            //             'ClientesHasBrindesHabilitados.clientes_id',
+            //             'ClientesHasBrindesHabilitados.habilitado',
+            //             'ClientesHasBrindesHabilitados.audit_insert',
+            //             'ClientesHasBrindesHabilitados.audit_update',
+            //             'Brindes.id',
+            //             'Brindes.clientes_id',
+            //             'Brindes.nome',
+            //             'Brindes.tempo_rti_shower',
+            //             'Brindes.ilimitado',
+            //             'Brindes.habilitado',
+            //             'Brindes.preco_padrao',
+            //             'Brindes.audit_insert',
+            //             'Brindes.audit_update',
+
+            //         ]
+            //     )
+            //     ->order(['ClientesHasBrindesHabilitados.id' => 'asc']);
+            $brindes_cliente = array();
 
             return $brindes_cliente;
         } catch (\Exception $e) {

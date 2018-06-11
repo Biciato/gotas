@@ -217,9 +217,18 @@ class ClientesHasBrindesHabilitadosController extends AppController
         }
 
         // obtem os brindes habilitados (e não habilitados) da unidade
-        $brindes_configurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
+        $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
 
-        $arraySet = ['brindes_configurar', 'clientes_id'];
+        $brindesConfigurarArrayRetorno = array();
+        foreach ($brindesConfigurar as $key => $brinde) {
+            $brinde["pendente_configuracao"] = empty($brinde["tipo_codigo_barras"]);
+
+            $brindesConfigurarArrayRetorno[] = $brinde;
+        }
+
+        $brindesConfigurar = $brindesConfigurarArrayRetorno;
+
+        $arraySet = ['brindesConfigurar', 'clientes_id'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }

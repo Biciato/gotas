@@ -35,12 +35,11 @@ echo $this->Breadcrumbs->render(
 <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('Brindes.nome', ['label' => 'Brinde']) ?></th>
-                <!-- TODO: parei aqui -->
-                <th><?= $this->Paginator->sort('Brindes.ilimitado', ['label' => 'Qtde. Ilimitada?']) ?></th>
-                <th><?= $this->Paginator->sort('Brindes.equipamento_rti_shower', ['label' => 'Equip. Smart Shower?']) ?></th>
-                <th><?= $this->Paginator->sort('habilitado', ['label' => 'Habilitado?']) ?></th>
-                <th><?= $this->Paginator->sort('status', ['label' => 'Atribuído à unidade?']) ?></th>
+                <th><?= __('Brinde') ?></th>
+                <th><?= __('Qtde. Ilimitada?') ?></th>
+                <th><?= __('Habilitado?') ?></th>
+                <th><?= __('Pendente Configuracao?') ?></th>
+                <th><?= __('Atribuído à unidade?') ?></th>
                 <th class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -48,19 +47,20 @@ echo $this->Breadcrumbs->render(
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($brindes_configurar as $brinde_configurar) : ?>
+            <?php foreach ($brindesConfigurar as $brindesConfigurar) : ?>
 
-                <?php if ($brinde_configurar->Brindes['habilitado']) : ?>
-                    <?php $brinde_configurar->status = $brinde_configurar->id == null ? false : true; ?>
+                <?php if ($brindesConfigurar->Brindes['habilitado']) : ?>
+                    <?php $brindesConfigurar->status = $brindesConfigurar->id == null ? false : true; ?>
                     <tr>
-                        <td><?= h($brinde_configurar->Brindes['nome']) ?></td>
-                        <td><?= h($this->Boolean->convertBooleanToString($brinde_configurar->Brindes['ilimitado'])) ?></td>
-                        <td><?= h($this->Boolean->convertBooleanToString($brinde_configurar->Brindes['equipamento_rti_shower'])) ?></td>
-                        <td><?= h($this->Boolean->convertEnabledToString(is_nulL($brinde_configurar->habilitado) ? false : $brinde_configurar->habilitado)) ?></td>
-                        <td><?= h($this->Boolean->convertBooleanToString($brinde_configurar->status)) ?></td>
+                        <td><?= h($brindesConfigurar->Brindes['nome']) ?></td>
+                        <td><?= h($this->Boolean->convertBooleanToString($brindesConfigurar->Brindes['ilimitado'])) ?></td>
+                        <td><?= h($this->Boolean->convertEnabledToString(is_nulL($brindesConfigurar->habilitado) ? false : $brindesConfigurar->habilitado)) ?></td>
+                        <td><?= h($this->Boolean->convertBooleanToString($brindesConfigurar->status)) ?></td>
+                        <!-- Campo calculado -->
+                        <td><?= h($this->Boolean->convertBooleanToString($brindesConfigurar['pendente_configuracao'])) ?></td>
                         <td class="actions" style="white-space:nowrap">
 
-                            <?php if (is_null($brinde_configurar->id)) : ?>
+                            <?php if (is_null($brindesConfigurar->id)) : ?>
                                 <?=
                                 $this->Html->link(
                                     __(
@@ -73,12 +73,12 @@ echo $this->Breadcrumbs->render(
                                         'title' => 'Adicionar',
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-confirm-with-message',
-                                        'data-message' => __(Configure::read('messageEnableQuestion'), $brinde_configurar->Brindes['nome']),
+                                        'data-message' => __(Configure::read('messageEnableQuestion'), $brindesConfigurar->Brindes['nome']),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'habilitar_brinde',
                                                 "?" => [
-                                                    'brindes_id' => $brinde_configurar->Brindes['id'],
+                                                    'brindes_id' => $brindesConfigurar->Brindes['id'],
                                                     'clientes_id' => $clientes_id,
                                                 ]
                                             ]
@@ -88,7 +88,7 @@ echo $this->Breadcrumbs->render(
                                     false
                                 )
                                 ?>
-                            <?php elseif (!$brinde_configurar->habilitado) : ?>
+                            <?php elseif (!$brindesConfigurar->habilitado) : ?>
 
                                 <?=
                                 $this->Html->link(
@@ -102,12 +102,12 @@ echo $this->Breadcrumbs->render(
                                         'title' => 'Habilitar',
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-confirm-with-message',
-                                        'data-message' => __(Configure::read('messageEnableQuestion'), $brinde_configurar->Brindes['nome']),
+                                        'data-message' => __(Configure::read('messageEnableQuestion'), $brindesConfigurar->Brindes['nome']),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'habilitar_brinde',
                                                 "?" => [
-                                                    'brindes_id' => $brinde_configurar->Brindes['id'],
+                                                    'brindes_id' => $brindesConfigurar->Brindes['id'],
                                                     'clientes_id' => $clientes_id,
                                                 ]
                                             ]
@@ -131,12 +131,12 @@ echo $this->Breadcrumbs->render(
                                         'title' => 'Desabilitar',
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-confirm-with-message',
-                                        'data-message' => __(Configure::read('messageDisableQuestion'), $brinde_configurar->Brindes['nome']),
+                                        'data-message' => __(Configure::read('messageDisableQuestion'), $brindesConfigurar->Brindes['nome']),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'desabilitar_brinde',
                                                 "?" => [
-                                                    'brindes_id' => $brinde_configurar->Brindes['id'],
+                                                    'brindes_id' => $brindesConfigurar->Brindes['id'],
                                                     'clientes_id' => $clientes_id,
                                                 ]
                                             ]
@@ -154,7 +154,7 @@ echo $this->Breadcrumbs->render(
                                     ),
                                     [
                                         'action' => 'configurar_brinde',
-                                        $brinde_configurar->id
+                                        $brindesConfigurar->id
                                     ],
                                     [
                                         'title' => 'Configurar',

@@ -215,6 +215,7 @@ class UsuariosHasBrindesController extends AppController
 
             $brindes_habilitados_ids = [];
 
+            // TODO: Conferir se isto está funcional
             $brindes_habilitados_clientes = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId($clientes_ids);
 
             foreach ($brindes_habilitados_clientes as $key => $brinde_habilitado_cliente) {
