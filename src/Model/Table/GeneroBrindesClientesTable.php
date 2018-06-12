@@ -322,6 +322,38 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
+     * GeneroBrindesClientesTable::getGeneroBrindesClientesByGeneroCliente
+     *
+     * Obtem o gênero de brindes de um cliente através do ClientesId e Gênero Brinde Id
+     *
+     * @param integer $generoBrindesId Id do Gênero de Brinde
+     * @param integer $clientesId      Id de Cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 12/06/2018
+     *
+     * @return \App\Model\Entity\GeneroBrindesCliente[] $dados
+     */
+    public function getGeneroBrindesClientesByGeneroCliente(int $generoBrindesId, int $clientesId)
+    {
+        try {
+            return $this->_getGeneroBrindesClientesTable()->find('all')
+                ->where(
+                    array(
+                        "genero_brindes_id" => $generoBrindesId,
+                        "clientes_id" => $clientesId
+                    )
+                )->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
      * GeneroBrindesClientesTable::getGenerosBrindesClientesDisponiveis
      *
      * Obtem GêneroBrindes Disponíveis

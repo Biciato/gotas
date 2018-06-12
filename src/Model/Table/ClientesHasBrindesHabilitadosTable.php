@@ -474,13 +474,22 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 }
             }
 
+            $brindesNaoAtribuidos = array();
+
+            $brindesNaoAtribuidosWhereConditions = array(
+                "clientes_id in " => $clientesIds,
+                "clientes_id != " => $clienteAplicarConfiguracaoId
+            );
+
+            if (sizeof($brindesConfiguradosIds) > 0) {
+                $brindesNaoAtribuidosWhereConditions[] = array(
+                    "id not in " => $brindesConfiguradosIds
+                );
+            }
+
             $brindesNaoAtribuidos = $brindeTable->find('all')
                 ->where(
-                    array(
-                        "id not in " => $brindesConfiguradosIds,
-                        "clientes_id in " => $clientesIds,
-                        "clientes_id != " => $clienteAplicarConfiguracaoId
-                    )
+                    array($brindesNaoAtribuidosWhereConditions)
                 )->toArray();
 
             $brindesNaoVinculados = array();

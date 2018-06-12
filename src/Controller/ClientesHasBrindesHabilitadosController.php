@@ -220,6 +220,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
 
         $brindesConfigurarArrayRetorno = array();
+
         foreach ($brindesConfigurar as $key => $brinde) {
             $brinde["pendente_configuracao"] = empty($brinde["brindeVinculado"]["tipo_codigo_barras"]);
 
@@ -385,6 +386,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($whereConditions);
 
         if (is_null($cliente_has_brinde_habilitado)) {
+
+            $brinde = $this->Brindes->getBrindesById($brindes_id);
+
+            $generoBrindesCliente = $this->GeneroBrindesClientes->getGeneroBrindesClientesByGeneroCliente($brinde["genero_brindes_id"], $clientes_id);
 
             $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->newEntity();
             $cliente_has_brinde_habilitado->brindes_id = $brindes_id;

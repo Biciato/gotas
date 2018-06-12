@@ -36,6 +36,7 @@ $(document).ready(function () {
         if (this.value != undefined && this.value <= 4 && this.value.length > 0) {
             $("#tempo_rti_shower").attr('readonly', false);
 
+            $("#nome").attr('readonly', true);
             $("#ilimitado").attr('checked', true);
             $("#ilimitado").attr('disabled', true);
         } else {
