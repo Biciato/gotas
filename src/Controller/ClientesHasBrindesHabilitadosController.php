@@ -221,7 +221,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $brindesConfigurarArrayRetorno = array();
         foreach ($brindesConfigurar as $key => $brinde) {
-            $brinde["pendente_configuracao"] = empty($brinde["tipo_codigo_barras"]);
+            $brinde["pendente_configuracao"] = empty($brinde["brindeVinculado"]["tipo_codigo_barras"]);
 
             $brindesConfigurarArrayRetorno[] = $brinde;
         }
@@ -377,13 +377,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         // $this->request->allowMethod(['post']);
 
-        // verifica se o cliente tem o brinde habilitado
-        $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId(
-            [
-                'ClientesHasBrindesHabilitados.brindes_id' => $brindes_id,
-                'ClientesHasBrindesHabilitados.clientes_id' => $clientes_id
-            ]
+        $whereConditions = array(
+            'ClientesHasBrindesHabilitados.id' => $brindes_id
         );
+
+        // verifica se o cliente tem o brinde habilitado
+        $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($whereConditions);
 
         if (is_null($cliente_has_brinde_habilitado)) {
 

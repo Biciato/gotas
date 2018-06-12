@@ -207,7 +207,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
      * Get one Brinde Habilitado For Cliente using Brindes Id
      *
      * @param int $clientes_has_brindes_habilitados_id Id de Brinde Habilitado
-     * 
+     *
      * @return (entity\ClientesHasBrindesHabilitados) $entity
      **/
     public function getEstoqueForBrindeId($clientes_has_brindes_habilitados_id, $quantidade = null, array $whereConditions = [], int $qteRegistros = 10)
@@ -230,13 +230,13 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
                 ->contain(['Usuarios'])
                 ->where($conditions);
 
+            $apenasUm = false;
 
-                echo ($quantidade);
             if (!is_null($quantidade)) {
+                $apenasUm = true;
                 $estoque = $estoque->first();
             }
-
-            if (!is_null($estoque)) {
+            if (!is_null($estoque) && !$apenasUm) {
                 if (!is_null($qteRegistros)) {
                     $estoque = $estoque->limit($qteRegistros);
                 }

@@ -355,7 +355,6 @@ class BrindesController extends AppController
                     $this->Flash->error(__(Configure::read('messageSavedError')));
                 }
             }
-            echo 'oi';
             $arraySet = array(
                 "editMode",
                 "brinde",
