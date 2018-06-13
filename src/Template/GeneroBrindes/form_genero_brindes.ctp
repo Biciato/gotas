@@ -1,5 +1,7 @@
 <?php
 
+use Cake\Core\Configure;
+
 /**
  * form_genero_brindes.ctp
  *
@@ -24,11 +26,56 @@
     <div class="form-group row">
         <div class="col-lg-12"><?= $this->Form->control('nome'); ?></div>
     </div>
+    <div class="form-group row">
+        <div class="col-lg-12">
+            <?= $this->Form->control('equipamento_rti', ["label" => "Equipamento RTI?"]); ?>
+            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Para Pessoas de Nec. Especiais?"]); ?>
+            <?= $this->Form->control('habilitado', ["label" => "Gênero Habilitado para Atribuição?"]); ?>
+            <?= $this->Form->control(
+                'atribuir_automatico',
+                [
+                    "label" => "Atribuir automaticamente na criação de nova unidade de rede?",
+                    "id" => "atribuir_automatico",
+                    "class" => "atribuir-automatico"
+                ]
+            ); ?>
+        </div>
+    </div>
+    <div class="form-group row">
 
-    <?= $this->Form->control('equipamento_rti', ["label" => "Equipamento RTI?"]); ?>
-    <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Para Pessoas de Nec. Especiais?"]); ?>
-    <?= $this->Form->control('habilitado', ["label" => "Gênero Habilitado para Atribuição?"]); ?>
-    <?= $this->Form->control('atribuir_automatico', ["label" => "Atribuir automaticamente na criação de nova unidade de rede?"]); ?>
+        <h4>
+            Se Atribuir Automático, informe os seguintes valores para configuração automática:
+        </h4>
+        <div class="col-lg-6">
+            <?= $this->Form->control(
+                "tipo_principal_codigo_brinde_default",
+                [
+                    "label" => "Tipo Principal Codigo Brinde Default",
+                    "id" => "tipo_principal_codigo_brinde_default",
+                    "class" => "tipo-principal-codigo-brinde-default",
+                    "type" => "number",
+                    "min" => 0,
+                    "max" => 9,
+                    "step" => 1
+                ]
+            ) ?>
+        </div>
+        <div class="col-lg-6">
+            <?= $this->Form->control(
+                "tipo_secundario_codigo_brinde_default",
+                [
+                    "label" => "Tipo Secundario Codigo Brinde Default",
+                    "id" => "tipo_secundario_codigo_brinde_default",
+                    "class" => "tipo-secundario-codigo-brinde-default",
+                    "type" => "number",
+                    "min" => 00,
+                    "max" => 99,
+                    "step" => 1
+                ]
+            ) ?>
+        </div>
+    </div>
+
 </fieldset>
 <div class="form-group row">
     <div class="col-lg-12">
@@ -37,8 +84,18 @@
             [
                 'class' => 'btn btn-primary',
                 'escape' => false
-                ]
+            ]
         ) ?>
     </div>
 </div>
 <?= $this->Form->end() ?>
+
+
+<?php if (Configure::read("debug")) {
+
+    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes");
+} else {
+    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes.min");
+}
+echo $this->fetch("script");
+?>

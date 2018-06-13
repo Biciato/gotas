@@ -120,6 +120,16 @@ class GeneroBrindesTable extends GenericTable
             ->notEmpty('atribuir_automatico');
 
         $validator
+            ->integer('tipo_principal_codigo_brinde_default')
+            ->requirePresence('tipo_principal_codigo_brinde_default', 'create')
+            ->allowEmpty('tipo_principal_codigo_brinde_default');
+
+        $validator
+            ->integer('tipo_secundario_codigo_brinde_default')
+            ->requirePresence('tipo_secundario_codigo_brinde_default', 'create')
+            ->allowEmpty('tipo_secundario_codigo_brinde_default');
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
@@ -168,6 +178,8 @@ class GeneroBrindesTable extends GenericTable
             $generoBrindesSave->brinde_necessidades_especiais = $generoBrindes["brinde_necessidades_especiais"];
             $generoBrindesSave->habilitado = $generoBrindes["habilitado"];
             $generoBrindesSave->atribuir_automatico = $generoBrindes["atribuir_automatico"];
+            $generoBrindesSave->tipo_principal_codigo_brinde_default = $generoBrindes["tipo_principal_codigo_brinde_default"];
+            $generoBrindesSave->tipo_secundario_codigo_brinde_default = $generoBrindes["tipo_secundario_codigo_brinde_default"];
 
             return $this->_getGeneroBrindeTable()->save($generoBrindesSave);
         } catch (\Exception $e) {

@@ -58,7 +58,7 @@ class GeneroBrindesController extends AppController
             }
 
              // Qte. de Registros
-             $qteRegistros = $data['qteRegistros'];
+            $qteRegistros = $data['qteRegistros'];
         }
 
         $generoBrindes = $this->GeneroBrindes->findGeneroBrindes($whereConditions);
@@ -104,42 +104,49 @@ class GeneroBrindesController extends AppController
 
             $data = $this->request->getData();
 
-            /**
-             * Valida se há outro gênero com mesmo nome
-             * e se também é brinde de Nec. Especiais
-             */
-            $whereConditions = array();
+            // Valida se o tipo é menor que 4 pois este já é default SMART Shower
+            if ($data["tipo_principal_codigo_brinde_default"] <= 4) {
+                $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
+            } else {
 
-            $whereConditions[] = [
-                "nome" => $data["nome"],
-                "equipamento_rti" => $data["equipamento_rti"],
-                "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
-                "atribuir_automatico" => $data["atribuir_automatico"],
-            ];
+                /**
+                 * Valida se há outro gênero com mesmo nome
+                 * e se também é brinde de Nec. Especiais
+                 */
+                $whereConditions = array();
 
-            $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
-
-            // se for mesmas condições, impede
-            if ($generoBrindeEncontrado) {
-                $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
-
-                $arraySet = [
-                    "generoBrinde"
+                $whereConditions[] = [
+                    "nome" => $data["nome"],
+                    "equipamento_rti" => $data["equipamento_rti"],
+                    "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
+                    "atribuir_automatico" => $data["atribuir_automatico"],
                 ];
 
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
+                $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
 
-                return;
+                // se for mesmas condições, impede
+                if ($generoBrindeEncontrado) {
+                    $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
+
+                    $arraySet = [
+                        "generoBrinde"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
+
+                    return;
+                }
+
+                $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
+                if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
             }
 
-            $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
-            if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
-                $this->Flash->success(__(Configure::read("messageSavedSuccess")));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__(Configure::read("messageSavedError")));
         }
 
         $arraySet = [
@@ -172,44 +179,50 @@ class GeneroBrindesController extends AppController
 
             $data = $this->request->getData();
 
-            /**
-             * Valida se há outro gênero com mesmo nome
-             * e se também é brinde de Nec. Especiais
-             */
+            // Valida se o tipo é menor que 4 pois este já é default SMART Shower
+            if ($data["tipo_principal_codigo_brinde_default"] <= 4) {
+                $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
+            } else {
 
-            $whereConditions = array();
+                /**
+                 * Valida se há outro gênero com mesmo nome
+                 * e se também é brinde de Nec. Especiais
+                 */
 
-            $whereConditions[] = [
-                "id != " => $id,
-                "nome" => $data["nome"],
-                "equipamento_rti" => $data["equipamento_rti"],
-                "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
-                "atribuir_automatico" => $data["atribuir_automatico"],
-            ];
+                $whereConditions = array();
 
-            $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
-
-            // se for mesmas condições, impede
-            if ($generoBrindeEncontrado) {
-                $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
-
-                $arraySet = [
-                    "generoBrinde"
+                $whereConditions[] = [
+                    "id != " => $id,
+                    "nome" => $data["nome"],
+                    "equipamento_rti" => $data["equipamento_rti"],
+                    "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
+                    "atribuir_automatico" => $data["atribuir_automatico"],
                 ];
 
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
+                $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
 
-                return;
+                // se for mesmas condições, impede
+                if ($generoBrindeEncontrado) {
+                    $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
+
+                    $arraySet = [
+                        "generoBrinde"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
+
+                    return;
+                }
+
+                $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
+                if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
             }
-
-            $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
-            if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
-                $this->Flash->success(__(Configure::read("messageSavedSuccess")));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__(Configure::read("messageSavedError")));
         }
 
         $arraySet = [
