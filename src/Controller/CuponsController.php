@@ -153,6 +153,35 @@ class CuponsController extends AppController
      *
      * @return void
      */
+    public function emissaoCupom()
+    {
+        $user_admin = $this->request->session()->read('User.RootLogged');
+        $user_managed = $this->request->session()->read('User.ToManage');
+
+        if ($user_admin) {
+            $this->user_logged = $user_managed;
+        }
+
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+
+        $cliente = $this->request->session()->read("Network.Unit");
+
+
+        $arraySet = array(
+            "cliente"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * Ação de escolher cupom
+     *
+     * @return void
+     *
+     * TODO: ver se esta action precisará
+     */
     public function escolherBrinde()
     {
         $user_admin = $this->request->session()->read('User.RootLogged');

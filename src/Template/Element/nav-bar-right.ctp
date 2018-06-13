@@ -346,7 +346,7 @@ if (empty($user_logged)) {
                         </li>
 
                         <li>
-                            <?= $this->Html->link('Emissão de Brindes', ['controller' => 'cupons', 'action' => 'escolher_brinde']) ?>
+                            <?= $this->Html->link('Emissão de Brindes', ['controller' => 'cupons', 'action' => 'emissao_cupom']) ?>
                         </li>
 
 

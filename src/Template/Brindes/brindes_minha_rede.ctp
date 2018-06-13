@@ -22,7 +22,7 @@ echo $this->Breadcrumbs->render(
 <div class="brindes index col-lg-9 col-md-10 columns content">
     <legend><?= __("Cadastro de Brindes da Rede") ?></legend>
 
-    <?= $this->element('../Brindes/brindes_filtro', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']) ?>
+    <?= $this->element('../Brindes/brindes_filtro_pesquisa_comum', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']) ?>
 
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>
@@ -40,7 +40,7 @@ echo $this->Breadcrumbs->render(
         <tbody>
             <?php foreach ($brindes as $brinde) : ?>
                 <tr>
-                   
+
                     <td><?= h($brinde->nome) ?></td>
                     <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
                     <td><?= $this->Number->format($brinde->preco_padrao) ?></td>
@@ -77,7 +77,7 @@ echo $this->Breadcrumbs->render(
                         )
                         ?>
                         <?php if (!$brinde->habilitado) : ?>
-                            
+
                               <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -124,7 +124,7 @@ echo $this->Breadcrumbs->render(
                                     ],
                                     false
                                 ); ?>
-                        
+
                     <?php endif; ?>
                     </td>
                 </tr>

@@ -38,7 +38,7 @@ class MinifyShell extends ExtendedShell
                 'brindes_filtro_outros_ajax',
                 'brindes_filtro_shower_ajax',
                 'brindes_form',
-                'brindes_filtro',
+                'brindes_filtro_pesquisa_comum',
                 'filtro_brindes_relatorio',
                 'impressao_rapida'
             ]

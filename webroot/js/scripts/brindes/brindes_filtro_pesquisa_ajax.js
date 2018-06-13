@@ -1,3 +1,6 @@
+/**
+ * @file webroot\js\scripts\brindes\brindes_filtro_pesquisa_ajax.js
+ */
 $(document).ready(function () {
 
     $(".validation-message").hide();
