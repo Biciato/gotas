@@ -233,22 +233,20 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
             <div class="gifts-query-region">
 
+                <div class="col-lg-12">
+                    <?= $this->Form->button(
+                        __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
+                        [
+                            'type' => 'button',
+                            'id' => 'print_gift',
+                            'escape' => false,
+                            'class' => 'print-gift-shower'
+                        ]
+                    ) ?>
 
-
-            <div class="col-lg-12">
-                <?= $this->Form->button(
-                    __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
-                    [
-                        'type' => 'button',
-                        'id' => 'print_gift',
-                        'escape' => false,
-                        'class' => 'print-gift-shower'
-                    ]
-                ) ?>
-
-                <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
-                <?= $this->Html->tag('/div') ?>
-            </div>
+                    <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
+                    <?= $this->Html->tag('/div') ?>
+                </div>
             </div>
 
         <?= $this->Form->end(); ?>

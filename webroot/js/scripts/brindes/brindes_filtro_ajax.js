@@ -19,7 +19,8 @@ $(document).ready(function () {
                 }
             });
 
-            console.log(brinde[0].brinde.nome_img);
+            console.log(brinde);
+            // console.log(brinde[0].brinde.nome_img);
             $(".gift-image").attr('src', brinde[0].brinde.nome_img);
             $("#brindes_id").val(brinde[0].id);
             if (brinde[0].brinde_habilitado_preco_atual == null) {

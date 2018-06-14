@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\cupons\imprime_brinde_shower.js
  * @date 21/08/2017
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -268,7 +268,7 @@ $(document).ready(function () {
 
     /**
      * Seta informações de usuário
-     * @param {*} data 
+     * @param {*} data
      */
     var setUsuariosInfo = function (data) {
         if (data !== undefined && data !== null) {
@@ -412,6 +412,14 @@ $(document).ready(function () {
 
         var result = validateBeforePurchase();
 
+        /**
+         * TODO: Impressão de brinde será método único agora.
+         * Todo o processo será feito via backend e a tomada de decisão será
+         * conforme o tipo de brinde que está sendo impresso.
+         * O Brinde também irá dizer qual é seu tipo de impressão conforme
+         * o registro habilitado na UNIDADE da Rede.
+         *
+         */
         if (result) {
             var data = {
                 brindes_id: $("#brindes_id").val(),
@@ -449,36 +457,15 @@ $(document).ready(function () {
                     $("#print_usuarios_nome").text(result.usuario.nome);
                     $("#print_data_emissao").text(result.ticket.data.substr(0, 10));
 
+                    /**
+                     * TODO: o Cupom Emitido agora será todo calculado via backend, então não
+                     * haverá mais a necessidade de alteração da lógica
+                     */
                     var cupom_emitido = result.ticket.cupom_emitido;
-
-                    var cupom_emitido_1 = cupom_emitido.substr(0, 8);
-                    var cupom_emitido_2 = cupom_emitido.substr(9, 5);
-
-                    var sexo = $("#sexo_brinde_shower").val();
-
-                    var necessidades = $("#necessidades_especiais_brinde_shower").val();
 
                     var tipo = 0;
 
-                    if (sexo == 1) {
-                        $("#genero_box").text('Masculino');
-                        if (necessidades == 1) {
-                            tipo = 2;
-                        } else {
-                            tipo = 1;
-                        }
-                    } else {
-                        $("#genero_box").text('Feminino');
-                        if (necessidades == 1) {
-                            tipo = 4;
-                        } else {
-                            tipo = 3;
-                        }
-                    }
-
                     $("#rti_shower_minutos").text(result.tempo);
-
-                    var cupom_emitido = cupom_emitido_1 + tipo + cupom_emitido_2;
 
                     $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
                         barWidth: 2,
@@ -491,6 +478,9 @@ $(document).ready(function () {
                         importCss: false
                     }), 100);
 
+                    /**
+                     * TODO: confirmar se preciso destes métodos conforme abaixo
+                     */
                     // resetUserFilter();
 
                     exibirConfirmacaoImpressaoShower();
