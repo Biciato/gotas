@@ -308,18 +308,13 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * Obtêm todos os brindes de um cliente conforme tipo
      *
      * @param int  $clientes_id            Id de CLiente
-     * @param bool $equipamento_rti_shower Se é Smart Shower ou não
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
-    public function getAllGiftsClienteId(int $clientes_id, bool $equipamento_rti_shower = null)
+    public function getAllGiftsClienteId(int $clientes_id)
     {
         try {
             $whereConditions = [];
-
-            if (!is_null($equipamento_rti_shower)) {
-                $whereConditions[] = ['Brindes.equipamento_rti_shower' => $equipamento_rti_shower];
-            }
 
             $whereConditions[] = ['ClientesHasBrindesHabilitados.habilitado' => true];
             $whereConditions[] = ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id];

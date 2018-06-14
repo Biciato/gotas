@@ -1,5 +1,8 @@
-/**
- * @file webroot\js\scripts\brindes\brindes_filtro_pesquisa_ajax.js
+ /**
+ * @author Gustavo Souza Gonçalves
+ * @file webroot\js\scripts\brindes\brindes_filtro_ajax.js
+ * @date 13/06/2018
+ *
  */
 $(document).ready(function () {
 

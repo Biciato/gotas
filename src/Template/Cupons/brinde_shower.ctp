@@ -25,7 +25,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 ?>
 
 <?php if ($showMenu) : ?>
-    
+
     <?= $this->element(
         '../Cupons/left_menu',
         [
@@ -37,12 +37,12 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
     <div class="col-lg-9 col-md-10 columns">
 
-<?php else : ?> 
+<?php else : ?>
     <div class="col-lg-12 col-md-12 columns">
 <?php endif; ?>
 
     <div class="container-emissao-cupom-smart">
-        <legend><?= __("Emissão de Cupom Smart Shower") ?></legend>
+        <legend><?= __("Emissão de Cupom") ?></legend>
 
         <?= $this->Form->create(); ?>
             <div class="form-group">
@@ -66,7 +66,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                             ],
                             'default' => 'placa'
                         ]) ?>
-                    </div>  
+                    </div>
 
                     <div class="col-lg-7">
                         <?= $this->Form->input(
@@ -76,7 +76,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                                 'label' => 'Parâmetro',
                                 'class' => 'form-control col-lg-5'
                             ]
-                        ) ?> 
+                        ) ?>
                     </div>
 
                     <div class="col-lg-2 vertical-align">
@@ -92,9 +92,9 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                     </div>
 
                     <span class="text-danger validation-message" id="user_validation_message_brinde_shower"></span>
-                
+
                 </div>
-                
+
                 <div class="brinde-shower user-result user-result-names" >
                     <div class="col-lg-12">
                         <table class="table table-striped table-hover" id="user-result-names">
@@ -117,7 +117,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
                     <div id="vehicle" class="col-lg-12">
                         <h4>Veículo Encontrado</h4>
-                        
+
 
                         <div class="col-lg-3 col-md-3">
                             <?= $this->Form->input('placa', ['readonly' => true, 'label' => 'Placa', 'id' => 'veiculosPlaca']) ?>
@@ -170,7 +170,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                             'class' => 'usuarios_id_brinde_shower'
                         ]
                     ); ?>
-                    
+
                     <div class='col-lg-1'>
                         <?= $this->Form->label('Nome') ?>
                     </div>
@@ -187,7 +187,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                             ]
                         ) ?>
                     </div>
-                    
+
                     <div class='col-lg-2'>
                         <?= $this->Form->label('Data Nascimento') ?>
                     </div>
@@ -228,68 +228,27 @@ $showMenu = isset($showMenu) ? $showMenu : true;
             </div>
 
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
-            
-            <?= $this->element('../Brindes/brindes_filtro_shower_ajax') ?>
-            
+
+            <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
+
             <div class="gifts-query-region">
-        
-                <div class="col-lg-4">
-                    
-                        <?= $this->Form->input('sexo', [
-                            'id' => 'sexo_brinde_shower',
-                            'class' => 'sexo_brinde_shower',
-                            'empty' => true,
-                            'options' =>
-                                [
-                                '1' => 'Masculino',
-                                '0' => 'Feminino'
-                            ]
-                        ]); ?>
-                    </div>
 
-                    <div class="col-lg-4">
-                    <?= $this->Form->input(
-                        'necessidades_especiais',
-                        [
-                            'label' => 'Portador de Nec. Especiais?',
-                            'id' => 'necessidades_especiais_brinde_shower',
-                            'class' => 'necessidades_especiais_brinde_shower',
-                            'empty' => true,
-                            'options' => [
-                                1 => 'Sim',
-                                0 => 'Não',
-                            ]
-                        ]
-                    ) ?>
 
-                    </div>
-                    <div class="col-lg-4">
-                    <?= $this->Form->input(
-                        'current_password',
-                        [
-                            'type' => 'password',
-                            'id' => 'current_password',
-                            'class' => 'current_password',
-                            'label' => 'Confirmar senha do usuário'
-                        ]
-                    ) ?>
-                    
-                </div>
-                
-                <div class="col-lg-12">
-                    <?= $this->Form->button(
-                        __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
-                        [
-                            'type' => 'button',
-                            'id' => 'print_gift',
-                            'escape' => false,
-                            'class' => 'print-gift-shower'
-                        ]
-                    ) ?>
 
-                    <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
-                    <?= $this->Html->tag('/div') ?>
-                </div>
+            <div class="col-lg-12">
+                <?= $this->Form->button(
+                    __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
+                    [
+                        'type' => 'button',
+                        'id' => 'print_gift',
+                        'escape' => false,
+                        'class' => 'print-gift-shower'
+                    ]
+                ) ?>
+
+                <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
+                <?= $this->Html->tag('/div') ?>
+            </div>
             </div>
 
         <?= $this->Form->end(); ?>
@@ -304,11 +263,11 @@ $showMenu = isset($showMenu) ? $showMenu : true;
             <div class="col-lg-2"></div>
             <div class="col-lg-3">
                 <!-- Sim Impressão Brinde Smart  -->
-                
+
                 <?= $this->Html->tag('button', __("{0} Sim, Imprimir Canhoto", $this->Html->tag('i', '', ['class' => 'fa fa-check'])), [
                     'id' => 'imprimir-canhoto-shower',
                     'class' => 'imprimir-canhoto-shower btn btn-primary btn-block'
-                ]) ?> 
+                ]) ?>
 
             </div>
             <div class="col-lg-2"></div>
@@ -318,8 +277,8 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
                     'id' => 'reimpressao-shower',
                     'class' => 'reimpressao-shower btn btn-danger btn-block'
-                ]) ?> 
-                
+                ]) ?>
+
             </div>
             <div class="col-lg-2"></div>
 
@@ -340,7 +299,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                     __("{0} Sim", $this->Html->tag("i", '', ['class' => 'fa fa-check'])),
                     ['controller' => 'brindes', 'action' => 'impressao_rapida'],
                     ['escape' => false, 'class' => 'btn btn-primary btn-block']
-                ); ?> 
+                ); ?>
             </div>
             <div class="col-lg-2"></div>
             <div class="col-lg-3">
@@ -348,12 +307,12 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
                     'id' => 'reimpressao-canhoto-shower',
                     'class' => 'reimpressao-canhoto-shower btn btn-danger btn-block'
-                ]) ?> 
+                ]) ?>
                 </div>
             <div class="col-lg-2"></div>
         </div>
     </div>
-    
+
 </div>
 <?= $this->element('../Cupons/impressao_shower_layout') ?>
 <?= $this->element('../Cupons/impressao_canhoto_shower_layout') ?>
@@ -361,7 +320,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/cupons/imprime_brinde_shower') ?>
     <?= $this->Html->css('styles/cupons/imprime_brinde_shower') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/cupons/imprime_brinde_shower.min') ?>
     <?= $this->Html->css('styles/cupons/imprime_brinde_shower.min') ?>
 <?php endif; ?>

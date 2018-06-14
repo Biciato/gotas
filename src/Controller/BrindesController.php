@@ -850,11 +850,9 @@ class BrindesController extends AppController
 
             $clientes_id = $data['clientes_id'];
 
-            $equipamento_rti_shower = $data['equipamento_rti_shower'] == 1 ? true : false;
-
             // tipo => true -> smart shower; false -> comum
 
-            $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id, $equipamento_rti_shower);
+            $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
 
             $brindes = $brindes_rti;
             $count = sizeof($brindes_rti);
