@@ -72,8 +72,7 @@ $(document).ready(function () {
             type: 'POST',
             data: JSON.stringify({
                 parametro_brinde: $("#parametro_brinde").val(),
-                clientes_id: $("#clientes_id").val(),
-                equipamento_rti_shower: 1,
+                clientes_id: $("#clientes_id").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");

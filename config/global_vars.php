@@ -6,11 +6,17 @@
 
 use Cake\Core\Configure;
 
+// const SITE_ADDRESS = 'https://40.71.26.138/',
+// const SITE_ADDRESS = 'https://www.rtibrindes.com.br/',
+// const SITE_ADDRESS = "https://www.rtibrindes.local/";
+// const WEBROOT_ADDRESS = self::SITE_ADDRESS + "webroot";
+
 Configure::write(
     [
         // 'appAddress' => 'https://40.71.26.138/',
         // 'appAddress' => 'https://www.rtibrindes.com.br/',
-        'appAddress' => 'https://www.rtibrindes.local/',
+        'appAddress' => "https://www.rtibrindes.local/",
+        "webrootAddress" => "https://www.rtibrindes.local/webroot",
 
                 // Gotas
 

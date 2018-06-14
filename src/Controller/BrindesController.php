@@ -844,6 +844,7 @@ class BrindesController extends AppController
     public function findBrindes()
     {
         $result = null;
+        $brindes = array();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -852,10 +853,21 @@ class BrindesController extends AppController
 
             // tipo => true -> smart shower; false -> comum
 
-            $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
+            $brindesHabilitadosCliente = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
 
-            $brindes = $brindes_rti;
-            $count = sizeof($brindes_rti);
+            $brindesTemp = array();
+
+            foreach ($brindesHabilitadosCliente as $key => $brindeHabilitadoCliente) {
+                $brindeHabilitadoCliente["brinde"]["nome_img"] =
+                    __(
+                        "{0}{1}{2}",
+                        Configure::read("webrootAddress"),
+                        Configure::read("imageGiftPathRead"), $brindeHabilitadoCliente["brinde"]["nome_img"]);
+                $brindesTemp[] = $brindeHabilitadoCliente;
+            }
+
+            $brindes = $brindesTemp;
+            $count = sizeof($brindes);
         }
 
         $arraySet = [
