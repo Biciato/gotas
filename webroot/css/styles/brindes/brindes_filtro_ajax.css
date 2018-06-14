@@ -6,3 +6,7 @@
 	display: none;
 }
 
+.gift-image{
+    max-height: 130px;
+    max-width: 300px;
+}

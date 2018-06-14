@@ -31,10 +31,16 @@ use Cake\Core\Configure;
             <?= $this->Form->text('preco', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'preco_banho', 'style' => 'display:none;']) ?>
         </div>
 
-        <div class="col-lg-6">
-            <label for="">Imagem do Brinde</label>
+        <div class="col-lg-6" >
+            <label for="gift-image">Imagem do Brinde</label>
+            <br />
+            <?= $this->Html->image("/", [
+                "name" => "gift-image",
+                "class" => "gift-image",
+                "label" => "Imagem do Brinde",
+                "style"=> "position: absolute;"
 
-            <img src="" alt="">
+            ]) ?>
         </div>
     </div>
 

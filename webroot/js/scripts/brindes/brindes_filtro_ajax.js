@@ -19,6 +19,8 @@ $(document).ready(function () {
                 }
             });
 
+            console.log(brinde[0].brinde.nome_img);
+            $(".gift-image").attr('src', brinde[0].brinde.nome_img);
             $("#brindes_id").val(brinde[0].id);
             if (brinde[0].brinde_habilitado_preco_atual == null) {
                 callModalError("Nâo há preço configurado para brinde " + brinde[0].brinde.nome);
@@ -30,6 +32,7 @@ $(document).ready(function () {
         } else {
             $("#brindes_id").val(null);
             $("#preco_banho").val(null);
+            $(".gift-image").attr('src', null);
         }
 
     });
