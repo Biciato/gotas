@@ -787,7 +787,7 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;;
+            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
             if (isset($tipoPerfil) && $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
                 $data["tipo_perfil"] = (int)Configure::read("profileTypes")["DummyWorkerProfileType"];
@@ -851,22 +851,28 @@ class UsuariosController extends AppController
                 $canContinue = true;
             }
 
-            if (!isset($data["cpf"])) {
+            if (!isset($data["cpf"]) && $tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
                 $errors[] = array("CPF" => "CPF Deve ser informado!");
                 $canContinue = false;
             } else {
-                $result = NumberUtil::validarCPF($data["cpf"]);
 
-                if (!$result["status"]) {
-                    $mensagem["status"] = false;
-                    $mensagem["message"] = __($result["message"], $data["cpf"]);
-                    $arraySet = ["mensagem"];
+                // Valida se o usuário em questão não é ficticio
+                if ($tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
 
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
+                    $result = NumberUtil::validarCPF($data["cpf"]);
 
-                    return;
+                    if (!$result["status"]) {
+                        $mensagem["status"] = false;
+                        $mensagem["message"] = __($result["message"], $data["cpf"]);
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
                 }
+
 
                 $canContinue = true;
             }
@@ -3364,7 +3370,10 @@ class UsuariosController extends AppController
                                 $users = $users['data'];
                             }
 
-                            foreach ($users as $key => $value) {
+                            // print_r($users);
+                            // die();
+
+                            foreach ($users->toArray() as $key => $value) {
                                 $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
 
                                 $value->pontuacoes

@@ -430,7 +430,7 @@ $(document).ready(function () {
             };
             $.ajax({
                 type: "POST",
-                url: "/Cupons/imprimeBrindeShowerAjax",
+                url: "/Cupons/imprimeBrindeAjax",
                 data: JSON.stringify(data),
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");

@@ -616,11 +616,14 @@ class CuponsController extends AppController
      */
 
     /**
-     * Web-service to print a shower ticket
+     * Serviço AJAX de impressão de brinde
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/09/2017
      *
      * @return json object
      */
-    public function imprimeBrindeShowerAjax()
+    public function imprimeBrindeAjax()
     {
         $result = null;
         $ticket = null;
@@ -718,8 +721,8 @@ class CuponsController extends AppController
                         $can_continue = true;
                         $pontuacoes_pending_usage_save = [];
 
-                    // Obter pontos não utilizados totalmente
-                    // verifica se tem algum pendente para continuar o cálculo sobre ele
+                        // Obter pontos não utilizados totalmente
+                        // verifica se tem algum pendente para continuar o cálculo sobre ele
 
                         $pontuacao_pending_usage
                             = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
@@ -797,13 +800,13 @@ class CuponsController extends AppController
                             }
                         }
 
-                    // Atualiza todos os pontos do usuário
+                        // Atualiza todos os pontos do usuário
 
                         $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
 
-                    // ---------- Fim de atualiza pontos à serem debitados ----------
+                        // ---------- Fim de atualiza pontos à serem debitados ----------
 
-                    // Diminuir saldo de pontos do usuário
+                        // Diminuir saldo de pontos do usuário
                         $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                             $cliente->id,
                             $usuario->id,
@@ -821,27 +824,10 @@ class CuponsController extends AppController
                     if ($pontuacaoDebitar) {
                         // Emitir Cupom e retornar
 
-                        // 1 - Masculino, 2 - Masculino PNE, 3 - Feminino, 4 - Feminino PNE
-                        // PNE = Portador de Necessidades Especiais
-                        $tipo_banho = null;
-
-                        // Masculino
-                        if ($usuario->sexo == true) {
-                            $tipo_banho = 1;
-                        } else {
-                            $tipo_banho = 3;
-                        }
-                        if ($usuario->necessidades_especiais) {
-                            $tipo_banho = $tipo_banho + 1;
-                        }
-
                         $cupom = $this->Cupons->addCupomForUsuario(
                             $brinde_habilitado->id,
                             $cliente->id,
-                            $usuario->id,
-                            $tipo_banho,
-                            $brinde_habilitado->brinde->tempo_rti_shower,
-                            $brinde_habilitado->brinde_habilitado_preco_atual->preco
+                            $usuario->id
                         );
 
                          // vincula item resgatado ao cliente final

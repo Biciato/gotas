@@ -1467,8 +1467,11 @@ class PontuacoesComprovantesController extends AppController
 
                 // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
                 if ($validacaoQRCode["status"] == true) {
+
+                    $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
+
                     $arraySet = [
-                        "result"
+                        "mensagem"
                     ];
 
                     $this->set(compact($arraySet));
@@ -1543,7 +1546,6 @@ class PontuacoesComprovantesController extends AppController
                 // $cnpjQuery[] = ["cnpj" => "33611070000135"];
                  // echo strlen($webContent["response"]);
 
-
                 $cnpjArray = array();
 
                 foreach ($cnpjQuery as $key => $value) {
@@ -1562,7 +1564,6 @@ class PontuacoesComprovantesController extends AppController
                         break;
                     }
                 }
-
 
                 // Se encontrou o cnpj, procura o cliente através do cnpj.
                 // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
@@ -1677,13 +1678,14 @@ class PontuacoesComprovantesController extends AppController
                              * se não tem, somente configura o registro
                              * pendente como processado
                              */
-                            $array_pontuacao = $value['array_pontuacoes_item'];
+                            $array_pontuacao = $value['pontuacao_comprovante_item'];
 
                             $pontuacao_comprovante_id = null;
 
                             if (sizeof($array_pontuacao) > 0) {
                                 // item novo, gera entidade e grava
                                 $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
+                                $array_pontuacoes_items = $value['array_pontuacoes_item'];
 
                                 $pontuacao_comprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
                                     $pontuacao_comprovante['clientes_id'],
@@ -1697,11 +1699,12 @@ class PontuacoesComprovantesController extends AppController
                                     false
                                 );
 
-                            // item novo. usa id de pontuacao_comprovante e grava
+                                // item novo. usa id de pontuacao_comprovante e grava
                                 if ($pontuacao_comprovante) {
                                     $pontuacao_comprovante_id = $pontuacao_comprovante->id;
 
-                                    foreach ($array_pontuacao as $key => $item_pontuacao) {
+                                    foreach ($array_pontuacoes_items as $key => $item_pontuacao) {
+
                                         $item_pontuacao = $this->Pontuacoes->addPontuacaoCupom(
                                             $item_pontuacao['clientes_id'],
                                             $item_pontuacao['usuarios_id'],
@@ -1738,12 +1741,12 @@ class PontuacoesComprovantesController extends AppController
                         $success = false;
 
                     } elseif (sizeof($array_pontuacao) == 0) {
-                        $estado = $this->address_helper->getStatesBrazil($data['estado_nfe']);
+                        $estado = $this->address_helper->getStatesBrazil($estado);
                         $success = false;
                         $message =
                             __(
                             'No Cupom Fiscal {0} da SEFAZ do estado da {1} não há gotas à processar conforme configurações definidas!...',
-                            $data['chave_nfe'],
+                            $chaveNFE,
                             $estado
                         );
                     } else {
@@ -1775,6 +1778,10 @@ class PontuacoesComprovantesController extends AppController
                         $message = __('O registro não pode ser criado. Tente novamente.');
                     }
                 }
+            }
+
+            if (empty($pontuacao_comprovante)) {
+                $pontuacao_comprovante = array();
             }
 
             $pontuacoes_comprovantes = $pontuacao_comprovante;

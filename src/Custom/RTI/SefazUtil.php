@@ -19,7 +19,7 @@ use Cake\Core\Configure;
 class SefazUtil
 {
     public $prop = null;
- 
+
     function __construct()
     {
     }
@@ -43,7 +43,7 @@ class SefazUtil
 
             $position_content_start = strpos($return_content, "tabResult");
             $position_content_end = strpos($return_content, "table", $position_content_start);
-            
+
             $return_content = strtoupper($return_content);
 
             // $return_content = substr($return_content, $position_content_start, $position_content_end - $position_content_start);
@@ -104,7 +104,7 @@ class SefazUtil
                             $quantity = \str_replace(",", ".", $quantity);
 
                             $content = substr($content, $quantity_index_end);
-                    
+
                             $pontuacao_item['clientes_id'] = $pontuacao['clientes_id'];
                             $pontuacao_item['usuarios_id'] = $pontuacao['usuarios_id'];
                             $pontuacao_item['funcionarios_id'] = $pontuacao['funcionarios_id'];
@@ -121,7 +121,7 @@ class SefazUtil
                     }
                 }
             }
-       
+
             if (is_null($pontuacao_pendente_item)) {
                 $array = [
                 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
@@ -133,7 +133,7 @@ class SefazUtil
                 'array_pontuacoes_item' => $array_pontuacoes_item,
                 'pontuacao_pendente_item' => $pontuacao_pendente_item];
             }
-                                
+
             array_push($array_return, $array);
 
             return $array_return ;
@@ -189,6 +189,7 @@ class SefazUtil
                 $parametro = \strtoupper($parametro);
 
                 // enquanto texto tiver conteúdo a tratar
+
                 while (strlen($content) != 0 && strpos($content, $parametro) != 0) {
                     // procura índice do conteúdo à ser tratado
                     $parameter_index = strpos($content, $parametro);
@@ -200,6 +201,7 @@ class SefazUtil
                     // verifica se a posição anterior ao
                     // parâmetro é igual ao caractere >
                     if ($content[0] == ">") {
+
                         $content = substr($content, strlen($parametro) + 1);
                         // agora verifica se a posição posterior
                         // ao parâmetro é igual a caractere <
@@ -221,7 +223,7 @@ class SefazUtil
                             $quantity = \str_replace(",", ".", $quantity);
 
                             $content = substr($content, $quantity_index_end);
-                    
+
                             $pontuacao_item['clientes_id'] = $pontuacao['clientes_id'];
                             $pontuacao_item['usuarios_id'] = $pontuacao['usuarios_id'];
                             $pontuacao_item['funcionarios_id'] = $pontuacao['funcionarios_id'];
@@ -238,7 +240,7 @@ class SefazUtil
                     }
                 }
             }
-       
+
             if (is_null($pontuacao_pendente_item)) {
                 $array = [
                 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
@@ -250,10 +252,10 @@ class SefazUtil
                 'array_pontuacoes_item' => $array_pontuacoes_item,
                 'pontuacao_pendente_item' => $pontuacao_pendente_item];
             }
-                                
-            array_push($array_return, $array);
 
+            array_push($array_return, $array);
             return $array_return ;
+            // return $array ;
         } catch (\Exception $e) {
             $stringError= __("Erro ao preparar conteúdo html: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -345,7 +347,7 @@ class SefazUtil
                 $string =  __("http://apps.sefaz.to.gov.br/portal-nfce/qrcodeNFCe?chNFe=");
                 break;
         }
-        
+
         return $string;
     }
 }
