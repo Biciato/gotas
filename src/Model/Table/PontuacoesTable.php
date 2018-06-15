@@ -558,272 +558,139 @@ class PontuacoesTable extends GenericTable
      * Obtêm soma de pontuações de usuário
      *
      * @param int   $usuarios_id       Id de usuário
-     * @param array $array_clientes_id Array de Id de clientes
+     * @param int   $redesId           Id da Rede (Opcional)
+     * @param array $array_clientes_id Array de Id de clientes (Opcional)
      *
-     * @return int Valor de pontuações
+     * @author      Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date        15/06/2018
+     *
+     * @return array $pontuacoes ("", "", "", "saldo")
      **/
-    public function getSumPontuacoesOfUsuario(int $usuarios_id, array $clientes_id)
+    public function getSumPontuacoesOfUsuario(int $usuarios_id, int $redesId = null, array $clientesId = array())
     {
         try {
-            // pegar os ids de comprovantes que foram invalidados pelo admin
+            // Se passar a Rede, obtem os Ids de clientes
+            // Obtem os ids de clientes da rede selecionada
 
-            $pontuacoes_comprovantes_invalidated
-                = $this->_getPontuacoesTable()->PontuacoesComprovantes
-                ->find('all')
-                ->select(['id'])
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+                $redehasClientesIds = array();
+
+                // TODO: Continuar
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    # code...
+                }
+            }
+
+            $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
+
+            $clientesIds = array();
+
+            foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
+                $clientesIds[] = $redeHasCliente->clientes_id;
+            }
+
+            if (sizeof($clientesIds) == 0) {
+                $message = __("A rede informada não possui unidades cadastradas!");
+                $status = false;
+
+                $mensagem = array("status" => $status, "message" => $message);
+
+                $arraySet = [
+                    "mensagem"
+                ];
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+
+             // Pontuações obtidas pelo usuário
+
+             // Primeiro, pega todos os comprovantes que não foram invalidados
+
+            $pontuacoesComprovantesValidosQuery = $this->PontuacoesComprovantes->find('all')
                 ->where(
                     [
-                        'usuarios_id' => $usuarios_id,
-                        'clientes_id IN ' => $clientes_id,
-                        'registro_invalido' => true
+                        "usuarios_id" => $usuario["id"],
+                        "clientes_id in " => $clientesIds,
+                        "registro_invalido" => 0,
                     ]
-                )->toArray();
+                )->select(['id']);
 
-            $pontuacoes_comprovantes_invalidated_ids = [];
-            foreach ($pontuacoes_comprovantes_invalidated as $key => $value) {
-                array_push($pontuacoes_comprovantes_invalidated_ids, $value['id']);
+             // Para cada comprovante, pega a soma das pontuacoes através de seus IDS
+
+            $comprovantesIds = array();
+
+            foreach ($pontuacoesComprovantesValidosQuery as $key => $comprovante) {
+                $comprovantesIds[] = $comprovante->id;
             }
 
-            $conditions = [];
-
-            array_push($conditions, ['usuarios_id' => $usuarios_id]);
-            array_push($conditions, ['clientes_id IN' => $clientes_id]);
-
-            // Verificar primeiramente se o usuário tem
-            // alguma pontuação onde resgatou algum brinde
-
-            $rescue_brindes_conditions = $conditions;
-
-            if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                array_push(
-                    $rescue_brindes_conditions,
+            $totalGotasAdquiridas = 0;
+            $totalGotasUtilizadas = 0;
+            $totalGotasExpiradas = 0;
+             // faz o tratamento se tem algum id de pontuacao
+            if (sizeof($comprovantesIds) > 0) {
+                $querytotalGotasAdquiridas = $this->Pontuacoes->find()->where(
                     [
-                        'OR' =>
-                            [
-                            'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                            'pontuacoes_comprovante_id IS NULL'
-                        ]
+                        "pontuacoes_comprovante_id in " => $comprovantesIds
                     ]
                 );
+
+                $querytotalGotasAdquiridas = $querytotalGotasAdquiridas->select(
+                    [
+                        'sum' => $querytotalGotasAdquiridas->func()->sum('quantidade_gotas')
+                    ]
+                );
+
+                $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
+
             }
+            $queryTotalGotasUtilizadas = $this->Pontuacoes->find()->where(
+                [
+                    "clientes_id in " => $clientesIds,
+                    "usuarios_id" => $usuario["id"],
+                    "clientes_has_brindes_habilitados_id IS NOT NULL"
+                ]
+            );
 
-            array_push($rescue_brindes_conditions, ['clientes_has_brindes_habilitados_id IS NOT NULL']);
-
-            $rescue_brindes = $this->_getPontuacoesTable()->find('all')
+            $queryTotalGotasUtilizadas = $queryTotalGotasUtilizadas
                 ->select(
                     [
-                        'sum' => $this->_getPontuacoesTable()
-                            ->find('all')
-                            ->func()
-                            ->sum('quantidade_gotas')
-                    ]
-                )
-                ->where($rescue_brindes_conditions)
-                ->first();
-
-            // Não teve brinde resgatado
-            if (is_null($rescue_brindes['sum']) || $rescue_brindes['sum'] == 0) {
-                $total_conditions = $conditions;
-
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                    array_push(
-                        $total_conditions,
-                        [
-                            'OR' =>
-                                [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                                'pontuacoes_comprovante_id IS NULL'
-                            ]
-                        ]
-                    );
-                }
-
-                $sum_pontuacao_usuario
-                    = $this->_getPontuacoesTable()->find('all')
-                    ->select(
-                        [
-                            'sum'
-                                => $this->_getPontuacoesTable()
-                                ->find('all')
-                                ->func()
-                                ->sum('quantidade_gotas')
-                        ]
-                    )
-                    ->where($total_conditions)
-                    ->first();
-
-                return $sum_pontuacao_usuario['sum'];
-            } else {
-                // teve brinde resgatado
-                // pega a soma dos pontos ainda não utilizados
-
-                $all_pontuacoes_not_used = $conditions;
-
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                    array_push(
-                        $all_pontuacoes_not_used,
-                        [
-                            'OR' =>
-                                [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                                'pontuacoes_comprovante_id IS NULL'
-                            ]
-                        ]
-                    );
-                }
-
-                array_push(
-                    $all_pontuacoes_not_used,
-                    [
-                        'clientes_has_brindes_habilitados_id IS NULL'
+                        'sum' => $queryTotalGotasUtilizadas->func()->sum("quantidade_gotas")
                     ]
                 );
 
-                array_push(
-                    $all_pontuacoes_not_used,
+            $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
+
+            $queryTotalGotasExpiradas = $this->Pontuacoes
+                ->find()->where(
                     [
-                        'utilizado' => Configure::read('dropletsUsageStatus')['NotUsed']
+                        "clientes_id in " => $clientesIds,
+                        "usuarios_id" => $usuario["id"],
+                        "expirado" => 1
                     ]
                 );
 
-                $sum_pontuacoes_not_used
-                    = $this->_getPontuacoesTable()->find('all')
-                    ->select(
-                        [
-                            'sum'
-                                => $this->_getPontuacoesTable()
-                                ->find('all')
-                                ->func()
-                                ->sum('quantidade_gotas')
-                        ]
-                    )
-                    ->where($all_pontuacoes_not_used)
-                    ->first();
+            $queryTotalGotasExpiradas = $queryTotalGotasExpiradas
+                ->select(
+                    [
+                        'sum' => $queryTotalGotasExpiradas->func()->sum("quantidade_gotas")
+                    ]
+                );
 
+            $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
 
-                $partial_conditions = $conditions;
-
-                array_push($partial_conditions, ['utilizado' => Configure::read('dropletsUsageStatus')['ParcialUsed']]);
-
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                    array_push(
-                        $partial_conditions,
-                        [
-                            'OR' =>
-                                [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                                'pontuacoes_comprovante_id IS NULL'
-                            ]
-                        ]
-                    );
-                }
-                // verifica se o usuário tem alguma pontuacao parcialmente usada
-
-                $last_pontuacao_partially_used = $this->_getPontuacoesTable()
-                    ->find('all')
-                    ->where($partial_conditions)
-                    ->first();
-
-                $difference = null;
-
-                // se encontrou a última pontuacao parcialmente usada
-                if ($last_pontuacao_partially_used) {
-                    // pega a soma até a pontuacao parcialmente usada
-
-                    $last_pontuacao_conditions = $conditions;
-
-                    array_push(
-                        $last_pontuacao_conditions,
-                        [
-                            'id <= ' => $last_pontuacao_partially_used->id
-                        ]
-                    );
-
-                    array_push(
-                        $last_pontuacao_conditions,
-                        [
-                            'clientes_has_brindes_habilitados_id IS NULL'
-                        ]
-                    );
-
-                    if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                        array_push(
-                            $last_pontuacao_conditions,
-                            [
-                                'OR' =>
-                                    [
-                                    'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                                    'pontuacoes_comprovante_id IS NULL'
-                                ]
-                            ]
-                        );
-                    }
-
-                    $sum_pontuacoes_partially_used
-                        = $this->_getPontuacoesTable()->find('all')
-                        ->select(
-                            [
-                                'sum' => $this->_getPontuacoesTable()
-                                    ->find('all')
-                                    ->func()
-                                    ->sum('quantidade_gotas')
-                            ]
-                        )->where($last_pontuacao_conditions)->first();
-
-
-                    // pega a soma de pontuações já usadas na 'emissão' de brindes
-
-                    $fully_pontuacoes_with_brinde_used_conditions = $conditions;
-
-                    array_push(
-                        $fully_pontuacoes_with_brinde_used_conditions,
-                        [
-                            'clientes_has_brindes_habilitados_id IS NOT NULL'
-                        ]
-                    );
-
-                    if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
-                        array_push(
-                            $fully_pontuacoes_with_brinde_used_conditions,
-                            [
-                                'OR' =>
-                                    [
-                                    'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
-                                    'pontuacoes_comprovante_id IS NULL'
-                                ]
-                            ]
-                        );
-                    }
-
-                    $sum_pontuacoes_with_brinde_fully_used
-                        = $this->_getPontuacoesTable()
-                        ->find('all')
-                        ->select(
-                            [
-                                'sum'
-                                    => $this->_getPontuacoesTable()
-                                    ->find('all')
-                                    ->func()
-                                    ->sum('quantidade_gotas')
-                            ]
-                        )
-                        ->where($fully_pontuacoes_with_brinde_used_conditions)
-                        ->first();
-
-                    // a soma dos pontos parcialmente usados sempre serão maiores que dos totalmente utilizados
-                    // pois não tem como uma pessoa usar mais do que tem
-                    $difference = $sum_pontuacoes_with_brinde_fully_used->sum - $sum_pontuacoes_partially_used->sum;
-
-                    return $sum_pontuacoes_not_used['sum'] - $difference;
-                } else {
-                    // Não há pontuação pendente de uso, então a pontuação
-                    // restante é a que não foi utilizada (código 0)
-
-                    return $sum_pontuacoes_not_used['sum'];
-                }
-            }
-
-            return $difference;
+            $resumo_gotas = array(
+                'total_gotas_adquiridas' => $totalGotasAdquiridas,
+                'total_gotas_utilizadas' => $totalGotasUtilizadas,
+                'total_gotas_expiradas' => $totalGotasExpiradas,
+                'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : $totalGotasAdquiridas - $totalGotasUtilizadas
+            );
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: {0}, em {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
