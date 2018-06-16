@@ -3364,26 +3364,35 @@ class UsuariosController extends AppController
 
                         // Pesquisa por Nome
                         if ($data['opcao'] == 'nome') {
-                            $users = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $matriz['id'], $query_conditions);
+                            $users = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $rede['id'], $query_conditions);
+
 
                             if ($users['result']) {
                                 $users = $users['data'];
                             }
 
-                            // print_r($users);
+                            // echo "<pre>";
+                            // print_r($users->toArray());
+                            // echo "</pre>";
                             // die();
 
                             foreach ($users->toArray() as $key => $value) {
                                 $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
 
-                                $value->pontuacoes
-                                    = Number::precision(
+                                $pontuacoes =
                                     $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                        $value['id'],
-                                        $clientes_id
-                                    ),
-                                    2
+                                    $value['id'],
+                                    $rede["id"],
+                                    $clientes_id
                                 );
+
+                                // echo "<pre>";
+                                // print_r($saldo);
+                                // echo "</pre>";
+
+                                // die();
+
+                                $value->pontuacoes = $pontuacoes["saldo"];
 
                                 array_push($users_cliente, $value);
                             }
@@ -3485,20 +3494,30 @@ class UsuariosController extends AppController
                     if ($data['opcao'] == 'nome') {
                         $users = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
 
+                        // echo __LINE__;
+                        // echo "<pre>";
+                        // print_r($users->toArray());
+                        // echo "</pre>";
+                        // die();
                         $usersTmp = $users_cliente;
 
                         foreach ($users as $key => $value) {
                             $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
 
-                            $value->pontuacoes
-                                = Number::precision(
+                            $pontuacoes =
                                 $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                    $value['id'],
-                                    $clientes_id
-                                ),
-                                2
+                                $value['id'],
+                                $rede["id"],
+                                $clientes_id
                             );
 
+                                // echo "<pre>";
+                                // print_r($saldo);
+                                // echo "</pre>";
+
+                                // die();
+
+                            $value->pontuacoes = $pontuacoes["saldo"];
                             array_push($usersTmp, $value);
                         }
 

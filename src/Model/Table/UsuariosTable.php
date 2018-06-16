@@ -1013,18 +1013,28 @@ class UsuariosTable extends GenericTable
      * Obtem todos os usuários (funcionários) por Nome pelo id da Rede
      *
      * @param string $nome             Nome do usuário
-     * @param int    $clientes_id      Id da matriz
+     * @param int    $redesId          Id da rede
      * @param array  $where_conditions Condições extras
      *
      * @return usuario $usuario
      **/
-    public function getFuncionariosClienteByName(string $nome, int $clientes_id, array $where_conditions = [])
+    public function getFuncionariosClienteByName(string $nome, int $redesId, array $where_conditions = [])
     {
         try {
             $conditions = [];
 
             foreach ($where_conditions as $key => $condition) {
                 array_push($conditions, $condition);
+            }
+
+            $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+            $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+            $clientesIds = array();
+
+            foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                $clientesIds[] = $value["clientes_id"];
             }
 
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
@@ -1039,7 +1049,7 @@ class UsuariosTable extends GenericTable
                             'table' => 'clientes_has_usuarios',
                             'type' => 'inner',
                             'conditions' => [
-                                'clientes_has_usuarios.clientes_id' => $clientes_id,
+                                'clientes_has_usuarios.clientes_id in' => $clientesIds,
                                 'clientes_has_usuarios.usuarios_id = usuarios.id'
                             ]
                         ]

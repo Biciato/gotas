@@ -350,11 +350,12 @@ class PontuacoesTable extends GenericTable
              * pois são pontuações já 'aprovadas' pelo qr code ou venda
              */
 
-            // no caso de registro inválido, só deve trazer a
-            // quantidade de pontos invalidados
-            // Um registro inválido significa um registro 'invalidado' por um administrador
-            // como, por exemplo, quando um cupom é negado pelo administrador quando inserido
-            // manualmente por um funcionário (não bate com o cupom fiscal da SEFAZ)
+            /**
+             * No caso de registro inválido, só deve trazer a quantidade de pontos invalidados
+             * Um registro inválido significa um registro 'invalidado' por um administrador
+             * como, por exemplo, quando um cupom é negado pelo administrador quando inserido
+             * manualmente por um funcionário (não bate com o cupom fiscal da SEFAZ)
+             */
 
             // pega os ids de pontuações inválidas
             $pontuacoes_invalidas = $this->_getPontuacoesTable()->PontuacoesComprovantes->find('all')
@@ -557,135 +558,117 @@ class PontuacoesTable extends GenericTable
     /**
      * Obtêm soma de pontuações de usuário
      *
-     * @param int   $usuarios_id       Id de usuário
-     * @param int   $redesId           Id da Rede (Opcional)
-     * @param array $array_clientes_id Array de Id de clientes (Opcional)
+     * @param int   $usuariosId  Id de usuário
+     * @param int   $redesId     Id da Rede (Opcional)
+     * @param array $clientesIds Array de Id de clientes (Opcional)
      *
      * @author      Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date        15/06/2018
      *
      * @return array $pontuacoes ("", "", "", "saldo")
      **/
-    public function getSumPontuacoesOfUsuario(int $usuarios_id, int $redesId = null, array $clientesId = array())
+    public function getSumPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array())
     {
         try {
-            // Se passar a Rede, obtem os Ids de clientes
-            // Obtem os ids de clientes da rede selecionada
+            /**
+             *  Se passar a Rede, obtem os Ids de clientes e desconsidera o parâmetro de $clientesIds
+             */
 
+            // Obtem os ids de clientes da rede selecionada
             if (!empty($redesId) && $redesId > 0) {
                 $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
 
                 $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
 
-                $redehasClientesIds = array();
+                $clientesIds = array();
 
-                // TODO: Continuar
                 foreach ($redeHasClientesQuery->toArray() as $key => $value) {
-                    # code...
+                    $clientesIds[] = $value["clientes_id"];
                 }
-            }
-
-            $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
-
-            $clientesIds = array();
-
-            foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
-                $clientesIds[] = $redeHasCliente->clientes_id;
-            }
-
-            if (sizeof($clientesIds) == 0) {
-                $message = __("A rede informada não possui unidades cadastradas!");
-                $status = false;
-
-                $mensagem = array("status" => $status, "message" => $message);
-
-                $arraySet = [
-                    "mensagem"
-                ];
-
-                $this->set(compact($arraySet));
-                $this->set("_serialize", $arraySet);
-
-                return;
-            }
-
-             // Pontuações obtidas pelo usuário
-
-             // Primeiro, pega todos os comprovantes que não foram invalidados
-
-            $pontuacoesComprovantesValidosQuery = $this->PontuacoesComprovantes->find('all')
-                ->where(
-                    [
-                        "usuarios_id" => $usuario["id"],
-                        "clientes_id in " => $clientesIds,
-                        "registro_invalido" => 0,
-                    ]
-                )->select(['id']);
-
-             // Para cada comprovante, pega a soma das pontuacoes através de seus IDS
-
-            $comprovantesIds = array();
-
-            foreach ($pontuacoesComprovantesValidosQuery as $key => $comprovante) {
-                $comprovantesIds[] = $comprovante->id;
             }
 
             $totalGotasAdquiridas = 0;
             $totalGotasUtilizadas = 0;
             $totalGotasExpiradas = 0;
-             // faz o tratamento se tem algum id de pontuacao
-            if (sizeof($comprovantesIds) > 0) {
-                $querytotalGotasAdquiridas = $this->Pontuacoes->find()->where(
-                    [
-                        "pontuacoes_comprovante_id in " => $comprovantesIds
-                    ]
-                );
 
-                $querytotalGotasAdquiridas = $querytotalGotasAdquiridas->select(
-                    [
-                        'sum' => $querytotalGotasAdquiridas->func()->sum('quantidade_gotas')
-                    ]
-                );
+            // A pesquisa só será feita se tiver clientes. Se não tiver, cliente não possui pontuações.
+            if (sizeof($clientesIds) > 0) {
+                // Pontuações obtidas pelo usuário
 
-                $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
+                // Primeiro, pega todos os comprovantes que não foram invalidados
 
-            }
-            $queryTotalGotasUtilizadas = $this->Pontuacoes->find()->where(
-                [
-                    "clientes_id in " => $clientesIds,
-                    "usuarios_id" => $usuario["id"],
-                    "clientes_has_brindes_habilitados_id IS NOT NULL"
-                ]
-            );
+                $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
+                $pontuacoesComprovantesValidosQuery = $pontuacoesComprovantesTable->find('all')
+                    ->where(
+                        [
+                            "usuarios_id" => $usuariosId,
+                            "clientes_id in " => $clientesIds,
+                            "registro_invalido" => 0,
+                        ]
+                    )->select(['id']);
 
-            $queryTotalGotasUtilizadas = $queryTotalGotasUtilizadas
-                ->select(
-                    [
-                        'sum' => $queryTotalGotasUtilizadas->func()->sum("quantidade_gotas")
-                    ]
-                );
+                // Para cada comprovante, pega a soma das pontuacoes através de seus IDS
 
-            $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
+                $comprovantesIds = array();
 
-            $queryTotalGotasExpiradas = $this->Pontuacoes
-                ->find()->where(
+                foreach ($pontuacoesComprovantesValidosQuery as $key => $comprovante) {
+                    $comprovantesIds[] = $comprovante->id;
+                }
+
+                // faz o tratamento se tem algum id de pontuacao
+                if (sizeof($comprovantesIds) > 0) {
+                    $querytotalGotasAdquiridas = $this->_getPontuacoesTable()->find()->where(
+                        [
+                            "pontuacoes_comprovante_id in " => $comprovantesIds
+                        ]
+                    );
+
+                    $querytotalGotasAdquiridas = $querytotalGotasAdquiridas->select(
+                        [
+                            'sum' => $querytotalGotasAdquiridas->func()->sum('quantidade_gotas')
+                        ]
+                    );
+
+                    $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
+
+                }
+                $queryTotalGotasUtilizadas = $this->_getPontuacoesTable()->find()->where(
                     [
                         "clientes_id in " => $clientesIds,
-                        "usuarios_id" => $usuario["id"],
-                        "expirado" => 1
+                        "usuarios_id" => $usuariosId,
+                        "clientes_has_brindes_habilitados_id IS NOT NULL"
                     ]
                 );
 
-            $queryTotalGotasExpiradas = $queryTotalGotasExpiradas
-                ->select(
-                    [
-                        'sum' => $queryTotalGotasExpiradas->func()->sum("quantidade_gotas")
-                    ]
-                );
+                $queryTotalGotasUtilizadas = $queryTotalGotasUtilizadas
+                    ->select(
+                        [
+                            'sum' => $queryTotalGotasUtilizadas->func()->sum("quantidade_gotas")
+                        ]
+                    );
 
-            $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
+                $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
 
-            $resumo_gotas = array(
+                $queryTotalGotasExpiradas = $this->_getPontuacoesTable()
+                    ->find()->where(
+                        [
+                            "clientes_id in " => $clientesIds,
+                            "usuarios_id" => $usuariosId,
+                            "expirado" => 1
+                        ]
+                    );
+
+                $queryTotalGotasExpiradas = $queryTotalGotasExpiradas
+                    ->select(
+                        [
+                            'sum' => $queryTotalGotasExpiradas->func()->sum("quantidade_gotas")
+                        ]
+                    );
+
+                $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
+
+            }
+            return array(
                 'total_gotas_adquiridas' => $totalGotasAdquiridas,
                 'total_gotas_utilizadas' => $totalGotasUtilizadas,
                 'total_gotas_expiradas' => $totalGotasExpiradas,
@@ -693,7 +676,7 @@ class PontuacoesTable extends GenericTable
             );
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: {0}, em {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
