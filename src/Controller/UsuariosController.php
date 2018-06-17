@@ -3340,7 +3340,7 @@ class UsuariosController extends AppController
 
                     $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                    $clientes_id = $this->RedesHasClientes->getRedesHasClientesByRedesId($matriz['redes_id']);
+                    $clientes_id = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede['id']);
 
                     $array = [];
 
@@ -3350,10 +3350,14 @@ class UsuariosController extends AppController
                     }
 
                     $clientes_id = $array;
-
                     $query_conditions = [];
-
                     $users_cliente = [];
+
+                    // Se for pra restringir a consulta, é quem esta na rede. se não, é pra procurar todo mundo
+                    $restringirConsulta = isset($data['restrict_query']) ? $data["restrict_query"] : false;
+
+                    $veiculoEncontrado = null;
+
                     if ($rede->permite_consumo_gotas_funcionarios) {
                         $query_conditions[]
                             = [
@@ -3366,71 +3370,23 @@ class UsuariosController extends AppController
                         if ($data['opcao'] == 'nome') {
                             $users = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $rede['id'], $query_conditions);
 
-
                             if ($users['result']) {
                                 $users = $users['data'];
                             }
 
-                            // echo "<pre>";
-                            // print_r($users->toArray());
-                            // echo "</pre>";
-                            // die();
-
                             foreach ($users->toArray() as $key => $value) {
                                 $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
-
-                                $pontuacoes =
-                                    $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                    $value['id'],
-                                    $rede["id"],
-                                    $clientes_id
-                                );
-
-                                // echo "<pre>";
-                                // print_r($saldo);
-                                // echo "</pre>";
-
-                                // die();
-
-                                $value->pontuacoes = $pontuacoes["saldo"];
 
                                 array_push($users_cliente, $value);
                             }
                         } elseif ($data['opcao'] == 'doc_estrangeiro') {
                             // Pesquisa por Documento Estrangeiro
-                            $users = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $matriz['id'], $query_conditions);
+                            $users = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
 
-                            if ($users) {
-
-                                if (sizeof($users) == 1) {
-                                    $users = $users[0];
-
-                                    $users['pontuacoes']
-                                        = Number::precision(
-                                        $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                            $users->id,
-                                            $clientes_id
-                                        ),
-                                        2
-                                    );
-
-                                    array_push($users_cliente, $users);
-                                } else {
-                                    foreach ($users as $key => $user) {
-                                        $pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                            $user->id,
-                                            $clientes_id
-                                        );
-                                        $user['pontuacoes']
-                                            = Number::precision(
-                                            $pontos,
-                                            2
-                                        );
-
-                                        array_push($users_cliente, $user);
-                                    }
-                                }
+                            foreach ($users as $key => $user) {
+                                array_push($users_cliente, $user);
                             }
+
                         } elseif ($data['opcao'] == 'cpf') {
                             // Pesquisa por CPF
                             $user = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $matriz['id'], $query_conditions);
@@ -3439,45 +3395,30 @@ class UsuariosController extends AppController
                                 $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
                             }
 
-                            $user['pontuacoes']
-                                = Number::precision(
-                                $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                    $user->id,
-                                    $clientes_id
-                                ),
-                                2
-                            );
                         } else {
                             // Pesquisa por Placa
 
-                            $users
-                                = $this->Veiculos->getFuncionariosClienteByVeiculo(
-                                $data['parametro'],
-                                ['clientes_has_usuarios.clientes_id IN ' => $clientes_id]
-                            );
+                            /**
+                             * TODO: Esta pesquisa vai ter que mudar. Problema:
+                             * Pesquisa está buscando todos os usuários que estão vinculados à um veículo.
+                             * Na emissão do brinde, eu tenho que ver se aquele usuário está vinculado e se tem ponto
+                             * Na atribuição de gotas, eu tenho que buscar todo mundo.
+                             */
 
-                            if ($users) {
-                                $usersTmp = [];
+                            // $users
+                            //     = $this->Veiculos->getFuncionariosClienteByVeiculo(
+                            //     $data['parametro'],
+                            //     ['clientes_has_usuarios.clientes_id IN ' => $clientes_id]
+                            // );
+                            $retorno
+                                = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), true);
 
-                                if (sizeof($users) > 0) {
-                                    $users = $users[0];
+                            $veiculoEncontrado = $retorno["veiculo"];
 
-                                    foreach ($users['usuarios_has_veiculos'] as $key => $value) {
-                                        $value['usuario']['data_nasc'] = $value['usuario']['data_nasc']->format('d/m/Y');
+                            $users = $retorno["usuarios"];
 
-                                        $value['usuario']->pontuacoes
-                                            = Number::precision(
-                                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                                $value['usuario']['id'],
-                                                $clientes_id
-                                            ),
-                                            2
-                                        );
-
-                                        array_push($usersTmp, $value);
-                                    }
-                                    $users->usuarios_has_veiculos = $usersTmp;
-                                }
+                            foreach ($users as $key => $user) {
+                                array_push($users_cliente, $user);
                             }
                         }
                     }
@@ -3494,30 +3435,11 @@ class UsuariosController extends AppController
                     if ($data['opcao'] == 'nome') {
                         $users = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
 
-                        // echo __LINE__;
-                        // echo "<pre>";
-                        // print_r($users->toArray());
-                        // echo "</pre>";
-                        // die();
                         $usersTmp = $users_cliente;
 
                         foreach ($users as $key => $value) {
                             $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
 
-                            $pontuacoes =
-                                $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                $value['id'],
-                                $rede["id"],
-                                $clientes_id
-                            );
-
-                                // echo "<pre>";
-                                // print_r($saldo);
-                                // echo "</pre>";
-
-                                // die();
-
-                            $value->pontuacoes = $pontuacoes["saldo"];
                             array_push($usersTmp, $value);
                         }
 
@@ -3535,28 +3457,11 @@ class UsuariosController extends AppController
 
                             $users['data_nasc'] = $users['data_nasc']->format('d/m/Y');
 
-                            $users['pontuacoes']
-                                = Number::precision(
-                                $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                    $users->id,
-                                    $clientes_id
-                                ),
-                                2
-                            );
                             array_push($usersTmp, $users);
 
                         } else {
                             foreach ($users as $key => $user) {
                                 $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
-
-                                $user['pontuacoes']
-                                    = Number::precision(
-                                    $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                        $user->id,
-                                        $clientes_id
-                                    ),
-                                    2
-                                );
 
                                 array_push($usersTmp, $user);
 
@@ -3574,60 +3479,24 @@ class UsuariosController extends AppController
                             $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
                         }
 
-                        $user['pontuacoes']
-                            = Number::precision(
-                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                $user->id,
-                                $clientes_id
-                            ),
-                            2
-                        );
                     } else {
                         // Pesquisa por Placas
-                        $query_conditions = [];
 
-                        $query_conditions
-                            = [
-                            'UsuariosHasVeiculos.Usuarios.tipo_perfil'
-                                => Configure::read('profileTypes')['UserProfileType']
-                        ];
 
-                        $users
-                            = $this->Veiculos->getUsuariosByVeiculo(
-                            $data['parametro'],
-                            $query_conditions
-                        );
+                        /**
+                         * TODO: Esta pesquisa vai ter que mudar. Problema:
+                         * Pesquisa está buscando todos os usuários que estão vinculados à um veículo.
+                         * Na emissão do brinde, eu tenho que ver se aquele usuário está vinculado e se tem ponto
+                         * Na atribuição de gotas, eu tenho que buscar todo mundo.
+                         */
+                        $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
 
-                        $usersTmp = $users_cliente;
+                        $veiculoEncontrado = $retorno["veiculo"];
 
-                        if (sizeof($users) > 0) {
-                            // $users = $users[0];
+                        $users = $retorno["usuarios"];
 
-                            $usersTmpPlacas = [];
-
-                            foreach ($users as $key => $user) {
-                                # code...
-                                foreach ($user['usuarios_has_veiculos'] as $key => $value) {
-                                    $value['usuario']['data_nasc'] = $value['usuario']['data_nasc']->format('d/m/Y');
-
-                                    $value['usuario']->pontuacoes
-                                        = Number::precision(
-                                        $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                            $value['usuario']['id'],
-                                            $clientes_id
-                                        ),
-                                        2
-                                    );
-
-                                    array_push($usersTmp, $value);
-                                }
-
-                                $user->usuarios_has_veiculos = $usersTmp;
-                                $usersTmpPlacas[] = $user;
-                            }
-
-                            $users = $usersTmpPlacas;
-
+                        foreach ($users as $key => $user) {
+                            array_push($users_cliente, $user);
                         }
                     }
 
@@ -3712,9 +3581,33 @@ class UsuariosController extends AppController
                         unset($user);
                     }
 
-                    $users = $usersReturn;
+                    // Reseta o array de retorno de usuários para atribuir os pontos;
+                    $users = array();
+
+                    foreach ($usersReturn as $key => $value) {
+                        $pontuacoes =
+                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                            $value['id'],
+                            $rede["id"],
+                            $clientes_id
+                        );
+
+                        $value->pontuacoes = $pontuacoes["saldo"];
+
+                        $users[] = $value;
+                    }
 
                     if (isset($user)) {
+
+                        $pontuacoes =
+                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                            $user['id'],
+                            $rede["id"],
+                            $clientes_id
+                        );
+
+                        $user["pontuacoes"] = $pontuacoes["saldo"];
+
                         $error = false;
                         $user = $user;
                         $count = 1;
@@ -3743,7 +3636,8 @@ class UsuariosController extends AppController
                 $arraySet = [
                     'error',
                     'user',
-                    'count'
+                    'count',
+                    'veiculoEncontrado'
                 ];
 
                 $this->set(compact($arraySet));

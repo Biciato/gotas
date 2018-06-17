@@ -1018,7 +1018,7 @@ class UsuariosTable extends GenericTable
      *
      * @return usuario $usuario
      **/
-    public function getFuncionariosClienteByName(string $nome, int $redesId, array $where_conditions = [])
+    public function getFuncionariosClienteByName(string $nome, int $redesId = null, array $where_conditions = [])
     {
         try {
             $conditions = [];
@@ -1029,15 +1029,24 @@ class UsuariosTable extends GenericTable
 
             $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
 
-            $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+            if (!empty($redesId) && $redesId > 0) {
 
-            $clientesIds = array();
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
 
-            foreach ($redeHasClientesQuery->toArray() as $key => $value) {
-                $clientesIds[] = $value["clientes_id"];
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
             }
 
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
+
+            $usuariosWhere = array('clientes_has_usuarios.usuarios_id = usuarios.id');
+
+            if (sizeof($clientesIds) > 0) {
+                $usuariosWhere[] = array('clientes_has_usuarios.clientes_id in' => $clientesIds);
+            }
 
             $data = $this->_getUsuarioTable()
                 ->find('all')
@@ -1048,10 +1057,8 @@ class UsuariosTable extends GenericTable
                             => [
                             'table' => 'clientes_has_usuarios',
                             'type' => 'inner',
-                            'conditions' => [
-                                'clientes_has_usuarios.clientes_id in' => $clientesIds,
-                                'clientes_has_usuarios.usuarios_id = usuarios.id'
-                            ]
+                            'conditions' => $usuariosWhere
+
                         ]
                     ]
                 )
@@ -1197,21 +1204,16 @@ class UsuariosTable extends GenericTable
     /**
      * Busca todos os usuários conforme parâmetros
      *
-     * @param array $where_conditions Condições
+     * @param array $whereConditions Condições
      *
      * @return array $usuarios Lista de Usuários
      */
-    public function findAllUsuarios(array $where_conditions = [])
+    public function findAllUsuarios(array $whereConditions = [])
     {
         try {
-            $conditions = [];
-
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
-            }
             return $this->_getUsuarioTable()
                 ->find('all')
-                ->where($conditions)
+                ->where($whereConditions)
                 ->contain(['ClientesHasUsuarios.Cliente.RedeHasCliente.Redes']);
 
         } catch (\Exception $e) {

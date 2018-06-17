@@ -8,6 +8,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Cake\Core\Configure;
 
 /**
  * Veiculos Model
@@ -39,7 +40,7 @@ class VeiculosTable extends GenericTable
 
     /**
      * Method get of user has vehicles table property
-     * 
+     *
      * @return (Cake\ORM\Table) Table object
      */
     private function _getVeiculosTable()
@@ -52,7 +53,7 @@ class VeiculosTable extends GenericTable
 
     /**
      * Method set of user has vehicles table property
-     * 
+     *
      * @return void
      */
     private function _setVeiculosTable()
@@ -64,7 +65,7 @@ class VeiculosTable extends GenericTable
      * Initialize method
      *
      * @param array $config The configuration for the Table.
-     * 
+     *
      * @return void
      */
     public function initialize(array $config)
@@ -157,14 +158,14 @@ class VeiculosTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    
+
     /* ------------------------ Read ------------------------ */
 
     /**
      * Obtem veículos conforme condições
      *
      * @param array $conditions Array de Condições
-     * 
+     *
      * @return \App\Model\Entity\Veiculos[]
      */
     public function findVeiculos(array $conditions)
@@ -190,7 +191,7 @@ class VeiculosTable extends GenericTable
      * Find Vehicle By Plate
      *
      * @param (string) $placa Placa do veículo
-     * 
+     *
      * @return (entity\veiculos) $vehicle
      **/
     public function getVeiculoById($id)
@@ -208,7 +209,7 @@ class VeiculosTable extends GenericTable
      * Find Vehicle By Plate
      *
      * @param (string) $placa Placa do veículo
-     * 
+     *
      * @return (entity\veiculos) $vehicle
      **/
     public function getVeiculoByPlaca($placa)
@@ -273,7 +274,7 @@ class VeiculosTable extends GenericTable
      *
      * @param string $placa            Placa
      * @param array  $where_conditions Condições Extras
-     * 
+     *
      * @return array $veiculos Lista de Veículos com usuários
      **/
     public function getUsuariosByVeiculo(string $placa, array $where_conditions = [])
@@ -306,7 +307,114 @@ class VeiculosTable extends GenericTable
             ];
         }
     }
-    
+
+    public function getUsuariosClienteByVeiculo(string $placa, int $redesId = null, array $clientesIds = array(), bool $filtrarComFuncionarios = false)
+    {
+        $veiculo = null;
+        $usuarios = array();
+        $data = array("veiculo", "usuarios");
+
+        $veiculo = $this->_getVeiculosTable()->find("all")
+            ->where(["placa" => $placa])->first();
+
+
+        if (empty($veiculo)) {
+            // Se não encontrar veiculo, retorna vazio
+            $data = array("veiculo" => null, "usuarios" => array());
+        } else {
+
+            /**
+             * Se informa a rede, pesquisar o id de todas as unidades.
+             * Exemplo de quando vai acontecer:
+             * Resgate de brinde;
+             *
+             * Se não informar, pesquisar geral.
+             * Exemplo:
+             * Atribuição de gotas
+             *
+             */
+
+            /**
+             * Pode filtrar pela rede ou pelas unidades da rede
+             */
+            if (!empty($redesId)) {
+
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
+            }
+
+            // Pega todos os usuários que estão vinculados à aquele veículo
+
+            $usuariosHasVeiculosTable = TableRegistry::get("UsuariosHasVeiculos");
+
+            $usuariosHasVeiculos = $usuariosHasVeiculosTable->findUsuariosHasVeiculos(["veiculos_id" => $veiculo["id"]])->select(["usuarios_id"])->toArray();
+
+            $usuariosVeiculosEncontradosIds = array();
+
+            foreach ($usuariosHasVeiculos as $key => $usuarioHasVeiculo) {
+                $usuariosVeiculosEncontradosIds[] = $usuarioHasVeiculo["usuarios_id"];
+            }
+
+            $whereConditions = array();
+
+            if ($filtrarComFuncionarios) {
+                // Colocar tipo de perfil de Administrador Geral até Funcionário
+                $whereConditions[] = array(
+                    "ClientesHasUsuarios.tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
+                    "ClientesHasUsuarios.tipo_perfil <= " => Configure::read("profileTypes")["WorkerProfileType"]
+                );
+            } else {
+                // Somente usuários
+                $whereConditions[] = array(
+                    "ClientesHasUsuarios.tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]
+                );
+            }
+
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("clientes_id in " => $clientesIds);
+            }
+
+            // Pesquisa de Clientes que tem os usuários em questão
+
+            $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
+
+            $usuariosClientesEncontradosIds = array();
+
+            $usuariosClientesWhereConditions = $whereConditions;
+            $usuariosClientesWhereConditions[] = array("ClientesHasUsuarios.usuarios_id in " => $usuariosVeiculosEncontradosIds);
+
+            $usuariosClientesEncontradosArray = $clientesHasUsuariosTable->findClienteHasUsuario(
+                $usuariosClientesWhereConditions
+            )->select(["usuarios_id"])->toArray();
+
+            foreach ($usuariosClientesEncontradosArray as $key => $value) {
+                $usuariosClientesEncontradosIds[] = $value["usuarios_id"];
+            }
+
+            $usuarios = array();
+            if (sizeof($usuariosClientesEncontradosIds) > 0) {
+
+                $whereConditionsUsuariosRetorno = ["usuarios.id in " => $usuariosClientesEncontradosIds];
+
+                // Obtem os usuários que atendem aos critérios
+
+                $usuariosTable = TableRegistry::get("Usuarios");
+                $usuarios = $usuariosTable->findAllUsuarios($whereConditionsUsuariosRetorno)->toArray();
+            }
+        }
+
+        $data = array("veiculo" => $veiculo, "usuarios" => $usuarios);
+
+        return $data;
+    }
+
     /* ------------------------ Update ------------------------ */
     /* ------------------------ Delete ------------------------ */
 }
