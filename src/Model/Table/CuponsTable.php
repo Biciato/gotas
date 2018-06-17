@@ -179,7 +179,7 @@ class CuponsTable extends GenericTable
      * @return \App\Model\Entity\Cupom
      */
     // public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, int $tipo_banho, int $tempo_banho, float $valor_pago)
-    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id)
+    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
@@ -213,6 +213,7 @@ class CuponsTable extends GenericTable
 
             $tipoPrincipalCodigoBrinde = $generoBrindeCliente["tipo_principal_codigo_brinde"] <= 4;
 
+            // TODO: validar emissão de tickets no pagamento
             // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
             $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_rti_shower"] + 10 : $generoBrindeCliente["tipo_secundario_codigo_brinde"];
 

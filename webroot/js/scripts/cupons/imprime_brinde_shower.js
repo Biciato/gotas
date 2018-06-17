@@ -324,20 +324,8 @@ $(document).ready(function () {
             message += "Necessário selecionar um cliente para imprimir o ticket. <br />";
         }
 
-        var sexo = $("#sexo_brinde_shower").val();
-        var necessidades = $("#necessidades_especiais_brinde_shower").val();
-
         var usuarioIsAvulso = $("#usuarios_id_brinde_shower").val() == "conta_avulsa";
-
         var senha = $(".current_password").val();
-
-        if (sexo.length == 0) {
-            message += "É preciso selecionar o sexo. <br />";
-        }
-
-        if (necessidades.length == 0) {
-            message += "É preciso informar se possui necessidades especiais. <br />";
-        }
 
         if (!usuarioIsAvulso) {
             if (senha.length == 0) {

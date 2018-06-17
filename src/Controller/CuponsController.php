@@ -655,21 +655,22 @@ class CuponsController extends AppController
             $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
 
             if ($data['usuarios_id'] == "conta_avulsa") {
-                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyProfileType'], 1);
+                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
             } else {
                 $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
             }
 
-            $usuario['pontuacoes']
-                = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+            $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuario['id'],
+                $rede["id"],
                 $clientes_ids
             );
+            $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
 
             // validação de senha do usuário
 
             $senha_valida = false;
-            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyProfileType']) {
+            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
                 if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
                     $senha_valida = true;
                 }
@@ -682,7 +683,7 @@ class CuponsController extends AppController
             } else {
 
                 // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
-                if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyProfileType']) {
+                if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
                     // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
 
                     $clientes_has_usuarios_conditions = [];
@@ -706,7 +707,7 @@ class CuponsController extends AppController
                     // ------------------------------------------------------------------------
                     // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
                     // ------------------------------------------------------------------------
-                    if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyProfileType']) {
+                    if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
 
                     // ------------------- Atualiza pontos à serem debitados -------------------
 
@@ -797,6 +798,7 @@ class CuponsController extends AppController
                                     $can_continue = false;
                                     break;
                                 }
+                                break;
                             }
                         }
 
@@ -817,7 +819,7 @@ class CuponsController extends AppController
                     }
 
                     // Se for venda avulsa, considera que tem que debitar pontos
-                    if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyProfileType']) {
+                    if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
                         $pontuacaoDebitar = true;
                     }
 
@@ -827,7 +829,8 @@ class CuponsController extends AppController
                         $cupom = $this->Cupons->addCupomForUsuario(
                             $brinde_habilitado->id,
                             $cliente->id,
-                            $usuario->id
+                            $usuario->id,
+                            $brinde_habilitado->brinde_habilitado_preco_atual->preco
                         );
 
                          // vincula item resgatado ao cliente final
@@ -917,7 +920,7 @@ class CuponsController extends AppController
             $quantidade = $data['quantidade'];
 
             if ($data['usuarios_id'] == "conta_avulsa") {
-                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyProfileType'], 1);
+                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
             } else {
                 $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
             }
@@ -931,7 +934,7 @@ class CuponsController extends AppController
 
             $senha_valida = false;
 
-            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyProfileType']) {
+            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
                 if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
                     $senha_valida = true;
                 }
@@ -944,7 +947,7 @@ class CuponsController extends AppController
             } else {
 
                 // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
-                if (($usuario->pontuacoes >= ($brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade) || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyProfileType'])) {
+                if (($usuario->pontuacoes >= ($brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade) || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType'])) {
 
                     // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
 
@@ -969,7 +972,7 @@ class CuponsController extends AppController
                     // ------------------------------------------------------------------------
                     // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
                     // ------------------------------------------------------------------------
-                    if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyProfileType']) {
+                    if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
 
                     // ------------------- Atualiza pontos à serem debitados -------------------
 
@@ -1081,7 +1084,7 @@ class CuponsController extends AppController
                     }
 
                     // Se for venda avulsa, considera que tem que debitar pontos
-                    if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyProfileType']) {
+                    if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
                         $pontuacaoDebitar = true;
                     }
 
