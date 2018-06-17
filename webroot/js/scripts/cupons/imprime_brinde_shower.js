@@ -72,8 +72,6 @@ $(document).ready(function () {
             var result = null;
             $.each(a, function (index, value) {
 
-                value = $(".opcoes").val() == 'placa' ? value.usuario : value;
-
                 if (value.id === id) {
                     result = value;
                     return false;
@@ -163,67 +161,64 @@ $(document).ready(function () {
                 if (result.error) {
                     callModalError(result.message);
                 } else {
-                    if (result.user === null) {
-                        if ($("#opcoes").val() == 'placa') {
-                            $("#userValidationMessage").html("Veículo não encontrado! Se usuário já está cadastrado, adicione um novo veículo para este usuário.");
-                        } else {
-                            $("#userValidationMessage").html("Cliente não encontrado!");
-                        }
-                        $(".validation-message").show();
+
+                    if ($("#opcoes").val() == "placa" && result.veiculoEncontrado === null) {
+                        callModalError("Veículo não encontrado! Se usuário já está cadastrado, adicione um novo veículo para este usuário.");
+                        return;
+                    }
+                    if (result.usuarios === null) {
+
+                        callModalError("Cliente não encontrado!");
+                        return;
+
                     } else {
                         $(".validation-message").hide();
                         if (result.count == 1) {
-                            if (typeof (result.user === 'object')) {
-
-                                if ($("#opcoes").val() == 'placa') {
-                                    setUsuariosInfo(result.user.usuarios_has_veiculos[0].usuario);
+                            if (typeof (result.usuarios === 'object')) {
+                                if (result.usuarios.length !== undefined) {
+                                    setUsuariosInfo(result.usuario[0]);
                                 } else {
-                                    if (result.user.length !== undefined) {
-                                        setUsuariosInfo(result.user[0]);
-                                    } else {
-                                        setUsuariosInfo(result.user);
+                                    setUsuariosInfo(result.usuario);
 
-                                    }
                                 }
                             } else {
-                                setUsuariosInfo(result.user[0]);
+                                setUsuariosInfo(result.usuario[0]);
 
                             }
 
-                        } else if (result.user.length == 0) {
+                        } else if (result.usuarios.length == 0) {
                             callModalError("Não foi(foram) encontrado usuário(s) com o parâmetro fornecido!");
                         } else {
 
-                            arrayUsuarios.set($("#opcoes").val() == 'nome' || $("#opcoes").val() == 'doc_estrangeiro' ? result.user : result.user.usuarios_has_veiculos);
+                            arrayUsuarios.set(result.usuarios);
 
                             $("#user-result-names >tbody").html('');
                             $("#user-result-plates >tbody").html('');
 
-                            if ($("#opcoes").val() == 'nome' || $("#opcoes").val() == 'doc_estrangeiro') {
-                                $.each(result.user, function (index, value) {
+                            if (result.veiculoEncontrado) {
+                                var veiculo = result.veiculoEncontrado;
+                                $("#veiculosPlaca").val(veiculo.placa);
+                                $("#veiculosModelo").val(veiculo.modelo);
+                                $("#veiculosFabricante").val(veiculo.fabricante);
+                                $("#veiculosAno").val(veiculo.ano);
+
+                                $(".user-result-plates").show();
+
+                                $.each(result.usuarios, function (index, value) {
+
+                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
+                                    $("#user-result-plates ").append(html);
+                                });
+                            }
+                            else {
+                                $.each(result.usuarios, function (index, value) {
 
                                     var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
 
                                     $("#user-result-names ").append(html);
-                                });
-                            } else {
-                                $("#veiculosPlaca").val(result.user.placa);
-                                $("#veiculosModelo").val(result.user.modelo);
-                                $("#veiculosFabricante").val(result.user.fabricante);
-                                $("#veiculosAno").val(result.user.ano);
-                                $.each(result.user.usuarios_has_veiculos, function (index, value) {
-
-                                    var value = value.usuario;
-                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
-                                    $("#user-result-plates ").append(html);
 
                                 });
-                            }
-
-                            if ($("#opcoes").val() == 'nome' || $("#opcoes").val() == 'doc_estrangeiro') {
                                 $(".user-result-names").show();
-                            } else {
-                                $(".user-result-plates").show();
                             }
 
                             initializeSelectClicks();
@@ -381,7 +376,7 @@ $(document).ready(function () {
 
         $(".impressao-canhoto-shower .print_area .usuarios-nome").text(nome);
 
-         $(".impressao-canhoto-shower .print_area #print_data_emissao").text(data);
+        $(".impressao-canhoto-shower .print_area #print_data_emissao").text(data);
 
         $(".impressao-canhoto-shower .print_area #rti_shower_minutos").text(tempo);
 

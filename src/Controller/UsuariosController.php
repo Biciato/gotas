@@ -3351,7 +3351,8 @@ class UsuariosController extends AppController
 
                     $clientes_id = $array;
                     $query_conditions = [];
-                    $users_cliente = [];
+                    $usuarios = array();
+                    $funcionariosCliente = array();
 
                     // Se for pra restringir a consulta, é quem esta na rede. se não, é pra procurar todo mundo
                     $restringirConsulta = isset($data['restrict_query']) ? $data["restrict_query"] : false;
@@ -3368,59 +3369,29 @@ class UsuariosController extends AppController
 
                         // Pesquisa por Nome
                         if ($data['opcao'] == 'nome') {
-                            $users = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $rede['id'], $query_conditions);
+                            $retorno = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $rede['id'], $query_conditions);
 
-                            if ($users['result']) {
-                                $users = $users['data'];
-                            }
-
-                            foreach ($users->toArray() as $key => $value) {
-                                $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
-
-                                array_push($users_cliente, $value);
+                            if ($retorno['result']) {
+                                $funcionariosCliente = $retorno['data'];
                             }
                         } elseif ($data['opcao'] == 'doc_estrangeiro') {
                             // Pesquisa por Documento Estrangeiro
-                            $users = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
-
-                            foreach ($users as $key => $user) {
-                                array_push($users_cliente, $user);
-                            }
+                            $funcionariosCliente = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
 
                         } elseif ($data['opcao'] == 'cpf') {
                             // Pesquisa por CPF
-                            $user = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $matriz['id'], $query_conditions);
+                            $usuario = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $matriz['id'], $query_conditions);
 
-                            if ($user) {
-                                $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
-                            }
-
+                            $funcionariosCliente[] = $usuario;
                         } else {
                             // Pesquisa por Placa
-
-                            /**
-                             * TODO: Esta pesquisa vai ter que mudar. Problema:
-                             * Pesquisa está buscando todos os usuários que estão vinculados à um veículo.
-                             * Na emissão do brinde, eu tenho que ver se aquele usuário está vinculado e se tem ponto
-                             * Na atribuição de gotas, eu tenho que buscar todo mundo.
-                             */
-
-                            // $users
-                            //     = $this->Veiculos->getFuncionariosClienteByVeiculo(
-                            //     $data['parametro'],
-                            //     ['clientes_has_usuarios.clientes_id IN ' => $clientes_id]
-                            // );
-                            $retorno
-                                = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), true);
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), true);
 
                             $veiculoEncontrado = $retorno["veiculo"];
-
-                            $users = $retorno["usuarios"];
-
-                            foreach ($users as $key => $user) {
-                                array_push($users_cliente, $user);
-                            }
+                            $funcionariosCliente = $retorno["usuarios"];
                         }
+
+                        // aqui não preciso fazer merge de funcionariosCliente com Usuários, pois ainda não teve a pesquisa dos usuários em si
                     }
 
                     // reset das condições da query, pois agora iremos buscar os clientes finais
@@ -3433,72 +3404,47 @@ class UsuariosController extends AppController
 
                     // Pesquisa por Nome
                     if ($data['opcao'] == 'nome') {
-                        $users = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
-
-                        $usersTmp = $users_cliente;
-
-                        foreach ($users as $key => $value) {
-                            $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
-
-                            array_push($usersTmp, $value);
+                        // Modificar consulta para restringir
+                        if ($restringirConsulta) {
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
+                        } else {
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
                         }
-
-                        $users = $usersTmp;
                     } elseif ($data['opcao'] == 'doc_estrangeiro') {
                         // Pesquisa por Documento Estrangeiro
-                        $users = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions);
-
-                        $users = $users->toArray();
-
-                        $usersTmp = $users_cliente;
-
-                        if (sizeof($users) == 1) {
-                            $users = $users[0];
-
-                            $users['data_nasc'] = $users['data_nasc']->format('d/m/Y');
-
-                            array_push($usersTmp, $users);
-
+                        // Modificar consulta para restringir
+                        if ($restringirConsulta) {
+                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
                         } else {
-                            foreach ($users as $key => $user) {
-                                $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
-
-                                array_push($usersTmp, $user);
-
-                            }
-                            unset($user);
+                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
                         }
-
-                        $users = $usersTmp;
 
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
-                        $user = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
+                        // Modificar consulta para restringir
 
-                        if ($user) {
-                            $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
+                        if ($restringirConsulta) {
+                            $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
+                        } else {
+                            $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
                         }
 
+                        $usuarios[] = $usuario;
                     } else {
                         // Pesquisa por Placas
-
-
-                        /**
-                         * TODO: Esta pesquisa vai ter que mudar. Problema:
-                         * Pesquisa está buscando todos os usuários que estão vinculados à um veículo.
-                         * Na emissão do brinde, eu tenho que ver se aquele usuário está vinculado e se tem ponto
-                         * Na atribuição de gotas, eu tenho que buscar todo mundo.
-                         */
-                        $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
+                        // Modificar consulta para restringir
+                        if ($restringirConsulta) {
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
+                        } else {
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
+                        }
 
                         $veiculoEncontrado = $retorno["veiculo"];
-
-                        $users = $retorno["usuarios"];
-
-                        foreach ($users as $key => $user) {
-                            array_push($users_cliente, $user);
-                        }
+                        $usuarios = $retorno["usuarios"];
                     }
+
+                    $usuarios = array_merge($funcionariosCliente, $usuarios);
+
 
                     /*
                      * Condição em telas que verificam se o usuário realmente pertence àquela rede
@@ -3515,76 +3461,70 @@ class UsuariosController extends AppController
                      * Emissão de Brindes
                      */
 
-                    if (isset($data['restrict_query'])) {
-                        if ($data['restrict_query']) {
+                    // if (isset($data['restrict_query'])) {
+                    //     if ($data['restrict_query']) {
 
-                            if (isset($user)) {
-                                $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
+                    //         if ($data['opcao'] == 'nome') {
+                    //             if (sizeof($usuarios) > 0) {
+                    //                 for ($count_user = 0; $count_user < sizeof($usuarios); $count_user++) {
+                    //                     $user = $usuarios[$count_user];
 
-                                if (!$user_found) {
-                                    $user = null;
-                                }
-                            } else {
-                                if ($data['opcao'] == 'nome') {
-                                    if (sizeof($users) > 0) {
-                                        for ($count_user = 0; $count_user < sizeof($users); $count_user++) {
-                                            $user = $users[$count_user];
+                    //                     $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
 
-                                            $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
+                    //                     if (!$user_found) {
+                    //                         unset($usuarios[$count_user]);
+                    //                     }
 
-                                            if (!$user_found) {
-                                                unset($users[$count_user]);
-                                            }
+                    //                     unset($user);
+                    //                 }
+                    //             }
+                    //         } else {
+                    //             $users_array = [];
 
-                                            unset($user);
-                                        }
-                                    }
-                                } else {
-                                    $users_array = [];
+                    //             foreach ($usuarios as $key => $value) {
+                    //                 array_push($users_array, $value->usuarios_has_veiculos);
+                    //             }
 
-                                    foreach ($users as $key => $value) {
-                                        array_push($users_array, $value->usuarios_has_veiculos);
-                                    }
+                    //             if (sizeof($users_array) > 0) {
 
-                                    if (sizeof($users_array) > 0) {
+                    //                 $users_array = $users_array[0];
+                    //                 if (sizeof($users_array) > 0) {
+                    //                     for ($count_user = 0; $count_user < sizeof($users_array); $count_user++) {
+                    //                         $user = $users_array[$count_user]->usuario;
 
-                                        $users_array = $users_array[0];
-                                        if (sizeof($users_array) > 0) {
-                                            for ($count_user = 0; $count_user < sizeof($users_array); $count_user++) {
-                                                $user = $users_array[$count_user]->usuario;
+                    //                         $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
 
-                                                $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
+                    //                         if (!$user_found) {
+                    //                             unset($users_array[$count_user]);
+                    //                         }
 
-                                                if (!$user_found) {
-                                                    unset($users_array[$count_user]);
-                                                }
+                    //                         unset($user);
+                    //                     }
+                    //                 }
 
-                                                unset($user);
-                                            }
-                                        }
+                    //                 unset($users[0]['usuarios_has_veiculos']);
+                    //                 $users[0]['usuarios_has_veiculos'] = $users_array;
+                    //             }
+                    //         }
+                    //     }
+                    // }
 
-                                        unset($users[0]['usuarios_has_veiculos']);
-                                        $users[0]['usuarios_has_veiculos'] = $users_array;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    // $usersReturn = [];
 
-                    $usersReturn = [];
+                    // foreach ($usuarios as $key => $user) {
+                    //     if ($user !== null) {
+                    //         $usersReturn[] = $user;
+                    //     }
 
-                    foreach ($users as $key => $user) {
-                        if ($user !== null) {
-                            $usersReturn[] = $user;
-                        }
-
-                        unset($user);
-                    }
+                    //     unset($user);
+                    // }
 
                     // Reseta o array de retorno de usuários para atribuir os pontos;
-                    $users = array();
+                    // $usuarios = array();
 
-                    foreach ($usersReturn as $key => $value) {
+                    foreach ($usuarios as $key => $value) {
+                        $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
+
                         $pontuacoes =
                             $this->Pontuacoes->getSumPontuacoesOfUsuario(
                             $value['id'],
@@ -3594,49 +3534,71 @@ class UsuariosController extends AppController
 
                         $value->pontuacoes = $pontuacoes["saldo"];
 
-                        $users[] = $value;
+                        $usuarios[] = $value;
                     }
 
-                    if (isset($user)) {
+                    $error = false;
+                    $count = sizeof($usuarios);
+                    // if (is_null($users) || sizeof($users) == 0) {
+                    //     $error = false;
+                    //     $user = null;
+                    //     $count = 0;
+                    // } elseif (($data['opcao'] == 'nome') || $data['opcao'] == 'doc_estrangeiro') {
+                    //     $error = false;
+                    //     $user = $users;
+                    //     $count = sizeof($users);
+                    // } elseif ($data['opcao'] == 'placa') {
+                    //     $error = false;
+                    //     if (sizeof($users) > 0 && sizeof($users[0]['usuarios_has_veiculos']) > 0) {
+                    //         $count = sizeof($users[0]['usuarios_has_veiculos']);
+                    //         $user = $users[0];
+                    //     } else {
+                    //         $count = 0;
+                    //         $user = [];
+                    //     }
+                    // }
+                    // if (isset($user)) {
 
-                        $pontuacoes =
-                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                            $user['id'],
-                            $rede["id"],
-                            $clientes_id
-                        );
+                    //     $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
 
-                        $user["pontuacoes"] = $pontuacoes["saldo"];
+                    //     $pontuacoes =
+                    //         $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                    //         $user['id'],
+                    //         $rede["id"],
+                    //         $clientes_id
+                    //     );
 
-                        $error = false;
-                        $user = $user;
-                        $count = 1;
-                    } else {
-                        if (is_null($users) || sizeof($users) == 0) {
-                            $error = false;
-                            $user = null;
-                            $count = 0;
-                        } elseif (($data['opcao'] == 'nome') || $data['opcao'] == 'doc_estrangeiro') {
-                            $error = false;
-                            $user = $users;
-                            $count = sizeof($users);
-                        } elseif ($data['opcao'] == 'placa') {
-                            $error = false;
-                            if (sizeof($users) > 0 && sizeof($users[0]['usuarios_has_veiculos']) > 0) {
-                                $count = sizeof($users[0]['usuarios_has_veiculos']);
-                                $user = $users[0];
-                            } else {
-                                $count = 0;
-                                $user = [];
-                            }
-                        }
-                    }
+                    //     $user["pontuacoes"] = $pontuacoes["saldo"];
+
+                    //     $error = false;
+                    //     $user = $user;
+                    //     $count = 1;
+                    // } else {
+                    //     if (is_null($users) || sizeof($users) == 0) {
+                    //         $error = false;
+                    //         $user = null;
+                    //         $count = 0;
+                    //     } elseif (($data['opcao'] == 'nome') || $data['opcao'] == 'doc_estrangeiro') {
+                    //         $error = false;
+                    //         $user = $users;
+                    //         $count = sizeof($users);
+                    //     } elseif ($data['opcao'] == 'placa') {
+                    //         $error = false;
+                    //         if (sizeof($users) > 0 && sizeof($users[0]['usuarios_has_veiculos']) > 0) {
+                    //             $count = sizeof($users[0]['usuarios_has_veiculos']);
+                    //             $user = $users[0];
+                    //         } else {
+                    //             $count = 0;
+                    //             $user = [];
+                    //         }
+                    //     }
+                    // }
                 }
 
                 $arraySet = [
                     'error',
-                    'user',
                     'count',
+                    'usuarios',
                     'veiculoEncontrado'
                 ];
 
@@ -3645,9 +3607,7 @@ class UsuariosController extends AppController
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao procurar usuário[{
-                    0}] em : [{
-                    1}] ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao procurar usuário: [{0}] ", $e->getMessage());
 
             Log::write('error', $stringError);
         }
