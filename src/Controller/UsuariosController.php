@@ -3374,6 +3374,7 @@ class UsuariosController extends AppController
                             if ($retorno['result']) {
                                 $funcionariosCliente = $retorno['data'];
                             }
+
                         } elseif ($data['opcao'] == 'doc_estrangeiro') {
                             // Pesquisa por Documento Estrangeiro
                             $funcionariosCliente = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
@@ -3444,7 +3445,6 @@ class UsuariosController extends AppController
                     }
 
                     $usuarios = array_merge($funcionariosCliente, $usuarios);
-
 
                     /*
                      * Condição em telas que verificam se o usuário realmente pertence àquela rede
@@ -3522,20 +3522,20 @@ class UsuariosController extends AppController
                     // Reseta o array de retorno de usuários para atribuir os pontos;
                     // $usuarios = array();
 
+                    $usuariosTemp = array();
+
                     foreach ($usuarios as $key => $value) {
-                        $value['data_nasc'] = $value['data_nasc']->format('d/m/Y');
+                        if (!empty($value)) {
+                            $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'],$rede["id"],$clientes_id);
 
-                        $pontuacoes =
-                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                            $value['id'],
-                            $rede["id"],
-                            $clientes_id
-                        );
+                            $value->pontuacoes = $pontuacoes["saldo"];
+                            $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;
 
-                        $value->pontuacoes = $pontuacoes["saldo"];
-
-                        $usuarios[] = $value;
+                            $usuariosTemp[] = $value;
+                        }
                     }
+
+                    $usuarios = $usuariosTemp;
 
                     $error = false;
                     $count = sizeof($usuarios);

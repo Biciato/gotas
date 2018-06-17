@@ -176,13 +176,13 @@ $(document).ready(function () {
                         if (result.count == 1) {
                             if (typeof (result.usuarios === 'object')) {
                                 if (result.usuarios.length !== undefined) {
-                                    setUsuariosInfo(result.usuario[0]);
+                                    setUsuariosInfo(result.usuarios[0]);
                                 } else {
-                                    setUsuariosInfo(result.usuario);
+                                    setUsuariosInfo(result.usuarios);
 
                                 }
                             } else {
-                                setUsuariosInfo(result.usuario[0]);
+                                setUsuariosInfo(result.usuarios[0]);
 
                             }
 
@@ -226,7 +226,7 @@ $(document).ready(function () {
                     }
                 }
             }).fail(function (e) {
-                console.log("error");
+                console.log("error" + e.responseJSON.message);
             }).always(function (e) {
                 console.log("complete");
             });

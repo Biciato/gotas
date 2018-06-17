@@ -1064,7 +1064,7 @@ class UsuariosTable extends GenericTable
                 )
                 ->group(['usuarios.id']);
 
-            return ['result' => true, 'data' => $data];
+            return ['result' => true, 'data' => $data->toArray()];
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -1099,7 +1099,7 @@ class UsuariosTable extends GenericTable
 
             return $this->_getUsuarioTable()
                 ->find('all')
-                ->where($conditions);
+                ->where($conditions)->toArray();
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
