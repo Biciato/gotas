@@ -439,6 +439,11 @@ $(document).ready(function () {
                     if (result.isBrindeSmartShower) {
                         // Se for Banho SMART
 
+                        // exibe tudo que é da div de is-cupom-shower
+
+                        $(".is-cupom-shower").show();
+                        $(".is-not-cupom-shower").hide();
+
                         // TODO: Imprimir o cupom de banho
 
                         $("#print-validation").text(null);
@@ -449,17 +454,13 @@ $(document).ready(function () {
 
                         var cupom_emitido = result.ticket.cupom_emitido;
 
-                        var tipo = 0;
-
                         $("#rti_shower_minutos").text(result.tempo);
 
                         // TODO: Ajustar como é impresso o ticket
-                        $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
-                            barWidth: 2,
-                            barHeight: 70,
-                            showHRI: false,
-                            output: 'bmp'
-                        });
+
+                        var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
+
+                        geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
 
                         setTimeout($(".impressao-cupom-shower .print_area").printThis({
                             importCss: false
@@ -503,4 +504,28 @@ $(document).ready(function () {
             });
         }
     });
+
+    /**
+     * Função que irá gerar o código de barras a ser emitido
+     *
+     * @param {*} cupom_emitido
+     * @param {*} tipoEmissaoCodigoBarras
+     */
+    var geraCodigoBarras = function (cupom_emitido, tipoEmissaoCodigoBarras) {
+
+        if (tipoEmissaoCodigoBarras == "Code128")
+        {
+
+            $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
+                barWidth: 2,
+                barHeight: 70,
+                showHRI: false,
+                output: 'bmp'
+            });
+        } else if (tipoEmissaoCodigoBarras == "PDF417"){
+            generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+        } else {
+            callModalError("Tipo de Código de Barras ainda não foi configurado no sistema!");
+        }
+    };
 });
