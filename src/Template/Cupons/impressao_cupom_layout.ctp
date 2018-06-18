@@ -16,19 +16,14 @@ use Cake\Routing\Router;
 
 		<div style="display: inline-flex;" class="header-cupom" >
 
-				<?= $this->Html->image(
-				'icons/rti_cupom.png',
-				[
-					'class' => 'logo-rti-brinde'
-				]
-			) ?>
-			
-				<div class="pull-right">
-					<?= $this->Html->tag('span', 'Data emissão: ', ['class' => 'pull-right']) ?>
-					<br />
-					<?= $this->Html->tag('span', isset($data_impressao) ? $data_impressao : null, ['id' => 'print_data_emissao']) ?>
-			</div>
-		</div>
+            <?= $this->Html->image('icons/rti_cupom.png',[ 'class' => 'logo-rti-brinde' ]) ?>
+
+            <div class="pull-right">
+                <?= $this->Html->tag('span', 'Data emissão: ', ['class' => 'pull-right']) ?>
+                <br />
+                <?= $this->Html->tag('span', isset($data_impressao) ? $data_impressao : null, ['id' => 'print_data_emissao']) ?>
+            </div>
+        </div>
 
 		<p class="text-center product">
 			<?= $this->Html->tag('span', 'BRINDES'); ?>
@@ -43,17 +38,17 @@ use Cake\Routing\Router;
 				</tr>
 			</thead>
 			<tbody>
-				<?php if (isset($produtos)) : ?> 
-					<?php foreach ($produtos as $key => $produto) : ?> 
+				<?php if (isset($produtos)) : ?>
+					<?php foreach ($produtos as $key => $produto) : ?>
 						<tr>
 							<td>
-								<?= $produto['qte'] ?> 
+								<?= $produto['qte'] ?>
 							</td>
 							<td>
-								<?= $produto['nome'] ?> 
+								<?= $produto['nome'] ?>
 							</td>
 							<td>
-								<?= $produto['valor_pago'] ?> 
+								<?= $produto['valor_pago'] ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>
@@ -63,10 +58,10 @@ use Cake\Routing\Router;
 
 		<p>
 			<div class="text-center">
-				<?= __("Código de leitura para resgatar produto") ?> 
+				<?= __("Código de leitura para resgatar produto") ?>
 			</div>
-			
-			
+
+
 			<div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>" class="hidden cupom_emitido"><?= isset($cupom_emitido) ? $cupom_emitido : null ?> </div>
 			<div class="print_region">
 				<center>
@@ -82,20 +77,20 @@ use Cake\Routing\Router;
 
 		<p class="text-center contact">
 
-			<?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>		
+			<?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
 			<br />
-			<?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>		
+			<?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
 
 		</p>
-		
+
 	</div>
 </div>
 
 <?php if (Configure::read('debug')) : ?>
 		<?= $this->Html->css('styles/cupons/impressao_cupom_layout') ?>
 		<?= $this->Html->script('scripts/cupons/impressao_cupom_layout') ?>
-		
-<?php else : ?> 
+
+<?php else : ?>
 		<?= $this->Html->css('styles/cupons/impressao_cupom_layout.min') ?>
 		<?= $this->Html->script('scripts/cupons/impressao_cupom_layout.min') ?>
 

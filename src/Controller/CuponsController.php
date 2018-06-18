@@ -149,11 +149,11 @@ class CuponsController extends AppController
      */
 
     /**
-     * Ação de escolher cupom
+     * Ação de escolher cupom, visualizada por gerentes à níveis acima
      *
      * @return void
      */
-    public function emissaoCupom()
+    public function emissaoBrindeSuperiores()
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
@@ -625,258 +625,280 @@ class CuponsController extends AppController
      */
     public function imprimeBrindeAjax()
     {
-        $result = null;
-        $ticket = null;
-        $message = null;
-        $status = 'error';
-        $cupom = null;
+        try {
+            $result = null;
+            $ticket = null;
+            $message = null;
+            $status = 'error';
+            $cupom = null;
 
-        if ($this->request->is(['post'])) {
-            $data = $this->request->getData();
+            if ($this->request->is(['post'])) {
+                $data = $this->request->getData();
 
-            $cliente = $this->Clientes->getClienteById($data['clientes_id']);
+                $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
-            $rede = $this->request->session()->read('Network.Main');
+                $rede = $this->request->session()->read('Network.Main');
 
-            // pega id de todos os clientes que estão ligados à uma rede
+                // pega id de todos os clientes que estão ligados à uma rede
 
-            $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
+                $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
 
-            $clientes_ids = [];
+                $clientes_ids = [];
 
-            foreach ($redes_has_clientes_query as $key => $value) {
-                $clientes_ids[] = $value['clientes_id'];
-            }
+                foreach ($redes_has_clientes_query as $key => $value) {
+                    $clientes_ids[] = $value['clientes_id'];
+                }
 
-            $array = [];
+                $array = [];
 
-            $clientes_id = $array;
+                $clientes_id = $array;
 
-            $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
+                $quantidade = isset($data['quantidade']) ? $data["quantidade"] : 1;
 
-            if ($data['usuarios_id'] == "conta_avulsa") {
-                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
-            } else {
-                $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
-            }
+                $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
 
-            $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                $usuario['id'],
-                $rede["id"],
-                $clientes_ids
-            );
-            $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
+                if ($data['usuarios_id'] == "conta_avulsa") {
+                    $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
+                } else {
+                    $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+                }
+
+                $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                    $usuario['id'],
+                    $rede["id"],
+                    $clientes_ids
+                );
+                $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
 
             // validação de senha do usuário
 
-            $senha_valida = false;
-            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
-                if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
+                $senha_valida = false;
+                if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
+                    if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
+                        $senha_valida = true;
+                    }
+                } else {
                     $senha_valida = true;
                 }
-            } else {
-                $senha_valida = true;
-            }
 
-            if ($senha_valida == false) {
-                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
-            } else {
+                if ($senha_valida == false) {
+                    $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                } else {
 
                 // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
-                if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
+                    if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
                     // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
 
-                    $clientes_has_usuarios_conditions = [];
+                        $clientes_has_usuarios_conditions = [];
 
-                    array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
-                    array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
+                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
+                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
 
-                    if ($rede->permite_consumo_gotas_funcionarios) {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
-                    } else {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
-                    }
+                        if ($rede->permite_consumo_gotas_funcionarios) {
+                            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
+                            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
+                        } else {
+                            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
+                        }
 
-                    $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                        $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                    if (is_null($cliente_usuario)) {
-                        $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
-                    }
+                        if (is_null($cliente_usuario)) {
+                            $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
+                        }
 
                     // ------------------------------------------------------------------------
                     // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
                     // ------------------------------------------------------------------------
-                    if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
+                        if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
 
                     // ------------------- Atualiza pontos à serem debitados -------------------
 
                         /*
-                         * Se há pontuação à debitar, devo verificar quais são as
-                         * pontuações do usuário que serão utilizadas, para notificar
-                         * quantos pontos ele possui que estão prestes à vencer
-                         */
+                             * Se há pontuação à debitar, devo verificar quais são as
+                             * pontuações do usuário que serão utilizadas, para notificar
+                             * quantos pontos ele possui que estão prestes à vencer
+                             */
 
-                        $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
+                            $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
 
-                        $can_continue = true;
-                        $pontuacoes_pending_usage_save = [];
+                            $can_continue = true;
+                            $pontuacoes_pending_usage_save = [];
 
                         // Obter pontos não utilizados totalmente
                         // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                        $pontuacao_pending_usage
-                            = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
-                            $usuario->id,
-                            $clientes_ids,
-                            1,
-                            null
-                        );
+                            $pontuacao_pending_usage
+                                = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
+                                $usuario->id,
+                                $clientes_ids,
+                                1,
+                                null
+                            );
 
-                        if ($pontuacao_pending_usage) {
-                            $last_id = $pontuacao_pending_usage->id;
-                        } else {
-                            $last_id = null;
-                        }
+                            if ($pontuacao_pending_usage) {
+                                $last_id = $pontuacao_pending_usage->id;
+                            } else {
+                                $last_id = null;
+                            }
 
-                        if (!is_null($last_id)) {
-                        // soma de pontos de todos os brindes usados
-                            $pontuacoes_brindes_used = $this
-                                ->Pontuacoes
-                                ->getSumPontuacoesPendingToUsageByUsuario(
-                                    $usuario->id,
-                                    $clientes_ids
-                                );
+                            if (!is_null($last_id)) {
+                                // soma de pontos de todos os brindes usados
+                                $pontuacoes_brindes_used = $this
+                                    ->Pontuacoes
+                                    ->getSumPontuacoesPendingToUsageByUsuario(
+                                        $usuario->id,
+                                        $clientes_ids
+                                    );
 
-                            $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
-                        }
+                                $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                            }
 
-                        while ($can_continue) {
-                            $pontuacoes_pending_usage = $this
-                                ->Pontuacoes
-                                ->getPontuacoesPendentesForUsuario(
-                                    $usuario->id,
-                                    $clientes_ids,
-                                    10,
-                                    $last_id
-                                );
+                            while ($can_continue) {
+                                $pontuacoes_pending_usage = $this
+                                    ->Pontuacoes
+                                    ->getPontuacoesPendentesForUsuario(
+                                        $usuario->id,
+                                        $clientes_ids,
+                                        10,
+                                        $last_id
+                                    );
 
-                            $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                                $max_count = sizeof($pontuacoes_pending_usage->toArray());
 
-                            $count = 0;
-                            foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                                if ($pontuacoes_to_process >= 0) {
-                                    if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
-                                        array_push(
-                                            $pontuacoes_pending_usage_save,
-                                            [
-                                                'id' => $pontuacao->id,
-                                                'utilizado' => 2
-                                            ]
-                                        );
-                                    } else {
-                                        array_push(
-                                            $pontuacoes_pending_usage_save,
-                                            [
-                                                'id' => $pontuacao->id,
-                                                'utilizado' => 1
-                                            ]
-                                        );
+                                $count = 0;
+                                foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
+                                    if ($pontuacoes_to_process >= 0) {
+                                        if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                                            array_push(
+                                                $pontuacoes_pending_usage_save,
+                                                [
+                                                    'id' => $pontuacao->id,
+                                                    'utilizado' => 2
+                                                ]
+                                            );
+                                        } else {
+                                            array_push(
+                                                $pontuacoes_pending_usage_save,
+                                                [
+                                                    'id' => $pontuacao->id,
+                                                    'utilizado' => 1
+                                                ]
+                                            );
+                                        }
                                     }
-                                }
-                                $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                                    $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
 
-                                $last_id = $pontuacao->id;
+                                    $last_id = $pontuacao->id;
 
-                                $count = $count + 1;
+                                    $count = $count + 1;
 
-                                if ($count == $max_count) {
-                                    $last_id = $pontuacao->id + 1;
-                                }
+                                    if ($count == $max_count) {
+                                        $last_id = $pontuacao->id + 1;
+                                    }
 
-                                if ($pontuacoes_to_process <= 0) {
-                                    $can_continue = false;
+                                    if ($pontuacoes_to_process <= 0) {
+                                        $can_continue = false;
+                                        break;
+                                    }
                                     break;
                                 }
-                                break;
                             }
-                        }
 
                         // Atualiza todos os pontos do usuário
 
-                        $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                            $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
 
                         // ---------- Fim de atualiza pontos à serem debitados ----------
 
                         // Diminuir saldo de pontos do usuário
-                        $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cliente->id,
-                            $usuario->id,
-                            $brinde_habilitado->id,
-                            $brinde_habilitado->brinde_habilitado_preco_atual->preco
-                        );
+                            $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                                $cliente->id,
+                                $usuario->id,
+                                $brinde_habilitado->id,
+                                $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade
+                            );
 
-                    }
+                        }
 
                     // Se for venda avulsa, considera que tem que debitar pontos
-                    if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
-                        $pontuacaoDebitar = true;
-                    }
+                        if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
+                            $pontuacaoDebitar = true;
+                        }
 
-                    if ($pontuacaoDebitar) {
+                        if ($pontuacaoDebitar) {
                         // Emitir Cupom e retornar
 
-                        $cupom = $this->Cupons->addCupomForUsuario(
-                            $brinde_habilitado->id,
-                            $cliente->id,
-                            $usuario->id,
-                            $brinde_habilitado->brinde_habilitado_preco_atual->preco
-                        );
+                            $cupom = $this->Cupons->addCupomForUsuario(
+                                $brinde_habilitado->id,
+                                $cliente->id,
+                                $usuario->id,
+                                $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade,
+                                $quantidade
+                            );
 
                          // vincula item resgatado ao cliente final
 
-                        $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                            $usuario->id,
-                            $brinde_habilitado->id,
-                            1,
-                            $brinde_habilitado->brinde_habilitado_preco_atual->preco,
-                            $cupom->id
-                        );
+                            $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
+                                $usuario->id,
+                                $brinde_habilitado->id,
+                                $quantidade,
+                                $brinde_habilitado->brinde_habilitado_preco_atual->preco,
+                                $cupom->id
+                            );
 
-                        if ($cupom) {
-                            $status = 'success';
-                            $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
-                            $ticket = $cupom;
-                            $message = null;
-                        } else {
-                            $status = 'error';
-                            $message = "Houve um erro na geração do Ticket. Informe ao suporte.";
+                            if ($cupom) {
+                                $status = 'success';
+                                $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
+                                $ticket = $cupom;
+                                $message = null;
+                            } else {
+                                $status = 'error';
+                                $message = "Houve um erro na geração do Ticket. Informe ao suporte.";
+                            }
                         }
+                    } else {
+                        $message = "Usuário possui saldo insuficiente. Não foi possível realizar a transação.";
                     }
-                } else {
-                    $message = "Usuário possui saldo insuficiente. Não foi possível realizar a transação.";
                 }
+
+                $message = $message;
+                $ticket = $ticket;
+                $status = $status;
+                $cliente = $cliente;
+                $usuario = $usuario;
+                $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
+                $tipoEmissaoCodigoBarras = $brinde_habilitado["tipo_codigo_barras"];
+                $isBrindeSmartShower = $brinde_habilitado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
             }
 
-            $message = $message;
-            $ticket = $ticket;
-            $status = $status;
-            $cliente = $cliente;
-            $usuario = $usuario;
-            $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
+            $arraySet = [
+                'message',
+                'ticket',
+                'status',
+                'cliente',
+                'usuario',
+                'tempo',
+                'tipoEmissaoCodigoBarras',
+                'isBrindeSmartShower'
+            ];
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Houve um erro durante o processamento do Ticket. [{0}] ", $e->getMessage());
+
+            Log::write('error', $stringError);
+
+            $messageString = __("Não foi possível obter pontuações do usuário na rede!");
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
         }
-
-        $arraySet = [
-            'message',
-            'ticket',
-            'status',
-            'cliente',
-            'usuario',
-            'tempo'
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -1228,6 +1250,7 @@ class CuponsController extends AppController
 
                 $cupom_emitido = $data['cupom_emitido'];
 
+                // TODO: a emissão nova irá utilizar este método
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
                 $cupons = $cupons->toArray();
 

@@ -12,13 +12,13 @@ $filialAdministrar= $this->request->session()->read('ClientToManage');
 </div> -->
 
 
-<div id="footer_worker" >
+<!-- <div id="footer_worker" >
 
 <div id="footer_content" >
 	<div class="wrapper">
-	
+
 		<a class="sprite logo_footer" href="http://rtisolutions.com.br/" title="RTI" rel="home">RTI</a>
-					
+
 		<div class="menu">
 			<ul id="menu-footer" class="menu_footer">
 				<li class="menu_items">
@@ -41,7 +41,7 @@ $filialAdministrar= $this->request->session()->read('ClientToManage');
 </div>
 
 
-</div>
+</div> -->
 
 
 

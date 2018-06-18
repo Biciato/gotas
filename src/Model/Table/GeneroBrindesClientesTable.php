@@ -280,7 +280,7 @@ class GeneroBrindesClientesTable extends GenericTable
                 ->find('all')
                 ->where(
                     [
-                        "id" => $id
+                        "GeneroBrindesClientes.id" => $id
                     ]
                 )->contain(["GeneroBrindes"])
                 ->first();

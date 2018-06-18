@@ -139,6 +139,15 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 'joinType' => 'INNER'
             ]
         );
+
+        $this->belongsTo(
+            "GeneroBrindesClientes",
+            array(
+                "className" => "GeneroBrindesClientes",
+                "foreignKey" => "genero_brindes_clientes_id",
+                "joinType" => "INNER"
+            )
+        );
     }
 
     /**
@@ -232,7 +241,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     {
         try {
             $brinde = $this->_getClientesHasBrindesHabilitadosTable()->find('all')->where(['ClientesHasBrindesHabilitados.id' => $id])
-                ->contain(['Clientes', 'Brindes', 'BrindeHabilitadoPrecoAtual'])
+                ->contain(['Clientes', 'Brindes', 'BrindeHabilitadoPrecoAtual', "GeneroBrindesClientes"])
                 ->first();
 
             // Cálculo de estoque do item
@@ -320,7 +329,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $whereConditions[] = ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id];
 
             $brindes = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                ->where($whereConditions)->contain(['Brindes', 'Clientes']);
+                ->where($whereConditions)->contain(['Brindes', 'Clientes', "GeneroBrindesClientes"]);
 
             $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 

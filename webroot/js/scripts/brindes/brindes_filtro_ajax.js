@@ -1,9 +1,9 @@
- /**
- * @author Gustavo Souza Gonçalves
- * @file webroot\js\scripts\brindes\brindes_filtro_ajax.js
- * @date 13/06/2018
- *
- */
+/**
+* @author Gustavo Souza Gonçalves
+* @file webroot\js\scripts\brindes\brindes_filtro_ajax.js
+* @date 13/06/2018
+*
+*/
 $(document).ready(function () {
 
     $(".validation-message").hide();
@@ -13,24 +13,33 @@ $(document).ready(function () {
             var arr = arrayBrindes.get();
             var id = parseInt(this.value);
 
-            var brinde = $.grep(arr, function (value, index) {
+            var brindePesquisa = $.grep(arr, function (value, index) {
                 if (value.id === id) {
                     return value;
                 }
             });
 
-            console.log(brinde);
-            // console.log(brinde[0].brinde.nome_img);
-            $(".gift-image").attr('src', brinde[0].brinde.nome_img);
-            $("#brindes_id").val(brinde[0].id);
-            if (brinde[0].brinde_habilitado_preco_atual == null) {
-                callModalError("Nâo há preço configurado para brinde " + brinde[0].brinde.nome);
+            var brindeSelecionado = brindePesquisa[0];
+
+            // Se for <=4 é SMART Shower
+            if (brindeSelecionado.genero_brindes_cliente.tipo_principal_codigo_brinde <= 4 && brindeSelecionado != null) {
+                $("#quantidade").attr('disabled', true);
+            } else {
+                $("#quantidade").attr('disabled', false);
+            }
+
+
+            $(".gift-image").attr('src', brindeSelecionado.brinde.nome_img);
+            $("#brindes_id").val(brindeSelecionado.id);
+            if (brindeSelecionado.brinde_habilitado_preco_atual == null) {
+                callModalError("Nâo há preço configurado para brinde " + brindeSelecionado.brinde.nome);
                 $(".print-gift-shower").attr('disabled', true);
             } else {
-                $("#preco_banho").val(brinde[0].brinde_habilitado_preco_atual.preco);
+                $("#preco_banho").val(brindeSelecionado.brinde_habilitado_preco_atual.preco);
                 $(".print-gift-shower").attr('disabled', false);
             }
         } else {
+            $("#quantidade").attr('disabled', false);
             $("#brindes_id").val(null);
             $("#preco_banho").val(null);
             $(".gift-image").attr('src', null);

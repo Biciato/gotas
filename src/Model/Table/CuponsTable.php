@@ -175,11 +175,12 @@ class CuponsTable extends GenericTable
      * @param int   $tipo_banho                          Tipo do Banho
      * @param int   $tempo_banho                         Tempo de Banho
      * @param float $valor_pago                          Valor Pago
+     * @param int   $quantidade                          Quantidade Solicitada
      *
      * @return \App\Model\Entity\Cupom
      */
     // public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, int $tipo_banho, int $tempo_banho, float $valor_pago)
-    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago)
+    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago, int $quantidade)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
@@ -211,10 +212,17 @@ class CuponsTable extends GenericTable
 
             $generoBrindeCliente = $generoBrindeClienteTable->getGeneroBrindesClientesById($brindeHabilitado["genero_brindes_clientes_id"]);
 
-            $tipoPrincipalCodigoBrinde = $generoBrindeCliente["tipo_principal_codigo_brinde"] <= 4;
+            $tipoPrincipalCodigoBrinde = $generoBrindeCliente["tipo_principal_codigo_brinde"];
+            $tipoSecundarioCodigoBrinde = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
 
-            // TODO: validar emissão de tickets no pagamento
-            // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
+            if ($tipoPrincipalCodigoBrinde <= 4) {
+                // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
+                $tipoSecundarioCodigoBrinde = $tipoSecundarioCodigoBrinde + 10;
+            } else {
+                // Se não é banho, apenas verifica se o tamanho é 1. se for, coloca um 0 na frente
+                $tipoSecundarioCodigoBrinde = strlen($tipoSecundarioCodigoBrinde) == 1 ? '0' . $tipoSecundarioCodigoBrinde : $tipoSecundarioCodigoBrinde;
+            }
+
             $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_rti_shower"] + 10 : $generoBrindeCliente["tipo_secundario_codigo_brinde"];
 
             /**
@@ -243,6 +251,7 @@ class CuponsTable extends GenericTable
             $cupom->valor_pago = $valor_pago;
             $cupom->senha = $qteSenhas + 1;
             $cupom->data = $data;
+            $cupom->quantidade = $quantidade;
 
             // já considera resgatado pois o smart shower é impresso na hora
             $cupom->resgatado = true;
@@ -258,8 +267,6 @@ class CuponsTable extends GenericTable
             $ano_cupom = substr($year, 2, 2) + 10;
             $mes_cupom = $month + 10;
             $dia_cupom = $day + 10;
-
-            $minutos_banho = $tempo_banho + 10;
 
             $senha = $qteSenhas == null ? 1 : $qteSenhas + 1;
 

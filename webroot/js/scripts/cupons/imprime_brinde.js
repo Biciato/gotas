@@ -1,6 +1,6 @@
 /**
  * @author Gustavo Souza Gonçalves
- * @file webroot\js\scripts\cupons\imprime_brinde_shower.js
+ * @file webroot\js\scripts\cupons\imprime_brinde.js
  * @date 21/08/2017
  *
  */
@@ -408,6 +408,7 @@ $(document).ready(function () {
                 brindes_id: $("#brindes_id").val(),
                 clientes_id: $("#clientes_id").val(),
                 usuarios_id: $(".usuarios_id_brinde_shower").val(),
+                quantidade: $(".quantidade-brindes").val(),
                 current_password: $("#current_password").val(),
                 _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
             };
@@ -434,43 +435,68 @@ $(document).ready(function () {
                 closeLoaderAnimation();
 
                 if (result.status == "success") {
-                    $("#print-validation").text(null);
-                    $("#print-validation").hide();
-                    $("#print_clientes_nome").text(result.cliente.nome_fantasia);
-                    $("#print_usuarios_nome").text(result.usuario.nome);
-                    $("#print_data_emissao").text(result.ticket.data.substr(0, 10));
 
-                    /**
-                     * TODO: o Cupom Emitido agora será todo calculado via backend, então não
-                     * haverá mais a necessidade de alteração da lógica
-                     */
-                    var cupom_emitido = result.ticket.cupom_emitido;
+                    if (result.isBrindeSmartShower) {
+                        // Se for Banho SMART
 
-                    var tipo = 0;
+                        // TODO: Imprimir o cupom de banho
 
-                    $("#rti_shower_minutos").text(result.tempo);
+                        $("#print-validation").text(null);
+                        $("#print-validation").hide();
+                        $("#print_clientes_nome").text(result.cliente.nome_fantasia);
+                        $("#print_usuarios_nome").text(result.usuario.nome);
+                        $("#print_data_emissao").text(result.ticket.data.substr(0, 10));
 
-                    $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
-                        barWidth: 2,
-                        barHeight: 70,
-                        showHRI: false,
-                        output: 'bmp'
-                    });
+                        var cupom_emitido = result.ticket.cupom_emitido;
 
-                    setTimeout($(".impressao-cupom-shower .print_area").printThis({
-                        importCss: false
-                    }), 100);
+                        var tipo = 0;
+
+                        $("#rti_shower_minutos").text(result.tempo);
+
+                        // TODO: Ajustar como é impresso o ticket
+                        $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
+                            barWidth: 2,
+                            barHeight: 70,
+                            showHRI: false,
+                            output: 'bmp'
+                        });
+
+                        setTimeout($(".impressao-cupom-shower .print_area").printThis({
+                            importCss: false
+                        }), 100);
+
+                        exibirConfirmacaoImpressaoShower();
+                    }
+                    else {
+
+                        // Se for brinde comum
+
+                        // TODO: Terminar o ajuste para impressão comum.
+                        popularDadosCupomResgate(result.ticket.cupom_emitido);
+                        $(".resgate-cupom-result").show(500);
+                        $(".resgate-cupom-main").hide();
+
+                        generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+
+                        setTimeout($(".impressao-cupom-comum .print_area").printThis({
+                            importCss: false
+                        }), 100);
+
+
+                        // ocultar div de emissão e exibir div de confirmação de impressão
+                        exibirConfirmacaoImpressaoComum();
+
+                    }
 
                     /**
                      * TODO: confirmar se preciso destes métodos conforme abaixo
                      */
                     // resetUserFilter();
-
-                    exibirConfirmacaoImpressaoShower();
-
                     // resetBrindeLayout();
-
                     // setUsuariosInfo(undefined);
+
+
+
                 } else {
                     callModalError(result.message);
                 }

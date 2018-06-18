@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Cupons/brinde_shower.ctp
+ * @file     src/Template/Cupons/form_emissao_brinde.ctp
  * @date     18/08/2017
  */
 
@@ -31,7 +31,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
         [
             'mode' => 'print',
             'controller' => 'Cupons',
-            'action' => 'escolher_brinde'
+            'action' => 'emissao_brinde'
         ]
     ) ?>
 
@@ -312,15 +312,28 @@ $showMenu = isset($showMenu) ? $showMenu : true;
     </div>
 
 </div>
-<?= $this->element('../Cupons/impressao_shower_layout') ?>
-<?= $this->element('../Cupons/impressao_canhoto_shower_layout') ?>
+<?php
+ // echo $this->element('../Cupons/impressao_shower_layout')
+?>
+<?php
+ // echo $this->element('../Cupons/impressao_cupom_layout')
+?>
+<?= $this->element('../Cupons/impressao_brinde_layout') ?>
+
+<?= $this->element('../Cupons/impressao_brinde_canhoto') ?>
+<?php
+// echo $this->element('../Cupons/impressao_canhoto_shower_layout')
+?>
+<?php
+// echo $this->element('../Cupons/impressao_canhoto_comum_layout')
+?>
 
 <?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/cupons/imprime_brinde_shower') ?>
-    <?= $this->Html->css('styles/cupons/imprime_brinde_shower') ?>
+    <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
+    <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
 <?php else : ?>
-    <?= $this->Html->script('scripts/cupons/imprime_brinde_shower.min') ?>
-    <?= $this->Html->css('styles/cupons/imprime_brinde_shower.min') ?>
+    <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
+    <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
 <?php endif; ?>
 
 
