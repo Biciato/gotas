@@ -117,7 +117,7 @@ use Cake\Core\Configure;
 
 					<div id='canvas_destination'></div>
 
-					<img id="canvas_img" >
+					<img id="canvas_img" src="" >
 
 				</center>
 			</div>

@@ -320,7 +320,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 ?>
 <?= $this->element('../Cupons/impressao_brinde_layout') ?>
 
-<?= $this->element('../Cupons/impressao_brinde_canhoto') ?>
+<!-- <?= $this->element('../Cupons/impressao_brinde_canhoto') ?> -->
 <?php
 // echo $this->element('../Cupons/impressao_canhoto_shower_layout')
 ?>
