@@ -11,54 +11,52 @@ use Cake\Core\Configure;
 
 <div class="impressao-canhoto-comum">
 
-	<div class="print_area">
 
-		<div>
-			<center>
-				<?= $this->Html->image('icons/rti_cupom.png', ['width' => '50%']) ?>
-			</center>
-		</div>
+    <div>
+        <center>
+            <?= $this->Html->image('icons/rti_cupom.png', ['width' => '50%']) ?>
+        </center>
+    </div>
 
-		<p class="text-center product">
-			<?= $this->Html->tag('span', 'CANHOTO'); ?>
-			<?= $this->Html->tag('span', 'BRINDES'); ?>
-		</p>
-		<p>
-			<center>
-				Cliente:
-				<?= $this->Html->tag('span', '', ['class' => 'usuarios-nome']) ?>
-			</center>
-		</p>
-		<p>
-			<center>
+    <p class="text-center product">
+        <?= $this->Html->tag('span', 'CANHOTO'); ?>
+        <?= $this->Html->tag('span', 'BRINDES'); ?>
+    </p>
+    <p>
+        <center>
+            Cliente:
+            <?= $this->Html->tag('span', '', ['class' => 'usuarios-nome']) ?>
+        </center>
+    </p>
+    <p>
+        <center>
 
-				<div>
-					<?= $this->Html->tag('span', 'Impresso: ') ?>
-					<?= $this->Html->tag('span', '', ['id' => 'print_data_emissao']) ?>
-				</div>
-			</center>
-		</p>
-		<p>
-            <table class="produtos">
-                <thead>
-                    <tr>
-                        <td>Qte.</td>
-                        <td>Brinde</td>
-                        <td>Valor </td>
-                    </tr>
-                </thead>
-            </table>
-		</p>
+            <div>
+                <?= $this->Html->tag('span', 'Impresso: ') ?>
+                <?= $this->Html->tag('span', '', ['id' => 'print_data_emissao']) ?>
+            </div>
+        </center>
+    </p>
+    <p>
+        <table class="produtos">
+            <thead>
+                <tr>
+                    <td>Qte.</td>
+                    <td>Brinde</td>
+                    <td>Valor </td>
+                </tr>
+            </thead>
+        </table>
+    </p>
 
-		<p class="text-center contact">
+    <p class="text-center contact">
 
-			<?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
-			<br />
-			<?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
+        <?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
+        <br />
+        <?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
 
-		</p>
+    </p>
 
-	</div>
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>

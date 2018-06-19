@@ -9,7 +9,7 @@
 use Cake\Core\Configure;
 ?>
 
-<div class="impressao-cupom-shower">
+<div class="impressao-cupom">
 
     <div class="print_area">
 

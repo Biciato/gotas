@@ -4,17 +4,16 @@
   * @date     20/04/2018
   */
 
+
+
 .logo-rti-brinde {
     height: 50%;
     width: 50%;
     text-align: center
 }
 
-.impressao-cupom-shower{
+.impressao-canhoto-comum{
     display: none;
-}
-
-.print_area {
     width: 300px;
     height: auto;
 }
