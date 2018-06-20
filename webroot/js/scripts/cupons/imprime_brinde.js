@@ -351,24 +351,29 @@ $(document).ready(function () {
         $(".container-confirmacao-cupom-smart").show();
     }
 
+    var exibirConfirmacaoImpressaoComum = function () {
+        $(".container-emissao-cupom-comum").hide();
+        $(".container-confirmacao-cupom-comum").show();
+    }
+
     /**
      * Imprime um canhoto
      */
-    var imprimirCanhotoShower = function () {
+    var imprimirCanhoto = function () {
         $(".container-confirmacao-cupom-smart").hide();
         $(".container-confirmacao-canhoto-smart").show();
 
         var nome = $(".brinde-shower .usuariosNome").val();
-        var data = $(".impressao-cupom-shower #print_data_emissao").text();
-        var tempo = $(".impressao-cupom-shower #rti_shower_minutos").text();
+        var data = $(".impressao-cupom #print_data_emissao").text();
+        var tempo = $(".impressao-cupom #rti_shower_minutos").text();
 
-        $(".impressao-canhoto-shower .print_area .usuarios-nome").text(nome);
+        $(".impressao-canhoto .print-area .usuarios-nome").text(nome);
 
-        $(".impressao-canhoto-shower .print_area #print_data_emissao").text(data);
+        $(".impressao-canhoto .print-area #print_data_emissao").text(data);
 
-        $(".impressao-canhoto-shower .print_area #rti_shower_minutos").text(tempo);
+        $(".impressao-canhoto .print-area #rti_shower_minutos").text(tempo);
 
-        setTimeout($(".impressao-canhoto-shower .print_area").printThis({
+        setTimeout($(".impressao-canhoto .print-area").printThis({
             importCss: false
         }), 100);
     };
@@ -378,7 +383,7 @@ $(document).ready(function () {
      * Reimprime cupom de banho
      */
     var reimprimirCupomShower = function () {
-        setTimeout($(".impressao-cupom-shower .print_area").printThis({
+        setTimeout($(".impressao-cupom").printThis({
             importCss: false
         }), 100);
 
@@ -386,8 +391,8 @@ $(document).ready(function () {
 
     $(".reimpressao-shower").on('click', reimprimirCupomShower);
 
-    $(".imprimir-canhoto-shower").on('click', imprimirCanhotoShower);
-    $(".reimpressao-canhoto-shower").on('click', imprimirCanhotoShower);
+    $(".imprimir-canhoto").on('click', imprimirCanhoto);
+    $(".reimpressao-canhoto").on('click', imprimirCanhoto);
 
     $(".print-gift-shower").on('click', function () {
 
@@ -462,7 +467,7 @@ $(document).ready(function () {
 
                         geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
 
-                        setTimeout($(".impressao-cupom-shower .print_area").printThis({
+                        setTimeout($(".impressao-cupom").printThis({
                             importCss: false
                         }), 100);
 
@@ -473,19 +478,45 @@ $(document).ready(function () {
                         // Se for brinde comum
 
                         // TODO: Terminar o ajuste para impressão comum.
-                        popularDadosCupomResgate(result.ticket.cupom_emitido);
-                        $(".resgate-cupom-result").show(500);
-                        $(".resgate-cupom-main").hide();
+                        // popularDadosCupomResgate(result.ticket.cupom_emitido);
+                        // Verifica se já foi impresso
 
-                        generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+                        if (!result.dadosImpressao.status) {
+                            callModalError(result.dadosImpressao.message);
+                        } else {
 
-                        setTimeout($(".impressao-cupom-comum .print_area").printThis({
-                            importCss: false
-                        }), 100);
+                            popularDadosCupomResgate(result.dadosImpressao);
+                            $(".resgate-cupom-result").show(500);
+                            $(".resgate-cupom-main").hide();
 
+                            var cupom_emitido = result.ticket.cupom_emitido;
 
-                        // ocultar div de emissão e exibir div de confirmação de impressão
-                        exibirConfirmacaoImpressaoComum();
+                            // $("#rti_shower_minutos").text(result.tempo);
+
+                            // TODO: Ajustar como é impresso o ticket
+
+                            var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
+
+                            geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
+
+                            // generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+
+                            // setTimeout($(".impressao-cupom-comum .print_area").printThis({
+                            //     importCss: false
+                            // }), 100);
+
+                            setTimeout($(".impressao-cupom .print-area").printThis({
+                                importCss: false
+                            }), 100);
+
+                            // ocultar div de emissão e exibir div de confirmação de impressão
+                            exibirConfirmacaoImpressaoComum();
+                        }
+
+                        // setTimeout($(".impressao-cupom").printThis({
+                        //     importCss: false
+                        // }), 100);
+
 
                     }
 
@@ -513,8 +544,7 @@ $(document).ready(function () {
      */
     var geraCodigoBarras = function (cupom_emitido, tipoEmissaoCodigoBarras) {
 
-        if (tipoEmissaoCodigoBarras == "Code128")
-        {
+        if (tipoEmissaoCodigoBarras == "Code128") {
 
             $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
                 barWidth: 2,
@@ -522,7 +552,7 @@ $(document).ready(function () {
                 showHRI: false,
                 output: 'bmp'
             });
-        } else if (tipoEmissaoCodigoBarras == "PDF417"){
+        } else if (tipoEmissaoCodigoBarras == "PDF417") {
             generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
         } else {
             callModalError("Tipo de Código de Barras ainda não foi configurado no sistema!");

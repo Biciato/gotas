@@ -253,8 +253,12 @@ class CuponsTable extends GenericTable
             $cupom->data = $data;
             $cupom->quantidade = $quantidade;
 
-            // já considera resgatado pois o smart shower é impresso na hora
-            $cupom->resgatado = true;
+            /**
+             * Se Smart Shower, já considera resgatado
+             * pois o smart shower é impresso na hora.
+             * Senão, false.
+             */
+            $cupom->resgatado = $tipoPrincipalCodigoBrinde <= 4;
 
             // Antes do save, calcular cupom emitido
 

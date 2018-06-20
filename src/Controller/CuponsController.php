@@ -657,6 +657,22 @@ class CuponsController extends AppController
 
                 $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
 
+                // Se brinde não for banho e a quantidade é menos que um,
+                // valida e retorna mensagem de erro
+                if ($brinde_habilitado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] > 4 && $quantidade < 1) {
+                    $message = "Para Brindes que não são do tipo banho, a quantidade deve ser informada!";
+                    $status = 'error';
+                    $arraySet = [
+                        'message',
+                        'status',
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
                 if ($data['usuarios_id'] == "conta_avulsa") {
                     $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
                 } else {
@@ -870,6 +886,21 @@ class CuponsController extends AppController
                 $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
                 $tipoEmissaoCodigoBarras = $brinde_habilitado["tipo_codigo_barras"];
                 $isBrindeSmartShower = $brinde_habilitado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
+                $dadosImpressao = null;
+
+                if (!$isBrindeSmartShower){
+                    $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
+
+                    $cuponsRetorno = array();
+
+                    foreach ($cupons as $key => $cupom) {
+                        $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
+
+                        $cuponsRetorno[] = $cupom;
+                    }
+
+                    $dadosImpressao = $this->processarCupom($cuponsRetorno);
+                }
             }
 
             $arraySet = [
@@ -880,7 +911,8 @@ class CuponsController extends AppController
                 'usuario',
                 'tempo',
                 'tipoEmissaoCodigoBarras',
-                'isBrindeSmartShower'
+                'isBrindeSmartShower',
+                'dadosImpressao'
             ];
 
             $this->set(compact($arraySet));

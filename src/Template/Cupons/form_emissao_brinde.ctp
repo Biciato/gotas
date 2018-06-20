@@ -263,8 +263,8 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <!-- Sim Impressão Brinde Smart  -->
 
                 <?= $this->Html->tag('button', __("{0} Sim, Imprimir Canhoto", $this->Html->tag('i', '', ['class' => 'fa fa-check'])), [
-                    'id' => 'imprimir-canhoto-shower',
-                    'class' => 'imprimir-canhoto-shower btn btn-primary btn-block'
+                    'id' => 'imprimir-canhoto',
+                    'class' => 'imprimir-canhoto btn btn-primary btn-block'
                 ]) ?>
 
             </div>
@@ -323,6 +323,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 <!-- <?= $this->element('../Cupons/impressao_brinde_canhoto') ?> -->
 <?php
 // echo $this->element('../Cupons/impressao_canhoto_shower_layout')
+echo $this->element("../Cupons/impressao_canhoto_layout");
 ?>
 <?php
 // echo $this->element('../Cupons/impressao_canhoto_comum_layout')

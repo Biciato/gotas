@@ -326,6 +326,7 @@ var formatDateTimeToDate = function (data) {
  * Popula dados de cupom para resgate
  */
 var popularDadosCupomResgate = function (data) {
+    data = data.data;
     if (data !== undefined && data !== null) {
         var usuario = null;
         var brinde_habilitado = {};
@@ -366,9 +367,9 @@ var popularDadosCupomResgate = function (data) {
         $(".tabela-produtos tbody").empty();
         $(".tabela-produtos tbody").append(rows);
 
-        $(".impressao-cupom-comum #print_data_emissao").text(data_hora);
+        $(".impressao-cupom #print_data_emissao").text(data_hora);
 
-        $(".impressao-cupom-comum .cupom_emitido").val(cupom_emitido);
+        $(".impressao-cupom .cupom_emitido").val(cupom_emitido);
         $(".unidade-funcionario-id").val(unidade_funcionario_id);
         $(".nome-cliente-brinde-resgate").val(usuario.nome);
         $(".cpf-cliente-brinde-resgate").val(usuario.cpf);
@@ -378,7 +379,7 @@ var popularDadosCupomResgate = function (data) {
 
         $(".impressao-resgate-cupom-canhoto-impressao #print_data_emissao").text(data_hora);
         $(".impressao-resgate-cupom-canhoto-impressao .usuario-final").text(usuario.nome);
-        
+
     } else {
         $(".tabela-produtos tbody").empty();
         $(".cupom-resgatar").val(null);

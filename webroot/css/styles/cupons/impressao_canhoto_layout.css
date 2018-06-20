@@ -1,0 +1,52 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file     webroot/css/styles/cupons/impressao_canhoto_layout.css
+  * @date     20/06/2018
+  */
+
+.impressao-canhoto {
+    display: none;
+    max-width: 300px;
+    height: auto;
+}
+
+.logo-rti-shower {
+    height: 50%;
+    width: 50%;
+}
+
+.impressao-canhoto-titulo {
+    font-weight: 800;
+    font-size: 18px;
+}
+
+@media print {
+    /* @page {
+        height: 40mm;
+    }; */
+    .print-area {
+        display: block;
+    }
+}
+
+img {
+    width: 50%;
+}
+
+.brinde-shower.user-result {
+    display: none;
+}
+
+.brinde-shower.user-result-names {
+    display: none;
+}
+
+.brinde-shower.user-result-plates {
+    display: none;
+}
+
+.tabela-produtos {
+    /* background-color: aqua; */
+    margin: 0px auto;
+    font-size: 10px;
+}

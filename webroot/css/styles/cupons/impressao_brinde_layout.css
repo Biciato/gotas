@@ -3,9 +3,9 @@
     width: 50%;
 }
 
-.print_area {
-    /* display: none; */
-    width: 300px;
+.print-area {
+    display: none;
+    width: 330px;
     height: 200px;
 }
 
@@ -15,6 +15,7 @@
 
 .is-not-cupom-shower{
     display: none;
+
 }
 
 @media print {
@@ -26,7 +27,7 @@
     }
 }
 
-.print_area center {
+.print-area center {
     margin: 0 auto;
 }
 
@@ -38,4 +39,10 @@
 .contact {
     font-weight: bold;
     font-size: 16px;
+}
+
+.tabela-produtos {
+    /* background-color: aqua; */
+    margin: 0px auto;
+    font-size: 10px;
 }
