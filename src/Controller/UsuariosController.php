@@ -3354,8 +3354,7 @@ class UsuariosController extends AppController
                     $usuarios = array();
                     $funcionariosCliente = array();
 
-                    // Se for pra restringir a consulta, é quem esta na rede. se não, é pra procurar todo mundo
-                    $restringirConsulta = isset($data['restrict_query']) ? $data["restrict_query"] : false;
+                    $restringirUsuariosRede = isset($data["restrict_query"]) ? $data["restrict_query"] : false;
 
                     $veiculoEncontrado = null;
 
@@ -3403,42 +3402,28 @@ class UsuariosController extends AppController
                         'tipo_perfil' => Configure::read('profileTypes')['UserProfileType']
                     ];
 
+                    // Daqui pra baixo não filtra por funcionários
+
                     // Pesquisa por Nome
                     if ($data['opcao'] == 'nome') {
-                        // Modificar consulta para restringir
-                        if ($restringirConsulta) {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
-                        } else {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
-                        }
+                        // TODO: ajustar
+                        $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
+
                     } elseif ($data['opcao'] == 'doc_estrangeiro') {
                         // Pesquisa por Documento Estrangeiro
-                        // Modificar consulta para restringir
-                        if ($restringirConsulta) {
-                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
-                        } else {
-                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
-                        }
-
+                        // TODO: ajustar
+                        $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
-                        // Modificar consulta para restringir
 
-                        if ($restringirConsulta) {
-                            $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
-                        } else {
-                            $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
-                        }
+                        // TODO: ajustar
+                        $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
 
                         $usuarios[] = $usuario;
                     } else {
                         // Pesquisa por Placas
-                        // Modificar consulta para restringir
-                        if ($restringirConsulta) {
-                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
-                        } else {
-                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
-                        }
+                        // Aqui não filtra com funcionários
+                        $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
 
                         $veiculoEncontrado = $retorno["veiculo"];
                         $usuarios = $retorno["usuarios"];
