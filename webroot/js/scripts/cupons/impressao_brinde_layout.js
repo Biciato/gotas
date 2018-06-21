@@ -9,6 +9,7 @@
 $(document).ready(function () {
 
 
-    generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").text(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+    // generateNewPDF417Barcode($(".impressao-cupom .cupom_emitido").text(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+    generateNewPDF417Barcode("", 'canvas_origin', 'canvas_destination', 'canvas_img');
 
 });

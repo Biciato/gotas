@@ -60,7 +60,7 @@ use Cake\Core\Configure;
 
         <div class="is-not-cupom-shower">
             <p>
-                <table class="produtos">
+            <table class="table table-bordered table-centered table-responsive table-condensed tabela-produtos">
                     <thead>
                         <tr>
                             <td>Qte.</td>
@@ -68,6 +68,8 @@ use Cake\Core\Configure;
                             <td>Valor </td>
                         </tr>
                     </thead>
+                    <tbody>
+                    </tbody>
                 </table>
             </p>
         </div>

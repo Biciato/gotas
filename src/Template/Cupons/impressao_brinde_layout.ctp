@@ -91,7 +91,7 @@ use Cake\Core\Configure;
         </div>
 
 
-        <p class="is-cupom-shower">
+        <p class="is-code128-barcode">
             <div class="print_region">
                 <center>
                     <?= $this->Html->tag('span', '', ['id' => 'print_barcode_ticket']) ?>
@@ -99,13 +99,14 @@ use Cake\Core\Configure;
             </div>
         </p>
 
-        <p class="is-not-cupom-shower">
+        <p class="is-pdf417-barcode">
             <center>
-                <span class="is-not-cupom-shower">Código de leitura para resgatar produto</span>
+                <span>Código de leitura para resgatar produto</span>
             </center>
 
             <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
-                class="hidden cupom_emitido">
+                class="cupom_emitido">
+                <!-- class="hidden cupom_emitido"> -->
                 <div class="print_region">
                     <center>
                         <canvas id='canvas_origin'></canvas>
@@ -119,13 +120,13 @@ use Cake\Core\Configure;
             </div>
         </p>
 
-        <p class="text-center contact">
+        <div class="text-center contact">
 
             <?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
             <br />
             <?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
 
-        </p>
+        </div>
     </div>
 
 </div>

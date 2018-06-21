@@ -562,53 +562,7 @@ class BrindesController extends AppController
         $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
     }
 
-    /**
-     * Action para emissão de Brinde Smart Shower Avulso
-     *
-     * @return void
-     */
-    public function smartShowerAvulso()
-    {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-        }
-
-        $usuario = $this->Usuarios->newEntity();
-        $transportadora = $this->Transportadoras->newEntity();
-        $veiculo = $this->Veiculos->newEntity();
-
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
-
-        $rede = $this->request->session()->read('Network.Main');
-
-        // Pega unidades que tem acesso
-        $clientes_ids = [];
-
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
-
-        foreach ($unidades_ids as $key => $value) {
-            $clientes_ids[] = $key;
-        }
-
-        // No caso do funcionário, ele só estará em
-        // uma unidade, então pega o cliente que ele estiver
-
-        $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
-
-        $clientes_id = $cliente->id;
-
-        // o estado do funcionário é o local onde se encontra o estabelecimento.
-        $estado_funcionario = $cliente->estado;
-
-
-        $this->set(compact(['usuario', 'cliente', 'clientes_id', 'funcionario', 'estado_funcionario']));
-
-        $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
-        $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
-    }
 
     /**
      * BrindesController::_preparaImagemBrindeParaGravacao

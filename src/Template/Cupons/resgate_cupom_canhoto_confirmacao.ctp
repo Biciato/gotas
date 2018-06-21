@@ -8,6 +8,9 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+
+$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "pages", "action" => "display") : $urlRedirectConfirmacao;
+
 ?>
 
 
@@ -23,7 +26,7 @@ use Cake\Routing\Router;
 
             <?= $this->Html->link(
                 __("{0} Sim", $this->Html->tag('i', '', ['class' => 'fa fa-check'])),
-                ['controller' => 'cupons', 'action' => 'resgate_cupons'],
+                $urlRedirectConfirmacao,
                 ['class' => 'btn btn-primary btn-block', 'escape' => false]
             ); ?>
 
@@ -46,8 +49,8 @@ use Cake\Routing\Router;
 <?php if (Configure::read('debug')) : ?>
     <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_confirmacao') ?>
     <?= $this->Html->script('scripts/cupons/resgate_cupom_canhoto_confirmacao') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_confirmacao.min') ?>
     <?= $this->Html->script('scripts/cupons/resgate_cupom_canhoto_confirmacao.min') ?>
 
-<?php endif; ?> 
+<?php endif; ?>

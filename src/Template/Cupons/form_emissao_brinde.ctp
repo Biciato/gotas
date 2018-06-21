@@ -22,6 +22,8 @@ if ($show_breadcrumbs) {
 
 $showMenu = isset($showMenu) ? $showMenu : true;
 
+$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "pages", "action" => "display") : $urlRedirectConfirmacao;
+
 ?>
 
 <?php if ($showMenu) : ?>
@@ -41,13 +43,13 @@ $showMenu = isset($showMenu) ? $showMenu : true;
     <div class="col-lg-12 col-md-12 columns">
 <?php endif; ?>
 
-    <div class="container-emissao-cupom-smart">
+    <div class="container-emissao-cupom">
         <legend><?= __("Emissão de Cupom") ?></legend>
 
         <?= $this->Form->create(); ?>
             <div class="form-group">
 
-                <div class="brinde-shower user-query-region">
+                <div class="brinde user-query-region">
 
                     <h4>Selecione um cliente</h4>
 
@@ -56,7 +58,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                         <?= $this->Form->input('opcoes', [
                             'type' => 'select',
                             'id' => 'opcoes',
-                            'class' => 'form-control col-lg-2 brinde-shower opcoes',
+                            'class' => 'form-control col-lg-2 brinde opcoes',
                             'label' => 'Pesquisar Por',
                             'options' => [
                                 'nome' => 'nome',
@@ -95,7 +97,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
                 </div>
 
-                <div class="brinde-shower user-result user-result-names" >
+                <div class="brinde user-result user-result-names" >
                     <div class="col-lg-12">
                         <table class="table table-striped table-hover" id="user-result-names">
                             <thead>
@@ -113,7 +115,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                     </div>
                 </div>
 
-                <div class="brinde-shower user-result user-result-plates" >
+                <div class="brinde user-result user-result-plates" >
 
                     <div id="vehicle" class="col-lg-12">
                         <h4>Veículo Encontrado</h4>
@@ -152,12 +154,12 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
                 </div>
 
-                <div class="form brinde-shower user-result col-lg-12">
+                <div class="form brinde user-result col-lg-12">
 
                     <?= $this->Html->tag(
                         'div',
                         ' Pesquisar cliente',
-                        ['class' => 'col-lg-2 btn btn-primary fa fa-rotate-right brinde-shower new-user-search', 'type' => 'button']
+                        ['class' => 'col-lg-2 btn btn-primary fa fa-rotate-right brinde new-user-search', 'type' => 'button']
                     ) ?>
 
                     <h4>Cliente selecionado</h4>
@@ -252,7 +254,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
         <?= $this->Form->end(); ?>
     </div>
 
-    <div class="container-confirmacao-cupom-smart">
+    <div class="container-confirmacao-cupom">
         <legend>Confirmação de emissão</legend>
 
         <h4>O Cupom foi emitido com sucesso?</h4>
@@ -273,8 +275,8 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <!-- Sim Impressão Brinde Smart  -->
 
                 <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
-                    'id' => 'reimpressao-shower',
-                    'class' => 'reimpressao-shower btn btn-danger btn-block'
+                    'id' => 'reimpressao-cupom',
+                    'class' => 'reimpressao-cupom btn btn-danger btn-block'
                 ]) ?>
 
             </div>
@@ -284,7 +286,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
     </div>
 
     <!-- Layout de confirmação da impressão do canhoto  -->
-    <div class="container-confirmacao-canhoto-smart">
+    <div class="container-confirmacao-canhoto">
 
         <legend>Confirmação de Impressão do Canhoto</legend>
 
@@ -295,7 +297,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <!-- Confirmação de impressão do canhoto SMART Shower -->
                 <?= $this->Html->link(
                     __("{0} Sim", $this->Html->tag("i", '', ['class' => 'fa fa-check'])),
-                    ['controller' => 'brindes', 'action' => 'impressao_rapida'],
+                    $urlRedirectConfirmacao,
                     ['escape' => false, 'class' => 'btn btn-primary btn-block']
                 ); ?>
             </div>
@@ -303,30 +305,21 @@ $showMenu = isset($showMenu) ? $showMenu : true;
             <div class="col-lg-3">
                 <!-- Reimprime canhoto smart shower -->
                 <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
-                    'id' => 'reimpressao-canhoto-shower',
-                    'class' => 'reimpressao-canhoto-shower btn btn-danger btn-block'
+                    'id' => 'reimpressao-canhoto',
+                    'class' => 'reimpressao-canhoto btn btn-danger btn-block'
                 ]) ?>
                 </div>
             <div class="col-lg-2"></div>
         </div>
     </div>
-
 </div>
-<?php
- // echo $this->element('../Cupons/impressao_shower_layout')
-?>
-<?php
- // echo $this->element('../Cupons/impressao_cupom_layout')
-?>
-<?= $this->element('../Cupons/impressao_brinde_layout') ?>
 
-<!-- <?= $this->element('../Cupons/impressao_brinde_canhoto') ?> -->
 <?php
-// echo $this->element('../Cupons/impressao_canhoto_shower_layout')
-echo $this->element("../Cupons/impressao_canhoto_layout");
+echo $this->element('../Cupons/impressao_brinde_layout');
 ?>
+
 <?php
-// echo $this->element('../Cupons/impressao_canhoto_comum_layout')
+echo $this->element("../Cupons/impressao_canhoto_layout");
 ?>
 
 <?php if (Configure::read('debug') == true) : ?>

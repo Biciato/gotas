@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use Cake\Routing\Router;
 
@@ -16,75 +16,75 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
         <li class="list-group-item active">
             <?= __('Operacional') ?>
         </li>
-        <?php if ($item_selected == 'atribuir_gotas') : ?> 
+        <?php if ($item_selected == 'atribuir_gotas') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
 
             <?= $this->Html->link(__('Atribuição de Gotas'), ['controller' => 'Gotas', 'action' => 'atribuir_gotas']) ?>
         </li>
-        <?php if ($item_selected == 'impressao_rapida') : ?> 
+        <?php if ($item_selected == 'impressao_rapida') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Impressão de Brindes'), ['controller' => 'Brindes', 'action' => 'impressao_rapida']) ?>
         </li>
-        <?php if ($item_selected == 'resgate_cupons') : ?> 
+        <?php if ($item_selected == 'resgate_cupons') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Resgate de Cupons'), ['controller' => 'Cupons', 'action' => 'resgate_cupons']) ?>
         </li>
         <!-- Emissão de Banho Smart Shower Avulso -->
-        <?php if ($item_selected == 'smart_shower_avulso') : ?> 
+        <?php if ($item_selected == 'emissao_brinde_avulso') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
-            <?= $this->Html->link(__('Smart Shower Avulso'), ['controller' => 'Brindes', 'action' => 'smart_shower_avulso']) ?>
+        <?php endif; ?>
+            <?= $this->Html->link(__('Brinde Avulso'), ['controller' => 'Cupons', 'action' => 'emissao_brinde_avulso']) ?>
         </li>
-        
+
         <li class="list-group-item active">
             <?= __('Cadastros') ?>
         </li>
-        <?php if ($item_selected == 'cadastrar_cliente') : ?> 
+        <?php if ($item_selected == 'cadastrar_cliente') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Cadastrar Cliente'), ['controller' => 'Usuarios', 'action' => 'adicionar_conta']) ?>
         </li>
-        <?php if ($item_selected == 'atualizar_cadastro_cliente') : ?> 
+        <?php if ($item_selected == 'atualizar_cadastro_cliente') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Atualizar Cad. Cliente'), ['controller' => 'Usuarios', 'action' => 'pesquisar_cliente_alterar_dados']) ?>
         </li>
 
-        <?php if ($mode_selected == 'atualizar_cadastro_cliente_veiculos') : ?> 
+        <?php if ($mode_selected == 'atualizar_cadastro_cliente_veiculos') : ?>
             <nav class="columns" id="actions-sidebar">
                 <ul class="nav nav-pills nav-stacked list-group">
                     <li><?= $this->Html->link(__('Gerenciar Veículos de Usuário'), ['controller' => 'Veiculos', 'action' => 'veiculos_usuario_final', $usuarios_id]) ?></li>
 
                     <nav class="columns" id="actions-sidebar">
-                    
+
                         <ul class="nav nav-pills nav-stacked list-group">
                             <li><?= $this->Html->link(__('Novo Veículo'), ['controller' => 'Veiculos', 'action' => 'adicionar_veiculo_usuario_final', $usuarios_id]) ?></li>
                         </ul>
                     </nav>
                 </ul>
             </nav>
-        <?php elseif ($mode_selected == 'atualizar_cadastro_cliente_transportadoras') : ?> 
+        <?php elseif ($mode_selected == 'atualizar_cadastro_cliente_transportadoras') : ?>
           <nav class="columns" id="actions-sidebar">
                 <ul class="nav nav-pills nav-stacked list-group">
                     <li><?= $this->Html->link(__('Gerenciar Transportadoras de Usuário'), ['controller' => 'Transportadoras', 'action' => 'transportadoras_usuario_final', $usuarios_id]) ?></li>
 
                     <nav class="columns" id="actions-sidebar">
-                    
+
                         <ul class="nav nav-pills nav-stacked list-group">
                             <li><?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarios_id]) ?></li>
                         </ul>
@@ -99,39 +99,39 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
             </nav>
         <?php endif; ?>
 
-        <?php if ($item_selected == 'consulta_pontuacoes') : ?> 
+        <?php if ($item_selected == 'consulta_pontuacoes') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Consulta de Pontuações'), ['controller' => 'PontuacoesComprovantes', 'action' => 'pesquisar_cliente_final_pontuacoes']) ?>
         </li>
 
-        <?php if ($mode_selected == 'exibir_cliente_final_pontuacoes') : ?> 
+        <?php if ($mode_selected == 'exibir_cliente_final_pontuacoes') : ?>
             <nav class="columns" id="actions-sidebar">
                 <ul class="nav nav-pills nav-stacked list-group">
                     <li><?= $this->Html->link(__('Pontuações do Cliente Final'), ['controller' => 'PontuacoesComprovantes', 'action' => 'exibir_cliente_final_pontuacoes', $usuarios_id]) ?></li>
-                  
+
                 </ul>
             </nav>
-        <?php endif; ?> 
+        <?php endif; ?>
 
-        <?php if ($item_selected == 'historico_brindes') : ?> 
+        <?php if ($item_selected == 'historico_brindes') : ?>
             <li class="list-group-item-success">
-        <?php else : ?> 
+        <?php else : ?>
             <li>
-        <?php endif; ?> 
+        <?php endif; ?>
             <?= $this->Html->link(__('Histórico de Brindes'), ['controller' => 'UsuariosHasBrindes', 'action' => 'pesquisar_cliente_final_brindes']) ?>
         </li>
 
-        <?php if ($mode_selected == 'exibir_cliente_final_brindes') : ?> 
+        <?php if ($mode_selected == 'exibir_cliente_final_brindes') : ?>
             <nav class="columns" id="actions-sidebar">
                 <ul class="nav nav-pills nav-stacked list-group">
                     <li><?= $this->Html->link(__('Brindes do Cliente Final'), ['controller' => 'UsuariosHasBrindes', 'action' => 'exibir_cliente_final_brindes', $usuarios_id]) ?></li>
-                  
+
                 </ul>
             </nav>
-        <?php endif; ?> 
+        <?php endif; ?>
 
     </ul>
 </nav>

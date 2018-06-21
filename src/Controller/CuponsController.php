@@ -155,6 +155,7 @@ class CuponsController extends AppController
      */
     public function emissaoBrindeSuperiores()
     {
+        $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_superiores");
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
 
@@ -168,7 +169,74 @@ class CuponsController extends AppController
 
 
         $arraySet = array(
-            "cliente"
+            "cliente",
+            "urlRedirectConfirmacao"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * CuponsController::emissaoBrindeAvulso
+     *
+     * Action para emissão de Brinde Smart Shower Avulso
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 21/06/2018
+     *
+     * @return void
+     */
+    public function emissaoBrindeAvulso()
+    {
+        $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_avulso");
+
+        $user_admin = $this->request->session()->read('User.RootLogged');
+        $user_managed = $this->request->session()->read('User.ToManage');
+
+        if ($user_admin) {
+            $this->user_logged = $user_managed;
+        }
+
+        $usuario = $this->Usuarios->newEntity();
+        $transportadora = $this->Transportadoras->newEntity();
+        $veiculo = $this->Veiculos->newEntity();
+
+        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+
+        $rede = $this->request->session()->read('Network.Main');
+
+        // Pega unidades que tem acesso
+        $clientes_ids = [];
+
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+
+        foreach ($unidades_ids as $key => $value) {
+            $clientes_ids[] = $key;
+        }
+
+        // No caso do funcionário, ele só estará em
+        // uma unidade, então pega o cliente que ele estiver
+
+        $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
+
+        $clientes_id = $cliente->id;
+
+        // o estado do funcionário é o local onde se encontra o estabelecimento.
+        $estado_funcionario = $cliente->estado;
+
+        $transportadoraPath = "TransportadorasHasUsuarios.Transportadoras.";
+        $veiculoPath = "UsuariosHasVeiculos.Veiculos.";
+
+        $arraySet = array(
+            "urlRedirectConfirmacao",
+            "usuario",
+            "cliente",
+            "clientes_id",
+            "funcionario",
+            "estado_funcionario",
+            "transportadoraPath",
+            "veiculoPath"
         );
 
         $this->set(compact($arraySet));
@@ -888,7 +956,7 @@ class CuponsController extends AppController
                 $isBrindeSmartShower = $brinde_habilitado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
                 $dadosImpressao = null;
 
-                if (!$isBrindeSmartShower){
+                if (!$isBrindeSmartShower) {
                     $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
 
                     $cuponsRetorno = array();

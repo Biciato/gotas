@@ -43,7 +43,7 @@ $(document).ready(function () {
 
     $(".validation-message").hide();
 
-    $(".brinde-shower.new-user-search").click(function () {
+    $(".brinde.new-user-search").click(function () {
         $(".user-query-region").show();
         setUsuariosInfo(null);
         $(".user-result").hide();
@@ -98,7 +98,7 @@ $(document).ready(function () {
     // ------------------------------------------------------------------
     // Métodos
 
-    $(".brinde-shower.opcoes").on('change', function () {
+    $(".brinde.opcoes").on('change', function () {
         $("#parametro-brinde").val(null);
         $("#parametro-brinde").unmask();
         if (this.value == 'cpf') {
@@ -120,7 +120,7 @@ $(document).ready(function () {
         }
     });
 
-    $(".brinde-shower.opcoes").change();
+    $(".brinde.opcoes").change();
 
     var searchUsuarioBrindeShower = function () {
         $(".user-result").hide();
@@ -129,7 +129,7 @@ $(document).ready(function () {
 
         var data = {
             parametro: $("#parametro-brinde").val(),
-            opcao: $(".brinde-shower .opcoes").val(),
+            opcao: $(".brinde .opcoes").val(),
             clientes_id: $("#clientes_id").val(),
             restrict_query: $("#restrict_query").length > 0 ? $("#restrict_query").val() : null,
             _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
@@ -245,8 +245,8 @@ $(document).ready(function () {
         setUsuariosInfo(null);
 
         // reseta layout
-        $(".brinde-shower .user-result").hide();
-        $(".brinde-shower .user-query-region").show();
+        $(".brinde .user-result").hide();
+        $(".brinde .user-query-region").show();
         $("#parametro-brinde").val(null);
         $(".opcoes").val('nome');
     }
@@ -256,8 +256,8 @@ $(document).ready(function () {
      */
     var resetBrindeLayout = function () {
         $(".display-content").hide();
-        $(".brinde-shower.user-query-region").show();
-        $(".brinde-shower.opcoes").show();
+        $(".brinde.user-query-region").show();
+        $(".brinde.opcoes").show();
         $("#impressao-rapida-escolha").show();
     }
 
@@ -269,13 +269,13 @@ $(document).ready(function () {
         if (data !== undefined && data !== null) {
             $(".usuarios_id_brinde_shower").val(data.id);
 
-            $(".brinde-shower .usuariosNome").val(data.nome);
-            $(".brinde-shower .usuariosDataNasc").val(data.data_nasc);
+            $(".brinde .usuariosNome").val(data.nome);
+            $(".brinde .usuariosDataNasc").val(data.data_nasc);
 
             $("#sexo_brinde_shower").val(data.sexo == true ? 1 : 0);
             $("#necessidades_especiais_brinde_shower").val(data.necessidades_especiais == true ? 1 : 0);
 
-            $(".brinde-shower .usuariosPontuacoes").val(data.pontuacoes);
+            $(".brinde .usuariosPontuacoes").val(data.pontuacoes);
 
             $(".user-result").show();
             $(".user-result-names").hide();
@@ -346,24 +346,19 @@ $(document).ready(function () {
         }
     };
 
-    var exibirConfirmacaoImpressaoShower = function () {
-        $(".container-emissao-cupom-smart").hide();
-        $(".container-confirmacao-cupom-smart").show();
-    }
-
-    var exibirConfirmacaoImpressaoComum = function () {
-        $(".container-emissao-cupom-comum").hide();
-        $(".container-confirmacao-cupom-comum").show();
+    var exibirConfirmacaoImpressao = function () {
+        $(".container-emissao-cupom").hide();
+        $(".container-confirmacao-cupom").show();
     }
 
     /**
      * Imprime um canhoto
      */
     var imprimirCanhoto = function () {
-        $(".container-confirmacao-cupom-smart").hide();
-        $(".container-confirmacao-canhoto-smart").show();
+        $(".container-confirmacao-cupom").hide();
+        $(".container-confirmacao-canhoto").show();
 
-        var nome = $(".brinde-shower .usuariosNome").val();
+        var nome = $(".brinde .usuariosNome").val();
         var data = $(".impressao-cupom #print_data_emissao").text();
         var tempo = $(".impressao-cupom #rti_shower_minutos").text();
 
@@ -380,16 +375,16 @@ $(document).ready(function () {
 
 
     /**
-     * Reimprime cupom de banho
+     * Reimprime cupom Impresso
      */
-    var reimprimirCupomShower = function () {
+    var reimprimirCupom = function () {
         setTimeout($(".impressao-cupom").printThis({
             importCss: false
         }), 100);
 
     }
 
-    $(".reimpressao-shower").on('click', reimprimirCupomShower);
+    $(".reimpressao-cupom").on('click', reimprimirCupom);
 
     $(".imprimir-canhoto").on('click', imprimirCanhoto);
     $(".reimpressao-canhoto").on('click', imprimirCanhoto);
@@ -400,14 +395,6 @@ $(document).ready(function () {
 
         var result = validateBeforePurchase();
 
-        /**
-         * TODO: Impressão de brinde será método único agora.
-         * Todo o processo será feito via backend e a tomada de decisão será
-         * conforme o tipo de brinde que está sendo impresso.
-         * O Brinde também irá dizer qual é seu tipo de impressão conforme
-         * o registro habilitado na UNIDADE da Rede.
-         *
-         */
         if (result) {
             var data = {
                 brindes_id: $("#brindes_id").val(),
@@ -434,7 +421,6 @@ $(document).ready(function () {
                     closeLoaderAnimation();
                 }
 
-
             }).done(function (result) {
 
                 closeLoaderAnimation();
@@ -442,14 +428,10 @@ $(document).ready(function () {
                 if (result.status == "success") {
 
                     if (result.isBrindeSmartShower) {
-                        // Se for Banho SMART
-
-                        // exibe tudo que é da div de is-cupom-shower
+                        // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
 
                         $(".is-cupom-shower").show();
                         $(".is-not-cupom-shower").hide();
-
-                        // TODO: Imprimir o cupom de banho
 
                         $("#print-validation").text(null);
                         $("#print-validation").hide();
@@ -461,8 +443,6 @@ $(document).ready(function () {
 
                         $("#rti_shower_minutos").text(result.tempo);
 
-                        // TODO: Ajustar como é impresso o ticket
-
                         var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
 
                         geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
@@ -470,17 +450,15 @@ $(document).ready(function () {
                         setTimeout($(".impressao-cupom").printThis({
                             importCss: false
                         }), 100);
-
-                        exibirConfirmacaoImpressaoShower();
                     }
                     else {
 
-                        // Se for brinde comum
+                        // Se for brinde comum, exibe tudo que não é da div de is-cupom-shower
 
-                        // TODO: Terminar o ajuste para impressão comum.
-                        // popularDadosCupomResgate(result.ticket.cupom_emitido);
+                        $(".is-cupom-shower").hide();
+                        $(".is-not-cupom-shower").show();
+
                         // Verifica se já foi impresso
-
                         if (!result.dadosImpressao.status) {
                             callModalError(result.dadosImpressao.message);
                         } else {
@@ -491,35 +469,16 @@ $(document).ready(function () {
 
                             var cupom_emitido = result.ticket.cupom_emitido;
 
-                            // $("#rti_shower_minutos").text(result.tempo);
-
-                            // TODO: Ajustar como é impresso o ticket
-
                             var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
 
                             geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
 
-                            // generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
-
-                            // setTimeout($(".impressao-cupom-comum .print_area").printThis({
-                            //     importCss: false
-                            // }), 100);
-
-                            setTimeout($(".impressao-cupom .print-area").printThis({
+                            setTimeout($(".impressao-cupom").printThis({
                                 importCss: false
                             }), 100);
-
-                            // ocultar div de emissão e exibir div de confirmação de impressão
-                            exibirConfirmacaoImpressaoComum();
                         }
-
-                        // setTimeout($(".impressao-cupom").printThis({
-                        //     importCss: false
-                        // }), 100);
-
-
                     }
-
+                    exibirConfirmacaoImpressao();
                     /**
                      * TODO: confirmar se preciso destes métodos conforme abaixo
                      */
@@ -546,6 +505,8 @@ $(document).ready(function () {
 
         if (tipoEmissaoCodigoBarras == "Code128") {
 
+            $(".is-code128-barcode").show();
+
             $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
                 barWidth: 2,
                 barHeight: 70,
@@ -553,7 +514,9 @@ $(document).ready(function () {
                 output: 'bmp'
             });
         } else if (tipoEmissaoCodigoBarras == "PDF417") {
-            generateNewPDF417Barcode($(".impressao-cupom-comum .cupom_emitido").val(), 'canvas_origin', 'canvas_destination', 'canvas_img');
+            $(".is-pdf417-barcode").show();
+            $("#canvas_origin").height('auto');
+            generateNewPDF417Barcode(cupom_emitido, 'canvas_origin', 'canvas_destination', 'canvas_img');
         } else {
             callModalError("Tipo de Código de Barras ainda não foi configurado no sistema!");
         }

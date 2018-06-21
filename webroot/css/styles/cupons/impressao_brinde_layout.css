@@ -15,7 +15,18 @@
 
 .is-not-cupom-shower{
     display: none;
+}
 
+.is-code128-barcode {
+    display: none;
+}
+
+.is-pdf417-barcode {
+    display: none;
+}
+
+#canvas_origin {
+    height: 0px;
 }
 
 @media print {

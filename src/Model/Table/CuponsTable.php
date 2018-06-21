@@ -276,7 +276,7 @@ class CuponsTable extends GenericTable
 
             if (strlen($senha) == 1) {
                 $senha = '00' . $senha;
-            } elseif (strlen($senha == 2)) {
+            } elseif (strlen($senha) == 2) {
                 $senha = '0' . $senha;
             }
 

@@ -4,22 +4,22 @@
   * @date     18/08/2017
   */
 
-.brinde-shower.user-result {
+.brinde.user-result {
     display: none;
 }
 
-.brinde-shower.user-result-names {
+.brinde.user-result-names {
     display: none;
 }
 
-.brinde-shower.user-result-plates {
+.brinde.user-result-plates {
     display: none;
 }
 
-.container-confirmacao-cupom-smart {
+.container-confirmacao-cupom {
     display: none;
 }
 
-.container-confirmacao-canhoto-smart {
+.container-confirmacao-canhoto {
     display: none;
 }
