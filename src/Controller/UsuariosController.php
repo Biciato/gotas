@@ -3423,10 +3423,22 @@ class UsuariosController extends AppController
                     } else {
                         // Pesquisa por Placas
                         // Aqui não filtra com funcionários
-                        $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
+                        if ($restringirUsuariosRede){
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
+                        } else {
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], null,  array(), false);
+
+                        }
 
                         $veiculoEncontrado = $retorno["veiculo"];
                         $usuarios = $retorno["usuarios"];
+
+
+                        // print_r($data);
+                        // echo PHP_EOL;
+                        // echo __LINE__;
+                        // echo PHP_EOL;
+                        // print_r($retorno);
                     }
 
                     $usuarios = array_merge($funcionariosCliente, $usuarios);

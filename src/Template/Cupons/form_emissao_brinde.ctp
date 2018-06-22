@@ -47,7 +47,8 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
         <legend><?= __("Emissão de Cupom") ?></legend>
 
         <?= $this->Form->create(); ?>
-            <div class="form-group">
+            <?php echo $this->element("../Usuarios/filtro_usuarios_ajax") ?>
+            <!-- <div class="form-group">
 
                 <div class="brinde user-query-region">
 
@@ -227,7 +228,7 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
                     </div>
 
                 </div>
-            </div>
+            </div> -->
 
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
