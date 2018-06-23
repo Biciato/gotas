@@ -165,7 +165,7 @@ class BrindesController extends AppController
         // pega a matriz da rede
 
         $redes_has_clientes = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
-        $clientes_id = $redes_has_clientes->clientes_id;
+        $unidadesIds = $redes_has_clientes->clientes_id;
 
         $conditions = [];
 
@@ -182,13 +182,15 @@ class BrindesController extends AppController
 
         }
 
-        array_push($conditions, ['clientes_id ' => $clientes_id]);
+        array_push($conditions, ['clientes_id ' => $unidadesIds]);
 
         $brindes = $this->Brindes->findBrindes($conditions);
 
         $brindes = $this->paginate($brindes, ['limit' => 10]);
 
-        $this->set(compact(['brindes', 'clientes_id', 'unidade']));
+        $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"]);
+
+        $this->set(compact(['brindes', 'unidadesIds', 'unidade']));
         $this->set('_serialize', ['brindes', 'clientes_id', 'unidade']);
     }
 

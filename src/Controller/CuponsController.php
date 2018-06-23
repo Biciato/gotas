@@ -741,20 +741,27 @@ class CuponsController extends AppController
                     return;
                 }
 
-                if ($data['usuarios_id'] == "conta_avulsa") {
+                $contaAvulsa = $data["usuarios_id"] == "conta_avulsa";
+
+                if ($contaAvulsa) {
                     $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
+                    $usuario["pontuaoes"] = 0;
                 } else {
                     $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+                    $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                        $usuario['id'],
+                        $rede["id"],
+                        $clientes_ids
+                    );
+                    $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
                 }
+                // echo __LINE__;
 
-                $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                    $usuario['id'],
-                    $rede["id"],
-                    $clientes_ids
-                );
-                $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
-
-            // validação de senha do usuário
+                // echo "<pre>";
+                // print_r($usuario);
+                // echo "</pre>";
+                // die();
+                // validação de senha do usuário
 
                 $senha_valida = false;
                 if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {

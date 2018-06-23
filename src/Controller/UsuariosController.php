@@ -789,9 +789,8 @@ class UsuariosController extends AppController
 
             $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
-            if (isset($tipoPerfil) && $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
-                $data["tipo_perfil"] = (int)Configure::read("profileTypes")["DummyWorkerProfileType"];
-                // Funcionário fictício não precisa de validação de cpf
+            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                // Funcionário ou usuário fictício não precisa de validação de cpf
 
                 $this->Usuarios->validator()->remove('cpf');
             } else {

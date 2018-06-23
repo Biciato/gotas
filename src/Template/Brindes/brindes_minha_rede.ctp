@@ -18,11 +18,14 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->element('../Brindes/left_menu', ['mode' => 'add', 'clientes_id' => $clientes_id]) ?>
+<?= $this->element('../Brindes/left_menu', ['mode' => 'add', 'clientes_id' => $unidadesIds]) ?>
 <div class="brindes index col-lg-9 col-md-10 columns content">
     <legend><?= __("Cadastro de Brindes da Rede") ?></legend>
 
-    <?= $this->element('../Brindes/brindes_filtro_pesquisa_comum', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']) ?>
+    <?php
+    //  $this->element('../Brindes/brindes_filtro_pesquisa_comum', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']) ;
+    ?>
+    <?= $this->element('../Brindes/brindes_filtro', ['controller' => 'brindes', 'action' => 'brindes_minha_rede', 'unidadesIds' => $unidadesIds]) ?>
 
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>

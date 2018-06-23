@@ -12,16 +12,16 @@ use Cake\Core\Configure;
 
     <div class="panel-group">
         <div class="panel panel-default">
-            <div class="panel-heading panel-heading-sm text-center"     
-                data-toggle="collapse" 
-                href="#collapse1"   
+            <div class="panel-heading panel-heading-sm text-center"
+                data-toggle="collapse"
+                href="#collapse1"
                 data-target="#filter-coupons">
                 <!-- <h4 class="panel-title"> -->
                     <div>
                         <span class="fa fa-search"></span>
                             Exibir / Ocultar Filtros
                     </div>
-            
+
                 <!-- </h4> -->
             </div>
             <div id="filter-coupons" class="panel-collapse collapse">
@@ -38,10 +38,10 @@ use Cake\Core\Configure;
 					'class' => 'form-control col-lg-6',
 					'label' => 'Parâmetro'
 				]
-			) ?> 
+			) ?>
 			</div>
 			<div class="col-lg-2">
-			
+
 			<?= $this->Form->input('opcoes', [
 			'type' => 'select',
 			'id' => 'opcoes',
@@ -52,7 +52,7 @@ use Cake\Core\Configure;
 			],
 			'class' => 'form-control col-lg-2'
 		]) ?>
-           </div>  
+           </div>
 			<div class="col-lg-3">
 				<?= $this->Form->input(
 				'filtrar_unidade',
@@ -61,7 +61,7 @@ use Cake\Core\Configure;
 					'id' => 'filtrar_unidade',
 					'label' => "Filtrar por unidade?",
 					'empty' => isset($todas_unidades) ? $todas_unidades: "<Todas>",
-					'options' => $unidades_ids
+					'options' => $unidadesIds
 				]
 			) ?>
 			</div>
@@ -76,5 +76,5 @@ use Cake\Core\Configure;
    </div>
         </div>
     </div>
-    
+
 </div>

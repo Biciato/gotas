@@ -294,8 +294,8 @@ $(document).ready(function () {
     }
     var resetUserFilter = function () {
 
-        if ($(".usuarios_id_brinde_shower").val() !== "conta_avulsa") {
-            $(".usuarios_id_brinde_shower").val(null);
+        if ($(".usuarios_id").val() !== "conta_avulsa") {
+            $(".usuarios_id").val(null);
         }
 
         $("#brindes_id").val(null);
@@ -320,11 +320,11 @@ $(document).ready(function () {
             message += "É necessário selecionar um brinde para continuar. <br />";
         }
 
-        if ($("#usuarios_id_brinde_shower").val().length == 0) {
+        if ($("#usuarios_id").val().length == 0) {
             message += "Necessário selecionar um cliente para imprimir o ticket. <br />";
         }
 
-        var usuarioIsAvulso = $("#usuarios_id_brinde_shower").val() == "conta_avulsa";
+        var usuarioIsAvulso = $(".usuarios_id").val() == "conta_avulsa";
         var senha = $(".current_password").val();
 
         if (!usuarioIsAvulso) {
@@ -399,7 +399,7 @@ $(document).ready(function () {
             var data = {
                 brindes_id: $("#brindes_id").val(),
                 clientes_id: $("#clientes_id").val(),
-                usuarios_id: $(".usuarios_id_brinde_shower").val(),
+                usuarios_id: $(".usuarios_id").val(),
                 quantidade: $(".quantidade-brindes").val(),
                 current_password: $("#current_password").val(),
                 _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)

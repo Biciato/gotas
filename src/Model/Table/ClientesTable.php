@@ -2,7 +2,7 @@
 
 /**
  * TODO: fazer header
- * 
+ *
  */
 
 namespace App\Model\Table;
@@ -236,11 +236,11 @@ class ClientesTable extends GenericTable
 
 
     /**
-     * Adiciona nova unidade para uma rede 
-     * 
+     * Adiciona nova unidade para uma rede
+     *
      * @param int                      $redes_id Id da rede
      * @param App\Model\Entity\Cliente $cliente  Entidade Cliente
-     * 
+     *
      * @return bool         $cliente   Registro salvo
      */
     public function addClient(int $redes_id, \App\Model\Entity\Cliente $cliente)
@@ -255,6 +255,8 @@ class ClientesTable extends GenericTable
                     ]
                 )->toArray();
 
+            // verifica se tem alguma empresa cadastrada.
+            // Se não tiver, esta fica sendo a matriz
             $cliente->matriz = sizeof($redes_has_clientes) == 0;
 
             $cliente = $this->_getClientesTable()->save($cliente);
@@ -265,11 +267,6 @@ class ClientesTable extends GenericTable
 
                 $redes_has_cliente->redes_id = $redes_id;
                 $redes_has_cliente->clientes_id = $cliente->id;
-
-                // verifica se tem alguma empresa cadastrada. 
-                // Se não tiver, esta fica sendo a matriz 
-
-
 
                 $result = $this->_getClientesTable()->RedeHasCliente->save($redes_has_cliente);
             }
@@ -290,7 +287,7 @@ class ClientesTable extends GenericTable
      * Undocumented function
      *
      * @param int $clientes_id Id de Clientes
-     * 
+     *
      * @return Cliente $cliente Registro da matriz
      */
     public function findClienteMatrizFromClientesId(int $clientes_id)
@@ -334,7 +331,7 @@ class ClientesTable extends GenericTable
      * Obtem todos os clientes
      *
      * @param array $where_conditions condições
-     * 
+     *
      * @return void
      */
     public function getAllClientes(array $where_conditions = array())
@@ -371,10 +368,10 @@ class ClientesTable extends GenericTable
      * @param array $whereConditions Condições de where
      * @param array $orderConditions Condições de ordenação
      * @param array $paginationConditions Condições de Paginação
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/13
-     * 
+     *
      * @return array ("count", "data")
      */
     public function getClientes(array $whereConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
@@ -488,16 +485,16 @@ class ClientesTable extends GenericTable
 
     /**
      * Clientes::getClienteByCNPJ
-     * 
+     *
      * Obtem cliente a partir de seu CNPJ
      *
      * @param string $cnpj CNPJ
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date   2018/05/07
-     * 
+     *
      * @return \App\Model\Entity\Cliente $cliente
-     * 
+     *
      **/
     public function getClienteByCNPJ(string $cnpj)
     {
@@ -512,7 +509,49 @@ class ClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao realizar pesquisa de clientes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao realizar pesquisa de clientes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * ClientesTable::getClientesListByRedesId
+     *
+     * Obtem lista de clientes através de id de rede
+     *
+     * @param integer $redesId Id da rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   22/06/2018
+     *
+     * @return @method \App\Model\Entity\Cliente[] Lista de Clientes por Id e Nome Fantasia
+     */
+    public function getClientesListByRedesId(int $redesId)
+    {
+        try {
+
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+            $clientesIds = array();
+
+            $redeHasClientesQuery = $redesHasClientesTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+            foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
+                $clientesIds[] = $redeHasCliente["clientes_id"];
+            }
+
+            $clientesIds = sizeof($clientesIds) > 0 ? $clientesIds : array(0);
+
+            return $this->_getClientesTable()->find('list')
+                ->where(["id in " => $clientesIds]);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao realizar pesquisa de clientes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
@@ -522,16 +561,16 @@ class ClientesTable extends GenericTable
 
     /**
      * Clientes::getClientesCNPJByEstado
-     * 
+     *
      * Obtem todos os CNPJ cadastrado pelo estado
      *
-     * @param string $estado Estado 
-     * 
+     * @param string $estado Estado
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date   2018/05/07
-     * 
+     *
      * @return array[] CNPJ's
-     * 
+     *
      **/
     public function getClientesCNPJByEstado(string $estado)
     {
@@ -727,7 +766,7 @@ class ClientesTable extends GenericTable
      *
      * @param int  $id      Id de RedesHasClientes
      * @param bool $ativado Estado de ativação
-     * 
+     *
      * @return \App\Model\Entity\Clientes $cliente
      */
     public function changeStateEnabledCliente(int $id, bool $ativado)
@@ -763,7 +802,7 @@ class ClientesTable extends GenericTable
 
     /**
      * Update entity in BD
-     * 
+     *
      * @param entity $cliente
      * @return void
      */
@@ -792,7 +831,7 @@ class ClientesTable extends GenericTable
      * Remove todos os clientes
      *
      * @param array $clientes_ids Ids de clientes
-     * 
+     *
      * @return void
      */
     public function deleteClientesByIds(array $clientes_ids)

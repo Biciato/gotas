@@ -46,33 +46,51 @@ use Cake\Core\Configure;
 
     <div class="row">
 
-        <div class="col-lg-4">
-            <?= $this->Form->input('quantidade', [
-                'type' => 'number',
-                'readonly' => false,
-                'required' => true,
-                'label' => 'Quantidade (Se Não é SMART Shower)',
-                'min' => 1,
-                'id' => 'quantidade',
-                'class' => 'quantidade-brindes',
-                'step' => 1.0,
-                'default' => 0,
-                'min' => 0
-            ]) ?>
-        </div>
+        <?php if ($usuarioVendaAvulsa) : ?>
+            <div class="col-lg-6">
+                <?= $this->Form->input('quantidade', [
+                    'type' => 'number',
+                    'readonly' => false,
+                    'required' => true,
+                    'label' => 'Quantidade (Se Não é SMART Shower)',
+                    'min' => 1,
+                    'id' => 'quantidade',
+                    'class' => 'quantidade-brindes',
+                    'step' => 1.0,
+                    'default' => 0,
+                    'min' => 0
+                ]) ?>
+            </div>
 
-        <div class="col-lg-2">
-            <?= $this->Form->input(
-                'current_password',
-                [
-                    'type' => 'password',
-                    'id' => 'current_password',
-                    'class' => 'current_password',
-                    'label' => 'Senha do usuário'
-                ]
-            ) ?>
+        <?php else: ?>
+            <div class="col-lg-4">
+                <?= $this->Form->input('quantidade', [
+                    'type' => 'number',
+                    'readonly' => false,
+                    'required' => true,
+                    'label' => 'Quantidade (Se Não é SMART Shower)',
+                    'min' => 1,
+                    'id' => 'quantidade',
+                    'class' => 'quantidade-brindes',
+                    'step' => 1.0,
+                    'default' => 0,
+                    'min' => 0
+                ]) ?>
+            </div>
 
-        </div>
+            <div class="col-lg-2">
+                <?= $this->Form->input(
+                    'current_password',
+                    [
+                        'type' => 'password',
+                        'id' => 'current_password',
+                        'class' => 'current_password',
+                        'label' => 'Senha do usuário'
+                    ]
+                ) ?>
+
+            </div>
+        <?php endif; ?>
     </div>
     </div>
 </div>

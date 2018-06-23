@@ -34,7 +34,7 @@ echo $this->Breadcrumbs->render(
 
 <div class="clientesHasBrindeHabilitados view col-lg-9 col-md-8 columns content">
   <legend><?= __('Ativar Brinde em Unidade') ?></legend>
-<?= $this->element('../Brindes/brindes_filtro_unidades', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'ativar_brindes', 'unidades_ids' => $unidades_ids, 'todas_unidades' => false]) ?>
+<?= $this->element('../Brindes/brindes_filtro_unidades', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'ativar_brindes', 'unidadesIds' => $unidades_ids, 'todas_unidades' => false]) ?>
     <table class="table table-striped table-hover table-responsive">
         <thead>
             <tr>
@@ -47,14 +47,14 @@ echo $this->Breadcrumbs->render(
         </thead>
         <tbody>
 
-            <?php if (sizeof($brindes_desabilitados) == 0): ?> 
+            <?php if (sizeof($brindes_desabilitados) == 0): ?>
 
             <tr>
                 <td colspan="2">
                     Não há brindes desabilitados para esta unidade!
                 </td>
             </tr>
-            <?php else: ?> 
+            <?php else: ?>
 
                 <?php foreach ($brindes_desabilitados as $brindes_desabilitado) : ?>
                     <tr>
