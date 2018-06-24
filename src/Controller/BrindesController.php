@@ -523,6 +523,7 @@ class BrindesController extends AppController
      */
     public function impressaoRapida()
     {
+        $urlRedirectConfirmacao = array("controller" => "Brindes", "action" => "impressao_rapida");
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
 
@@ -557,14 +558,23 @@ class BrindesController extends AppController
         // o estado do funcionário é o local onde se encontra o estabelecimento.
         $estado_funcionario = $cliente->estado;
 
+        $transportadoraPath = "TransportadorasHasUsuarios.Transportadoras.";
+        $veiculoPath = "UsuariosHasVeiculos.Veiculos.";
 
-        $this->set(compact(['usuario', 'cliente', 'clientes_id', 'funcionario', 'estado_funcionario']));
+        $arraySet = array(
+            "usuario",
+            "cliente",
+            "clientes_id",
+            "funcionario",
+            "estado_funcionario",
+            "urlRedirectConfirmacao",
+            "transportadoraPath",
+            "veiculoPath"
+        );
 
-        $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
-        $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
-
-
 
     /**
      * BrindesController::_preparaImagemBrindeParaGravacao
@@ -816,9 +826,11 @@ class BrindesController extends AppController
             foreach ($brindesHabilitadosCliente as $key => $brindeHabilitadoCliente) {
                 $brindeHabilitadoCliente["brinde"]["nome_img"] =
                     __(
-                        "{0}{1}{2}",
-                        Configure::read("webrootAddress"),
-                        Configure::read("imageGiftPathRead"), $brindeHabilitadoCliente["brinde"]["nome_img"]);
+                    "{0}{1}{2}",
+                    Configure::read("webrootAddress"),
+                    Configure::read("imageGiftPathRead"),
+                    $brindeHabilitadoCliente["brinde"]["nome_img"]
+                );
                 $brindesTemp[] = $brindeHabilitadoCliente;
             }
 

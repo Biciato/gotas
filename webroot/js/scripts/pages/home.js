@@ -326,7 +326,6 @@ var formatDateTimeToDate = function (data) {
  * Popula dados de cupom para resgate
  */
 var popularDadosCupomResgate = function (data) {
-    data = data.data;
     if (data !== undefined && data !== null) {
         var usuario = null;
         var brinde_habilitado = {};

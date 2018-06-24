@@ -9,7 +9,8 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "pages", "action" => "display") : $urlRedirectConfirmacao;
+// A confirmação do resgate só é feita pela interface de funcionário até o momento. então redireciona para a mesma tela.
+$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "Cupons", "action" => "resgate_cupons") : $urlRedirectConfirmacao;
 
 ?>
 

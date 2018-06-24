@@ -399,6 +399,7 @@ $(document).ready(function () {
             var data = {
                 brindes_id: $("#brindes_id").val(),
                 clientes_id: $("#clientes_id").val(),
+                funcionarios_id: $("#funcionarios_id").val(),
                 usuarios_id: $(".usuarios_id").val(),
                 quantidade: $(".quantidade-brindes").val(),
                 current_password: $("#current_password").val(),
@@ -463,7 +464,7 @@ $(document).ready(function () {
                             callModalError(result.dadosImpressao.message);
                         } else {
 
-                            popularDadosCupomResgate(result.dadosImpressao);
+                            popularDadosCupomResgate(result.dadosImpressao.data);
                             $(".resgate-cupom-result").show(500);
                             $(".resgate-cupom-main").hide();
 

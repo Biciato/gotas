@@ -707,6 +707,8 @@ class CuponsController extends AppController
 
                 $rede = $this->request->session()->read('Network.Main');
 
+                $funcionariosId = isset($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
+
                 // pega id de todos os clientes que estão ligados à uma rede
 
                 $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
@@ -755,12 +757,7 @@ class CuponsController extends AppController
                     );
                     $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
                 }
-                // echo __LINE__;
 
-                // echo "<pre>";
-                // print_r($usuario);
-                // echo "</pre>";
-                // die();
                 // validação de senha do usuário
 
                 $senha_valida = false;
@@ -907,7 +904,8 @@ class CuponsController extends AppController
                                 $cliente->id,
                                 $usuario->id,
                                 $brinde_habilitado->id,
-                                $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade
+                                $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade,
+                                $funcionariosId
                             );
 
                         }
@@ -1891,7 +1889,8 @@ class CuponsController extends AppController
                     $cliente->id,
                     $usuario->id,
                     $brinde_habilitado->id,
-                    $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade
+                    $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade,
+                    $funcionariosId
                 );
 
                 if ($pontuacaoDebitar) {

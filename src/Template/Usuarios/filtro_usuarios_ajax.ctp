@@ -36,7 +36,7 @@ use Cake\Core\Configure;
                 'default' => 'placa'
             ]
         ) ?>
-    </div>  
+    </div>
     <!-- <div class="col-lg-1">
         <?= $this->Form->label('Parâmetro') ?>
     </div> -->
@@ -50,7 +50,7 @@ use Cake\Core\Configure;
             // 'label' => false,
                 'class' => 'form-control col-lg-5 parametro'
             ]
-        ) ?> 
+        ) ?>
     </div>
 
     <div class="col-lg-2 vertical-align">
@@ -59,9 +59,9 @@ use Cake\Core\Configure;
     </div>
 
     <span class="text-danger validation-message" id="userValidationMessage"></span>
-    
+
     </div>
-        
+
     <div class="user-result user-result-names" >
         <div class="col-lg-12">
             <table class="table table-striped table-hover" id="user-result-names">
@@ -85,7 +85,7 @@ use Cake\Core\Configure;
 
         <div id="vehicle" class="col-lg-12">
             <h4>Veículo Encontrado</h4>
-            
+
 
             <div class="col-lg-3 col-md-3">
                 <?= $this->Form->input('placa', ['readonly' => true, 'label' => 'Placa', 'id' => 'veiculosPlaca']) ?>
@@ -130,15 +130,19 @@ use Cake\Core\Configure;
 
         <h4>Cliente selecionado</h4>
 
-        <?= $this->Form->text('usuarios_id', ['id' => 'usuarios_id', 'style' => 'display: none;']); ?>
-        
+        <?= $this->Form->text('usuarios_id', [
+            'id' => 'usuarios_id',
+            'class' => "usuarios_id",
+            'style' => 'display: none;'
+        ]); ?>
+
         <div class='col-lg-1'>
             <?= $this->Form->label('Nome') ?>
         </div>
         <div class="col-lg-3 col-md-2">
             <?= $this->Form->input('nome', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'usuariosNome']) ?>
         </div>
-        
+
         <div class='col-lg-2'>
             <?= $this->Form->label('Data Nascimento') ?>
         </div>
@@ -163,7 +167,7 @@ use Cake\Core\Configure;
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/usuarios/filtro_usuarios_ajax') ?>
     <?= $this->Html->css('styles/usuarios/filtro_usuarios_ajax') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/usuarios/filtro_usuarios_ajax.min') ?>
     <?= $this->Html->css('styles/usuarios/filtro_usuarios_ajax.min') ?>
 <?php endif; ?>

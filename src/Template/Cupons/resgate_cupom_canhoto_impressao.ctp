@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Cupons/resgate_cupom_canhoto_confirmacao_confirmacao.ctp
+ * @file     src/Template/Cupons/resgate_cupom_canhoto_impressao.ctp
  * @date     22/04/2018
  */
 
@@ -23,7 +23,7 @@ use Cake\Routing\Router;
                         'class' => 'logo-rti-brinde'
                     ]
                 ) ?>
-            
+
                 <div class="pull-right">
                     <?= $this->Html->tag('span', 'Data emissão: ', ['class' => 'pull-right']) ?>
                     <br />
@@ -52,17 +52,17 @@ use Cake\Routing\Router;
                 </tr>
             </thead>
             <tbody>
-                <?php if (isset($produtos)) : ?> 
-                    <?php foreach ($produtos as $key => $produto) : ?> 
+                <?php if (isset($produtos)) : ?>
+                    <?php foreach ($produtos as $key => $produto) : ?>
                         <tr>
                             <td>
-                                <?= $produto['qte'] ?> 
+                                <?= $produto['qte'] ?>
                             </td>
                             <td>
-                                <?= $produto['nome'] ?> 
+                                <?= $produto['nome'] ?>
                             </td>
                             <td>
-                                <?= $produto['valor_pago'] ?> 
+                                <?= $produto['valor_pago'] ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -73,20 +73,20 @@ use Cake\Routing\Router;
 
         <p class="text-center contact">
 
-            <?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>		
+            <?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
             <br />
-            <?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>		
+            <?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
 
         </p>
-        
+
     </div>
 </div>
 
 <?php if (Configure::read('debug')) : ?>
     <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_impressao') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_impressao') ?>
-<?php endif; ?> 
+<?php endif; ?>
 
 <?= $this->fetch('css') ?>
 <?= $this->fetch('script') ?>

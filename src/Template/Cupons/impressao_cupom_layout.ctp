@@ -10,7 +10,7 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 ?>
 
-<div class="impressao-cupom-comum">
+<div class="impressao-cupom">
 
 	<div class="print_area">
 

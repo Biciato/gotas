@@ -40,7 +40,7 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
     <div class="col-lg-9 col-md-10 columns">
 
 <?php else : ?>
-    <div class="col-lg-12 col-md-12 columns">
+    <div class="col-lg-9 col-md-10 columns">
 <?php endif; ?>
 
     <div class="container-emissao-cupom">

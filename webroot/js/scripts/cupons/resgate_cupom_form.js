@@ -9,7 +9,7 @@ $(document).ready(function () {
 
     $(".pdf-417-code").mask("AAAAAAAAAAAAAA");
     $(".pdf-417-code").focus();
-    
+
 
     $(".pdf-417-code").on('keyup', function (event) {
         if (this.value.length == 14 && event.keyCode == 13) {
@@ -32,7 +32,7 @@ $(document).ready(function () {
      */
     $(".resgatar-cupom").on('click', function () {
         var data = {
-            cupom_emitido: $(".impressao-cupom-comum .cupom_emitido").val(),
+            cupom_emitido: $(".cupom_emitido").val(),
             unidade_funcionario_id: $(".unidade-funcionario-id").val(),
         };
 

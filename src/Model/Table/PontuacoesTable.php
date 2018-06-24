@@ -210,6 +210,7 @@ class PontuacoesTable extends GenericTable
      * @param int   $usuarios_id             Id de usuário
      * @param int   $brindes_habilitados_id  Id do brinde habilitado
      * @param float $total_pontuacao_debitar Quantidade de pontos
+     * @param int   $funcionariosId          Id de funcionário (opcional)
      *
      * @return boolean Resultado de inserção
      */
@@ -217,7 +218,8 @@ class PontuacoesTable extends GenericTable
         int $clientes_id,
         int $usuarios_id,
         int $brindes_habilitados_id,
-        float $total_pontuacao_debitar
+        float $total_pontuacao_debitar,
+        int $funcionariosId = null
     ) {
         try {
             $pontuacao = $this->_getPontuacoesTable()->newEntity();
@@ -228,6 +230,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao->quantidade_gotas = $total_pontuacao_debitar;
             $pontuacao->utilizado = Configure::read('dropletsUsageStatus')['FullyUsed'];
             $pontuacao->data = date('Y-m-d H:i:s');
+            $pontuacao->funcionarios_id = $funcionariosId;
 
             return $this->_getPontuacoesTable()->save($pontuacao);
         } catch (\Exception $e) {
