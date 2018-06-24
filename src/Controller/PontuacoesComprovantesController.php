@@ -13,6 +13,7 @@ use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\View\Helper\AddressHelper;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * PontuacoesComprovantes Controller
@@ -960,19 +961,18 @@ class PontuacoesComprovantesController extends AppController
 
                     // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
 
-                    $cnpj_pos = strpos($web_content['response'], $cliente->cnpj);
+                    $cnpjPos = strpos($web_content['response'], $cliente->cnpj);
 
-                    if (!$cnpj_pos) {
+                    if (!$cnpjPos) {
                         // formata o cnpj e procura novamente
 
                         $cnpjFormatado = substr($cliente->cnpj, 0, 2) . "." . substr($cliente->cnpj, 2, 3) . "." . substr($cliente->cnpj, 5, 3)
                             . "/" . substr($cliente->cnpj, 8, 4) . "-" . substr($cliente->cnpj, 12, 2);
 
-                        $cnpj_pos = strpos($web_content['response'], $cnpjFormatado);
-
+                        $cnpjPos = strpos($web_content['response'], $cnpjFormatado);
                     }
 
-                    if (!$cnpj_pos) {
+                    if (!$cnpjPos) {
                         $process_failed = true;
 
                     } else {
@@ -985,6 +985,8 @@ class PontuacoesComprovantesController extends AppController
                         }
 
                         $array_save = [];
+
+                        // DebugUtil::printArray($array_return, true);
 
                         foreach ($array_return as $key => $value) {
                             array_push($array_save, $value);
@@ -1006,7 +1008,7 @@ class PontuacoesComprovantesController extends AppController
 
                                 $pontuacao_comprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($pontuacao_comprovante['clientes_id'], $pontuacao_comprovante['usuarios_id'], $pontuacao_comprovante['funcionarios_id'], $pontuacao_comprovante['conteudo'], $pontuacao_comprovante['chave_nfe'], $pontuacao_comprovante['estado_nfe'], $pontuacao_comprovante['data'], false, false);
 
-                            // item novo. usa id de pontuacao_comprovante e grava
+                                // item novo. usa id de pontuacao_comprovante e grava
                                 if ($pontuacao_comprovante) {
                                     $pontuacao_comprovante_id = $pontuacao_comprovante->id;
 
@@ -1029,6 +1031,14 @@ class PontuacoesComprovantesController extends AppController
                                 } else {
                                     $process_failed = true;
                                 }
+                            } else {
+                                $process_failed = true;
+                                $message =
+                                    __(
+                                    'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...',
+                                    $data["chave_nfe"],
+                                    $data["estado_nfe"]
+                                );
                             }
                         }
                     }
@@ -1037,10 +1047,8 @@ class PontuacoesComprovantesController extends AppController
 
                     if ($process_failed) {
 
-                        if (!$cnpj_pos) {
+                        if (!$cnpjPos) {
                             $message = "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...";
-                        } else {
-                            $message = 'Houve erro ao realizar processamento de cupom, o registro não foi gravado...';
                         }
                         Log::write('error', $message);
 
@@ -1063,6 +1071,8 @@ class PontuacoesComprovantesController extends AppController
                 } else {
                     // Status está anormal, grava para posterior processamento
 
+                    echo __LINE__;
+                    echo "<br />";
                     $pontuacao_pendente = $this
                         ->PontuacoesPendentes
                         ->createPontuacaoPendenteAwaitingProcessing(
@@ -1083,7 +1093,13 @@ class PontuacoesComprovantesController extends AppController
                 }
             }
 
-            $data = $pontuacao_comprovante;
+            // DebugUtil::printArray($pontuacao_pendente, false);
+
+            if ($success) {
+                $data = $pontuacao_comprovante;
+            } else {
+                $data = array();
+            }
             $arraySet = [
                 'success',
                 'message',
@@ -1557,9 +1573,9 @@ class PontuacoesComprovantesController extends AppController
                     # code...
 
                     Log::write('debug', __("CNPJ {$cnpj}"));
-                    $cnpj_pos = strpos($webContent["response"], $cnpj);
+                    $cnpjPos = strpos($webContent["response"], $cnpj);
 
-                    if ($cnpj_pos > 0) {
+                    if ($cnpjPos > 0) {
                         $cnpjEncontrado = $cnpj;
                         break;
                     }
@@ -1642,19 +1658,19 @@ class PontuacoesComprovantesController extends AppController
 
                     // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
 
-                    $cnpj_pos = strpos($webContent['response'], $cliente->cnpj);
+                    $cnpjPos = strpos($webContent['response'], $cliente->cnpj);
 
-                    if (!$cnpj_pos) {
+                    if (!$cnpjPos) {
                         // formata o cnpj e procura novamente
 
                         $cnpjFormatado = substr($cliente->cnpj, 0, 2) . "." . substr($cliente->cnpj, 2, 3) . "." . substr($cliente->cnpj, 5, 3)
                             . "/" . substr($cliente->cnpj, 8, 4) . "-" . substr($cliente->cnpj, 12, 2);
 
-                        $cnpj_pos = strpos($webContent['response'], $cnpjFormatado);
+                        $cnpjPos = strpos($webContent['response'], $cnpjFormatado);
 
                     }
 
-                    if (!$cnpj_pos) {
+                    if (!$cnpjPos) {
                         $process_failed = true;
 
                     } else {
@@ -1731,7 +1747,7 @@ class PontuacoesComprovantesController extends AppController
 
                     if ($process_failed) {
 
-                        if (!$cnpj_pos) {
+                        if (!$cnpjPos) {
                             $message = "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...";
                         } else {
                             $message = 'Houve erro ao realizar processamento de cupom, o registro não foi gravado...';
@@ -1745,7 +1761,7 @@ class PontuacoesComprovantesController extends AppController
                         $success = false;
                         $message =
                             __(
-                            'No Cupom Fiscal {0} da SEFAZ do estado da {1} não há gotas à processar conforme configurações definidas!...',
+                            'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...',
                             $chaveNFE,
                             $estado
                         );

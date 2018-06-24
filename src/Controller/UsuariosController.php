@@ -16,6 +16,7 @@ use Cake\Utility\Security;
 use Cake\Network\Exception\UnauthorizedException;
 use App\Custom\RTI\EmailUtil;
 use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\DebugUtil;
 
 
 
@@ -3406,7 +3407,13 @@ class UsuariosController extends AppController
                     // Pesquisa por Nome
                     if ($data['opcao'] == 'nome') {
                         // TODO: ajustar
-                        $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $query_conditions);
+                        if ($restringirUsuariosRede) {
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $rede["id"], array(), $query_conditions);
+                        } else {
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], null, array(), $query_conditions);
+                        }
+
+                        // DebugUtil::printArray($usuarios);
 
                     } elseif ($data['opcao'] == 'doc_estrangeiro') {
                         // Pesquisa por Documento Estrangeiro
@@ -3422,10 +3429,10 @@ class UsuariosController extends AppController
                     } else {
                         // Pesquisa por Placas
                         // Aqui não filtra com funcionários
-                        if ($restringirUsuariosRede){
+                        if ($restringirUsuariosRede) {
                             $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
                         } else {
-                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], null,  array(), false);
+                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], null, array(), false);
 
                         }
 
@@ -3522,7 +3529,7 @@ class UsuariosController extends AppController
 
                     foreach ($usuarios as $key => $value) {
                         if (!empty($value)) {
-                            $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'],$rede["id"],$clientes_id);
+                            $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], $clientes_id);
 
                             $value->pontuacoes = $pontuacoes["saldo"];
                             $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;

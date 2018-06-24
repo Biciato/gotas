@@ -1027,9 +1027,8 @@ class UsuariosTable extends GenericTable
                 array_push($conditions, $condition);
             }
 
-            $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
-
             if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
 
                 $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
 
@@ -1082,20 +1081,52 @@ class UsuariosTable extends GenericTable
      * Obtem todos os usuários por Name
      *
      * @param string $nome             Nome do usuário
+     * @param int    $redesId          Id da rede à filtrar
+     * @param array  $clientesIds      Array de Id de Clientes à filtrar
      * @param array  $where_conditions Condições extras
      *
      * @return entity\usuario $usuario
      **/
-    public function getUsuariosByName(string $nome, array $where_conditions = [])
+    public function getUsuariosByName(string $nome, int $redesId = null, array $clientesIds = array(), array $where_conditions = array())
     {
         try {
             $conditions = [];
+
+            // Se informar a rede, a pesquisa de unidades da rede será desconsiderada
+            $usuariosIds = array();
+
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
+            }
+            if (sizeof($clientesIds) > 0) {
+                $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
+
+                $clienteHasUsuarioConditions = array(["clientes_id in " => $clientesIds]);
+                $usuariosIdsResult = $clientesHasUsuariosTable->findClienteHasUsuario($clienteHasUsuarioConditions)->toArray();
+
+                foreach ($usuariosIdsResult as $result) {
+                    $usuariosIds[] = $result["usuarios_id"];
+                }
+            }
 
             foreach ($where_conditions as $key => $condition) {
                 array_push($conditions, $condition);
             }
 
+            if (sizeof($usuariosIds) > 0) {
+                array_push($conditions, ["id in " => $usuariosIds ]);
+            }
+
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
+
 
             return $this->_getUsuarioTable()
                 ->find('all')
