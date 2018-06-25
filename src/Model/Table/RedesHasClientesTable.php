@@ -12,6 +12,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * RedesHasClientes Model
@@ -190,6 +191,43 @@ class RedesHasClientesTable extends GenericTable
     }
 
     /**
+     * Obtem os clientes ids através da pesquisa feita
+     *
+     * @param integer $redesId Id de Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 25/06/2018
+     *
+     * @return \App\Model\Entity\RedesHasClientes[] $redes_has_clientes[]
+     */
+    public function getClientesIdsFromRedesHasClientes(int $redesId)
+    {
+        try {
+            // pega o id da rede que pertence a unidade
+            $clientesIdsQuery = $this->_getRedesHasClientesTable()->find('all')
+                ->where(['redes_id' => $redesId])
+                ->select(['clientes_id']);
+
+            $clientesIds = array();
+
+            foreach ($clientesIdsQuery as $item) {
+                $clientesIds[] = $item["clientes_id"];
+            }
+
+            return $clientesIds;
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter ids de Clientes de Rede: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
      * Obtem todos os clientes e a rede pelo id da rede
      *
      * @param int $redes_id Id de Redes
@@ -233,7 +271,7 @@ class RedesHasClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/13
      *
-     * @return \App\Model\Table\RedesHasClientesTable
+     * @return \App\Model\Table\RedesHasClientesTable[]
      */
     public function getAllRedesHasClientesIdsByRedesId(int $redesId)
     {

@@ -907,30 +907,63 @@ class UsuariosTable extends GenericTable
      * Encontra usuario por Documento Estrangeiro
      *
      * @param string $doc_estrangeiro  Documento Estrangeiro do usuário
-     * @param array  $where_conditions Condições extras
+     * @param array  $whereConditions  Condições extras
      *
      * @return entity\usuario $usuario
      * @author Gustavo Souza Gonçalves
      */
-    public function getUsuariosByDocumentoEstrangeiro(string $doc_estrangeiro = null, array $where_conditions = [])
+    public function getUsuariosByDocumentoEstrangeiro(string $doc_estrangeiro = null, int $redesId = null, array $clientesIds = array(), bool $filtrarPorFuncionarios = false, array $whereConditions = [])
     {
         try {
             $conditions = [];
 
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
+            $usuariosIds = array();
+
+            // Faz pesquisa por Id da rede se for informado.
+
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $clientesIds = $redeHasClienteTable->getClientesIdsFromRedesHasClientes($redesId);
             }
 
-            array_push(
-                $conditions,
-                [
-                    'doc_estrangeiro like ' => '%' . $doc_estrangeiro . '%'
-                ]
-            );
+            if (sizeof($clientesIds) > 0) {
+                $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
-            return $this->_getUsuarioTable()
+                $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
+
+                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere)->toArray();
+
+                foreach ($usuariosIdsQuery as $clienteHasUsuario) {
+                    $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
+                }
+            }
+
+            foreach ($whereConditions as $key => $condition) {
+                $conditions[] = $condition;
+            }
+
+            if (sizeof($usuariosIds) > 0) {
+                $conditions[] = array("id in " => $usuariosIds);
+            }
+
+            if ($filtrarPorFuncionarios) {
+                $conditions[] = array(
+                    "tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
+                    "tipo_perfil < " => Configure::read("profileTypes")["UserProfileType"]
+                );
+            } else {
+                $conditions[] = array("tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]);
+            }
+
+            $conditions[] = array('doc_estrangeiro like ' => '%' . $doc_estrangeiro . '%');
+
+            $usuarios = $this->_getUsuarioTable()
                 ->find('all')
                 ->where($conditions);
+
+            // DebugUtil::printArray($usuarios->toArray(), false);
+            return $usuarios;
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
@@ -958,6 +991,8 @@ class UsuariosTable extends GenericTable
         try {
             $conditions = [];
 
+            $usuariosIds = array();
+
             if (!empty($redesId) && $redesId > 0) {
                 $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
 
@@ -969,8 +1004,6 @@ class UsuariosTable extends GenericTable
                     $clientesIds[] = $value["clientes_id"];
                 }
             }
-
-            $usuariosIds = array();
 
             if (sizeof($clientesIds) > 0) {
                 $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
@@ -1026,74 +1059,6 @@ class UsuariosTable extends GenericTable
     }
 
     /**
-     * Obtem todos os usuários (funcionários) por Nome pelo id da Rede
-     *
-     * @param string $nome             Nome do usuário
-     * @param int    $redesId          Id da rede
-     * @param array  $where_conditions Condições extras
-     *
-     * @return usuario $usuario
-     **/
-    public function getFuncionariosClienteByName(string $nome, int $redesId = null, array $where_conditions = [])
-    {
-        try {
-            $conditions = [];
-
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
-            }
-
-            if (!empty($redesId) && $redesId > 0) {
-                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
-
-                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
-
-                $clientesIds = array();
-
-                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
-                    $clientesIds[] = $value["clientes_id"];
-                }
-            }
-
-            array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
-
-            $usuariosWhere = array('clientes_has_usuarios.usuarios_id = usuarios.id');
-
-            if (sizeof($clientesIds) > 0) {
-                $usuariosWhere[] = array('clientes_has_usuarios.clientes_id in' => $clientesIds);
-            }
-
-            $data = $this->_getUsuarioTable()
-                ->find('all')
-                ->where($conditions)
-                ->join(
-                    [
-                        'clientes_has_usuarios'
-                            => [
-                            'table' => 'clientes_has_usuarios',
-                            'type' => 'inner',
-                            'conditions' => $usuariosWhere
-
-                        ]
-                    ]
-                )
-                ->group(['usuarios.id']);
-
-            return ['result' => true, 'data' => $data->toArray()];
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return [
-                'result' => false,
-                'data' => $stringError
-            ];
-        }
-    }
-
-    /**
      * Obtem todos os usuários por Name
      *
      * @param string $nome             Nome do usuário
@@ -1103,7 +1068,7 @@ class UsuariosTable extends GenericTable
      *
      * @return entity\usuario $usuario
      **/
-    public function getUsuariosByName(string $nome, int $redesId = null, array $clientesIds = array(), array $where_conditions = array())
+    public function getUsuariosByName(string $nome, int $redesId = null, array $clientesIds = array(), bool $filtrarPorFuncionarios = false, array $where_conditions = array())
     {
         try {
             $conditions = [];
@@ -1137,18 +1102,29 @@ class UsuariosTable extends GenericTable
                 array_push($conditions, $condition);
             }
 
+            if ($filtrarPorFuncionarios) {
+                $conditions[] = array(
+                    "tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
+                    "tipo_perfil < " => Configure::read("profileTypes")["UserProfileType"]
+                );
+            } else {
+                $conditions[] = array("tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]);
+            }
+
             if (sizeof($usuariosIds) > 0) {
                 array_push($conditions, ["id in " => $usuariosIds]);
             }
 
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
 
-
-            return $this->_getUsuarioTable()
+            $usuarios = $this->_getUsuarioTable()
                 ->find('all')
-                ->where($conditions)->toArray();
+                ->where($conditions);
+
+            return $usuarios;
         } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 

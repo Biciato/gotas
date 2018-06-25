@@ -3368,15 +3368,16 @@ class UsuariosController extends AppController
 
                         // Pesquisa por Nome
                         if ($data['opcao'] == 'nome') {
-                            $retorno = $this->Usuarios->getFuncionariosClienteByName($data['parametro'], $rede['id'], $query_conditions);
+                            $retorno = $this->Usuarios->getUsuariosByName($data['parametro'], $rede['id'], array(), true, array())->toArray();
 
-                            if ($retorno['result']) {
-                                $funcionariosCliente = $retorno['data'];
-                            }
+                            $funcionariosCliente = $retorno;
 
                         } elseif ($data['opcao'] == 'doc_estrangeiro') {
                             // Pesquisa por Documento Estrangeiro
-                            $funcionariosCliente = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
+                            $funcionariosCliente = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $rede['id'], array(), true, array())->toArray();
+
+                            // DebugUtil::printArray($funcionariosCliente);
+                            // $funcionariosCliente = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
 
                         } elseif ($data['opcao'] == 'cpf') {
                             // Pesquisa por CPF
@@ -3408,9 +3409,9 @@ class UsuariosController extends AppController
                     if ($data['opcao'] == 'nome') {
                         // TODO: ajustar
                         if ($restringirUsuariosRede) {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $rede["id"], array(), $query_conditions);
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $rede["id"], array(), $query_conditions)->toArray();
                         } else {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], null, array(), $query_conditions);
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], null, array(), false, $query_conditions)->toArray();
                         }
 
                         // DebugUtil::printArray($usuarios);
@@ -3418,7 +3419,17 @@ class UsuariosController extends AppController
                     } elseif ($data['opcao'] == 'doc_estrangeiro') {
                         // Pesquisa por Documento Estrangeiro
                         // TODO: ajustar
-                        $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
+
+                        if ($restringirUsuariosRede) {
+                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $rede['id'], array(), false, array())->toArray();
+
+                        } else {
+                            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], null, array(), false, array())->toArray();
+
+                        }
+
+                        // DebugUtil::printArray($usuarios);
+                        //  $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
 
