@@ -3363,7 +3363,7 @@ class UsuariosController extends AppController
                             = [
                             'clientes_has_usuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType'],
                             'clientes_has_usuarios.tipo_perfil < ' => Configure::read('profileTypes')['UserProfileType'],
-                            'clientes_has_usuarios.clientes_id IN ' => $clientes_id
+                            // 'clientes_has_usuarios.clientes_id IN ' => $clientes_id
                         ];
 
                         // Pesquisa por Nome
@@ -3380,7 +3380,7 @@ class UsuariosController extends AppController
 
                         } elseif ($data['opcao'] == 'cpf') {
                             // Pesquisa por CPF
-                            $usuario = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $matriz['id'], $query_conditions);
+                            $usuario = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $rede['id'], array(), $query_conditions);
 
                             $funcionariosCliente[] = $usuario;
                         } else {
@@ -3425,6 +3425,7 @@ class UsuariosController extends AppController
                         // TODO: ajustar
                         $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
 
+                        // TODO: nesta pesquisa tem que estar vinculado o usuário na rede (se for restrição)
                         $usuarios[] = $usuario;
                     } else {
                         // Pesquisa por Placas

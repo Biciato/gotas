@@ -308,6 +308,21 @@ class VeiculosTable extends GenericTable
         }
     }
 
+    /**
+     * VeiculosTable::getUsuariosClienteByVeiculo
+     *
+     * Filtra Usuários pelo Veículo
+     *
+     * @param string  $placa
+     * @param integer $redesId
+     * @param array   $clientesIds
+     * @param boolean $filtrarComFuncionarios
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   10/06/2018
+     *
+     * @return \App\Model\Entity\Veiculo[] $veiculos
+     */
     public function getUsuariosClienteByVeiculo(string $placa, int $redesId = null, array $clientesIds = array(), bool $filtrarComFuncionarios = false)
     {
         $veiculo = null;

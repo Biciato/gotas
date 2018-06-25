@@ -13,6 +13,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Usuarios Model
@@ -853,7 +854,7 @@ class UsuariosTable extends GenericTable
         try {
             $conditions = [];
 
-            foreach ($where_conditions as $key => $condition) {
+            foreach ($where_conditions as $condition) {
                 array_push($conditions, $condition);
             }
 
@@ -943,26 +944,55 @@ class UsuariosTable extends GenericTable
      * Encontra funcionário por cpf
      *
      * @param string $cpf              CPF do usuário
-     * @param int    $matriz_id        Id da matriz
+     * @param int    $redesId          Id da rede
+     * @param array  $clientesIds      Ids de Clientes
      * @param array  $where_conditions Condições Extras
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   10/10/2017
      *
      * @return entity\usuario $usuario
      */
-    public function getFuncionarioClienteByCPF(string $cpf, int $matriz_id, array $where_conditions = [])
+    public function getFuncionarioClienteByCPF(string $cpf, int $redesId = null, array $clientesIds = array(), array $where_conditions = [])
     {
         try {
             $conditions = [];
 
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
             }
 
-            array_push(
-                $conditions,
-                [
-                    'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
-                ]
-            );
+            $usuariosIds = array();
+
+            if (sizeof($clientesIds) > 0) {
+                $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
+
+                $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
+
+                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere)->toArray();
+
+                foreach ($usuariosIdsQuery as $clienteHasUsuario) {
+                    $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
+                }
+            }
+
+            foreach ($where_conditions as $key => $condition) {
+                $conditions[] = $condition;
+            }
+
+            if (sizeof($usuariosIds) > 0) {
+                $conditions[] = array("usuarios.id in " => $usuariosIds);
+            }
+
+            $conditions[] = array('cpf like ' => '%' . $this->cleanNumber($cpf) . '%');
 
             $data = $this->_getUsuarioTable()
                 ->find('all')
@@ -980,20 +1010,6 @@ class UsuariosTable extends GenericTable
                     ]
                 )
                 ->first();
-
-                // se não achou registro, pode não estar vinculado ainda. faz a pesquisa sem a tabela join
-
-            if (is_null($data)) {
-
-                $data = $this->_getUsuarioTable()
-                    ->find('all')
-                    ->where(
-                        [
-                            'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
-                        ]
-                    )
-                    ->first();
-            }
 
             return $data;
         } catch (\Exception $e) {
@@ -1122,7 +1138,7 @@ class UsuariosTable extends GenericTable
             }
 
             if (sizeof($usuariosIds) > 0) {
-                array_push($conditions, ["id in " => $usuariosIds ]);
+                array_push($conditions, ["id in " => $usuariosIds]);
             }
 
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
