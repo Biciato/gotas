@@ -3338,19 +3338,6 @@ class UsuariosController extends AppController
 
                     $rede = $this->request->session()->read('Network.Main');
 
-                    $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
-
-                    $clientes_id = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede['id']);
-
-                    $array = [];
-
-                    // preciso somente dos ids
-                    foreach ($clientes_id as $key => $value) {
-                        array_push($array, $value['clientes_id']);
-                    }
-
-                    $clientes_id = $array;
-                    $query_conditions = [];
                     $usuarios = array();
                     $funcionariosCliente = array();
 
@@ -3359,31 +3346,20 @@ class UsuariosController extends AppController
                     $veiculoEncontrado = null;
 
                     if ($rede->permite_consumo_gotas_funcionarios) {
-                        $query_conditions[]
-                            = [
-                            'clientes_has_usuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType'],
-                            'clientes_has_usuarios.tipo_perfil < ' => Configure::read('profileTypes')['UserProfileType'],
-                            // 'clientes_has_usuarios.clientes_id IN ' => $clientes_id
-                        ];
 
-                        // Pesquisa por Nome
                         if ($data['opcao'] == 'nome') {
-                            $retorno = $this->Usuarios->getUsuariosByName($data['parametro'], $rede['id'], array(), true, array())->toArray();
+                            // Pesquisa por Nome
+                            $funcionariosCliente = $this->Usuarios->getUsuariosByName($data['parametro'], $rede['id'], array(), true, array())->toArray();
 
-                            $funcionariosCliente = $retorno;
-
+                            // DebugUtil::printArray($funcionariosCliente, false);
                         } elseif ($data['opcao'] == 'doc_estrangeiro') {
                             // Pesquisa por Documento Estrangeiro
                             $funcionariosCliente = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $rede['id'], array(), true, array())->toArray();
 
-                            // DebugUtil::printArray($funcionariosCliente);
-                            // $funcionariosCliente = $this->Usuarios->getFuncionariosClienteByDocumentoEstrangeiro($data['parametro'], $rede['id'], $query_conditions);
-
                         } elseif ($data['opcao'] == 'cpf') {
                             // Pesquisa por CPF
-                            $usuario = $this->Usuarios->getFuncionarioClienteByCPF($data['parametro'], $rede['id'], array(), $query_conditions);
 
-                            $funcionariosCliente[] = $usuario;
+                            $funcionariosCliente[] = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), true, array());
                         } else {
                             // Pesquisa por Placa
                             $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), true);
@@ -3395,62 +3371,49 @@ class UsuariosController extends AppController
                         // aqui não preciso fazer merge de funcionariosCliente com Usuários, pois ainda não teve a pesquisa dos usuários em si
                     }
 
-                    // reset das condições da query, pois agora iremos buscar os clientes finais
-                    $query_conditions = [];
+                    // ---------- Daqui pra baixo não filtra por funcionários ----------
 
-                    $query_conditions[]
-                        = [
-                        'tipo_perfil' => Configure::read('profileTypes')['UserProfileType']
-                    ];
-
-                    // Daqui pra baixo não filtra por funcionários
-
-                    // Pesquisa por Nome
                     if ($data['opcao'] == 'nome') {
-                        // TODO: ajustar
+                        // Pesquisa por Nome
+
                         if ($restringirUsuariosRede) {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $rede["id"], array(), $query_conditions)->toArray();
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], $rede["id"], array(), false, array())->toArray();
                         } else {
-                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], null, array(), false, $query_conditions)->toArray();
+                            $usuarios = $this->Usuarios->getUsuariosByName($data['parametro'], null, array(), false, array())->toArray();
                         }
 
-                        // DebugUtil::printArray($usuarios);
-
+                        // DebugUtil::printArray($usuarios, false);
                     } elseif ($data['opcao'] == 'doc_estrangeiro') {
                         // Pesquisa por Documento Estrangeiro
-                        // TODO: ajustar
 
                         if ($restringirUsuariosRede) {
                             $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $rede['id'], array(), false, array())->toArray();
-
                         } else {
                             $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], null, array(), false, array())->toArray();
-
                         }
 
-                        // DebugUtil::printArray($usuarios);
-                        //  $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $query_conditions)->toArray();
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
 
-                        // TODO: ajustar
-                        $usuario = $this->Usuarios->getUsuarioByCPF($data['parametro'], $query_conditions);
+                        if ($restringirUsuariosRede){
+                            $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), false, array());
+                        } else {
+                            $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], null, array(), false, array());
+                        }
 
-                        // TODO: nesta pesquisa tem que estar vinculado o usuário na rede (se for restrição)
                         $usuarios[] = $usuario;
                     } else {
+
                         // Pesquisa por Placas
-                        // Aqui não filtra com funcionários
+
                         if ($restringirUsuariosRede) {
                             $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), false);
                         } else {
                             $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], null, array(), false);
-
                         }
 
                         $veiculoEncontrado = $retorno["veiculo"];
                         $usuarios = $retorno["usuarios"];
-
 
                         // print_r($data);
                         // echo PHP_EOL;
@@ -3461,87 +3424,11 @@ class UsuariosController extends AppController
 
                     $usuarios = array_merge($funcionariosCliente, $usuarios);
 
-                    /*
-                     * Condição em telas que verificam se o usuário realmente pertence àquela rede
-                     * Motivo: Este método busca o registro do cliente através de vários critérios.
-                     * Mas há telas que verificam se o usuário está vinculado à uma rede, outras não.
-                     * A rede só pode buscar por clientes que já fizeram milhagem
-                     * em suas redes, ela não pode ver que o usuário é de outra rede.
-                     *
-                     * Tipos de serviço que não tem a restrição:
-                     * Atribuir gotas
-                     *
-                     * Tipos de serviço que tem restrição:
-                     *
-                     * Emissão de Brindes
-                     */
-
-                    // if (isset($data['restrict_query'])) {
-                    //     if ($data['restrict_query']) {
-
-                    //         if ($data['opcao'] == 'nome') {
-                    //             if (sizeof($usuarios) > 0) {
-                    //                 for ($count_user = 0; $count_user < sizeof($usuarios); $count_user++) {
-                    //                     $user = $usuarios[$count_user];
-
-                    //                     $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
-
-                    //                     if (!$user_found) {
-                    //                         unset($usuarios[$count_user]);
-                    //                     }
-
-                    //                     unset($user);
-                    //                 }
-                    //             }
-                    //         } else {
-                    //             $users_array = [];
-
-                    //             foreach ($usuarios as $key => $value) {
-                    //                 array_push($users_array, $value->usuarios_has_veiculos);
-                    //             }
-
-                    //             if (sizeof($users_array) > 0) {
-
-                    //                 $users_array = $users_array[0];
-                    //                 if (sizeof($users_array) > 0) {
-                    //                     for ($count_user = 0; $count_user < sizeof($users_array); $count_user++) {
-                    //                         $user = $users_array[$count_user]->usuario;
-
-                    //                         $user_found = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork((int)$user->id, $clientes_id);
-
-                    //                         if (!$user_found) {
-                    //                             unset($users_array[$count_user]);
-                    //                         }
-
-                    //                         unset($user);
-                    //                     }
-                    //                 }
-
-                    //                 unset($users[0]['usuarios_has_veiculos']);
-                    //                 $users[0]['usuarios_has_veiculos'] = $users_array;
-                    //             }
-                    //         }
-                    //     }
-                    // }
-
-                    // $usersReturn = [];
-
-                    // foreach ($usuarios as $key => $user) {
-                    //     if ($user !== null) {
-                    //         $usersReturn[] = $user;
-                    //     }
-
-                    //     unset($user);
-                    // }
-
-                    // Reseta o array de retorno de usuários para atribuir os pontos;
-                    // $usuarios = array();
-
                     $usuariosTemp = array();
 
                     foreach ($usuarios as $key => $value) {
                         if (!empty($value)) {
-                            $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], $clientes_id);
+                            $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], array());
 
                             $value->pontuacoes = $pontuacoes["saldo"];
                             $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;
@@ -3554,67 +3441,18 @@ class UsuariosController extends AppController
 
                     $error = false;
                     $count = sizeof($usuarios);
-                    // if (is_null($users) || sizeof($users) == 0) {
-                    //     $error = false;
-                    //     $user = null;
-                    //     $count = 0;
-                    // } elseif (($data['opcao'] == 'nome') || $data['opcao'] == 'doc_estrangeiro') {
-                    //     $error = false;
-                    //     $user = $users;
-                    //     $count = sizeof($users);
-                    // } elseif ($data['opcao'] == 'placa') {
-                    //     $error = false;
-                    //     if (sizeof($users) > 0 && sizeof($users[0]['usuarios_has_veiculos']) > 0) {
-                    //         $count = sizeof($users[0]['usuarios_has_veiculos']);
-                    //         $user = $users[0];
-                    //     } else {
-                    //         $count = 0;
-                    //         $user = [];
-                    //     }
-                    // }
-                    // if (isset($user)) {
-
-                    //     $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
-
-                    //     $pontuacoes =
-                    //         $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                    //         $user['id'],
-                    //         $rede["id"],
-                    //         $clientes_id
-                    //     );
-
-                    //     $user["pontuacoes"] = $pontuacoes["saldo"];
-
-                    //     $error = false;
-                    //     $user = $user;
-                    //     $count = 1;
-                    // } else {
-                    //     if (is_null($users) || sizeof($users) == 0) {
-                    //         $error = false;
-                    //         $user = null;
-                    //         $count = 0;
-                    //     } elseif (($data['opcao'] == 'nome') || $data['opcao'] == 'doc_estrangeiro') {
-                    //         $error = false;
-                    //         $user = $users;
-                    //         $count = sizeof($users);
-                    //     } elseif ($data['opcao'] == 'placa') {
-                    //         $error = false;
-                    //         if (sizeof($users) > 0 && sizeof($users[0]['usuarios_has_veiculos']) > 0) {
-                    //             $count = sizeof($users[0]['usuarios_has_veiculos']);
-                    //             $user = $users[0];
-                    //         } else {
-                    //             $count = 0;
-                    //             $user = [];
-                    //         }
-                    //     }
-                    // }
+                    $message = "";
+                } else {
+                    $error = true;
+                    $message = "O argumento de pesquisa deve ser maior que 3 caracteres!";
                 }
 
                 $arraySet = [
-                    'error',
-                    'count',
-                    'usuarios',
-                    'veiculoEncontrado'
+                    "error",
+                    "count",
+                    "message",
+                    "usuarios",
+                    "veiculoEncontrado"
                 ];
 
                 $this->set(compact($arraySet));

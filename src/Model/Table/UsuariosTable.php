@@ -849,26 +849,59 @@ class UsuariosTable extends GenericTable
      *
      * @return entity\usuario $usuario
      */
-    public function getUsuarioByCPF($cpf = null, array $where_conditions = [])
+    public function getUsuarioByCPF($cpf = null, int $redesId = null, array $clientesIds = array(), bool $filtrarPorFuncionarios = false, array $where_conditions = [])
     {
         try {
             $conditions = [];
 
-            foreach ($where_conditions as $condition) {
-                array_push($conditions, $condition);
+            $usuariosIds = array();
+
+            // Faz pesquisa por Id da rede se for informado.
+
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $clientesIds = $redeHasClienteTable->getClientesIdsFromRedesHasClientes($redesId);
             }
 
-            array_push(
-                $conditions,
-                [
-                    'cpf like ' => '%' . $this->cleanNumber($cpf) . '%'
-                ]
-            );
+            if (sizeof($clientesIds) > 0) {
+                $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
-            return $this->_getUsuarioTable()
+                $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
+
+                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere)->toArray();
+
+                foreach ($usuariosIdsQuery as $clienteHasUsuario) {
+                    $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
+                }
+            }
+
+            foreach ($where_conditions as $condition) {
+                $conditions[] = $condition;
+            }
+
+            if ($filtrarPorFuncionarios) {
+                $conditions[] = array(
+                    "tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
+                    "tipo_perfil < " => Configure::read("profileTypes")["UserProfileType"]
+                );
+            } else {
+                $conditions[] = array("tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]);
+            }
+
+            // Filtra pelos usuários (pois usou filtro da rede)
+            if (sizeof($usuariosIds) > 0) {
+                $conditions[] = array("id in " => $usuariosIds);
+            }
+
+            $conditions[] = array('cpf like ' => '%' . $this->cleanNumber($cpf) . '%');
+
+            $usuario = $this->_getUsuarioTable()
                 ->find('all')
                 ->where($conditions)
                 ->first();
+
+            return $usuario;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
