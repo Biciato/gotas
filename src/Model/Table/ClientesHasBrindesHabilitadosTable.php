@@ -326,6 +326,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         try {
             $whereConditions = [];
 
+            $whereConditions[] = ['ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL'];
             $whereConditions[] = ['ClientesHasBrindesHabilitados.habilitado' => true];
             $whereConditions[] = ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id];
 

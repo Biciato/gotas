@@ -2,6 +2,7 @@
 namespace App\Model\Table;
 
 use ArrayObject;
+use Exception;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Log\Log;
@@ -10,6 +11,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * GeneroBrindes Model
@@ -220,6 +222,39 @@ class GeneroBrindesTable extends GenericTable
             } else {
                 $generoBrindes = $generoBrindes->limit(999);
             }
+            return $generoBrindes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * GeneroBrindesTable::findGeneroBrindesAtribuirAutomaticamente
+     *
+     * Procura todos os Gêneros de Brindes que estão habilitados e que podem
+     * atribuir automaticamente para novas unidades de Redes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   26/06/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde[] $array de gêneros
+     */
+    public function findGeneroBrindesAtribuirAutomaticamente()
+    {
+        try {
+            $generoBrindes = $this->_getGeneroBrindeTable()
+                ->find('all')
+                ->where(
+                    array(
+                        "habilitado" => 1,
+                        "atribuir_automaticamente" => 1
+                    )
+                )->toArray();
+
             return $generoBrindes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();

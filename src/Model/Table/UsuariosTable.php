@@ -791,8 +791,13 @@ class UsuariosTable extends GenericTable
      *
      * @return entity\usuario $usuario
      */
-    public function getUsuarioByCPF($cpf = null, int $redesId = null, array $clientesIds = array(), bool $filtrarPorFuncionarios = false, array $where_conditions = [])
-    {
+    public function getUsuarioByCPF(
+        $cpf = null,
+        int $redesId = null,
+        array $clientesIds = array(),
+        bool $filtrarPorFuncionarios = false,
+        array $where_conditions = array()
+    ) {
         try {
             $conditions = [];
 

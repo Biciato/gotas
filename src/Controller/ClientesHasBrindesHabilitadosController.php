@@ -419,7 +419,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
             if ($status) {
                 if (!is_null($clienteHasBrindeHabilitado)) {
-                        /* estoque só deve ser criado para registro nas
+                    /* estoque só deve ser criado para registro nas
                      * seguintes situações.
                      *
                      * 1 - O Brinde está sendo vinculado a um cadastro de loja

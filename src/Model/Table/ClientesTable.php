@@ -269,6 +269,14 @@ class ClientesTable extends GenericTable
                 $redes_has_cliente->clientes_id = $cliente->id;
 
                 $result = $this->_getClientesTable()->RedeHasCliente->save($redes_has_cliente);
+
+                // Atribui os Gêneros de Brindes que são de atribuição automática
+
+                $generoBrindesTable = TableRegistry::get("GeneroBrindes");
+
+                // TODO: @gustavosg: continuar
+                $generoBrindes = $generoBrindesTable->findGeneroBrindesAtribuirAutomaticamente();
+
             }
 
             return $result;
