@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Database\Exception;
 use Cake\ORM\TableRegistry;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * GeneroBrindesClientes Controller
@@ -271,6 +272,33 @@ class GeneroBrindesClientesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
+    }
+
+    /**
+     * GeneroBrindesClientes::verDetalhes
+     *
+     * Action de visualizar detalhes
+     *
+     * @param integer $generoBrindesClienteId Id
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 06/06/2018
+     *
+     * @return void
+     */
+    public function verDetalhes(int $generoBrindesClienteId)
+    {
+        $generoBrindesClientes = $this->GeneroBrindesClientes->getGeneroBrindesClientesById($generoBrindesClienteId);
+
+        $cliente = $this->Clientes->getClienteById($generoBrindesClientes["clientes_id"]);
+
+        $arraySet = array(
+            "generoBrindesClientes",
+            "cliente"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

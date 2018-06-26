@@ -37,8 +37,9 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->Element("../GeneroBrindesClientes/left_menu", ["mode" => "view"]) ?>
+<?= $this->Element("../GeneroBrindesClientes/left_menu", ["mode" => "view", "clientesId" => $cliente["id"]]) ?>
 <div class="genero-brindes view col-lg-9 col-md-10 columns content">
     <legend><?= h($generoBrindesClientes->genero_brinde->nome) ?></legend>
-    <?= $this->Element("../GeneroBrindesClientes/tabela_info_genero_brinde", ["generoBrinde" => $generoBrinde]) ?>
+
+    <?= $this->Element("../GeneroBrindes/tabela_info_genero_brinde", ["generoBrinde" => $generoBrindesClientes["genero_brinde"]]) ?>
 </div>

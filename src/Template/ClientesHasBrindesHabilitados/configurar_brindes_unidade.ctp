@@ -85,7 +85,7 @@ echo $this->Breadcrumbs->render(
                                 false
                             )
                             ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <?php if ($brinde["brindeVinculado"]["habilitado"] == 0) : ?>
 
                                 <?=
@@ -151,7 +151,7 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                                     ),
                                     [
-                                        'action' => 'configurar_brinde',$brinde["brindeVinculado"]["id"]
+                                        'action' => 'configurar_brinde', $brinde["brindeVinculado"]["id"]
                                     ],
                                     [
                                         'title' => 'Configurar',

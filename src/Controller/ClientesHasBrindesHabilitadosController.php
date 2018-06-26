@@ -12,6 +12,7 @@ use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * clientes_has_brindes_habilitados Controller
@@ -382,29 +383,42 @@ class ClientesHasBrindesHabilitadosController extends AppController
             'ClientesHasBrindesHabilitados.id' => $brindes_id
         );
 
-        // verifica se o cliente tem o brinde habilitado
-        $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($whereConditions);
+        /**
+         * Verifica se a unidade do cliente tem o gênero configurado.
+         * Sem isso, não é possível continuar.
+         */
 
-        if (is_null($cliente_has_brinde_habilitado)) {
+        $brinde = $this->Brindes->getBrindesById($brindes_id);
+        $generoBrindesCliente = $this->GeneroBrindesClientes->getGeneroBrindesClientesByGeneroCliente($brinde["genero_brindes_id"], $clientes_id);
 
-            $brinde = $this->Brindes->getBrindesById($brindes_id);
+        if (empty($generoBrindesCliente)){
+            $this->Flash->error(__("{0} - {1}", Configure::read("messageEnableError"), "Unidade não possui Gênero de Brindes configurados!"));
 
-            $generoBrindesCliente = $this->GeneroBrindesClientes->getGeneroBrindesClientesByGeneroCliente($brinde["genero_brindes_id"], $clientes_id);
-
-            $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->newEntity();
-            $cliente_has_brinde_habilitado->brindes_id = $brindes_id;
-            $cliente_has_brinde_habilitado->clientes_id = $clientes_id;
+            return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
         }
 
-        $cliente_has_brinde_habilitado->habilitado = $status;
+        // verifica se o cliente tem o brinde habilitado
+        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($whereConditions);
 
-        if ($cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->save($cliente_has_brinde_habilitado)) {
+        if (is_null($clienteHasBrindeHabilitado)) {
+            $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
+            $clienteHasBrindeHabilitado->brindes_id = $brindes_id;
+            $clienteHasBrindeHabilitado->clientes_id = $clientes_id;
+            $clienteHasBrindeHabilitado->genero_brindes_clientes_id = $generoBrindesCliente["id"];
+        } else if (empty($clienteHasBrindeHabilitado["genero_brindes_clientes_id"])) {
+            // Atualiza o vínculo se estiver nulo
+            $clienteHasBrindeHabilitado->genero_brindes_clientes_id = $generoBrindesCliente["id"];
+        }
+
+        $clienteHasBrindeHabilitado->habilitado = $status;
+
+        if ($clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado)) {
             /* Se for true, verificar se é registro novo.
              * Se for, é necessário incluir novo preço, definir estoque
              */
 
             if ($status) {
-                if (!is_null($cliente_has_brinde_habilitado)) {
+                if (!is_null($clienteHasBrindeHabilitado)) {
                         /* estoque só deve ser criado para registro nas
                      * seguintes situações.
                      *
@@ -415,7 +429,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                      */
                     $brinde
                         = $this->Brindes->getBrindesById(
-                        $cliente_has_brinde_habilitado->brindes_id
+                        $clienteHasBrindeHabilitado->brindes_id
                     );
 
                     // debug($brinde);
@@ -423,20 +437,20 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     if (!$brinde->ilimitado) {
                         $estoque = $this->ClientesHasBrindesEstoque
                             ->getEstoqueForBrindeId(
-                                $cliente_has_brinde_habilitado->id,
+                                $clienteHasBrindeHabilitado->id,
                                 0
                             );
 
                         if (is_null($estoque)) {
                                 // Não tem estoque, criar novo registro vazio
-                            $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($cliente_has_brinde_habilitado->id, $this->user_logged['id'], 0, 0);
+                            $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->user_logged['id'], 0, 0);
                         }
                     }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
-                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id);
+                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
 
                     if (!isset($precos)) {
-                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($cliente_has_brinde_habilitado->id, $clientes_id, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
+                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientes_id, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
                     }
                 }
             }
@@ -446,8 +460,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->Flash->error(__(Configure::read('messageSavedError')));
         }
 
-        if ($status && strlen($cliente_has_brinde_habilitado->tipo_codigo_barras) == 0) {
-            return $this->redirect(['action' => 'configurar_tipo_emissao', $cliente_has_brinde_habilitado->id]);
+        if ($status && strlen($clienteHasBrindeHabilitado->tipo_codigo_barras) == 0) {
+            return $this->redirect(['action' => 'configurar_tipo_emissao', $clienteHasBrindeHabilitado->id]);
         }
 
         return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
