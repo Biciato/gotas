@@ -18,6 +18,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Clientes Model
@@ -273,19 +274,47 @@ class ClientesTable extends GenericTable
                 // Atribui os Gêneros de Brindes que são de atribuição automática
 
                 $generoBrindesTable = TableRegistry::get("GeneroBrindes");
+                $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
 
-                // TODO: @gustavosg: continuar
                 $generoBrindes = $generoBrindesTable->findGeneroBrindesAtribuirAutomaticamente();
+                $generoBrindesClientesArray = array();
 
+                foreach ($generoBrindes as $key => $generoBrinde) {
+                    $generoBrindesClientesArray[] = array(
+                        "genero_brindes_id" => $generoBrinde["id"],
+                        "clientes_id" => $cliente["id"],
+                        "tipo_principal_codigo_brinde" => $generoBrinde["tipo_principal_codigo_brinde_default"],
+                        "tipo_secundario_codigo_brinde" => $generoBrinde["tipo_secundario_codigo_brinde_default"],
+                        "habilitado" => 1
+                    );
+                }
+
+                // Só grava se teve itens no array
+                if (sizeof($generoBrindesClientesArray) > 0) {
+
+                    $generoBrindesClientesSave = $generoBrindesClientesTable->newEntities($generoBrindesClientesArray);
+
+                    // Gravação dos dados de gênero brindes
+                    $resultSave = $generoBrindesClientesTable->saveMany($generoBrindesClientesSave);
+
+                    if (!$resultSave) {
+                        Log::write("error", "Lista de Brindes para Gravar: ");
+                        Log::write("error", $generoBrindesClientesSave);
+
+                        throw new \Exception("Não foi possível salvar os gêneros de brindes ao cliente novo!");
+                    }
+                }
             }
 
             return $result;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            Log::write('error', "Erro ao inserir novo registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao inserir novo registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
-            return false;
+            Log::write('error', $stringError);
+
+            Log::write("error", $trace);
         }
     }
 

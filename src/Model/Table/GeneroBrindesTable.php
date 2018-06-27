@@ -251,7 +251,9 @@ class GeneroBrindesTable extends GenericTable
                 ->where(
                     array(
                         "habilitado" => 1,
-                        "atribuir_automaticamente" => 1
+                        "atribuir_automatico" => 1,
+                        "tipo_principal_codigo_brinde_default IS NOT NULL",
+                        "tipo_secundario_codigo_brinde_default IS NOT NULL"
                     )
                 )->toArray();
 
@@ -259,7 +261,7 @@ class GeneroBrindesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
