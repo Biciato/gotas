@@ -463,6 +463,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             // este relatório não precisa mostrar os brindes RTI Shower
 
+            // TODO: ajustar
             $whereConditions[] = ["brindes.equipamento_rti_shower" => false];
 
             foreach ($redesArrayIds as $key => $value) {

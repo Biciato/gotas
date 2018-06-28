@@ -214,7 +214,7 @@ class RedesHasClientesTable extends GenericTable
                 $clientesIds[] = $item["clientes_id"];
             }
 
-            return $clientesIds;
+            return $clientesIds[0];
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

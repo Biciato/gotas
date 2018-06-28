@@ -62,15 +62,15 @@ class Security
 
     /**
      * Security::checkUserIsRedeRouteAllowed
-     * 
-     * Verifica se usuário tem permissão de acesso à rede 
+     *
+     * Verifica se usuário tem permissão de acesso à rede
      *
      * @param array<Usuario> $user
-     * @param integer $redesId Id de rede 
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     * @param integer $redesId Id de rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/16
-     * 
+     *
      * @return bool
      */
     public function checkUserIsRedeRouteAllowed(array $user, int $redesId, $thisInstance)
@@ -92,7 +92,7 @@ class Security
 
     /**
      * Retorna associação entre usuário e cliente
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/15
      *
@@ -100,19 +100,8 @@ class Security
      **/
     public function checkUserIsClienteRouteAllowed($user, $clienteTable, $clienteHasUsuariosTable, array $clientesIds = array(), int $redesId = null)
     {
-        
-        // $hasAccess = !is_null(
-        //     $clienteHasUsuariosTable->findClienteHasUsuario(
-        //         [
-        //             'ClientesHasUsuarios.usuarios_id' => $user['id'],
-        //             'ClientesHasUsuarios.clientes_id' => $cliente->id,
-        //             'ClientesHasUsuarios.tipo_perfil' => $user['tipo_perfil'],
-        //         ]
-        //     )
-        // );
-
-        // Verifica se o usuário é um Administrador de Rede ou Administrador da RTI. Se for e tiver algum registro vinculado na pesquisa, 
-        // então possui acesso. 
+        // Verifica se o usuário é um Administrador de Rede ou Administrador da RTI. Se for e tiver algum registro vinculado na pesquisa,
+        // então possui acesso.
 
         // É Administrador RTI / Devel, retorna True
         if ($user["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
@@ -125,10 +114,9 @@ class Security
             // Pega o id de todos os clientes daquela rede
 
             $redesHasClientesTable = TableRegistry::get('RedesHasClientes');
-
             $redeHasClientes = $redesHasClientesTable->getAllRedesHasClientesIdsByRedesId($redesId);
-
             $temAcesso = 0;
+
             foreach ($redeHasClientes as $key => $redeHasCliente) {
                 foreach ($clientesIds as $key => $clienteId) {
                     if ($redeHasCliente["clientes_id"] == $clienteId) {
@@ -139,10 +127,10 @@ class Security
             }
 
             if (!$temAcesso) {
-                return false;
+                return 0;
             }
 
-            return true;
+            return 1;
         } else if ($user["tipo_perfil"] >= Configure::read("profileTypes")["AdminRegionalProfileType"]
             && $user["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) {
 

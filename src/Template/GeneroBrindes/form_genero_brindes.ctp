@@ -82,7 +82,7 @@ use Cake\Core\Configure;
         <?= $this->Form->button(
             __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
             [
-                'class' => 'btn btn-primary',
+                'class' => 'btn btn-primary save-button',
                 'escape' => false
             ]
         ) ?>

@@ -8,6 +8,9 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use App\Custom\RTI\DebugUtil;
+
+// DebugUtil::printArray($unidadesIds->toArray());
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
@@ -18,7 +21,8 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->element('../Brindes/left_menu', ['mode' => 'add', 'clientes_id' => $unidadesIds]) ?>
+
+<?= $this->element('../Brindes/left_menu', ['mode' => 'add']) ?>
 <div class="brindes index col-lg-9 col-md-10 columns content">
     <legend><?= __("Cadastro de Brindes da Rede") ?></legend>
 

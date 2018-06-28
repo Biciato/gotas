@@ -212,6 +212,12 @@ class CuponsTable extends GenericTable
 
             $generoBrindeCliente = $generoBrindeClienteTable->getGeneroBrindesClientesById($brindeHabilitado["genero_brindes_clientes_id"]);
 
+            /**
+             *  TODO: Deve ser feito a lógica de geração do cupom caso o brinde não seja lido por um equipamento rti
+             * Isto é, se for leitura por leitor comum, e não equipamento rti,
+             * o código pode ser usado conforme lógica antiga de brinde
+             */
+
             $tipoPrincipalCodigoBrinde = $generoBrindeCliente["tipo_principal_codigo_brinde"];
             $tipoSecundarioCodigoBrinde = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
 

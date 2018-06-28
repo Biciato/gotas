@@ -11,6 +11,7 @@ use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Gotas Controller
@@ -378,21 +379,21 @@ class GotasController extends AppController
     public function adicionarGota(int $cliente_id = null)
     {
         try {
-            
+
             $rede = $this->request->session()->read('Network.Main');
             $user_admin = $this->request->session()->read('User.RootLogged');
             $user_managed = $this->request->session()->read('User.ToManage');
-            
+
             if ($user_admin) {
                 $this->user_logged = $user_managed;
             }
-            
+
             // verifica se usuário é pelo menos administrador.
-            
+
             if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
-            // Verifica permissão do usuário na rede / unidade da rede 
+            // Verifica permissão do usuário na rede / unidade da rede
 
             $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
 

@@ -824,10 +824,6 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $whereConditions[] = ["brindes.nome like '%" . $data['nome'] . "%'"];
             }
 
-            if (strlen($data['equipamento_rti_shower']) > 0) {
-                $whereConditions[] = ["brindes.equipamento_rti_shower" => (bool)$data['equipamento_rti_shower']];
-            }
-
             if (strlen($data['ilimitado']) > 0) {
                 $whereConditions[] = ["brindes.ilimitado" => (bool)$data['ilimitado']];
             }
@@ -958,6 +954,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                 $clientes_id = $data['clientes_id'];
 
+                // TODO: Ajustar
                 $equipamento_rti_shower = $data['equipamento_rti_shower'] == 1 ? true : false;
 
                 $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);

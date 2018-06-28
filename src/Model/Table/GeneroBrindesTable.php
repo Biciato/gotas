@@ -180,8 +180,8 @@ class GeneroBrindesTable extends GenericTable
             $generoBrindesSave->brinde_necessidades_especiais = $generoBrindes["brinde_necessidades_especiais"];
             $generoBrindesSave->habilitado = $generoBrindes["habilitado"];
             $generoBrindesSave->atribuir_automatico = $generoBrindes["atribuir_automatico"];
-            $generoBrindesSave->tipo_principal_codigo_brinde_default = $generoBrindes["tipo_principal_codigo_brinde_default"];
-            $generoBrindesSave->tipo_secundario_codigo_brinde_default = $generoBrindes["tipo_secundario_codigo_brinde_default"];
+            $generoBrindesSave->tipo_principal_codigo_brinde_default = !empty($generoBrindes["tipo_principal_codigo_brinde_default"]) ? $generoBrindes["tipo_principal_codigo_brinde_default"] : null;
+            $generoBrindesSave->tipo_secundario_codigo_brinde_default = !empty($generoBrindes["tipo_secundario_codigo_brinde_default"]) ? $generoBrindes["tipo_secundario_codigo_brinde_default"] : null;
 
             return $this->_getGeneroBrindeTable()->save($generoBrindesSave);
         } catch (\Exception $e) {

@@ -13,6 +13,7 @@ use App\Custom\RTI\Security;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Brindes Controller
@@ -188,7 +189,7 @@ class BrindesController extends AppController
 
         $brindes = $this->paginate($brindes, ['limit' => 10]);
 
-        $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"]);
+        $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"])->toArray();
 
         $this->set(compact(['brindes', 'unidadesIds', 'unidade']));
         $this->set('_serialize', ['brindes', 'clientes_id', 'unidade']);
@@ -251,7 +252,7 @@ class BrindesController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarBrindeRede($clientesId)
+    public function adicionarBrindeRede()
     {
         $editMode = 0;
 
@@ -264,7 +265,7 @@ class BrindesController extends AppController
                 $this->user_logged = $user_managed;
             }
 
-            $clientesId = $clientesId;
+            $clientesId = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
             // verifica se usuário é pelo menos administrador.
 
@@ -297,8 +298,6 @@ class BrindesController extends AppController
                 if ($this->Brindes->findBrindesByName($brinde['nome'])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
-
-                    $brinde->ilimitado = $brinde->equipamento_rti_shower ? true : $brinde->ilimitado;
 
                     $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
@@ -647,10 +646,6 @@ class BrindesController extends AppController
 
             if (strlen($data['nome']) > 0) {
                 $whereConditions[] = ["nome like '%" . $data['nome'] . "%'"];
-            }
-
-            if (strlen($data['equipamento_rti_shower']) > 0) {
-                $whereConditions[] = ["equipamento_rti_shower" => (bool)$data['equipamento_rti_shower']];
             }
 
             if (strlen($data['ilimitado']) > 0) {
