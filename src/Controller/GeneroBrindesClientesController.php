@@ -392,7 +392,7 @@ class GeneroBrindesClientesController extends AppController
 
                         $redeHasClientesTable = TableRegistry::get("RedesHasClientes");
 
-                        $clientesIds[] = $redeHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+                        $clientesIds = $redeHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
 
 
                     } else if (!empty($clientesId)) {
@@ -406,9 +406,9 @@ class GeneroBrindesClientesController extends AppController
 
 
                     // TODO: Erro aqui!
-                    DebugUtil::printArray($generoBrindesIds);
-                    DebugUtil::printArray($clientesIds);
-                    $generoBrindesQuery = $this->GeneroBrindes->findGeneroBrindesByIds(array("id in " => $generoBrindesIds, "habilitado" => 1));
+                    // print_r($generoBrindesIds);
+                    // DebugUtil::printArray($clientesIds);
+                    $generoBrindesQuery = $this->GeneroBrindes->findGeneroBrindesByIds($generoBrindesIds);
                     DebugUtil::printArray($generoBrindesQuery);
 
                     $genero_brindes = array("count" => $generoBrindesQuery["count"], "data" => $generoBrindesQuery["data"]);

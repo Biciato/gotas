@@ -277,13 +277,14 @@ class GeneroBrindesClientesTable extends GenericTable
     public function findGeneroBrindesClienteByClientesIds(array $clientesIds = array())
     {
         try {
-            $generoBrindesClientes = $this->_getGeneroBrindeTable()
+
+            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
                 ->find('all')
                 ->where(
                     array(
                         "habilitado" => 1,
-                        "tipo_principal_codigo_brinde_default IS NOT NULL",
-                        "tipo_secundario_codigo_brinde_default IS NOT NULL",
+                        "tipo_principal_codigo_brinde IS NOT NULL",
+                        "tipo_secundario_codigo_brinde IS NOT NULL",
                         "clientes_id IN " => $clientesIds
                     )
                 )
@@ -298,8 +299,6 @@ class GeneroBrindesClientesTable extends GenericTable
             foreach ($generoBrindesClientes as $generoBrinde) {
                 $generoBrindesIds[] = $generoBrinde["genero_brindes_clientes_id"];
             }
-
-            DebugUtil::printArray($generoBrindesIds);
 
             return $generoBrindesIds;
         } catch (\Exception $e) {
