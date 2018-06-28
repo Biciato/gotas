@@ -131,6 +131,18 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
+        "GeneroBrindesClientes",
+        [
+            "map" => [
+                "getGeneroBrindesClienteAPI" => [
+                    "action" => "getGeneroBrindesClienteAPI",
+                    "method" => "POST",
+                    "path" => "/get_genero_brindes_cliente"
+                ]
+            ]
+        ]
+    );
+    $routes->resources(
         "Pontuacoes",
         [
             "map" => [

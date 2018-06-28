@@ -10,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * GeneroBrindesClientes Model
@@ -262,6 +263,56 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
+     * GeneroBrindesTable::findGeneroBrindesClienteByClientesIds
+     *
+     * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
+     *
+     * @param array $clientesIds Ids de clientes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 28/06/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     */
+    public function findGeneroBrindesClienteByClientesIds(array $clientesIds = array())
+    {
+        try {
+            $generoBrindesClientes = $this->_getGeneroBrindeTable()
+                ->find('all')
+                ->where(
+                    array(
+                        "habilitado" => 1,
+                        "tipo_principal_codigo_brinde_default IS NOT NULL",
+                        "tipo_secundario_codigo_brinde_default IS NOT NULL",
+                        "clientes_id IN " => $clientesIds
+                    )
+                )
+                ->select(array(
+                    "id",
+                    "genero_brindes_id"
+                ))
+                ->toArray();
+
+            $generoBrindesIds = array();
+
+            foreach ($generoBrindesClientes as $generoBrinde) {
+                $generoBrindesIds[] = $generoBrinde["genero_brindes_clientes_id"];
+            }
+
+            DebugUtil::printArray($generoBrindesIds);
+
+            return $generoBrindesIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    /**
      * GeneroBrindesClientesTable::getGeneroBrindesClientesById
      *
      * Obtem um item pelo Id
@@ -409,11 +460,11 @@ class GeneroBrindesClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\array[] $list
      */
-    public function getGenerosBrindesClientesVinculados(int $clientesId)
+    public function getGenerosBrindesClientesVinculados(array $clientesIds)
     {
         try {
             $generoBrindesIds = array();
-            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
+            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => $clientesIds]);
 
             foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
                 $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];

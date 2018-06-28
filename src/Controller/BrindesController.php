@@ -274,7 +274,7 @@ class BrindesController extends AppController
             }
             // Verifica permissão do usuário na rede / unidade da rede
 
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$clientesId], $rede["id"]);
+            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
 
             // Se não tem acesso, redireciona
             if (!$temAcesso) {

@@ -347,7 +347,91 @@ class GeneroBrindesClientesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
+    }
 
+    /**
+     * GeneroBrindesClientesController::getGeneroBrindesClienteAPI
+     *
+     * Obtem a lista de Gênero de Brindes vinculada a unidades da rede
+     *
+     * @param int $post["redesId"] Id da rede
+     * @param int $post["clientesId"] Id do cliente
+     *
+     * @explain: Um dos 2 tipos devem ser informados.
+     * A pesquisa é feita através de um deles, caso contrário retorna json de erro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   28/06/2018
+     *
+     * @return json object
+     */
+    public function getGeneroBrindesClienteAPI()
+    {
+        $messageString = null;
+        $status = false;
+
+        $mensagem = array();
+        $genero_brindes_cliente = array();
+
+        try {
+            if ($this->request->is(['post'])) {
+                $data = $this->request->getData();
+
+                $redesId = !empty($data["redes_id"]) && $data["redes_id"] > 0 ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientesId"]) && $data["clientesId"] > 0 ? $data["clientesId"] : null;
+
+                if (($redesId == null) && ($clientesId == null)) {
+
+                    $messageString = __("É necessário informar uma rede ou um posto de atendimento para continuar!");
+
+                } else {
+
+                    $clientesIds = array();
+                    if (!empty($redesId)) {
+                        // Pesquisa pelo id da rede
+
+                        $redeHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+                        $clientesIds[] = $redeHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+
+
+                    } else if (!empty($clientesId)) {
+                        // Pesquisa pelo id da rede
+                        $clientesIds[] = $clientesId;
+                    }
+
+                    // Com a lista de Clientes Ids obtida, faz a pesquisa
+
+                    $generoBrindesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIds($clientesIds);
+
+
+                    // TODO: Erro aqui!
+                    DebugUtil::printArray($generoBrindesIds);
+                    DebugUtil::printArray($clientesIds);
+                    $generoBrindesQuery = $this->GeneroBrindes->findGeneroBrindesByIds(array("id in " => $generoBrindesIds, "habilitado" => 1));
+                    DebugUtil::printArray($generoBrindesQuery);
+
+                    $genero_brindes = array("count" => $generoBrindesQuery["count"], "data" => $generoBrindesQuery["data"]);
+                }
+                $mensagem = ['status' => true, 'message' => $messageString];
+            }
+
+        } catch (\Exception $e) {
+            $messageString = __("Não foi possível obter dados de Redes e Pontuações!");
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $arraySet = [
+            'genero_brindes',
+            'mensagem'
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
 }

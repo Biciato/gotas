@@ -231,6 +231,61 @@ class GeneroBrindesTable extends GenericTable
             Log::write('error', $stringError);
         }
     }
+    /**
+     * GeneroBrindesTable::findGeneroBrindesClientes()
+     *
+     * Obtem Gênero de Brindes conforme condições passadas
+     *
+     * @param array $clientesIds Ids de clientes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 28/06/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde[] $generoBrindes Objetos da consulta
+     */
+    public function findGeneroBrindesByIds(array $ids = array(), array $orderConditions = array(), array $paginationConditions = array())
+    {
+        try {
+            $whereConditions = array(
+                "id in " => $ids,
+                "habilitado" => 1
+            );
+
+            $generoBrindes = $this->_getGeneroBrindeTable()->find("all")
+                ->where($whereConditions)
+                ->select(
+                    array(
+                        "id",
+                        "nome",
+                        "equipamento_rti",
+                        "brinde_necessidades_especiais",
+                        "habilitado",
+                    )
+                );
+
+            $count = $generoBrindes->count();
+
+            if (sizeof($orderConditions) > 0) {
+                $generoBrindes = $generoBrindes->order($orderConditions);
+            }
+
+            if (sizeof($paginationConditions) > 0) {
+                $generoBrindes = $generoBrindes->limit($paginationConditions["limit"])
+                    ->page($paginationConditions["page"]);
+            }
+
+            return array("count" => $count, "data" => $generoBrindes);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            $error = ['success' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
 
     /**
      * GeneroBrindesTable::findGeneroBrindesAtribuirAutomaticamente
@@ -266,4 +321,6 @@ class GeneroBrindesTable extends GenericTable
             Log::write('error', $stringError);
         }
     }
+
+
 }

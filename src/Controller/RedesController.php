@@ -574,7 +574,7 @@ class RedesController extends AppController
      * Obtem as redes que o usuário possui vínculo
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date   2018/05/13
+     * @date   13/05/2018
      *
      * @return json object
      */
