@@ -224,8 +224,8 @@ class GeneroBrindesClientesTable extends GenericTable
 
             $generoBrindesIds = array();
 
-            foreach ($generoBrindesClientes as $generoBrinde) {
-                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            foreach ($generoBrindesClientes as $generoBrindeCliente) {
+                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
             return $generoBrindesIds;
@@ -277,16 +277,14 @@ class GeneroBrindesClientesTable extends GenericTable
 
             $generoBrindesClientesIds = array();
 
-            foreach ($generoBrindesClientes as $generoBrinde) {
-                $generoBrindesClientesIds[] = $generoBrinde["id"];
+            foreach ($generoBrindesClientes as $generoBrindeCliente) {
+                $generoBrindesClientesIds[] = $generoBrindeCliente["id"];
             }
 
-            if (!is_null($generoBrindesId)) {
-                // Se especificou o gênero de brinde, só há um retorno
-                return $generoBrindesClientesIds[0];
-            } else {
-                return $generoBrindesClientesIds;
-            }
+            // DebugUtil::printArray($generoBrindesClientes, false);
+            // DebugUtil::printArray($generoBrindesClientesIds);
+
+            return $generoBrindesClientesIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -407,8 +405,8 @@ class GeneroBrindesClientesTable extends GenericTable
             $generoBrindesIds = array();
             $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
 
-            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
-                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
+                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
             $generoBrindes = $this->GeneroBrindes->find('list');
@@ -451,8 +449,8 @@ class GeneroBrindesClientesTable extends GenericTable
             $generoBrindesIds = array();
             $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => $clientesIds]);
 
-            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrinde) {
-                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
+            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
+                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
             $generoBrindes = $this->GeneroBrindes->find('list');

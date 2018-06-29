@@ -30,18 +30,23 @@ class DebugUtil
      * Exibe array em modo console formatado
      *
      * @param array $array Array a ser exibido
-     * @param boolean $die Interromper execução após exibição
+     * @param bool $die Interromper execução após exibição
+     * @param bool $formatted Exibe formatado
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date   24/06/2018
      *
      * @return void
      */
-    public static function printArray(array $array, bool $die = true)
+    public static function printArray(array $array, bool $die = true, bool $formatted = true)
     {
-        echo "<pre>";
-        print_r($array);
-        echo "</pre>";
+        if ($formatted) {
+            echo "<pre>";
+            print_r($array);
+            echo "</pre>";
+        } else {
+            print_r($array);
+        }
 
         if ($die) {
             die();
@@ -61,13 +66,15 @@ class DebugUtil
      *
      * @return void
      */
-    public static function printGeneric($item, bool $identify = true, bool $die = true)
+    public static function printGeneric($item, bool $identify = true, bool $die = true, bool $formatted = true)
     {
         if ($identify) {
+            echo gettype($item);
             if (gettype($item) == "array") {
-                self::printArray($item);
-            }
-            else if (gettype($item) == "integer"){
+                self::printArray($item, $die, $formatted);
+            } else if (gettype($item) == "object") {
+                self::printArray($item->toArray(), $die, $formatted);
+            } else if (gettype($item) == "integer") {
                 echo PHP_EOL;
                 echo $item;
                 echo PHP_EOL;

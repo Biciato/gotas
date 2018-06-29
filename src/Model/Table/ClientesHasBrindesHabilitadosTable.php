@@ -317,25 +317,38 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     /**
      * Obtêm todos os brindes de um cliente conforme tipo
      *
-     * @param int  $clientes_id            Id de CLiente
+     * @param int  $clientes_id Id de CLiente
+     * @param int $generoBrindesClientesIds Ids de Gênero
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
-    public function getAllGiftsClienteId(int $clientes_id, int $generoBrindesClientesId = null)
+    public function getAllGiftsClienteId(int $clientes_id, array $generoBrindesClientesIds = array(), array $filterGeneroBrindesClientesColumns = array())
     {
         try {
             $whereConditions = [];
 
-            $whereConditions[] = ['ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL'];
-            $whereConditions[] = ['ClientesHasBrindesHabilitados.habilitado' => true];
-            $whereConditions[] = ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id];
+            $whereConditions[] = array('ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL');
+            $whereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
+            $whereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientes_id);
+
+            if (isset($generoBrindesClientesIds) && sizeof($generoBrindesClientesIds) > 0) {
+                $whereConditions[] = array("genero_brindes_clientes_id in " => $generoBrindesClientesIds);
+            }
+
+            $containArray = array(
+                "Brindes",
+                "Clientes"
+            );
+            if (sizeof($filterGeneroBrindesClientesColumns)) {
+                $containArray["GeneroBrindesClientes"] = array("fields" => $filterGeneroBrindesClientesColumns);
+            } else {
+                $containArray[] = "GeneroBrindesClientes";
+            }
 
             $brindes = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                ->where($whereConditions)->contain(['Brindes', 'Clientes', "GeneroBrindesClientes"]);
+                ->where($whereConditions)->contain($containArray);
 
             $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-
-
             $brindes_array = [];
             foreach ($brindes as $key => $value) {
                 $value['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table->find('all')->where(

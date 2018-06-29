@@ -356,9 +356,7 @@ class GeneroBrindesController extends AppController
                 $clientesId = !empty($data["clientesId"]) && $data["clientesId"] > 0 ? $data["clientesId"] : null;
 
                 $whereConditions = array();
-
                 $orderConditions = array();
-
                 $paginationConditions = array();
 
                 if (isset($data["order_by"])) {

@@ -432,8 +432,6 @@ class ClientesHasBrindesHabilitadosController extends AppController
                         $clienteHasBrindeHabilitado->brindes_id
                     );
 
-                    // debug($brinde);
-                    // die();
                     if (!$brinde->ilimitado) {
                         $estoque = $this->ClientesHasBrindesEstoque
                             ->getEstoqueForBrindeId(
@@ -946,33 +944,46 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function getBrindesUnidadeAPI()
     {
-        $mensagem = [];
-
+        $mensagem = array();
         $brindes = null;
         $count = 0;
 
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
-
                 $clientesId = $data['clientes_id'];
-                $generoBrindesId = !empty($data["genero_brindes_id"]) ? (int)$data["genero_brindes_id"] : null;
+                $generoBrindesId = !empty($data["genero_brindes_id"]) ? $data["genero_brindes_id"] : null;
 
-                $generoBrindesClientesIds = array();
-                if (!is_null($generoBrindesId)) {
-                    // Pesquisa pelo Gênero Brindes Cliente para filtrar os brindes daquele gênero
+                $orderConditions = array();
+                $paginationConditions = array();
 
-                    $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
                 }
 
-                // @TODO: @gustavosg: Continuar ajustes
-                DebugUtil::printGeneric($generoBrindesClientesIds);
-                $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientesId, $generoBrindesClientesIds);
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
 
-                $brindes = $brindes_rti;
-                $count = sizeof($brindes_rti);
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
 
-                if (count($count) == 0) {
+                $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+
+                // Campos para retorno à API
+                $filterGeneroBrindesClientesColumns = array(
+                    "id",
+                    "genero_brindes_id",
+                    "clientes_id",
+                    "habilitado"
+                );
+
+                $brindes = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientesId, $generoBrindesClientesIds, $filterGeneroBrindesClientesColumns);
+
+                $count = sizeof($brindes);
+
+                if ($count == 0) {
                     $mensagem = ['status' => false, 'message' => __("Unidade não possui brindes para resgate!")];
                 } else {
                     $mensagem = ['status' => true, 'message' => null];
@@ -984,7 +995,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
             $messageString = __("Não foi possível obter dados de brindes da unidade selecionada!");
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
         }
 
         $arraySet = ['brindes', 'count', 'mensagem'];
