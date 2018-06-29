@@ -321,7 +321,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
-    public function getAllGiftsClienteId(int $clientes_id)
+    public function getAllGiftsClienteId(int $clientes_id, int $generoBrindesClientesId = null)
     {
         try {
             $whereConditions = [];

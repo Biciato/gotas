@@ -131,7 +131,7 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
-        "GeneroBrindesClientes",
+        "GeneroBrindes",
         [
             "map" => [
                 "getGeneroBrindesClienteAPI" => [

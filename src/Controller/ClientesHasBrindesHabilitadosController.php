@@ -391,7 +391,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $brinde = $this->Brindes->getBrindesById($brindes_id);
         $generoBrindesCliente = $this->GeneroBrindesClientes->getGeneroBrindesClientesByGeneroCliente($brinde["genero_brindes_id"], $clientes_id);
 
-        if (empty($generoBrindesCliente)){
+        if (empty($generoBrindesCliente)) {
             $this->Flash->error(__("{0} - {1}", Configure::read("messageEnableError"), "Unidade não possui Gênero de Brindes configurados!"));
 
             return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
@@ -936,6 +936,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
      *
      * Obtem todos os Brindes Habilitados de uma Unidade
      *
+     * @param $clientes_id Id da unidade que deseja adquirir o brinde
+     * @param $genero_brindes_id Id do gênero de brinde que deseja filtrar
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 23/04/2018
      *
@@ -952,12 +955,19 @@ class ClientesHasBrindesHabilitadosController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
-                $clientes_id = $data['clientes_id'];
+                $clientesId = $data['clientes_id'];
+                $generoBrindesId = !empty($data["genero_brindes_id"]) ? (int)$data["genero_brindes_id"] : null;
 
-                // TODO: Ajustar
-                $equipamento_rti_shower = $data['equipamento_rti_shower'] == 1 ? true : false;
+                $generoBrindesClientesIds = array();
+                if (!is_null($generoBrindesId)) {
+                    // Pesquisa pelo Gênero Brindes Cliente para filtrar os brindes daquele gênero
 
-                $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
+                    $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+                }
+
+                // @TODO: @gustavosg: Continuar ajustes
+                DebugUtil::printGeneric($generoBrindesClientesIds);
+                $brindes_rti = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientesId, $generoBrindesClientesIds);
 
                 $brindes = $brindes_rti;
                 $count = sizeof($brindes_rti);

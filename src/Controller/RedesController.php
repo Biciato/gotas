@@ -411,7 +411,7 @@ class RedesController extends AppController
     {
         $rede = $this->Redes->getRedeById($redes_id);
 
-        $unidades_ids = [];
+        $unidadesIds = [];
 
         $this->set(compact('rede'));
         $this->set('_serialize', ['rede']);
@@ -610,23 +610,23 @@ class RedesController extends AppController
                 $usuario = $this->Auth->user();
 
                 // id do usuário
-                $usuarios_id = $usuario['id'];
+                $usuariosId = $usuario['id'];
 
                 // localiza quais as unidades o usuário tem pontuacao
 
-                $unidadesIdsQuery = $this->PontuacoesComprovantes->getAllClientesIdFromCoupons(['usuarios_id' => $usuarios_id]);
+                $unidadesIdsQuery = $this->PontuacoesComprovantes->getAllClientesIdFromCoupons(['usuarios_id' => $usuariosId]);
 
-                $unidades_ids = [];
+                $unidadesIds = [];
 
                 foreach ($unidadesIdsQuery->toArray() as $key => $value) {
-                    $unidades_ids[] = $value->clientes_id;
+                    $unidadesIds[] = $value->clientes_id;
                 }
 
                 // obtem o id de redes através dos ids de clientes, de forma distinta
 
                 $redes_array = [];
-                if (sizeof($unidades_ids) > 0) {
-                    $redes_array = $this->RedesHasClientes->getRedesHasClientesByClientesIds($unidades_ids);
+                if (sizeof($unidadesIds) > 0) {
+                    $redes_array = $this->RedesHasClientes->getRedesHasClientesByClientesIds($unidadesIds);
 
                     $redes_array = $redes_array->toArray();
                 }
@@ -667,7 +667,7 @@ class RedesController extends AppController
                         foreach ($clientesIdsQuery as $key => $clientesIdsItem) {
                             $clientesIds[] = $clientesIdsItem->cliente_id;
                         }
-                        $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $unidades_ids);
+                        $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $unidadesIds);
 
                         $rede['soma_pontos'] = $soma_pontos;
 
@@ -766,14 +766,14 @@ class RedesController extends AppController
 
             $rede->nome_img = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
 
-            $unidades_ids = [];
+            $unidadesIds = [];
 
             // obtem os ids das unidades para saber quais brindes estão disponíveis
             foreach ($rede->redes_has_clientes as $key => $value) {
-                $unidades_ids[] = $value->clientes_id;
+                $unidadesIds[] = $value->clientes_id;
             }
 
-            $brindes = $this->Brindes->getBrindesByClientes($unidades_ids);
+            $brindes = $this->Brindes->getBrindesByClientes($unidadesIds);
 
             $rede['brindes'] = $brindes;
 

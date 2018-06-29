@@ -150,79 +150,7 @@ class GeneroBrindesClientesTable extends GenericTable
      * ---------------------------------------------------------------
      */
 
-    /* -------------------------- Create/Update ----------------------------- */
-
-    /**
-     * GeneroBrindesTable::saveGeneroBrindes()
-     *
-     * Salva/Atualiza um Gênero de Brinde
-     *
-     * @param array $generoBrindes
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 31/05/2018
-     *
-     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
-     */
-    public function saveGeneroBrindeCliente(array $generoBrindeCliente = array())
-    {
-        try {
-            $itemSave = null;
-
-            if (!empty($generoBrindeCliente["id"]) && $generoBrindeCliente["id"] > 0) {
-                $itemSave = $this->getGeneroBrindesClientesById($generoBrindeCliente["id"]);
-            } else {
-                $itemSave = $this->_getGeneroBrindesClientesTable()->newEntity();
-            }
-
-            $itemSave["genero_brindes_id"] = $generoBrindeCliente["genero_brindes_id"];
-            $itemSave["clientes_id"] = $generoBrindeCliente["clientes_id"];
-            $itemSave["tipo_principal_codigo_brinde"] = (int)$generoBrindeCliente["tipo_principal_codigo_brinde"];
-            $itemSave["tipo_secundario_codigo_brinde"] = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
-            $itemSave["habilitado"] = $generoBrindeCliente["habilitado"];
-
-            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
-
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-        }
-    }
-
-    /**
-     * GeneroBrindesClientesTable::updateHabilitadoGeneroBrindeCliente
-     *
-     * Undocumented function
-     *
-     * @param integer $id
-     * @param boolean $habilitado
-     * @return \App\Model\Entity\GeneroBrindesCliente Registro atualizado
-     */
-    public function updateHabilitadoGeneroBrindeCliente(int $id, bool $habilitado)
-    {
-        try {
-
-            if (empty($id) || $id == 0) {
-                throw new \Exception("Id não informado!");
-            }
-            $itemSave = $this->_getGeneroBrindesClientesTable()->get($id);
-
-            $itemSave["habilitado"] = $habilitado;
-
-            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao atualizar estado de gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-        }
-    }
-
-    /* -------------------------- Create/Update ----------------------------- */
+     /* -------------------------- Read ----------------------------- */
 
     /**
      * GeneroBrindesClientesTable::findGeneroBrindesClientes
@@ -297,10 +225,68 @@ class GeneroBrindesClientesTable extends GenericTable
             $generoBrindesIds = array();
 
             foreach ($generoBrindesClientes as $generoBrinde) {
-                $generoBrindesIds[] = $generoBrinde["genero_brindes_clientes_id"];
+                $generoBrindesIds[] = $generoBrinde["genero_brindes_id"];
             }
 
             return $generoBrindesIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    /**
+     * GeneroBrindesTable::findGeneroBrindesClienteByClientesIdGeneroBrindeId
+     *
+     * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
+     *
+     * @param array $clientesIds Ids de clientes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 28/06/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     */
+    public function findGeneroBrindesClienteByClientesIdGeneroBrindeId(int $clientesId, int $generoBrindesId = null)
+    {
+        try {
+
+            $whereConditions = array(
+                "habilitado" => 1,
+                "tipo_principal_codigo_brinde IS NOT NULL",
+                "tipo_secundario_codigo_brinde IS NOT NULL",
+                "clientes_id IN " => [$clientesId]
+            );
+
+            if (!empty($generoBrindesId) && ($generoBrindesId > 0)) {
+                $whereConditions[] = array("genero_brindes_id" => $generoBrindesId);
+            }
+
+            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
+                ->find('all')
+                ->where($whereConditions)
+                ->select(array(
+                    "id",
+                    "genero_brindes_id"
+                ))
+                ->toArray();
+
+            $generoBrindesClientesIds = array();
+
+            foreach ($generoBrindesClientes as $generoBrinde) {
+                $generoBrindesClientesIds[] = $generoBrinde["id"];
+            }
+
+            if (!is_null($generoBrindesId)) {
+                // Se especificou o gênero de brinde, só há um retorno
+                return $generoBrindesClientesIds[0];
+            } else {
+                return $generoBrindesClientesIds;
+            }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -490,6 +476,80 @@ class GeneroBrindesClientesTable extends GenericTable
         }
 
     }
+
+    /* -------------------------- Create/Update ----------------------------- */
+
+    /**
+     * GeneroBrindesTable::saveGeneroBrindes()
+     *
+     * Salva/Atualiza um Gênero de Brinde
+     *
+     * @param array $generoBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 31/05/2018
+     *
+     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     */
+    public function saveGeneroBrindeCliente(array $generoBrindeCliente = array())
+    {
+        try {
+            $itemSave = null;
+
+            if (!empty($generoBrindeCliente["id"]) && $generoBrindeCliente["id"] > 0) {
+                $itemSave = $this->getGeneroBrindesClientesById($generoBrindeCliente["id"]);
+            } else {
+                $itemSave = $this->_getGeneroBrindesClientesTable()->newEntity();
+            }
+
+            $itemSave["genero_brindes_id"] = $generoBrindeCliente["genero_brindes_id"];
+            $itemSave["clientes_id"] = $generoBrindeCliente["clientes_id"];
+            $itemSave["tipo_principal_codigo_brinde"] = (int)$generoBrindeCliente["tipo_principal_codigo_brinde"];
+            $itemSave["tipo_secundario_codigo_brinde"] = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
+            $itemSave["habilitado"] = $generoBrindeCliente["habilitado"];
+
+            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * GeneroBrindesClientesTable::updateHabilitadoGeneroBrindeCliente
+     *
+     * Undocumented function
+     *
+     * @param integer $id
+     * @param boolean $habilitado
+     * @return \App\Model\Entity\GeneroBrindesCliente Registro atualizado
+     */
+    public function updateHabilitadoGeneroBrindeCliente(int $id, bool $habilitado)
+    {
+        try {
+
+            if (empty($id) || $id == 0) {
+                throw new \Exception("Id não informado!");
+            }
+            $itemSave = $this->_getGeneroBrindesClientesTable()->get($id);
+
+            $itemSave["habilitado"] = $habilitado;
+
+            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao atualizar estado de gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+
 
     /* -------------------------- Delete ----------------------------- */
 

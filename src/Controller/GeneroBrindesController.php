@@ -317,4 +317,102 @@ class GeneroBrindesController extends AppController
 
         }
     }
+
+    /**
+     * --------------------------------------------------------------------------------
+     * Métodos de Serviços REST
+     * --------------------------------------------------------------------------------
+     */
+
+    /**
+     * GeneroBrindesClientesController::getGeneroBrindesClienteAPI
+     *
+     * Obtem a lista de Gênero de Brindes vinculada a unidades da rede
+     *
+     * @param int $post["redesId"] Id da rede
+     * @param int $post["clientesId"] Id do cliente
+     *
+     * @explain: Um dos 2 tipos devem ser informados.
+     * A pesquisa é feita através de um deles, caso contrário retorna json de erro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date   28/06/2018
+     *
+     * @return json object
+     */
+    public function getGeneroBrindesClienteAPI()
+    {
+        $messageString = null;
+        $status = false;
+
+        $mensagem = array();
+        $genero_brindes_cliente = array();
+
+        try {
+            if ($this->request->is(['post'])) {
+                $data = $this->request->getData();
+
+                $redesId = !empty($data["redes_id"]) && $data["redes_id"] > 0 ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientesId"]) && $data["clientesId"] > 0 ? $data["clientesId"] : null;
+
+                $whereConditions = array();
+
+                $orderConditions = array();
+
+                $paginationConditions = array();
+
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
+                }
+
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
+
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
+
+                if (($redesId == null) && ($clientesId == null)) {
+
+                    $messageString = __("É necessário informar uma rede ou um posto de atendimento para continuar!");
+
+                } else {
+
+                    $clientesIds = array();
+                    if (!empty($redesId)) {
+                        // Pesquisa pelo id da rede
+                        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+                    } else if (!empty($clientesId)) {
+                        // Pesquisa pelo id da rede
+                        $clientesIds[] = $clientesId;
+                    }
+                    // Com a lista de Clientes Ids obtida, faz a pesquisa
+
+                    $generoBrindesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIds($clientesIds);
+
+                    $generoBrindesQuery = $this->GeneroBrindes->findGeneroBrindesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
+
+                    $genero_brindes = array("count" => $generoBrindesQuery["count"], "data" => $generoBrindesQuery["data"]->toArray());
+                }
+                $mensagem = ['status' => true, 'message' => $messageString];
+            }
+
+        } catch (\Exception $e) {
+            $messageString = __("Não foi possível obter dados de Gênero de Brindes do Cliente!");
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $arraySet = [
+            'genero_brindes',
+            'mensagem'
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
 }
