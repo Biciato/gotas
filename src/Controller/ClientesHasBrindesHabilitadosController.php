@@ -377,12 +377,6 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->user_logged = $user_managed;
         }
 
-        // $this->request->allowMethod(['post']);
-
-        $whereConditions = array(
-            'ClientesHasBrindesHabilitados.id' => $brindes_id
-        );
-
         /**
          * Verifica se a unidade do cliente tem o gênero configurado.
          * Sem isso, não é possível continuar.
@@ -398,7 +392,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         }
 
         // verifica se o cliente tem o brinde habilitado
-        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($whereConditions);
+        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
 
         if (is_null($clienteHasBrindeHabilitado)) {
             $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();

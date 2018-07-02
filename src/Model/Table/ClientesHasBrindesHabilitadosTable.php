@@ -295,13 +295,20 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      **/
-    public function getBrindeHabilitadoByBrindeId(array $where_conditions = [])
+    public function getBrindeHabilitadoByBrindeId($id)
     {
         try {
-            $brinde = $this->_getClientesHasBrindesHabilitadosTable()->find('all')->where(
-                $where_conditions
-            )
-                ->contain(['Brindes'])->first();
+            $brinde = $this->_getClientesHasBrindesHabilitadosTable()
+                ->find('all')
+                ->where(
+                    array("ClientesHasBrindesHabilitados.id" => $id)
+                )->contain(
+                    array(
+                        'Brindes',
+                        'BrindeHabilitadoPrecoAtual'
+                    )
+                )
+                ->first();
 
             return $brinde;
         } catch (\Exception $e) {
@@ -309,6 +316,48 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
 
             Log::write('error', $stringError);
+
+            $this->Flash->error($stringError);
+        }
+    }
+
+    /**
+     * ClientesHasBrindesHabilitadosTable::getBrindeHabilitadoByBrindesIdClientesId
+     *
+     * Obtem Brinde Habilitado de um cliente pelo Brindes Id e Clientes Id
+     *
+     * @param integer $brindesId Id de brindes
+     * @param integer $clientesId Id de clientes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/07/2018
+     *
+     * @return App\Model\Entity\ClientesHasBrindesHabilitado
+     */
+    public function getBrindeHabilitadoByBrindesIdClientesId(int $brindesId, int $clientesId)
+    {
+        try {
+            $brinde = $this->_getClientesHasBrindesHabilitadosTable()->find('all')->where(
+                array(
+                    "ClientesHasBrindesHabilitados.brindes_id" => $brindesId,
+                    "ClientesHasBrindesHabilitados.clientes_id" => $clientesId
+                )
+            )
+                ->contain(
+                    array(
+                        "Brindes",
+                        "BrindeHabilitadoPrecoAtual"
+                    )
+                )->first();
+
+            return $brinde;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            // TODO: ajustar
+            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+            Log::write('error', $stringError);
+
+            Log::write("error", $trace);
 
             $this->Flash->error($stringError);
         }

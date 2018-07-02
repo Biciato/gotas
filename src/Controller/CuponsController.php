@@ -12,6 +12,7 @@ use Cake\Routing\Router;
 use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use \DateTime;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Cupons Controller
@@ -795,14 +796,14 @@ class CuponsController extends AppController
                             $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
                         }
 
-                    // ------------------------------------------------------------------------
-                    // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
-                    // ------------------------------------------------------------------------
+                        // ------------------------------------------------------------------------
+                        // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
+                        // ------------------------------------------------------------------------
                         if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
 
-                    // ------------------- Atualiza pontos à serem debitados -------------------
+                            // ------------------- Atualiza pontos à serem debitados -------------------
 
-                        /*
+                            /*
                              * Se há pontuação à debitar, devo verificar quais são as
                              * pontuações do usuário que serão utilizadas, para notificar
                              * quantos pontos ele possui que estão prestes à vencer
@@ -813,8 +814,8 @@ class CuponsController extends AppController
                             $can_continue = true;
                             $pontuacoes_pending_usage_save = [];
 
-                        // Obter pontos não utilizados totalmente
-                        // verifica se tem algum pendente para continuar o cálculo sobre ele
+                            // Obter pontos não utilizados totalmente
+                            // verifica se tem algum pendente para continuar o cálculo sobre ele
 
                             $pontuacao_pending_usage
                                 = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
@@ -893,13 +894,13 @@ class CuponsController extends AppController
                                 }
                             }
 
-                        // Atualiza todos os pontos do usuário
+                            // Atualiza todos os pontos do usuário
 
                             $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
 
-                        // ---------- Fim de atualiza pontos à serem debitados ----------
+                            // ---------- Fim de atualiza pontos à serem debitados ----------
 
-                        // Diminuir saldo de pontos do usuário
+                            // Diminuir saldo de pontos do usuário
                             $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                                 $cliente->id,
                                 $usuario->id,
@@ -916,7 +917,7 @@ class CuponsController extends AppController
                         }
 
                         if ($pontuacaoDebitar) {
-                        // Emitir Cupom e retornar
+                            // Emitir Cupom e retornar
 
                             $cupom = $this->Cupons->addCupomForUsuario(
                                 $brinde_habilitado->id,
@@ -926,7 +927,7 @@ class CuponsController extends AppController
                                 $quantidade
                             );
 
-                         // vincula item resgatado ao cliente final
+                            // vincula item resgatado ao cliente final
 
                             $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
                                 $usuario->id,
@@ -1491,27 +1492,52 @@ class CuponsController extends AppController
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
 
+            // Variávies de post
             $cliente = $this->Clientes->getClienteById($data['clientes_id']);
-
-            $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
-
-            $rede = $redesHasClientes->rede;
+            $brindesId = $data["brindes_id"];
+            $quantidade = isset($data["quantidade"]) ? $data["quantidade"] : 1;
+            $quantidade = $quantidade < 1 ? 1 : $quantidade;
 
             // pega id de todos os clientes que estão ligados à uma rede
+            $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
+            $rede = $redesHasClientes->rede;
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
-            $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
+            $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $cliente["id"]);
 
-            $clientes_ids = [];
+            // Se não encontrado, retorna vazio.
+            if (empty($brindeSelecionado)) {
 
-            foreach ($redes_has_clientes_query as $key => $value) {
-                $clientes_ids[] = $value['clientes_id'];
+                $mensagem = array(
+                    "status" => false,
+                    "message" => __("O cliente informado não possui o brinde desejado!"),
+                    "errors" => array()
+                );
+                $arraySet = array(
+                    "mensagem"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
+                $mensagem = array(
+                    "status" => false,
+                    "message" => __("Para Brindes do tipo banho, a quantidade deve ser 1!"),
+                    "errors" => array()
+                );
+
+                $arraySet = array(
+                    "mensagem"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+
             }
-
-            $array = [];
-
-            $clientes_id = $array;
-
-            $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
 
             $usuario = $this->Auth->user();
 
@@ -1520,17 +1546,18 @@ class CuponsController extends AppController
             $usuario['pontuacoes']
                 = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuario['id'],
-                $clientes_ids
+                $rede["id"],
+                $clientesIds
             );
 
             // Se o usuário tiver pontuações suficientes
-            if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco) {
+            if ($usuario->pontuacoes >= $brindeSelecionado->brinde_habilitado_preco_atual->preco * $quantidade) {
                 // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
 
                 $clientes_has_usuarios_conditions = [];
 
                 array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
-                array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
+                array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientesIds]);
 
                 if ($rede->permite_consumo_gotas_funcionarios) {
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
@@ -1542,7 +1569,7 @@ class CuponsController extends AppController
                 $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
                 if (is_null($cliente_usuario)) {
-                    $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"]);
                 }
 
                 // ------------------- Atualiza pontos à serem debitados -------------------
@@ -1553,7 +1580,7 @@ class CuponsController extends AppController
                  * quantos pontos ele possui que estão prestes à vencer
                  */
 
-                $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
+                $pontuacoes_to_process = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade;
 
                 $can_continue = true;
                 $pontuacoes_pending_usage_save = [];
@@ -1564,7 +1591,7 @@ class CuponsController extends AppController
                 $pontuacao_pending_usage
                     = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
                     $usuario->id,
-                    $clientes_ids,
+                    $clientesIds,
                     1,
                     null
                 );
@@ -1581,7 +1608,7 @@ class CuponsController extends AppController
                         ->Pontuacoes
                         ->getSumPontuacoesPendingToUsageByUsuario(
                             $usuario->id,
-                            $clientes_ids
+                            $clientesIds
                         );
 
                     $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
@@ -1592,7 +1619,7 @@ class CuponsController extends AppController
                         ->Pontuacoes
                         ->getPontuacoesPendentesForUsuario(
                             $usuario->id,
-                            $clientes_ids,
+                            $clientesIds,
                             10,
                             $last_id
                         );
@@ -1647,65 +1674,60 @@ class CuponsController extends AppController
                 $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                     $cliente->id,
                     $usuario->id,
-                    $brinde_habilitado->id,
-                    $brinde_habilitado->brinde_habilitado_preco_atual->preco
+                    $brindeSelecionado["id"],
+                    $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade
                 );
 
                 if ($pontuacaoDebitar) {
                     // Emitir Cupom e retornar
 
-                    // 1 - Masculino, 2 - Masculino PNE, 3 - Feminino, 4 - Feminino PNE
-                    // PNE = Portador de Necessidades Especiais
-                    $tipo_banho = null;
-
-                    // Masculino
-                    if ($data['sexo'] == 1) {
-                        $tipo_banho = 1;
-                    } else {
-                        // Feminino
-                        $tipo_banho = 3;
-                    }
-                    if ($data['necessidades_especiais']) {
-                        $tipo_banho = $tipo_banho + 1;
-                    }
-
                     $cupom = $this->Cupons->addCupomForUsuario(
-                        $brinde_habilitado->id,
+                        $brindeSelecionado["id"],
                         $cliente->id,
                         $usuario->id,
-                        $tipo_banho,
-                        $brinde_habilitado->brinde->tempo_rti_shower,
-                        $brinde_habilitado->brinde_habilitado_preco_atual->preco
+                        $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
+                        $quantidade
                     );
 
-                    // vincula item resgatado ao cliente final
+                     // vincula item resgatado ao cliente final
 
-                    $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
+                    $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
                         $usuario->id,
-                        $brinde_habilitado->id,
-                        1,
-                        $brinde_habilitado->brinde_habilitado_preco_atual->preco,
+                        $brindeSelecionado["id"],
+                        $quantidade,
+                        $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"],
                         $cupom->id
                     );
 
                     if ($cupom) {
-                        $mensagem = ['status' => true, 'message' => "Cupom resgatado com sucesso!"];
+                        $status = 'success';
                         $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
                         $ticket = $cupom;
+                        $message = null;
                     } else {
-                        $mensagem = ['status' => false, 'message' => "Houve um erro na geração do Ticket. Informe ao suporte."];
+                        $status = 'error';
+                        $message = "Houve um erro na geração do Ticket. Informe ao suporte.";
                     }
                 } else {
-                    $mensagem = ['status' => false, 'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."];
+                    $mensagem = array(
+                        'status' => false,
+                        'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+                    );
                 }
             } else {
-                $mensagem = ['status' => false, 'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."];
+                $mensagem = array(
+                    'status' => false,
+                    'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+                );
             }
-
             $ticket = $ticket;
+            $status = $status;
+            // TODO: Ajustar quais colunas serão obtidas do cliente
             $cliente = $cliente;
             $usuario = $usuario;
-            $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
+            $tempo = $brindeSelecionado->brinde->tempo_rti_shower;
+            $tipoEmissaoCodigoBarras = $brindeSelecionado["tipo_codigo_barras"];
+            $isBrindeSmartShower = $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
         }
 
         $arraySet = [
@@ -1714,7 +1736,8 @@ class CuponsController extends AppController
             'status',
             'cliente',
             'usuario',
-            'tempo'
+            'tempo',
+            'tipoEmissaoCodigoBarras',
         ];
 
         $this->set(compact($arraySet));

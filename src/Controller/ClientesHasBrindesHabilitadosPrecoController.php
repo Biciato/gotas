@@ -162,7 +162,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $novo_preco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
-        $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId(['ClientesHasBrindesHabilitados.id' => $brindes_id]);
+        $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
 
         // pega último preço autorizado
         $ultimo_preco_autorizado = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($brindes_id, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
