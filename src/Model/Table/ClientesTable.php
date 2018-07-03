@@ -496,20 +496,32 @@ class ClientesTable extends GenericTable
     /**
      * Obtem cliente pelo id
      *
+     * @param int $clientes_id Id de Cliente
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/08/2017
+     *
      * @return entity $cliente
-     * @author
+     *
      **/
-    public function getClienteById($clientes_id)
+    public function getClienteById($clientes_id, $selectFields = array())
     {
         try {
-            return $this->_getClientesTable()
+
+            $cliente = $this->_getClientesTable()
                 ->find('all')
                 ->where(
                     [
                         'Clientes.id' => $clientes_id
                     ]
-                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes'])
-                ->first();
+                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes']);
+
+            if (sizeof($selectFields) > 0) {
+                $cliente = $cliente->select($selectFields);
+            }
+
+            $cliente = $cliente->first();
+
+            return $cliente;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

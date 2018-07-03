@@ -1469,6 +1469,7 @@ class CuponsController extends AppController
         $ticket = null;
         $message = [];
         $cupom = null;
+        $arraySet = array();
 
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
@@ -1483,18 +1484,15 @@ class CuponsController extends AppController
 
             $retorno = $this->_trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, true);
 
-            DebugUtil::printArray($retorno);
-        }
+            $arraySet = $retorno["arraySet"];
 
-        $arraySet = [
-            'mensagem',
-            'ticket',
-            'status',
-            'cliente',
-            'usuario',
-            'tempo',
-            'tipoEmissaoCodigoBarras',
-        ];
+            $ticket = $retorno["ticket"];
+            $cliente = $retorno["cliente"];
+            $usuario = $retorno["usuario"];
+            $tempo = $retorno["tempo"];
+            $tipoEmissaoCodigoBarras = $retorno["tipoEmissaoCodigoBarras"];
+            $isBrindeSmartShower = $retorno["isBrindeSmartShower"];
+        }
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
@@ -2436,7 +2434,10 @@ class CuponsController extends AppController
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
         // TODO: trazer somente os campos necessários
-        $cliente = $this->Clientes->getClienteById($clientesId);
+        $listaCamposClienteSelect = array(
+
+        );
+        $cliente = $this->Clientes->getClienteById($clientesId, $listaCamposClienteSelect);
         $quantidade = is_null($quantidade) ? 1 : $quantidade;
         $quantidade = $quantidade < 1 ? 1 : $quantidade;
 
@@ -2726,7 +2727,6 @@ class CuponsController extends AppController
         $arraySet = [
             'mensagem',
             'ticket',
-            'status',
             'cliente',
             'usuario',
             'tempo',
