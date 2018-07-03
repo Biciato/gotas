@@ -1,18 +1,18 @@
 <?php
 namespace App\Controller;
 
+use \DateTime;
 use App\Controller\AppController;
+use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\Security;
 use Cake\Auth\DefaultPasswordHasher;
-use Cake\Core\Configure;
-use Cake\Log\Log;
 use Cake\Collection\Collection;
+use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Routing\Router;
+use Cake\Log\Log;
 use Cake\Mailer\Email;
+use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
-use \DateTime;
-use App\Custom\RTI\DebugUtil;
 
 /**
  * Cupons Controller
@@ -712,13 +712,7 @@ class CuponsController extends AppController
 
                 // pega id de todos os clientes que estão ligados à uma rede
 
-                $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
-
-                $clientes_ids = [];
-
-                foreach ($redes_has_clientes_query as $key => $value) {
-                    $clientes_ids[] = $value['clientes_id'];
-                }
+                $clientes_ids = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
                 $array = [];
 
@@ -727,22 +721,6 @@ class CuponsController extends AppController
                 $quantidade = isset($data['quantidade']) ? $data["quantidade"] : 1;
 
                 $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($data['brindes_id']);
-
-                // Se brinde não for banho e a quantidade é menos que um,
-                // valida e retorna mensagem de erro
-                if ($brinde_habilitado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] > 4 && $quantidade < 1) {
-                    $message = "Para Brindes que não são do tipo banho, a quantidade deve ser informada!";
-                    $status = 'error';
-                    $arraySet = [
-                        'message',
-                        'status',
-                    ];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
 
                 $contaAvulsa = $data["usuarios_id"] == "conta_avulsa";
 
@@ -761,23 +739,23 @@ class CuponsController extends AppController
 
                 // validação de senha do usuário
 
-                $senha_valida = false;
+                $senhaValida = false;
                 if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
                     if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
-                        $senha_valida = true;
+                        $senhaValida = true;
                     }
                 } else {
-                    $senha_valida = true;
+                    $senhaValida = true;
                 }
 
-                if ($senha_valida == false) {
+                if ($senhaValida == false) {
                     $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
                 } else {
 
-                // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
+                    // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
                     if ($usuario->pontuacoes >= $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
-                    // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
 
+                        // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
                         $clientes_has_usuarios_conditions = [];
 
                         array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
@@ -790,9 +768,9 @@ class CuponsController extends AppController
                             array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
                         }
 
-                        $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                        $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                        if (is_null($cliente_usuario)) {
+                        if (is_null($clientePossuiUsuario)) {
                             $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
                         }
 
@@ -809,15 +787,15 @@ class CuponsController extends AppController
                              * quantos pontos ele possui que estão prestes à vencer
                              */
 
-                            $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
+                            $pontuacoesProcessar = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
 
-                            $can_continue = true;
-                            $pontuacoes_pending_usage_save = [];
+                            $podeContinuar = true;
+                            $pontuacoesPendentesUsoListaSave = [];
 
                             // Obter pontos não utilizados totalmente
                             // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                            $pontuacao_pending_usage
+                            $pontuacaoPendenteUso
                                 = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
                                 $usuario->id,
                                 $clientes_ids,
@@ -825,42 +803,42 @@ class CuponsController extends AppController
                                 null
                             );
 
-                            if ($pontuacao_pending_usage) {
-                                $last_id = $pontuacao_pending_usage->id;
+                            if ($pontuacaoPendenteUso) {
+                                $ultimoId = $pontuacaoPendenteUso->id;
                             } else {
-                                $last_id = null;
+                                $ultimoId = null;
                             }
 
-                            if (!is_null($last_id)) {
+                            if (!is_null($ultimoId)) {
                                 // soma de pontos de todos os brindes usados
-                                $pontuacoes_brindes_used = $this
+                                $pontuacoesBrindesUsados = $this
                                     ->Pontuacoes
                                     ->getSumPontuacoesPendingToUsageByUsuario(
                                         $usuario->id,
                                         $clientes_ids
                                     );
 
-                                $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                                $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                             }
 
-                            while ($can_continue) {
-                                $pontuacoes_pending_usage = $this
+                            while ($podeContinuar) {
+                                $pontuacoesPendentesUso = $this
                                     ->Pontuacoes
                                     ->getPontuacoesPendentesForUsuario(
                                         $usuario->id,
                                         $clientes_ids,
                                         10,
-                                        $last_id
+                                        $ultimoId
                                     );
 
-                                $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                                $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
-                                $count = 0;
-                                foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                                    if ($pontuacoes_to_process >= 0) {
-                                        if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                                $contador = 0;
+                                foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                                    if ($pontuacoesProcessar >= 0) {
+                                        if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                             array_push(
-                                                $pontuacoes_pending_usage_save,
+                                                $pontuacoesPendentesUsoListaSave,
                                                 [
                                                     'id' => $pontuacao->id,
                                                     'utilizado' => 2
@@ -868,7 +846,7 @@ class CuponsController extends AppController
                                             );
                                         } else {
                                             array_push(
-                                                $pontuacoes_pending_usage_save,
+                                                $pontuacoesPendentesUsoListaSave,
                                                 [
                                                     'id' => $pontuacao->id,
                                                     'utilizado' => 1
@@ -876,18 +854,18 @@ class CuponsController extends AppController
                                             );
                                         }
                                     }
-                                    $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                                    $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao->quantidade_gotas;
 
-                                    $last_id = $pontuacao->id;
+                                    $ultimoId = $pontuacao->id;
 
-                                    $count = $count + 1;
+                                    $contador = $contador + 1;
 
-                                    if ($count == $max_count) {
-                                        $last_id = $pontuacao->id + 1;
+                                    if ($contador == $maximoContador) {
+                                        $ultimoId = $pontuacao->id + 1;
                                     }
 
-                                    if ($pontuacoes_to_process <= 0) {
-                                        $can_continue = false;
+                                    if ($pontuacoesProcessar <= 0) {
+                                        $podeContinuar = false;
                                         break;
                                     }
                                     break;
@@ -896,7 +874,7 @@ class CuponsController extends AppController
 
                             // Atualiza todos os pontos do usuário
 
-                            $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                            $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
 
                             // ---------- Fim de atualiza pontos à serem debitados ----------
 
@@ -911,7 +889,7 @@ class CuponsController extends AppController
 
                         }
 
-                    // Se for venda avulsa, considera que tem que debitar pontos
+                        // Se for venda avulsa, considera que tem que debitar pontos
                         if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
                             $pontuacaoDebitar = true;
                         }
@@ -1011,6 +989,7 @@ class CuponsController extends AppController
      * Web-service para imprimir brinde comum
      *
      * @return json object
+     * @deprecated 1.0
      */
     public function geraBrindeComumAjax()
     {
@@ -1060,17 +1039,17 @@ class CuponsController extends AppController
 
             // validação de senha do usuário
 
-            $senha_valida = false;
+            $senhaValida = false;
 
             if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
                 if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
-                    $senha_valida = true;
+                    $senhaValida = true;
                 }
             } else {
-                $senha_valida = true;
+                $senhaValida = true;
             }
 
-            if ($senha_valida == false) {
+            if ($senhaValida == false) {
                 $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
             } else {
 
@@ -1091,9 +1070,9 @@ class CuponsController extends AppController
                         array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
                     }
 
-                    $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                    $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                    if (is_null($cliente_usuario)) {
+                    if (is_null($clientePossuiUsuario)) {
                         $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
                     }
 
@@ -1110,15 +1089,15 @@ class CuponsController extends AppController
                          * quantos pontos ele possui que estão prestes à vencer
                          */
 
-                        $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
+                        $pontuacoesProcessar = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
 
-                        $can_continue = true;
-                        $pontuacoes_pending_usage_save = [];
+                        $podeContinuar = true;
+                        $pontuacoesPendentesUsoListaSave = [];
 
                     // Obter pontos não utilizados totalmente
                     // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                        $pontuacao_pending_usage = $this
+                        $pontuacaoPendenteUso = $this
                             ->Pontuacoes
                             ->getPontuacoesPendentesForUsuario(
                                 $usuario->id,
@@ -1127,42 +1106,42 @@ class CuponsController extends AppController
                                 null
                             );
 
-                        if ($pontuacao_pending_usage) {
-                            $last_id = $pontuacao_pending_usage->id;
+                        if ($pontuacaoPendenteUso) {
+                            $ultimoId = $pontuacaoPendenteUso->id;
                         } else {
-                            $last_id = null;
+                            $ultimoId = null;
                         }
 
-                        if (!is_null($last_id)) {
+                        if (!is_null($ultimoId)) {
                         // soma de pontos de todos os brindes usados
-                            $pontuacoes_brindes_used = $this
+                            $pontuacoesBrindesUsados = $this
                                 ->Pontuacoes
                                 ->getSumPontuacoesPendingToUsageByUsuario(
                                     $usuario->id,
                                     $clientes_ids
                                 );
 
-                            $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                            $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                         }
 
-                        while ($can_continue) {
-                            $pontuacoes_pending_usage = $this
+                        while ($podeContinuar) {
+                            $pontuacoesPendentesUso = $this
                                 ->Pontuacoes
                                 ->getPontuacoesPendentesForUsuario(
                                     $usuario->id,
                                     $clientes_ids,
                                     10,
-                                    $last_id
+                                    $ultimoId
                                 );
 
-                            $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                            $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
-                            $count = 0;
-                            foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                                if ($pontuacoes_to_process >= 0) {
-                                    if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                            $contador = 0;
+                            foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                                if ($pontuacoesProcessar >= 0) {
+                                    if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                         array_push(
-                                            $pontuacoes_pending_usage_save,
+                                            $pontuacoesPendentesUsoListaSave,
                                             [
                                                 'id' => $pontuacao->id,
                                                 'utilizado' => 2
@@ -1170,7 +1149,7 @@ class CuponsController extends AppController
                                         );
                                     } else {
                                         array_push(
-                                            $pontuacoes_pending_usage_save,
+                                            $pontuacoesPendentesUsoListaSave,
                                             [
                                                 'id' => $pontuacao->id,
                                                 'utilizado' => 1
@@ -1178,18 +1157,18 @@ class CuponsController extends AppController
                                         );
                                     }
                                 }
-                                $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                                $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao->quantidade_gotas;
 
-                                $last_id = $pontuacao->id;
+                                $ultimoId = $pontuacao->id;
 
-                                $count = $count + 1;
+                                $contador = $contador + 1;
 
-                                if ($count == $max_count) {
-                                    $last_id = $pontuacao->id + 1;
+                                if ($contador == $maximoContador) {
+                                    $ultimoId = $pontuacao->id + 1;
                                 }
 
-                                if ($pontuacoes_to_process <= 0) {
-                                    $can_continue = false;
+                                if ($pontuacoesProcessar <= 0) {
+                                    $podeContinuar = false;
                                     break;
                                 }
                             }
@@ -1197,7 +1176,7 @@ class CuponsController extends AppController
 
                         // Atualiza todos os pontos do usuário
 
-                        $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                        $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
 
                         // ---------- Fim de atualiza pontos à serem debitados ----------
 
@@ -1291,12 +1270,12 @@ class CuponsController extends AppController
             // validação de senha do usuário
             $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
 
-            $senha_valida = false;
+            $senhaValida = false;
             if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
-                $senha_valida = true;
+                $senhaValida = true;
             }
 
-            if ($senha_valida == false) {
+            if ($senhaValida == false) {
                 $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
             } else {
                 $cliente = $this->Clientes->getClienteById($data['clientes_id']);
@@ -1468,6 +1447,8 @@ class CuponsController extends AppController
      * ------------------------------------------------------------------
      */
 
+    #region Métodos de API
+
     /**
      * CuponsController::resgatarCupomAPI
      *
@@ -1483,6 +1464,59 @@ class CuponsController extends AppController
      * @return json object
      */
     public function resgatarCupomAPI()
+    {
+        $result = null;
+        $ticket = null;
+        $message = [];
+        $cupom = null;
+
+        if ($this->request->is(['post'])) {
+            $data = $this->request->getData();
+
+            $brindesId = $data["brindes_id"];
+            $usuario = $this->Auth->user();
+            $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
+            $usuariosId = $usuario["id"];
+            $clientesId = $data["clientes_id"];
+            $quantidade = $data["quantidade"];
+            $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
+
+            $retorno = $this->_trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, true);
+
+            DebugUtil::printArray($retorno);
+        }
+
+        $arraySet = [
+            'mensagem',
+            'ticket',
+            'status',
+            'cliente',
+            'usuario',
+            'tempo',
+            'tipoEmissaoCodigoBarras',
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    #endregion
+
+    /**
+     * CuponsController::resgatarCupomAPI
+     *
+     * Serviço REST que resgata um cupom de brinde
+     *
+     * @param int $clientes_id
+     * @param int $brindes_id
+     * @param int $quantidade
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 29/06/2018
+     *
+     * @return json object
+     */
+    public function resgatarCupomBackupAPI()
     {
         $result = null;
         $ticket = null;
@@ -1566,9 +1600,9 @@ class CuponsController extends AppController
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
                 }
 
-                $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                if (is_null($cliente_usuario)) {
+                if (is_null($clientePossuiUsuario)) {
                     $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"]);
                 }
 
@@ -1580,15 +1614,15 @@ class CuponsController extends AppController
                  * quantos pontos ele possui que estão prestes à vencer
                  */
 
-                $pontuacoes_to_process = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade;
+                $pontuacoesProcessar = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade;
 
-                $can_continue = true;
-                $pontuacoes_pending_usage_save = [];
+                $podeContinuar = true;
+                $pontuacoesPendentesUsoListaSave = [];
 
                 // Obter pontos não utilizados totalmente
                 // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                $pontuacao_pending_usage
+                $pontuacaoPendenteUso
                     = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
                     $usuario->id,
                     $clientesIds,
@@ -1596,42 +1630,42 @@ class CuponsController extends AppController
                     null
                 );
 
-                if ($pontuacao_pending_usage) {
-                    $last_id = $pontuacao_pending_usage->id;
+                if ($pontuacaoPendenteUso) {
+                    $ultimoId = $pontuacaoPendenteUso->id;
                 } else {
-                    $last_id = null;
+                    $ultimoId = null;
                 }
 
-                if (!is_null($last_id)) {
+                if (!is_null($ultimoId)) {
                     // soma de pontos de todos os brindes usados
-                    $pontuacoes_brindes_used = $this
+                    $pontuacoesBrindesUsados = $this
                         ->Pontuacoes
                         ->getSumPontuacoesPendingToUsageByUsuario(
                             $usuario->id,
                             $clientesIds
                         );
 
-                    $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                    $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                 }
 
-                while ($can_continue) {
-                    $pontuacoes_pending_usage = $this
+                while ($podeContinuar) {
+                    $pontuacoesPendentesUso = $this
                         ->Pontuacoes
                         ->getPontuacoesPendentesForUsuario(
                             $usuario->id,
                             $clientesIds,
                             10,
-                            $last_id
+                            $ultimoId
                         );
 
-                    $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                    $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
-                    $count = 0;
-                    foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                        if ($pontuacoes_to_process >= 0) {
-                            if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                    $contador = 0;
+                    foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                        if ($pontuacoesProcessar >= 0) {
+                            if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 2
@@ -1639,7 +1673,7 @@ class CuponsController extends AppController
                                 );
                             } else {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 1
@@ -1647,18 +1681,18 @@ class CuponsController extends AppController
                                 );
                             }
                         }
-                        $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                        $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao->quantidade_gotas;
 
-                        $last_id = $pontuacao->id;
+                        $ultimoId = $pontuacao->id;
 
-                        $count = $count + 1;
+                        $contador = $contador + 1;
 
-                        if ($count == $max_count) {
-                            $last_id = $pontuacao->id + 1;
+                        if ($contador == $maximoContador) {
+                            $ultimoId = $pontuacao->id + 1;
                         }
 
-                        if ($pontuacoes_to_process <= 0) {
-                            $can_continue = false;
+                        if ($pontuacoesProcessar <= 0) {
+                            $podeContinuar = false;
                             break;
                         }
                     }
@@ -1666,7 +1700,7 @@ class CuponsController extends AppController
 
                 // Atualiza todos os pontos do usuário
 
-                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
 
                 // ---------- Fim de atualiza pontos à serem debitados ----------
 
@@ -1807,9 +1841,9 @@ class CuponsController extends AppController
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
                 }
 
-                $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                if (is_null($cliente_usuario)) {
+                if (is_null($clientePossuiUsuario)) {
                     $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
                 }
 
@@ -1821,15 +1855,15 @@ class CuponsController extends AppController
                  * quantos pontos ele possui que estão prestes à vencer
                  */
 
-                $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
+                $pontuacoesProcessar = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
 
-                $can_continue = true;
-                $pontuacoes_pending_usage_save = [];
+                $podeContinuar = true;
+                $pontuacoesPendentesUsoListaSave = [];
 
                 // Obter pontos não utilizados totalmente
                 // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                $pontuacao_pending_usage
+                $pontuacaoPendenteUso
                     = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
                     $usuario->id,
                     $clientes_ids,
@@ -1837,42 +1871,42 @@ class CuponsController extends AppController
                     null
                 );
 
-                if ($pontuacao_pending_usage) {
-                    $last_id = $pontuacao_pending_usage->id;
+                if ($pontuacaoPendenteUso) {
+                    $ultimoId = $pontuacaoPendenteUso->id;
                 } else {
-                    $last_id = null;
+                    $ultimoId = null;
                 }
 
-                if (!is_null($last_id)) {
+                if (!is_null($ultimoId)) {
                     // soma de pontos de todos os brindes usados
-                    $pontuacoes_brindes_used = $this
+                    $pontuacoesBrindesUsados = $this
                         ->Pontuacoes
                         ->getSumPontuacoesPendingToUsageByUsuario(
                             $usuario->id,
                             $clientes_ids
                         );
 
-                    $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                    $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                 }
 
-                while ($can_continue) {
-                    $pontuacoes_pending_usage = $this
+                while ($podeContinuar) {
+                    $pontuacoesPendentesUso = $this
                         ->Pontuacoes
                         ->getPontuacoesPendentesForUsuario(
                             $usuario->id,
                             $clientes_ids,
                             10,
-                            $last_id
+                            $ultimoId
                         );
 
-                    $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                    $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
-                    $count = 0;
-                    foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                        if ($pontuacoes_to_process >= 0) {
-                            if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                    $contador = 0;
+                    foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                        if ($pontuacoesProcessar >= 0) {
+                            if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 2
@@ -1880,7 +1914,7 @@ class CuponsController extends AppController
                                 );
                             } else {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 1
@@ -1888,18 +1922,18 @@ class CuponsController extends AppController
                                 );
                             }
                         }
-                        $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                        $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao->quantidade_gotas;
 
-                        $last_id = $pontuacao->id;
+                        $ultimoId = $pontuacao->id;
 
-                        $count = $count + 1;
+                        $contador = $contador + 1;
 
-                        if ($count == $max_count) {
-                            $last_id = $pontuacao->id + 1;
+                        if ($contador == $maximoContador) {
+                            $ultimoId = $pontuacao->id + 1;
                         }
 
-                        if ($pontuacoes_to_process <= 0) {
-                            $can_continue = false;
+                        if ($pontuacoesProcessar <= 0) {
+                            $podeContinuar = false;
                             break;
                         }
                     }
@@ -1907,7 +1941,7 @@ class CuponsController extends AppController
 
                 // Atualiza todos os pontos do usuário
 
-                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
 
                 // ---------- Fim de atualiza pontos à serem debitados ----------
 
@@ -2056,9 +2090,9 @@ class CuponsController extends AppController
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
                 }
 
-                $cliente_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+                $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
-                if (is_null($cliente_usuario)) {
+                if (is_null($clientePossuiUsuario)) {
                     $this->ClientesHasUsuarios->addNewClienteHasUsuario($cliente->matriz_id, $cliente->id, $usuario->id);
                 }
 
@@ -2070,15 +2104,15 @@ class CuponsController extends AppController
                  * quantos pontos ele possui que estão prestes à vencer
                  */
 
-                $pontuacoes_to_process = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
+                $pontuacoesProcessar = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
 
-                $can_continue = true;
-                $pontuacoes_pending_usage_save = [];
+                $podeContinuar = true;
+                $pontuacoesPendentesUsoListaSave = [];
 
                     // Obter pontos não utilizados totalmente
                     // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                $pontuacao_pending_usage = $this
+                $pontuacaoPendenteUso = $this
                     ->Pontuacoes
                     ->getPontuacoesPendentesForUsuario(
                         $usuario->id,
@@ -2087,42 +2121,42 @@ class CuponsController extends AppController
                         null
                     );
 
-                if ($pontuacao_pending_usage) {
-                    $last_id = $pontuacao_pending_usage->id;
+                if ($pontuacaoPendenteUso) {
+                    $ultimoId = $pontuacaoPendenteUso->id;
                 } else {
-                    $last_id = null;
+                    $ultimoId = null;
                 }
 
-                if (!is_null($last_id)) {
+                if (!is_null($ultimoId)) {
                         // soma de pontos de todos os brindes usados
-                    $pontuacoes_brindes_used = $this
+                    $pontuacoesBrindesUsados = $this
                         ->Pontuacoes
                         ->getSumPontuacoesPendingToUsageByUsuario(
                             $usuario->id,
                             $clientes_ids
                         );
 
-                    $pontuacoes_to_process = $pontuacoes_to_process + $pontuacoes_brindes_used;
+                    $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                 }
 
-                while ($can_continue) {
-                    $pontuacoes_pending_usage = $this
+                while ($podeContinuar) {
+                    $pontuacoesPendentesUso = $this
                         ->Pontuacoes
                         ->getPontuacoesPendentesForUsuario(
                             $usuario->id,
                             $clientes_ids,
                             10,
-                            $last_id
+                            $ultimoId
                         );
 
-                    $max_count = sizeof($pontuacoes_pending_usage->toArray());
+                    $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
-                    $count = 0;
-                    foreach ($pontuacoes_pending_usage as $key => $pontuacao) {
-                        if ($pontuacoes_to_process >= 0) {
-                            if ($pontuacoes_to_process >= $pontuacao->quantidade_gotas) {
+                    $contador = 0;
+                    foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                        if ($pontuacoesProcessar >= 0) {
+                            if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 2
@@ -2130,7 +2164,7 @@ class CuponsController extends AppController
                                 );
                             } else {
                                 array_push(
-                                    $pontuacoes_pending_usage_save,
+                                    $pontuacoesPendentesUsoListaSave,
                                     [
                                         'id' => $pontuacao->id,
                                         'utilizado' => 1
@@ -2138,18 +2172,18 @@ class CuponsController extends AppController
                                 );
                             }
                         }
-                        $pontuacoes_to_process = $pontuacoes_to_process - $pontuacao->quantidade_gotas;
+                        $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao->quantidade_gotas;
 
-                        $last_id = $pontuacao->id;
+                        $ultimoId = $pontuacao->id;
 
-                        $count = $count + 1;
+                        $contador = $contador + 1;
 
-                        if ($count == $max_count) {
-                            $last_id = $pontuacao->id + 1;
+                        if ($contador == $maximoContador) {
+                            $ultimoId = $pontuacao->id + 1;
                         }
 
-                        if ($pontuacoes_to_process <= 0) {
-                            $can_continue = false;
+                        if ($pontuacoesProcessar <= 0) {
+                            $podeContinuar = false;
                             break;
                         }
                     }
@@ -2157,7 +2191,7 @@ class CuponsController extends AppController
 
                 // Atualiza todos os pontos do usuário
 
-                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoes_pending_usage_save);
+                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
 
                 // ---------- Fim de atualiza pontos à serem debitados ----------
 
@@ -2371,11 +2405,347 @@ class CuponsController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+    #region Métodos Comuns
+
+
     /**
-     * ---------------------------------------------
-     * Métodos da classe
-     * ---------------------------------------------
+     * CuponsController::trataCompraCupom
+     *
+     * Realiza o tratamento de compra de um Cupom
+     *
+     * @param integer $brindesId Id de Brinde
+     * @param integer $usuariosId Id de Usuários
+     * @param integer $clientesId Id da Unidade do Posto
+     * @param float $quantidade Quantidade do brinde
+     * @param integer $funcionariosId Id de Funcionários (se a compra for feita via dashboard de funcionário)
+     * @param bool $usuarioAvulso Indica se é usuário avulso no sistema
+     * @param bool $usoViaMobile Indica se o método é chamado via Mobile ou via Web
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 03/07/2018
+     *
+     * @return array $dados Tratados
      */
+    private function _trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $usuarioAvulso = false, bool $usoViaMobile = false)
+    {
+        $retorno = array();
+
+        // pega id de todos os clientes que estão ligados à uma rede
+        $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+        $rede = $redesHasClientes->rede;
+        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+
+        // TODO: trazer somente os campos necessários
+        $cliente = $this->Clientes->getClienteById($clientesId);
+        $quantidade = is_null($quantidade) ? 1 : $quantidade;
+        $quantidade = $quantidade < 1 ? 1 : $quantidade;
+
+        $usuario = $this->Usuarios->getUsuarioById($usuariosId);
+
+        /**
+         * Validação de senha do usuário
+         * Só deve ocorrer se não for via mobile.
+         */
+
+        $senhaValida = false;
+        if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType'] && !$usoViaMobile) {
+            if ((new DefaultPasswordHasher)->check($data['current_password'], $usuario->senha)) {
+                $senhaValida = true;
+            }
+        } else {
+            $senhaValida = true;
+        }
+
+        if (!$senhaValida) {
+            $mensagem = array(
+                "status" => false,
+                "message" => "Senha incorreta para usuário. Nâo foi possível resgatar o brinde!",
+                "errors" => array()
+            );
+
+            $arraySet = array(
+                "mensagem"
+            );
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem
+            );
+            return $retorno;
+        }
+
+        if ($usuarioAvulso) {
+            $usuario["pontuacoes"] = 0;
+        } else {
+            $usuario = $this->Usuarios->getUsuarioById($usuariosId);
+            $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                $usuariosId,
+                $rede["id"],
+                $clientesIds
+            );
+            $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
+        }
+
+        $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $clientesId);
+
+        // Se não encontrado, retorna vazio.
+        if (empty($brindeSelecionado)) {
+
+            $mensagem = array(
+                "status" => false,
+                "message" => __("O cliente informado não possui o brinde desejado!"),
+                "errors" => array()
+            );
+            $arraySet = array(
+                "mensagem"
+            );
+
+             // $this->set(compact($arraySet));
+             // $this->set("_serialize", $arraySet);
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem
+            );
+            return $retorno;
+        } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
+            $mensagem = array(
+                "status" => false,
+                "message" => __("Para Brindes do tipo banho, a quantidade deve ser 1!"),
+                "errors" => array()
+            );
+
+            $arraySet = array(
+                "mensagem"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem
+            );
+
+            return $retorno;
+        }
+
+        $usuario = $this->Auth->user();
+
+        $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
+
+        $usuario['pontuacoes']
+            = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+            $usuario['id'],
+            $rede["id"],
+            $clientesIds
+        );
+
+         // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
+        if ($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade
+            || $usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
+
+            // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
+            $clientesHasUsuariosConditions = [];
+
+            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
+            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.clientes_id IN' => $clientesIds]);
+
+            if ($rede->permite_consumo_gotas_funcionarios) {
+                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
+                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
+            } else {
+                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
+            }
+
+            $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
+
+            if (is_null($clientePossuiUsuario)) {
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId, $usuario["tipo_perfil"]);
+            }
+
+            // ------------------------------------------------------------------------
+            // Só diminui pontos se o usuário que estiver sendo vendido não for o avulso!
+            // ------------------------------------------------------------------------
+            if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
+
+                // ------------------- Atualiza pontos à serem debitados -------------------
+
+                /*
+                 * Se há pontuação à debitar, devo verificar quais são as
+                 * pontuações do usuário que serão utilizadas, para notificar
+                 * quantos pontos ele possui que estão prestes à vencer
+                 */
+
+                $pontuacoesProcessar = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade;
+
+                $podeContinuar = true;
+                $pontuacoesPendentesUsoListaSave = [];
+
+                // Obter pontos não utilizados totalmente
+                // verifica se tem algum pendente para continuar o cálculo sobre ele
+
+                $pontuacaoPendenteUso
+                    = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
+                    $usuario->id,
+                    $clientesIds,
+                    1,
+                    null
+                );
+
+                if ($pontuacaoPendenteUso) {
+                    $ultimoId = $pontuacaoPendenteUso->id;
+                } else {
+                    $ultimoId = null;
+                }
+
+                if (!is_null($ultimoId)) {
+                    // soma de pontos de todos os brindes usados
+                    $pontuacoesBrindesUsados = $this
+                        ->Pontuacoes
+                        ->getSumPontuacoesPendingToUsageByUsuario(
+                            $usuario->id,
+                            $clientesIds
+                        );
+
+                    $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
+                }
+
+                while ($podeContinuar) {
+                    $pontuacoesPendentesUso = $this
+                        ->Pontuacoes
+                        ->getPontuacoesPendentesForUsuario(
+                            $usuario->id,
+                            $clientesIds,
+                            10,
+                            $ultimoId
+                        );
+
+                    $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
+
+                    $contador = 0;
+                    foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                        if ($pontuacoesProcessar >= 0) {
+                            if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
+                                array_push(
+                                    $pontuacoesPendentesUsoListaSave,
+                                    [
+                                        'id' => $pontuacao->id,
+                                        'utilizado' => 2
+                                    ]
+                                );
+                            } else {
+                                array_push(
+                                    $pontuacoesPendentesUsoListaSave,
+                                    [
+                                        'id' => $pontuacao->id,
+                                        'utilizado' => 1
+                                    ]
+                                );
+                            }
+                        }
+
+                        $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao["quantidade_gotas"];
+                        $ultimoId = $pontuacao->id;
+                        $contador = $contador + 1;
+
+                        if ($contador == $maximoContador) {
+                            $ultimoId = $pontuacao->id + 1;
+                        }
+
+                        if ($pontuacoesProcessar <= 0) {
+                            $podeContinuar = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Atualiza todos os pontos do usuário
+                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pontuacoesPendentesUsoListaSave);
+
+                // ---------- Fim de atualiza pontos à serem debitados ----------
+
+                // Diminuir saldo de pontos do usuário
+                $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                    $cliente->id,
+                    $usuario->id,
+                    $brindeSelecionado["id"],
+                    $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
+                    $funcionariosId
+                );
+            }
+
+            // Se for venda avulsa, considera que tem que debitar pontos
+            if ($usuario->tipo_perfil == Configure::read('profileTypes')['DummyUserProfileType']) {
+                $pontuacaoDebitar = true;
+            }
+
+            if ($pontuacaoDebitar) {
+                 // Emitir Cupom e retornar
+
+                $cupom = $this->Cupons->addCupomForUsuario(
+                    $brindeSelecionado["id"],
+                    $cliente->id,
+                    $usuario->id,
+                    $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
+                    $quantidade
+                );
+
+                  // vincula item resgatado ao cliente final
+
+                $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
+                    $usuario->id,
+                    $brindeSelecionado["id"],
+                    $quantidade,
+                    $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"],
+                    $cupom->id
+                );
+
+                if ($cupom) {
+                    $status = true;
+                    $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
+                    $ticket = $cupom;
+                    $message = null;
+                } else {
+                    $status = false;
+                    $message = "Houve um erro na geração do Ticket. Informe ao suporte.";
+                }
+            } else {
+                $mensagem = array(
+                    'status' => false,
+                    'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+                );
+            }
+        } else {
+            $mensagem = array(
+                'status' => false,
+                'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+            );
+        }
+
+        $arraySet = [
+            'mensagem',
+            'ticket',
+            'status',
+            'cliente',
+            'usuario',
+            'tempo',
+            'tipoEmissaoCodigoBarras',
+        ];
+
+        $retorno = array(
+            "arraySet" => $arraySet,
+            "ticket" => $ticket,
+            "status" => $status,
+            "cliente" => $cliente,
+            "usuario" => $usuario,
+            "tempo" => $brindeSelecionado->brinde->tempo_rti_shower,
+            "tipoEmissaoCodigoBarras" => $brindeSelecionado["tipo_codigo_barras"],
+            "isBrindeSmartShower" => $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
+        );
+
+        return $retorno;
+    }
 
     /**
      * Realiza processamento do cupom (tratamento) para json
@@ -2501,11 +2871,6 @@ class CuponsController extends AppController
         }
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Métodos Comuns
-     * ------------------------------------------------------------
-     */
 
     /**
      * beforeRender callback
@@ -2539,4 +2904,7 @@ class CuponsController extends AppController
     {
         parent::initialize();
     }
+
+    #endregion
+
 }
