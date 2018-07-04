@@ -30,7 +30,7 @@ $(document).ready(function () {
 
 
             $(".gift-image").attr('src', brindeSelecionado.brinde.nome_img);
-            $("#brindes_id").val(brindeSelecionado.id);
+            $("#brindes_id").val(brindeSelecionado.brindes_id);
             if (brindeSelecionado.brinde_habilitado_preco_atual == null) {
                 callModalError("Nâo há preço configurado para brinde " + brindeSelecionado.brinde.nome);
                 $(".print-gift-shower").attr('disabled', true);

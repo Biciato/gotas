@@ -381,7 +381,6 @@ $(document).ready(function () {
         setTimeout($(".impressao-cupom").printThis({
             importCss: false
         }), 100);
-
     }
 
     $(".reimpressao-cupom").on('click', reimprimirCupom);
@@ -426,9 +425,9 @@ $(document).ready(function () {
 
                 closeLoaderAnimation();
 
-                if (result.status == "success") {
+                if (result.mensagem.status == true) {
 
-                    if (result.isBrindeSmartShower) {
+                    if (result.is_brinde_smart_shower) {
                         // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
 
                         $(".is-cupom-shower").show();
@@ -444,7 +443,7 @@ $(document).ready(function () {
 
                         $("#rti_shower_minutos").text(result.tempo);
 
-                        var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
+                        var tipoEmissaoCodigoBarras = result.tipo_emissao_codigo_barras;
 
                         geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
 
@@ -460,17 +459,17 @@ $(document).ready(function () {
                         $(".is-not-cupom-shower").show();
 
                         // Verifica se já foi impresso
-                        if (!result.dadosImpressao.status) {
-                            callModalError(result.dadosImpressao.message);
+                        if (!result.dados_impressao.status) {
+                            callModalError(result.dados_impressao.message);
                         } else {
 
-                            popularDadosCupomResgate(result.dadosImpressao.data);
+                            popularDadosCupomResgate(result.dados_impressao.data);
                             $(".resgate-cupom-result").show(500);
                             $(".resgate-cupom-main").hide();
 
                             var cupom_emitido = result.ticket.cupom_emitido;
 
-                            var tipoEmissaoCodigoBarras = result.tipoEmissaoCodigoBarras;
+                            var tipoEmissaoCodigoBarras = result.tipo_emissao_codigo_barras;
 
                             geraCodigoBarras(cupom_emitido, tipoEmissaoCodigoBarras);
 
@@ -490,7 +489,7 @@ $(document).ready(function () {
 
 
                 } else {
-                    callModalError(result.message);
+                    callModalError(result.mensagem.message, result.mensagem.errors);
                 }
             });
         }

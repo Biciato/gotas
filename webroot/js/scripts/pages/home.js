@@ -142,9 +142,16 @@ var callModalSave = function (content) {
     }
 };
 
-var callModalError = function (error) {
+var callModalError = function (error, arrayContent) {
     closeLoaderAnimation();
     $(".modal-error .modal-body-content").html(error);
+
+    if (arrayContent != undefined && arrayContent.length > 0) {
+        $(".modal-error .modal-body-content-description").empty();
+        $.each(arrayContent, function (index, value) {
+            $(".modal-error .modal-body-content-description").append("(" +( parseInt(index) + 1) + ")  " + value);
+        })
+    }
     $(".modal-error").modal();
 };
 

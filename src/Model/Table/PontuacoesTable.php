@@ -238,8 +238,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -279,8 +278,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -307,8 +305,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -439,8 +436,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -520,8 +516,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -553,8 +548,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -1167,8 +1161,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
