@@ -186,6 +186,9 @@ Configure::write(
         'messageUnlinkSuccess' => 'O registro foi desvincunlado com sucesso.',
 
 
+        "messageProcessingCompleted" => "Processamento realizado com sucesso!",
+        "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
+
         /**
          * ------------------------------------------ ENTIDADES ------------------------------------------
          */
@@ -207,6 +210,7 @@ Configure::write(
 
         // Mensagens de Veículos
         'messageVehicleAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
+
 
         'yesNoArray' => [
             1 => "Sim",

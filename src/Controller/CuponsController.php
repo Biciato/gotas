@@ -1465,14 +1465,32 @@ class CuponsController extends AppController
      */
     public function resgatarCupomAPI()
     {
-        $result = null;
-        $ticket = null;
-        $message = [];
-        $cupom = null;
+        $mensagem = array();
         $arraySet = array();
 
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
+
+            // Validação de dados
+
+            $errors = array();
+            if (empty($data["brindes_id"])) {
+                $errors[] = __("É necessário selecionar um brinde para resgatar pontos!");
+            }
+            if (empty($data["clientes_id"])) {
+                $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
+            }
+
+            if (sizeof($errors) > 0) {
+
+                $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
+
+                $arraySet = array("mensagem");
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
 
             $brindesId = $data["brindes_id"];
             $usuario = $this->Auth->user();
@@ -1486,6 +1504,7 @@ class CuponsController extends AppController
 
             $arraySet = $retorno["arraySet"];
 
+            $mensagem = $retorno["mensagem"];
             $ticket = $retorno["ticket"];
             $cliente = $retorno["cliente"];
             $usuario = $retorno["usuario"];
@@ -2427,6 +2446,7 @@ class CuponsController extends AppController
     private function _trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $usuarioAvulso = false, bool $usoViaMobile = false)
     {
         $retorno = array();
+        $mensagem = array();
 
         // pega id de todos os clientes que estão ligados à uma rede
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
@@ -2434,9 +2454,7 @@ class CuponsController extends AppController
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
         // TODO: trazer somente os campos necessários
-        $listaCamposClienteSelect = array(
-
-        );
+        $listaCamposClienteSelect = array();
         $cliente = $this->Clientes->getClienteById($clientesId, $listaCamposClienteSelect);
         $quantidade = is_null($quantidade) ? 1 : $quantidade;
         $quantidade = $quantidade < 1 ? 1 : $quantidade;
@@ -2460,8 +2478,8 @@ class CuponsController extends AppController
         if (!$senhaValida) {
             $mensagem = array(
                 "status" => false,
-                "message" => "Senha incorreta para usuário. Nâo foi possível resgatar o brinde!",
-                "errors" => array()
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => "Senha incorreta para usuário. Nâo foi possível resgatar o brinde!",
             );
 
             $arraySet = array(
@@ -2494,15 +2512,11 @@ class CuponsController extends AppController
 
             $mensagem = array(
                 "status" => false,
-                "message" => __("O cliente informado não possui o brinde desejado!"),
-                "errors" => array()
-            );
-            $arraySet = array(
-                "mensagem"
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => array(__("O cliente informado não possui o brinde desejado!"))
             );
 
-             // $this->set(compact($arraySet));
-             // $this->set("_serialize", $arraySet);
+            $arraySet = array("mensagem");
 
             $retorno = array(
                 "arraySet" => $arraySet,
@@ -2512,16 +2526,11 @@ class CuponsController extends AppController
         } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
             $mensagem = array(
                 "status" => false,
-                "message" => __("Para Brindes do tipo banho, a quantidade deve ser 1!"),
-                "errors" => array()
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => array(__("Para Brindes do tipo banho, a quantidade deve ser 1!"))
             );
 
-            $arraySet = array(
-                "mensagem"
-            );
-
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
+            $arraySet = array("mensagem");
 
             $retorno = array(
                 "arraySet" => $arraySet,
@@ -2708,21 +2717,60 @@ class CuponsController extends AppController
                     $ticket = $cupom;
                     $message = null;
                 } else {
-                    $status = false;
-                    $message = "Houve um erro na geração do Ticket. Informe ao suporte.";
+                    $mensagem = array(
+                        "status" => false,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
+                    );
+
+                    $arraySet = array("mensagem");
+
+                    $retorno = array(
+                        "arraySet" => $arraySet,
+                        "mensagem" => $mensagem
+                    );
+
+                    return $retorno;
                 }
             } else {
                 $mensagem = array(
                     'status' => false,
-                    'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+                    "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                    'errors' => array("Usuário possui saldo insuficiente. Não foi possível realizar a transação.")
                 );
+
+                $arraySet = array("mensagem");
+
+                $retorno = array(
+                    "arraySet" => $arraySet,
+                    "mensagem" => $mensagem
+                );
+
+                return $retorno;
             }
         } else {
             $mensagem = array(
                 'status' => false,
-                'message' => "Usuário possui saldo insuficiente. Não foi possível realizar a transação."
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                'errors' => array("Usuário possui saldo insuficiente. Não foi possível realizar a transação.")
             );
+
+            $arraySet = array("mensagem");
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem
+            );
+
+            return $retorno;
         }
+
+        // Se chegou até aqui, ocorreu tudo bem
+        $mensagem = array(
+            "status" => true,
+            "message" => Configure::read("messageProcessingCompleted"),
+            "errors" => array()
+        );
 
         $arraySet = [
             'mensagem',
@@ -2735,6 +2783,7 @@ class CuponsController extends AppController
 
         $retorno = array(
             "arraySet" => $arraySet,
+            "mensagem" => $mensagem,
             "ticket" => $ticket,
             "status" => $status,
             "cliente" => $cliente,
