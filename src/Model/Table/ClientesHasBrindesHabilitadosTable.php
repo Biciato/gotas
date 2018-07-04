@@ -346,7 +346,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 ->contain(
                     array(
                         "Brindes",
-                        "BrindeHabilitadoPrecoAtual"
+                        "BrindeHabilitadoPrecoAtual",
+                        "GeneroBrindesClientes"
                     )
                 )->first();
 
