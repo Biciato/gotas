@@ -1503,14 +1503,12 @@ class CuponsController extends AppController
             $retorno = $this->_trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, true);
 
             $arraySet = $retorno["arraySet"];
-
             $mensagem = $retorno["mensagem"];
             $ticket = $retorno["ticket"];
             $cliente = $retorno["cliente"];
             $usuario = $retorno["usuario"];
             $tempo = $retorno["tempo"];
-            $tipoEmissaoCodigoBarras = $retorno["tipoEmissaoCodigoBarras"];
-            $isBrindeSmartShower = $retorno["isBrindeSmartShower"];
+            $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
         }
 
         $this->set(compact($arraySet));
@@ -2520,7 +2518,14 @@ class CuponsController extends AppController
 
             $retorno = array(
                 "arraySet" => $arraySet,
-                "mensagem" => $mensagem
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "status" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
             );
             return $retorno;
         } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
@@ -2534,7 +2539,14 @@ class CuponsController extends AppController
 
             $retorno = array(
                 "arraySet" => $arraySet,
-                "mensagem" => $mensagem
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "status" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
             );
 
             return $retorno;
@@ -2727,7 +2739,14 @@ class CuponsController extends AppController
 
                     $retorno = array(
                         "arraySet" => $arraySet,
-                        "mensagem" => $mensagem
+                        "mensagem" => $mensagem,
+                        "ticket" => null,
+                        "status" => null,
+                        "cliente" => null,
+                        "usuario" => null,
+                        "tempo" => null,
+                        "tipo_emissao_codigo_barras" => null,
+                        "is_brinde_smart_shower" => null,
                     );
 
                     return $retorno;
@@ -2743,7 +2762,14 @@ class CuponsController extends AppController
 
                 $retorno = array(
                     "arraySet" => $arraySet,
-                    "mensagem" => $mensagem
+                    "mensagem" => $mensagem,
+                    "ticket" => null,
+                    "status" => null,
+                    "cliente" => null,
+                    "usuario" => null,
+                    "tempo" => null,
+                    "tipo_emissao_codigo_barras" => null,
+                    "is_brinde_smart_shower" => null,
                 );
 
                 return $retorno;
@@ -2759,7 +2785,14 @@ class CuponsController extends AppController
 
             $retorno = array(
                 "arraySet" => $arraySet,
-                "mensagem" => $mensagem
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "status" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
             );
 
             return $retorno;
@@ -2778,7 +2811,8 @@ class CuponsController extends AppController
             'cliente',
             'usuario',
             'tempo',
-            'tipoEmissaoCodigoBarras',
+            'tipo_emissao_codigo_barras',
+            "is_brinde_smart_shower"
         ];
 
         $retorno = array(
@@ -2788,9 +2822,9 @@ class CuponsController extends AppController
             "status" => $status,
             "cliente" => $cliente,
             "usuario" => $usuario,
-            "tempo" => $brindeSelecionado->brinde->tempo_rti_shower,
-            "tipoEmissaoCodigoBarras" => $brindeSelecionado["tipo_codigo_barras"],
-            "isBrindeSmartShower" => $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
+            "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+            "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
+            "is_brinde_smart_shower" => $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
         );
 
         return $retorno;
