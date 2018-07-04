@@ -2082,17 +2082,13 @@ class CuponsController extends AppController
     {
         try {
             if ($this->request->is(['post'])) {
-
                 $data = $this->request->getData();
 
                 $usuario = $this->Auth->user();
-
                 $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
 
                 $whereConditions = array();
-
                 $orderConditions = array();
-
                 $paginationConditions = array();
 
                 if (isset($data["order_by"])) {
@@ -2252,7 +2248,25 @@ class CuponsController extends AppController
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
         // TODO: trazer somente os campos necessários
-        $listaCamposClienteSelect = array();
+        $listaCamposClienteSelect = array(
+            "id",
+            "matriz",
+            "ativado",
+            "tipo_unidade",
+            "nome_fantasia",
+            "razao_social",
+            "cnpj",
+            "endereco",
+            "endereco_numero",
+            "endereco_complemento",
+            "bairro",
+            "municipio",
+            "estado",
+            "pais",
+            "cep",
+            "latitude",
+            "longitude"
+        );
         $cliente = $this->Clientes->getClienteById($clientesId, $listaCamposClienteSelect);
         $quantidade = is_null($quantidade) ? 1 : $quantidade;
         $quantidade = $quantidade < 1 ? 1 : $quantidade;
@@ -2489,8 +2503,8 @@ class CuponsController extends AppController
 
                 // Diminuir saldo de pontos do usuário
                 $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                    $cliente->id,
-                    $usuario->id,
+                    $cliente["id"],
+                    $usuario["id"],
                     $brindeSelecionado["id"],
                     $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
                     $funcionariosId
@@ -2507,8 +2521,8 @@ class CuponsController extends AppController
 
                 $cupom = $this->Cupons->addCupomForUsuario(
                     $brindeSelecionado["id"],
-                    $cliente->id,
-                    $usuario->id,
+                    $cliente["id"],
+                    $usuario["id"],
                     $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
                     $quantidade
                 );
@@ -2516,11 +2530,11 @@ class CuponsController extends AppController
                   // vincula item resgatado ao cliente final
 
                 $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                    $usuario->id,
+                    $usuario["id"],
                     $brindeSelecionado["id"],
                     $quantidade,
                     $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"],
-                    $cupom->id
+                    $cupom["id"]
                 );
 
                 if ($cupom) {
