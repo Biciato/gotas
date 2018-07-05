@@ -948,6 +948,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $clientesId = $data['clientes_id'];
                 $generoBrindesId = !empty($data["genero_brindes_id"]) ? $data["genero_brindes_id"] : null;
 
+                $whereConditionsBrindes = array();
+
+                if (!empty($data["nome"])) {
+                    $whereConditionsBrindes[] = array("Brindes.nome like '%{$data["nome"]}%'");
+                }
+
                 $orderConditions = array();
                 $paginationConditions = array();
 
@@ -962,6 +968,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
                         $paginationConditions["page"] = 1;
                     }
                 }
+                // DebugUtil::printArray(
+                //     array(
+                //         $orderConditions,
+                //         $paginationConditions
+                //     )
+                // );
 
                 $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
 
@@ -973,7 +985,15 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     "habilitado"
                 );
 
-                $brindes = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientesId, $generoBrindesClientesIds, $filterGeneroBrindesClientesColumns);
+
+                $brindes = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
+                    $clientesId,
+                    $generoBrindesClientesIds,
+                    $whereConditionsBrindes,
+                    $orderConditions,
+                    $paginationConditions,
+                    $filterGeneroBrindesClientesColumns
+                );
 
                 $count = sizeof($brindes);
 

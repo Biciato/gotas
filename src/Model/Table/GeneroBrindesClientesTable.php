@@ -187,6 +187,7 @@ class GeneroBrindesClientesTable extends GenericTable
             $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 
@@ -280,9 +281,6 @@ class GeneroBrindesClientesTable extends GenericTable
             foreach ($generoBrindesClientes as $generoBrindeCliente) {
                 $generoBrindesClientesIds[] = $generoBrindeCliente["id"];
             }
-
-            // DebugUtil::printArray($generoBrindesClientes, false);
-            // DebugUtil::printArray($generoBrindesClientesIds);
 
             return $generoBrindesClientesIds;
         } catch (\Exception $e) {

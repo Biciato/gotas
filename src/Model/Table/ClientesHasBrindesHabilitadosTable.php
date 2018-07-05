@@ -372,17 +372,59 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
-    public function getAllGiftsClienteId(int $clientes_id, array $generoBrindesClientesIds = array(), array $filterGeneroBrindesClientesColumns = array())
-    {
+    public function getAllGiftsClienteId(
+        int $clientesId,
+        array $generoBrindesClientesIds = array(),
+        array $whereConditionsBrindes = array(),
+        array $orderConditionsBrindes = array(),
+        array $paginationConditionsBrindes = array(),
+        array $filterGeneroBrindesClientesColumns = array()
+    ) {
         try {
-            $whereConditions = [];
 
-            $whereConditions[] = array('ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL');
-            $whereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
-            $whereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientes_id);
+            // Primeiro, faz a consulta dos dos ids de unidades de cada rede
+
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+            $redesHasCliente = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
+
+            $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesHasCliente["rede"]["id"]);
+
+
+            // Então, faz a consulta dos brindes
+
+            $whereConditionsBrindes[] = array(
+                "clientes_id in " => $clientesIds,
+                "habilitado" => 1
+            );
+
+            $brindesTable = TableRegistry::get("Brindes");
+            $brindes = $brindesTable->findBrindes($whereConditionsBrindes, false);
+
+            if (sizeof($orderConditionsBrindes) > 0) {
+                $brindes = $brindes->order($orderConditionsBrindes);
+            }
+
+            if (sizeof($paginationConditionsBrindes) > 0) {
+                $brindes = $brindes
+                ->limit($paginationConditionsBrindes["limit"])
+                ->page($paginationConditionsBrindes["page"]);
+            }
+
+            $brindesIdsQuery = $brindes->select(['id'])->toArray();
+            $brindesIds = array();
+
+            foreach ($brindesIdsQuery as $key => $brinde) {
+                $brindesIds[] = $brinde["id"];
+            }
+
+            $clientesBrindesHabilitadosWhereConditions = array();
+
+            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL');
+            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
+            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientesId);
 
             if (isset($generoBrindesClientesIds) && sizeof($generoBrindesClientesIds) > 0) {
-                $whereConditions[] = array("genero_brindes_clientes_id in " => $generoBrindesClientesIds);
+                $clientesBrindesHabilitadosWhereConditions[] = array("genero_brindes_clientes_id in " => $generoBrindesClientesIds);
             }
 
             $containArray = array(
@@ -395,32 +437,43 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $containArray[] = "GeneroBrindesClientes";
             }
 
-            $brindes = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                ->where($whereConditions)->contain($containArray);
+            // $brindes = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+            //     ->where($whereConditions)->contain($containArray);
 
-            $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-            $brindes_array = [];
-            foreach ($brindes as $key => $value) {
-                $value['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table->find('all')->where(
-                    [
+            $clientesBrindesHabilitados = array();
+            foreach ($brindesIds as $key => $brindeId) {
+
+                $whereConditions = $clientesBrindesHabilitadosWhereConditions;
+
+                $whereConditions[] = array("brindes_id" => $brindeId);
+                # code...
+                $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+                    ->where($whereConditions)->first();
+
+                $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
+
+                $brinde = $brindesTable->getBrindesById($brindeId);
+                $clientesBrindesHabilitado["brinde"] = $brinde;
+
+                $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table->find('all')->where(
+                    array(
                         'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
-                        'clientes_has_brindes_habilitados_id' => $value->id
+                        'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
+                    )
 
-                    ]
                 )->order(['id' => 'DESC'])
                     ->first();
 
-                $brindes_array[] = $value;
+                $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
             }
 
-            return $brindes_array;
+            return $clientesBrindesHabilitados;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao buscar registros: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 

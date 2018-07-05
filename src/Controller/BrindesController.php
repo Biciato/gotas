@@ -812,8 +812,6 @@ class BrindesController extends AppController
 
             $clientes_id = $data['clientes_id'];
 
-            // tipo => true -> smart shower; false -> comum
-
             $brindesHabilitadosCliente = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
 
             $brindesTemp = array();

@@ -171,11 +171,22 @@ class BrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\Brindes $brinde
      **/
-    public function findBrindes(array $where_parameters = [])
+    public function findBrindes(array $where_parameters = [], bool $useContain = true, array $containConditions = array())
     {
         try {
-            return $this->_getBrindeTable()->find('all')
-                ->where($where_parameters)->contain('Clientes');
+
+            if (sizeof($containConditions) == 0 && $useContain) {
+                $containConditions[] = array("Clientes");
+            }
+
+            $brindes = $this->_getBrindeTable()->find('all')
+                ->where($where_parameters);
+
+            if (sizeof($containConditions) > 0) {
+                $brindes = $brindes->contain('Clientes');
+            }
+
+            return $brindes;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
