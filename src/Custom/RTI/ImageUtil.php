@@ -70,7 +70,7 @@ class ImageUtil
         if ($typeImage == ".jpg") {
             return imagejpeg($newImage, $imageSource, 90) == true ? 1 : 0;
         } else if ($typeImage == ".png") {
-            return imagepng($newImage, $imageSource, 90) == true ? 1 : 0;
+            return imagepng($newImage, $imageSource, 9) == true ? 1 : 0;
         } else {
             return 0;
         }

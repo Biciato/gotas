@@ -191,9 +191,9 @@ echo $this->Breadcrumbs->render(
                                         'redes_has_clientes_id' => $rede_has_cliente->id,
                                         'return_url' =>
                                             [
-                                                'controller' => 'redes',
-                                                'action' => 'ver_detalhes', $rede_has_cliente->redes_id
-                                            ]
+                                            'controller' => 'redes',
+                                            'action' => 'ver_detalhes', $rede_has_cliente->redes_id
+                                        ]
 
                                     ]
                                 ]
@@ -222,3 +222,15 @@ echo $this->Breadcrumbs->render(
          </center>
     </div>
 </div>
+
+
+<?php
+if (Configure::read('debug')) {
+    echo $this->Html->css("styles/redes/ver_detalhes");
+} else {
+    echo $this->Html->css("styles/redes/ver_detalhes.min");
+}
+
+echo $this->fetch('script');
+echo $this->fetch('css');
+?>

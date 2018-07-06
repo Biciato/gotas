@@ -74,7 +74,7 @@ $(document).ready(function () {
 
                             $(".img-crop").cropper('destroy');
                             image.cropper({
-                                aspectRatio: 16 / 9,
+                                aspectRatio: 1/1,
                                 preview: ".img-crop-preview",
                                 autoCrop: true,
                                 dragDrop: true,

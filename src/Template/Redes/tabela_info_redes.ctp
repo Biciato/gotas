@@ -20,7 +20,7 @@
             <?= h($rede->nome_rede) ?>
         </td>
     </tr>
-    
+
     <tr>
         <th scope="row">
             <?= __('Ativado') ?>
@@ -37,14 +37,15 @@
             <?= h($rede->audit_insert->format('d/m/Y H:i:s')) ?>
         </td>
     </tr>
-    
+
     <?php if (isset($imagem) && strlen($imagem) > 0) : ?>
         <tr>
             <th scope="row">
                 <?= __('Imagem atualmente alocada') ?>
             </th>
             <td>
-                <img src="<?php echo $imagem ?>" height="120px" width="380px"/>
+                <img src="<?php echo $imagem ?>" class="imagem-rede"/>
+                <!-- <img src="<?php echo $imagem ?>" height="120px" width="380px"/> -->
             </td>
         </tr>
     <?php endif; ?>
