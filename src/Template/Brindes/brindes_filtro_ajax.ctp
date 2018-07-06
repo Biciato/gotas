@@ -40,7 +40,7 @@ $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
                     "name" => "gift-image",
                     "class" => "gift-image",
                     "label" => "Imagem do Brinde",
-                    "style" => "position: absolute;"
+                    // "style" => "position: absolute;"
 
                 ]) ?>
             </div>

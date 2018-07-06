@@ -33,7 +33,7 @@ echo $this->Breadcrumbs->render(
 
         <tr>
             <th>Estoque Ilimitado</th>
-            <td><?= !empty($brinde) ? $this->Boolean->convertBooleanToString($brinde->ilimitado) : null;?></td>
+            <td><?= !empty($brinde) ? $this->Boolean->convertBooleanToString($brinde->ilimitado) : null; ?></td>
         </tr>
         <tr>
             <th>Preco (em gotas):</th>
@@ -56,8 +56,19 @@ echo $this->Breadcrumbs->render(
         <tr>
             <th>Imagem do Brinde</th>
 
-            <td><img src="<?= strlen($brinde->nome_img) >0 ? $brinde->nome_img : ''  ?>" alt="<?= strlen($brinde->nome_img) > 0 ? "Imagem do Brinde" : '' ?>"></td>
+            <td><img src="<?= strlen($brinde->nome_img) > 0 ? $brinde->nome_img : '' ?>" alt="<?= strlen($brinde->nome_img) > 0 ? "Imagem do Brinde" : '' ?>" class="imagem-brinde"></td>
         </tr>
 
     </table>
 </div>
+
+<?php
+if (Configure::read("debug")) {
+    echo $this->Html->css("styles/brindes/ver_brinde_rede");
+} else {
+    echo $this->Html->css("styles/brindes/ver_brinde_rede");
+}
+
+echo $this->fetch("css");
+
+?>

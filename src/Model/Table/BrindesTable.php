@@ -9,6 +9,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Brindes Model
@@ -182,12 +183,13 @@ class BrindesTable extends GenericTable
             $brindes = $this->_getBrindeTable()->find('all')
                 ->where($where_parameters);
 
-            if (sizeof($containConditions) > 0) {
+            if (sizeof($containConditions) == 0 && $useContain) {
                 $brindes = $brindes->contain('Clientes');
+            } else if ($useContain) {
+                $brindes = $brindes->contain($containConditions);
             }
 
             return $brindes;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);

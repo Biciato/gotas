@@ -431,6 +431,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesTable = TableRegistry::get("Brindes");
             $brindes = $brindesTable->findBrindes($whereConditionsBrindes, false);
 
+            // DebugUtil::printGeneric($brindes);
+
             if (sizeof($orderConditionsBrindes) > 0) {
                 $brindes = $brindes->order($orderConditionsBrindes);
             }
@@ -517,14 +519,19 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitados = array();
 
+            $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+
             foreach ($brindesIds as $key => $brindeId) {
 
                 $whereConditions = $clientesBrindesHabilitadosWhereConditions;
 
                 $whereConditions[] = array("brindes_id" => $brindeId);
 
-                $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                    ->where($whereConditions)->first();
+                $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()
+                    ->find('all')
+                    ->where($whereConditions)
+                    ->contain($containArray)
+                    ->first();
 
                 $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 
@@ -542,6 +549,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
                 $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
             }
+
+            // DebugUtil::printGeneric($clientesBrindesHabilitados);
 
             $retorno = array(
                 "brindes" => array(

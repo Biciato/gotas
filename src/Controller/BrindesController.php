@@ -409,7 +409,7 @@ class BrindesController extends AppController
             $rede["id"]
         );
 
-        $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($brinde["clientes_id"]);
+        $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados(array($brinde["clientes_id"]));
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -601,8 +601,7 @@ class BrindesController extends AppController
         $imagemOrigem = __("{0}{1}", Configure::read("imageGiftPathTemp"), $data["img-upload"]);
         $imagemDestino = __("{0}{1}", Configure::read("imageGiftPath"), $data["img-upload"]);
 
-        // TODO: Conferir diâmetros de imagem de brinde
-        $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 300, 130, $valueX, $valueY, $width, $height, 90);
+        $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
         // Se imagem foi redimensionada, move e atribui o nome para gravação
         if ($resizeSucesso == 1) {
@@ -812,7 +811,23 @@ class BrindesController extends AppController
 
             $clientes_id = $data['clientes_id'];
 
-            $resultado = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId($clientes_id);
+            $resultado = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
+                $clientes_id,
+                array(),
+                array(),
+                array(),
+                array(),
+                array()
+            );
+
+        //     array $generoBrindesClientesIds = array(),
+        // array $whereConditionsBrindes = array(),
+        // array $orderConditionsBrindes = array(),
+        // array $paginationConditionsBrindes = array(),
+        // array $filterGeneroBrindesClientesColumns = array(),
+        // array $generoBrindesClientesColumns = array(),
+        // bool $generobrindesClientesSearch = false
+
             $brindesHabilitadosCliente = $resultado["brindes"]["data"];
 
             $brindesTemp = array();

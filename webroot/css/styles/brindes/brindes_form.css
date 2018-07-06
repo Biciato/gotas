@@ -38,3 +38,9 @@
 .img-crop-container {
     display: none;
 }
+
+.imagem-brinde{
+    max-width: 30%;
+    transform: scale(1);
+    display: block;
+}

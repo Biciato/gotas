@@ -1,12 +1,12 @@
-.gifts-result{
-	display: none;
+.gifts-result {
+    display: none;
 }
 
-.gifts-result-table{
-	display: none;
+.gifts-result-table {
+    display: none;
 }
 
-.gift-image{
-    max-height: 130px;
-    max-width: 300px;
+.gift-image {
+    max-width: 50%;
+    position: absolute;
 }

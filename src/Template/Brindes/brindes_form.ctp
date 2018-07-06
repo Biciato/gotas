@@ -88,7 +88,7 @@ if ($exibirImagemAtual) :
 <div class="form-group row">
     <div class="col-lg-12">
         <label>Imagem Atual do Brinde</label>
-        <div><img src="<?= $imagemOriginal ?>" alt="Imagem do Brinde"></div>
+        <div><img src="<?= $imagemOriginal ?>" alt="Imagem do Brinde" class="imagem-brinde"></div>
     </div>
 </div>
 
