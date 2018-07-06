@@ -198,7 +198,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-     /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Add a BrindeHabilitado for a Cliente
@@ -228,8 +228,42 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         }
     }
 
+    #endregion
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
+
+    /**
+     * ClientesHasBrindesHabilitadosTable::findClientesHasBrindesHabilitados
+     *
+     * Realiza pesquisa genérica
+     *
+     * @param array $whereConditions Condições de pesquisa
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 06/07/2018
+     *
+     * @return \App\Model\Entity\ClientesHasBrindesHabilitado[] $brindesHabilitados
+     */
+    public function findClientesHasBrindesHabilitados(array $whereConditions)
+    {
+        try {
+
+            $data = $this->_getClientesHasBrindesHabilitadosTable()
+                ->find('all')
+                ->where($whereConditions);
+
+            return $data;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao realizar busca: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+
+            $error = array('status' => false, 'message' => $stringError, "errors" => array());
+            return $error;
+        }
+    }
 
     /**
      * Obtêm um Brinde Habilitado para Cliente através do Brindes Id
@@ -426,14 +460,17 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 );
                 if ($paginationConditionsBrindes["page"] == 1) {
                     $retorno = array(
-                        "count" => 0,
-                        "page_count" => 0,
+                        "brindes" => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        ),
                         "mensagem" => array(
                             "status" => false,
                             "message" => Configure::read("messageQueryNoDataToReturn"),
                             "errors" => array()
-                        ),
-                        "data" => array(),
+                        )
+
                     );
                 } else {
                     $retorno["page_count"] = 0;
@@ -441,6 +478,11 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         "status" => false,
                         "message" => Configure::read("messageQueryPaginationEnd"),
                         "errors" => array()
+                    );
+                    $retorno["brindes"] = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
                     );
                 }
                 return $retorno;
@@ -502,14 +544,16 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             }
 
             $retorno = array(
-                "count" => $count,
-                "page_count" => sizeof($clientesBrindesHabilitados),
+                "brindes" => array(
+                    "count" => $count,
+                    "page_count" => sizeof($clientesBrindesHabilitados),
+                    "data" => $clientesBrindesHabilitados
+                ),
                 "mensagem" => array(
                     "status" => true,
                     "message" => Configure::read("messageLoadDataWithSuccess"),
                     "errors" => array()
                 ),
-                "data" => $clientesBrindesHabilitados,
             );
 
             return $retorno;
@@ -705,6 +749,42 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             return $stringError;
         }
     }
+
+    /**
+     * Obtem ids de brindes habilitados conforme condições
+     *
+     * @param array $whereConditions Condições
+     *
+     * @return entity\ClientesHasBrindesHabilitados $entity
+     */
+    public function getBrindesHabilitadosIdsFromConditions(array $whereConditions = [])
+    {
+        try {
+            $conditions = [];
+
+            $clientesBrindesHabilitadosQuery = $this->_getClientesHasBrindesHabilitadosTable()
+                ->find('all')
+                ->where($whereConditions)
+                ->select(['id'])
+                ->toArray();
+
+            $clientesBrindesHabilitadosIds = array();
+            foreach ($clientesBrindesHabilitadosQuery as $item) {
+                $clientesBrindesHabilitadosIds[] = $item["id"];
+            }
+
+            return $clientesBrindesHabilitadosIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    #endregion
 
     /* ------------------------ Update ------------------------ */
 

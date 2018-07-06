@@ -9,6 +9,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Cupons Model
@@ -208,9 +209,9 @@ class CuponsTable extends GenericTable
 
             // Obtem Gênero Brinde Cliente configurado
 
-            $generoBrindeClienteTable = TableRegistry::get("GeneroBrindesClientes");
+            $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
 
-            $generoBrindeCliente = $generoBrindeClienteTable->getGeneroBrindesClientesById($brindeHabilitado["genero_brindes_clientes_id"]);
+            $generoBrindeCliente = $generoBrindesClientesTable->getGeneroBrindesClientesById($brindeHabilitado["genero_brindes_clientes_id"]);
 
             /**
              *  TODO: Deve ser feito a lógica de geração do cupom caso o brinde não seja lido por um equipamento rti
@@ -422,9 +423,44 @@ class CuponsTable extends GenericTable
      *
      * @return array('count', 'data') \App\Model\Entity\Cupom[] Lista de Cupons
      */
-    public function getCupons(array $whereConditions, array $orderConditions, array $paginationConditions)
+    public function getCupons(array $whereConditions, array $generoBrindesClienteConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
+
+            /**
+             * Nesta pesquisa, se o usuário informar Condições de Gênero Brindes Clientes,
+             * a pesquisa será particularmente pelo tipo principal de código de brinde.
+             * Mas foi deixado como array, pois esta pesquisa pode ampliar no futuro
+             *
+             * A intenção desta pesquisa, é apenas capturar os ids de
+             * Clientes Has Brindes Habilitados
+             * que serão filtrados
+             */
+
+            $generoBrindesClientesIds = array();
+            $clientesHasBrindesHabilitadosIds = array();
+            if (sizeof($generoBrindesClienteConditions) > 0) {
+
+                $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+
+                $generoBrindesClientesIds = $generoBrindesClientesTable->getGenerosBrindesClientesIdsFromConditions($generoBrindesClienteConditions);
+
+                $clientesHasBrindesHabilitadosConditions = array(
+                    "genero_brindes_clientes_id in " => $generoBrindesClientesIds
+                );
+
+                $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
+                $clientesHasBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIdsFromConditions($clientesHasBrindesHabilitadosConditions);
+
+            }
+
+            // DebugUtil::printGeneric($generoBrindesClientesIds, true, false);
+            // DebugUtil::printGeneric($clientesHasBrindesHabilitadosIds);
+            // 16
+
+            if (sizeof($clientesHasBrindesHabilitadosIds) > 0){
+                $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesHasBrindesHabilitadosIds);
+            }
             $cupons = $this->_getCuponsTable()->find('all')
                 ->where($whereConditions);
 
@@ -439,12 +475,15 @@ class CuponsTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
+            $currentPage = $cupons->count();
+
             return ["count" => $count, "data" => $cupons];
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar cupons: " . $e->getMessage());
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return $stringError;
         }

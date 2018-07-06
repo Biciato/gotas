@@ -389,11 +389,11 @@ class GeneroBrindesController extends AppController
 
                     $generoBrindesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIds($clientesIds);
 
-                    $generoBrindesQuery = $this->GeneroBrindes->findGeneroBrindesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
+                    $resultado = $this->GeneroBrindes->findGeneroBrindesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
 
-                    $genero_brindes = array("count" => $generoBrindesQuery["count"], "data" => $generoBrindesQuery["data"]->toArray());
+                    $genero_brindes = $resultado["genero_brindes"];
+                    $mensagem = $resultado["mensagem"];
                 }
-                $mensagem = ['status' => true, 'message' => $messageString];
             }
 
         } catch (\Exception $e) {

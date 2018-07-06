@@ -968,12 +968,6 @@ class ClientesHasBrindesHabilitadosController extends AppController
                         $paginationConditions["page"] = 1;
                     }
                 }
-                // DebugUtil::printArray(
-                //     array(
-                //         $orderConditions,
-                //         $paginationConditions
-                //     )
-                // );
 
                 $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
 
@@ -994,10 +988,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $filterGeneroBrindesClientesColumns
                 );
 
-                $count = $resultado["count"];
-                $page_count = $resultado["page_count"];
                 $mensagem = $resultado["mensagem"];
-                $brindes = $resultado["data"];
+                $brindes = $resultado["brindes"];
 
             }
         } catch (\Exception $e) {
@@ -1013,8 +1005,6 @@ class ClientesHasBrindesHabilitadosController extends AppController
         }
 
         $arraySet = array(
-            'count',
-            'page_count',
             'mensagem',
             'brindes',
         );

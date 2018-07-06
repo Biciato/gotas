@@ -1636,6 +1636,7 @@ class CuponsController extends AppController
             $usuario['pontuacoes']
                 = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuario['id'],
+                $rede["id"],
                 $clientes_ids
             );
 
@@ -1884,6 +1885,7 @@ class CuponsController extends AppController
 
             $usuario['pontuacoes'] = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuario['id'],
+                $rede["id"],
                 $clientes_ids
             );
 
@@ -2088,6 +2090,7 @@ class CuponsController extends AppController
                 $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
 
                 $whereConditions = array();
+                $generoBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();
 
@@ -2107,16 +2110,9 @@ class CuponsController extends AppController
                 if (isset($data['redes_id'])) {
                     $rede = $this->Redes->getRedeById($data['redes_id']);
 
-                    $clientesIds = array();
+                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
-                    if (!is_null($rede)) {
-
-                        foreach ($rede->redes_has_clientes as $key => $value) {
-                            $clientesIds[] = $value->clientes_id;
-                        }
-
-                        $whereConditions[] = ['clientes_id in' => $clientesIds];
-                    } else {
+                    if (sizeof($clientesIds) == 0) {
                         $mensagem = ['status' => false, 'message' => __("Não foi encontrado unidades para a rede informada, pois esta rede não existe ou está desabilitada no sistema!")];
 
                         $arraySet = ["mensagem"];
@@ -2125,6 +2121,8 @@ class CuponsController extends AppController
 
                         return;
                     }
+
+                    $whereConditions[] = ['clientes_id in' => $clientesIds];
                 }
                 // Pesquisa por uma Unidade da Rede
                 else if (isset($data['clientes_id'])) {
@@ -2132,37 +2130,13 @@ class CuponsController extends AppController
                     $whereConditions[] = ['clientes_id' => (int)($data['clientes_id'])];
                 }
 
-                // se filtrar_banho estiver setado, pesquisa ou não por brindes do tipo Smart Shower
-                if (isset($data['filtrar_banho'])) {
+                // se genero_brindes_id estiver setado, pesquisa por um tipo de brinde
 
-                    if ($data['filtrar_banho'] == true) {
-
-                        if (isset($data["tipo_banho"])) {
-
-                            $tipoBanho = $data['tipo_banho'];
-
-                            $tipoBanhoMin = 0;
-                            $tipoBanhoMax = 0;
-                            if ($tipoBanho == 1 || $tipoBanho == 3) {
-                                $tipoBanhoMax = $tipoBanho;
-                                $tipoBanhoMin = $tipoBanhoMax - 1;
-                            } else {
-                                $tipoBanhoMin = $tipoBanho;
-                                $tipoBanhoMax = $tipoBanhoMin + 1;
-                            }
-
-                            $whereConditions[] = ["tipo_banho IN" => [$tipoBanhoMin, $tipoBanhoMax]];
-                        } else {
-                            $whereConditions[] = ["tipo_banho is not null"];
-                        }
-
-                        // tempo de banho
-                        if (isset($data["tempo_banho"])) {
-                            $whereConditions[] = ["tempo_banho" => $data["tempo_banho"]];
-                        }
-                    } else {
-                        $whereConditions[] = ['tipo_banho IS NULL'];
-                    }
+                if (isset($data["genero_brindes_id"])) {
+                    $generoBrindesClientesConditions[] = array(
+                        "genero_brindes_id" => $data['genero_brindes_id'],
+                        "clientes_id in " => $clientesIds
+                    );
                 }
 
                 // Valor pago à compra
@@ -2197,7 +2171,7 @@ class CuponsController extends AppController
                     $whereConditions[] = ["data <= " => $dataFim];
                 }
 
-                $cupons = $this->Cupons->getCupons($whereConditions, $orderConditions, $paginationConditions);
+                $cupons = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
             }
 
             $mensagem = ['status' => true, 'message' => null];

@@ -265,6 +265,41 @@ class GeneroBrindesTable extends GenericTable
 
             $count = $generoBrindes->count();
 
+            // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
+            if (sizeof($generoBrindes->toArray()) == 0) {
+
+                $retorno = array(
+                    "count" => 0,
+                    "page_count" => 0,
+                    "mensagem" => array(
+                        "status" => false,
+                        "message" => __(""),
+                        "errors" => array()
+                    ),
+                    "data" => array(),
+                );
+                if ($paginationConditions["page"] == 1) {
+                    $retorno = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "mensagem" => array(
+                            "status" => false,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        ),
+                        "data" => array(),
+                    );
+                } else {
+                    $retorno["page_count"] = 0;
+                    $retorno["mensagem"] = array(
+                        "status" => false,
+                        "message" => Configure::read("messageQueryPaginationEnd"),
+                        "errors" => array()
+                    );
+                }
+                return $retorno;
+            }
+
             if (sizeof($orderConditions) > 0) {
                 $generoBrindes = $generoBrindes->order($orderConditions);
             }
@@ -274,7 +309,21 @@ class GeneroBrindesTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
-            return array("count" => $count, "data" => $generoBrindes);
+            $generoBrindes = $generoBrindes->toArray();
+            $retorno = array(
+                "genero_brindes" => array(
+                    "count" => $count,
+                    "page_count" => sizeof($generoBrindes),
+                    "data" => $generoBrindes,
+                ),
+                "mensagem" => array(
+                    "status" => true,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+            );
+
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 

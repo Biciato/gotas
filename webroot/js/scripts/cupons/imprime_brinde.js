@@ -11,7 +11,7 @@ $(document).ready(function () {
     // Métodos de inicialização
 
     // se há valor, significa que foi filtrado novamente (post de filtro)
-    if ($("#usuarios_id").val() !== undefined && $("#usuarios_id").val().length > 0) {
+    if ($("#usuarios_id").val() !== undefined && $("#usuarios_id").val().length > 0 && $("#usuarios_id").val() != "conta_avulsa") {
 
         callLoaderAnimation();
 

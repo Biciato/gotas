@@ -466,11 +466,47 @@ class GeneroBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
+    }
+    /**
+     * GeneroBrindesClientesTable::getGenerosBrindesClientesIdsFromConditions
+     *
+     * Obtem Ids de Gênero Brindes Clientes de condição informada
+     *
+     * @param array $generoBrindesClientesConditions Condições
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 06/07/2018
+     *
+     * @return \App\Model\Entity\GeneroBrindesClientes[] $list
+     */
+    public function getGenerosBrindesClientesIdsFromConditions(array $generoBrindesClientesConditions)
+    {
+        try {
+            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
+                ->find('all')
+                ->where($generoBrindesClientesConditions)
+                ->toArray();
 
+            $generoBrindesClientesIds = array();
+
+            foreach ($generoBrindesClientes as $item) {
+                $generoBrindesClientesIds[] = $item["id"];
+            }
+
+            return $generoBrindesClientesIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
     }
 
     /* -------------------------- Create/Update ----------------------------- */

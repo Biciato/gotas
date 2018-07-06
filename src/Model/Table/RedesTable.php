@@ -283,6 +283,41 @@ class RedesTable extends GenericTable
 
             $count = $redes->count();
 
+            // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
+            if (sizeof($redes->toArray()) == 0) {
+
+                $retorno = array(
+                    "count" => 0,
+                    "page_count" => 0,
+                    "mensagem" => array(
+                        "status" => false,
+                        "message" => __(""),
+                        "errors" => array()
+                    ),
+                    "data" => array(),
+                );
+                if ($paginationConditions["page"] == 1) {
+                    $retorno = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "mensagem" => array(
+                            "status" => false,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        ),
+                        "data" => array(),
+                    );
+                } else {
+                    $retorno["page_count"] = 0;
+                    $retorno["mensagem"] = array(
+                        "status" => false,
+                        "message" => Configure::read("messageQueryPaginationEnd"),
+                        "errors" => array()
+                    );
+                }
+                return $retorno;
+            }
+
             $redes = $redes->contain($associations);
 
             if (sizeof($orderConditions) > 0) {
@@ -294,7 +329,20 @@ class RedesTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
-            return array("count" => $count, "data" => $redes);
+            $pageCount = $redes->count();
+
+            $retorno = array(
+                "count" => $count,
+                "page_count" => sizeof($pageCount),
+                "mensagem" => array(
+                    "status" => true,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+                "data" => $redes->toArray(),
+            );
+
+            return $retorno;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

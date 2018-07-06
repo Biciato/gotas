@@ -561,22 +561,22 @@ class RedesHasClientesController extends AppController
                         if (isset($data["nome_fantasia"])) {
                             $whereConditions[] = array("nome_fantasia like '%{$data["nome_fantasia"]}%'");
                         }
-                        
+
                         if (isset($data["razao_social"])) {
                             $whereConditions[] = array("razao_social like '%{$data["razao_social"]}%'");
                         }
-                        
+
                         if (isset($data["cnpj"])) {
                             $whereConditions[] = array("cnpj like '%{$data["cnpj"]}%'");
                         }
 
-                        $clientesQuery = $this->Clientes->getClientes($whereConditions, $orderConditions, $paginationConditions);
+                        $resultado = $this->Clientes->getClientes($whereConditions, $orderConditions, $paginationConditions);
 
-                        $clientes = $clientesQuery;
+                        $clientes = $resultado["clientes"];
 
                         // Se chegou até aqui, ocorreu tudo bem
 
-                        $mensagem = array("status" => $status, "message" => $message, "errors" => array());
+                        $mensagem = $resultado["mensagem"];
                     }
                 }
             }

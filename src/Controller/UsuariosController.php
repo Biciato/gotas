@@ -3498,6 +3498,7 @@ class UsuariosController extends AppController
                         = Number::precision(
                         $this->Pontuacoes->getSumPontuacoesOfUsuario(
                             $data['usuarios_id'],
+                            null,
                             $clientes_ids
                         ),
                         2
@@ -3518,9 +3519,11 @@ class UsuariosController extends AppController
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
-            $stringError = __("Erro ao procurar usuário[{0}] em : [{1}] ", $e->getMessage(), $trace[1]);
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao procurar usuário[{0}] ", $e->getMessage());
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 

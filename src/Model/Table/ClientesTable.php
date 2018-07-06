@@ -420,6 +420,42 @@ class ClientesTable extends GenericTable
             // $count = 0;
             $count = $clientes->count();
 
+              // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
+              if (sizeof($clientes->toArray()) == 0) {
+
+                $retorno = array(
+                    "count" => 0,
+                    "page_count" => 0,
+                    "mensagem" => array(
+                        "status" => false,
+                        "message" => __(""),
+                        "errors" => array()
+                    ),
+                    "data" => array(),
+                );
+                if ($paginationConditions["page"] == 1) {
+                    $retorno = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "mensagem" => array(
+                            "status" => false,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        ),
+                        "data" => array(),
+                    );
+                } else {
+                    $retorno["page_count"] = 0;
+                    $retorno["mensagem"] = array(
+                        "status" => false,
+                        "message" => Configure::read("messageQueryPaginationEnd"),
+                        "errors" => array()
+                    );
+                }
+                return $retorno;
+            }
+
+
             if (sizeof($orderConditions) > 0) {
                 $clientes = $clientes->order($orderConditions);
             }
@@ -429,7 +465,24 @@ class ClientesTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
-            return ["count" => $count, "data" => $clientes];
+
+            // $pageCount = $clientes->count();
+            $clientes = $clientes->toArray();
+
+            $retorno = array(
+                "clientes" => array(
+                    "count" => $count,
+                    "page_count" => sizeof($clientes),
+                    "data" => $clientes,
+                ),
+                "mensagem" => array(
+                    "status" => true,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+            );
+
+            return $retorno;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

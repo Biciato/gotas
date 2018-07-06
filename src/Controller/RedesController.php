@@ -14,6 +14,7 @@ use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Redes Controller
@@ -667,15 +668,17 @@ class RedesController extends AppController
                         foreach ($clientesIdsQuery as $key => $clientesIdsItem) {
                             $clientesIds[] = $clientesIdsItem->cliente_id;
                         }
-                        $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $unidadesIds);
+                        $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuariosId, $rede["id"], $unidadesIds);
 
                         $rede['soma_pontos'] = $soma_pontos;
 
                         $redes["data"][] = $rede;
                     }
+                    $redes["count"] = $redesQueryResult["count"];
+                    $redes["page_count"] = $redesQueryResult["page_count"];
                 }
 
-                $mensagem = ['status' => true, 'message' => $messageString];
+                $mensagem = $redesQueryResult["mensagem"];
             }
 
         } catch (\Exception $e) {

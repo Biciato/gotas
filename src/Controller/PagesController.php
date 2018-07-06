@@ -323,7 +323,7 @@ class PagesController extends AppController
                     $unidades_ids[] = $value->clientes_id;
                 }
 
-                $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $unidades_ids);
+                $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $rede["id"], $unidades_ids);
 
                 $rede['soma_pontos'] = Number::precision($soma_pontos, 2);
                 $redes[] = $rede;
