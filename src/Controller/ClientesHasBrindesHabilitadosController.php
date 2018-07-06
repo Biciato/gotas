@@ -985,8 +985,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     "habilitado"
                 );
 
-
-                $brindes = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
+                $resultado = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
                     $clientesId,
                     $generoBrindesClientesIds,
                     $whereConditionsBrindes,
@@ -995,20 +994,16 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $filterGeneroBrindesClientesColumns
                 );
 
-                $count = sizeof($brindes);
-
-                if ($count == 0) {
-                    $mensagem = ['status' => false, 'message' => __("Unidade não possui brindes para resgate!")];
-                } else {
-                    $mensagem = ['status' => true, 'message' => null];
-                }
+                $count = $resultado["count"];
+                $page_count = $resultado["page_count"];
+                $mensagem = $resultado["mensagem"];
+                $brindes = $resultado["data"];
 
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
             $messageString = __("Não foi possível obter dados de brindes da unidade selecionada!");
-
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
@@ -1017,7 +1012,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
         }
 
-        $arraySet = ['brindes', 'count', 'mensagem'];
+        $arraySet = array(
+            'count',
+            'page_count',
+            'mensagem',
+            'brindes',
+        );
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);

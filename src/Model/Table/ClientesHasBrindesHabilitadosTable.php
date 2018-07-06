@@ -383,15 +383,12 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         try {
 
             // Primeiro, faz a consulta dos dos ids de unidades de cada rede
-
             $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
             $redesHasCliente = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
 
             $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesHasCliente["rede"]["id"]);
 
-
             // Então, faz a consulta dos brindes
-
             $whereConditionsBrindes[] = array(
                 "clientes_id in " => $clientesIds,
                 "habilitado" => 1
@@ -404,13 +401,51 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $brindes = $brindes->order($orderConditionsBrindes);
             }
 
+            $count = $brindes->count();
+
             if (sizeof($paginationConditionsBrindes) > 0) {
                 $brindes = $brindes
-                ->limit($paginationConditionsBrindes["limit"])
-                ->page($paginationConditionsBrindes["page"]);
+                    ->limit($paginationConditionsBrindes["limit"])
+                    ->page($paginationConditionsBrindes["page"]);
             }
 
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
+
+            // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
+            if (sizeof($brindesIdsQuery) == 0) {
+
+                $retorno = array(
+                    "count" => 0,
+                    "page_count" => 0,
+                    "mensagem" => array(
+                        "status" => false,
+                        "message" => __(""),
+                        "errors" => array()
+                    ),
+                    "data" => array(),
+                );
+                if ($paginationConditionsBrindes["page"] == 1) {
+                    $retorno = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "mensagem" => array(
+                            "status" => false,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        ),
+                        "data" => array(),
+                    );
+                } else {
+                    $retorno["page_count"] = 0;
+                    $retorno["mensagem"] = array(
+                        "status" => false,
+                        "message" => Configure::read("messageQueryPaginationEnd"),
+                        "errors" => array()
+                    );
+                }
+                return $retorno;
+            }
+
             $brindesIds = array();
 
             foreach ($brindesIdsQuery as $key => $brinde) {
@@ -431,22 +466,21 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 "Brindes",
                 "Clientes"
             );
+
             if (sizeof($filterGeneroBrindesClientesColumns)) {
                 $containArray["GeneroBrindesClientes"] = array("fields" => $filterGeneroBrindesClientesColumns);
             } else {
                 $containArray[] = "GeneroBrindesClientes";
             }
 
-            // $brindes = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-            //     ->where($whereConditions)->contain($containArray);
-
             $clientesBrindesHabilitados = array();
+
             foreach ($brindesIds as $key => $brindeId) {
 
                 $whereConditions = $clientesBrindesHabilitadosWhereConditions;
 
                 $whereConditions[] = array("brindes_id" => $brindeId);
-                # code...
+
                 $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
                     ->where($whereConditions)->first();
 
@@ -467,13 +501,27 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
             }
 
-            return $clientesBrindesHabilitados;
+            $retorno = array(
+                "count" => $count,
+                "page_count" => sizeof($clientesBrindesHabilitados),
+                "mensagem" => array(
+                    "status" => true,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+                "data" => $clientesBrindesHabilitados,
+            );
+
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registros: {0}", $e->getMessage());
+            $stringError = __("Erro ao obter brindes de unidade: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write("error", $trace);
+
+            $error = array('status' => false, 'message' => $stringError, "errors" => array());
+            return $error;
         }
     }
 

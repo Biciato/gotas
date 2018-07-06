@@ -137,6 +137,9 @@ Configure::write(
         'messageQuestionAllowGiftPrice' => 'Autorizar o preço para o brinde {0} ?',
         'messageQuestionDenyGiftPrice' => 'Negar o preço para o brinde {0} ?',
         'messageAllowGiftPrice' => 'O preço foi autorizado.',
+        "messageQueryNoDataToReturn" => "A pesquisa não retornou dados!",
+        "messageQueryPaginationEnd" => "Fim de paginação!",
+
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
         'messageDateTodayHigherInvalid' => "A {0} não pode ser maior que a data de Hoje!",
         'messageDenyErrorPrivileges'
