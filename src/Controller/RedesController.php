@@ -649,7 +649,19 @@ class RedesController extends AppController
                     $messageString = __("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
                 } else {
 
-                    $redesQueryResult = $this->Redes->getRedes(["id in " => $redes_ids, "nome_rede like '%{$nomeRede}%'"], [], $orderConditions, $paginationConditions);
+                    $redesQueryResult = $this->Redes->getRedes(
+                        ["id in " => $redes_ids, "nome_rede like '%{$nomeRede}%'"],
+                        array(
+                            "id",
+                            "nome_rede",
+                            "nome_img",
+                            "ativado"
+
+                        ),
+                        array(),
+                        $orderConditions,
+                        $paginationConditions
+                    );
 
                     $redesData = $redesQueryResult["data"];
 

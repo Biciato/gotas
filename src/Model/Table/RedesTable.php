@@ -268,7 +268,7 @@ class RedesTable extends GenericTable
      *
      * @return array("count", "data") \App\Entity\Model\Redes $redes[] Lista de Redes
      */
-    public function getRedes(array $whereConditions = [], array $associations = [], array $orderConditions = [], array $paginationConditions = [])
+    public function getRedes(array $whereConditions = [], array $selectFields = array(), array $associations = [], array $orderConditions = [], array $paginationConditions = [])
     {
         try {
 
@@ -280,6 +280,10 @@ class RedesTable extends GenericTable
 
             $redes = $this->_getRedesTable()->find('all')
                 ->where($conditions);
+
+            if (sizeof($selectFields) > 0) {
+                $redes = $redes->select($selectFields);
+            }
 
             $count = $redes->count();
 
