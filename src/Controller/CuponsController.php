@@ -2215,6 +2215,7 @@ class CuponsController extends AppController
     {
         $retorno = array();
         $mensagem = array();
+        $dados_impressao = array();
 
         // pega id de todos os clientes que estão ligados à uma rede
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
@@ -2586,6 +2587,21 @@ class CuponsController extends AppController
             return $retorno;
         }
 
+        // Se é Banho
+        if (!$brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
+            $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
+
+            $cuponsRetorno = array();
+
+            foreach ($cupons as $key => $cupom) {
+                $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
+
+                $cuponsRetorno[] = $cupom;
+            }
+
+            $dados_impressao = $this->processarCupom($cuponsRetorno);
+        }
+
         // Se chegou até aqui, ocorreu tudo bem
         $mensagem = array(
             "status" => true,
@@ -2600,7 +2616,8 @@ class CuponsController extends AppController
             'usuario',
             'tempo',
             'tipo_emissao_codigo_barras',
-            "is_brinde_smart_shower"
+            "is_brinde_smart_shower",
+            'dados_impressao'
         ];
 
         $retorno = array(
