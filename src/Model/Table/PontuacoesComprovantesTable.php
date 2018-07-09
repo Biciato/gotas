@@ -51,7 +51,7 @@ class PontuacoesComprovantesTable extends GenericTable
 
     /**
      * Method get of pontuacoesComprovantes table property
-     * 
+     *
      * @return Cake\ORM\Table Table object
      */
     private function _getPontuacoesComprovantesTable()
@@ -64,7 +64,7 @@ class PontuacoesComprovantesTable extends GenericTable
 
     /**
      * Method set of pontuacoesComprovantes table property
-     * 
+     *
      * @return void
      */
     private function _setPontuacoesComprovantesTable()
@@ -76,7 +76,7 @@ class PontuacoesComprovantesTable extends GenericTable
      * Initialize method
      *
      * @param array $config The configuration for the Table.
-     * 
+     *
      * @return void
      */
     public function initialize(array $config)
@@ -331,34 +331,50 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * @param array $where_conditions Condições de pesquisa
      * @param array $order_conditions Condições de ordem
-     * 
+     *
      * @return void
      */
-    public function getAllCoupons(array $where_conditions = [], array $order_conditions = [])
+    public function getPontuacoesComprovantes(array $where_conditions = [], array $order_conditions = [])
     {
         try {
             return $this->_getPontuacoesComprovantesTable()->find('all')
                 ->where($where_conditions)
                 ->order($order_conditions)
-                ->contain([
-                    'Pontuacoes.Gotas',
-                    'Clientes',
-                    'SomaPontuacoes',
-                    'Usuarios',
-                    'Funcionarios'
-
-                ]);
+                ->contain(
+                    array(
+                        'Pontuacoes.Gotas',
+                        'Clientes',
+                        'SomaPontuacoes',
+                        'Usuarios',
+                        'Funcionarios'
+                    )
+                );
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
             $stringExplode = implode(";", $trace);
 
-            $stringError = __("Erro ao realizar pesquisa de PontuacoesComprovantes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4} / Errors: ]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__, $stringExplode);
+            $stringError = __("Erro ao realizar pesquisa de PontuacoesComprovantes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Errors: ]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $stringExplode);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return $stringError;
         }
+    }
+
+    /**
+     * PontuacoesComprovantesTable::getPontuacoesComprovantesWithFilterAndPagination
+     *
+     * Consulta genérica com filtro, ordenação e paginação
+     *
+     * @param Type $var
+     * @return void
+     */
+    public function getPontuacoesComprovantesWithFilterAndPagination(Type $var = null)
+    {
+        # code...
+        // TODO: continuar
     }
 
     /**
@@ -366,7 +382,7 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * @param array $where_conditions Condições de pesquisa
      * @param array $order_conditions Condições de ordem
-     * 
+     *
      * @return void
      */
     public function getAllCouponsForUsuarioInClientes(int $usuarios_id, array $clientes_ids, array $order_conditions = [])
@@ -387,9 +403,10 @@ class PontuacoesComprovantesTable extends GenericTable
                 ]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao obter registro: {0} em {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao obter registro: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return $stringError;
         }
@@ -399,7 +416,7 @@ class PontuacoesComprovantesTable extends GenericTable
      * Retorna lista de ids de todas as unidades onde o usuário final possui pontuação
      *
      * @param array $where_conditions Condições de pesquisa
-     * 
+     *
      * @return array[] Lista de Ids
      */
     public function getAllClientesIdFromCoupons(array $where_conditions)
@@ -644,8 +661,8 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * @param int $clientes_id Id de Cliente
      * @param int $matriz_id   Id da Matriz
-     * 
-     * @return \App\Model\Entity\Pontuacoes $array[] 
+     *
+     * @return \App\Model\Entity\Pontuacoes $array[]
      *  lista de pontuacoes pendentes
      */
     public function setPontuacoesComprovantesToMainCliente(int $clientes_id, int $matriz_id)
@@ -709,7 +726,7 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * @param int $pontuacao_id Id da Pontuacao
      * @param int $usuarios_id  Id de Usuário
-     * 
+     *
      * @return void
      */
     public function setUsuarioForPontuacaoComprovanteById(int $pontuacao_id, int $usuarios_id)
@@ -736,7 +753,7 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * @param array $fields     Campos contendo atualização
      * @param array $conditions Condições
-     * 
+     *
      * @return bool
      */
     public function updateAllPontuacoesComprovantes(array $fields, array $conditions)
@@ -768,8 +785,8 @@ class PontuacoesComprovantesTable extends GenericTable
      * Remove todos os comprovantes de pontuacoes por Id de Cliente
      *
      * @param array $clientes_ids Ids de Clientes
-     * 
-     * @return \App\Model\Entity\PontuacoesComprovantes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesComprovantes $array[]
      *  lista de pontuacoes pendentes
      */
     public function deleteAllPontuacoesComprovantesByClientesIds(array $clientes_ids)
@@ -800,8 +817,8 @@ class PontuacoesComprovantesTable extends GenericTable
      * Remove todos os comprovantes de pontuacoes por Id de Cliente
      *
      * @param int $usuarios_id Ids de Usuarios
-     * 
-     * @return \App\Model\Entity\PontuacoesComprovantes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesComprovantes $array[]
      *  lista de pontuacoes pendentes
      */
     public function deleteAllPontuacoesComprovantesByUsuariosId(int $usuarios_id)

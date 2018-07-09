@@ -2144,7 +2144,7 @@ class CuponsController extends AppController
                     $whereConditions[] = ["valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
                 } else if (isset($data["valor_pago_min"])) {
                     $whereConditions[] = ["valor_pago >= " => $data["valor_pago_min"]];
-                } else if (isset($data["valor_pago_min"])) {
+                } else if (isset($data["valor_pago_max"])) {
                     $whereConditions[] = ["valor_pago <= " => $data["valor_pago_max"]];
                 }
 

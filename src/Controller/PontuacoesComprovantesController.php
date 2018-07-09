@@ -266,7 +266,7 @@ class PontuacoesComprovantesController extends AppController
             $param = $this->request->getData();
         }
 
-        $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getAllCoupons(['usuarios_id' => $usuario_id], ['PontuacoesComprovantes.id' => 'DESC']);
+        $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes(['usuarios_id' => $usuario_id], ['PontuacoesComprovantes.id' => 'DESC']);
 
         $this->paginate($pontuacoes_comprovantes, ['limit' => 10]);
 
@@ -328,7 +328,7 @@ class PontuacoesComprovantesController extends AppController
 
         $user_logged = $this->user_logged;
 
-        $pontuacao_comprovante = $this->PontuacoesComprovantes->getAllCoupons(['PontuacoesComprovantes.id' => $pontuacao_comprovante_id])->first();
+        $pontuacao_comprovante = $this->PontuacoesComprovantes->getPontuacoesComprovantes(['PontuacoesComprovantes.id' => $pontuacao_comprovante_id])->first();
 
         $this->set(compact('pontuacao_comprovante', 'user_logged'));
         $this->set('_serialize', ['pontuacao_comprovante', 'user_logged']);
@@ -570,7 +570,7 @@ class PontuacoesComprovantesController extends AppController
                             'PontuacoesComprovantes.funcionarios_id in ' => $funcionariosIds
                         ];
 
-                        $pontuacoesComprovantes = $this->PontuacoesComprovantes->getAllCoupons($whereConditions);
+                        $pontuacoesComprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
 
                     // debug($pontuacoesComprovantes->toArray());
                     } else {
@@ -750,7 +750,7 @@ class PontuacoesComprovantesController extends AppController
 
                         $orderConditions = ['data' => 'asc'];
 
-                        $pontuacoesComprovantes = $this->PontuacoesComprovantes->getAllCoupons($whereConditions, $orderConditions);
+                        $pontuacoesComprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions, $orderConditions);
 
                         // debug($pontuacoesComprovantes->toArray());
                     } else {
@@ -1405,7 +1405,7 @@ class PontuacoesComprovantesController extends AppController
                 // Só irá retornar os dados válidos
                 $whereConditions[] = ["registro_invalido" => 0];
 
-                $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getAllCoupons($whereConditions);
+                $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
 
                 if (sizeof($pontuacoes_comprovantes->toArray()) > 0) {
                     $pontuacoes_comprovantes = $pontuacoes_comprovantes->toArray();
