@@ -426,7 +426,7 @@ class UsuariosHasBrindesController extends AppController
                             }
                         }
                     } else {
-                        $this->Flash->error(Configure::read('messageNoDataToDisplay'));
+                        $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));
                     }
                 }
             }

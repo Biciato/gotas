@@ -472,19 +472,21 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                             "message" => Configure::read("messageQueryNoDataToReturn"),
                             "errors" => array()
                         )
-
                     );
                 } else {
-                    $retorno["page_count"] = 0;
-                    $retorno["mensagem"] = array(
-                        "status" => false,
-                        "message" => Configure::read("messageQueryPaginationEnd"),
-                        "errors" => array()
-                    );
-                    $retorno["brindes"] = array(
-                        "count" => 0,
+                    $retorno = array(
                         "page_count" => 0,
-                        "data" => array()
+                        "mensagem" => array(
+                            "status" => false,
+                            "message" => Configure::read("messageQueryPaginationEnd"),
+                            "errors" => array()
+                        ),
+                        "brindes" => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        )
+
                     );
                 }
                 return $retorno;
@@ -559,8 +561,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     "data" => $clientesBrindesHabilitados
                 ),
                 "mensagem" => array(
-                    "status" => true,
-                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "status" => sizeof($clientesBrindesHabilitados) > 0,
+                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
                     "errors" => array()
                 ),
             );

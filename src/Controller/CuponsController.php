@@ -2143,7 +2143,7 @@ class CuponsController extends AppController
                 if (isset($data["valor_pago_min"]) && isset($data["valor_pago_max"])) {
                     $whereConditions[] = ["valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
                 } else if (isset($data["valor_pago_min"])) {
-                    $whereConditions[] = ["valor_pago >= " => $data["valorPagoMin"]];
+                    $whereConditions[] = ["valor_pago >= " => $data["valor_pago_min"]];
                 } else if (isset($data["valor_pago_min"])) {
                     $whereConditions[] = ["valor_pago <= " => $data["valor_pago_max"]];
                 }
@@ -2171,10 +2171,12 @@ class CuponsController extends AppController
                     $whereConditions[] = ["data <= " => $dataFim];
                 }
 
-                $cupons = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
+                $resultado = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
             }
 
-            $mensagem = ['status' => true, 'message' => null];
+            // DebugUtil::printGeneric($resultado);
+            $mensagem = $resultado["mensagem"];
+            $cupons = $resultado["cupons"];
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de cupons do usuário!");

@@ -137,7 +137,7 @@ Configure::write(
         'messageQuestionAllowGiftPrice' => 'Autorizar o preço para o brinde {0} ?',
         'messageQuestionDenyGiftPrice' => 'Negar o preço para o brinde {0} ?',
         'messageAllowGiftPrice' => 'O preço foi autorizado.',
-        "messageQueryNoDataToReturn" => "A pesquisa não retornou dados!",
+        "messageQueryNoDataToReturn" => "A consulta não retornou dados!",
         "messageQueryPaginationEnd" => "Fim de paginação!",
 
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
@@ -175,7 +175,6 @@ Configure::write(
         'messageInvalidateError' => 'Não foi possível invalidar o registro!',
         'messageValidateSuccess' => 'O registro foi validado com sucesso',
         'messageValidateError' => 'Não foi possível validar o registro!',
-        'messageNoDataToDisplay' => 'Não há dados à serem exibidos!',
         'messageNotAuthorized' => 'Você não possui autorização para acessar tal operação',
         'messageRedeemCouponError' => 'Não foi possível regatar o cupom.',
         'messageRecordAlreadyLinked' => 'Registro já vinculado, não é possível adicionar novo registro!',

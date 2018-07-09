@@ -820,14 +820,6 @@ class BrindesController extends AppController
                 array()
             );
 
-        //     array $generoBrindesClientesIds = array(),
-        // array $whereConditionsBrindes = array(),
-        // array $orderConditionsBrindes = array(),
-        // array $paginationConditionsBrindes = array(),
-        // array $filterGeneroBrindesClientesColumns = array(),
-        // array $generoBrindesClientesColumns = array(),
-        // bool $generobrindesClientesSearch = false
-
             $brindesHabilitadosCliente = $resultado["brindes"]["data"];
 
             $brindesTemp = array();

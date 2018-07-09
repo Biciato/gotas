@@ -10,6 +10,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use Cake\Core\Configure;
 
 /**
  * Cupons Model
@@ -451,20 +452,29 @@ class CuponsTable extends GenericTable
 
                 $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
                 $clientesHasBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIdsFromConditions($clientesHasBrindesHabilitadosConditions);
-
             }
 
-            // DebugUtil::printGeneric($generoBrindesClientesIds, true, false);
-            // DebugUtil::printGeneric($clientesHasBrindesHabilitadosIds);
-            // 16
-
-            if (sizeof($clientesHasBrindesHabilitadosIds) > 0){
+            if (sizeof($clientesHasBrindesHabilitadosIds) > 0) {
                 $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesHasBrindesHabilitadosIds);
+            } else {
+
+                $retorno = $this->prepareReturnDataPagination($clientesHasBrindesHabilitadosIds, array(), "cupons", null);
+
+                return $retorno;
             }
+
             $cupons = $this->_getCuponsTable()->find('all')
                 ->where($whereConditions);
 
+            $dataTodosCupons = $cupons->toArray();
+
             $count = $cupons->count();
+
+            $retorno = $this->prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
+
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
 
             if (sizeof($orderConditions) > 0) {
                 $cupons = $cupons->order($orderConditions);
@@ -475,9 +485,9 @@ class CuponsTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
-            $currentPage = $cupons->count();
+            $retorno = $this->prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
 
-            return ["count" => $count, "data" => $cupons];
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar cupons: " . $e->getMessage());

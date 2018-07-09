@@ -574,7 +574,7 @@ class PontuacoesComprovantesController extends AppController
 
                     // debug($pontuacoesComprovantes->toArray());
                     } else {
-                        $this->Flash->error(Configure::read('messageNoDataToDisplay'));
+                        $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));
                     }
                 }
 
@@ -754,7 +754,7 @@ class PontuacoesComprovantesController extends AppController
 
                         // debug($pontuacoesComprovantes->toArray());
                     } else {
-                        $this->Flash->error(Configure::read('messageNoDataToDisplay'));
+                        $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));
                     }
                 }
 
