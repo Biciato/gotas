@@ -438,7 +438,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 array(
                     'Pontuacoes.Gotas',
                     'Clientes',
-                    'Usuarios',
+                    // 'Usuarios',
                     'Funcionarios'
                 )
             );
@@ -475,8 +475,14 @@ class PontuacoesComprovantesTable extends GenericTable
         $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
         $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
 
+        /**
+         * A pesquisa de pontuação deverá retornar as seguintes condições:
+         * Se não foi filtrado por redes ou clientesIds
+         */
+
+
         // DebugUtil::printArray($pontuacoesComprovantesTodas);
-        DebugUtil::printArray($retorno);
+        // DebugUtil::printArray($retorno);
 
         return $retorno;
         # code...

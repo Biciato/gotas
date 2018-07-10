@@ -1403,20 +1403,20 @@ class PontuacoesComprovantesController extends AppController
 
                 );
 
-                DebugUtil::printArray($pontuacoes_comprovantes);
-                $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
+                // DebugUtil::printArray($pontuacoes_comprovantes);
+                // $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
 
-                if (sizeof($pontuacoes_comprovantes->toArray()) > 0) {
-                    $pontuacoes_comprovantes = $pontuacoes_comprovantes->toArray();
-                }
+                // if (sizeof($pontuacoes_comprovantes->toArray()) > 0) {
+                //     $pontuacoes_comprovantes = $pontuacoes_comprovantes->toArray();
+                // }
 
-                foreach ($pontuacoes_comprovantes as $key => $comprovante) {
-                    $somaPontuacoes = 0;
-                    foreach ($comprovante->pontuacoes as $key => $pontuacao) {
-                        $somaPontuacoes += $pontuacao->quantidade_gotas;
-                    }
-                    $pontuacoes_comprovantes[0]['soma_pontuacoes'] = $somaPontuacoes;
-                }
+                // foreach ($pontuacoes_comprovantes as $key => $comprovante) {
+                //     $somaPontuacoes = 0;
+                //     foreach ($comprovante->pontuacoes as $key => $pontuacao) {
+                //         $somaPontuacoes += $pontuacao->quantidade_gotas;
+                //     }
+                //     $pontuacoes_comprovantes[0]['soma_pontuacoes'] = $somaPontuacoes;
+                // }
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
