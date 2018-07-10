@@ -393,18 +393,20 @@ class PontuacoesComprovantesTable extends GenericTable
             $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
         }
 
+        // Condições básicas de pesquisa
         $whereConditions = array(
             "usuarios_id" => $usuariosId,
             // Só irá retornar os dados válidos
             "registro_invalido" => 0
         );
 
+        // Se informou numeração da Chave da NFE
         if ((!empty($chaveNFE)) && (strlen($chaveNFE) > 0)) {
-
             $whereConditions[] = array("chave_nfe like '%{$chaveNFE}%'");
         }
-        if ((!empty($estadoNFE)) && (strlen($estadoNFE) > 0)) {
 
+        // Se informou estado
+        if ((!empty($estadoNFE)) && (strlen($estadoNFE) > 0)) {
             $whereConditions[] = array("estado_nfe" => $estadoNFE);
         }
 
@@ -441,16 +443,25 @@ class PontuacoesComprovantesTable extends GenericTable
                 )
             );
 
-        $todasPontuacoesComprovantes = $pontuacoesComprovantesQuery->toArray();
-        $pontuacoesComprovantes = $pontuacoesComprovantesQuery->toArray();
+        $pontuacoesComprovantesTodas = $pontuacoesComprovantesQuery->toArray();
+        $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
 
-        $retorno = $this->prepareReturnDataPagination($todasPontuacoesComprovantes, $pontuacoesComprovantes, "pontuacoes_comprovantes", $paginationConditions);
+        $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
 
 
-        DebugUtil::printArray($retorno);
+        // DebugUtil::printArray($retorno);
         if ($retorno["mensagem"]["status"] == 0) {
             return $retorno;
         }
+
+        $novaOrderConditions = array();
+        foreach ($orderConditions as $key => $order) {
+
+
+            $novaOrderConditions["PontuacoesComprovantes.".$key] = $order;
+        }
+
+        $orderConditions = $novaOrderConditions;
 
         if (sizeof($orderConditions) > 0) {
             $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->order($orderConditions);
@@ -461,10 +472,11 @@ class PontuacoesComprovantesTable extends GenericTable
                 ->page($paginationConditions["page"]);
         }
 
-        $retorno = $this->prepareReturnDataPagination($todasPontuacoesComprovantes, $pontuacoesComprovantesQuery->toArray(), "pontuacoes_comprovantes", $paginationConditions);
+        $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
+        $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
 
-        // DebugUtil::printArray($todasPontuacoesComprovantes);
-        // DebugUtil::printArray($retorno);
+        // DebugUtil::printArray($pontuacoesComprovantesTodas);
+        DebugUtil::printArray($retorno);
 
         return $retorno;
         # code...

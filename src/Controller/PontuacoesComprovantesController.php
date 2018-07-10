@@ -1388,8 +1388,6 @@ class PontuacoesComprovantesController extends AppController
                     $clientesIds[] = $clientesId;
                 }
 
-
-
                 $usuariosId = $this->Auth->user()["id"];
 
                 $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantesUsuario(
