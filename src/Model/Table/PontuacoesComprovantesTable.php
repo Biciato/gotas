@@ -14,6 +14,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Aura\Intl\Exception;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * PontuacoesComprovantes Model
@@ -364,15 +365,108 @@ class PontuacoesComprovantesTable extends GenericTable
     }
 
     /**
-     * PontuacoesComprovantesTable::getPontuacoesComprovantesWithFilterAndPagination
+     * PontuacoesComprovantesTable::getPontuacoesComprovantesUsuario
      *
      * Consulta genérica com filtro, ordenação e paginação
      *
      * @param Type $var
      * @return void
      */
-    public function getPontuacoesComprovantesWithFilterAndPagination(Type $var = null)
-    {
+    public function getPontuacoesComprovantesUsuario(
+        int $usuariosId,
+        int $redesId = null,
+        array $clientesIds = array(),
+        string $chaveNFE = null,
+        string $estadoNFE = null,
+        string $dataInicio = null,
+        string $dataFim = null,
+        array $orderConditions = array(),
+        $paginationConditions = array()
+    ) {
+
+        // Verifica se foi informado Rede ou clientes ids
+
+        $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+        // Se informar a Rede, irá pesquisar todas as unidades de uma rede.
+        if ((!empty($redesId)) && ($redesId > 0)) {
+            $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+        }
+
+        $whereConditions = array(
+            "usuarios_id" => $usuariosId,
+            // Só irá retornar os dados válidos
+            "registro_invalido" => 0
+        );
+
+        if ((!empty($chaveNFE)) && (strlen($chaveNFE) > 0)) {
+
+            $whereConditions[] = array("chave_nfe like '%{$chaveNFE}%'");
+        }
+        if ((!empty($estadoNFE)) && (strlen($estadoNFE) > 0)) {
+
+            $whereConditions[] = array("estado_nfe" => $estadoNFE);
+        }
+
+        // Adiciona os Ids de clientes se pesquisa for por rede ou por unidades
+        if (sizeof($clientesIds) > 0) {
+            $whereConditions[] = array(
+                "clientes_id in " => $clientesIds
+            );
+        }
+
+        // condições para datas
+        if (!is_null($dataInicio) && !is_null($dataFim)) {
+            $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+        } else if (!is_null($dataInicio)) {
+            $whereConditions[] = array("data >=" => $dataInicio);
+        } else if (!is_null($dataFim)) {
+            $whereConditions[] = array("data <=" => $dataFim);
+        } else {
+            // Data não está setada, procura pelos últimos 30 dias
+            $dataFim = date("Y-m-d");
+            $dataInicio = date('Y-m-d', strtotime("-30 days"));
+
+            $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+        }
+
+        $pontuacoesComprovantesQuery = $this->_getPontuacoesComprovantesTable()->find('all')
+            ->where($whereConditions)
+            ->contain(
+                array(
+                    'Pontuacoes.Gotas',
+                    'Clientes',
+                    'Usuarios',
+                    'Funcionarios'
+                )
+            );
+
+        $todasPontuacoesComprovantes = $pontuacoesComprovantesQuery->toArray();
+        $pontuacoesComprovantes = $pontuacoesComprovantesQuery->toArray();
+
+        $retorno = $this->prepareReturnDataPagination($todasPontuacoesComprovantes, $pontuacoesComprovantes, "pontuacoes_comprovantes", $paginationConditions);
+
+
+        DebugUtil::printArray($retorno);
+        if ($retorno["mensagem"]["status"] == 0) {
+            return $retorno;
+        }
+
+        if (sizeof($orderConditions) > 0) {
+            $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->order($orderConditions);
+        }
+
+        if (sizeof($paginationConditions) > 0) {
+            $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->limit($paginationConditions["limit"])
+                ->page($paginationConditions["page"]);
+        }
+
+        $retorno = $this->prepareReturnDataPagination($todasPontuacoesComprovantes, $pontuacoesComprovantesQuery->toArray(), "pontuacoes_comprovantes", $paginationConditions);
+
+        // DebugUtil::printArray($todasPontuacoesComprovantes);
+        // DebugUtil::printArray($retorno);
+
+        return $retorno;
         # code...
         // TODO: continuar
     }

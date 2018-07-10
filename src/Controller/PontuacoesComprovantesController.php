@@ -1335,13 +1335,28 @@ class PontuacoesComprovantesController extends AppController
                 $redesId = isset($data["redes_id"]) && strlen($data["redes_id"]) > 0 ? (int)$data["redes_id"] : null;
                 $clientesId = isset($data["clientes_id"]) && strlen($data["clientes_id"]) > 0 ? (int)$data["clientes_id"] : null;
                 $chaveNFE = isset($data["chave_nfe"]) && strlen($data["chave_nfe"]) > 0 ? $data["chave_nfe"] : null;
-                $estado = isset($data["estado"]) && strlen($data["estado"]) > 0 ? $data["estado"] : null;
+                $estadoNFE = isset($data["estado"]) && strlen($data["estado"]) > 0 ? $data["estado"] : null;
                 $dataInicio = isset($data["data_inicio"]) && strlen($data["data_inicio"]) > 0 ?
                     date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d")
                     : null;
                 $dataFim = isset($data["data_fim"]) && strlen($data["data_fim"]) > 0 ?
                     date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d")
                     : null;
+
+                $orderConditions = array();
+                $paginationConditions = array();
+
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
+                }
+
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
+
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
 
                 $clientesIds = array();
 
@@ -1373,38 +1388,24 @@ class PontuacoesComprovantesController extends AppController
                     $clientesIds[] = $clientesId;
                 }
 
-                if (sizeof($clientesIds) > 0) {
-                    $whereConditions[] = ["clientes_id in " => $clientesIds];
-                }
 
-                if (!is_null($chaveNFE)) {
-                    $whereConditions[] = ["chave_nfe like " => $chaveNFE];
-                }
 
-                if (!is_null($estado)) {
-                    $whereConditions[] = ["estado_nfe" => $estado];
-                }
+                $usuariosId = $this->Auth->user()["id"];
 
-                if (!is_null($dataInicio) && !is_null($dataFim)) {
-                    $whereConditions[] = ["data BETWEEN '{$dataInicio}' AND '{$dataFim}'"];
-                } else if (!is_null($dataInicio)) {
-                    $whereConditions[] = ["data >=" => $dataInicio];
-                } else if (!is_null($dataFim)) {
-                    $whereConditions[] = ["data <=" => $dataFim];
-                } else {
-                    // Data não está setada, procura pelos últimos 30 dias
-                    $dataFim = date("Y-m-d");
-                    $dataInicio = date('Y-m-d', strtotime("-30 days"));
+                $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantesUsuario(
+                    $usuariosId,
+                    $redesId,
+                    $clientesIds,
+                    $chaveNFE,
+                    $estadoNFE,
+                    $dataInicio,
+                    $dataFim,
+                    $orderConditions,
+                    $paginationConditions
 
-                    $whereConditions[] = ["data BETWEEN '{$dataInicio}' AND '{$dataFim}'"];
-                }
+                );
 
-                // Só irá retornar os dados do usuário logado
-                $whereConditions[] = ["usuarios_id" => $this->Auth->user()['id']];
-
-                // Só irá retornar os dados válidos
-                $whereConditions[] = ["registro_invalido" => 0];
-
+                DebugUtil::printArray($pontuacoes_comprovantes);
                 $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
 
                 if (sizeof($pontuacoes_comprovantes->toArray()) > 0) {
