@@ -1321,9 +1321,6 @@ class PontuacoesComprovantesController extends AppController
     public function getComprovantesFiscaisUsuarioAPI()
     {
         $mensagem = array();
-        $status = true;
-        $message = __(Configure::read("messageLoadDataWithSuccess"));
-        $errors = array();
 
         try {
 
@@ -1390,7 +1387,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $usuariosId = $this->Auth->user()["id"];
 
-                $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantesUsuario(
+                $resultado = $this->PontuacoesComprovantes->getPontuacoesComprovantesUsuario(
                     $usuariosId,
                     $redesId,
                     $clientesIds,
@@ -1402,6 +1399,9 @@ class PontuacoesComprovantesController extends AppController
                     $paginationConditions
 
                 );
+
+                $mensagem = $resultado["mensagem"];
+                $pontuacoes_comprovantes = $resultado["pontuacoes_comprovantes"];
 
                 // DebugUtil::printArray($pontuacoes_comprovantes);
                 // $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
@@ -1429,8 +1429,6 @@ class PontuacoesComprovantesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
-
-        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
 
         $arraySet = ["mensagem", "pontuacoes_comprovantes"];
 

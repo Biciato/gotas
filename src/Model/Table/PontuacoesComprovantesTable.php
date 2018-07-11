@@ -384,109 +384,144 @@ class PontuacoesComprovantesTable extends GenericTable
         $paginationConditions = array()
     ) {
 
-        // Verifica se foi informado Rede ou clientes ids
+        try {
 
-        $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+            // Verifica se foi informado Rede ou clientes ids
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
-        // Se informar a Rede, irá pesquisar todas as unidades de uma rede.
-        if ((!empty($redesId)) && ($redesId > 0)) {
-            $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
-        }
+            // Se informar a Rede, irá pesquisar todas as unidades de uma rede.
+            if ((!empty($redesId)) && ($redesId > 0)) {
+                $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+            }
 
-        // Condições básicas de pesquisa
-        $whereConditions = array(
-            "usuarios_id" => $usuariosId,
+            // Condições básicas de pesquisa
+            $whereConditions = array(
+                "usuarios_id" => $usuariosId,
             // Só irá retornar os dados válidos
-            "registro_invalido" => 0
-        );
-
-        // Se informou numeração da Chave da NFE
-        if ((!empty($chaveNFE)) && (strlen($chaveNFE) > 0)) {
-            $whereConditions[] = array("chave_nfe like '%{$chaveNFE}%'");
-        }
-
-        // Se informou estado
-        if ((!empty($estadoNFE)) && (strlen($estadoNFE) > 0)) {
-            $whereConditions[] = array("estado_nfe" => $estadoNFE);
-        }
-
-        // Adiciona os Ids de clientes se pesquisa for por rede ou por unidades
-        if (sizeof($clientesIds) > 0) {
-            $whereConditions[] = array(
-                "clientes_id in " => $clientesIds
-            );
-        }
-
-        // condições para datas
-        if (!is_null($dataInicio) && !is_null($dataFim)) {
-            $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
-        } else if (!is_null($dataInicio)) {
-            $whereConditions[] = array("data >=" => $dataInicio);
-        } else if (!is_null($dataFim)) {
-            $whereConditions[] = array("data <=" => $dataFim);
-        } else {
-            // Data não está setada, procura pelos últimos 30 dias
-            $dataFim = date("Y-m-d");
-            $dataInicio = date('Y-m-d', strtotime("-30 days"));
-
-            $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
-        }
-
-        $pontuacoesComprovantesQuery = $this->_getPontuacoesComprovantesTable()->find('all')
-            ->where($whereConditions)
-            ->contain(
-                array(
-                    'Pontuacoes.Gotas',
-                    'Clientes',
-                    // 'Usuarios',
-                    'Funcionarios'
-                )
+                "registro_invalido" => 0
             );
 
-        $pontuacoesComprovantesTodas = $pontuacoesComprovantesQuery->toArray();
-        $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
+            // Se informou numeração da Chave da NFE
+            if ((!empty($chaveNFE)) && (strlen($chaveNFE) > 0)) {
+                $whereConditions[] = array("chave_nfe like '%{$chaveNFE}%'");
+            }
 
-        $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
+            // Se informou estado
+            if ((!empty($estadoNFE)) && (strlen($estadoNFE) > 0)) {
+                $whereConditions[] = array("estado_nfe" => $estadoNFE);
+            }
 
+            // Adiciona os Ids de clientes se pesquisa for por rede ou por unidades
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array(
+                    "clientes_id in " => $clientesIds
+                );
+            }
 
-        // DebugUtil::printArray($retorno);
-        if ($retorno["mensagem"]["status"] == 0) {
+            // condições para datas
+            if (!is_null($dataInicio) && !is_null($dataFim)) {
+                $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+            } else if (!is_null($dataInicio)) {
+                $whereConditions[] = array("data >=" => $dataInicio);
+            } else if (!is_null($dataFim)) {
+                $whereConditions[] = array("data <=" => $dataFim);
+            } else {
+                // Data não está setada, procura pelos últimos 30 dias
+                $dataFim = date("Y-m-d");
+                $dataInicio = date('Y-m-d', strtotime("-30 days"));
+
+                $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+            }
+
+            $pontuacoesComprovantesQuery = $this->_getPontuacoesComprovantesTable()->find('all')
+                ->where($whereConditions)
+                ->contain(
+                    array(
+                        'Pontuacoes.Gotas',
+                        'Clientes',
+                        'Funcionarios'
+                    )
+                );
+
+            $pontuacoesComprovantesTodas = $pontuacoesComprovantesQuery->toArray();
+            $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
+
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
+
+            $novaOrderConditions = array();
+            foreach ($orderConditions as $key => $order) {
+                $novaOrderConditions["PontuacoesComprovantes." . $key] = $order;
+            }
+
+            $orderConditions = $novaOrderConditions;
+
+            if (sizeof($orderConditions) > 0) {
+                $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->order($orderConditions);
+            }
+
+            if (sizeof($paginationConditions) > 0) {
+                $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->limit($paginationConditions["limit"])
+                    ->page($paginationConditions["page"]);
+            }
+
+            $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
+
+            /**
+             * A pesquisa de pontuação deverá retornar as seguintes condições:
+             * 1 - Se não foi filtrado por redes ou clientesIds, o total de pontos não poderá ser calculado;
+             * 2 - Se informado o id de rede, ou informado uma ou mais unidades de rede, deve retornar um array conforme a seguinte estrutura:
+             * 2.1 - $pontos("total_pontos_rede", "total_pontos_pagina_atual")
+             */
+
+            $totalPontosRede = 0;
+            $totalPontosPaginaAtual = 0;
+            $pontuacoesTodas = array();
+            $pontuacoesPaginaAtual = array();
+
+            if (sizeof($pontuacoesComprovantesTodas) > 0) {
+                foreach ($pontuacoesComprovantesTodas as $key => $pontuacoesComprovantes) {
+                    foreach ($pontuacoesComprovantes["pontuacoes"] as $key => $pontuacaoComprovante) {
+                        $pontuacoesTodas[] = $pontuacaoComprovante;
+                    }
+                }
+            }
+
+            if (sizeof($pontuacoesComprovantesAtual) > 0) {
+                foreach ($pontuacoesComprovantesAtual as $key => $pontuacoesComprovantes) {
+                    foreach ($pontuacoesComprovantes["pontuacoes"] as $key => $pontuacaoComprovante) {
+                        $pontuacoesPaginaAtual[] = $pontuacaoComprovante;
+                    }
+                }
+            }
+            if (($redesId > 0) || sizeof($clientesIds) > 0) {
+                foreach ($pontuacoesTodas as $pontuacao) {
+                    $totalPontosRede += $pontuacao["quantidade_gotas"];
+                }
+                foreach ($pontuacoesPaginaAtual as $pontuacao) {
+                    $totalPontosPaginaAtual += $pontuacao["quantidade_gotas"];
+                }
+            }
+
+            $retorno["pontuacoes_comprovantes"]["data"]["soma_pontuacoes"] = array(
+                "total_pontos_rede" => $totalPontosRede,
+                "total_pontos_pagina_atual" => $totalPontosPaginaAtual,
+            );
+
             return $retorno;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao buscar dados de pontuações dos comprovantes do usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
-
-        $novaOrderConditions = array();
-        foreach ($orderConditions as $key => $order) {
-
-
-            $novaOrderConditions["PontuacoesComprovantes.".$key] = $order;
-        }
-
-        $orderConditions = $novaOrderConditions;
-
-        if (sizeof($orderConditions) > 0) {
-            $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->order($orderConditions);
-        }
-
-        if (sizeof($paginationConditions) > 0) {
-            $pontuacoesComprovantesQuery = $pontuacoesComprovantesQuery->limit($paginationConditions["limit"])
-                ->page($paginationConditions["page"]);
-        }
-
-        $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
-        $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
-
-        /**
-         * A pesquisa de pontuação deverá retornar as seguintes condições:
-         * Se não foi filtrado por redes ou clientesIds
-         */
-
-
-        // DebugUtil::printArray($pontuacoesComprovantesTodas);
-        // DebugUtil::printArray($retorno);
-
-        return $retorno;
-        # code...
-        // TODO: continuar
     }
 
     /**

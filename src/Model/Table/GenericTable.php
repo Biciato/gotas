@@ -99,6 +99,9 @@ class GenericTable extends Table
         $retorno = array();
         $count = sizeof($totalData);
 
+        // DebugUtil::printArray($totalData);
+        // DebugUtil::printArray($currentData);
+
         // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
         if (sizeof($totalData) == 0) {
             $retorno = array(
@@ -146,6 +149,8 @@ class GenericTable extends Table
             }
         } else {
             // se tem dados, mas a página atual não tem, é fim de paginação também
+            // DebugUtil::printArray($currentData);
+
             if (sizeof($currentData) == 0) {
                 $retorno = array(
                     "mensagem" => array(
@@ -175,6 +180,8 @@ class GenericTable extends Table
                 );
             }
         }
+
+        // DebugUtil::printArray($retorno);
         return $retorno;
     }
 }
