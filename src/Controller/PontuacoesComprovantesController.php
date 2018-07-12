@@ -887,6 +887,16 @@ class PontuacoesComprovantesController extends AppController
      * Obtêm dados de comprovante pelo sistema da SEFAZ
      *
      * @return json object
+     *
+     * ----------------------------------------------------------------------
+     * Aviso!
+     *
+     * Este método e o método setComprovanteFiscalUsuarioAPI fazem a mesma
+     * coisa de finalidade, mas suas execuções são diferentes!
+     * Por isto, este método não se deve ser genérico!
+     * Caso um dos dois tenha modificações, deve ser analisado o que será
+     * impactado!
+     * ----------------------------------------------------------------------
      */
     public function saveTaxCoupon()
     {
@@ -986,8 +996,6 @@ class PontuacoesComprovantesController extends AppController
 
                         $array_save = [];
 
-                        // DebugUtil::printArray($array_return, true);
-
                         foreach ($array_return as $key => $value) {
                             array_push($array_save, $value);
                         }
@@ -1006,7 +1014,17 @@ class PontuacoesComprovantesController extends AppController
                                 // item novo, gera entidade e grava
                                 $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
 
-                                $pontuacao_comprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($pontuacao_comprovante['clientes_id'], $pontuacao_comprovante['usuarios_id'], $pontuacao_comprovante['funcionarios_id'], $pontuacao_comprovante['conteudo'], $pontuacao_comprovante['chave_nfe'], $pontuacao_comprovante['estado_nfe'], $pontuacao_comprovante['data'], false, false);
+                                $pontuacao_comprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+                                    $pontuacao_comprovante['clientes_id'],
+                                    $pontuacao_comprovante['usuarios_id'],
+                                    $pontuacao_comprovante['funcionarios_id'],
+                                    $pontuacao_comprovante['conteudo'],
+                                    $pontuacao_comprovante['chave_nfe'],
+                                    $pontuacao_comprovante['estado_nfe'],
+                                    $pontuacao_comprovante['data'],
+                                    false,
+                                    false
+                                );
 
                                 // item novo. usa id de pontuacao_comprovante e grava
                                 if ($pontuacao_comprovante) {
@@ -1402,21 +1420,6 @@ class PontuacoesComprovantesController extends AppController
 
                 $mensagem = $resultado["mensagem"];
                 $pontuacoes_comprovantes = $resultado["pontuacoes_comprovantes"];
-
-                // DebugUtil::printArray($pontuacoes_comprovantes);
-                // $pontuacoes_comprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
-
-                // if (sizeof($pontuacoes_comprovantes->toArray()) > 0) {
-                //     $pontuacoes_comprovantes = $pontuacoes_comprovantes->toArray();
-                // }
-
-                // foreach ($pontuacoes_comprovantes as $key => $comprovante) {
-                //     $somaPontuacoes = 0;
-                //     foreach ($comprovante->pontuacoes as $key => $pontuacao) {
-                //         $somaPontuacoes += $pontuacao->quantidade_gotas;
-                //     }
-                //     $pontuacoes_comprovantes[0]['soma_pontuacoes'] = $somaPontuacoes;
-                // }
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -1443,7 +1446,21 @@ class PontuacoesComprovantesController extends AppController
      *
      * @param $data["url"] URL do QR Code
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 06/05/2018
+     *
      * @return json object
+     *
+     * ----------------------------------------------------------------------
+     * Aviso!
+     *
+     * Este método e o método saveTaxCoupon fazem a mesma coisa de finalidade,
+     * mas suas execuções são diferentes!
+     * Por isto, este método não se deve ser genérico!
+     * Caso um dos dois tenha modificações, deve ser analisado o que será
+     * impactado!
+     * ----------------------------------------------------------------------
+     *
      */
     public function setComprovanteFiscalUsuarioAPI()
     {
@@ -1555,9 +1572,6 @@ class PontuacoesComprovantesController extends AppController
                  */
 
                 $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
-
-                // $cnpjQuery[] = ["cnpj" => "33611070000135"];
-                 // echo strlen($webContent["response"]);
 
                 $cnpjArray = array();
 
@@ -1810,8 +1824,6 @@ class PontuacoesComprovantesController extends AppController
                 "cnpj" => $cliente->cnpj
             );
 
-            $somaPontuacoes = array($pontuacoes_comprovantes["soma_pontuacoes"]);
-
             $comprovanteResumo = array();
 
             $comprovanteResumo["chave_nfe"] = $pontuacoes_comprovantes["chave_nfe"];
@@ -1832,7 +1844,6 @@ class PontuacoesComprovantesController extends AppController
             $resumo = array(
                 "funcionario" => $funcionarioOperacao,
                 "unidade_atendimento" => $unidadeAtendimento,
-                "total_pontos" => $somaPontuacoes,
                 "comprovante_resumo" => $comprovanteResumo
             );
         } catch (\Exception $e) {
@@ -1841,9 +1852,10 @@ class PontuacoesComprovantesController extends AppController
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
@@ -1858,6 +1870,18 @@ class PontuacoesComprovantesController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+    /**
+     * PontuacoesComprovantesController::validarUrlQrCode
+     *
+     * Valida a URL do QRCode
+     *
+     * @param string $url URL de onde será capturadoos dados
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/03/2018
+     *
+     * @return array $data de Consistência de errors e validação
+     */
     private function validarUrlQrCode(string $url)
     {
         /**
