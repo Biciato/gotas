@@ -294,39 +294,45 @@ class PagesController extends AppController
                 $unidades_ids[] = $value->clientes_id;
             }
 
+            $redes = array();
+
+            if (sizeof($unidades_ids) > 0) {
+
             // obtem o id de redes através dos ids de clientes, de forma distinta
 
-            $redes_array = $this->RedesHasClientes->getRedesHasClientesByClientesIds($unidades_ids);
+                $redes_array = $this->RedesHasClientes->getRedesHasClientesByClientesIds($unidades_ids);
 
-            $redes_ids = [];
+                $redes_ids = [];
 
-            foreach ($redes_array->toArray() as $key => $value) {
-                $redes_ids[] = $value->redes_id;
-            }
-
-            /* agora tenho o id das redes que o usuário está vinculado.
-             * Pegar informações de cada rede, total de
-             * pontos acumulados, e brindes fornecidos
-             */
-
-            $redes = [];
-
-            foreach ($redes_ids as $key => $rede_id) {
-
-                $rede = $this->Redes->getRedeById($rede_id);
-
-                $rede->nome_img = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
-
-                // pega o id das unidades para obter a soma de pontos
-                $unidades_ids = [];
-                foreach ($rede->redes_has_clientes as $key => $value) {
-                    $unidades_ids[] = $value->clientes_id;
+                foreach ($redes_array->toArray() as $key => $value) {
+                    $redes_ids[] = $value->redes_id;
                 }
 
-                $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $rede["id"], $unidades_ids);
+            /* agora tenho o id das redes que o usuário está vinculado.
+                 * Pegar informações de cada rede, total de
+                 * pontos acumulados, e brindes fornecidos
+                 */
 
-                $rede['soma_pontos'] = Number::precision($soma_pontos, 2);
-                $redes[] = $rede;
+                $redes = [];
+
+                foreach ($redes_ids as $key => $rede_id) {
+
+                    $rede = $this->Redes->getRedeById($rede_id);
+
+                    $rede->nome_img = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
+
+                // pega o id das unidades para obter a soma de pontos
+                    $unidades_ids = [];
+                    foreach ($rede->redes_has_clientes as $key => $value) {
+                        $unidades_ids[] = $value->clientes_id;
+                    }
+
+                    $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuarios_id, $rede["id"], $unidades_ids);
+
+                    $rede['soma_pontos'] = Number::precision($soma_pontos, 2);
+                    $redes[] = $rede;
+                }
+
             }
 
             // debug($redes);

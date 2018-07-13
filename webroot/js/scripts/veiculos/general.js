@@ -1,22 +1,19 @@
-$(document).ready(function() {
-    
-    var populateData= function(data)
-    {
-    	if (data != undefined)
-    	{
+$(document).ready(function () {
+
+    var populateData = function (data) {
+        if (data != undefined) {
             $(".veiculos #placa").val(data.placa);
-    		$(".veiculos #modelo").val(data.modelo);
-    		$(".veiculos #fabricante").val(data.fabricante);
-    		$(".veiculos #ano").val(data.ano);    
+            $(".veiculos #modelo").val(data.modelo);
+            $(".veiculos #fabricante").val(data.fabricante);
+            $(".veiculos #ano").val(data.ano);
             $(".veiculos #placa_validation").text('Registro localizado.');
-    	}
-    	else
-    	{
+        }
+        else {
             $(".veiculos #modelo").val(null);
-    		$(".veiculos #fabricante").val(null);
-    		$(".veiculos #ano").val(null);
+            $(".veiculos #fabricante").val(null);
+            $(".veiculos #ano").val(null);
             $(".veiculos #placa_validation").text('Registro não localizado, será adicionado novo registro.');
-    	}
+        }
     }
     $("#placa").mask("AAA9999", {
         'translation': {
@@ -27,37 +24,40 @@ $(document).ready(function() {
                 pattern: /[0-9]/
             }
         },
-        onKeyPress: function(value, event) {
+        onKeyPress: function (value, event) {
             event.currentTarget.value = value.toUpperCase();
         }
     });
     $("#ano").mask("9999");
-    $("#placa").on('keyup', function() {
+    $("#placa").on('keyup', function () {
         if (this.value.length == 7) {
 
             callLoaderAnimation();
             $.ajax({
-                url: '/api/veiculos/getVeiculoByPlaca',
+                url: '/api/veiculos/getVeiculoByPlacaAPI',
                 type: 'POST',
                 data: JSON.stringify({
                     'placa': this.value
                 }),
-                beforeSend: function(xhr){
+                beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                 },
-                success: function(e) {
+                success: function (e) {
                     console.log(e);
 
                 },
-                error: function(e) {
+                error: function (e) {
                     console.log(e);
                     closeLoaderAnimation();
                 }
-            }).done(function(result){
+            }).done(function (result) {
                 closeLoaderAnimation();
-                
-                populateData(result.veiculo);
+
+                if (result.mensagem.status == 0) {
+                    callModalError(result.mensagem.message, result.mensagem.errors);
+                }
+                populateData(result.veiculo.data);
             });
         }
     });

@@ -9,6 +9,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Cake\Core\Configure;
+use Cake\Log\Log;
 
 /**
  * Veiculos Model
@@ -215,11 +216,55 @@ class VeiculosTable extends GenericTable
     public function getVeiculoByPlaca($placa)
     {
         try {
-            return $this->_getVeiculosTable()
+            $mensagem = array();
+            $veiculo = array("data" => null);
+
+            if (strlen($placa) < 7) {
+                // Se placa possui tamanho menor que 7, dá erro e retorna
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => Configure::read("messageQueryNoDataToReturn"),
+                    "errors" => array(
+                        "Valor Placa deve ter 7 dígitos para realizar a pesquisa!"
+                    )
+                );
+
+                $retorno = array("mensagem" => $mensagem, "veiculo" => $veiculo);
+
+                return $retorno;
+            }
+
+            $veiculo = $this->_getVeiculosTable()
                 ->find('all')
                 ->where(['placa' => $placa])
+                ->select([
+                    "id",
+                    "placa",
+                    "modelo",
+                    "fabricante",
+                    "ano",
+                ])
                 ->first();
+
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => empty($veiculo) ? 0 : 1,
+                    "message" => empty($veiculo) ?
+                        Configure::read("messageQueryNoDataToReturn") :
+                        Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+                "veiculo" => $veiculo
+            );
+            return $retorno;
         } catch (\Exception $e) {
+
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao realizar pesquisa de veículo: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 

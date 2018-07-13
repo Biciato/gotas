@@ -288,8 +288,8 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Veiculos", [
         "map" => [
-            "getVeiculoByPlaca" => [
-                "action" => "getVeiculoByPlaca",
+            "getVeiculoByPlacaAPI" => [
+                "action" => "getVeiculoByPlacaAPI",
                 "method" => "POST",
                 "path" => "/get_veiculo_by_placa"
             ]

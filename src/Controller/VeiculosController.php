@@ -157,6 +157,7 @@ class VeiculosController extends AppController
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $user_logged = $user_managed;
             }
 
             if (!is_null($usuarios_id)) {
@@ -624,7 +625,7 @@ class VeiculosController extends AppController
      *
      * @return (entity\veiculos) $veiculo
      **/
-    public function getVeiculoByPlaca()
+    public function getVeiculoByPlacaAPI()
     {
         $mensagem = [];
 
@@ -632,10 +633,9 @@ class VeiculosController extends AppController
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
-                $veiculo = $this->Veiculos->getVeiculoByPlaca($data['placa']);
-
-                $mensagem = ['status' => true, 'mensagem' => null];
-
+                $resultado = $this->Veiculos->getVeiculoByPlaca($data['placa']);
+                $mensagem = $resultado["mensagem"];
+                $veiculo = $resultado["veiculo"];
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();

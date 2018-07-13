@@ -2581,18 +2581,30 @@ class UsuariosController extends AppController
 
         // pega qual é a rede que o usuário está vinculado
 
-        $cliente_has_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+        /**
+         * Se o usuário for do tipo Usuário comum, não tem problema ele ainda não estar vinculado
+         * pois quando fizer um abastecimento o script vai vincular.
+         * Se for Níveis acimas, aí tem problema.
+         */
+
+        $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
                 'ClientesHasUsuarios.usuarios_id' => $user_managed->id,
                 'ClientesHasUsuarios.tipo_perfil' => $user_managed->tipo_perfil
             ]
         )->first();
 
-        $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
-            $cliente_has_usuario->clientes_id
+        if (!isset($clienteHasUsuario) && $user_managed["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
+            $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");
+
+            return $this->redirect(['controller' => 'usuarios', 'action' => 'administrarUsuario']);
+        }
+
+        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
+            $clienteHasUsuario->clientes_id
         );
 
-        $rede = $rede_has_cliente->rede;
+        $rede = $redeHasCliente->rede;
 
         $this->request->session()->write('Network.Main', $rede);
         $this->request->session()->write('Network.Unit', $cliente);
@@ -3395,7 +3407,7 @@ class UsuariosController extends AppController
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
 
-                        if ($restringirUsuariosRede){
+                        if ($restringirUsuariosRede) {
                             $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), false, array());
                         } else {
                             $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], null, array(), false, array());

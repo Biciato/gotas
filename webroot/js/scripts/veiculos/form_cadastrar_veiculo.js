@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\veiculos\form_cadastrar_veiculos.js
  * @date 24/10/2017
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -12,30 +12,31 @@ $(document).ready(function () {
     });
 
     $("#placa").on('blur', function () {
-        if ($(this).val().length == 7) {
-            var data = {
-                placa: $(this).val()
-            }
-
-            callLoaderAnimation();
-
-            $.ajax({
-                type: "POST",
-                url: "/Veiculos/getVeiculoByPlaca",
-                data: JSON.stringify(data),
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Accept", "application/json");
-                    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-                },
-                error: function (response) {
-                    console.log(response);
-                    closeLoaderAnimation();
-                }
-            }).done(function (result) {
-                closeLoaderAnimation();
-                populateVeiculosForm(result.veiculo);
-            });
+        var data = {
+            placa: $(this).val()
         }
+
+        callLoaderAnimation();
+
+        $.ajax({
+            type: "POST",
+            url: "/Veiculos/getVeiculoByPlacaAPI",
+            data: JSON.stringify(data),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            },
+            error: function (response) {
+                console.log(response);
+                closeLoaderAnimation();
+            }
+        }).done(function (result) {
+            closeLoaderAnimation();
+            if (result.mensagem.status == 0) {
+                callModalError(result.mensagem.message, result.mensagem.errors);
+            }
+            populateVeiculosForm(result.veiculo.data);
+        });
     });
 
     var populateVeiculosForm = function (data) {
