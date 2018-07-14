@@ -8,6 +8,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
+use Cake\Core\Configure;
+use Cake\Log\Log;
 
 /**
  * UsuariosHasVeiculos Model
@@ -45,10 +48,10 @@ class UsuariosHasVeiculosTable extends GenericTable
      * Method get of user has vehicles table property
      * @return (Cake\ORM\Table) Table object
      */
-    private function getUsuarioHasVeiculosTable()
+    private function _getUsuarioHasVeiculosTable()
     {
         if (is_null($this->usuarioHasVeiculosTable)) {
-            $this->setUsuarioHasVeiculosTable();
+            $this->_setUsuarioHasVeiculosTable();
         }
         return $this->usuarioHasVeiculosTable;
     }
@@ -57,7 +60,7 @@ class UsuariosHasVeiculosTable extends GenericTable
      * Method set of user has vehicles table property
      * @return void
      */
-    private function setUsuarioHasVeiculosTable()
+    private function _setUsuarioHasVeiculosTable()
     {
         $this->usuarioHasVeiculosTable = TableRegistry::get('UsuariosHasVeiculos');
     }
@@ -80,7 +83,7 @@ class UsuariosHasVeiculosTable extends GenericTable
      */
     private function setUsuarioHasVeiculosQuery()
     {
-        $this->usuarioHasVeiculosQuery = $this->getUsuarioHasVeiculosTable()->query();
+        $this->usuarioHasVeiculosQuery = $this->_getUsuarioHasVeiculosTable()->query();
     }
 
     /**
@@ -150,12 +153,12 @@ class UsuariosHasVeiculosTable extends GenericTable
     public function addUsuarioHasVeiculo($veiculos_id = null, $usuarios_id = null)
     {
         try {
-            $usuarioHasVeiculo = $this->getUsuarioHasVeiculosTable()->newEntity();
+            $usuarioHasVeiculo = $this->_getUsuarioHasVeiculosTable()->newEntity();
 
             $usuarioHasVeiculo->veiculos_id = (int)$veiculos_id;
             $usuarioHasVeiculo->usuarios_id = (int)$usuarios_id;
 
-            return $this->getUsuarioHasVeiculosTable()->save($usuarioHasVeiculo);
+            return $this->_getUsuarioHasVeiculosTable()->save($usuarioHasVeiculo);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -176,7 +179,7 @@ class UsuariosHasVeiculosTable extends GenericTable
     public function findUsuariosHasVeiculos(array $whereConditions = [])
     {
         try {
-            return $this->getUsuarioHasVeiculosTable()
+            return $this->_getUsuarioHasVeiculosTable()
                 ->find('all')
                 ->where($whereConditions);
 
@@ -201,7 +204,7 @@ class UsuariosHasVeiculosTable extends GenericTable
     public function findUsuariosHasVeiculosByVeiculosId(int $id)
     {
         try {
-            return $this->getUsuarioHasVeiculosTable()
+            return $this->_getUsuarioHasVeiculosTable()
                 ->find('all')
                 ->where(['veiculos_id' => $id])
                 ->contain(['Veiculos', 'Usuarios']);
@@ -257,6 +260,128 @@ class UsuariosHasVeiculosTable extends GenericTable
         }
     }
 
+    /**
+     * UsuariosHasVeiculosTable::getVeiculosUsuario
+     *
+     * Obtem Veículos de Usuário com Paginação
+     *
+     * @param integer $usuariosId Id de usuário
+     * @param string $placa Placa
+     * @param string $modelo Modelo
+     * @param string $fabricante Fabricante
+     * @param integer $ano Ano
+     * @param array $orderConditions Condições de Ordenação
+     * @param array $paginationConditions Condições de Paginação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 14/07/2018
+     *
+     * @return array Dados
+     */
+    public function getVeiculosUsuario(
+        int $usuariosId,
+        string $placa = null,
+        string $modelo = null,
+        string $fabricante = null,
+        int $ano = null,
+        array $orderConditions = array(),
+        array $paginationConditions = array()
+    ) {
+        try {
+
+            // Inicialmente, verifica se usuário tem algum veículo. Se tiver, nem pesquisa
+
+            $usuarioHasVeiculos = $this->_getUsuarioHasVeiculosTable()
+                ->find("all")
+                ->where(array("usuarios_id" => $usuariosId))
+                ->select(["veiculos_id"])
+                ->toArray();
+
+            $veiculosIds = array();
+
+            foreach ($usuarioHasVeiculos as $key => $veiculo) {
+                $veiculosIds[] = $veiculo["veiculos_id"];
+            }
+
+            // DebugUtil::printArray($veiculosIds, true);
+            // DebugUtil::printArray($usuarioHasVeiculos, true);
+
+            if (sizeof($usuarioHasVeiculos) == 0) {
+                $retorno = array(
+                    "mensagem" => array(
+                        "status" => 0,
+                        "message" => Configure::read("messageQueryNoDataToReturn"),
+                        "errors" => array("Usuário não possui veículos vinculados em seu perfil!")
+                    ),
+                    "veiculos" => array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
+                    )
+                );
+                return $retorno;
+            }
+
+            /**
+             * Usuário possui veículos. Faz a pesquisa normalmente
+             */
+
+            $veiculosTable = TableRegistry::get("Veiculos");
+
+            $whereConditions = array("id in " => $veiculosIds);
+
+            if (isset($data["placa"]) && strlen($data["placa"]) > 0) {
+                $whereConditions[] = ["placa like '%{$data['placa']}%'"];
+            }
+
+            if (isset($data["modelo"]) && strlen($data["modelo"]) > 0) {
+                $whereConditions[] = ["modelo like '%{$data['modelo']}%'"];
+            }
+
+            if (isset($data["fabricante"]) && strlen($data["fabricante"]) > 0) {
+                $whereConditions[] = ["fabricante like '%{$data['fabricante']}%'"];
+            }
+
+            if (isset($data["ano"]) && strlen($data["ano"]) > 0) {
+                $whereConditions[] = ["ano" => $data["ano"]];
+            }
+
+            $veiculosTodosQuery = $veiculosTable->find("all")
+                ->where($whereConditions);
+
+            $veiculosTodos = $veiculosTodosQuery->toArray();
+            $veiculosAtual = $veiculosTodosQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", array());
+
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
+
+            $retorno = $this->prepareReturnDataPagination($usuarioHasVeiculos, array(), "usuarioHasVeiculos", null);
+
+            DebugUtil::printArray($retorno);
+
+            $veiculosTable = TableRegistry::get("Veiculos");
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            // $stringExplode = implode(";", $trace);
+
+            $stringError = __(
+                "Erro ao pesquisar veículos de usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} ]",
+                $e->getMessage(),
+                __FUNCTION__,
+                __FILE__,
+                __LINE__
+            );
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
     /* -------------------------- Delete -------------------------- */
 
     /**
@@ -299,7 +424,7 @@ class UsuariosHasVeiculosTable extends GenericTable
     {
         try {
 
-            return $this->getUsuarioHasVeiculosTable()
+            return $this->_getUsuarioHasVeiculosTable()
                 ->deleteAll($deleteConditions);
         } catch (\Exception $e) {
             $trace = $e->getTrace();

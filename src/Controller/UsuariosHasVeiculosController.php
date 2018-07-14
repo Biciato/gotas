@@ -195,23 +195,36 @@ class UsuariosHasVeiculosController extends AppController
 
                 $data = $this->request->getData();
 
-                $whereConditions = array();
+                $placa = isset($data["placa"]) ? $data["placa"] : null;
+                $modelo = isset($data["modelo"]) ? $data["modelo"] : null;
+                $fabricante = isset($data["fabricante"]) ? $data["fabricante"] : null;
+                $ano = isset($data["ano"]) ? $data["ano"] : null;
 
-                if (isset($data["placa"]) && strlen($data["placa"]) > 0) {
-                    $whereConditions[] = ["placa like '%{$data['placa']}%'"];
+                $orderConditions = array();
+                $paginationConditions = array();
+
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
                 }
 
-                if (isset($data["modelo"]) && strlen($data["modelo"]) > 0) {
-                    $whereConditions[] = ["modelo like '%{$data['modelo']}%'"];
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
+
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
                 }
 
-                if (isset($data["fabricante"]) && strlen($data["fabricante"]) > 0) {
-                    $whereConditions[] = ["fabricante like '%{$data['fabricante']}%'"];
-                }
+                $resultado = $this->UsuariosHasVeiculos->getVeiculosUsuario(
+                    $this->Auth->user()["id"],
+                    $placa,
+                    $modelo,
+                    $fabricante,
+                    $ano,
+                    $orderConditions,
+                    $paginationConditions
+                );
 
-                if (isset($data["ano"]) && strlen($data["ano"]) > 0) {
-                    $whereConditions[] = ["ano" => $data["ano"]];
-                }
                 $veiculosUsuarios = $this->UsuariosHasVeiculos->findUsuariosHasVeiculos(["usuarios_id in " => $usuario['id']]);
 
                 $veiculosIds = array();

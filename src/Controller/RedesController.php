@@ -646,7 +646,9 @@ class RedesController extends AppController
                 $redes = [];
 
                 if (count($redes_ids) == 0) {
-                    $messageString = __("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
+                    $status = 0;
+                    $messageString = Configure::read("messageLoadDataWithError");
+                    $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
                 } else {
 
                     $redesQueryResult = $this->Redes->getRedes(
@@ -688,15 +690,15 @@ class RedesController extends AppController
                     }
                     $redes["count"] = $redesQueryResult["count"];
                     $redes["page_count"] = $redesQueryResult["page_count"];
+                    $mensagem = $redesQueryResult["mensagem"];
                 }
 
-                $mensagem = $redesQueryResult["mensagem"];
             }
 
         } catch (\Exception $e) {
             $messageString = __("Não foi possível obter dados de Redes e Pontuações!");
             $trace = $e->getTrace();
-            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $mensagem = array('status' => 0, 'message' => $messageString, 'errors' => $trace);
             $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);

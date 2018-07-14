@@ -166,6 +166,7 @@ class GenericTable extends Table
 
                 );
             } else {
+                // DebugUtil::printArray($totalData);
                 $retorno = array(
                     $stringLabelReturn => array(
                         "count" => sizeof($totalData),

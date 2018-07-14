@@ -369,8 +369,20 @@ class PontuacoesComprovantesTable extends GenericTable
      *
      * Consulta genérica com filtro, ordenação e paginação
      *
-     * @param Type $var
-     * @return void
+     * @param integer $usuariosId
+     * @param integer $redesId
+     * @param array $clientesIds
+     * @param string $chaveNFE
+     * @param string $estadoNFE
+     * @param string $dataInicio
+     * @param string $dataFim
+     * @param array $orderConditions
+     * @param array $paginationConditions
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 07/07/2018
+     *
+     * @return array Dados
      */
     public function getPontuacoesComprovantesUsuario(
         int $usuariosId,
