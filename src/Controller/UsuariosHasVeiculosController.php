@@ -225,25 +225,8 @@ class UsuariosHasVeiculosController extends AppController
                     $paginationConditions
                 );
 
-                $veiculosUsuarios = $this->UsuariosHasVeiculos->findUsuariosHasVeiculos(["usuarios_id in " => $usuario['id']]);
-
-                $veiculosIds = array();
-
-                foreach ($veiculosUsuarios as $value) {
-                    $veiculosIds[] = $value->veiculos_id;
-                }
-
-                $whereConditions[] = ["id in " => $veiculosIds];
-
-                $veiculos = $this->Veiculos->findVeiculos($whereConditions);
-
-                // Se não encontrar nenhum veículo conforme parâmetros, retorna mensagem de erro
-                if (sizeof($veiculos->toArray()) == 0) {
-                    $status = false;
-                    $message = __("Não foram encontrados veículos para o usuário conforme parâmetros informados!");
-                }
-
-                $mensagem = ["status" => $status, "message" => $message];
+                $mensagem = $resultado["mensagem"];
+                $veiculos = $resultado["veiculos"];
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();

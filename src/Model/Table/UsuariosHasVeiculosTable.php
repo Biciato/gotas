@@ -347,7 +347,15 @@ class UsuariosHasVeiculosTable extends GenericTable
             }
 
             $veiculosTodosQuery = $veiculosTable->find("all")
-                ->where($whereConditions);
+                ->where($whereConditions)
+                ->select(
+                    array(
+                        "id",
+                        "placa",
+                        "modelo",
+                        "ano"
+                    )
+                );
 
             $veiculosTodos = $veiculosTodosQuery->toArray();
             $veiculosAtual = $veiculosTodosQuery->toArray();
@@ -358,16 +366,23 @@ class UsuariosHasVeiculosTable extends GenericTable
                 return $retorno;
             }
 
-            $retorno = $this->prepareReturnDataPagination($usuarioHasVeiculos, array(), "usuarioHasVeiculos", null);
+            if (sizeof($orderConditions) > 0) {
+                $veiculosTodosQuery = $veiculosTodosQuery->order($orderConditions);
+            }
 
-            DebugUtil::printArray($retorno);
+            if (sizeof($paginationConditions) > 0) {
+                $veiculosTodosQuery = $veiculosTodosQuery->limit($paginationConditions["limit"])
+                    ->page($paginationConditions["page"]);
+            }
 
-            $veiculosTable = TableRegistry::get("Veiculos");
 
+            $veiculosAtual = $veiculosTodosQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", $paginationConditions);
+
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-
-            // $stringExplode = implode(";", $trace);
 
             $stringError = __(
                 "Erro ao pesquisar veículos de usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} ]",
