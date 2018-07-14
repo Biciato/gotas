@@ -623,6 +623,23 @@ class RedesController extends AppController
                     $unidadesIds[] = $value->clientes_id;
                 }
 
+                if (count($unidadesIds) == 0) {
+                    $status = 0;
+                    $messageString = Configure::read("messageLoadDataWithError");
+                    $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
+
+                    $mensagem = array(
+                        "status" => $status,
+                        "message" => $messageString,
+                        "errors" => $errors
+                    );
+
+                    $arraySet = array("mensagem", "redes");
+                    $this->set(compact($arraySet));
+
+                    $this->set("_serialize", $arraySet);
+                }
+
                 // obtem o id de redes através dos ids de clientes, de forma distinta
 
                 $redes_array = [];
