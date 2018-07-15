@@ -135,21 +135,45 @@ class VeiculosTable extends GenericTable
      *
      * @return boolean Registro gravado
      */
-    public function createVeiculo(
-        string $placa,
-        string $modelo,
-        string $fabricante,
-        int $ano
+    public function saveUpdateVeiculo(
+        int $id = null,
+        string $placa = "",
+        string $modelo = "",
+        string $fabricante = "",
+        int $ano = null
     ) {
         try {
-            $veiculo = $this->_getVeiculosTable()->newEntity();
+
+            $veiculo = null;
+            if (isset($id) && ($id > 0)) {
+                $veiculo = $this->_getVeiculosTable()->find('all')
+                    ->where(array("id" => $id))->first();
+            } else {
+                $veiculo = $this->_getVeiculosTable()->newEntity();
+            }
 
             $veiculo->placa = $placa;
             $veiculo->modelo = $modelo;
             $veiculo->fabricante = $fabricante;
             $veiculo->ano = $ano;
 
-            return $this->_getVeiculosTable()->save($veiculo);
+            $veiculo = $this->_getVeiculosTable()->save($veiculo);
+
+            if ($veiculo) {
+                $veiculo = $this->_getVeiculosTable()->find('all')
+                    ->where(array("id" => $veiculo["id"]))
+                    ->select(
+                        array(
+                            "id",
+                            "placa",
+                            "modelo",
+                            "fabricante",
+                            "ano"
+                        )
+                    )
+                    ->first();
+            }
+            return $veiculo;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao criar registro: " . $e->getMessage() . ", em: " . $trace[1]);

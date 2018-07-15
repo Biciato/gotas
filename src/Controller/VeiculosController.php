@@ -175,7 +175,8 @@ class VeiculosController extends AppController
 
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
-                    $veiculo = $this->Veiculos->createVeiculo(
+                    $veiculo = $this->Veiculos->saveUpdateVeiculo(
+                        null,
                         $data['placa'],
                         $data['modelo'],
                         $data['fabricante'],
@@ -378,7 +379,8 @@ class VeiculosController extends AppController
 
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
-                    $veiculo = $this->Veiculos->createVeiculo(
+                    $veiculo = $this->Veiculos->saveUpdateVeiculo(
+                        null,
                         $data['placa'],
                         $data['modelo'],
                         $data['fabricante'],

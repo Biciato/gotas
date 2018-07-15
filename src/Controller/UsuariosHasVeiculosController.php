@@ -4,6 +4,9 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use App\Custom\RTI\DebugUtil;
+use App\Model\Entity\Veiculo;
+use App\Model\Table\VeiculosTable;
 
 /**
  * UsuariosHasVeiculos Controller
@@ -184,12 +187,12 @@ class UsuariosHasVeiculosController extends AppController
      */
     public function getVeiculosUsuarioAPI()
     {
-        // Dados de mensagem
-        $mensagem = array();
-        $message = null;
-        $status = true;
-
         try {
+            // Dados de mensagem
+            $mensagem = array();
+            $message = null;
+            $status = true;
+
             if ($this->request->is('post')) {
                 $usuario = $this->Auth->user();
 
@@ -227,6 +230,11 @@ class UsuariosHasVeiculosController extends AppController
 
                 $mensagem = $resultado["mensagem"];
                 $veiculos = $resultado["veiculos"];
+
+                $arraySet = array("mensagem", "veiculos");
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -235,15 +243,18 @@ class UsuariosHasVeiculosController extends AppController
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
             $messageStringDebug =
-                $stringError = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+                $stringError = __(
+                "{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ",
+                $messageString,
+                $e->getMessage(),
+                __FUNCTION__,
+                __FILE__,
+                __LINE__
+            );
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
-
-        $arraySet = ["mensagem", "veiculos"];
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -255,6 +266,7 @@ class UsuariosHasVeiculosController extends AppController
      * @param $data["modelo"]     Modelo do veículo
      * @param $data["fabricante"] Fabricante do veículo
      * @param $data["ano"]        Ano do veículo
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/04/29
      *
@@ -278,15 +290,20 @@ class UsuariosHasVeiculosController extends AppController
 
                 $veiculo = null;
 
-                // Se for informado id de veículo, pesquisa o veículo e verifica se há cadastro para o Usuário
-                if (isset($data["veiculos_id"]) && strlen($data["veiculos_id"]) > 0) {
+                $veiculosId = isset($data["id"]) && $data["id"] > 0 ? $data["id"] : null;
+                $placa = isset($data["placa"]) ? $data["placa"] : null;
 
+                // Se id do veiculo foi informado, faz pesquisa pelo id primeiro.
+
+                if (isset($veiculosId)) {
                     $veiculo = $this->Veiculos->findVeiculos(["id" => $data["veiculos_id"]])->first();
-
                 }
-                // informado placa de veículo, procura pela placa
-                else {
-                    $veiculo = $this->Veiculos->getVeiculoByPlaca($data["placa"]);
+
+                // Se não achou o veículo, faz pesquisa pela placa.
+
+                if (!$veiculo) {
+                    $resultado = $this->Veiculos->getVeiculoByPlaca($data["placa"]);
+                    $veiculo = $resultado["veiculo"];
                 }
 
                 /**
@@ -382,6 +399,145 @@ class UsuariosHasVeiculosController extends AppController
     }
 
     /**
+     * UsuariosHasVeiculos::updateVeiculosUsuarioAPI
+     *
+     * Atualiza dados de veículo.
+     *
+     * @param $data["id"]         Id do veículo
+     * @param $data["placa"]      Placa do veículo
+     * @param $data["modelo"]     Modelo do veículo
+     * @param $data["fabricante"] Fabricante do veículo
+     * @param $data["ano"]        Ano do veículo
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 2018/05/05
+     *
+     * @return json Objeto JSON
+     */
+    public function updateVeiculosUsuarioAPI()
+    {
+        $mensagem = array();
+
+        $status = false;
+        $message = null;
+        $errors = array();
+
+        try {
+
+            if ($this->request->is('post')) {
+                $data = $this->request->getData();
+                $usuario = $this->Auth->user();
+
+                $veiculosId = isset($data["id"]) && strlen($data["id"]) > 0 ? $data["id"] : null;
+                $placa = isset($data["placa"]) && strlen($data["placa"]) > 0 ? $data["placa"] : null;
+                $modelo = isset($data["modelo"]) && strlen($data["modelo"]) > 0 ? $data["modelo"] : null;
+                $fabricante = isset($data["fabricante"]) && strlen($data["fabricante"]) > 0 ? $data["fabricante"] : null;
+                $ano = isset($data["ano"]) && strlen($data["ano"]) > 0 ? $data["ano"] : null;
+
+                $veiculo = null;
+
+                // Verifica se os parâmetros estão informados, se não, não é possível atualizar
+
+                $arrayCheck = array("placa", "modelo", "fabricante", "ano");
+                $arrayErrors = array();
+
+                foreach ($arrayCheck as $item) {
+                    if (empty($data[$item])) {
+                        $arrayErrors = __("O campo {0} precisa estar preenchido para continuar!", strtoupper($item));
+                    }
+                }
+
+                if (sizeof($arrayErrors) > 0) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => $arrayErrors
+                    );
+
+                    $veiculo = array(
+                        "data" => array(),
+                        "count" => 0,
+                        "page_count" => 0
+                    );
+                    $arraySet = array("mensagem", "veiculo");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+                    return;
+                }
+
+                // Localiza pelo Id se fornecido
+                if (isset($veiculosId)) {
+                    $veiculo = $this->Veiculos->getVeiculoById($veiculosId);
+                }
+                // Localiza registro pela placa se não achou pelo id.
+                if (!$veiculo && isset($placa)) {
+                    $resultado = $this->Veiculos->getVeiculoByPlaca($placa);
+                    $veiculo = $resultado["veiculo"];
+                }
+
+                // Se não achou, retorna erro pois não existe
+
+                if (empty($veiculo)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Veiculo não existe no sistema, não sendo possível atualizar o mesmo!")
+                    );
+
+                    $veiculo = array(
+                        "data" => array(),
+                        "count" => 0,
+                        "page_count" => 0
+                    );
+                    $arraySet = array("mensagem", "veiculo");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+                    return;
+                }
+
+                // Realiza update dos dados
+                else {
+                    $placa = $veiculo["placa"];
+
+                    $veiculo = $this->Veiculos->saveUpdateVeiculo(
+                        $veiculo["id"],
+                        $placa,
+                        $modelo,
+                        $fabricante,
+                        $ano
+                    );
+
+                    $mensagem = array(
+                        "status" => $veiculo ? 1 : 0,
+                        "mensagem" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => $veiculo ? array(): $veiculo->errors()
+                    );
+
+                }
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $messageString = __("Não foi possível gravar veículo!");
+
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
+
+        $arraySet = ["mensagem", "veiculo"];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
      * UsuariosHasVeiculos::deleteVeiculosUsuarioAPI
      *
      * Remove o vínculo de um veículo com um funcionário
@@ -441,96 +597,6 @@ class UsuariosHasVeiculosController extends AppController
         $mensagem = ['status' => $status, 'message' => $message, 'errors' => $errors];
 
         $arraySet = ["mensagem", "resultado"];
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-    }
-
-
-    /**
-     * UsuariosHasVeiculos::updateVeiculosUsuarioAPI
-     *
-     * Atualiza dados de veículo.
-     *
-     * @param $data["id"]         Id do veículo
-     * @param $data["placa"]      Placa do veículo
-     * @param $data["modelo"]     Modelo do veículo
-     * @param $data["fabricante"] Fabricante do veículo
-     * @param $data["ano"]        Ano do veículo
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 2018/05/05
-     *
-     * @return json Objeto JSON
-     */
-    public function updateVeiculosUsuarioAPI()
-    {
-        $mensagem = array();
-
-        $status = false;
-        $message = null;
-        $errors = array();
-
-        try {
-
-            if ($this->request->is('post')) {
-                $data = $this->request->getData();
-                $usuario = $this->Auth->user();
-
-                $veiculosId = isset($data["id"]) && strlen($data["id"]) > 0 ? $data["id"] : null;
-                $placa = isset($data["placa"]) && strlen($data["placa"]) > 0 ? $data["placa"] : null;
-
-                $veiculo = null;
-
-                // Localiza pelo Id se fornecido
-                if (isset($veiculosId) && strlen($veiculosId) > 0) {
-                    $veiculo = $this->Veiculos->getVeiculoById($veiculosId);
-                }
-                // Localiza registro pela placa
-                else if (isset($placa) && strlen($placa) > 0) {
-                    $veiculo = $this->Veiculos->getVeiculoByPlaca($placa);
-                }
-
-                // Registro não encontrado, retorna mensagem de erro
-                if (is_null($veiculo)) {
-                    $status = false;
-                    $message = __(Configure::read("messageRecordNotFound"));
-                }
-                // Realiza update dos dados
-                else {
-                    $data["placa"] = $veiculo["placa"];
-
-                    $veiculo = $this->Veiculos->patchEntity($veiculo, $data);
-
-                    $errors = $veiculo->errors();
-
-                    if (!$errors) {
-                        $veiculo = $this->Veiculos->save($veiculo);
-
-                        $veiculo = $this->Veiculos->getVeiculoById($veiculo->id);
-                        $status = true;
-                        $message = __(Configure::read("messageSavedSuccess"));
-                    } else {
-                        $status = false;
-                        $message = __(Configure::read("messageSavedError"));
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $messageString = __("Não foi possível gravar veículo!");
-
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
-
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write("error", $messageStringDebug);
-        }
-
-        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
-
-        $arraySet = ["mensagem", "veiculo"];
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
