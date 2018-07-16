@@ -12,6 +12,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Redes Model
@@ -278,15 +279,43 @@ class RedesTable extends GenericTable
                 array_push($conditions, [$key => $value]);
             }
 
-            $redes = $this->_getRedesTable()->find('all')
+            $redesQuery = $this->_getRedesTable()->find('all')
                 ->where($conditions);
 
             if (sizeof($selectFields) > 0) {
-                $redes = $redes->select($selectFields);
+                $redesQuery= $redesQuery->select($selectFields);
             }
 
-            $count = $redes->count();
+            $redesTodas = $redesQuery->toArray();
+            $redesAtual = $redesQuery->toArray();
 
+            // DebugUtil::printArray($redesTodas, false);
+            // DebugUtil::printArray($redesAtual, true);
+
+            $retorno = $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
+
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
+
+            // DebugUtil::printArray($retorno);
+
+            // $count = $redes->count();
+
+            if (sizeof($orderConditions) > 0) {
+                $redesQuery = $redesQuery->order($orderConditions);
+            }
+
+            if (sizeof($paginationConditions) > 0) {
+                $redesQuery = $redesQuery->limit($paginationConditions["limit"])
+                    ->page($paginationConditions["page"]);
+            }
+
+            $redesAtual = $redesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
+
+            return $retorno;
             // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
             if (sizeof($redes->toArray()) == 0) {
 

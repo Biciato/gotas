@@ -682,11 +682,11 @@ class RedesController extends AppController
                         $paginationConditions
                     );
 
-                    $redesData = $redesQueryResult["data"];
+                    $redesData = $redesQueryResult["redes"]["data"];
 
                     $redes = array();
 
-                    $redes["count"] = $redesQueryResult["count"];
+                    // $redes["count"] = $redesQueryResult["count"];
 
                     foreach ($redesData as $key => $rede) {
 
@@ -705,8 +705,13 @@ class RedesController extends AppController
 
                         $redes["data"][] = $rede;
                     }
-                    $redes["count"] = $redesQueryResult["count"];
-                    $redes["page_count"] = $redesQueryResult["page_count"];
+
+                    if (sizeof($redesData) == 0) {
+                        $redes["data"] = array();
+                    }
+
+                    $redes["count"] = $redesQueryResult["redes"]["count"];
+                    $redes["page_count"] = $redesQueryResult["redes"]["page_count"];
                     $mensagem = $redesQueryResult["mensagem"];
                 }
 
