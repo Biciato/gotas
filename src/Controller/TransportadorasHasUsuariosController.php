@@ -286,9 +286,10 @@ class TransportadorasHasUsuariosController extends AppController
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
             $messageStringDebug =
-                $stringError = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+                $stringError = __("{0} - {1}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $mensagem = ["status" => $status, "message" => $message];
@@ -452,9 +453,10 @@ class TransportadorasHasUsuariosController extends AppController
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
@@ -514,14 +516,18 @@ class TransportadorasHasUsuariosController extends AppController
                     $transportadora = $this->Transportadoras->getTransportadoraById($transportadorasId);
                 }
                 // Localiza registro pelo CNPJ
-                else if (isset($cnpj) && strlen($cnpj) > 0) {
+                if (!$transportadora && (isset($cnpj) && strlen($cnpj) > 0)) {
                     $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($cnpj);
                 }
 
                 // Registro não encontrado, retorna mensagem de erro
                 if (is_null($transportadora)) {
-                    $status = false;
-                    $message = __(Configure::read("messageRecordNotFound"));
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageOperationFailureDuringProcessing")),
+                        "errors" => array(Configure::read("messageRecordNotFound"))
+                    );
                 }
                 // Realiza update dos dados
                 else {
@@ -532,16 +538,31 @@ class TransportadorasHasUsuariosController extends AppController
                     $errors = $transportadora->errors();
 
                     if (!$errors) {
-                        $transportadora = $this->Transportadoras->save($transportadora);
+                        $transportadora = $this->Transportadoras->createUpdateTransportadora($data);
 
-                        $transportadora = $this->Transportadoras->getTransportadoraById($transportadorasId);
-                        $status = true;
-                        $message = __(Configure::read("messageSavedSuccess"));
+                        $mensagem = array(
+                            "status" => 1,
+                            "message" => __(Configure::read("messageSavedSuccess")),
+                            "errors" => array()
+                        );
                     } else {
-                        $status = false;
-                        $message = __(Configure::read("messageSavedError"));
+                        $mensagem = array(
+                            "status" => 0,
+                            "message" => __(Configure::read("messageSavedError")),
+                            "errors" => $errors
+                        );
                     }
                 }
+
+                $arraySet = array(
+                    "mensagem",
+                    "transportadora"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -550,14 +571,22 @@ class TransportadorasHasUsuariosController extends AppController
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
-        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
+        $mensagem = array(
+            "status" => $status,
+            "message" => $message,
+            "errors" => $errors
+        );
 
-        $arraySet = ["mensagem", "transportadora"];
+        $arraySet = array(
+            "mensagem",
+            "transportadora"
+        );
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
@@ -592,8 +621,11 @@ class TransportadorasHasUsuariosController extends AppController
                 $transportadorasId = isset($data["id"]) && strlen($data["id"]) > 0 ? $data["id"] : null;
 
                 if (is_null($transportadorasId)) {
-                    $status = false;
-                    $message = "É necessário especificar a Transportadora a ser removida do cadastro!";
+                    $mensagem = array(
+                        "status" => false,
+                        "messageOperationFailureDuringProcessing" => "É necessário especificar a Transportadora a ser removida do cadastro!",
+                        "errors" => "É necessário especificar a Transportadora a ser removida do cadastro!",
+                    );
                 } else {
                     $deleteConditions = array();
 
@@ -605,13 +637,27 @@ class TransportadorasHasUsuariosController extends AppController
                     $resultado = $this->TransportadorasHasUsuarios->deleteAll($deleteConditions);
 
                     if ($resultado == 1) {
-                        $status = true;
-                        $message = __(Configure::read("messageDeleteSuccess"));
+                        $mensagem = array(
+
+                            "status" => 1,
+                            "message" => __(Configure::read("messageDeleteSuccess")),
+                            "errors" => array()
+                        );
                     } else {
-                        $status = false;
-                        $message = __("{0} Usuário não possui a transportadora em seu cadastro.", Configure::read("messageDeleteError"));
+                        $mensagem = array(
+                            "status" => 0,
+                            "message" => Configure::read("messageDeleteError"),
+                            "errors" => array(__("Usuário não possui a transportadora em seu cadastro!")),
+                        );
                     }
                 }
+
+                $arraySet = array("mensagem");
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
