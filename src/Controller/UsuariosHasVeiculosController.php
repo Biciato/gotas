@@ -296,7 +296,7 @@ class UsuariosHasVeiculosController extends AppController
                 // Se id do veiculo foi informado, faz pesquisa pelo id primeiro.
 
                 if (isset($veiculosId)) {
-                    $veiculo = $this->Veiculos->findVeiculos(["id" => $data["veiculos_id"]])->first();
+                    $veiculo = $this->Veiculos->findVeiculos(["id" => $data["id"]])->first();
                 }
 
                 // Se não achou o veículo, faz pesquisa pela placa.
@@ -598,7 +598,7 @@ class UsuariosHasVeiculosController extends AppController
                             "errors" => array(
                                 __("Usuário não possui o veículo em seu cadastro.")
                             )
-                        )
+                        );
                     }
                 }
             }

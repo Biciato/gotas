@@ -11,6 +11,7 @@ use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Transportadoras Controller
@@ -515,17 +516,23 @@ class TransportadorasController extends AppController
      */
 
     /**
+     * TransportadorasController::getTransportadoraByCNPJ
+     *
      * Busca transportadora por CNPJ
      *
-     * @return (json_encode) $result
+     * @param array $data["cnpj"] CNPJ de pesquisa
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/04/2018
+     *
+     * @return (json_encode) $result
      **/
-    public function findTransportadoraByCNPJ()
+    public function getTransportadoraByCNPJ()
     {
         // Dados de mensagem
         $mensagem = array();
         $message = null;
-        $status = true;
+        $status = 1;
         $errors = array();
 
         try {
@@ -533,12 +540,26 @@ class TransportadorasController extends AppController
                 $data = $this->request->getData();
                 $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($data['cnpj']);
 
+                $mensagem = array(
+                    "status" => 1,
+                    "message" => __(Configure::read("messageLoadDataWithSuccess")),
+                    "errors" => array(),
+                );
 
                 if (!$transportadora) {
-                    $status = false;
-                    $message = __("Não foi encontrado Transportadora conforme CNPJ informado!");
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageLoadDataWithError")),
+                        "errors" => array("Não foi encontrado Transportadora conforme CNPJ informado!"),
+                    );
                 }
 
+                $arraySet = array("transportadora", "mensagem");
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -553,9 +574,9 @@ class TransportadorasController extends AppController
             Log::write("error", $messageStringDebug);
         }
 
-        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
+        $mensagem = array("status" => $status, "message" => $message, "errors" => $errors);
 
-        $arraySet = ["transportadora", "mensagem"];
+        $arraySet = array("transportadora", "mensagem");
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);

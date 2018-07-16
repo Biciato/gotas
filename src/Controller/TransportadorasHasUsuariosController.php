@@ -241,32 +241,42 @@ class TransportadorasHasUsuariosController extends AppController
                 $nomeFantasia = isset($data["nome_fantasia"]) && strlen($data["nome_fantasia"]) > 0 ? $data["nome_fantasia"] : null;
                 $razaoSocial = isset($data["razao_social"]) && strlen($data["razao_social"]) > 0 ? $data["razao_social"] : null;
 
-                if (!is_null($cnpj)) {
-                    $whereConditions[] = ["cnpj like '%{$cnpj}%'"];
-                }
-
-                if (!is_null($nomeFantasia)) {
-                    $whereConditions[] = ["nome_fantasia like '%{$nomeFantasia}%'"];
-                }
-
-                if (!is_null($razaoSocial)) {
-                    $whereConditions[] = ["razao_social like '%{$razaoSocial}%'"];
-                }
-
                 // Filtra pelo usuário logado e pelas transportadoras cadastradas
                 $usuariosId = $this->Auth->user()["id"];
 
-                $transportadorasHasUsuariosIds = array();
+                $orderConditions = array();
+                $paginationConditions = array();
 
-                $transportadorasHasUsuariosQuery = $this->TransportadorasHasUsuarios->findTransportadorasHasUsuariosByUsuariosId($usuariosId);
-
-                foreach ($transportadorasHasUsuariosQuery as $transportadoraUsuario) {
-                    $transportadorasHasUsuariosIds[] = $transportadoraUsuario->transportadoras_id;
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
                 }
 
-                $whereConditions[] = ["id in " => $transportadorasHasUsuariosIds];
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
 
-                $transportadoras = $this->Transportadoras->findTransportadoras($whereConditions);
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
+
+                $retorno = $this->TransportadorasHasUsuarios->getTransportadorasHasUsuarios(
+                    $usuariosId,
+                    $cnpj,
+                    $nomeFantasia,
+                    $razaoSocial,
+                    $orderConditions,
+                    $paginationConditions
+                );
+
+                $mensagem = $retorno["mensagem"];
+                $transportadoras = $retorno["transportadoras"];
+
+                $arraySet = array("mensagem", "transportadoras");
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
 
         } catch (\Exception $e) {
@@ -333,54 +343,106 @@ class TransportadorasHasUsuariosController extends AppController
 
                 $transportadora = null;
 
-                // Localiza pelo Id se fornecido
-                if (isset($transportadorasId) && strlen($transportadorasId) > 0) {
-                    $transportadora = $this->Transportadoras->getTransportadoraById($transportadorasId);
+                $canContinue = true;
+
+                /**
+                 *  Verifica se o Id ou cnpj foi fornecido. se não tiver sido fornecido,
+                 * se não foi fornecido, informa que sem o CNPJ não é possível cadastrar nova transportadora
+                 */
+                if (empty($transportadorasId) && empty($cnpj)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array(
+                            "Para realizar o cadastro de uma nova transportadora, o campo de CNPJ deve ser informado!"
+                        )
+                    );
+
+                    $canContinue = false;
                 }
-                // Localiza registro pelo CNPJ
-                else if (isset($cnpj) && strlen($cnpj) > 0) {
-                    $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($cnpj);
-                }
 
-                // Registro não encontrado, cria o mesmo
-                if (is_null($transportadora)) {
-                    $transportadora = $this->Transportadoras->newEntity();
-                    $transportadora = $this->Transportadoras->patchEntity($transportadora, $data);
+                if ($canContinue) {
 
-                    $errors = $transportadora->errors();
+                    // Localiza pelo Id se fornecido
+                    if (isset($transportadorasId) && strlen($transportadorasId) > 0) {
+                        $transportadora = $this->Transportadoras->getTransportadoraById($transportadorasId);
+                    }
+                    // Localiza registro pelo CNPJ
+                    if (!$transportadora && (isset($cnpj) && strlen($cnpj) > 0)) {
+                        $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($cnpj);
+                    }
 
-                    $transportadora = $this->Transportadoras->save($transportadora);
+                    // Registro não encontrado, cria o mesmo
+                    if (is_null($transportadora)) {
 
-                    if (!$transportadora) {
-                        $status = false;
-                        $message = __("Houve erros durante o procedimento, confira se todos os campos estão preenchidos!");
+                        $transportadora = $this->Transportadoras->createUpdateTransportadora($data);
+
+                        $errors = $transportadora->errors();
+
+                        if (!$transportadora) {
+                            $mensagem = array(
+                                "status" => false,
+                                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                                "errors" => $errors,
+                            );
+
+                            $canContinue = false;
+                        }
+                    }
+
+                    if ($canContinue) {
+
+                        // Encontrou registro de transportadora
+                        // Primeiro verifica se já há registro de transportadora para o usuário em questão
+
+                        $whereTransportadorasUsuarios = array();
+                        $whereTransportadorasUsuarios[] = ["transportadoras_id" => $transportadora["id"]];
+                        $whereTransportadorasUsuarios[] = ["usuarios_id" => $usuario["id"]];
+
+                        $transportadoraHasUsuarioCheck = $this->TransportadorasHasUsuarios->findTransportadorasHasUsuarios($whereTransportadorasUsuarios)->first();
+
+                        // Não existe registro, cria o mesmo
+                        if (is_null($transportadoraHasUsuarioCheck)) {
+
+                            $transportadoraSave = $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora["id"], $usuario["id"]);
+
+                            $errors = $transportadoraSave->errors();
+
+                            if ($transportadoraSave) {
+                                $mensagem = array(
+                                    "status" => 1,
+                                    "message" => __(Configure::read("messageSavedSuccess")),
+                                    "errors" => array()
+                                );
+                            } else {
+                                // Apaga o registro pois não foi feito vinculo
+                                $this->TransportadorasHasUsuarios->deleteTransportadoraHasUsuario($transportadora["id"], $usuario["id"]);
+
+                                $mensagem = array(
+                                    "status" => 0,
+                                    "message" => __(Configure::read("messageSavedError")),
+                                    "errors" => $errors
+                                );
+                            }
+                        }
+                        // Existe o registro, retorna mensagem de erro
+                        else {
+                            $mensagem = array(
+                                "status" => 0,
+                                "message" => __(Configure::read("messageSavedError")),
+                                "errors" => array("Transportadora já se encontra em seu perfil, não é necessário realizar novo cadastro!")
+                            );
+                        }
                     }
                 }
 
-                // Encontrou registro de transportadora
-                // Primeiro verifica se já há registro de transportadora para o usuário em questão
+                // Chegou até aqui, retorna resultado
+                $arraySet = array("mensagem");
 
-                $whereTransportadorasUsuarios = array();
-                $whereTransportadorasUsuarios[] = ["transportadoras_id" => $transportadora["id"]];
-                $whereTransportadorasUsuarios[] = ["usuarios_id" => $usuario["id"]];
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
 
-                $transportadoraHasUsuarioCheck = $this->TransportadorasHasUsuarios->findTransportadorasHasUsuarios($whereTransportadorasUsuarios)->first();
-
-                // Não existe registro, cria o mesmo
-                if (is_null($transportadoraHasUsuarioCheck)) {
-
-                    $transportadoraSave = $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora["id"], $usuario["id"]);
-
-                    if ($transportadoraSave) {
-                        $status = true;
-                        $message = __(Configure::read("messageSavedSuccess"));
-                    }
-                }
-                // Existe o registro, retorna mensagem de erro
-                else {
-                    $status = false;
-                    $message = __("Transportadora já se encontra em seu perfil, não é necessário realizar novo cadastro!");
-                }
+                return;
             }
 
         } catch (\Exception $e) {

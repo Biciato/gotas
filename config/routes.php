@@ -200,10 +200,10 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Transportadoras", [
         "map" => [
-            "findTransportadoraByCNPJ" => [
-                "action" => "findTransportadoraByCNPJ",
+            "getTransportadoraByCNPJ" => [
+                "action" => "getTransportadoraByCNPJ",
                 "method" => "POST",
-                "path" => "/find_transportadora_by_cnpj"
+                "path" => "/get_transportadora_by_cnpj"
             ]
         ]
     ]);

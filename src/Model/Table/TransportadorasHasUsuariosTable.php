@@ -8,6 +8,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Cake\Log\Log;
 use App\Model\Entity;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * TransportadorasHasUsuarios Model
@@ -203,9 +204,35 @@ class TransportadorasHasUsuariosTable extends GenericTable
     {
         try {
             return $this->getTransportadorasHasUsuariosTable()
-            ->find('all')
-            ->where(['transportadoras_id' => $id])
-            ->contain(['Transportadoras', 'Usuarios']);
+                ->find('all')
+                ->where(['transportadoras_id' => $id])
+                ->contain(['Transportadoras', 'Usuarios']);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao realizar pesquisa de TransportadorasHasUsuarios: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Procura todas as transportadoras por Usuários Id
+     *
+     * @param int $usuarios_id
+     *
+     * @return \App\Model\Entity\TransportadorasHasUsuario[] $array Lista de TransportadorasHasUsuarios
+     */
+    public function findTransportadorasHasUsuariosByUsuariosId(int $usuarios_id)
+    {
+        try {
+            return $this->getTransportadorasHasUsuariosTable()
+                ->find('all')
+                ->where(['usuarios_id' => $usuarios_id])
+                ->contain(['Transportadoras', 'Usuarios']);
+
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -244,30 +271,149 @@ class TransportadorasHasUsuariosTable extends GenericTable
     }
 
     /**
-     * Procura todas as transportadoras por Usuários Id
+     * TransportadorasHasUsuariosTable::getTransportadorasHasUsuarios
      *
-     * @param int $usuarios_id
+     * Obtem dados de transportadoras conforme dados informados.
      *
-     * @return \App\Model\Entity\TransportadorasHasUsuario[] $array Lista de TransportadorasHasUsuarios
+     * @param integer $usuariosId Id de usuários
+     * @param string $cnpj  CNPJ
+     * @param string $nomeFantasia Nome Fantasia
+     * @param string $razaoSocial Razao Social
+     * @param array $orderConditions Condições de Ordenação
+     * @param array $paginationConditions Condições de paginação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 16/07/2018
+     *
+     * @return array Resultado de pesquisa
      */
-    public function findTransportadorasHasUsuariosByUsuariosId(int $usuarios_id)
-    {
+    public function getTransportadorasHasUsuarios(
+        int $usuariosId = null,
+        string $cnpj = null,
+        string $nomeFantasia = null,
+        string $razaoSocial = null,
+        array $orderConditions = array(),
+        array $paginationConditions = array()
+    ) {
         try {
-            return $this->getTransportadorasHasUsuariosTable()
-                ->find('all')
-                ->where(['usuarios_id' => $usuarios_id])
-                ->contain(['Transportadoras', 'Usuarios']);
 
+            // Verifica se foi informado Rede ou clientes ids
+            $transportadorasTable = TableRegistry::get("Transportadoras");
+
+            // Se informar Id de Usuário:
+
+            $transportadorasIds = array();
+            if (isset($usuariosId) && ($usuariosId > 0)) {
+
+                /**
+                 * Pesquisa todos as transportadoras que o usuário tem vínculo.
+                 * Se não tiver, retorna erro informando que não possui transportadoras cadastradas
+                 */
+
+                $transportadorasHasUsuariosQuery = $this->getTransportadorasHasUsuariosTable()->find("all")
+                    ->where(
+                        array("usuarios_id" => $usuariosId)
+                    )->select(
+                        array("transportadoras_id")
+                    );
+
+                foreach ($transportadorasHasUsuariosQuery as $transportadora) {
+                    $transportadorasIds[] = $transportadora["transportadoras_id"];
+                }
+
+                if (sizeof($transportadorasIds) == 0) {
+                    $retorno = array(
+                        "mensagem" => array(
+                            "status" => 0,
+                            "message" => Configure::read("messageLoadDataWithError"),
+                            "errors" => array("Usuário não possui transportadoras vinculadas em seu cadastro!")
+                        ),
+                        "transportadoras" => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        )
+                    );
+
+                    return $retorno;
+                }
+            }
+
+            // Se tiver ids de Transportadoras, filtra também.
+
+            $whereConditions = array();
+
+            if (sizeof($transportadorasIds) > 0) {
+                $whereConditions[] = array("id in " => $transportadorasIds);
+            }
+
+            if (!is_null($cnpj)) {
+                $whereConditions[] = array("cnpj like '%{$cnpj}%'");
+            }
+
+            if (!is_null($nomeFantasia)) {
+                $whereConditions[] = array("nome_fantasia like '%{$nomeFantasia}%'");
+            }
+
+            if (!is_null($razaoSocial)) {
+                $whereConditions[] = array("razao_social like '%{$razaoSocial}%'");
+            }
+
+            $transportadorasQuery = $transportadorasTable->find("all")
+                ->where($whereConditions)
+                ->select(
+                    array(
+                        "id",
+                        "nome_fantasia",
+                        "razao_social",
+                        "cnpj",
+                        "cep",
+                        "endereco",
+                        "endereco_numero",
+                        "endereco_complemento",
+                        "bairro",
+                        "municipio",
+                        "estado",
+                        "pais",
+                        "tel_fixo",
+                        "tel_celular"
+                    )
+                );
+
+            $transportadorasTodas = $transportadorasQuery->toArray();
+            $transportadorasAtual = $transportadorasQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
+
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
+
+            if (sizeof($orderConditions) > 0) {
+                $transportadorasQuery = $transportadorasQuery->order($orderConditions);
+            }
+
+            if (sizeof($paginationConditions) > 0) {
+                $transportadorasQuery = $transportadorasQuery->limit($paginationConditions["limit"])
+                    ->page($paginationConditions["page"]);
+            }
+
+            $transportadorasAtual = $transportadorasQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
+
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao realizar pesquisa de TransportadorasHasUsuarios: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao buscar dados de transportadoras: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            return $stringError;
+            Log::write('error', $trace);
         }
+
     }
+
 
     /* -------------------------- Delete -------------------------- */
 
@@ -285,11 +431,50 @@ class TransportadorasHasUsuariosTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao realizar remoção de vínculo de Transportadora: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao realizar remoção de vínculo de Transportadora: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return $stringError;
+        }
+    }
+
+    /**
+     * TransportadorasHasUsuariosTable::deleteTransportadoraHasUsuario
+     *
+     * Remove todos os vínculos de transportadora com usuário
+     *
+     * @param integer $transportadorasId Id de Transportadora
+     * @param integer $usuariosId Id de Usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 15/07/2018
+     *
+     * @return boolean Resultado de exclusão
+     */
+    public function deleteTransportadoraHasUsuario(int $transportadorasId, int $usuariosId)
+    {
+        try {
+
+            $transportadora = $this->getTransportadorasHasUsuariosTable()->find("all")
+                ->where(
+                    array(
+                        "transportadoras_id" => $transportadorasId,
+                        "usuarios_id" => $usuariosId
+                    )
+                )
+                ->first();
+
+            return $this->getTransportadorasHasUsuariosTable()->delete($transportadora);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao realizar remoção de vínculo de Transportadora: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 

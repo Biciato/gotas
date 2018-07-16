@@ -28,17 +28,17 @@ use Cake\Validation\Validator;
 class TransportadorasTable extends GenericTable
 {
     /**
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      * Fields
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      */
 
     protected $TransportadorasTable = null;
 
     /**
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      * Properties
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      */
 
     /**
@@ -171,9 +171,9 @@ class TransportadorasTable extends GenericTable
     }
 
     /**
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      * Methods
-     * ------------------------------------------------------------- 
+     * -------------------------------------------------------------
      */
 
     /**
@@ -189,37 +189,41 @@ class TransportadorasTable extends GenericTable
         try {
 
             if (strlen($transportadora['id']) > 0) {
-                $transportadora_save = $this
+                $transportadoraSave = $this
                     ->_getTransportadorasTable()
                     ->find('all')
                     ->where(['id' => $transportadora['id']])
                     ->first();
+
+                if (empty($transportadoraSave)) {
+                    $transportadoraSave = $this->_getTransportadorasTable()->newEntity();
+                }
             } else {
-                $transportadora_save = $this->_getTransportadorasTable()->newEntity();
+                $transportadoraSave = $this->_getTransportadorasTable()->newEntity();
             }
 
-            $transportadora_save->nome_fantasia = $transportadora['nome_fantasia'];
-            $transportadora_save->razao_social = $transportadora['razao_social'];
-            $transportadora_save->cnpj = $this->cleanNumber($transportadora['cnpj']);
-            $transportadora_save->cep = $this->cleanNumber($transportadora['cep']);
-            $transportadora_save->endereco = $transportadora['endereco'];
-            $transportadora_save->endereco_numero = $transportadora['endereco_numero'];
-            $transportadora_save->endereco_complemento = $transportadora['endereco_complemento'];
-            $transportadora_save->bairro = $transportadora['bairro'];
-            $transportadora_save->municipio = $transportadora['municipio'];
-            $transportadora_save->estado = $transportadora['estado'];
-            $transportadora_save->pais = $transportadora['pais'];
-            $transportadora_save->tel_fixo = $this->cleanNumber($transportadora['tel_fixo']);
-            $transportadora_save->tel_celular = $this->cleanNumber($transportadora['tel_celular']);
+            $transportadoraSave->nome_fantasia = isset($transportadora['nome_fantasia']) ? $transportadora['nome_fantasia'] : null;
+            $transportadoraSave->razao_social = isset($transportadora['razao_social']) ? $transportadora['razao_social'] : null;
+            $transportadoraSave->cnpj = isset($transportadora['cnpj']) ? $this->cleanNumber($transportadora['cnpj']) : null;
+            $transportadoraSave->cep = isset($transportadora['cep']) ? $this->cleanNumber($transportadora['cep']) : null;
+            $transportadoraSave->endereco = isset($transportadora['endereco']) ? $transportadora['endereco'] : null;
+            $transportadoraSave->endereco_numero = isset($transportadora['endereco_numero']) ? $transportadora['endereco_numero'] : null;
+            $transportadoraSave->endereco_complemento = isset($transportadora['endereco_complemento']) ? $transportadora['endereco_complemento'] : null;
+            $transportadoraSave->bairro = isset($transportadora['bairro']) ? $transportadora['bairro'] : null;
+            $transportadoraSave->municipio = isset($transportadora['municipio']) ? $transportadora['municipio'] : null;
+            $transportadoraSave->estado = isset($transportadora['estado']) ? $transportadora['estado'] : null;
+            $transportadoraSave->pais = isset($transportadora['pais']) ? $transportadora['pais'] : null;
+            $transportadoraSave->tel_fixo = isset($transportadora['tel_fixo']) ? $this->cleanNumber($transportadora['tel_fixo']) : null;
+            $transportadoraSave->tel_celular = isset($transportadora['tel_celular']) ? $this->cleanNumber($transportadora['tel_celular']) : null;
 
-            return $this->_getTransportadorasTable()->save($transportadora_save);
+            return $this->_getTransportadorasTable()->save($transportadoraSave);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao criar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            $stringError = __("Erro ao gravar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write('error', $trace);
         }
     }
 
@@ -227,7 +231,7 @@ class TransportadorasTable extends GenericTable
      * Busca transportadora por CNPJ
      *
      * @param (string) $cnpj CNPJ de transportadora
-     * 
+     *
      * @return (entity\transportadora) $transportadora;
      **/
     public function findTransportadoraByCNPJ($cnpj)
@@ -250,8 +254,8 @@ class TransportadorasTable extends GenericTable
      * Obtem todas as transportadoras conforme condição
      *
      * @param array $conditions Condições de pesquisa
-     * 
-     * @return \App\Model\Entity\Transportadoras[] 
+     *
+     * @return \App\Model\Entity\Transportadoras[]
      */
     public function findTransportadoras(array $conditions)
     {
@@ -274,9 +278,9 @@ class TransportadorasTable extends GenericTable
 
     /**
      * Transportadoras::getTransportadoraById
-     * 
+     *
      * Retorna registro de transportadora pelo Id
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/03
      *
