@@ -444,9 +444,10 @@ class UsuariosHasVeiculosTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter transportadora!");
-            $stringError = __("Erro ao buscar registro: {0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao buscar registro: {0} - {1}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 }

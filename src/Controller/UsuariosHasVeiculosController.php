@@ -512,7 +512,7 @@ class UsuariosHasVeiculosController extends AppController
                     $mensagem = array(
                         "status" => $veiculo ? 1 : 0,
                         "mensagem" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => $veiculo ? array(): $veiculo->errors()
+                        "errors" => $veiculo ? array() : $veiculo->errors()
                     );
 
                 }
@@ -564,8 +564,17 @@ class UsuariosHasVeiculosController extends AppController
                 $veiculosId = isset($data["id"]) && strlen($data["id"]) > 0 ? $data["id"] : null;
 
                 if (is_null($veiculosId)) {
-                    $status = false;
-                    $message = "É necessário especificar o Veículo a ser removido do cadastro!";
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageDeleteError"),
+                        "errors" => array("É necessário especificar o Veículo a ser removido do cadastro!")
+                    );
+
+                    $arraySet = array("mensagem");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
                 } else {
                     $deleteConditions = array();
 
@@ -574,12 +583,22 @@ class UsuariosHasVeiculosController extends AppController
                         "usuarios_id" => $usuario["id"]
                     ];
 
+                    $resultado = $this->UsuariosHasVeiculos->deleteUsuariosHasVeiculos($deleteConditions);
+
                     if ($resultado == 1) {
-                        $status = true;
-                        $message = __(Configure::read("messageDeleteSuccess"));
+                        $mensagem = array(
+                            "status" => 1,
+                            "message" => __(Configure::read("messageDeleteSuccess")),
+                            "errors" => array()
+                        );
                     } else {
-                        $status = false;
-                        $message = __("{0} Usuário não possui o veículo em seu cadastro.", Configure::read("messageDeleteError"));
+                        $mensagem = array(
+                            "status" => 0,
+                            "message" => Configure::read("messageDeleteError"),
+                            "errors" => array(
+                                __("Usuário não possui o veículo em seu cadastro.")
+                            )
+                        )
                     }
                 }
             }
@@ -587,16 +606,27 @@ class UsuariosHasVeiculosController extends AppController
             $trace = $e->getTrace();
             $messageString = __("Não foi possível remover veículo do usuário!");
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+            $mensagem = array(
+                'status' => false,
+                'message' => $messageString,
+                'errors' => $trace
+            );
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __(
+                "{0} - {1}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ",
+                $messageString,
+                $e->getMessage(),
+                __FUNCTION__,
+                __FILE__,
+                __LINE__
+            );
 
             Log::write("error", $messageStringDebug);
+
+            Log::write("error", $trace);
         }
 
-        $mensagem = ['status' => $status, 'message' => $message, 'errors' => $errors];
-
-        $arraySet = ["mensagem", "resultado"];
+        $arraySet = ["mensagem"];
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
