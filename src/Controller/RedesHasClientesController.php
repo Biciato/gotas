@@ -522,6 +522,29 @@ class RedesHasClientesController extends AppController
 
                 $data = $this->request->getData();
 
+                $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
+
+                if (is_null($redesId) || ($redesId == 0)) {
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Id da rede deve ser informado!"),
+                    );
+                    $clientes = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
+
+                    );
+
+                    $arraySet = array("mensagem", "clientes");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
                 $orderConditions = array();
 
                 $paginationConditions = array();

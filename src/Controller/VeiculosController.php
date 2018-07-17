@@ -627,6 +627,74 @@ class VeiculosController extends AppController
      *
      * @return (entity\veiculos) $veiculo
      **/
+    public function getVeiculoByIdAPI()
+    {
+        $mensagem = [];
+
+        try {
+            if ($this->request->is(['post', 'put'])) {
+                $data = $this->request->getData();
+
+
+                $veiculosId = empty($data["id"]) ? null : $data["id"];
+
+                if (empty($veiculosId)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageLoadDataWithError"),
+                        "errors" => array("Id não pode ser vazio!")
+                    );
+                    $veiculo = array(
+                        "data" => null
+                    );
+
+                    $arraySet = array("mensagem", "veiculo");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $veiculo = $this->Veiculos->getVeiculoById($veiculosId);
+
+                if (empty($veiculo)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageRecordNotFound"),
+                        "errors" => array()
+                    );
+                } else {
+                    $mensagem = array(
+                        "status" => 1,
+                        "message" => Configure::read("messageLoadDataWithSuccess"),
+                        "errors" => array()
+                    );
+                }
+
+                $arraySet = array("mensagem", "veiculo");
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de cupons do usuário!");
+
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+        }
+
+        $arraySet = ['veiculo', 'mensagem'];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * Busca veículo por placa
+     *
+     * @return (entity\veiculos) $veiculo
+     **/
     public function getVeiculoByPlacaAPI()
     {
         $mensagem = [];
@@ -650,7 +718,6 @@ class VeiculosController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
-
     }
 
 }

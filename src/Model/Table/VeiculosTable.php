@@ -213,7 +213,7 @@ class VeiculosTable extends GenericTable
     }
 
     /**
-     * Find Vehicle By Plate
+     * Obtem veículo por Id
      *
      * @param (string) $placa Placa do veículo
      *
@@ -227,6 +227,12 @@ class VeiculosTable extends GenericTable
                 ->where(['id' => $id])
                 ->first();
         } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter veículo por Id: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 
