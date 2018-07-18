@@ -647,6 +647,7 @@ class ClientesTable extends GenericTable
             return array("mensagem" => $mensagem, "cliente" => $cliente, "resumo_gotas" => $resumo_gotas);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
+            // TODO:
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
