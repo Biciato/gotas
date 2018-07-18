@@ -201,6 +201,9 @@ Configure::write(
 
         'messageClienteNotFoundByCNPJ' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. CNPJ Informado: {0}",
 
+        // Mensagens de Pontuações
+        "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
+
         // Mensagens de Usuários
         'messageUserRegistrationClientNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
 

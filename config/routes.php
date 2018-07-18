@@ -189,13 +189,19 @@ Router::scope("/api", function ($routes) {
     ]);
 
     $routes->resources("RedesHasClientes", [
-        "map" => [
-            "getUnidadesRedesAPI" => [
+        "map" => array(
+            "getUnidadeRedeByIdAPI" => array(
+                "action" => "getUnidadeRedeByIdAPI",
+                "method" => "POST",
+                "path" => "/get_unidade_rede_by_id"
+            ),
+            "getUnidadesRedesAPI" => array(
                 "action" => "getUnidadesRedesAPI",
                 "method" => "POST",
                 "path" => "/get_unidades_redes"
-            ]
-        ]
+            )
+        )
+
     ]);
 
     $routes->resources("Transportadoras", [

@@ -502,9 +502,127 @@ class RedesHasClientesController extends AppController
      */
 
     /**
+     * RedesHasClientesController::getUnidadeRedeByIdAPI
+     *
+     * Obtem uma unidade de rede pelo Id
+     *
+     * @param int $data["redes_id"] Id da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 17/07/2018
+     *
+     * @return json_object $array Retorno de consulta
+     */
+    public function getUnidadeRedeByIdAPI()
+    {
+        $mensagem = array();
+
+        $status = true;
+        $message = null;
+        $errors = array();
+
+        try {
+            $redes = null;
+
+            if ($this->request->is('post')) {
+                $usuario = $this->Auth->user();
+
+                $data = $this->request->getData();
+
+                $clientesId = isset($data["id"]) ? $data["id"] : null;
+
+                if (is_null($clientesId) || ($clientesId == 0)) {
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Id da Unidade de Atendimento deve ser informado!"),
+                    );
+                    $cliente = array(
+                        "data" => null
+                    );
+
+                    $arraySet = array("mensagem", "cliente");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $listaSelectClientes = array(
+                    "id",
+                    "matriz",
+                    "ativado",
+                    "tipo_unidade",
+                    "codigo_rti_shower",
+                    "nome_fantasia",
+                    "razao_social",
+                    "cnpj",
+                    "endereco",
+                    "endereco_numero",
+                    "endereco_complemento",
+                    "bairro",
+                    "municipio",
+                    "estado",
+                    "pais",
+                    "cep",
+                    "latitude",
+                    "longitude",
+                    "tel_fixo",
+                    "tel_fax",
+                    "tel_celular",
+                );
+
+                // Se chegou até aqui, ocorreu tudo bem
+                $resultado = $this->Clientes->getClienteByIdWithPoints($clientesId, $usuario["id"], $listaSelectClientes);
+
+                $resumo_gotas = $resultado["resumo_gotas"];
+                $cliente = $resultado["cliente"];
+                $mensagem = $resultado["mensagem"];
+
+                $arraySet = ['cliente', "resumo_gotas",  "mensagem"];
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de unidades de uma rede!");
+
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+
+            $messageStringDebug =
+                $stringError = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $arraySet = ['clientes', "mensagem"];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+    }
+
+    /**
+     * RedesHasClientesController::getUnidadesRedesAPI
+     *
      * Obtem todos os clientes da rede
      *
-     * @return void
+     * @param int $data["redes_id"] Id da Rede
+     * @param string $data["nome_fantasia"] Nome Fantasia da Unidade
+     * @param string $data["razao_social"] Razão Social da Unidade
+     * @param int $data["cnpj"] CNPJ da Unidade
+     * @param array $data["order_by"] Array de Ordenação
+     * @param array $data["pagination"] Array de Paginação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 01/04/2018
+     *
+     * @return json_object $array Retorno de consulta
      */
     public function getUnidadesRedesAPI()
     {

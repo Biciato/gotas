@@ -564,88 +564,20 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                // Pontuações obtidas pelo usuário
+                $retorno = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds);
 
-                // Primeiro, pega todos os comprovantes que não foram invalidados
 
-                $pontuacoesComprovantesValidosQuery = $this->PontuacoesComprovantes->find('all')
-                    ->where(
-                        [
-                            "usuarios_id" => $usuario["id"],
-                            "clientes_id in " => $clientesIds,
-                            "registro_invalido" => 0,
-                        ]
-                    )->select(['id']);
-
-                // Para cada comprovante, pega a soma das pontuacoes através de seus IDS
-
-                $comprovantesIds = array();
-
-                foreach ($pontuacoesComprovantesValidosQuery as $key => $comprovante) {
-                    $comprovantesIds[] = $comprovante->id;
-                }
-
-                $totalGotasAdquiridas = 0;
-                $totalGotasUtilizadas = 0;
-                $totalGotasExpiradas = 0;
-                // faz o tratamento se tem algum id de pontuacao
-                if (sizeof($comprovantesIds) > 0) {
-                    $querytotalGotasAdquiridas = $this->Pontuacoes->find()->where(
-                        [
-                            "pontuacoes_comprovante_id in " => $comprovantesIds
-                        ]
-                    );
-
-                    $querytotalGotasAdquiridas = $querytotalGotasAdquiridas->select(
-                        [
-                            'sum' => $querytotalGotasAdquiridas->func()->sum('quantidade_gotas')
-                        ]
-                    );
-
-                    $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
-
-                }
-                $queryTotalGotasUtilizadas = $this->Pontuacoes->find()->where(
-                    [
-                        "clientes_id in " => $clientesIds,
-                        "usuarios_id" => $usuario["id"],
-                        "clientes_has_brindes_habilitados_id IS NOT NULL"
-                    ]
+                $mensagem = $retorno["mensagem"];
+                $resumo_gotas = $retorno["resumo_gotas"];
+                $arraySet = array(
+                    "mensagem",
+                    "resumo_gotas"
                 );
 
-                $queryTotalGotasUtilizadas = $queryTotalGotasUtilizadas
-                    ->select(
-                        [
-                            'sum' => $queryTotalGotasUtilizadas->func()->sum("quantidade_gotas")
-                        ]
-                    );
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
 
-                $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
-
-                $queryTotalGotasExpiradas = $this->Pontuacoes
-                    ->find()->where(
-                        [
-                            "clientes_id in " => $clientesIds,
-                            "usuarios_id" => $usuario["id"],
-                            "expirado" => 1
-                        ]
-                    );
-
-                $queryTotalGotasExpiradas = $queryTotalGotasExpiradas
-                    ->select(
-                        [
-                            'sum' => $queryTotalGotasExpiradas->func()->sum("quantidade_gotas")
-                        ]
-                    );
-
-                $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
-
-                $resumo_gotas = array(
-                    'total_gotas_adquiridas' => $totalGotasAdquiridas,
-                    'total_gotas_utilizadas' => $totalGotasUtilizadas,
-                    'total_gotas_expiradas' => $totalGotasExpiradas,
-                    'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : $totalGotasAdquiridas - $totalGotasUtilizadas
-                );
+                return;
             }
             $mensagem = array("status" => true, "message" => Configure::read("messageLoadDataWithSuccess"));
         } catch (\Exception $e) {

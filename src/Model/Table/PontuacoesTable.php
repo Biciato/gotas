@@ -588,6 +588,8 @@ class PontuacoesTable extends GenericTable
             $totalGotasUtilizadas = 0;
             $totalGotasExpiradas = 0;
 
+            $mensagem = array();
+
             // A pesquisa só será feita se tiver clientes. Se não tiver, cliente não possui pontuações.
             if (sizeof($clientesIds) > 0) {
                 // Pontuações obtidas pelo usuário
@@ -664,13 +666,32 @@ class PontuacoesTable extends GenericTable
 
                 $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
 
+                $mensagem = array(
+                    "status" => 1,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                );
+
+            } else {
+                // Se não tiver pontuações, retorna o erro
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => Configure::read("messageLoadDataWithError"),
+                    "errors" => array(Configure::read("messageUserNoPointsInNetwork"))
+                );
             }
-            return array(
-                'total_gotas_adquiridas' => $totalGotasAdquiridas,
-                'total_gotas_utilizadas' => $totalGotasUtilizadas,
-                'total_gotas_expiradas' => $totalGotasExpiradas,
-                'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : $totalGotasAdquiridas - $totalGotasUtilizadas
+
+            $retorno = array(
+                "mensagem" => $mensagem,
+                "resumo_gotas" =>
+                    array(
+                    'total_gotas_adquiridas' => $totalGotasAdquiridas,
+                    'total_gotas_utilizadas' => $totalGotasUtilizadas,
+                    'total_gotas_expiradas' => $totalGotasExpiradas,
+                    'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : $totalGotasAdquiridas - $totalGotasUtilizadas
+                )
             );
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

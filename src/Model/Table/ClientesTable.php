@@ -421,7 +421,7 @@ class ClientesTable extends GenericTable
             $count = $clientes->count();
 
               // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
-              if (sizeof($clientes->toArray()) == 0) {
+            if (sizeof($clientes->toArray()) == 0) {
 
                 $retorno = array(
                     "count" => 0,
@@ -575,6 +575,76 @@ class ClientesTable extends GenericTable
             $cliente = $cliente->first();
 
             return $cliente;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return ['success' => 'false', 'message' => $stringError];
+        }
+    }
+
+    /**
+     * Obtem cliente pelo id com pontuações do usuário
+     *
+     * @param int $clientes_id Id de Cliente
+     * @param int $usuariosId Id de usuário para pesquisa de pontos
+     * @param array $selectFields Campos que serão obtidos do retorno
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 17/07/2018
+     *
+     * @return entity $cliente
+     *
+     **/
+    public function getClienteByIdWithPoints(int $clientesId, int $usuariosId, array $selectFields = array())
+    {
+        try {
+
+            $cliente = null;
+            $resumo_gotas = array(
+                'total_gotas_adquiridas' => 0,
+                'total_gotas_utilizadas' => 0,
+                'total_gotas_expiradas' => 0,
+                'saldo' => 0
+            );
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+            $redesHasClientesQuery = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
+
+            if (!empty($redesHasClientesQuery)) {
+
+                $redesId = $redesHasClientesQuery->toArray()["redes_id"];
+
+                $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+                $pontuacoesUsuarioRetorno = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, $redesId);
+
+                $resumo_gotas = $pontuacoesUsuarioRetorno["resumo_gotas"];
+
+                $cliente = $this->_getClientesTable()
+                    ->find('all')
+                    ->where(
+                        [
+                            'Clientes.id' => $clientesId
+                        ]
+                    );
+
+                if (sizeof($selectFields) > 0) {
+                    $cliente = $cliente->select($selectFields);
+                }
+
+                $cliente = $cliente->first();
+            }
+
+            $mensagem = array(
+                "status" => empty($cliente) ? 0 : 1,
+                "message" => empty($cliente) ? Configure::read("messageLoadDataWithError") : Configure::read("messageLoadDataWithSuccess"),
+                "errors" => empty($cliente) ? array("A consulta não retornou dados!") : array()
+            );
+
+            return array("mensagem" => $mensagem, "cliente" => $cliente, "resumo_gotas" => $resumo_gotas);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
