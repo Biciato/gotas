@@ -403,6 +403,7 @@ class ClientesTable extends GenericTable
      * Utilizado para Serviços REST
      *
      * @param array $whereConditions Condições de where
+     * @param array $usuariosId Id de usuário (Se informado, irá pesquisar pontuações)
      * @param array $orderConditions Condições de ordenação
      * @param array $paginationConditions Condições de Paginação
      *
@@ -411,79 +412,70 @@ class ClientesTable extends GenericTable
      *
      * @return array ("count", "data")
      */
-    public function getClientes(array $whereConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
+    public function getClientes(array $whereConditions = array(), int $usuariosId = null, array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
-            $clientes = $this->_getClientesTable()->find('all')
+            $clientesQuery = $this->_getClientesTable()->find('all')
                 ->where($whereConditions);
 
-            // $count = 0;
-            $count = $clientes->count();
+            $count = $clientesQuery->count();
 
-              // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
-            if (sizeof($clientes->toArray()) == 0) {
+            $clientesId = 0;
 
-                $retorno = array(
-                    "count" => 0,
-                    "page_count" => 0,
-                    "mensagem" => array(
-                        "status" => false,
-                        "message" => __(""),
-                        "errors" => array()
-                    ),
-                    "data" => array(),
-                );
-                if ($paginationConditions["page"] == 1) {
-                    $retorno = array(
-                        "count" => 0,
-                        "page_count" => 0,
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryNoDataToReturn"),
-                            "errors" => array()
-                        ),
-                        "data" => array(),
-                    );
-                } else {
-                    $retorno["page_count"] = 0;
-                    $retorno["mensagem"] = array(
-                        "status" => false,
-                        "message" => Configure::read("messageQueryPaginationEnd"),
-                        "errors" => array()
-                    );
+            $resumo_gotas = array(
+                'total_gotas_adquiridas' => 0,
+                'total_gotas_utilizadas' => 0,
+                'total_gotas_expiradas' => 0,
+                'saldo' => 0
+            );
+
+            if (sizeof($clientesQuery->toArray()) > 0) {
+
+                $clientesId = $clientesQuery->first()["id"];
+
+                $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+                $redesHasClientesQuery = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
+
+                $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+                if (!empty($redesHasClientesQuery)) {
+
+                    $redesId = $redesHasClientesQuery->toArray()["redes_id"];
+
+                    $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+                    $pontuacoesUsuarioRetorno = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, $redesId);
+
+                    $resumo_gotas = $pontuacoesUsuarioRetorno["resumo_gotas"];
                 }
+            }
+
+            $clientesTodos = $clientesQuery->toArray();
+            $clientesAtual = $clientesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
+
+            if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
             }
 
-
             if (sizeof($orderConditions) > 0) {
-                $clientes = $clientes->order($orderConditions);
+                $clientesQuery = $clientesQuery->order($orderConditions);
             }
 
             if (sizeof($paginationConditions) > 0) {
-                $clientes = $clientes->limit($paginationConditions["limit"])
+                $clientesQuery = $clientesQuery->limit($paginationConditions["limit"])
                     ->page($paginationConditions["page"]);
             }
 
+            $clientesAtual = $clientesQuery->toArray();
 
-            // $pageCount = $clientes->count();
-            $clientes = $clientes->toArray();
+            $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
 
-            $retorno = array(
-                "clientes" => array(
-                    "count" => $count,
-                    "page_count" => sizeof($clientes),
-                    "data" => $clientes,
-                ),
-                "mensagem" => array(
-                    "status" => true,
-                    "message" => Configure::read("messageLoadDataWithSuccess"),
-                    "errors" => array()
-                ),
-            );
+            $retorno["resumo_gotas"] = $resumo_gotas;
 
             return $retorno;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -647,12 +639,12 @@ class ClientesTable extends GenericTable
             return array("mensagem" => $mensagem, "cliente" => $cliente, "resumo_gotas" => $resumo_gotas);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            // TODO:
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
-            return ['success' => 'false', 'message' => $stringError];
+            return $stringError;
         }
     }
 

@@ -21,6 +21,7 @@ use Cake\ORM\Query;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\Security;
+use App\Model\Table\ClientesTable;
 
 /**
  * RedesHasClientes Controller
@@ -580,7 +581,7 @@ class RedesHasClientesController extends AppController
                 $cliente = $resultado["cliente"];
                 $mensagem = $resultado["mensagem"];
 
-                $arraySet = ['cliente', "resumo_gotas",  "mensagem"];
+                $arraySet = ['cliente', "resumo_gotas", "mensagem"];
 
                 $this->set(compact($arraySet));
                 $this->set("_serialize", $arraySet);
@@ -711,13 +712,25 @@ class RedesHasClientesController extends AppController
                             $whereConditions[] = array("cnpj like '%{$data["cnpj"]}%'");
                         }
 
-                        $resultado = $this->Clientes->getClientes($whereConditions, $orderConditions, $paginationConditions);
+                        $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
 
                         $clientes = $resultado["clientes"];
+                        $resumo_gotas = $resultado["resumo_gotas"];
 
                         // Se chegou até aqui, ocorreu tudo bem
 
                         $mensagem = $resultado["mensagem"];
+
+                        $arraySet = array(
+                            "clientes",
+                            "resumo_gotas",
+                            "mensagem"
+                        );
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
                     }
                 }
             }

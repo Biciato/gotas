@@ -697,6 +697,7 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return $stringError;
         }

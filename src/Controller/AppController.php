@@ -406,7 +406,6 @@ class AppController extends Controller
                 $newName = bin2hex(openssl_random_pseudo_bytes(16));
             }
 
-            debug($newPath);
             $this->createPathIfNotExists($newPath);
 
             $extension = "jpg";

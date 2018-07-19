@@ -132,7 +132,7 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->requirePresence('nome', 'create')
-            ->notEmpty('nome');
+            ->notEmpty('nome', "É necessário informar o nome");
 
         $validator
             ->allowEmpty('cpf')
@@ -399,8 +399,8 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('nome')
-            ->notEmpty('nome');
+            ->requirePresence('nome', 'create')
+            ->notEmpty('nome', "É necessário informar o nome");
 
         $validator
             ->allowEmpty('cpf')

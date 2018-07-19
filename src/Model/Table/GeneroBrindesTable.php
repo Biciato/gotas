@@ -251,7 +251,7 @@ class GeneroBrindesTable extends GenericTable
                 "habilitado" => 1
             );
 
-            $generoBrindes = $this->_getGeneroBrindeTable()->find("all")
+            $generoBrindesQuery = $this->_getGeneroBrindeTable()->find("all")
                 ->where($whereConditions)
                 ->select(
                     array(
@@ -263,65 +263,27 @@ class GeneroBrindesTable extends GenericTable
                     )
                 );
 
-            $count = $generoBrindes->count();
+            $generoBrindesTodos = $generoBrindesQuery->toArray();
+            $generoBrindesAtual = $generoBrindesQuery->toArray();
 
-            // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
-            if (sizeof($generoBrindes->toArray()) == 0) {
+            $retorno = $this->prepareReturnDataPagination($generoBrindesTodos, $generoBrindesAtual, "genero_brindes", $paginationConditions);
 
-                $retorno = array(
-                    "count" => 0,
-                    "page_count" => 0,
-                    "mensagem" => array(
-                        "status" => false,
-                        "message" => __(""),
-                        "errors" => array()
-                    ),
-                    "data" => array(),
-                );
-                if ($paginationConditions["page"] == 1) {
-                    $retorno = array(
-                        "count" => 0,
-                        "page_count" => 0,
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryNoDataToReturn"),
-                            "errors" => array()
-                        ),
-                        "data" => array(),
-                    );
-                } else {
-                    $retorno["page_count"] = 0;
-                    $retorno["mensagem"] = array(
-                        "status" => false,
-                        "message" => Configure::read("messageQueryPaginationEnd"),
-                        "errors" => array()
-                    );
-                }
+            if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
             }
 
             if (sizeof($orderConditions) > 0) {
-                $generoBrindes = $generoBrindes->order($orderConditions);
+                $generoBrindesQuery = $generoBrindesQuery->order($orderConditions);
             }
 
             if (sizeof($paginationConditions) > 0) {
-                $generoBrindes = $generoBrindes->limit($paginationConditions["limit"])
+                $generoBrindesQuery = $generoBrindesQuery->limit($paginationConditions["limit"])
                     ->page($paginationConditions["page"]);
             }
 
-            $generoBrindes = $generoBrindes->toArray();
-            $retorno = array(
-                "genero_brindes" => array(
-                    "count" => $count,
-                    "page_count" => sizeof($generoBrindes),
-                    "data" => $generoBrindes,
-                ),
-                "mensagem" => array(
-                    "status" => true,
-                    "message" => Configure::read("messageLoadDataWithSuccess"),
-                    "errors" => array()
-                ),
-            );
+            $generoBrindesAtual = $generoBrindesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($generoBrindesTodos, $generoBrindesAtual, "genero_brindes", $paginationConditions);
 
             return $retorno;
         } catch (\Exception $e) {

@@ -588,6 +588,7 @@ class RedesController extends AppController
         try {
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+
                 $nomeRede = isset($data["nome_rede"]) && strlen($data["nome_rede"]) > 0 ? $data["nome_rede"] : null;
 
                 $whereConditions = array();

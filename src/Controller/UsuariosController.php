@@ -466,6 +466,8 @@ class UsuariosController extends AppController
 
                 $data = $this->request->getData();
 
+                // DebugUtil::printArray($data);
+
                 // validação de cpf
                 if (isset($data["cpf"])) {
                     $result = NumberUtil::validarCPF($data["cpf"]);
@@ -985,6 +987,7 @@ class UsuariosController extends AppController
     public function loginAPI()
     {
         $usuario = $this->Auth->identify();
+
         if (!$usuario) {
             throw new UnauthorizedException('Usuário ou senha inválidos');
         }
