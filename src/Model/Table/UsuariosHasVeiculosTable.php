@@ -330,20 +330,20 @@ class UsuariosHasVeiculosTable extends GenericTable
 
             $whereConditions = array("id in " => $veiculosIds);
 
-            if (isset($data["placa"]) && strlen($data["placa"]) > 0) {
-                $whereConditions[] = ["placa like '%{$data['placa']}%'"];
+            if (isset($placa) && strlen($placa) > 0) {
+                $whereConditions[] = ["placa like '%{$placa}%'"];
             }
 
-            if (isset($data["modelo"]) && strlen($data["modelo"]) > 0) {
-                $whereConditions[] = ["modelo like '%{$data['modelo']}%'"];
+            if (isset($modelo) && strlen($modelo) > 0) {
+                $whereConditions[] = ["modelo like '%{$modelo}%'"];
             }
 
-            if (isset($data["fabricante"]) && strlen($data["fabricante"]) > 0) {
-                $whereConditions[] = ["fabricante like '%{$data['fabricante']}%'"];
+            if (isset($fabricante) && strlen($fabricante) > 0) {
+                $whereConditions[] = ["fabricante like '%{$fabricante}%'"];
             }
 
-            if (isset($data["ano"]) && strlen($data["ano"]) > 0) {
-                $whereConditions[] = ["ano" => $data["ano"]];
+            if (isset($ano) && strlen($ano) > 0) {
+                $whereConditions[] = ["ano" => $ano];
             }
 
             $veiculosTodosQuery = $veiculosTable->find("all")
@@ -352,6 +352,7 @@ class UsuariosHasVeiculosTable extends GenericTable
                     array(
                         "id",
                         "placa",
+                        "fabricante",
                         "modelo",
                         "ano"
                     )

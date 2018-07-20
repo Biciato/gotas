@@ -456,11 +456,6 @@ class CuponsTable extends GenericTable
 
             if (sizeof($clientesHasBrindesHabilitadosIds) > 0) {
                 $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesHasBrindesHabilitadosIds);
-            } else {
-
-                $retorno = $this->prepareReturnDataPagination($clientesHasBrindesHabilitadosIds, array(), "cupons", null);
-
-                return $retorno;
             }
 
             $cupons = $this->_getCuponsTable()->find('all')

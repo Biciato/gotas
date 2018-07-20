@@ -10,6 +10,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
+use App\Custom\RTI\DebugUtil;
 /**
  * TransportadorasHasUsuarios Controller
  *

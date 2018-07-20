@@ -521,7 +521,7 @@ class UsuariosController extends AppController
                     );
 
                     // Move o arquivo gerado
-                    $fotoDocumento = $this->moveDocumentPermanently(
+                    $fotoPerfil = $this->moveDocumentPermanently(
                         Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
                         Configure::read("documentUserPath"),
                         null,
@@ -531,7 +531,7 @@ class UsuariosController extends AppController
                     // Remove o array do item de gravação e passa a imagem
                     unset($data["foto"]);
 
-                    $data["foto_documento"] = $fotoDocumento;
+                    $data["foto_perfil"] = $fotoPerfil;
                 }
 
                 // Remove os campos da atualizacao que não são permitidos fazer update
@@ -896,7 +896,7 @@ class UsuariosController extends AppController
                 );
 
                 // Move o arquivo gerado
-                $fotoDocumento = $this->moveDocumentPermanently(
+                $fotoPerfil = $this->moveDocumentPermanently(
                     Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
                     Configure::read("documentUserPath"),
                     null,
@@ -906,7 +906,7 @@ class UsuariosController extends AppController
                 // Remove o array do item de gravação e passa a imagem
                 unset($data["foto"]);
 
-                $data["foto_documento"] = $fotoDocumento;
+                $data["foto_perfil"] = $fotoPerfil;
             }
 
             $usuarioData = $data;

@@ -2174,7 +2174,6 @@ class CuponsController extends AppController
                 $resultado = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
             }
 
-            // DebugUtil::printGeneric($resultado);
             $mensagem = $resultado["mensagem"];
             $cupons = $resultado["cupons"];
         } catch (\Exception $e) {
@@ -2290,12 +2289,13 @@ class CuponsController extends AppController
             $usuario["pontuacoes"] = 0;
         } else {
             $usuario = $this->Usuarios->getUsuarioById($usuariosId);
-            $detalhesPontuacao = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+            $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuariosId,
                 $rede["id"],
                 $clientesIds
             );
-            $usuario['pontuacoes'] = $detalhesPontuacao["saldo"];
+
+            $usuario['pontuacoes'] = $detalhesPontuacaoResultado["resumo_gotas"]["saldo"];
         }
 
         $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $clientesId);

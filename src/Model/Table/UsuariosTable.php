@@ -444,6 +444,12 @@ class UsuariosTable extends GenericTable
             ->notEmpty('email', 'Você deve informar um e-mail', 'create');
 
         $validator
+            ->allowEmpty("foto_documento");
+
+        $validator
+            ->allowEmpty("foto_perfil");
+
+        $validator
             ->allowEmpty('telefone');
 
         $validator

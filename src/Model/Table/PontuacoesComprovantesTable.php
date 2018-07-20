@@ -491,7 +491,7 @@ class PontuacoesComprovantesTable extends GenericTable
              * 2.1 - $pontos("total_pontos_rede", "total_pontos_pagina_atual")
              */
 
-            $totalPontosRede = 0;
+            $totalPontosComprovantes = 0;
             $totalPontosPaginaAtual = 0;
             $pontuacoesTodas = array();
             $pontuacoesPaginaAtual = array();
@@ -513,7 +513,7 @@ class PontuacoesComprovantesTable extends GenericTable
             }
             if (($redesId > 0) || sizeof($clientesIds) > 0) {
                 foreach ($pontuacoesTodas as $pontuacao) {
-                    $totalPontosRede += $pontuacao["quantidade_gotas"];
+                    $totalPontosComprovantes += $pontuacao["quantidade_gotas"];
                 }
                 foreach ($pontuacoesPaginaAtual as $pontuacao) {
                     $totalPontosPaginaAtual += $pontuacao["quantidade_gotas"];
@@ -521,7 +521,7 @@ class PontuacoesComprovantesTable extends GenericTable
             }
 
             $retorno["pontuacoes_comprovantes"]["data"]["soma_pontuacoes"] = array(
-                "total_pontos_rede" => $totalPontosRede,
+                "total_pontos_comprovantes" => $totalPontosComprovantes,
                 "total_pontos_pagina_atual" => $totalPontosPaginaAtual,
             );
 
