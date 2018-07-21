@@ -508,6 +508,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $clientesBrindesHabilitadosWhereConditions[] = array("ClientesHasBrindesHabilitados.genero_brindes_clientes_id in " => $generoBrindesClientesIds);
             }
 
+            // DebugUtil::printArray($generoBrindesClientesIds);
+            // DebugUtil::printArray($clientesBrindesHabilitadosWhereConditions);
             $containArray = array(
                 "Brindes",
                 "Clientes"
@@ -534,6 +536,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->where($whereConditions)
                     ->contain($containArray)
                     ->first();
+
+                // DebugUtil::printGeneric($clientesBrindesHabilitado);
 
                 $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 

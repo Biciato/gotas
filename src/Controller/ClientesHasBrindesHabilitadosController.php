@@ -969,9 +969,15 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     }
                 }
 
-                $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+                $generoBrindesClientesIds = array();
 
-                // DebugUtil::printArray($generoBrindesClientesIds);
+                if ($generoBrindesId > 0) {
+                    $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+                }
+
+                $generoBrindesClientesIds = sizeof($generoBrindesClientesIds) > 0 ? $generoBrindesClientesIds : array(-1);
+
+                $generoBrindesClientesIds = isset($generoBrindesId) ? $generoBrindesClientesIds : array();
                 // Campos para retorno à API
                 $filterGeneroBrindesClientesColumns = array(
                     "id",
