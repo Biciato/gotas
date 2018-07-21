@@ -505,7 +505,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientesId);
 
             if (isset($generoBrindesClientesIds) && sizeof($generoBrindesClientesIds) > 0) {
-                $clientesBrindesHabilitadosWhereConditions[] = array("genero_brindes_clientes_id in " => $generoBrindesClientesIds);
+                $clientesBrindesHabilitadosWhereConditions[] = array("ClientesHasBrindesHabilitados.genero_brindes_clientes_id in " => $generoBrindesClientesIds);
             }
 
             $containArray = array(
@@ -527,7 +527,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
                 $whereConditions = $clientesBrindesHabilitadosWhereConditions;
 
-                $whereConditions[] = array("brindes_id" => $brindeId);
+                $whereConditions[] = array("ClientesHasBrindesHabilitados.brindes_id" => $brindeId);
 
                 $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()
                     ->find('all')
@@ -538,18 +538,28 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 
                 $brinde = $brindesTable->getBrindesById($brindeId);
-                $clientesBrindesHabilitado["brinde"] = $brinde;
 
-                $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table->find('all')->where(
-                    array(
-                        'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
-                        'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
-                    )
+                if (!empty($clientesBrindesHabilitado)) {
 
-                )->order(['id' => 'DESC'])
-                    ->first();
+                    $clientesBrindesHabilitado["brinde"] = $brinde;
 
-                $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
+                    $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table
+                        ->find('all')
+                        ->where(
+                            array(
+                                'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
+                            'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
+                            )
+
+                        )
+                        ->order(['id' => 'DESC'])
+                        ->first();
+
+                    $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
+                } else {
+                    $count -= 1;
+                }
+
             }
 
             // DebugUtil::printGeneric($clientesBrindesHabilitados);

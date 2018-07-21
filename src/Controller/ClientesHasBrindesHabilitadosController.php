@@ -971,6 +971,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                 $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
 
+                // DebugUtil::printArray($generoBrindesClientesIds);
                 // Campos para retorno à API
                 $filterGeneroBrindesClientesColumns = array(
                     "id",
