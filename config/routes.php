@@ -195,6 +195,11 @@ Router::scope("/api", function ($routes) {
                 "method" => "POST",
                 "path" => "/get_unidade_rede_by_id"
             ),
+            "getUnidadesRedesProximasAPI" => array(
+                "action" => "getUnidadesRedesProximasAPI",
+                "method" => "POST",
+                "path" => "/get_unidades_redes_proximas"
+            ),
             "getUnidadesRedesAPI" => array(
                 "action" => "getUnidadesRedesAPI",
                 "method" => "POST",

@@ -22,6 +22,8 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use App\Model\Table\ClientesTable;
+use App\Custom\RTI\GeolocalizationUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * RedesHasClientes Controller
@@ -596,16 +598,257 @@ class RedesHasClientesController extends AppController
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
             $messageStringDebug =
-                $stringError = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $arraySet = ['clientes', "mensagem"];
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
 
+
+
+
+
+    /**
+     * RedesHasClientesController::getUnidadesRedesProximasAPI
+     *
+     * Obtem todos os clientes de todas as redes que estão próximas conforme parâmetros informados
+     *
+     * @param int $data["redes_id"] Id da Rede
+     * @param string $data["nome_fantasia"] Nome Fantasia da Unidade
+     * @param string $data["razao_social"] Razão Social da Unidade
+     *
+     * @param array $data["geolocalizacao"] Dados de localizacao contendo a seguinte estrutura:
+     *
+     * "geolocalizacao" => array ("modo_operacao" => "fixed",
+     *     "data" => array (
+     *          "latitude_min",
+     *          "latitude_max",
+     *          "longitude_min",
+     *          "longitude_max"
+     *      )
+     * );
+     * Ou
+     * "geolocalizacao"  =>array(
+     *     "modo_operacao" => "scale",
+     *     "data" => array(
+     *         "valor",
+     *         "latitude",
+     *         "longitude"
+     *     )
+     * );
+     * @param int $data["cnpj"] CNPJ da Unidade
+     *
+     * @param array $data["order_by"] Array de Ordenação
+     * @param array $data["pagination"] Array de Paginação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 21/07/2018
+     *
+     * @return json_object $array Retorno de consulta
+     */
+    public function getUnidadesRedesProximasAPI()
+    {
+        $mensagem = array();
+
+        $status = true;
+        $message = null;
+        $errors = array();
+
+        try {
+            $redes = null;
+
+            if ($this->request->is('post')) {
+                $usuario = $this->Auth->user();
+
+                $data = $this->request->getData();
+
+                $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
+
+                $geolocalizacao = isset($data["geolocalizacao"]) ? $data["geolocalizacao"] : null;
+                $modoOperacao = isset($geolocalizacao["modo_operacao"]) ? $geolocalizacao["modo_operacao"] : null;
+
+                if (is_null($modoOperacao)) {
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("É necessário informar um modo de operação para procura de Pontos de Atendimento!"),
+                    );
+                    $clientes = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
+                    );
+
+                    $arraySet = array("mensagem", "clientes");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $arrayPosicionamento = $geolocalizacao["data"];
+
+                if ($modoOperacao == "fixed") {
+
+                    $latitudeMin = isset($arrayPosicionamento["latitude_min"]) ? $arrayPosicionamento["latitude_min"] : null;
+                    $latitudeMax = isset($arrayPosicionamento["latitude_max"]) ? $arrayPosicionamento["latitude_max"] : null;
+                    $longitudeMin = isset($arrayPosicionamento["longitude_min"]) ? $arrayPosicionamento["longitude_min"] : null;
+                    $longitudeMax = isset($arrayPosicionamento["longitude_max"]) ? $arrayPosicionamento["longitude_max"] : null;
+
+                } else if ($modoOperacao == "scale") {
+                    $escala = isset($arrayPosicionamento["valor"]) ? $arrayPosicionamento["valor"] : 25;
+
+                    $escalaProporcional = GeolocalizationUtil::convertScaleRound($escala);
+                    $latitudeOriginal = isset($arrayPosicionamento["latitude"]) ? $arrayPosicionamento["latitude"] : null;
+                    $longitudeOriginal = isset($arrayPosicionamento["longitude"]) ? $arrayPosicionamento["longitude"] : null;
+
+                    $latitudeMin = isset($latitudeOriginal) ? $latitudeOriginal - $escalaProporcional : null;
+                    $latitudeMax = isset($latitudeOriginal) ? $latitudeOriginal + $escalaProporcional : null;
+                    $longitudeMin = isset($longitudeOriginal) ? $longitudeOriginal - $escalaProporcional : null;
+                    $longitudeMax = isset($longitudeOriginal) ? $longitudeOriginal + $escalaProporcional : null;
+                }
+
+                // Confere se geolocalização foi passada corretamente
+
+                $verificaArrayPosicionamento = array();
+
+                // TODO: melhorar mecanismo
+                foreach ($arrayPosicionamento as $key => $value) {
+                    if (is_null($value)) {
+                        $verificaArrayPosicionamento[] = $key;
+                    }
+                }
+
+                if (sizeof($verificaArrayPosicionamento) > 0) {
+
+                    $errors = array("Não foi possível realizar a procura de Pontos de Atendimento pois os seguintes campos não estão preenchidos:");
+
+                    foreach ($verificaArrayPosicionamento as $value) {
+                        $errors[] = $value;
+                    }
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => $errors,
+                    );
+                    $clientes = array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
+
+                    );
+
+                    $arraySet = array("mensagem", "clientes");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                // Prepara pesquisa por geolocalizacao
+
+                $whereConditions = array();
+
+                $whereConditions[] = array(
+                    "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
+                    "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
+                );
+
+                // DebugUtil::printArray($whereConditions);
+
+                $orderConditions = array();
+
+                $paginationConditions = array();
+
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
+                }
+
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
+
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
+
+                if (!is_null($redesId)) {
+                    $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+
+                    $clientesIds = array();
+
+                    foreach ($redesHasClientesQuery as $key => $redeHasCliente) {
+                        $clientesIds[] = $redeHasCliente->clientes_id;
+                    }
+
+
+                    $whereConditions[] = array("id in " => $clientesIds);
+
+                }
+                if (isset($data["nome_fantasia"])) {
+                    $whereConditions[] = array("nome_fantasia like '%{$data["nome_fantasia"]}%'");
+                }
+
+                if (isset($data["razao_social"])) {
+                    $whereConditions[] = array("razao_social like '%{$data["razao_social"]}%'");
+                }
+
+                if (isset($data["cnpj"])) {
+                    $whereConditions[] = array("cnpj like '%{$data["cnpj"]}%'");
+                }
+
+                $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
+
+                // Se chegou até aqui, ocorreu tudo bem
+
+                $mensagem = $resultado["mensagem"];
+
+                $clientes = array();
+                $resumo_gotas = array();
+                if ($mensagem["status"] == 1) {
+
+                    DebugUtil::printArray($resultado);
+                    $clientes = $resultado["clientes"];
+                    $resumo_gotas = $resultado["resumo_gotas"];
+
+                }
+
+                $arraySet = array(
+                    "clientes",
+                    "resumo_gotas",
+                    "mensagem"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de unidades de uma rede!");
+
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+
+            $messageStringDebug =
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+
+        $arraySet = ['clientes', "mensagem"];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -741,15 +984,15 @@ class RedesHasClientesController extends AppController
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
             $messageStringDebug =
-                $stringError = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $arraySet = ['clientes', "mensagem"];
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
-
     }
 }
