@@ -63,10 +63,16 @@ class GeolocalizationUtil
      *  111,12 equivale a 1 grau na escala de latitude e longitude.
      *  11,12 equivale a 0.1 grau na escala de latitude e longitude.
      *
+     * @param bool $useConvertScale Usa conversão de escala
+     *
      * @return float
      */
-    public static function convertScaleRound($metrics)
+    public static function convertScaleRound(float $metrics, bool $useConvertScale)
     {
-        return self::convertScale($metrics / 2);
+        if ($useConvertScale) {
+            return self::convertScale($metrics / 2);
+        } else {
+            return $metrics / 2;
+        }
     }
 }

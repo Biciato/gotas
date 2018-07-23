@@ -941,6 +941,21 @@ class PontuacoesComprovantesTable extends GenericTable
     /* ------------------------ Delete ------------------------ */
 
     /**
+     * Limpa todos os comprovantes de pontuações
+     * Use com sabedoria!
+     *
+     * @return array $mensagem de retorno
+     */
+    public function deleteAllPontuacoesComprovantes()
+    {
+        try{
+            return $this->deleteAll(['id >= ' => 0]);
+        } catch (\Exception $e){
+
+        }
+    }
+
+    /**
      * Remove todos os comprovantes de pontuacoes por Id de Cliente
      *
      * @param array $clientes_ids Ids de Clientes

@@ -1227,6 +1227,29 @@ class PontuacoesTable extends GenericTable
      *
      * @return boolean
      */
+    public function deleteAllPontuacoes()
+    {
+        try {
+            return $this->deleteAll(['id >= ' => 0]);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            return ['success' => false, 'message' => $stringError];
+        }
+    }
+
+    /**
+     * Remove todas as pontuacoes por Id de Cliente
+     *
+     * @param array $clientes_ids Ids de Clientes
+     *
+     * @return boolean
+     */
     public function deleteAllPontuacoesByClientesIds(array $clientes_ids)
     {
         try {

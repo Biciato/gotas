@@ -18,7 +18,7 @@ Configure::write(
         'appAddress' => "https://www.rtibrindes.local/",
         "webrootAddress" => "https://www.rtibrindes.local/webroot",
 
-                // Gotas
+        // Gotas
 
         'dropletsUsageStatus' =>
             [
@@ -200,6 +200,10 @@ Configure::write(
         'messageRecordClienteNotFound' => 'Cliente não encontrado!',
 
         'messageClienteNotFoundByCNPJ' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. CNPJ Informado: {0}",
+
+        // Gotas
+
+        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento não configurou os parâmetros de conversão de pontos, logo, não é possível fazer a conversão de pontos.",
 
         // Mensagens de Pontuações
         "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",

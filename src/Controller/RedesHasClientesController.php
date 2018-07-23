@@ -577,7 +577,7 @@ class RedesHasClientesController extends AppController
                 );
 
                 // Se chegou até aqui, ocorreu tudo bem
-                $resultado = $this->Clientes->getClienteByIdWithPoints($clientesId, $usuario["id"], $listaSelectClientes);
+                $resultado = $this->Clientes->getClienteByIdWithpontos($clientesId, $usuario["id"], $listaSelectClientes);
 
                 $resumo_gotas = $resultado["resumo_gotas"];
                 $cliente = $resultado["cliente"];
@@ -610,10 +610,6 @@ class RedesHasClientesController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
-
-
-
-
     /**
      * RedesHasClientesController::getUnidadesRedesProximasAPI
      *
@@ -625,7 +621,8 @@ class RedesHasClientesController extends AppController
      *
      * @param array $data["geolocalizacao"] Dados de localizacao contendo a seguinte estrutura:
      *
-     * "geolocalizacao" => array ("modo_operacao" => "fixed",
+     * "geolocalizacao" => array (
+     *      "modo_operacao" => "fixo",
      *     "data" => array (
      *          "latitude_min",
      *          "latitude_max",
@@ -635,7 +632,8 @@ class RedesHasClientesController extends AppController
      * );
      * Ou
      * "geolocalizacao"  =>array(
-     *     "modo_operacao" => "scale",
+     *     "modo_operacao" => "escala",
+     *     "modo_calculo" => "distancia" || "pontos" (Distancia é sempre em km. Pontos é float de grau. 1 grau é igual 111.12, 0.1 é 11.12...)
      *     "data" => array(
      *         "valor",
      *         "latitude",
@@ -643,7 +641,6 @@ class RedesHasClientesController extends AppController
      *     )
      * );
      * @param int $data["cnpj"] CNPJ da Unidade
-     *
      * @param array $data["order_by"] Array de Ordenação
      * @param array $data["pagination"] Array de Paginação
      *
@@ -695,17 +692,25 @@ class RedesHasClientesController extends AppController
 
                 $arrayPosicionamento = $geolocalizacao["data"];
 
-                if ($modoOperacao == "fixed") {
+                if ($modoOperacao == "fixo") {
 
                     $latitudeMin = isset($arrayPosicionamento["latitude_min"]) ? $arrayPosicionamento["latitude_min"] : null;
                     $latitudeMax = isset($arrayPosicionamento["latitude_max"]) ? $arrayPosicionamento["latitude_max"] : null;
                     $longitudeMin = isset($arrayPosicionamento["longitude_min"]) ? $arrayPosicionamento["longitude_min"] : null;
                     $longitudeMax = isset($arrayPosicionamento["longitude_max"]) ? $arrayPosicionamento["longitude_max"] : null;
 
-                } else if ($modoOperacao == "scale") {
+                } else if ($modoOperacao == "escala") {
+                    $modoCalculo = isset($arrayPosicionamento["modo_calculo"]) ? $arrayPosicionamento["modo_calculo"] : "distancia";
                     $escala = isset($arrayPosicionamento["valor"]) ? $arrayPosicionamento["valor"] : 25;
 
-                    $escalaProporcional = GeolocalizationUtil::convertScaleRound($escala);
+                    $escalaProporcional = 0;
+                    if ($modoCalculo == "distancia"){
+                        $escalaProporcional = GeolocalizationUtil::convertScaleRound($escala, true);
+                    } else {
+                        $escala = isset($arrayPosicionamento["value"]) ? $arrayPosicionamento["valor"] : 0.2249820014398848;
+                        $escalaProporcional = GeolocalizationUtil::convertScaleRound($escala, false);
+                    }
+
                     $latitudeOriginal = isset($arrayPosicionamento["latitude"]) ? $arrayPosicionamento["latitude"] : null;
                     $longitudeOriginal = isset($arrayPosicionamento["longitude"]) ? $arrayPosicionamento["longitude"] : null;
 
@@ -789,7 +794,6 @@ class RedesHasClientesController extends AppController
                         $clientesIds[] = $redeHasCliente->clientes_id;
                     }
 
-
                     $whereConditions[] = array("id in " => $clientesIds);
 
                 }
@@ -815,9 +819,12 @@ class RedesHasClientesController extends AppController
                 $resumo_gotas = array();
                 if ($mensagem["status"] == 1) {
 
-                    DebugUtil::printArray($resultado);
                     $clientes = $resultado["clientes"];
-                    $resumo_gotas = $resultado["resumo_gotas"];
+                    $resumo_gotas = array();
+
+                    if ($redesId > 0){
+                        $resumo_gotas = $resultado["resumo_gotas"];
+                    }
 
                 }
 

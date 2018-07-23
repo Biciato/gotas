@@ -1556,7 +1556,11 @@ class PontuacoesComprovantesController extends AppController
 
                 }
                 // echo $url;
+                // Log::write("debug", $url);
+
                 $webContent = $this->web_tools->getPageContent($url);
+
+                // Log::write("debug", $webContent);
 
                 $content = null;
 
@@ -1595,6 +1599,7 @@ class PontuacoesComprovantesController extends AppController
                 // Se encontrou o cnpj, procura o cliente através do cnpj.
                 // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
 
+                // DebugUtil::printGeneric($cnpjArray);
                 $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
 
                 if (is_null($cliente)) {
@@ -1699,6 +1704,24 @@ class PontuacoesComprovantesController extends AppController
                             array_push($array_save, $value);
                         }
 
+                        // DebugUtil::printArray($array_save);
+                        if (sizeof($array_save[0]["array_pontuacoes_item"]) == 0) {
+                            $mensagem = array(
+                                "status" => 0,
+                                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                                "errors" => array(
+                                    Configure::read("messageGotasPointOfServiceNotConfigured")
+                                )
+                            );
+
+                            $arraySet = array("mensagem");
+
+                            $this->set(compact($arraySet));
+                            $this->set("_serialize", $arraySet);
+
+                            return;
+                        }
+
                         foreach ($array_save as $key => $value) {
                             /*
                              * verifica se tem pontuações à gravar
@@ -1706,6 +1729,8 @@ class PontuacoesComprovantesController extends AppController
                              * pendente como processado
                              */
                             $array_pontuacao = $value['pontuacao_comprovante_item'];
+
+                            // DebugUtil::printArray($array_pontuacao);
 
                             $pontuacao_comprovante_id = null;
 
@@ -1750,6 +1775,21 @@ class PontuacoesComprovantesController extends AppController
                                 } else {
                                     $process_failed = true;
                                 }
+                            } else {
+                                $mensagem = array(
+                                    "status" => 0,
+                                    "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                                    "errors" => array(
+                                        Configure::read("messageGotasPointOfServiceNotConfigured")
+                                    )
+                                );
+
+                                $arraySet = array("mensagem");
+
+                                $this->set(compact($arraySet));
+                                $this->set("_serialize", $arraySet);
+
+                                return;
                             }
                         }
                     }
@@ -2055,6 +2095,58 @@ class PontuacoesComprovantesController extends AppController
         }
 
         return array("status" => $status, "message" => $message);
+    }
+
+
+    /**
+     * Remove Pontuações Ambiente desenvolvimento
+     *
+     * @return
+     */
+    public function removerPontuacoesDevAPI()
+    {
+        try {
+            $deletePontuacoes = $this->Pontuacoes->deleteAllPontuacoes();
+            $deletePontuacoesComprovantes = $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantes();
+
+            $dadosApagados = "";
+
+            $dadosApagados = $deletePontuacoes? $dadosApagados . "PONTUAÇÕES , " : $dadosApagados;
+            $dadosApagados = $deletePontuacoesComprovantes? $dadosApagados .  "PONTUAÇÕES COMPROVANTES " : $dadosApagados;
+
+            if ($deletePontuacoes || $deletePontuacoesComprovantes){
+
+                $mensagem = array(
+                    "status" => 1,
+                    "message" => __("Dados de {0} apagados com sucesso!", $dadosApagados),
+                    "errors" => array()
+                );
+            }
+
+            else if ($deletePontuacoes == 0 && $deletePontuacoesComprovantes == 0)
+            {
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => __("messageDeleteError"),
+                    "errors" => array("Não há dados para serem apagados!")
+                );
+            }
+
+            $arraySet = array("mensagem");
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            return;
+
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao remover registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+        }
     }
 
     /**
