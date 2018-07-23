@@ -2434,10 +2434,17 @@ class CuponsController extends AppController
                             $ultimoId
                         );
 
+                    if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
+                        // TODO: conferir o que está acontecendo
+                        $podeContinuar = false;
+                        break;
+                    }
+
                     $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
 
                     $contador = 0;
                     foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
+                        echo 'oi';
                         if ($pontuacoesProcessar >= 0) {
                             if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                 array_push(
@@ -2462,15 +2469,25 @@ class CuponsController extends AppController
                         $ultimoId = $pontuacao->id;
                         $contador = $contador + 1;
 
+                        die();
                         if ($contador == $maximoContador) {
+                            echo __LINE__;
                             $ultimoId = $pontuacao->id + 1;
+                            die();
                         }
 
                         if ($pontuacoesProcessar <= 0) {
+                            echo __LINE__;
+                            die();
                             $podeContinuar = false;
                             break;
                         }
+
                     }
+
+
+                    echo __LINE__;
+                    die();
                 }
 
                 // Atualiza todos os pontos do usuário
@@ -2649,6 +2666,7 @@ class CuponsController extends AppController
             $this->user_logged = $user_managed;
         }
 
+        // DebugUtil::printArray($this->user_logged);
         $funcionario = $this->user_logged;
 
         // checagem de cupons
