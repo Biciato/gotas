@@ -542,8 +542,10 @@ class RedesHasClientesController extends AppController
                         "errors" => array("Id da Unidade de Atendimento deve ser informado!"),
                     );
                     $cliente = array(
-                        "data" => null
+                        "data" => array()
                     );
+
+                    // DebugUtil::printArray($mensagem);
 
                     $arraySet = array("mensagem", "cliente");
                     $this->set(compact($arraySet));
@@ -577,7 +579,7 @@ class RedesHasClientesController extends AppController
                 );
 
                 // Se chegou até aqui, ocorreu tudo bem
-                $resultado = $this->Clientes->getClienteByIdWithpontos($clientesId, $usuario["id"], $listaSelectClientes);
+                $resultado = $this->Clientes->getClienteByIdWithPoints($clientesId, $usuario["id"], $listaSelectClientes);
 
                 $resumo_gotas = $resultado["resumo_gotas"];
                 $cliente = $resultado["cliente"];
