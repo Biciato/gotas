@@ -1082,7 +1082,8 @@ class PontuacoesTable extends GenericTable
 
             $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
             $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
-            $BrindesTable = TableRegistry::get("Brindes");
+            $brindesTable = TableRegistry::get("Brindes");
+            $gotasTable = TableRegistry::get("Gotas");
 
             $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
                 ->where(array(
@@ -1113,6 +1114,8 @@ class PontuacoesTable extends GenericTable
                             )
                         )->first();
 
+                    $gota = $gotasTable->getGotaById($pontuacao["gotas_id"]);
+                    $pontuacao["gotas"] = $gota;
                     $pontuacao["pontuacoes_comprovante"] = $comprovante;
                     $pontuacao["tipo_operacao"] = 1;
                 } else if (isset($pontuacao["clientes_has_brindes_habilitados_id"])) {
@@ -1124,7 +1127,7 @@ class PontuacoesTable extends GenericTable
                             )
                         )->first();
 
-                    $brinde = $BrindesTable->find("all")
+                    $brinde = $brindesTable->find("all")
                         ->where(
                             array("id" => $clienteBrindeHabilitado["brindes_id"])
                         )->first();
