@@ -10,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Pontuacoes Model
@@ -1049,15 +1050,115 @@ class PontuacoesTable extends GenericTable
 
             return $this->_getPontuacoesTable()
                 ->find('all')
-                ->distinct(['usuarios_id'])
                 ->where($whereConditions)
+                // TODO: olhar pq não está agrupando
+                // ->group(['usuarios_id'])
                 ->contain(['Usuarios']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter pontuações: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter pontuações: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param integer $usuariosId Id de Usuário
+     * @param integer $redesId Id da rede
+     * @param array $clientesIds Id das Unidades de Atendimento
+     * @param array $orderConditions Condições de Ordenação
+     * @param array $paginationConditions Condições de paginação
+     *
+     *
+     * @return void
+     */
+    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), array $orderConditions = array(), array $paginationConditions = array())
+    {
+        try {
+
+            $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
+            $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
+            $BrindesTable = TableRegistry::get("Brindes");
+
+            $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
+                ->where(array(
+                    "usuarios_id" => $usuariosId
+                ));
+
+            // DebugUtil::printArray($pontuacoesQuery->toArray());
+
+            $todasPontuacoes = $pontuacoesQuery->toArray();
+            $pontuacoesAtual = $pontuacoesQuery->toArray();
+
+            $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "extrato", $paginationConditions);
+
+            // if ($retorno["mensagem"]["status"] == 0) {
+            //     return $retorno;
+            // }
+
+            // $todasPontuacoes = array();
+            $pontuacoesRetorno = array();
+            foreach ($todasPontuacoes as $key => $pontuacao) {
+
+                if (isset($pontuacao["pontuacoes_comprovante_id"])) {
+                    $comprovante = $pontuacoesComprovantesTable->find("all")
+                        ->where(
+                            array(
+                                "id" => $pontuacao["pontuacoes_comprovante_id"],
+                                "registro_invalido" => 0
+                            )
+                        )->first();
+
+                    $pontuacao["pontuacoes_comprovante"] = $comprovante;
+                    $pontuacao["tipo_operacao"] = 1;
+                } else if (isset($pontuacao["clientes_has_brindes_habilitados_id"])) {
+                    $clienteBrindeHabilitado = $clientesHasBrindesHabilitadosTable->find("all")
+                        ->where(
+                            array(
+                                "id" => $pontuacao["clientes_has_brindes_habilitados_id"],
+                                "habilitado" => 1
+                            )
+                        )->first();
+
+                    $brinde = $BrindesTable->find("all")
+                        ->where(
+                            array("id" => $clienteBrindeHabilitado["brindes_id"])
+                        )->first();
+
+                    $pontuacao["tipo_operacao"] = 0;
+                    $pontuacao["brinde"] = $brinde;
+                }
+
+                $pontuacoesRetorno[] = $pontuacao;
+            }
+
+            $resultado = array(
+                "mensagem" => array(
+                    "status" => 1,
+                    "message" => Configure::read("messageLoadDataWithSuccess"),
+                    "errors" => array()
+                ),
+                "extrato" => array(
+                    "page" => 1,
+                    "current_page" => 1,
+                    "data" => $pontuacoesRetorno
+                )
+
+            );
+
+            return $resultado;
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter pontuações: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 

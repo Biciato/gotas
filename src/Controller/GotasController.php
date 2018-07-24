@@ -972,6 +972,7 @@ class GotasController extends AppController
                         foreach ($pontuacoesQuery->toArray() as $key => $pontuacao) {
                             $usuarios[] = $pontuacao->usuario;
                         }
+
                         $gotaReturn['usuarios'] = $usuarios;
 
                         $gotasArrayReturn[] = $gotaReturn;
@@ -985,13 +986,6 @@ class GotasController extends AppController
                 }
             }
 
-            $arraySet = [
-                'redesList',
-                'redes'
-            ];
-
-            $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1001,6 +995,13 @@ class GotasController extends AppController
 
             $this->Flash->error($stringError);
         }
+
+        $arraySet = [
+            'redesList',
+            'redes'
+        ];
+
+        $this->set(compact($arraySet));
     }
 
     /**

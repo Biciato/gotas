@@ -9,6 +9,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use \DateTime;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Pontuacoes Controller
@@ -572,6 +573,119 @@ class PontuacoesController extends AppController
                 $arraySet = array(
                     "mensagem",
                     "resumo_gotas"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+            $mensagem = array("status" => true, "message" => Configure::read("messageLoadDataWithSuccess"));
+        } catch (\Exception $e) {
+            $messageString = __("Não foi possível obter pontuações do usuário na rede!");
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $arraySet = array(
+            "mensagem",
+            "resumo_gotas"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+        return;
+    }
+
+    /**
+     * PontuacoesController::getExtratoRedeAPI
+     *
+     * Obtem extrato de Pontos de Usuário, e detalha se é brinde ou gota
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 24/07/2018
+     *
+     * @return json_object $array
+     */
+    public function getExtratoRedeAPI()
+    {
+        $mensagem = array();
+
+        $status = false;
+        $message = null;
+        try {
+
+            $usuario = $this->Auth->user();
+
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
+
+                $redesId = $data["redes_id"];
+                // $redesId = 2;
+
+                $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
+
+                if (!isset($data["redes_id"])) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("É necessário informar uma rede para obter os pontos!")
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                // Obtem os ids de clientes da rede selecionada
+
+                $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
+
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
+                    $clientesIds[] = $redeHasCliente->clientes_id;
+                }
+
+                if (isset($clientesId) && ($clientesId > 0)) {
+                    $clientesIds = array($clientesId);
+                }
+
+                if (sizeof($clientesIds) == 0) {
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("A rede informada não possui unidades cadastradas!")
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, array(), array());
+
+
+                $mensagem = $retorno["mensagem"];
+                $extrato = $retorno["extrato"];
+                $arraySet = array(
+                    "mensagem",
+                    "extrato"
                 );
 
                 $this->set(compact($arraySet));

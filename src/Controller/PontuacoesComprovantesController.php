@@ -595,9 +595,10 @@ class PontuacoesComprovantesController extends AppController
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao exibir comprovantes de pontuações para usuário: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao exibir comprovantes de pontuações para usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             $this->Flash->error($stringError);
         }
@@ -752,6 +753,7 @@ class PontuacoesComprovantesController extends AppController
 
                         $pontuacoesComprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions, $orderConditions);
 
+                        // debug($whereConditions);
                         // debug($pontuacoesComprovantes->toArray());
                     } else {
                         $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));

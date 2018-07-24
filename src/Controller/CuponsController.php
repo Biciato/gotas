@@ -2223,7 +2223,6 @@ class CuponsController extends AppController
         $rede = $redesHasClientes->rede;
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
-        // TODO: trazer somente os campos necessários
         $listaCamposClienteSelect = array(
             "id",
             "matriz",

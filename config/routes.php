@@ -155,7 +155,12 @@ Router::scope("/api", function ($routes) {
                     "action" => "getPontuacoesRedeAPI",
                     "method" => "POST",
                     "path" => "/get_pontuacoes_rede"
-                ]
+                ],
+                "getExtratoRedeAPI" => array(
+                    "action" => "getExtratoRedeAPI",
+                    "method" => "POST",
+                    "path" => "/get_extrato_rede"
+                )
             ]
         ]
     );

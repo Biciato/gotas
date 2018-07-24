@@ -68,16 +68,18 @@ echo $this->Breadcrumbs->render(
         <!-- <table> -->
     <div class='table-export'>
 
-    <?php foreach ($redes as $key => $rede) : ?> 
+    <?php $temPontuacao = false; ?>
+
+    <?php foreach ($redes as $key => $rede) : ?>
         <?php if (sizeof($rede['gotas']) > 0) : ?>
-    
+
         <h3><?= __("Gotas da Rede: {0}", $rede['nome_rede']) ?> </h3>
 
-                <?php foreach ($rede['gotas'] as $key => $gota) : ?> 
+                <?php foreach ($rede['gotas'] as $key => $gota) : ?>
 
                 <h4><?= __("Usuários que consumiram da Gota {0}", $gota->nome_parametro) ?></h4>
 
-                <?php if (sizeof($gota['usuarios']) > 0) : ?> 
+                <?php if (sizeof($gota['usuarios']) > 0) : ?>
 
                 <table class="table table-hover table-striped table-condensed table-responsive">
                     <thead>
@@ -85,32 +87,36 @@ echo $this->Breadcrumbs->render(
                             <th><?= h(__("Nome")) ?> </th>
                             <th><?= h(__("Data Nasc")) ?> </th>
                             <th><?= h(__("CPF")) ?> </th>
+                            <th><?= h(__("Total")) ?> </th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($gota['usuarios'] as $key => $usuario) : ?>
-                        
+
                             <tr>
                                 <td><?= $usuario->nome ?></td>
                                 <td><?= !is_null($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : null ?></td>
                                 <td><?= h($this->NumberFormat->formatNumberToCPF(!is_null($usuario->cpf) ? $usuario->cpf : null)) ?></td>
-                                
+                                <td><?= h($gota["quantidade_gotas"]) ?></td>
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
 
-                <?php endif; ?> 
-                
-                <?php endforeach; ?> 
-                
+                <?php endif; ?>
 
-        <?php else : ?> 
+                <?php endforeach; ?>
+
+
+        <?php else : ?>
 
             <h4>Não há registros à serem exibidos!</h4>
-        
+
         <?php endif; ?>
 
     <?php endforeach; ?>
+
+    <h4>Não há registros à serem exibidos!</h4>
 </div>
 
