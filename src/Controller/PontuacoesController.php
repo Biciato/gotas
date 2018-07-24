@@ -624,12 +624,12 @@ class PontuacoesController extends AppController
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
-                $redesId = $data["redes_id"];
+                $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
                 // $redesId = 2;
 
                 $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
 
-                if (!isset($data["redes_id"])) {
+                if (!isset($data["redes_id"]) && !isset($clientesId)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -648,12 +648,14 @@ class PontuacoesController extends AppController
 
                 // Obtem os ids de clientes da rede selecionada
 
-                $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
+                if ($redesId > 0) {
+                    $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
 
-                $clientesIds = array();
+                    $clientesIds = array();
 
-                foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
-                    $clientesIds[] = $redeHasCliente->clientes_id;
+                    foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
+                        $clientesIds[] = $redeHasCliente->clientes_id;
+                    }
                 }
 
                 if (isset($clientesId) && ($clientesId > 0)) {

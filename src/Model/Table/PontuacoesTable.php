@@ -1129,8 +1129,9 @@ class PontuacoesTable extends GenericTable
                             array("id" => $clienteBrindeHabilitado["brindes_id"])
                         )->first();
 
+                    $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["tipo_operacao"] = 0;
-                    $pontuacao["brinde"] = $brinde;
+                    $pontuacao["clientes_has_brindes_habilitados"] = $clienteBrindeHabilitado;
                 }
 
                 $pontuacoesRetorno[] = $pontuacao;
