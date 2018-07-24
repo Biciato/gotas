@@ -459,6 +459,7 @@ class CuponsTable extends GenericTable
             }
 
             $cupons = $this->_getCuponsTable()->find('all')
+                ->contain(["ClientesHasBrindesHabilitados.Brindes"])
                 ->where($whereConditions);
 
             $dataTodosCupons = $cupons->toArray();

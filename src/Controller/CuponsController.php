@@ -2122,7 +2122,7 @@ class CuponsController extends AppController
                         return;
                     }
 
-                    $whereConditions[] = ['clientes_id in' => $clientesIds];
+                    $whereConditions[] = array('Cupons.clientes_id in' => $clientesIds);
                 }
                 // Pesquisa por uma Unidade da Rede
                 else if (isset($data['clientes_id'])) {
@@ -2141,41 +2141,50 @@ class CuponsController extends AppController
 
                 // Valor pago à compra
                 if (isset($data["valor_pago_min"]) && isset($data["valor_pago_max"])) {
-                    $whereConditions[] = ["valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
+                    $whereConditions[] = ["Cupons.valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
                 } else if (isset($data["valor_pago_min"])) {
-                    $whereConditions[] = ["valor_pago >= " => $data["valor_pago_min"]];
+                    $whereConditions[] = ["Cupons.valor_pago >= " => $data["valor_pago_min"]];
                 } else if (isset($data["valor_pago_max"])) {
-                    $whereConditions[] = ["valor_pago <= " => $data["valor_pago_max"]];
+                    $whereConditions[] = ["Cupons.valor_pago <= " => $data["valor_pago_max"]];
                 }
 
                 if (isset($data["data_inicio"]) && isset($data["data_fim"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["data >= " => $dataInicio];
-                    $whereConditions[] = ["data <= " => $dataFim];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim];
 
                 } else if (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $whereConditions[] = ["data >= " => $dataInicio];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
 
                 } else if (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["data <= " => $dataFim];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim];
                 } else {
                     $dataFim = date("Y-m-d");
                     $dataInicio = date('Y-m-d', strtotime("-30 days"));
 
-                    $whereConditions[] = ["data >= " => $dataInicio];
-                    $whereConditions[] = ["data <= " => $dataFim];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim];
                 }
 
-                $resultado = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
-            }
+                $orderConditionsNew = array();
 
-            $mensagem = $resultado["mensagem"];
-            $cupons = $resultado["cupons"];
+                foreach ($orderConditions as $key => $order) {
+                    $orderConditionsNew["Cupons.".$key] = $order;
+                }
+
+                $orderConditions = $orderConditionsNew;
+
+                $resultado = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
+
+                // DebugUtil::printArray($resultado);
+                $mensagem = $resultado["mensagem"];
+                $cupons = $resultado["cupons"];
+            }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de cupons do usuário!");
