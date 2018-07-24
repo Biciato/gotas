@@ -1065,18 +1065,21 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
-     * Undocumented function
+     * PontuacoesTable::getExtratoPontuacoesOfUsuario
+     *
+     * Obtem extrato de pontos do usuário
      *
      * @param integer $usuariosId Id de Usuário
      * @param integer $redesId Id da rede
      * @param array $clientesIds Id das Unidades de Atendimento
+     * @param bool $tipoOperacao Tipo de Operacao (1 = entrada / 0 = saída)
      * @param array $orderConditions Condições de Ordenação
      * @param array $paginationConditions Condições de paginação
      *
      *
-     * @return void
+     * @return array $resultado
      */
-    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), array $orderConditions = array(), array $paginationConditions = array())
+    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), bool $tipoOperacao = null,  array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
 

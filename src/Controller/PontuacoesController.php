@@ -629,6 +629,8 @@ class PontuacoesController extends AppController
 
                 $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
 
+                $tipoOperacao= isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : null;
+
                 if (!isset($data["redes_id"]) && !isset($clientesId)) {
                     $mensagem = array(
                         "status" => 0,
@@ -644,18 +646,6 @@ class PontuacoesController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
-                }
-
-                // Obtem os ids de clientes da rede selecionada
-
-                if ($redesId > 0) {
-                    $redeHasClientesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($redesId);
-
-                    $clientesIds = array();
-
-                    foreach ($redeHasClientesQuery as $key => $redeHasCliente) {
-                        $clientesIds[] = $redeHasCliente->clientes_id;
-                    }
                 }
 
                 if (isset($clientesId) && ($clientesId > 0)) {
@@ -680,7 +670,7 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, array(), array());
+                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, $tipoOperacao, array(), array());
 
 
                 $mensagem = $retorno["mensagem"];
