@@ -1115,7 +1115,7 @@ class PontuacoesTable extends GenericTable
             $todasPontuacoes = $pontuacoesQuery->toArray();
             $pontuacoesAtual = $pontuacoesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "extrato", $paginationConditions);
+            $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "pontuacoes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -1196,7 +1196,7 @@ class PontuacoesTable extends GenericTable
                     "message" => Configure::read("messageLoadDataWithSuccess"),
                     "errors" => array()
                 ),
-                "extrato" => array(
+                "pontuacoes" => array(
                     "count" => $totalPage,
                     "page_count" => $currentPage,
                     "data" => $pontuacoesRetorno
