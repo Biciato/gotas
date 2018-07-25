@@ -1076,10 +1076,12 @@ class PontuacoesTable extends GenericTable
      * @param array $orderConditions Condições de Ordenação
      * @param array $paginationConditions Condições de paginação
      *
+     * @author Gustavo Souza Gonçalves <gustavosg@rvtecnologia.com.br>
+     * @date 23/07/2018
      *
      * @return array $resultado
      */
-    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), bool $tipoOperacao = null,  array $orderConditions = array(), array $paginationConditions = array())
+    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), int $tipoOperacao = null, array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
 
@@ -1088,10 +1090,25 @@ class PontuacoesTable extends GenericTable
             $brindesTable = TableRegistry::get("Brindes");
             $gotasTable = TableRegistry::get("Gotas");
 
+            $whereConditions = array(
+                "usuarios_id" => $usuariosId
+            );
+
+            // Se for por rede, pega o id de todas as redes da rede
+            if ($redesId > 0) {
+                $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+                $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+            }
+
+            // Senão, verifica se $clientesIds está com valor, se tiver, adiciona na pesquisa
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("clientes_id in " => $clientesIds);
+            };
+
             $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
-                ->where(array(
-                    "usuarios_id" => $usuariosId
-                ));
+                ->where($whereConditions)
+                ->order($orderConditions);
 
             // DebugUtil::printArray($pontuacoesQuery->toArray());
 
@@ -1100,15 +1117,23 @@ class PontuacoesTable extends GenericTable
 
             $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "extrato", $paginationConditions);
 
-            // if ($retorno["mensagem"]["status"] == 0) {
-            //     return $retorno;
-            // }
+            if ($retorno["mensagem"]["status"] == 0) {
+                return $retorno;
+            }
 
-            // $todasPontuacoes = array();
+            if ($tipoOperacao < 2) {
+                $isCompra = $tipoOperacao == 1;
+                $isBrinde = $tipoOperacao == 0;
+            } else {
+                $isCompra = true;
+                $isBrinde = true;
+            }
+
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
 
-                if (isset($pontuacao["pontuacoes_comprovante_id"])) {
+                if (!is_null($pontuacao["pontuacoes_comprovante_id"]) && $isCompra) {
+
                     $comprovante = $pontuacoesComprovantesTable->find("all")
                         ->where(
                             array(
@@ -1121,7 +1146,10 @@ class PontuacoesTable extends GenericTable
                     $pontuacao["gotas"] = $gota;
                     $pontuacao["pontuacoes_comprovante"] = $comprovante;
                     $pontuacao["tipo_operacao"] = 1;
-                } else if (isset($pontuacao["clientes_has_brindes_habilitados_id"])) {
+                    $pontuacoesRetorno[] = $pontuacao;
+
+                } else if (!empty($pontuacao["clientes_has_brindes_habilitados_id"]) && $isBrinde) {
+
                     $clienteBrindeHabilitado = $clientesHasBrindesHabilitadosTable->find("all")
                         ->where(
                             array(
@@ -1138,10 +1166,29 @@ class PontuacoesTable extends GenericTable
                     $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["tipo_operacao"] = 0;
                     $pontuacao["clientes_has_brindes_habilitados"] = $clienteBrindeHabilitado;
+                    $pontuacoesRetorno[] = $pontuacao;
                 }
 
-                $pontuacoesRetorno[] = $pontuacao;
             }
+
+            /**
+             * Agora é feito a paginação.
+             * O Motivo é pq como temos pontos obtidos e gastos, os obtidos é que carregam
+             * A informação se foi inválido ou não, mas no retorno nós temos N registros
+             * diferentes.
+             */
+
+            // DebugUtil::printArray($paginationConditions);
+
+            $pagina = $paginationConditions["page"];
+            $limite = $paginationConditions["limit"];
+
+            $limiteInicial = (($pagina * $limite) - $limite);
+
+            $totalPage = sizeof($pontuacoesRetorno);
+
+            $pontuacoesRetorno = array_slice($pontuacoesRetorno, $limiteInicial, $limite);
+            $currentPage = sizeof($pontuacoesRetorno);
 
             $resultado = array(
                 "mensagem" => array(
@@ -1150,8 +1197,8 @@ class PontuacoesTable extends GenericTable
                     "errors" => array()
                 ),
                 "extrato" => array(
-                    "page" => 1,
-                    "current_page" => 1,
+                    "count" => $totalPage,
+                    "page_count" => $currentPage,
                     "data" => $pontuacoesRetorno
                 )
 

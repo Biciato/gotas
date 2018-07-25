@@ -626,10 +626,22 @@ class PontuacoesController extends AppController
 
                 $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
                 // $redesId = 2;
-
                 $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
+                $orderConditions = array();
+                $paginationConditions = array();
 
-                $tipoOperacao= isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : null;
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
+                }
+
+                if (isset($data["pagination"])) {
+                    $paginationConditions = $data["pagination"];
+
+                    if ($paginationConditions["page"] < 1) {
+                        $paginationConditions["page"] = 1;
+                    }
+                }
 
                 if (!isset($data["redes_id"]) && !isset($clientesId)) {
                     $mensagem = array(
@@ -670,8 +682,7 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, $tipoOperacao, array(), array());
-
+                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, $tipoOperacao, $orderConditions, $paginationConditions);
 
                 $mensagem = $retorno["mensagem"];
                 $extrato = $retorno["extrato"];
