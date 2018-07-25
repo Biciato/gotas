@@ -685,10 +685,10 @@ class PontuacoesController extends AppController
                 $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, $tipoOperacao, $orderConditions, $paginationConditions);
 
                 $mensagem = $retorno["mensagem"];
-                $extrato = $retorno["extrato"];
+                $pontuacoes = $retorno["pontuacoes"];
                 $arraySet = array(
                     "mensagem",
-                    "extrato"
+                    "pontuacoes"
                 );
 
                 $this->set(compact($arraySet));
