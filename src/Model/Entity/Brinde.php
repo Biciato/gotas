@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Entity;
 
+use Cake\Core\Configure;
 use Cake\ORM\Entity;
 
 /**
@@ -32,4 +33,16 @@ class Brinde extends Entity
         '*' => true,
         'id' => false
     ];
+
+    protected $_virtual = array("nome_img_completo");
+
+
+    protected function _getNomeImgCompleto()
+    {
+        if (strlen($this->_properties["nome_img"]) > 0) {
+            return Configure::read("") . $this->_properties["nome_img"];
+        }
+
+        return $this->_properties["nome_img"];
+    }
 }
