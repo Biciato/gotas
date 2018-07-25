@@ -2452,7 +2452,7 @@ class CuponsController extends AppController
 
                     $contador = 0;
                     foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
-                        echo 'oi';
+
                         if ($pontuacoesProcessar >= 0) {
                             if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
                                 array_push(
