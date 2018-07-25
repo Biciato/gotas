@@ -602,7 +602,7 @@ class PontuacoesController extends AppController
     }
 
     /**
-     * PontuacoesController::getExtratoRedeAPI
+     * PontuacoesController::getExtratoPontuacoesAPI
      *
      * Obtem extrato de Pontos de Usuário, e detalha se é brinde ou gota
      *
@@ -611,7 +611,7 @@ class PontuacoesController extends AppController
      *
      * @return json_object $array
      */
-    public function getExtratoRedeAPI()
+    public function getExtratoPontuacoesAPI()
     {
         $mensagem = array();
 
