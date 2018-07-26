@@ -11,6 +11,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use \DateTime;
 
 /**
  * Pontuacoes Model
@@ -1072,7 +1073,10 @@ class PontuacoesTable extends GenericTable
      * @param integer $usuariosId Id de Usuário
      * @param integer $redesId Id da rede
      * @param array $clientesIds Id das Unidades de Atendimento
+     * @param string $brindesNome Nome do Brinde
      * @param bool $tipoOperacao Tipo de Operacao (1 = entrada / 0 = saída)
+     * @param string $dataInicio Data Início (Formato YYYY-MM-DD)
+     * @param string $dataFim Data Fim (Formato YYYY-MM-DD)
      * @param array $orderConditions Condições de Ordenação
      * @param array $paginationConditions Condições de paginação
      *
@@ -1081,8 +1085,17 @@ class PontuacoesTable extends GenericTable
      *
      * @return array $resultado
      */
-    public function getExtratoPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array(), int $tipoOperacao = null, array $orderConditions = array(), array $paginationConditions = array())
-    {
+    public function getExtratoPontuacoesOfUsuario(
+        int $usuariosId,
+        int $redesId = null,
+        array $clientesIds = array(),
+        int $tipoOperacao = null,
+        string $brindesNome = "",
+        string $dataInicio = "",
+        string $dataFim = "",
+        array $orderConditions = array(),
+        array $paginationConditions = array()
+    ) {
         try {
 
             $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
@@ -1093,6 +1106,8 @@ class PontuacoesTable extends GenericTable
             $whereConditions = array(
                 "usuarios_id" => $usuariosId
             );
+
+            $clientesBrindesHabilitadosIds = array();
 
             // Se for por rede, pega o id de todas as redes da rede
             if ($redesId > 0) {
@@ -1105,6 +1120,62 @@ class PontuacoesTable extends GenericTable
             if (sizeof($clientesIds) > 0) {
                 $whereConditions[] = array("clientes_id in " => $clientesIds);
             };
+
+            /**
+             * Se nome do brinde foi utilizado para pesquisa, verifica quais são os brindes
+             */
+            if (!empty($brindesNome) && strlen($brindesNome) > 0) {
+
+                // Busca todos os brindes
+
+                $brindesIds = $brindesTable->getBrindesIds(null, array(), null, $brindesNome);
+
+                if (sizeof($brindesIds) > 0) {
+                    $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds(null, $brindesIds);
+                    $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds);
+                } else {
+                    // Não achou o brinde , retorna erro
+
+                    $resultado = array(
+                        "mensagem" => array(
+                            "status" => 0,
+                            "message" => Configure::read("messageLoadDataWithError"),
+                            "errors" => array("Nome de Brinde informado não encontrado!")
+                        ),
+                        "pontuacoes" => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        )
+                    );
+
+                    return $resultado;
+                }
+            }
+
+            if (!empty($dataInicio)) {
+                $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $dataInicio), "Y-m-d");
+            }
+
+            if (!empty($dataFim)) {
+                $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $dataFim), "Y-m-d");
+            }
+
+            if ($dataInicio && $dataFim) {
+                $whereConditions[] = ["data >= " => $dataInicio];
+                $whereConditions[] = ["data <= " => $dataFim];
+            } else if ($dataInicio) {
+                $whereConditions[] = ["data >= " => $dataInicio];
+            } else if ($dataFim) {
+                $whereConditions[] = ["data <= " => $dataFim];
+            } else {
+                $dataFim = date("Y-m-d");
+                $dataInicio = date('Y-m-d', strtotime("-30 days"));
+
+                $whereConditions[] = ["data >= " => $dataInicio];
+                $whereConditions[] = ["data <= " => $dataFim];
+            }
+
 
             $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
                 ->where($whereConditions)
@@ -1125,7 +1196,7 @@ class PontuacoesTable extends GenericTable
                 $isCompra = $tipoOperacao == 1;
                 $isBrinde = $tipoOperacao == 0;
             } else {
-                $isCompra = true;
+                $isCompra = $clientesBrindesHabilitadosIds == 0;
                 $isBrinde = true;
             }
 

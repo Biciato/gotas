@@ -552,7 +552,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         ->where(
                             array(
                                 'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
-                            'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
+                                'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
                             )
 
                         )
@@ -591,6 +591,74 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $error = array('status' => false, 'message' => $stringError, "errors" => array());
             return $error;
+        }
+    }
+
+    /**
+     * ClientesHasBrindesHabilitadosTable::getBrindesHabilitadosIds
+     *
+     * Obtem todos os brindes habilitados para cliente usando o Clientes Id
+     *
+     * @param int $id Código
+     * @param array $brindesIds Array de brindesIds
+     * @param array $clientesIds Array de clientesIds
+     * @param string $tipoCodigoBarras Tipo de código de barras
+     * @param array $generoBrindesClientesIds Array de generoBrindesClientesIds
+     * @param boolean $habilitado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 26/07/2018
+     *
+     * @return entity\ClientesHasBrindesHabilitados $entity
+     */
+    public function getBrindesHabilitadosIds(
+        int $id = null,
+        array $brindesIds = array(),
+        array $clientesIds = array(),
+        string $tipoCodigoBarras = "",
+        array $generoBrindesClientesIds = array(),
+        bool $habilitado = null
+    ) {
+
+        try {
+            if (!empty($id)) {
+                $whereConditions[] = array("id" => $id);
+            }
+            if (sizeof($brindesIds) > 0) {
+                $whereConditions[] = array("brindes_id in " => $brindesIds);
+            }
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("clientes_id in " => $clientesIds);
+            }
+            if (!empty($tipoCodigoBarras)) {
+                $whereConditions[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
+            }
+            if (sizeof($generoBrindesClientesIds) > 0) {
+                $whereConditions[] = array("genero_brindes_clientes_id" => $generoBrindesClientesIds);
+            }
+            if (!empty($ihabilitado)) {
+                $whereConditions[] = array("habilitado" => $habilitado);
+            }
+
+            $brindesHabilitadosQuery = $this->_getClientesHasBrindesHabilitadosTable()
+                ->find("all")
+                ->where($whereConditions)
+                ->select(["id"]);
+
+            $brindesHabilitadosIds = array();
+
+            foreach ($brindesHabilitadosQuery as $brindeHabilitado) {
+                $brindesHabilitadosIds[] = $brindeHabilitado["id"];
+            }
+
+            return $brindesHabilitadosIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+
+            $this->Flash->error($stringError);
         }
     }
 

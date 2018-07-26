@@ -624,10 +624,15 @@ class PontuacoesController extends AppController
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
+                // Condições de Pesquisa
                 $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
-                // $redesId = 2;
                 $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
+                $brindesNome = isset($data["brindes_nome"]) ? $data["brindes_nome"] : "";
+
+                $dataInicio = isset($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim = isset($data["data_fim"]) ? $data["data_fim"] : null;
+
                 $orderConditions = array();
                 $paginationConditions = array();
 
@@ -647,7 +652,7 @@ class PontuacoesController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array("É necessário informar uma rede para obter os pontos!")
+                        "errors" => array("É necessário informar uma Rede para obter o extrato!")
                     );
 
                     $arraySet = [
@@ -660,16 +665,12 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                if (isset($clientesId) && ($clientesId > 0)) {
-                    $clientesIds = array($clientesId);
-                }
-
-                if (sizeof($clientesIds) == 0) {
+                if (empty($clientesId) && empty($redesId)) {
 
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array("A rede informada não possui unidades cadastradas!")
+                        "errors" => array("É necessário informar um Ponto de Atendimento para obter o extrato!")
                     );
 
                     $arraySet = [
@@ -682,7 +683,7 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds, $tipoOperacao, $orderConditions, $paginationConditions);
+                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, array($clientesId), $tipoOperacao, $brindesNome, $dataInicio, $dataFim, $orderConditions, $paginationConditions);
 
                 $mensagem = $retorno["mensagem"];
                 $pontuacoes = $retorno["pontuacoes"];

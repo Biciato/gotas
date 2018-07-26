@@ -166,13 +166,20 @@ class BrindesTable extends GenericTable
 
 
     /**
-     * Find Brindes by Clientes Id
+     * Procura brindes conforme filtros
      *
-     * @param int $clientes_ids Ids de Clientes
+     * @param array $where_parameters Parametros de pesquisa
+     * @param boolean $useContain Usar contain
+     * @param array $containConditions Condições do contain
+     * @param array $selectFields Campos de seleção
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     *
+     * @date 01/07/2017
+
      * @return \App\Model\Entity\Brindes $brinde
-     **/
-    public function findBrindes(array $where_parameters = [], bool $useContain = true, array $containConditions = array())
+     */
+    public function findBrindes(array $where_parameters = [], bool $useContain = true, array $containConditions = array(), array $selectFields = array())
     {
         try {
 
@@ -189,6 +196,10 @@ class BrindesTable extends GenericTable
                 $brindes = $brindes->contain($containConditions);
             }
 
+            if (sizeof($selectFields) > 0) {
+                $brindes = $brindes->select($selectFields);
+            }
+
             return $brindes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -198,6 +209,86 @@ class BrindesTable extends GenericTable
 
             $this->Flash->error($stringError);
         }
+    }
+
+    /**
+     * BrindesTable::getBrindesIds
+     *
+     * Obtem Id de brindes conforme condições
+     *
+     * @param integer $id
+     * @param integer $clientesIds
+     * @param integer $generoBrindesId
+     * @param string $nome
+     * @param integer $tempoRtiShower
+     * @param boolean $ilimitado
+     * @param boolean $habilitado
+     * @param float $precoPadrao
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 26/07/2018
+     *
+     * @return array $resultado
+     */
+    public function getBrindesIds(
+        int $id = null,
+        array $clientesIds = array(),
+        int $generoBrindesId = null,
+        string $nome = "",
+        int $tempoRtiShower = null,
+        bool $ilimitado = null,
+        bool $habilitado = null,
+        float $precoPadrao = null
+    ) {
+
+        try {
+            $whereConditions = array();
+
+            if (!empty($id)) {
+                $whereConditions[] = array("id" => $id);
+            }
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("clientes_id IN " => $clientesIds);
+            }
+            if (!empty($generoBrindesId)) {
+                $whereConditions[] = array("genero_brindes_id" => $generoBrindesId);
+            }
+            if (!empty($nome)) {
+                $whereConditions[] = array("nome like '%{$nome}%'");
+            }
+            if (!empty($tempoRtiShower)) {
+                $whereConditions[] = array("tempo_rti_shower" => $tempoRtiShower);
+            }
+            if (!empty($ilimitado)) {
+                $whereConditions[] = array("ilimitado" => $ilimitado);
+            }
+            if (!empty($habilitado)) {
+                $whereConditions[] = array("habilitado" => $habilitado);
+            }
+            if (!empty($precoPadrao)) {
+                $whereConditions[] = array("preco_padrao" => $precoPadrao);
+            }
+
+            $brindesQuery = $this->_getBrindeTable()->find("all")
+                ->where($whereConditions)
+                ->select(["id"]);
+
+            $brindesIds = array();
+
+            foreach ($brindesQuery as $brinde) {
+                $brindesIds[] = $brinde["id"];
+            }
+
+            return $brindesIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter ids de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+
     }
 
     /**
