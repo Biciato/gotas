@@ -1251,15 +1251,22 @@ class PontuacoesTable extends GenericTable
 
             // DebugUtil::printArray($paginationConditions);
 
-            $pagina = $paginationConditions["page"];
-            $limite = $paginationConditions["limit"];
-
-            $limiteInicial = (($pagina * $limite) - $limite);
+            $pagina = 1 ;
+            $limite = sizeof($pontuacoesRetorno) ;
 
             $totalPage = sizeof($pontuacoesRetorno);
-
-            $pontuacoesRetorno = array_slice($pontuacoesRetorno, $limiteInicial, $limite);
             $currentPage = sizeof($pontuacoesRetorno);
+            if (sizeof($paginationConditions) > 0)
+            {
+                $pagina = $paginationConditions["page"];
+                $limite = $paginationConditions["limit"];
+                $limiteInicial = (($pagina * $limite) - $limite);
+
+                $totalPage = sizeof($pontuacoesRetorno);
+
+                $pontuacoesRetorno = array_slice($pontuacoesRetorno, $limiteInicial, $limite);
+                $currentPage = sizeof($pontuacoesRetorno);
+            }
 
             $resultado = array(
                 "mensagem" => array(
