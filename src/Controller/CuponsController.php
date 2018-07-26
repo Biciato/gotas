@@ -2730,6 +2730,8 @@ class CuponsController extends AppController
 
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidades_id);
 
+            DebugUtil::printGeneric($rede_has_cliente);
+
             $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
 
             $unidade_funcionario_id = 0;

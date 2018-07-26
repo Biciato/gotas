@@ -1196,9 +1196,11 @@ class PontuacoesTable extends GenericTable
                 $isCompra = $tipoOperacao == 1;
                 $isBrinde = $tipoOperacao == 0;
             } else {
-                $isCompra = $clientesBrindesHabilitadosIds == 0;
+                $isCompra = true;
                 $isBrinde = true;
             }
+
+            DebugUtil::printArray($clientesBrindesHabilitadosIds);
 
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
