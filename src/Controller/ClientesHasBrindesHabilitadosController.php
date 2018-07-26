@@ -945,7 +945,25 @@ class ClientesHasBrindesHabilitadosController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
-                $clientesId = $data['clientes_id'];
+                $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
+
+                if (empty($clientesId)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("É necessário informar um Ponto de Atendimento para obter os brindes do Ponto de Atendimento!")
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
                 $generoBrindesId = !empty($data["genero_brindes_id"]) ? $data["genero_brindes_id"] : null;
 
                 $whereConditionsBrindes = array();

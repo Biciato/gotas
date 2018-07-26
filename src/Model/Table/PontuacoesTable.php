@@ -1131,7 +1131,7 @@ class PontuacoesTable extends GenericTable
                 $brindesIds = $brindesTable->getBrindesIds(null, array(), null, $brindesNome);
 
                 if (sizeof($brindesIds) > 0) {
-                    $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds(null, $brindesIds);
+                    $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
                     $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds);
                 } else {
                     // Não achou o brinde , retorna erro

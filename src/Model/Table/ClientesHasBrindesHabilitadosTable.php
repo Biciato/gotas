@@ -599,7 +599,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * Obtem todos os brindes habilitados para cliente usando o Clientes Id
      *
-     * @param int $id Código
      * @param array $brindesIds Array de brindesIds
      * @param array $clientesIds Array de clientesIds
      * @param string $tipoCodigoBarras Tipo de código de barras
@@ -612,7 +611,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * @return entity\ClientesHasBrindesHabilitados $entity
      */
     public function getBrindesHabilitadosIds(
-        int $id = null,
         array $brindesIds = array(),
         array $clientesIds = array(),
         string $tipoCodigoBarras = "",
@@ -621,9 +619,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     ) {
 
         try {
-            if (!empty($id)) {
-                $whereConditions[] = array("id" => $id);
-            }
+
             if (sizeof($brindesIds) > 0) {
                 $whereConditions[] = array("brindes_id in " => $brindesIds);
             }
