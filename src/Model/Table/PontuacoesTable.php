@@ -1091,8 +1091,8 @@ class PontuacoesTable extends GenericTable
         array $clientesIds = array(),
         int $tipoOperacao = null,
         string $brindesNome = "",
-        string $dataInicio = "",
-        string $dataFim = "",
+        string $dataInicio = null,
+        string $dataFim = null,
         array $orderConditions = array(),
         array $paginationConditions = array()
     ) {
