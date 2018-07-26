@@ -1200,8 +1200,6 @@ class PontuacoesTable extends GenericTable
                 $isBrinde = true;
             }
 
-            DebugUtil::printArray($clientesBrindesHabilitadosIds);
-
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
 
