@@ -1562,6 +1562,40 @@ class PontuacoesComprovantesController extends AppController
 
                 $webContent = $this->web_tools->getPageContent($url);
 
+                // DebugUtil::printArray($webContent);
+
+                $arrayInexistentes = array(
+                    "NOTA FISCAL ELETR&Ocirc;NICA INEXISTENTE",
+                    "NOTA FISCAL ELETRÔNICA INEXISTENTE",
+                );
+
+                $nfeInexistente = -1;
+
+                foreach ($arrayInexistentes as $key => $item) {
+                    $nfeInexistente = strpos($item, $webContent["response"]);
+
+                    if ($nfeInexistente >= 0) break;
+                }
+
+                // $nfeInexistente = strpos("NOTA FISCAL ELETRÔNICA INEXISTENTE", $webContent["response"]);
+
+                if ($nfeInexistente >= 0) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Nota Fiscal Eletrônica Inexistente!")
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
                 // Log::write("debug", $webContent);
 
                 $content = null;
@@ -1819,6 +1853,12 @@ class PontuacoesComprovantesController extends AppController
                             $estado
                         );
                     } else {
+
+                        // Chegou até aqui, então ocorreu tudo bem.
+                        // Vincula usuário na rede como cliente
+
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario["id"], $usuario["tipo_perfil"]);
+
                         $pontuacao_comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacao_comprovante->id);
                         $success = true;
                         $message = __("Dados importados com sucesso!");
@@ -2082,21 +2122,25 @@ class PontuacoesComprovantesController extends AppController
 
         $status = true;
         $message = null;
+        $errors = array();
 
         if ($pontuacaoPendente) {
             if ($pontuacaoPendente->registro_processado) {
-                $message = "Este registro já foi importado previamente!";
-                $status = false;
+                $message = Configure::read("messageOperationFailureDuringProcessing");
+                $errors[] = "Este registro já foi importado previamente!";
+                $status = 0;
             } else {
-                $message = "Este registro está aguardando processamento, não é necessário importar novamente!";
-                $status = false;
+                $message = Configure::read("messageWarningDefault");
+                $errors[] ="Este registro está aguardando processamento, não é necessário importar novamente!";
+                $status = 0;
             }
         } elseif ($pontuacaoComprovante) {
-            $status = false;
-            $message = "Este registro já foi importado previamente!";
+            $status = 0;
+            $message = Configure::read("messageOperationFailureDuringProcessing");
+                $errors[] = "Este registro já foi importado previamente!";
         }
 
-        return array("status" => $status, "message" => $message);
+        return array("status" => $status, "message" => $message, "errors" => $errors);
     }
 
 
@@ -2113,20 +2157,17 @@ class PontuacoesComprovantesController extends AppController
 
             $dadosApagados = "";
 
-            $dadosApagados = $deletePontuacoes? $dadosApagados . "PONTUAÇÕES , " : $dadosApagados;
-            $dadosApagados = $deletePontuacoesComprovantes? $dadosApagados .  "PONTUAÇÕES COMPROVANTES " : $dadosApagados;
+            $dadosApagados = $deletePontuacoes ? $dadosApagados . "PONTUAÇÕES , " : $dadosApagados;
+            $dadosApagados = $deletePontuacoesComprovantes ? $dadosApagados . "PONTUAÇÕES COMPROVANTES " : $dadosApagados;
 
-            if ($deletePontuacoes || $deletePontuacoesComprovantes){
+            if ($deletePontuacoes || $deletePontuacoesComprovantes) {
 
                 $mensagem = array(
                     "status" => 1,
                     "message" => __("Dados de {0} apagados com sucesso!", $dadosApagados),
                     "errors" => array()
                 );
-            }
-
-            else if ($deletePontuacoes == 0 && $deletePontuacoesComprovantes == 0)
-            {
+            } else if ($deletePontuacoes == 0 && $deletePontuacoesComprovantes == 0) {
                 $mensagem = array(
                     "status" => 0,
                     "message" => __("messageDeleteError"),

@@ -191,6 +191,8 @@ Configure::write(
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",
         "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
 
+        "messageWarningDefault" => "Atenção!",
+
         /**
          * ------------------------------------------ ENTIDADES ------------------------------------------
          */

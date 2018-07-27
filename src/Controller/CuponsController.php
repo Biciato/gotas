@@ -2174,7 +2174,7 @@ class CuponsController extends AppController
                 $orderConditionsNew = array();
 
                 foreach ($orderConditions as $key => $order) {
-                    $orderConditionsNew["Cupons.".$key] = $order;
+                    $orderConditionsNew["Cupons." . $key] = $order;
                 }
 
                 $orderConditions = $orderConditionsNew;
@@ -2355,12 +2355,7 @@ class CuponsController extends AppController
             return $retorno;
         }
 
-        $usuario['pontuacoes']
-            = $this->Pontuacoes->getSumPontuacoesOfUsuario(
-            $usuario['id'],
-            $rede["id"],
-            $clientesIds
-        );
+        // $usuario['pontuacoes'] = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario['id'], $rede["id"], $clientesIds);
 
          // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
         if ($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade
@@ -2432,6 +2427,7 @@ class CuponsController extends AppController
                     $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                 }
 
+
                 while ($podeContinuar) {
                     $pontuacoesPendentesUso = $this
                         ->Pontuacoes
@@ -2441,6 +2437,12 @@ class CuponsController extends AppController
                             10,
                             $ultimoId
                         );
+
+                    if (empty($pontuacoesPendentesUso)){
+                        break;
+                    }
+
+                    // DebugUtil::printGeneric($pontuacoesPendentesUso);
 
                     if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
                         // TODO: conferir o que está acontecendo
@@ -2453,49 +2455,44 @@ class CuponsController extends AppController
                     $contador = 0;
                     foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
 
-                        if ($pontuacoesProcessar >= 0) {
-                            if ($pontuacoesProcessar >= $pontuacao->quantidade_gotas) {
-                                array_push(
-                                    $pontuacoesPendentesUsoListaSave,
-                                    [
-                                        'id' => $pontuacao->id,
-                                        'utilizado' => 2
-                                    ]
-                                );
-                            } else {
-                                array_push(
-                                    $pontuacoesPendentesUsoListaSave,
-                                    [
-                                        'id' => $pontuacao->id,
-                                        'utilizado' => 1
-                                    ]
-                                );
-                            }
+                        // DebugUtil::printGeneric($pontuacoesProcessar, 1, 0);
+                        // DebugUtil::printGeneric($pontuacao);
+                        if (($pontuacoesProcessar >= 0) && ($pontuacoesProcessar >= $pontuacao->quantidade_gotas)) {
+                            array_push(
+                                $pontuacoesPendentesUsoListaSave,
+                                [
+                                    'id' => $pontuacao->id,
+                                    'utilizado' => 2
+                                ]
+                            );
+                        } else {
+                            array_push(
+                                $pontuacoesPendentesUsoListaSave,
+                                [
+                                    'id' => $pontuacao->id,
+                                    'utilizado' => 1
+                                ]
+                            );
                         }
 
                         $pontuacoesProcessar = $pontuacoesProcessar - $pontuacao["quantidade_gotas"];
                         $ultimoId = $pontuacao->id;
                         $contador = $contador + 1;
 
-                        die();
                         if ($contador == $maximoContador) {
-                            echo __LINE__;
+                            // echo __LINE__;
                             $ultimoId = $pontuacao->id + 1;
-                            die();
+                            // die();
                         }
 
                         if ($pontuacoesProcessar <= 0) {
-                            echo __LINE__;
-                            die();
+                            // echo __LINE__;
+                            // die();
                             $podeContinuar = false;
                             break;
                         }
 
                     }
-
-
-                    echo __LINE__;
-                    die();
                 }
 
                 // Atualiza todos os pontos do usuário
@@ -2544,6 +2541,8 @@ class CuponsController extends AppController
                     $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
                     $ticket = $cupom;
                     $message = null;
+
+
                 } else {
                     $mensagem = array(
                         "status" => false,
@@ -2629,6 +2628,7 @@ class CuponsController extends AppController
             $dados_impressao = $this->processarCupom($cuponsRetorno);
         }
 
+        echo 'oi';
         // Se chegou até aqui, ocorreu tudo bem
         $mensagem = array(
             "status" => true,
@@ -2677,6 +2677,8 @@ class CuponsController extends AppController
         // DebugUtil::printArray($this->user_logged);
         $funcionario = $this->user_logged;
 
+        // DebugUtil::printArray($cupons);
+
         // checagem de cupons
 
         if (sizeof($cupons) > 0) {
@@ -2700,7 +2702,10 @@ class CuponsController extends AppController
 
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
+            // DebugUtil::printGeneric($rede_has_cliente);
+            // die();
+
+            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente["redes_id"]);
 
             $encontrou_cupom = false;
 
@@ -2728,9 +2733,9 @@ class CuponsController extends AppController
                 $unidades_id = $value->clientes_id;
             }
 
+            // DebugUtil::printGeneric($clientes_has_usuarios);
+            // DebugUtil::printArray($funcionario);
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidades_id);
-
-            DebugUtil::printGeneric($rede_has_cliente);
 
             $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
 

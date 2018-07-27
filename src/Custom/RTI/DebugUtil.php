@@ -78,6 +78,10 @@ class DebugUtil
                 echo PHP_EOL;
                 echo $item;
                 echo PHP_EOL;
+            } else if (gettype($item) == "double") {
+                echo PHP_EOL;
+                echo $item;
+                echo PHP_EOL;
             }
         }
 
