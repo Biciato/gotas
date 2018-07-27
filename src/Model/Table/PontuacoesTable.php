@@ -1161,6 +1161,7 @@ class PontuacoesTable extends GenericTable
                 $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $dataFim), "Y-m-d");
             }
 
+            // Se não especificar data, filtra todo mundo
             if ($dataInicio && $dataFim) {
                 $whereConditions[] = ["data >= " => $dataInicio];
                 $whereConditions[] = ["data <= " => $dataFim];
@@ -1168,14 +1169,7 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["data >= " => $dataInicio];
             } else if ($dataFim) {
                 $whereConditions[] = ["data <= " => $dataFim];
-            } else {
-                $dataFim = date("Y-m-d");
-                $dataInicio = date('Y-m-d', strtotime("-30 days"));
-
-                $whereConditions[] = ["data >= " => $dataInicio];
-                $whereConditions[] = ["data <= " => $dataFim];
             }
-
 
             $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
                 ->where($whereConditions)
