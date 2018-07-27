@@ -2628,7 +2628,6 @@ class CuponsController extends AppController
             $dados_impressao = $this->processarCupom($cuponsRetorno);
         }
 
-        echo 'oi';
         // Se chegou até aqui, ocorreu tudo bem
         $mensagem = array(
             "status" => true,
