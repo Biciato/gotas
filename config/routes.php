@@ -283,6 +283,11 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/token'
             ],
+            'logoutAPI' => [
+                'action' => 'logoutAPI',
+                'method' => 'GET',
+                'path' => '/logout'
+            ],
             'meuPerfilAPI' => [
                 'action' => "meuPerfilAPI",
                 "method" => "GET",

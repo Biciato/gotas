@@ -510,11 +510,17 @@ class UsuariosHasVeiculosController extends AppController
                     );
 
                     $mensagem = array(
-                        "status" => $veiculo ? 1 : 0,
+                        "status" => $veiculo? 1 : 0,
                         "mensagem" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
                         "errors" => $veiculo ? array() : $veiculo->errors()
                     );
 
+                    $arraySet = ["mensagem", "veiculo"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
                 }
             }
         } catch (\Exception $e) {

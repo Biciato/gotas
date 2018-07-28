@@ -1020,6 +1020,45 @@ class UsuariosController extends AppController
     }
 
     /**
+     * Obtêm token de autenticação
+     *
+     * @return void
+     */
+    public function logoutAPI()
+    {
+        $usuario = $this->Auth->user();
+
+        if (!$usuario) {
+            throw new UnauthorizedException('Usuário ou senha inválidos');
+        }
+
+        $mensagem = [
+            'status' => true,
+            'message' => Configure::read('messageUserLoggedOutSuccessfully')
+        ];
+
+
+        $usuario = [
+            'id' => $usuario['id'],
+            'token' => JWT::encode(
+                [
+                    'id' => $usuario['id'],
+                    'sub' => $usuario['id'],
+                    'exp' => time() + 1
+                ],
+                Security::salt()
+            )
+        ];
+
+        $arraySet = [
+            'mensagem'
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    /**
      * Edit method
      *
      * @param string|null $id Usuario id.

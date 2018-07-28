@@ -218,6 +218,7 @@ Configure::write(
         "messageUserCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
 
         'messageUserLoggedInSuccessfully' => "Usuário logado com sucesso!",
+        'messageUserLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
 
         // Mensagens de Veículos
         'messageVehicleAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
