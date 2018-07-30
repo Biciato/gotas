@@ -388,13 +388,13 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             return $brinde;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            // TODO: ajustar
-            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
-            Log::write('error', $stringError);
+            $stringError = __("Erro ao obter brindes de unidade: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
+            Log::write('error', $stringError);
             Log::write("error", $trace);
 
-            $this->Flash->error($stringError);
+            $error = array('status' => false, 'message' => $stringError, "errors" => array());
+            return $error;
         }
     }
 
