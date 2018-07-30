@@ -578,18 +578,17 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
                         && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
                         $podeAdicionar = true;
-                    }
+                    } else $count -= 1;
                 } else if ($precoMin > 0) {
                     if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin) {
                         $podeAdicionar = true;
-                    }
+                    } else $count -= 1;
                 } else if ($precoMax > 0) {
                     if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
                         $podeAdicionar = true;
-                    }
+                    } else $count -= 1;
                 } else {
-                    $podeAdicionar = true;
-
+                    $count -= 1;
                 }
 
                 if ($podeAdicionar) {
@@ -597,9 +596,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 }
             }
 
+            if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
+                $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
+            }
+
             $retorno = array(
                 "brindes" => array(
-                    "count" => $precoMin > 0 || $precoMax > 0 ? sizeof($clientesBrindesHabilitadosReturn) : $count,
+                    // "count" => $precoMin > 0 || $precoMax > 0 ? sizeof($clientesBrindesHabilitadosReturn) : $count,
+                    "count" => $count,
                     "page_count" => sizeof($clientesBrindesHabilitadosReturn),
                     "data" => $clientesBrindesHabilitadosReturn
                 ),
