@@ -1050,6 +1050,8 @@ class UsuariosController extends AppController
             )
         ];
 
+        $this->Auth->logout();
+
         $arraySet = [
             'mensagem'
         ];
