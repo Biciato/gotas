@@ -406,10 +406,12 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
-    public function getAllGiftsClienteId(
+    public function getBrindesPorClienteId(
         int $clientesId,
         array $generoBrindesClientesIds = array(),
         array $whereConditionsBrindes = array(),
+        float $precoMin = null,
+        float $precoMax = null,
         array $orderConditionsBrindes = array(),
         array $paginationConditionsBrindes = array(),
         array $filterGeneroBrindesClientesColumns = array()
@@ -563,20 +565,47 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 } else {
                     $count -= 1;
                 }
-
             }
 
-            // DebugUtil::printGeneric($clientesBrindesHabilitados);
+            $clientesBrindesHabilitadosReturn = array();
+
+            // Faz pesquisa por preço
+            foreach ($clientesBrindesHabilitados as $brindeHabilitado) {
+
+                $podeAdicionar = false;
+
+                if ($precoMin > 0 && $precoMax > 0) {
+                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
+                        && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
+                        $podeAdicionar = true;
+                    }
+                } else if ($precoMin > 0) {
+                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin) {
+                        $podeAdicionar = true;
+                    }
+                } else if ($precoMax > 0) {
+                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
+                        $podeAdicionar = true;
+                    }
+                } else {
+                    $podeAdicionar = true;
+
+                }
+
+                if ($podeAdicionar) {
+                    $clientesBrindesHabilitadosReturn[] = $brindeHabilitado;
+                }
+            }
 
             $retorno = array(
                 "brindes" => array(
-                    "count" => $count,
-                    "page_count" => sizeof($clientesBrindesHabilitados),
-                    "data" => $clientesBrindesHabilitados
+                    "count" => $precoMin > 0 || $precoMax > 0 ? sizeof($clientesBrindesHabilitadosReturn) : $count,
+                    "page_count" => sizeof($clientesBrindesHabilitadosReturn),
+                    "data" => $clientesBrindesHabilitadosReturn
                 ),
                 "mensagem" => array(
-                    "status" => sizeof($clientesBrindesHabilitados) > 0,
-                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
+                    "status" => sizeof($clientesBrindesHabilitadosReturn) > 0,
+                    "message" => sizeof($clientesBrindesHabilitadosReturn) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
                     "errors" => array()
                 ),
             );

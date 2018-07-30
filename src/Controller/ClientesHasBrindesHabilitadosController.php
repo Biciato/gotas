@@ -947,6 +947,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $data = $this->request->getData();
                 $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
 
+                $precoMin = isset($data["preco_min"]) ? (float)$data["preco_min"] : null;
+                $precoMax = isset($data["preco_max"]) ? (float)$data["preco_max"] : null;
+
                 if (empty($clientesId)) {
                     $mensagem = array(
                         "status" => 0,
@@ -1004,10 +1007,12 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     "habilitado"
                 );
 
-                $resultado = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
+                $resultado = $this->ClientesHasBrindesHabilitados->getBrindesPorClienteId(
                     $clientesId,
                     $generoBrindesClientesIds,
                     $whereConditionsBrindes,
+                    $precoMin,
+                    $precoMax,
                     $orderConditions,
                     $paginationConditions,
                     $filterGeneroBrindesClientesColumns

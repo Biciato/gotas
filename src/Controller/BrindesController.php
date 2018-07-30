@@ -811,10 +811,12 @@ class BrindesController extends AppController
 
             $clientes_id = $data['clientes_id'];
 
-            $resultado = $this->ClientesHasBrindesHabilitados->getAllGiftsClienteId(
+            $resultado = $this->ClientesHasBrindesHabilitados->getBrindesPorClienteId(
                 $clientes_id,
                 array(),
                 array(),
+                0,
+                0,
                 array(),
                 array(),
                 array()
