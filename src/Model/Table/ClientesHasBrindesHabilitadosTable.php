@@ -569,36 +569,39 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitadosReturn = array();
 
-            if ($precoMin == 0 && $precoMax == 0){
+            if ($precoMin == 0 && $precoMax == 0) {
                 $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;
-            }
+            } else {
+
 
             // Faz pesquisa por preço
-            foreach ($clientesBrindesHabilitados as $brindeHabilitado) {
+                foreach ($clientesBrindesHabilitados as $brindeHabilitado) {
 
-                $podeAdicionar = false;
+                    $podeAdicionar = false;
 
-                if ($precoMin > 0 && $precoMax > 0) {
-                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
-                        && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
-                        $podeAdicionar = true;
-                    } else $count -= 1;
-                } else if ($precoMin > 0) {
-                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin) {
-                        $podeAdicionar = true;
-                    } else $count -= 1;
-                } else if ($precoMax > 0) {
-                    if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
-                        $podeAdicionar = true;
-                    } else $count -= 1;
-                } else {
-                    $count -= 1;
-                }
+                    if ($precoMin > 0 && $precoMax > 0) {
+                        if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
+                            && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
+                            $podeAdicionar = true;
+                        } else $count -= 1;
+                    } else if ($precoMin > 0) {
+                        if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin) {
+                            $podeAdicionar = true;
+                        } else $count -= 1;
+                    } else if ($precoMax > 0) {
+                        if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
+                            $podeAdicionar = true;
+                        } else $count -= 1;
+                    } else {
+                        $count -= 1;
+                    }
 
-                if ($podeAdicionar) {
-                    $clientesBrindesHabilitadosReturn[] = $brindeHabilitado;
+                    if ($podeAdicionar) {
+                        $clientesBrindesHabilitadosReturn[] = $brindeHabilitado;
+                    }
                 }
             }
+
 
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
                 $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
