@@ -569,6 +569,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitadosReturn = array();
 
+            if ($precoMin == 0 && $precoMax == 0){
+                $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;
+            }
+
             // Faz pesquisa por preço
             foreach ($clientesBrindesHabilitados as $brindeHabilitado) {
 
