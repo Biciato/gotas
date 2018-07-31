@@ -177,6 +177,7 @@ Configure::write(
         'messageValidateError' => 'Não foi possível validar o registro!',
         'messageNotAuthorized' => 'Você não possui autorização para acessar tal operação',
         'messageRedeemCouponError' => 'Não foi possível regatar o cupom.',
+        'messageRedeemCouponNotFound' => 'Cupom não encontrado!',
         'messageRecordAlreadyLinked' => 'Registro já vinculado, não é possível adicionar novo registro!',
         'messageRecordExists' => 'Registro já existente!',
         'messageRecordExistsSameCharacteristics' => 'Registro já existente com as mesmas características! Não é permitido gravar com estas condições!',

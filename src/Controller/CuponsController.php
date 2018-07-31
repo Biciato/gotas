@@ -1268,22 +1268,48 @@ class CuponsController extends AppController
                 $confirmar = !empty($data["efetuar_baixa"]) ? (bool)$data["efetuar_baixa"] : false;
                 $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : "";
 
-                if ($cupomEmitido == "" || strlen($cupomEmitido) == 14) {
+                if ($cupomEmitido == "" || strlen($cupomEmitido) <= 14) {
+
+                    $errors = array("É preciso informar o código do cupom para continuar!");
+
+                    if (strlen($cupomEmitido) <= 14) {
+                        $errors[] = "O código do cupom deve ter 14 dígitos!";
+                    }
+
                     $mensagem = array(
                         "status" => 0,
-                        "message" => "",
-                        "errors" => array()
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => $errors
                     );
+
+                    $arraySet = array("mensagem");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
                 }
 
-                $cupom_emitido = $data['cupom_emitido'];
-                $unidade_funcionario_id = $data['unidade_funcionario_id'];
+                $unidade_funcionario_id = $this->Auth->user()["id"];
 
-                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
 
                 if (!$cupons) {
                     $status = false;
                     $error = __("{0}", Configure::read('messageRecordNotFound'));
+
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => $errors
+                    );
+
+                    $arraySet = array("mensagem");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
 
                 } else {
                     foreach ($cupons->toArray() as $key => $cupom) {
