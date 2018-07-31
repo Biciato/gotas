@@ -1250,6 +1250,90 @@ class CuponsController extends AppController
     #region Métodos de API
 
     /**
+     * Efetua a baixa do brinde de usuário
+     *
+     * @return void
+     */
+    public function efetuarBaixaCupomAPI()
+    {
+        // TODO: Work in Progress
+        try {
+
+            // $status = false;
+            // $error = __("{0} {1}", Configure::read('messageRedeemCouponError'), Configure::read('callSupport'));
+
+            if ($this->request->is(['post'])) {
+
+                $data = $this->request->getData();
+                $confirmar = !empty($data["efetuar_baixa"]) ? (bool)$data["efetuar_baixa"] : false;
+                $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : "";
+
+                if ($cupomEmitido == "" || strlen($cupomEmitido) == 14) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => "",
+                        "errors" => array()
+                    );
+                }
+
+                $cupom_emitido = $data['cupom_emitido'];
+                $unidade_funcionario_id = $data['unidade_funcionario_id'];
+
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
+
+                if (!$cupons) {
+                    $status = false;
+                    $error = __("{0}", Configure::read('messageRecordNotFound'));
+
+                } else {
+                    foreach ($cupons->toArray() as $key => $cupom) {
+                        $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+
+                        $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                            $cupom->clientes_has_brindes_habilitados_id,
+                            $cupom->usuarios_id,
+                            $cupom->quantidade,
+                            (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                        );
+
+                        // diminuiu estoque, considera o item do cupom como resgatado
+                        if ($estoque) {
+                            $cupom_save = $this->Cupons->setCupomAsRedeemed($cupom->id);
+
+                            // adiciona novo registro de pontuação
+
+                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                                $cupom->clientes_id,
+                                $cupom->usuarios_id,
+                                $cupom->clientes_has_brindes_habilitados_id,
+                                $cupom->valor_pago
+                            );
+                        }
+                    }
+                }
+
+                // se chegou até aqui, gravou com sucesso no banco
+                $status = true;
+                $error = null;
+            }
+
+            $arraySet = [
+                'status',
+                'error'
+            ];
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao resgatar cupom: {0} em: {1} ", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
      * CuponsController::resgatarCupomAPI
      *
      * Serviço REST que resgata um cupom de brinde
@@ -2438,7 +2522,7 @@ class CuponsController extends AppController
                             $ultimoId
                         );
 
-                    if (empty($pontuacoesPendentesUso)){
+                    if (empty($pontuacoesPendentesUso)) {
                         break;
                     }
 
