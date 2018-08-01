@@ -235,7 +235,7 @@ class ClientesHasUsuariosTable extends Table
      * Verifica se usuário está vinculado à cliente (rede / posto)
      *
      * @param array $where_conditions Condições de pesquisa
-     * 
+     *
      * @return void
      **/
     public function findClienteHasUsuario(array $where_conditions)
@@ -291,7 +291,7 @@ class ClientesHasUsuariosTable extends Table
      * @param int  $redes_id         Id da Rede
      * @param int  $usuarios_id      Id de Usuário
      * @param bool $descartar_matriz Retira ou Inclui matriz
-     * 
+     *
      * @return void
      */
     public function getClientesFilterAllowedByUsuariosId(int $redes_id, int $usuarios_id, bool $descartar_matriz = false)
@@ -328,7 +328,7 @@ class ClientesHasUsuariosTable extends Table
 
                 return $clientes;
             } else if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminLocalProfileType']) {
-                
+
                 // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
 
                 // pega os id's aos quais ele tem permissão de admin
@@ -370,7 +370,7 @@ class ClientesHasUsuariosTable extends Table
                 return $clientes;
 
             } else {
-            
+
                 // pega os id's aos quais ele tem permissão de admin
 
                 $clientes_has_usuarios_list = $this->_getClienteHasUsuarioTable()
@@ -468,6 +468,48 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
+    /**
+     * Obtêm todos os clientes através de um usuário e tipo de perfil
+     *
+     * @param int $usuarios_id Id de usuário
+     * @param int $tipo_perfil Tipo de perfil procurado
+     *
+     * @return object ClientesHasUsuarios
+     */
+    public function getAllClientesIdsByUsuariosId(int $usuarios_id, int $tipo_perfil = null)
+    {
+        try {
+
+            $whereConditions = array();
+
+            $whereConditions[] = [
+                'ClientesHasUsuarios.usuarios_id' => $usuarios_id
+            ];
+
+            if (!is_null($tipo_perfil)) {
+                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipo_perfil];
+            }
+
+            $clientes_has_usuarios = $this->_getClienteHasUsuarioTable()->find('all')
+                ->where($whereConditions);
+
+            $clientesIds = [];
+
+            foreach ($clientes_has_usuarios as $key => $value) {
+                $clientesIds[] = $value['clientes_id'];
+            }
+
+            return $clientesIds;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
     /* ------------------------ Update ------------------------ */
 
     /**
@@ -477,7 +519,7 @@ class ClientesHasUsuariosTable extends Table
      * @param int $clientes_id Id do cliente
      * @param int $usuarios_id Id do Usuário
      * @param int $tipo_perfil Tipo de Perfil
-     * 
+     *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
     public function updateClienteHasUsuarioRelationship(int $id, int $clientes_id, int $usuarios_id, int $tipo_perfil)
@@ -519,7 +561,7 @@ class ClientesHasUsuariosTable extends Table
      *
      * @param array $update_array Argumentos que serão atualizados
      * @param array $select_array Argumentos de condição
-     * 
+     *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
     public function updateClientesHasUsuarioRelationship(array $update_array, array $select_array)

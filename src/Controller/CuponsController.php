@@ -1206,7 +1206,7 @@ class CuponsController extends AppController
 
                         // diminuiu estoque, considera o item do cupom como resgatado
                         if ($estoque) {
-                            $cupom_save = $this->Cupons->setCupomAsRedeemed($cupom->id);
+                            $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
 
                             // adiciona novo registro de pontuação
 
@@ -1250,25 +1250,72 @@ class CuponsController extends AppController
     #region Métodos de API
 
     /**
+     * CuponsController::efetuarBaixaCupomAPI
+     *
      * Efetua a baixa do brinde de usuário
      *
-     * @return void
+     * @params $data["cupom_emitido"] Código do cupom para pesquisa
+     * @params $data["confirmar"] Confirma se é para efetuar baixa
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 01/08/2018
+     *
+     * @return json objeto resultado
      */
     public function efetuarBaixaCupomAPI()
     {
-        // TODO: Work in Progress
         try {
-
-            // $status = false;
-            // $error = __("{0} {1}", Configure::read('messageRedeemCouponError'), Configure::read('callSupport'));
 
             if ($this->request->is(['post'])) {
 
                 $data = $this->request->getData();
-                $confirmar = !empty($data["efetuar_baixa"]) ? (bool)$data["efetuar_baixa"] : false;
+                $confirmar = !empty($data["confirmar"]) ? (bool)$data["confirmar"] : false;
                 $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : "";
 
-                if ($cupomEmitido == "" || strlen($cupomEmitido) <= 14) {
+                // Validação de funcionário logado
+                $funcionarioId = $this->Auth->user()["id"];
+
+                $funcionario["tipo_perfil"] = $this->Auth->user()["tipo_perfil"];
+                $funcionario["nome"] = $this->Auth->user()["nome"];
+
+                $isFuncionario = false;
+
+                if ($funcionario["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]
+                    || $funcionario["tipo_perfil"] == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                    $isFuncionario = true;
+                }
+
+                if (!$isFuncionario) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array(Configure::read("userNotAllowedToExecuteFunction"))
+                    );
+
+                    $arraySet = array("mensagem");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($this->Auth->user()["id"], $funcionario["tipo_perfil"]);
+
+                $clienteId = 0;
+                if (sizeof($clientesUsuariosIds) > 0) {
+                    $clienteId = $clientesUsuariosIds[0];
+                }
+
+                $todasUnidadesRedesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clienteId);
+
+                $todasUnidadesIds = array();
+
+                foreach ($todasUnidadesRedesQuery as $value) {
+                    $todasUnidadesIds[] = $value["clientes_id"];
+                }
+
+                if ($cupomEmitido == "" || strlen($cupomEmitido) < 14) {
 
                     $errors = array("É preciso informar o código do cupom para continuar!");
 
@@ -1290,18 +1337,54 @@ class CuponsController extends AppController
                     return;
                 }
 
-                $unidade_funcionario_id = $this->Auth->user()["id"];
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
 
-                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
+                $somaTotal = 0;
+                $dadosCupons = array();
 
-                if (!$cupons) {
-                    $status = false;
-                    $error = __("{0}", Configure::read('messageRecordNotFound'));
+                foreach ($cupons->toArray() as $cupom) {
+                    $dadoCupom = array();
+
+                    $somaTotal += (float)$cupom["valor_pago"];
+
+                    $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
+                    $dadoCupom["quantidade"] = $cupom["quantidade"];
+                    $dadoCupom["nome_brinde"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome"];
+                    $dadoCupom["preco_brinde"] = (float)$cupom["valor_pago"];
+                        // imagem brinde
+                    $dadoCupom["nome_img_completo"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome_img_completo"];
+                    $dadosCupons[] = $dadoCupom;
+                }
+
+                // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
+                if (!$confirmar){
 
                     $mensagem = array(
                         "status" => 0,
+                        "message" => Configure::read("messageWarningDefault"),
+                        "errors" => array("Deseja confirmar o resgate dos brindes à seguir?")
+                    );
+                    $resultado = array(
+                        "recibo" => $dadosCupons
+                    );
+
+                    $arraySet = array("mensagem", "resultado");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+
+                }
+
+                if (!$cupons) {
+                    // Avisa erro se não for encontrado. Motivos podem ser:
+                    // Cupom já foi resgatado
+                    // Cupom pertence a outra rede
+                    $mensagem = array(
+                        "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => $errors
+                        "errors" => array(Configure::read('messageRecordNotFound'))
                     );
 
                     $arraySet = array("mensagem");
@@ -1313,6 +1396,8 @@ class CuponsController extends AppController
 
                 } else {
                     foreach ($cupons->toArray() as $key => $cupom) {
+
+
                         $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
                         $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
@@ -1324,7 +1409,7 @@ class CuponsController extends AppController
 
                         // diminuiu estoque, considera o item do cupom como resgatado
                         if ($estoque) {
-                            $cupom_save = $this->Cupons->setCupomAsRedeemed($cupom->id);
+                            $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
 
                             // adiciona novo registro de pontuação
 
@@ -1332,30 +1417,45 @@ class CuponsController extends AppController
                                 $cupom->clientes_id,
                                 $cupom->usuarios_id,
                                 $cupom->clientes_has_brindes_habilitados_id,
-                                $cupom->valor_pago
+                                $cupom->valor_pago,
+                                $this->Auth->user()["id"]
                             );
                         }
                     }
                 }
 
-                // se chegou até aqui, gravou com sucesso no banco
-                $status = true;
-                $error = null;
+                $mensagem = array(
+                    "status" => 1,
+                    "message" => __("{0} {1}", Configure::read("messageProcessingCompleted"), Configure::read("messageRedeemCouponRedeemed")),
+                    "errors" => array()
+                );
+                $resultado = array(
+                    "soma_gotas" => $somaTotal,
+                    "recibo" => $dadosCupons,
+                    "funcionario" => $funcionario
+                );
+
+                $arraySet = array(
+                    "mensagem",
+                    "resultado"
+                );
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
-
-            $arraySet = [
-                'status',
-                'error'
-            ];
-
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao resgatar cupom: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
-            Log::write('error', $stringError);
+            $messageString = __("Erro durante resgate do cupom!");
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
         }
     }
 
@@ -2536,7 +2636,6 @@ class CuponsController extends AppController
 
                     $pontuacoesProcessar = $pontuacoesProcessar + $pontuacoesBrindesUsados;
                 }
-
 
                 while ($podeContinuar) {
                     $pontuacoesPendentesUso = $this

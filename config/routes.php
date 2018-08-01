@@ -121,6 +121,11 @@ Router::scope("/api", function ($routes) {
                 //     "method" => "POST",
                 //     "path" => "/resgatar_cupom_comum"
                 // ],
+                "efetuarBaixaCupomAPI" => array(
+                    "action" => "efetuarBaixaCupomAPI",
+                    "method" => "POST",
+                    "path" => "/efetuar_baixa_cupom"
+                ),
                 "resgatarCupomAPI" => [
                     "action" => "resgatarCupomAPI",
                     "method" => "POST",

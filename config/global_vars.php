@@ -178,6 +178,7 @@ Configure::write(
         'messageNotAuthorized' => 'Você não possui autorização para acessar tal operação',
         'messageRedeemCouponError' => 'Não foi possível regatar o cupom.',
         'messageRedeemCouponNotFound' => 'Cupom não encontrado!',
+        'messageRedeemCouponRedeemed' => 'Cupom resgatado!',
         'messageRecordAlreadyLinked' => 'Registro já vinculado, não é possível adicionar novo registro!',
         'messageRecordExists' => 'Registro já existente!',
         'messageRecordExistsSameCharacteristics' => 'Registro já existente com as mesmas características! Não é permitido gravar com estas condições!',
@@ -220,6 +221,8 @@ Configure::write(
 
         'messageUserLoggedInSuccessfully' => "Usuário logado com sucesso!",
         'messageUserLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
+
+        "userNotAllowedToExecuteFunction" => "Usuário logado não possui permissão para acessar esta funcionalidade!",
 
         // Mensagens de Veículos
         'messageVehicleAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',

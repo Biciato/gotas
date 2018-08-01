@@ -386,13 +386,24 @@ class CuponsTable extends GenericTable
      * (campo que identifica cada cupom no código de leitura)
      *
      * @param  string $cupom_emitido String de cupom emitido
+     * @param array $clientesIds Ids de Clientes à pesquisar (opcional)
+     *
      * @return object $cupom
      */
-    public function getCuponsByCupomEmitido(string $cupom_emitido)
+    public function getCuponsByCupomEmitido(string $cupom_emitido, array $clientesIds = array())
     {
         try {
+
+            $whereConditions = array();
+
+            $whereConditions[] = array('Cupons.cupom_emitido' => $cupom_emitido);
+
+            if (sizeof($clientesIds) > 0){
+                $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
+            }
+
             return $this->_getCuponsTable()->find('all')
-                ->where(['Cupons.cupom_emitido' => $cupom_emitido])
+                ->where($whereConditions)
                 ->contain(
                     [
                         "ClientesHasBrindesHabilitados",
@@ -641,12 +652,13 @@ class CuponsTable extends GenericTable
      * @param integer $id
      * @return void
      */
-    public function setCupomAsRedeemed(int $id)
+    public function setCupomResgatadoUsado(int $id)
     {
         try {
             return $this->updateAll(
                 [
-                    'resgatado' => true,
+                    'resgatado' => 1,
+                    'usado' => 1
                 ],
                 [
                     'id' => $id
