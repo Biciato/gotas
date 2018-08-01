@@ -1275,13 +1275,13 @@ class CuponsController extends AppController
                 // Validação de funcionário logado
                 $funcionarioId = $this->Auth->user()["id"];
 
-                $funcionario["tipo_perfil"] = $this->Auth->user()["tipo_perfil"];
+                $tipoPerfil = $this->Auth->user()["tipo_perfil"];
                 $funcionario["nome"] = $this->Auth->user()["nome"];
 
                 $isFuncionario = false;
 
-                if ($funcionario["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]
-                    || $funcionario["tipo_perfil"] == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                if ($tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]
+                    || $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
                     $isFuncionario = true;
                 }
 
@@ -1300,7 +1300,7 @@ class CuponsController extends AppController
                     return;
                 }
 
-                $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($this->Auth->user()["id"], $funcionario["tipo_perfil"]);
+                $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($this->Auth->user()["id"], $tipoPerfil);
 
                 $clienteId = 0;
                 if (sizeof($clientesUsuariosIds) > 0) {
@@ -1339,21 +1339,49 @@ class CuponsController extends AppController
 
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
 
+                // Verifica se este cupom já foi usado
                 $somaTotal = 0;
                 $dadosCupons = array();
 
+                $verificado = false;
+                $usado = false;
                 foreach ($cupons->toArray() as $cupom) {
+
                     $dadoCupom = array();
 
                     $somaTotal += (float)$cupom["valor_pago"];
 
-                    $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
-                    $dadoCupom["quantidade"] = $cupom["quantidade"];
                     $dadoCupom["nome_brinde"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome"];
+                    $dadoCupom["quantidade"] = $cupom["quantidade"];
                     $dadoCupom["preco_brinde"] = (float)$cupom["valor_pago"];
-                        // imagem brinde
+                    // imagem brinde
                     $dadoCupom["nome_img_completo"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome_img_completo"];
+                    $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
                     $dadosCupons[] = $dadoCupom;
+
+                    if ($cupom["usado"]) {
+                        $usado = true;
+                        break;
+                    }
+                    $verificado = true;
+                }
+
+                if ($usado) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageWarningDefault"),
+                        "errors" => array("Este cupom já foi utilizado pelo usuário!")
+                    );
+                    $resultado = array(
+                        "recibo_baixa_cupons" => $dadosCupons
+                    );
+
+                    $arraySet = array("mensagem", "resultado");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
                 }
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
@@ -1365,7 +1393,7 @@ class CuponsController extends AppController
                         "errors" => array("Deseja confirmar o resgate dos brindes à seguir?")
                     );
                     $resultado = array(
-                        "recibo" => $dadosCupons
+                        "recibo_baixa_cupons" => $dadosCupons
                     );
 
                     $arraySet = array("mensagem", "resultado");
