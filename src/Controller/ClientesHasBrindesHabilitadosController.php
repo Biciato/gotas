@@ -1018,6 +1018,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $filterGeneroBrindesClientesColumns
                 );
 
+                // DebugUtil::printArray($resultado);
+
                 $mensagem = $resultado["mensagem"];
                 $brindes = $resultado["brindes"];
 

@@ -418,6 +418,37 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     ) {
         try {
 
+            // Verifica se ordenação ordena algum campo de preço do brinde
+
+            $brindesPrecosOrdenacao = array();
+            $prefix = "brinde_habilitado_preco_atual_";
+
+            $orderConditionsBrindesNew = array();
+            foreach ($orderConditionsBrindes as $key => $value) {
+                $pos = stripos($key, $prefix);
+
+                if ($pos > -1) {
+                    $key = substr($key, strlen($prefix));
+
+                    $brindesPrecosOrdenacao[] = array($key => $value);
+                } else {
+                    $orderConditionsBrindesNew[$key] = $value;
+                }
+            }
+
+            $orderConditionsBrindes = $orderConditionsBrindesNew;
+
+            // foreach ($brindesPrecosOrdenacao as $key => $ordenacaoPreco) {
+            //     foreach ($ordercond as $key => $value) {
+            //         # code...
+            //     }
+            // }
+
+            $brindesPrecoOrdenacao = null;
+            if (sizeof($brindesPrecosOrdenacao) >= 1) {
+                $brindesPrecoOrdenacao = $brindesPrecosOrdenacao[0];
+            }
+
             // Primeiro, faz a consulta dos dos ids de unidades de cada rede
             $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
             $redesHasCliente = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
@@ -602,6 +633,44 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 }
             }
 
+            // Se especificar ordenacao
+
+            // DebugUtil::printArray($brindesPrecoOrdenacao);
+            if ($brindesPrecoOrdenacao) {
+
+                $precoAtualBrindes = array();
+
+                foreach ($clientesBrindesHabilitadosReturn as $key => $brinde) {
+                    $precoAtualBrindes[] = $brinde["brinde_habilitado_preco_atual"];
+                }
+
+                usort($precoAtualBrindes, function ($a, $b) use ($brindesPrecoOrdenacao){
+                    $key = key($brindesPrecoOrdenacao);
+
+                    if (strtoupper($brindesPrecoOrdenacao[$key]) == "ASC") {
+                        return $a[($key)] > $b[($key)];
+                    } else {
+                        return $a[($key)] < $b[($key)];
+                    }
+                });
+
+                $clientesBrindesHabilitadosIds = array();
+                foreach ($precoAtualBrindes as $brindePreco) {
+                    $clientesBrindesHabilitadosIds[] = $brindePreco["clientes_has_brindes_habilitados_id"];
+                }
+
+                $clientesBrindesHabilitadosReturnTemp = array();
+
+                foreach ($clientesBrindesHabilitadosIds as $clienteBrindeHabilitadoId) {
+                    foreach ($clientesBrindesHabilitadosReturn as $brindeReturn) {
+                        if ($brindeReturn["id"] == $clienteBrindeHabilitadoId) {
+                            $clientesBrindesHabilitadosReturnTemp[] = $brindeReturn;
+                        }
+                    }
+                }
+
+                $clientesBrindesHabilitadosReturn= $clientesBrindesHabilitadosReturnTemp;
+            }
 
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
                 $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
