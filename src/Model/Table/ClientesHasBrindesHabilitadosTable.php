@@ -438,12 +438,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $orderConditionsBrindes = $orderConditionsBrindesNew;
 
-            // foreach ($brindesPrecosOrdenacao as $key => $ordenacaoPreco) {
-            //     foreach ($ordercond as $key => $value) {
-            //         # code...
-            //     }
-            // }
-
             $brindesPrecoOrdenacao = null;
             if (sizeof($brindesPrecosOrdenacao) >= 1) {
                 $brindesPrecoOrdenacao = $brindesPrecosOrdenacao[0];
@@ -603,9 +597,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             if ($precoMin == 0 && $precoMax == 0) {
                 $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;
             } else {
-
-
-            // Faz pesquisa por preço
+                // Faz pesquisa por preço
                 foreach ($clientesBrindesHabilitados as $brindeHabilitado) {
 
                     $podeAdicionar = false;
@@ -635,41 +627,17 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             // Se especificar ordenacao
 
-            // DebugUtil::printArray($brindesPrecoOrdenacao);
             if ($brindesPrecoOrdenacao) {
 
-                $precoAtualBrindes = array();
-
-                foreach ($clientesBrindesHabilitadosReturn as $key => $brinde) {
-                    $precoAtualBrindes[] = $brinde["brinde_habilitado_preco_atual"];
-                }
-
-                usort($precoAtualBrindes, function ($a, $b) use ($brindesPrecoOrdenacao){
+                usort($clientesBrindesHabilitadosReturn, function ($a, $b) use ($brindesPrecoOrdenacao)  {
                     $key = key($brindesPrecoOrdenacao);
 
                     if (strtoupper($brindesPrecoOrdenacao[$key]) == "ASC") {
-                        return $a[($key)] > $b[($key)];
+                        return $a["brinde_habilitado_preco_atual"][$key] > $b["brinde_habilitado_preco_atual"][$key];
                     } else {
-                        return $a[($key)] < $b[($key)];
+                        return $a["brinde_habilitado_preco_atual"][$key] < $b["brinde_habilitado_preco_atual"][$key];
                     }
                 });
-
-                $clientesBrindesHabilitadosIds = array();
-                foreach ($precoAtualBrindes as $brindePreco) {
-                    $clientesBrindesHabilitadosIds[] = $brindePreco["clientes_has_brindes_habilitados_id"];
-                }
-
-                $clientesBrindesHabilitadosReturnTemp = array();
-
-                foreach ($clientesBrindesHabilitadosIds as $clienteBrindeHabilitadoId) {
-                    foreach ($clientesBrindesHabilitadosReturn as $brindeReturn) {
-                        if ($brindeReturn["id"] == $clienteBrindeHabilitadoId) {
-                            $clientesBrindesHabilitadosReturnTemp[] = $brindeReturn;
-                        }
-                    }
-                }
-
-                $clientesBrindesHabilitadosReturn= $clientesBrindesHabilitadosReturnTemp;
             }
 
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
@@ -680,12 +648,12 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 "brindes" => array(
                     // "count" => $precoMin > 0 || $precoMax > 0 ? sizeof($clientesBrindesHabilitadosReturn) : $count,
                     "count" => $count,
-                    "page_count" => sizeof($clientesBrindesHabilitadosReturn),
-                    "data" => $clientesBrindesHabilitadosReturn
+                    "page_count" => sizeof($clientesBrindesHabilitados),
+                    "data" => $clientesBrindesHabilitados
                 ),
                 "mensagem" => array(
-                    "status" => sizeof($clientesBrindesHabilitadosReturn) > 0,
-                    "message" => sizeof($clientesBrindesHabilitadosReturn) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
+                    "status" => sizeof($clientesBrindesHabilitados) > 0,
+                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
                     "errors" => array()
                 ),
             );
