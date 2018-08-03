@@ -1385,7 +1385,7 @@ class CuponsController extends AppController
                 }
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
-                if (!$confirmar){
+                if (!$confirmar) {
 
                     $mensagem = array(
                         "status" => 0,
@@ -2351,7 +2351,11 @@ class CuponsController extends AppController
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
                     if (sizeof($clientesIds) == 0) {
-                        $mensagem = ['status' => false, 'message' => __("Não foi encontrado unidades para a rede informada, pois esta rede não existe ou está desabilitada no sistema!")];
+                        $mensagem = array(
+                            'status' => 0,
+                            'message' => Configure::read("messageLoadDataWithError"),
+                            "errors" => array(__("Não foi encontrado unidades para a rede informada, pois esta rede não existe ou está desabilitada no sistema!"))
+                        );
 
                         $arraySet = ["mensagem"];
                         $this->set(compact($arraySet));
@@ -2375,6 +2379,11 @@ class CuponsController extends AppController
                         "genero_brindes_id" => $data['genero_brindes_id'],
                         "clientes_id in " => $clientesIds
                     );
+                }
+
+                if (isset($data["brindes_nome"])) {
+                    // $whereConditions[] = array("Cupons.ClientesHasBrindesHabilitados.Brindes.nome like '%" . $data["brindes_nome"] . "%'");
+                    $whereConditions[] = array("Brindes.nome like '%" . $data["brindes_nome"] . "%'");
                 }
 
                 // Valor pago à compra
@@ -2428,6 +2437,11 @@ class CuponsController extends AppController
             $messageString = __("Não foi possível obter dados de cupons do usuário!");
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+
+            // TODO: @gustavosg melhorar
+            Log::write("error", $messageString);
+            Log::write("error", $trace);
+
         }
 
         $arraySet = ["mensagem", "cupons", "usuario"];
