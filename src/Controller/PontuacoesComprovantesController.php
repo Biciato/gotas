@@ -1155,12 +1155,12 @@ class PontuacoesComprovantesController extends AppController
                 // cria uma imagem temporária até o usuário terminar o cadastro
                 $this->generateImageFromBase64(
                     $data['image'],
-                    Configure::read('temporaryReceiptPath') . $data['image_name'] . '.jpg',
-                    Configure::read('temporaryReceiptPath')
+                    Configure::read('imageReceiptPathTemporary') . $data['image_name'] . '.jpg',
+                    Configure::read('imageReceiptPathTemporary')
                 );
 
                 // rotaciona a imagem guardada temporariamente
-                $this->rotateImage(Configure::read('temporaryReceiptPath') . $data['image_name'] . '.jpg', 90);
+                $this->rotateImage(Configure::read('imageReceiptPathTemporary') . $data['image_name'] . '.jpg', 90);
                 $success = true;
             }
 
@@ -1291,7 +1291,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 // move a imagem para a pasta definitiva
-                $this->moveDocumentPermanently(Configure::read('temporaryReceiptPath') . $data['nome_img'] . $extension_img, Configure::read('documentReceiptPath'), $data['nome_img'], $extension_img);
+                $this->moveDocumentPermanently(Configure::read('imageReceiptPathTemporary') . $data['nome_img'] . $extension_img, Configure::read('documentReceiptPath'), $data['nome_img'], $extension_img);
 
                 $pontuacoes_comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacoes_comprovante->id);
 
