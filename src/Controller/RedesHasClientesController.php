@@ -354,6 +354,65 @@ class RedesHasClientesController extends AppController
     }
 
     /**
+     * RedesHasClientesController::propagandaEscolhaUnidades
+     *
+     * Exibe a Action de escolha de unidades para configurar propaganda.
+     * Somente Administradores de nível mínimo Regionais, tem acesso
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/08/04
+     *
+     * @return void
+     */
+    public function propagandaEscolhaUnidades()
+    {
+        try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+            }
+
+            // Se usuário não tem acesso, redireciona
+            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+                $this->security_util->redirectUserNotAuthorized($this);
+            }
+
+
+            $clientes = array();
+
+            // debug($this->user_logged);
+            // Se administrador de rede
+            if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
+                $rede = $this->request->session()->read('Network.Main');
+                $cliente = $this->request->session()->read('Network.Unit');
+
+                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede["id"]);
+
+                foreach ($redesHasClientes->toArray() as $key => $redeHasCliente) {
+                    $clientes[] = $redeHasCliente["cliente"];
+                }
+            }
+
+            // se regional
+            else if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+
+            }
+
+            $arraySet = array(
+                "clientes"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    /**
      * ------------------------------------------------------------
      * Relatórios - Administrativo RTI
      * ------------------------------------------------------------
@@ -706,7 +765,7 @@ class RedesHasClientesController extends AppController
                     $escala = isset($arrayPosicionamento["valor"]) ? $arrayPosicionamento["valor"] : 25;
 
                     $escalaProporcional = 0;
-                    if ($modoCalculo == "distancia"){
+                    if ($modoCalculo == "distancia") {
                         $escalaProporcional = GeolocalizationUtil::convertScaleRound($escala, true);
                     } else {
                         $escala = isset($arrayPosicionamento["value"]) ? $arrayPosicionamento["valor"] : 0.2249820014398848;
@@ -824,7 +883,7 @@ class RedesHasClientesController extends AppController
                     $clientes = $resultado["clientes"];
                     $resumo_gotas = array();
 
-                    if ($redesId > 0){
+                    if ($redesId > 0) {
                         $resumo_gotas = $resultado["resumo_gotas"];
                     }
 

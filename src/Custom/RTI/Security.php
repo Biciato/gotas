@@ -47,9 +47,12 @@ class Security
 
         if ($maxValue != null) {
             if (($user_logged['tipo_perfil'] <= $minValue) || ($user_logged['tipo_perfil'] >= $maxValue)) {
-                return false;
-            } else {
+                echo '1';
                 return true;
+                // return false;
+            } else {
+                // return true;
+                return false;
             }
         } else {
             if ($user_logged['tipo_perfil'] >= $minValue) {

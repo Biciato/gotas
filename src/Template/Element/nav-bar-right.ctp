@@ -303,6 +303,10 @@ if (empty($user_logged)) {
                         <li>
                             <?= $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
                         </li>
+                        <li role="separator" class="divider" />
+                        <li>
+                            <?= $this->Html->link('Definição de Propaganda', ['controller' => 'redes_has_clientes', 'action' => 'propaganda_escolha_unidades']) ?>
+                        </li>
 
                     </ul>
                 </li>
