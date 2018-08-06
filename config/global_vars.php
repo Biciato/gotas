@@ -129,6 +129,10 @@ Configure::write(
         'imageNetworkPathRead' => '/img/redes/imagens/',
         'imageNetworkPathTemp' => 'img/tmp/redes/imagens/',
         'imageNetworkPathReadTemp' => '/img/tmp/redes/imagens/',
+        'imageClientPath' => 'img/clientes/imagens/',
+        'imageClientPathRead' => '/img/clientes/imagens/',
+        'imageClientPathTemp' => 'img/tmp/clientes/imagens/',
+        'imageClientPathReadTemp' => '/img/tmp/clientes/imagens/',
 
         // MESSAGES
         'callSupport' => 'Entre em contato com o suporte.',

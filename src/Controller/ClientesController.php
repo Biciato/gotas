@@ -11,6 +11,8 @@ use App\Custom\RTI\Security;
 use Aura\Intl\Exception;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\FilesUtil;
+use App\Custom\RTI\ImageUtil;
 
 /**
  * Clientes Controller
@@ -539,6 +541,180 @@ class ClientesController extends AppController
     }
 
     /**
+     * Configura propaganda para a unidade de atendimento
+     *
+     * @return void
+     */
+    public function configurarPropaganda(int $clientesId = null)
+    {
+        try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+            }
+
+            // Se usuário não tem acesso, redireciona
+            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+                $this->security_util->redirectUserNotAuthorized($this);
+            }
+
+            if (is_null($clientesId)) {
+                $clientesId = $this->request->session()->read('Network.Unit')["id"];
+            }
+            $cliente = $this->Clientes->getClienteById($clientesId);
+
+            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
+
+            $imagemOriginal = null;
+
+            if (strlen($cliente["propaganda_img"]) > 0) {
+                // O caminho tem que ser pelo cliente, pois a mesma imagem será usada para todas as unidades
+                $imagemOriginal = __("{0}{1}", Configure::read("imageClientPath"), $cliente["propaganda_img"]);
+            }
+
+            if ($this->request->is(['post', 'put'])) {
+
+                $data = $this->request->getData();
+
+                $trocaImagem = 0;
+
+                if (strlen($data['crop-height']) > 0) {
+
+                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
+                    // obtem dados de redimensionamento
+
+                    $height = $data["crop-height"];
+                    $width = $data["crop-width"];
+                    $valueX = $data["crop-x1"];
+                    $valueY = $data["crop-y1"];
+
+                    $propagandaLink = $data["propaganda_link"];
+                    $propagandaImg = $data["img-upload"];
+
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageClientPathTemp"), $data["img-upload"]);
+
+                    $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
+                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
+
+                    // Se imagem foi redimensionada, move e atribui o nome para gravação
+                    if ($resizeSucesso == 1) {
+                        rename($imagemOrigem, $imagemDestino);
+                        $data["propaganda_img"] = $data["img-upload"];
+
+                        $trocaImagem = 1;
+                    }
+                }
+
+                $cliente = $this->Redes->patchEntity($cliente, $data);
+
+                if ($this->Clientes->updateClient($cliente)) {
+
+                    if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
+                        unlink($imagemOriginal);
+                    }
+
+                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                    if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
+                        && $this->user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+
+                        return $this->redirect(
+                            array(
+                                "controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'
+                            )
+                        );
+                    }
+                    else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
+                        return $this->redirect(
+                            array(
+                                "controller" => "Pages", 'action' => 'display'
+                            )
+                        );
+                    }
+                }
+                $this->Flash->error(__(Configure::read('messageSavedError')));
+            }
+
+            $arraySet = array(
+                "cliente",
+                "imagem"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
+
+            $messageStringDebug =
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+    }
+
+
+    /**
+     * ------------------------------------------------------------
+     * Métodos AJAX
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * ClientesController::enviaImagemPropaganda
+     *
+     * Envia imagem de rede de forma assíncrona
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 06/08/2018
+     *
+     * @return json_object
+     */
+    public function enviaImagemPropaganda()
+    {
+        $mensagem = null;
+        $status = false;
+        $message = __("Erro durante o envio da imagem. Tente novamente!");
+
+        $arquivos = array();
+        try {
+            if ($this->request->is('post')) {
+
+                $data = $this->request->getData();
+
+                $arquivos = FilesUtil::uploadFiles(Configure::read("imageClientPathTemp"));
+
+                $status = true;
+                $message = __("Envio concluído com sucesso!");
+            }
+        } catch (\Exception $e) {
+            $messageString = __("Não foi possível enviar imagem de rede!");
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $mensagem = array("status" => true, "message" => null);
+
+        $result = array("mensagem" => $mensagem, "arquivos" => $arquivos);
+
+        // echo json_encode($result);
+        $arraySet = array(
+            "arquivos",
+            "mensagem"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
      * ------------------------------------------------------------
      * Relatórios - Administrativo RTI
      * ------------------------------------------------------------
@@ -560,6 +736,7 @@ class ClientesController extends AppController
     {
         parent::beforeFilter($event);
 
+        $this->Auth->allow(['enviaImagemPropaganda']);
     }
 
     /**

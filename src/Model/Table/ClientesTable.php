@@ -490,6 +490,77 @@ class ClientesTable extends GenericTable
     }
 
     /**
+     * ClientesTable::getClientesFromRelationshipRedesUsuarios
+     *
+     * Obtem todos os clientes que estão interligados à uma rede e um administrador regional
+     *
+     * @param integer $redesId id da Rede
+     * @param integer $usuariosId Id do usuário
+     * @param integer $tipoPerfil Tipo de perfil
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/08/05
+     *
+     * @return App\Model\Entity\Clientes
+     */
+    public function getClientesFromRelationshipRedesUsuarios(int $redesId, int $usuariosId, int $tipoPerfil)
+    {
+        try {
+            $options = array(
+                "RHC" => array(
+                    "table" => "redes_has_clientes",
+                    "alias" => "RHC",
+                    "type" => "inner",
+                    "foreignKey" => null,
+                    "conditions" => array("RHC.clientes_id = Clientes.id")
+                ),
+                "CHU" => array(
+                    "table" => "clientes_has_usuarios",
+                    "alias" => "CHU",
+                    "type" => "inner",
+                    "foreignKey" => "clientes_id",
+                    "conditions" => array("RHC.clientes_id = CHU.clientes_id")
+                ),
+                "U" => array(
+                    "table" => "usuarios",
+                    "alias" => "U",
+                    "type" => "LEFT",
+                    "foreignKey" => null,
+                    "conditions" => array("CHU.usuarios_id = U.id", "U.id" => $usuariosId)
+                )
+            );
+            $clientes = $this->_getClientesTable()->find("all")
+                ->join($options)
+                ->where(
+                    array(
+                        "RHC.redes_id" => $redesId,
+                        "CHU.usuarios_id" => $usuariosId,
+                        "CHU.tipo_perfil" => $tipoPerfil
+                    )
+                )
+                ->select(
+                    array(
+                        "id",
+                        "nome_fantasia",
+                        "razao_social"
+                    )
+                );
+
+
+            return $clientes->toArray();
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            return $stringError;
+        }
+    }
+
+    /**
      * Pega todos os ids de uma rede
      *
      * @return void

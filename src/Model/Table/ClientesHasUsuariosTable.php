@@ -130,14 +130,14 @@ class ClientesHasUsuariosTable extends Table
                 'joinType' => 'INNER'
             ]
         );
-        // $this->belongsToMany(
-        //     'Usuarios',
-        //     [
-        //         'className' => 'Usuarios',
-        //         'foreignKey' => 'usuarios_id',
-        //         'joinType' => 'INNER'
-        //     ]
-        // );
+        $this->hasMany(
+            'RedesHasClientes',
+            [
+                'className' => 'RedesHasClientes',
+                'foreignKey' => 'clientes_id',
+                'joinType' => 'left'
+            ]
+        );
     }
 
     /**

@@ -104,6 +104,13 @@ class RedesHasClientesTable extends GenericTable
             ]
         );
 
+        $this->belongsToMany(
+            'ClientesHasUsuarios',
+            [
+                'foreignKey' => 'clientes_id',
+                'joinType' => 'INNER'
+            ]
+        );
     }
 
     /**
@@ -256,6 +263,7 @@ class RedesHasClientesTable extends GenericTable
             $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             return ['success' => false, 'message' => $stringError];
         }

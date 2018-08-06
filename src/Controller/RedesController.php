@@ -396,6 +396,123 @@ class RedesController extends AppController
     }
 
     /**
+     * Configura propaganda para a rede do administrtador
+     *
+     * @return void
+     */
+    public function configurarPropaganda()
+    {
+        try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+            }
+
+            // Se usuário não tem acesso, redireciona
+            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+                $this->security_util->redirectUserNotAuthorized($this);
+            }
+            $rede = $this->request->session()->read('Network.Main');
+
+            $rede = $this->Redes->getRedeById($rede["id"]);
+
+            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead") , $rede["propaganda_img"]);
+
+            $imagemOriginal = null;
+
+            if (strlen($rede["propaganda_img"]) > 0) {
+                // O caminho tem que ser pelo cliente, pois a mesma imagem será usada para todas as unidades
+                $imagemOriginal = __("{0}{1}", Configure::read("imageClientPath"), $rede["propaganda_img"]);
+            }
+
+            if ($this->request->is(['post', 'put'])) {
+
+                $data = $this->request->getData();
+
+                $trocaImagem = 0;
+
+                if (strlen($data['crop-height']) > 0) {
+
+                    // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
+                    // obtem dados de redimensionamento
+
+                    $height = $data["crop-height"];
+                    $width = $data["crop-width"];
+                    $valueX = $data["crop-x1"];
+                    $valueY = $data["crop-y1"];
+
+                    $propagandaLink = $data["propaganda_link"];
+                    $propagandaImg = $data["img-upload"];
+
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageClientPathTemp"), $data["img-upload"]);
+
+                    $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
+                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
+
+                    // Se imagem foi redimensionada, move e atribui o nome para gravação
+                    if ($resizeSucesso == 1) {
+                        rename($imagemOrigem, $imagemDestino);
+                        $data["propaganda_img"] = $data["img-upload"];
+
+                        $trocaImagem = 1;
+                    }
+                }
+
+                $rede = $this->Redes->patchEntity($rede, $data);
+
+                if ($this->Redes->updateRede($rede)) {
+
+                    if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
+                        unlink($imagemOriginal);
+                    }
+
+                    // atualiza todas as unidades de atendimento
+                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+
+                    $arrayUpdate = array();
+                    foreach ($clientesIds as $cliente) {
+                        $itemUpdate = array(
+                            "propaganda_link" => $propagandaLink,
+                            "propaganda_img" => $propagandaImg,
+                        );
+
+                        $this->Clientes->updateAll($itemUpdate, array("id" => $cliente));
+                    }
+
+                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                    return $this->redirect(
+                        array(
+                            "controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'
+                        )
+                    );
+                }
+                $this->Flash->error(__(Configure::read('messageSavedError')));
+            }
+
+            $arraySet = array(
+                "rede",
+                "imagem"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
+
+            $messageStringDebug =
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+    }
+
+    /**
      * ------------------------------------------------------------
      * Métodos para dashboard de cliente final
      * ------------------------------------------------------------

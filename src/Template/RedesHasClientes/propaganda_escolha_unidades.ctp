@@ -10,6 +10,13 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+$this->Breadcrumbs->add('Escolher Unidade para Configurar Propagandas', array(), array("class" => "active"));
+
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+
 ?>
 
 <?= $this->element('../RedesHasClientes/left_menu') ?>
@@ -18,7 +25,7 @@ use Cake\Routing\Router;
 
     <legend>Escolha uma opção</legend>
 
-    <?php if ($user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminNetworkProfileType"]) : ?>
+    <?php if ($userLogged["tipo_perfil"] <= Configure::read("profileTypes")["AdminNetworkProfileType"]) : ?>
 
     <div class="form-group row">
             <h4>Cadastrar para toda a Rede de atendimento:</h4>
@@ -69,8 +76,8 @@ use Cake\Routing\Router;
                                     $this->Html->tag('i', '', ['class' => "fa fa-cogs"])
                                 ),
                                 array(
-                                    "controller" => "redes",
-                                    'action' => 'configurar_propaganda',
+                                    "controller" => "clientes",
+                                    'action' => 'configurar_propaganda', $cliente["id"]
                                 ),
                                 array(
                                     'title' => 'Configurar',

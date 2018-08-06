@@ -370,8 +370,10 @@ class RedesHasClientesController extends AppController
             $user_admin = $this->request->session()->read('User.RootLogged');
             $user_managed = $this->request->session()->read('User.ToManage');
 
+            $userLogged = null;
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $userLogged = $user_managed;
             }
 
             // Se usuário não tem acesso, redireciona
@@ -382,11 +384,11 @@ class RedesHasClientesController extends AppController
 
             $clientes = array();
 
+            $rede = $this->request->session()->read('Network.Main');
+            $cliente = $this->request->session()->read('Network.Unit');
             // debug($this->user_logged);
             // Se administrador de rede
             if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
-                $rede = $this->request->session()->read('Network.Main');
-                $cliente = $this->request->session()->read('Network.Unit');
 
                 $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede["id"]);
 
@@ -397,18 +399,26 @@ class RedesHasClientesController extends AppController
 
             // se regional
             else if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-
+                $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $this->user_logged["id"], $this->user_logged["tipo_perfil"]);
             }
 
             $arraySet = array(
-                "clientes"
+                "clientes",
+                "userLogged"
             );
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
 
         } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
 
+            $messageStringDebug =
+                __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
     }
 
