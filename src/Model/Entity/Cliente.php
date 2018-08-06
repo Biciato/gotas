@@ -43,4 +43,31 @@ class Cliente extends Entity
         '*' => true,
         'id' => false
     ];
+
+
+    /**
+     * ------------------------------------------------------------------------------------------
+     * Propriedades Virtuais
+     * ------------------------------------------------------------------------------------------
+     */
+
+    protected $virtual = array("nome_img_completo", "propaganda_img_completo");
+
+    protected function _getNomeImgCompleto()
+    {
+        if (strlen($this->_properties["nome_img"]) > 0) {
+            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["nome_img"]);
+        }
+
+        return $this->_properties["nome_img"];
+    }
+
+    protected function _getPropagandaImgCompleto()
+    {
+        if (strlen($this->_properties["nome_img"]) > 0) {
+            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["propaganda_img"]);
+        }
+
+        return $this->_properties["propaganda_img"];
+    }
 }

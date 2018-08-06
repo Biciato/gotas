@@ -16,6 +16,7 @@ Configure::write(
         // 'appAddress' => 'https://40.71.26.138/',
         // 'appAddress' => 'https://www.rtibrindes.com.br/',
         'appAddress' => "https://www.rtibrindes.local/",
+        // "webrootAddress" => "https://www.rtibrindes.com.br/webroot",
         "webrootAddress" => "https://www.rtibrindes.local/webroot",
 
         // Gotas

@@ -3,6 +3,7 @@ namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
 use Cake\Auth\DefaultPasswordHasher;
+use Cake\Core\Configure;
 
 /**
  * Usuario Entity
@@ -43,10 +44,45 @@ class Usuario extends Entity
         'id' => false
     ];
 
+    /**
+     * ------------------------------------------------------------------------------------------
+     * Propriedades Virtuais
+     * ------------------------------------------------------------------------------------------
+     */
+
+    protected $_virtual = array(
+        "foto_documento_completo",
+        "foto_perfil_completo",
+    );
+
     protected function _setSenha($password)
     {
         if (strlen($password) > 0) {
             return (new DefaultPasswordHasher)->hash($password);
         }
+    }
+
+    /**
+     * Usuario::_getFotoDocumentoCompleto
+     *
+     * @return value propriedade virtual
+     */
+    protected function _getFotoDocumentoCompleto()
+    {
+        return
+            empty($this->_properties["foto_documento"]) ? null :
+            __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
+    }
+
+    /**
+     * Usuario::_getFotoPerfilCompleto
+     *
+     * @return value propriedade virtual
+     */
+    protected function _getFotoPerfilCompleto()
+    {
+        return
+            empty($this->_properties["foto_perfil"]) ? null :
+            __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_perfil"]);
     }
 }
