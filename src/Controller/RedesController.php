@@ -767,6 +767,7 @@ class RedesController extends AppController
                     $redes_array = $redes_array->toArray();
                 }
 
+
                 $redes_ids = [];
 
                 foreach ($redes_array as $key => $value) {
@@ -787,18 +788,21 @@ class RedesController extends AppController
                 } else {
 
                     $redesQueryResult = $this->Redes->getRedes(
-                        ["id in " => $redes_ids, "nome_rede like '%{$nomeRede}%'"],
+                        array("Redes.id in " => $redes_ids, "Redes.nome_rede like '%{$nomeRede}%'"),
                         array(
                             "id",
                             "nome_rede",
                             "nome_img",
-                            "ativado"
-
+                            "ativado",
+                            "propaganda_img",
+                            "propaganda_link"
                         ),
                         array(),
                         $orderConditions,
                         $paginationConditions
                     );
+
+                    // DebugUtil::printArray($redesQueryResult);
 
                     $redesData = $redesQueryResult["redes"]["data"];
 

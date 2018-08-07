@@ -276,8 +276,12 @@ class RedesTable extends GenericTable
             $conditions = [];
 
             foreach ($whereConditions as $key => $value) {
+                // array_push($conditions, $value);
                 array_push($conditions, [$key => $value]);
             }
+
+            // DebugUtil::printArray($whereConditions);
+            // DebugUtil::printArray($conditions);
 
             $redesQuery = $this->_getRedesTable()->find('all')
                 ->where($conditions);

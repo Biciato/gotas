@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Core\Configure;
 
 /**
  * Cliente Entity
@@ -51,21 +52,12 @@ class Cliente extends Entity
      * ------------------------------------------------------------------------------------------
      */
 
-    protected $virtual = array("nome_img_completo", "propaganda_img_completo");
-
-    protected function _getNomeImgCompleto()
-    {
-        if (strlen($this->_properties["nome_img"]) > 0) {
-            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["nome_img"]);
-        }
-
-        return $this->_properties["nome_img"];
-    }
+    protected $_virtual = array("propaganda_img_completo");
 
     protected function _getPropagandaImgCompleto()
     {
-        if (strlen($this->_properties["nome_img"]) > 0) {
-            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["propaganda_img"]);
+        if (strlen($this->_properties["propaganda_img"]) > 0) {
+            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageClientPath"), $this->_properties["propaganda_img"]);
         }
 
         return $this->_properties["propaganda_img"];
