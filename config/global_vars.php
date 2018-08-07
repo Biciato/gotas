@@ -5,6 +5,7 @@
  */
 
 use Cake\Core\Configure;
+use Cake\Routing\Router;
 
 // const SITE_ADDRESS = 'https://40.71.26.138/',
 // const SITE_ADDRESS = 'https://www.rtibrindes.com.br/',

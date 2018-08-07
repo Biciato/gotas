@@ -645,6 +645,7 @@ class RedesHasClientesController extends AppController
                     "tel_fixo",
                     "tel_fax",
                     "tel_celular",
+                    "propaganda_img"
                 );
 
                 // Se chegou até aqui, ocorreu tudo bem
