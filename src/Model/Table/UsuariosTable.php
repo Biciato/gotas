@@ -652,6 +652,7 @@ class UsuariosTable extends GenericTable
         } catch (\Exception $e) {
             Log::write("error", $e);
         }
+
     }
 
     /**
