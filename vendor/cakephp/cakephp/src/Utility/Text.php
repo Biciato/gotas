@@ -30,10 +30,23 @@ class Text
     protected static $_defaultTransliteratorId = 'Any-Latin; Latin-ASCII; [\u0080-\u7fff] remove';
 
     /**
+     * Default html tags who must not be count for truncate text.
+     *
+     * @var array
+     */
+    protected static $_defaultHtmlNoCount = [
+        'style',
+        'script'
+    ];
+
+    /**
      * Generate a random UUID version 4
      *
      * Warning: This method should not be used as a random seed for any cryptographic operations.
      * Instead you should use the openssl or mcrypt extensions.
+     *
+     * It should also not be used to create identifiers that have security implications, such as
+     * 'unguessable' URL identifiers. Instead you should use `Security::randomBytes()` for that.
      *
      * @see https://www.ietf.org/rfc/rfc4122.txt
      * @return string RFC 4122 UUID
@@ -41,23 +54,25 @@ class Text
      */
     public static function uuid()
     {
+        $random = function_exists('random_int') ? 'random_int' : 'mt_rand';
+
         return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             // 32 bits for "time_low"
-            mt_rand(0, 65535),
-            mt_rand(0, 65535),
+            $random(0, 65535),
+            $random(0, 65535),
             // 16 bits for "time_mid"
-            mt_rand(0, 65535),
+            $random(0, 65535),
             // 12 bits before the 0100 of (version) 4 for "time_hi_and_version"
-            mt_rand(0, 4095) | 0x4000,
+            $random(0, 4095) | 0x4000,
             // 16 bits, 8 bits for "clk_seq_hi_res",
             // 8 bits for "clk_seq_low",
             // two most significant bits holds zero and one for variant DCE1.1
-            mt_rand(0, 0x3fff) | 0x8000,
+            $random(0, 0x3fff) | 0x8000,
             // 48 bits for "node"
-            mt_rand(0, 65535),
-            mt_rand(0, 65535),
-            mt_rand(0, 65535)
+            $random(0, 65535),
+            $random(0, 65535),
+            $random(0, 65535)
         );
     }
 
@@ -195,8 +210,6 @@ class Text
 
             return $options['clean'] ? static::cleanInsert($str, $options) : $str;
         }
-
-        asort($data);
 
         $dataKeys = array_keys($data);
         $hashKeys = array_map('crc32', $dataKeys);
@@ -605,7 +618,10 @@ class Text
 
             preg_match_all('/(<\/?([\w+]+)[^>]*>)?([^<>]*)/', $text, $tags, PREG_SET_ORDER);
             foreach ($tags as $tag) {
-                $contentLength = self::_strlen($tag[3], $options);
+                $contentLength = 0;
+                if (!in_array($tag[2], static::$_defaultHtmlNoCount, true)) {
+                    $contentLength = self::_strlen($tag[3], $options);
+                }
 
                 if ($truncate === '') {
                     if (!preg_match('/img|br|input|hr|area|base|basefont|col|frame|isindex|link|meta|param/i', $tag[2])) {
@@ -1105,7 +1121,7 @@ class Text
 
         $regex = '^\s\p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}';
         if ($options['preserve']) {
-            $regex .= '(' . preg_quote($options['preserve'], '/') . ')';
+            $regex .= preg_quote($options['preserve'], '/');
         }
         $quotedReplacement = preg_quote($options['replacement'], '/');
         $map = [

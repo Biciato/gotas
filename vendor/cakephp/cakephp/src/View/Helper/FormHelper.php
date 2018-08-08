@@ -14,19 +14,13 @@
  */
 namespace Cake\View\Helper;
 
-use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Cake\Core\Exception\Exception;
-use Cake\Datasource\EntityInterface;
-use Cake\Form\Form;
 use Cake\Routing\Router;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
-use Cake\View\Form\ArrayContext;
+use Cake\View\Form\ContextFactory;
 use Cake\View\Form\ContextInterface;
-use Cake\View\Form\EntityContext;
-use Cake\View\Form\FormContext;
-use Cake\View\Form\NullContext;
 use Cake\View\Helper;
 use Cake\View\StringTemplateTrait;
 use Cake\View\View;
@@ -90,42 +84,83 @@ class FormHelper extends Helper
         'idPrefix' => null,
         'errorClass' => 'form-error',
         'typeMap' => [
-            'string' => 'text', 'datetime' => 'datetime', 'boolean' => 'checkbox',
-            'timestamp' => 'datetime', 'text' => 'textarea', 'time' => 'time',
-            'date' => 'date', 'float' => 'number', 'integer' => 'number',
-            'decimal' => 'number', 'binary' => 'file', 'uuid' => 'string'
+            'string' => 'text',
+            'text' => 'textarea',
+            'uuid' => 'string',
+            'datetime' => 'datetime',
+            'timestamp' => 'datetime',
+            'date' => 'date',
+            'time' => 'time',
+            'boolean' => 'checkbox',
+            'float' => 'number',
+            'integer' => 'number',
+            'tinyinteger' => 'number',
+            'smallinteger' => 'number',
+            'decimal' => 'number',
+            'binary' => 'file',
         ],
         'templates' => [
+            // Used for button elements in button().
             'button' => '<button{{attrs}}>{{text}}</button>',
+            // Used for checkboxes in checkbox() and multiCheckbox().
             'checkbox' => '<input type="checkbox" name="{{name}}" value="{{value}}"{{attrs}}>',
+            // Input group wrapper for checkboxes created via control().
             'checkboxFormGroup' => '{{label}}',
+            // Wrapper container for checkboxes.
             'checkboxWrapper' => '<div class="checkbox">{{label}}</div>',
+            // Widget ordering for date/time/datetime pickers.
             'dateWidget' => '{{year}}{{month}}{{day}}{{hour}}{{minute}}{{second}}{{meridian}}',
+            // Error message wrapper elements.
             'error' => '<div class="error-message">{{content}}</div>',
+            // Container for error items.
             'errorList' => '<ul>{{content}}</ul>',
+            // Error item wrapper.
             'errorItem' => '<li>{{text}}</li>',
+            // File input used by file().
             'file' => '<input type="file" name="{{name}}"{{attrs}}>',
+            // Fieldset element used by allControls().
             'fieldset' => '<fieldset{{attrs}}>{{content}}</fieldset>',
+            // Open tag used by create().
             'formStart' => '<form{{attrs}}>',
+            // Close tag used by end().
             'formEnd' => '</form>',
+            // General grouping container for control(). Defines input/label ordering.
             'formGroup' => '{{label}}{{input}}',
+            // Wrapper content used to hide other content.
             'hiddenBlock' => '<div style="display:none;">{{content}}</div>',
+            // Generic input element.
             'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}/>',
+            // Submit input element.
             'inputSubmit' => '<input type="{{type}}"{{attrs}}/>',
+            // Container element used by control().
             'inputContainer' => '<div class="input {{type}}{{required}}">{{content}}</div>',
+            // Container element used by control() when a field has an error.
             'inputContainerError' => '<div class="input {{type}}{{required}} error">{{content}}{{error}}</div>',
+            // Label element when inputs are not nested inside the label.
             'label' => '<label{{attrs}}>{{text}}</label>',
+            // Label element used for radio and multi-checkbox inputs.
             'nestingLabel' => '{{hidden}}<label{{attrs}}>{{input}}{{text}}</label>',
+            // Legends created by allControls()
             'legend' => '<legend>{{text}}</legend>',
+            // Multi-Checkbox input set title element.
             'multicheckboxTitle' => '<legend>{{text}}</legend>',
+            // Multi-Checkbox wrapping container.
             'multicheckboxWrapper' => '<fieldset{{attrs}}>{{content}}</fieldset>',
+            // Option element used in select pickers.
             'option' => '<option value="{{value}}"{{attrs}}>{{text}}</option>',
+            // Option group element used in select pickers.
             'optgroup' => '<optgroup label="{{label}}"{{attrs}}>{{content}}</optgroup>',
+            // Select element,
             'select' => '<select name="{{name}}"{{attrs}}>{{content}}</select>',
+            // Multi-select element,
             'selectMultiple' => '<select name="{{name}}[]" multiple="multiple"{{attrs}}>{{content}}</select>',
+            // Radio input element,
             'radio' => '<input type="radio" name="{{name}}" value="{{value}}"{{attrs}}>',
+            // Wrapping container for radio input/label,
             'radioWrapper' => '{{label}}',
+            // Textarea input element,
             'textarea' => '<textarea name="{{name}}"{{attrs}}>{{value}}</textarea>',
+            // Container for submit buttons.
             'submitContainer' => '<div class="submit">{{content}}</div>',
         ]
     ];
@@ -196,12 +231,11 @@ class FormHelper extends Helper
     protected $_context;
 
     /**
-     * Context provider methods.
+     * Context factory.
      *
-     * @var array
-     * @see \Cake\View\Helper\FormHelper::addContextProvider()
+     * @var \Cake\View\Form\ContextFactory
      */
-    protected $_contextProviders = [];
+    protected $_contextFactory;
 
     /**
      * The action attribute value of the last created form.
@@ -243,7 +277,6 @@ class FormHelper extends Helper
         parent::__construct($View, $config);
 
         $this->widgetRegistry($registry, $widgets);
-        $this->_addDefaultContextProviders();
         $this->_idPrefix = $this->getConfig('idPrefix');
     }
 
@@ -269,38 +302,24 @@ class FormHelper extends Helper
     }
 
     /**
-     * Add the default suite of context providers provided by CakePHP.
+     * Set the context factory the helper will use.
      *
-     * @return void
+     * @param \Cake\View\Form\ContextFactory|null $instance The context factory instance to set.
+     * @param array $contexts An array of context providers.
+     * @return \Cake\View\Form\ContextFactory
      */
-    protected function _addDefaultContextProviders()
+    public function contextFactory(ContextFactory $instance = null, array $contexts = [])
     {
-        $this->addContextProvider('orm', function ($request, $data) {
-            if (is_array($data['entity']) || $data['entity'] instanceof Traversable) {
-                $pass = (new Collection($data['entity']))->first() !== null;
-                if ($pass) {
-                    return new EntityContext($request, $data);
-                }
+        if ($instance === null) {
+            if ($this->_contextFactory === null) {
+                $this->_contextFactory = ContextFactory::createWithDefaults($contexts);
             }
-            if ($data['entity'] instanceof EntityInterface) {
-                return new EntityContext($request, $data);
-            }
-            if (is_array($data['entity']) && empty($data['entity']['schema'])) {
-                return new EntityContext($request, $data);
-            }
-        });
 
-        $this->addContextProvider('form', function ($request, $data) {
-            if ($data['entity'] instanceof Form) {
-                return new FormContext($request, $data);
-            }
-        });
+            return $this->_contextFactory;
+        }
+        $this->_contextFactory = $instance;
 
-        $this->addContextProvider('array', function ($request, $data) {
-            if (is_array($data['entity']) && isset($data['entity']['schema'])) {
-                return new ArrayContext($request, $data['entity']);
-            }
-        });
+        return $this->_contextFactory;
     }
 
     /**
@@ -457,7 +476,7 @@ class FormHelper extends Helper
      *
      * @param \Cake\View\Form\ContextInterface $context The context object to use.
      * @param array $options An array of options from create()
-     * @return string The action attribute for the form.
+     * @return string|array The action attribute for the form.
      */
     protected function _formUrl($context, $options)
     {
@@ -1386,7 +1405,7 @@ class FormHelper extends Helper
 
         if ($allowOverride && substr($fieldName, -5) === '._ids') {
             $options['type'] = 'select';
-            if (empty($options['multiple'])) {
+            if ((!isset($options['multiple']) || ($options['multiple'] && $options['multiple'] != 'checkbox'))) {
                 $options['multiple'] = true;
             }
         }
@@ -1711,6 +1730,7 @@ class FormHelper extends Helper
      * ### Options:
      *
      * - `escape` - HTML entity encode the $title of the button. Defaults to false.
+     * - `confirm` - Confirm message to show. Form execution will only continue if confirmed then.
      *
      * @param string $title The button's caption. Not automatically HTML encoded
      * @param array $options Array of options and HTML attributes.
@@ -1719,8 +1739,14 @@ class FormHelper extends Helper
      */
     public function button($title, array $options = [])
     {
-        $options += ['type' => 'submit', 'escape' => false, 'secure' => false];
+        $options += ['type' => 'submit', 'escape' => false, 'secure' => false, 'confirm' => null];
         $options['text'] = $title;
+
+        $confirmMessage = $options['confirm'];
+        unset($options['confirm']);
+        if ($confirmMessage) {
+            $options['onclick'] = $this->_confirm($confirmMessage, 'return true;', 'return false;', $options);
+        }
 
         return $this->widget('button', $options);
     }
@@ -1738,6 +1764,7 @@ class FormHelper extends Helper
      *   HTTP/1.1 DELETE (or others) request. Defaults to 'post'.
      * - `form` - Array with any option that FormHelper::create() can take
      * - Other options is the same of button method.
+     * - `confirm` - Confirm message to show. Form execution will only continue if confirmed then.
      *
      * @param string $title The button's caption. Not automatically HTML encoded
      * @param string|array $url URL as string or array
@@ -1785,7 +1812,7 @@ class FormHelper extends Helper
      * - `data` - Array with key/value to pass in input hidden
      * - `method` - Request method to use. Set to 'delete' to simulate
      *   HTTP/1.1 DELETE request. Defaults to 'post'.
-     * - `confirm` - Confirm message to show.
+     * - `confirm` - Confirm message to show. Form execution will only continue if confirmed then.
      * - `block` - Set to true to append form to view block "postLink" or provide
      *   custom block name.
      * - Other options are the same of HtmlHelper::link() method.
@@ -2407,6 +2434,9 @@ class FormHelper extends Helper
             if (isset($options['empty'][$type])) {
                 $options[$type]['empty'] = $options['empty'][$type];
             }
+            if (isset($options['required']) && is_array($options[$type])) {
+                $options[$type]['required'] = $options['required'];
+            }
         }
 
         $hasYear = is_array($options['year']);
@@ -2677,12 +2707,7 @@ class FormHelper extends Helper
      */
     public function addContextProvider($type, callable $check)
     {
-        foreach ($this->_contextProviders as $i => $provider) {
-            if ($provider['type'] === $type) {
-                unset($this->_contextProviders[$i]);
-            }
-        }
-        array_unshift($this->_contextProviders, ['type' => $type, 'callable' => $check]);
+        $this->contextFactory()->addProvider($type, $check);
     }
 
     /**
@@ -2719,23 +2744,7 @@ class FormHelper extends Helper
         }
         $data += ['entity' => null];
 
-        foreach ($this->_contextProviders as $provider) {
-            $check = $provider['callable'];
-            $context = $check($this->request, $data);
-            if ($context) {
-                break;
-            }
-        }
-        if (!isset($context)) {
-            $context = new NullContext($this->request, $data);
-        }
-        if (!($context instanceof ContextInterface)) {
-            throw new RuntimeException(
-                'Context objects must implement Cake\View\Form\ContextInterface'
-            );
-        }
-
-        return $this->_context = $context;
+        return $this->_context = $this->contextFactory()->get($this->request, $data);
     }
 
     /**

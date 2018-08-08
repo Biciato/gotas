@@ -243,7 +243,7 @@ class RemoteFilesystem
 
         // capture username/password from URL if there is one
         if (preg_match('{^https?://([^:/]+):([^@/]+)@([^/]+)}i', $fileUrl, $match)) {
-            $this->io->setAuthentication($originUrl, urldecode($match[1]), urldecode($match[2]));
+            $this->io->setAuthentication($originUrl, rawurldecode($match[1]), rawurldecode($match[2]));
         }
 
         $tempAdditionalOptions = $additionalOptions;
@@ -283,9 +283,9 @@ class RemoteFilesystem
             $options['http']['ignore_errors'] = true;
         }
 
-        if ($this->degradedMode && substr($fileUrl, 0, 21) === 'http://packagist.org/') {
+        if ($this->degradedMode && substr($fileUrl, 0, 26) === 'http://repo.packagist.org/') {
             // access packagist using the resolved IPv4 instead of the hostname to force IPv4 protocol
-            $fileUrl = 'http://' . gethostbyname('packagist.org') . substr($fileUrl, 20);
+            $fileUrl = 'http://' . gethostbyname('repo.packagist.org') . substr($fileUrl, 20);
             $degradedPackagist = true;
         }
 
@@ -297,7 +297,7 @@ class RemoteFilesystem
         unset($origFileUrl, $actualContextOptions);
 
         // Check for secure HTTP, but allow insecure Packagist calls to $hashed providers as file integrity is verified with sha256
-        if ((substr($fileUrl, 0, 23) !== 'http://packagist.org/p/' || (false === strpos($fileUrl, '$') && false === strpos($fileUrl, '%24'))) && empty($degradedPackagist) && $this->config) {
+        if ((!preg_match('{^http://(repo\.)?packagist\.org/p/}', $fileUrl) || (false === strpos($fileUrl, '$') && false === strpos($fileUrl, '%24'))) && empty($degradedPackagist) && $this->config) {
             $this->config->prohibitUrlByConfig($fileUrl, $this->io);
         }
 
@@ -315,7 +315,7 @@ class RemoteFilesystem
             $errorMessage .= preg_replace('{^file_get_contents\(.*?\): }', '', $msg);
         });
         try {
-            $result = file_get_contents($fileUrl, false, $ctx);
+            $result = $this->getRemoteContents($originUrl, $fileUrl, $ctx, $http_response_header);
 
             if (!empty($http_response_header[0])) {
                 $statusCode = $this->findStatusCode($http_response_header);
@@ -571,6 +571,33 @@ class RemoteFilesystem
     }
 
     /**
+     * Get contents of remote URL.
+     *
+     * @param string   $originUrl The origin URL
+     * @param string   $fileUrl   The file URL
+     * @param resource $context   The stream context
+     *
+     * @return string|false The response contents or false on failure
+     */
+    protected function getRemoteContents($originUrl, $fileUrl, $context, array &$responseHeaders = null)
+    {
+        try {
+            $e = null;
+            $result = file_get_contents($fileUrl, false, $context);
+        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
+        }
+
+        $responseHeaders = isset($http_response_header) ? $http_response_header : array();
+
+        if (null !== $e) {
+            throw $e;
+        }
+
+        return $result;
+    }
+
+    /**
      * Get notification action.
      *
      * @param  int                $notificationCode The notification code
@@ -734,6 +761,9 @@ class RemoteFilesystem
 
                 $tlsOptions['ssl']['CN_match'] = $certMap['cn'];
                 $tlsOptions['ssl']['peer_fingerprint'] = $certMap['fp'];
+            } elseif (!CaBundle::isOpensslParseSafe() && $host === 'repo.packagist.org') {
+                // handle subjectAltName for packagist.org's repo domain on very old PHPs
+                $tlsOptions['ssl']['CN_match'] = 'packagist.org';
             }
         }
 

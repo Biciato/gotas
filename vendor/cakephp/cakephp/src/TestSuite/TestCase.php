@@ -127,6 +127,7 @@ abstract class TestCase extends BaseTestCase
      * Chooses which fixtures to load for a given test
      *
      * Each parameter is a model name that corresponds to a fixture, i.e. 'Posts', 'Authors', etc.
+     * Passing no parameters will cause all fixtures on the test case to load.
      *
      * @return void
      * @see \Cake\TestSuite\TestCase::$autoFixtures
@@ -140,6 +141,13 @@ abstract class TestCase extends BaseTestCase
         $args = func_get_args();
         foreach ($args as $class) {
             $this->fixtureManager->loadSingle($class, null, $this->dropTables);
+        }
+
+        if (empty($args)) {
+            $autoFixtures = $this->autoFixtures;
+            $this->autoFixtures = true;
+            $this->fixtureManager->load($this);
+            $this->autoFixtures = $autoFixtures;
         }
     }
 
@@ -630,7 +638,7 @@ abstract class TestCase extends BaseTestCase
      * Mock a model, maintain fixtures and table association
      *
      * @param string $alias The model to get a mock for.
-     * @param mixed $methods The list of methods to mock
+     * @param array $methods The list of methods to mock
      * @param array $options The config data for the mock's constructor.
      * @throws \Cake\ORM\Exception\MissingTableClassException
      * @return \Cake\ORM\Table|\PHPUnit_Framework_MockObject_MockObject
@@ -653,6 +661,7 @@ abstract class TestCase extends BaseTestCase
         $options += ['alias' => $baseClass, 'connection' => $connection];
         $options += TableRegistry::config($alias);
 
+        /** @var \Cake\ORM\Table|\PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->getMockBuilder($options['className'])
             ->setMethods($methods)
             ->setConstructorArgs([$options])

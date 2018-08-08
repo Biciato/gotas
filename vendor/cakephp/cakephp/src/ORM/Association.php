@@ -19,6 +19,7 @@ use Cake\Core\App;
 use Cake\Core\ConventionsTrait;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\QueryInterface;
 use Cake\Datasource\ResultSetDecorator;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Inflector;
@@ -119,7 +120,7 @@ abstract class Association
      * A list of conditions to be always included when fetching records from
      * the target association
      *
-     * @var array
+     * @var array|callable
      */
     protected $_conditions = [];
 
@@ -158,7 +159,7 @@ abstract class Association
      *
      * @var string
      */
-    protected $_joinType = 'LEFT';
+    protected $_joinType = QueryInterface::JOIN_TYPE_LEFT;
 
     /**
      * The property name that should be filled with data from the target table
@@ -403,7 +404,7 @@ abstract class Association
                 $registryAlias = $this->_name;
             }
 
-            $tableLocator = $this->tableLocator();
+            $tableLocator = $this->getTableLocator();
 
             $config = [];
             $exists = $tableLocator->exists($registryAlias);
@@ -455,7 +456,7 @@ abstract class Association
      * Sets a list of conditions to be always included when fetching records from
      * the target association.
      *
-     * @param array $conditions list of conditions to be used
+     * @param array|callable $conditions list of conditions to be used
      * @see \Cake\Database\Query::where() for examples on the format of the array
      * @return $this
      */
@@ -471,7 +472,7 @@ abstract class Association
      * the target association.
      *
      * @see \Cake\Database\Query::where() for examples on the format of the array
-     * @return array
+     * @return array|callable
      */
     public function getConditions()
     {
@@ -1058,7 +1059,7 @@ abstract class Association
      * @param mixed $conditions Conditions to be used, accepts anything Query::where()
      * can take.
      * @see \Cake\ORM\Table::updateAll()
-     * @return bool Success Returns true if one or more rows are affected.
+     * @return int Count Returns the affected rows.
      */
     public function updateAll($fields, $conditions)
     {
@@ -1142,7 +1143,8 @@ abstract class Association
         }
 
         if ($autoFields === true) {
-            $fields = array_merge((array)$fields, $target->getSchema()->columns());
+            $fields = array_filter((array)$fields);
+            $fields = array_merge($fields, $target->getSchema()->columns());
         }
 
         if ($fields) {
@@ -1191,6 +1193,7 @@ abstract class Association
                 $extracted = new ResultSetDecorator($callable($extracted));
             }
 
+            /* @var \Cake\Collection\CollectionInterface $results */
             return $results->insert($property, $extracted);
         }, Query::PREPEND);
     }
@@ -1429,7 +1432,7 @@ abstract class Association
      * the saving operation to the target table.
      *
      * @param \Cake\Datasource\EntityInterface $entity the data to be saved
-     * @param array|\ArrayObject $options The options for saving associated data.
+     * @param array $options The options for saving associated data.
      * @return bool|\Cake\Datasource\EntityInterface false if $entity could not be saved, otherwise it returns
      * the saved entity
      * @see \Cake\ORM\Table::save()

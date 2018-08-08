@@ -90,7 +90,7 @@ class Stream
      *
      * @param array $headers The list of headers from the request(s)
      * @param string $content The response content.
-     * @return array The list of responses from the request(s)
+     * @return \Cake\Http\Client\Response[] The list of responses from the request(s)
      */
     public function createResponses($headers, $content)
     {
@@ -105,7 +105,7 @@ class Stream
             $end = isset($indexes[$i + 1]) ? $indexes[$i + 1] - $start : null;
             $headerSlice = array_slice($headers, $start, $end);
             $body = $i == $last ? $content : '';
-            $responses[] = new Response($headerSlice, $body);
+            $responses[] = $this->_buildResponse($headerSlice, $body);
         }
 
         return $responses;
@@ -124,7 +124,7 @@ class Stream
         $this->_buildHeaders($request, $options);
         $this->_buildOptions($request, $options);
 
-        $url = $request->url();
+        $url = $request->getUri();
         $scheme = parse_url($url, PHP_URL_SCHEME);
         if ($scheme === 'https') {
             $this->_buildSslContext($request, $options);
@@ -149,14 +149,6 @@ class Stream
         $headers = [];
         foreach ($request->getHeaders() as $name => $values) {
             $headers[] = sprintf('%s: %s', $name, implode(', ', $values));
-        }
-
-        $cookies = [];
-        foreach ($request->cookies() as $name => $value) {
-            $cookies[] = "$name=$value";
-        }
-        if ($cookies) {
-            $headers[] = 'Cookie: ' . implode('; ', $cookies);
         }
         $this->_contextOptions['header'] = implode("\r\n", $headers);
     }
@@ -230,7 +222,7 @@ class Stream
             $options['ssl_cafile'] = CORE_PATH . 'config' . DIRECTORY_SEPARATOR . 'cacert.pem';
         }
         if (!empty($options['ssl_verify_host'])) {
-            $url = $request->url();
+            $url = $request->getUri();
             $host = parse_url($url, PHP_URL_HOST);
             $this->_sslContextOptions['peer_name'] = $host;
         }
@@ -256,7 +248,7 @@ class Stream
             $deadline = time() + $this->_contextOptions['timeout'];
         }
 
-        $url = $request->url();
+        $url = $request->getUri();
         $this->_open($url);
         $content = '';
         $timedOut = false;
@@ -287,6 +279,19 @@ class Stream
         }
 
         return $this->createResponses($headers, $content);
+    }
+
+    /**
+     * Build a response object
+     *
+     * @param array $headers Unparsed headers.
+     * @param string $body The response body.
+     *
+     * @return \Cake\Http\Client\Response
+     */
+    protected function _buildResponse($headers, $body)
+    {
+        return new Response($headers, $body);
     }
 
     /**

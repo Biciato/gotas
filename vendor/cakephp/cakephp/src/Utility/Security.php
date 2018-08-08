@@ -152,8 +152,8 @@ class Security
      *
      * You can use this method to forcibly decide between mcrypt/openssl/custom implementations.
      *
-     * @param object|null $instance The crypto instance to use.
-     * @return object Crypto instance.
+     * @param \Cake\Utility\Crypto\OpenSsl|\Cake\Utility\Crypto\Mcrypt|null $instance The crypto instance to use.
+     * @return \Cake\Utility\Crypto\OpenSsl|\Cake\Utility\Crypto\Mcrypt Crypto instance.
      * @throws \InvalidArgumentException When no compatible crypto extension is available.
      */
     public static function engine($instance = null)
@@ -277,7 +277,7 @@ class Security
         $cipher = mb_substr($cipher, $macSize, null, '8bit');
 
         $compareHmac = hash_hmac('sha256', $cipher, $key);
-        if (!static::_constantEquals($hmac, $compareHmac)) {
+        if (!static::constantEquals($hmac, $compareHmac)) {
             return false;
         }
 
@@ -289,33 +289,61 @@ class Security
     /**
      * A timing attack resistant comparison that prefers native PHP implementations.
      *
-     * @param string $hmac The hmac from the ciphertext being decrypted.
-     * @param string $compare The comparison hmac.
+     * @param string $original The original value.
+     * @param string $compare The comparison value.
      * @return bool
      * @see https://github.com/resonantcore/php-future/
+     * @since 3.6.2
      */
-    protected static function _constantEquals($hmac, $compare)
+    public static function constantEquals($original, $compare)
     {
-        if (function_exists('hash_equals')) {
-            return hash_equals($hmac, $compare);
+        if (!is_string($original) || !is_string($compare)) {
+            return false;
         }
-        $hashLength = mb_strlen($hmac, '8bit');
+        if (function_exists('hash_equals')) {
+            return hash_equals($original, $compare);
+        }
+        $originalLength = mb_strlen($original, '8bit');
         $compareLength = mb_strlen($compare, '8bit');
-        if ($hashLength !== $compareLength) {
+        if ($originalLength !== $compareLength) {
             return false;
         }
         $result = 0;
-        for ($i = 0; $i < $hashLength; $i++) {
-            $result |= (ord($hmac[$i]) ^ ord($compare[$i]));
+        for ($i = 0; $i < $originalLength; $i++) {
+            $result |= (ord($original[$i]) ^ ord($compare[$i]));
         }
 
         return $result === 0;
     }
 
     /**
+     * Gets the HMAC salt to be used for encryption/decryption
+     * routines.
+     *
+     * @return string The currently configured salt
+     */
+    public static function getSalt()
+    {
+        return static::$_salt;
+    }
+
+    /**
+     * Sets the HMAC salt to be used for encryption/decryption
+     * routines.
+     *
+     * @param string $salt The salt to use for encryption routines.
+     * @return void
+     */
+    public static function setSalt($salt)
+    {
+        static::$_salt = (string)$salt;
+    }
+
+    /**
      * Gets or sets the HMAC salt to be used for encryption/decryption
      * routines.
      *
+     * @deprecated 3.5.0 Use getSalt()/setSalt() instead.
      * @param string|null $salt The salt to use for encryption routines. If null returns current salt.
      * @return string The currently configured salt
      */

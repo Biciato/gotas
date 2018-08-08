@@ -34,7 +34,7 @@ class DateType extends DateTimeType
     /**
      * Date format for DateTime object
      *
-     * @var string
+     * @var string|array
      */
     protected $_format = 'Y-m-d';
 
@@ -66,7 +66,7 @@ class DateType extends DateTimeType
      * Convert request data into a datetime object.
      *
      * @param mixed $value Request data
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
     public function marshal($value)
     {

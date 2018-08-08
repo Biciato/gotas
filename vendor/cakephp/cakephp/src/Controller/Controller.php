@@ -81,6 +81,7 @@ use RuntimeException;
  * @property \Cake\Controller\Component\PaginatorComponent $Paginator
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
  * @property \Cake\Controller\Component\SecurityComponent $Security
+ * @method bool isAuthorized($user)
  * @link https://book.cakephp.org/3.0/en/controllers.html
  */
 class Controller implements EventListenerInterface, EventDispatcherInterface
@@ -122,7 +123,7 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
      * This object contains all the information about a request and several methods for reading
      * additional information about the request.
      *
-     * @var \Cake\Http\ServerRequest
+     * @var \Cake\Http\ServerRequest|null
      * @link https://book.cakephp.org/3.0/en/controllers/request-response.html#request
      */
     public $request;
@@ -130,7 +131,7 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
     /**
      * An instance of a Response object that contains information about the impending response
      *
-     * @var \Cake\Http\Response
+     * @var \Cake\Http\Response|null
      * @link https://book.cakephp.org/3.0/en/controllers/request-response.html#response
      */
     public $response;
@@ -204,7 +205,7 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
     /**
      * Automatically set to the name of a plugin.
      *
-     * @var string
+     * @var string|null
      */
     public $plugin;
 
@@ -248,10 +249,10 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
         $this->response = $response !== null ? $response : new Response();
 
         if ($eventManager !== null) {
-            $this->eventManager($eventManager);
+            $this->setEventManager($eventManager);
         }
 
-        $this->modelFactory('Table', [$this->tableLocator(), 'get']);
+        $this->modelFactory('Table', [$this->getTableLocator(), 'get']);
         $modelClass = ($this->plugin ? $this->plugin . '.' : '') . $this->name;
         $this->_setModelClass($modelClass);
 
@@ -263,7 +264,7 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
 
         $this->_mergeControllerVars();
         $this->_loadComponents();
-        $this->eventManager()->on($this);
+        $this->getEventManager()->on($this);
     }
 
     /**
@@ -319,9 +320,8 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
     public function loadComponent($name, array $config = [])
     {
         list(, $prop) = pluginSplit($name);
-        $this->{$prop} = $this->components()->load($name, $config);
 
-        return $this->{$prop};
+        return $this->{$prop} = $this->components()->load($name, $config);
     }
 
     /**
@@ -620,7 +620,8 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
         }
 
         $this->View = $this->createView();
-        $this->response->body($this->View->render($view, $layout));
+        $contents = $this->View->render($view, $layout);
+        $this->response = $this->View->response->withStringBody($contents);
 
         return $this->response;
     }
@@ -687,7 +688,7 @@ class Controller implements EventListenerInterface, EventDispatcherInterface
      * @param \Cake\ORM\Table|string|\Cake\ORM\Query|null $object Table to paginate
      * (e.g: Table instance, 'TableName' or a Query object)
      * @param array $settings The settings/configuration used for pagination.
-     * @return \Cake\ORM\ResultSet Query results
+     * @return \Cake\ORM\ResultSet|\Cake\Datasource\ResultSetInterface Query results
      * @link https://book.cakephp.org/3.0/en/controllers.html#paginating-a-model
      * @throws \RuntimeException When no compatible table object can be found.
      */

@@ -17,6 +17,7 @@ namespace Cake\Datasource;
 use BadMethodCallException;
 use Cake\Collection\Iterator\MapReduce;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Datasource\ResultSetDecorator;
 
 /**
  * Contains the characteristics for an object that is attached to a repository and
@@ -28,7 +29,7 @@ trait QueryTrait
     /**
      * Instance of a table object this query is bound to
      *
-     * @var \Cake\Datasource\RepositoryInterface
+     * @var \Cake\ORM\Table|\Cake\Datasource\RepositoryInterface
      */
     protected $_repository;
 
@@ -87,8 +88,8 @@ trait QueryTrait
      * When called with a Table argument, the default table object will be set
      * and this query object will be returned for chaining.
      *
-     * @param \Cake\Datasource\RepositoryInterface|null $table The default table object to use
-     * @return \Cake\Datasource\RepositoryInterface|$this
+     * @param \Cake\Datasource\RepositoryInterface|\Cake\ORM\Table|null $table The default table object to use
+     * @return \Cake\Datasource\RepositoryInterface|\Cake\ORM\Table|$this
      */
     public function repository(RepositoryInterface $table = null)
     {
@@ -181,9 +182,20 @@ trait QueryTrait
     }
 
     /**
+     * Returns the current configured query `_eagerLoaded` value
+     *
+     * @return bool
+     */
+    public function isEagerLoaded()
+    {
+        return $this->_eagerLoaded;
+    }
+
+    /**
      * Sets the query instance to be an eager loaded query. If no argument is
      * passed, the current configured query `_eagerLoaded` value is returned.
      *
+     * @deprecated 3.5.0 Use isEagerLoaded() for the getter part instead.
      * @param bool|null $value Whether or not to eager load.
      * @return $this|\Cake\ORM\Query
      */
@@ -219,7 +231,7 @@ trait QueryTrait
         }
 
         if (!$alias) {
-            $alias = $this->repository()->alias();
+            $alias = $this->repository()->getAlias();
         }
 
         $key = sprintf('%s__%s', $alias, $field);
@@ -515,6 +527,6 @@ trait QueryTrait
      */
     protected function _decoratorClass()
     {
-        return 'Cake\Datasource\ResultSetDecorator';
+        return ResultSetDecorator::class;
     }
 }

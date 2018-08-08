@@ -166,7 +166,7 @@ class ConsoleIo
     public function out($message = '', $newlines = 1, $level = ConsoleIo::NORMAL)
     {
         if ($level <= $this->_level) {
-            $this->_lastWritten = $this->_out->write($message, $newlines);
+            $this->_lastWritten = (int)$this->_out->write($message, $newlines);
 
             return $this->_lastWritten;
         }
@@ -269,11 +269,24 @@ class ConsoleIo
      *
      * @param int $mode The output mode.
      * @return void
+     * @see \Cake\Console\ConsoleOutput::setOutputAs()
+     */
+    public function setOutputAs($mode)
+    {
+        $this->_out->setOutputAs($mode);
+    }
+
+    /**
+     * Change the output mode of the stdout stream
+     *
+     * @deprecated 3.5.0 Use setOutputAs() instead.
+     * @param int $mode The output mode.
+     * @return void
      * @see \Cake\Console\ConsoleOutput::outputAs()
      */
     public function outputAs($mode)
     {
-        $this->_out->outputAs($mode);
+        $this->_out->setOutputAs($mode);
     }
 
     /**

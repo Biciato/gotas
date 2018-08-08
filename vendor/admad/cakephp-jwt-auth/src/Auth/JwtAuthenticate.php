@@ -4,8 +4,9 @@ namespace ADmad\JwtAuth\Auth;
 use Cake\Auth\BaseAuthenticate;
 use Cake\Controller\ComponentRegistry;
 use Cake\Core\Configure;
-use Cake\Network\Request;
-use Cake\Network\Response;
+use Cake\Http\Exception\UnauthorizedException;
+use Cake\Http\Response;
+use Cake\Http\ServerRequest;
 use Cake\Utility\Security;
 use Exception;
 use Firebase\JWT\JWT;
@@ -25,7 +26,7 @@ use Firebase\JWT\JWT;
  *  ]);
  * ```
  *
- * @copyright 2015 ADmad
+ * @copyright 2015-2018 ADmad
  * @license MIT
  *
  * @see http://jwt.io
@@ -77,7 +78,7 @@ class JwtAuthenticate extends BaseAuthenticate
      * - `finder` - Finder method.
      * - `unauthenticatedException` - Fully namespaced exception name. Exception to
      *   throw if authentication fails. Set to false to do nothing.
-     *   Defaults to '\Cake\Network\Exception\UnauthorizedException'.
+     *   Defaults to '\Cake\Htttp\Exception\UnauthorizedException'.
      * - `key` - The key, or map of keys used to decode JWT. If not set, value
      *   of Security::salt() will be used.
      *
@@ -87,15 +88,21 @@ class JwtAuthenticate extends BaseAuthenticate
      */
     public function __construct(ComponentRegistry $registry, $config)
     {
-        $this->config([
+        $defaultConfig = [
             'header' => 'authorization',
             'prefix' => 'bearer',
             'parameter' => 'token',
             'queryDatasource' => true,
             'fields' => ['username' => 'id'],
-            'unauthenticatedException' => '\Cake\Network\Exception\UnauthorizedException',
+            'unauthenticatedException' => UnauthorizedException::class,
             'key' => null,
-        ]);
+        ];
+
+        if (!class_exists(UnauthorizedException::class)) {
+            $defaultConfig['unauthenticatedException'] = 'Cake\Network\Exception\UnauthorizedException';
+        }
+
+        $this->setConfig($defaultConfig);
 
         if (empty($config['allowedAlgs'])) {
             $config['allowedAlgs'] = ['HS256'];
@@ -107,12 +114,12 @@ class JwtAuthenticate extends BaseAuthenticate
     /**
      * Get user record based on info available in JWT.
      *
-     * @param \Cake\Network\Request $request The request object.
-     * @param \Cake\Network\Response $response Response object.
+     * @param \Cake\Http\ServerRequest $request The request object.
+     * @param \Cake\Http\Response $response Response object.
      *
      * @return bool|array User record array or false on failure.
      */
-    public function authenticate(Request $request, Response $response)
+    public function authenticate(ServerRequest $request, Response $response)
     {
         return $this->getUser($request);
     }
@@ -120,11 +127,11 @@ class JwtAuthenticate extends BaseAuthenticate
     /**
      * Get user record based on info available in JWT.
      *
-     * @param \Cake\Network\Request $request Request object.
+     * @param \Cake\Http\ServerRequest $request Request object.
      *
      * @return bool|array User record array or false on failure.
      */
-    public function getUser(Request $request)
+    public function getUser(ServerRequest $request)
     {
         $payload = $this->getPayload($request);
 
@@ -153,7 +160,7 @@ class JwtAuthenticate extends BaseAuthenticate
     /**
      * Get payload data.
      *
-     * @param \Cake\Network\Request|null $request Request instance or null
+     * @param \Cake\Http\ServerRequest|null $request Request instance or null
      *
      * @return object|null Payload object on success, null on failurec
      */
@@ -176,7 +183,7 @@ class JwtAuthenticate extends BaseAuthenticate
     /**
      * Get token from header or query string.
      *
-     * @param \Cake\Network\Request|null $request Request object.
+     * @param \Cake\Http\ServerRequest|null $request Request object.
      *
      * @return string|null Token string if found else null.
      */
@@ -184,17 +191,22 @@ class JwtAuthenticate extends BaseAuthenticate
     {
         $config = $this->_config;
 
-        if (!$request) {
+        if ($request === null) {
             return $this->_token;
         }
 
-        $header = $request->header($config['header']);
+        $header = $request->getHeaderLine($config['header']);
         if ($header && stripos($header, $config['prefix']) === 0) {
             return $this->_token = str_ireplace($config['prefix'] . ' ', '', $header);
         }
 
         if (!empty($this->_config['parameter'])) {
-            $this->_token = $request->query($this->_config['parameter']);
+            $token = $request->getQuery($this->_config['parameter']);
+            if ($token !== null) {
+                $token = (string)$token;
+            }
+
+            return $this->_token = $token;
         }
 
         return $this->_token;
@@ -211,7 +223,11 @@ class JwtAuthenticate extends BaseAuthenticate
     {
         $config = $this->_config;
         try {
-            $payload = JWT::decode($token, $config['key'] ?: Security::salt(), $config['allowedAlgs']);
+            $payload = JWT::decode(
+                $token,
+                $config['key'] ?: Security::getSalt(),
+                $config['allowedAlgs']
+            );
 
             return $payload;
         } catch (Exception $e) {
@@ -227,21 +243,23 @@ class JwtAuthenticate extends BaseAuthenticate
      * `unauthenticatedException` either throws the specified exception or returns
      * null.
      *
-     * @param \Cake\Network\Request $request A request object.
-     * @param \Cake\Network\Response $response A response object.
+     * @param \Cake\Http\ServerRequest $request A request object.
+     * @param \Cake\Http\Response $response A response object.
      *
-     * @throws \Cake\Network\Exception\UnauthorizedException Or any other
+     * @throws \Cake\Http\Exception\UnauthorizedException Or any other
      *   configured exception.
      *
      * @return void
      */
-    public function unauthenticated(Request $request, Response $response)
+    public function unauthenticated(ServerRequest $request, Response $response)
     {
         if (!$this->_config['unauthenticatedException']) {
             return;
         }
 
-        $message = $this->_error ? $this->_error->getMessage() : $this->_registry->Auth->_config['authError'];
+        $message = $this->_error
+            ? $this->_error->getMessage()
+            : $this->_registry->get('Auth')->getConfig('authError');
 
         $exception = new $this->_config['unauthenticatedException']($message);
         throw $exception;

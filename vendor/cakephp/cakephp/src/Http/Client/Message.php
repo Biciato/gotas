@@ -18,6 +18,8 @@ namespace Cake\Http\Client;
  *
  * Defines some common helper methods, constants
  * and properties.
+ *
+ * @property array $headers
  */
 class Message
 {
@@ -42,6 +44,20 @@ class Message
      * @var int
      */
     const STATUS_ACCEPTED = 202;
+
+    /**
+     * HTTP 203 code
+     *
+     * @var int
+     */
+    const STATUS_NON_AUTHORITATIVE_INFORMATION = 203;
+
+    /**
+     * HTTP 204 code
+     *
+     * @var int
+     */
+    const STATUS_NO_CONTENT = 204;
 
     /**
      * HTTP 301 code
