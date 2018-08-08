@@ -18,7 +18,7 @@
         <?= $this->Form->password('senha', ['placeholder' => 'Informe sua senha de acesso']) ?>
     </fieldset>
 
-   
+
     <?= $this->Html->link(
 		__("Esqueci minha senha"),
 			[
@@ -30,7 +30,7 @@
 
 	<?php if (!is_null($recoverAccount) && $recoverAccount == 1) : ?>
 		<?= $this->Html->link(
-			__("Reativar conta"), 
+			__("Reativar conta"),
 			[
 				'controller' => 'Usuarios',
 				'action' => 'reativar_conta',
@@ -41,10 +41,24 @@
 			]
 		); ?>
 	<?php endif; ?>
-    
+
                       <br />
 <?= $this->Form->button(__('Login')); ?>
 
 <?= $this->Form->end() ?>
+
+<?php
+    echo $this->Form->postLink(
+        'Login with Facebook',
+        [
+            'prefix' => false,
+            'plugin' => 'ADmad/SocialAuth',
+            'controller' => 'Auth',
+            'action' => 'login',
+            'provider' => 'facebook',
+            '?' => ['redirect' => $this->request->getQuery('redirect')]
+        ]
+    );
+?>
 </div>
 

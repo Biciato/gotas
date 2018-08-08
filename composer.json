@@ -17,7 +17,8 @@
         "components/bootstrap-datetimepicker": "^2.4",
         "components/font-awesome": "^4.7",
         "matthiasmullie/minify": "^1.3",
-        "admad/cakephp-jwt-auth": "^2.2"
+        "admad/cakephp-jwt-auth": "^2.2",
+        "admad/cakephp-social-auth": "^0.5.1"
     },
     "config" : {
         "component-dir" : "webroot/src/js/"

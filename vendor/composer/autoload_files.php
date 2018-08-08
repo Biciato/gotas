@@ -22,6 +22,7 @@ return array(
     '90236b492da7ca2983a2ad6e33e4152e' => $vendorDir . '/cakephp/cakephp/src/I18n/functions.php',
     'b1fc73705e1bec51cd2b20a32cf1c60a' => $vendorDir . '/cakephp/cakephp/src/Utility/bootstrap.php',
     '25072dd6e2470089de65ae7bf11d3109' => $vendorDir . '/symfony/polyfill-php72/bootstrap.php',
+    '5255c38a0faeba867671b61dfda6d864' => $vendorDir . '/paragonie/random_compat/lib/random.php',
     '667aeda72477189d0494fecd327c3641' => $vendorDir . '/symfony/var-dumper/Resources/functions/dump.php',
     '801c31d8ed748cfa537fa45402288c95' => $vendorDir . '/psy/psysh/src/functions.php',
 );
