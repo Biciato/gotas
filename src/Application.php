@@ -46,11 +46,11 @@ class Application extends BaseApplication
             ->add(AssetMiddleware::class)
 
             // Apply routing
-            ->add(RoutingMiddleware::class);
+            ->add(RoutingMiddleware::class)
 
 
             // Be sure to add SocialAuthMiddleware after RoutingMiddleware
-        $middleware->add(new \ADmad\SocialAuth\Middleware\SocialAuthMiddleware([
+            ->add(new \ADmad\SocialAuth\Middleware\SocialAuthMiddleware([
             // Request method type use to initiate authentication.
             'requestMethod' => 'POST',
             // Login page URL. In case of auth failure user is redirected to login

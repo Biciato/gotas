@@ -67,7 +67,7 @@ class DateTimeUtil
 
         return $dateReturn->format('Y-m-d');
     }
-    
+
     /**
      * Converte formato Data para padrão UTC
      *
@@ -112,5 +112,30 @@ class DateTimeUtil
         }
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param string $datetime      DataHora a ser reduzida
+     * @param int    $days          Quantidade de dias
+     * @param string $format_return Formato de retorno
+     *
+     * @return void
+     */
+    public function substractYearsFromDateTime(string $datetime, int $years, string $format_return = null)
+    {
+        try {
+            $date_return = strtotime($datetime . ' -' . $years . ' years');
+
+            $format = $format_return;
+
+            if (is_null($format)) {
+                $format = 'Y-m-d H:i:s';
+            }
+
+            return date($format, $date_return);
+        } catch (\Exception $e) {
+            // TODO: fazer exception
+        }
+    }
 
 }

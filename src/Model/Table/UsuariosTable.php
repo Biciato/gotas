@@ -14,6 +14,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * Usuarios Model
@@ -630,6 +631,8 @@ class UsuariosTable extends GenericTable
         // user accounts for different social identities of same user. You should
         // probably skip this check if your system doesn't enforce unique email
         // per user.
+
+            debug($profile);
             $user = $this->find()
                 ->where(['email' => $profile->email])
                 ->first();
@@ -638,10 +641,18 @@ class UsuariosTable extends GenericTable
                 return $user;
             }
 
-        // Create new user account
+            // Create new user account
 
-            debug($user);
-            $user = $this->newEntity(['email' => $profile->email]);
+            $user = array(
+                "email" => $profile["email"],
+                'tipo_perfil' => Configure::read("profileTypes")["UserProfileType"],
+                'nome' => $profile["email"],
+                'sexo' => 1,
+                'data_nasc' => "01/01/1970",
+                'senha' => 9879,
+                'confirm_senha' => 9879
+            );
+            $user = $this->newEntity($user);
             $user = $this->save($user);
 
             if (!$user) {

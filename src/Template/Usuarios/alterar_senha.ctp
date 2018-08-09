@@ -5,7 +5,7 @@
  * @author      Gustavo Souza Gonçalves
  * @file        src/Template/Usuarios/alterar_senha.ctp
  * @date        28/08/2017
- * 
+ *
  */
 
 use Cake\Core\Configure;
@@ -30,20 +30,22 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
     <fieldset>
         <legend><?= __('Alterar senha') ?> </legend>
 
-        
+
             <?= $this->Form->input(
                 'senha',
                 [
+                    "label" => "Nova Senha",
                     'type' => 'password',
                     'required' => true,
                     'autofocus' => true,
                     'maxLength' => $max_length
                 ]
             ); ?>
-            
+
             <?= $this->Form->input(
                 'confirm_senha',
                 [
+                    "label" => "Confirmar Nova Senha",
                     'type' => 'password',
                     'required' => true,
                     'maxLength' => $max_length
@@ -58,7 +60,7 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
             'class' => 'btn btn-primary',
             'escape' => false
         ]
-    
+
     ) ?>
     <?php echo $this->Form->end(); ?>
 </div>
