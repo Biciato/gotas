@@ -93,7 +93,7 @@ class Application extends BaseApplication
                             'email',
                             "first_name",
                             "last_name",
-                            "profile_pic",
+                            // "profile_pic",
                             // http://graph.facebook.com/2017394771632953/picture?type=large
                             // http://graph.facebook.com/" + id + "/picture?type=large
                             // "profile_pic",
