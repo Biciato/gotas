@@ -69,7 +69,7 @@ class Application extends BaseApplication
             // Fields.
             'fields' => [
                 // 'password' => 'password',
-                'password' => 'senha',
+                'password' => 'senha'
             ],
             // Session key to which to write identity record to.
             'sessionKey' => 'Auth.User',
@@ -82,11 +82,25 @@ class Application extends BaseApplication
                     'facebook' => [
                         'applicationId' => '721172294889454',
                         'applicationSecret' => '8283bb4bcc4ed82a8dcee71dcfc251d5',
+                        "access_token" => "EAAKP5wJ1bZB4BACqz5BWghBszCXY2BPYtJxU1rjV4IySrLSKsnVzfr8Q2reUt5lhZCaJg2ZC00N0vw1dsA5vjua4jIbJlJifRwBxKRe4NrPRhPOA8sVxQt76M5OnZCb9SaooRFTyUneAkoI0mVZCpChj7QxEHrXSXVZCfitlbcUs7b3c5PaN8bvEfXD8bZBIdcGxmsCbhJYoQZDZD",
                         'scope' => [
+                            // "id",
                             'email',
+                            // "picture"
                         ],
                         'fields' => [
+                            "id",
                             'email',
+                            "first_name",
+                            "last_name",
+                            "profile_pic",
+                            // http://graph.facebook.com/2017394771632953/picture?type=large
+                            // http://graph.facebook.com/" + id + "/picture?type=large
+                            // "profile_pic",
+                            "birthday",
+                            "gender"
+                            // "picture",
+
                     // To get a full list of all posible values, refer to
                     // https://developers.facebook.com/docs/graph-api/reference/user
                         ],

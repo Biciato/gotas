@@ -643,6 +643,8 @@ class UsuariosTable extends GenericTable
 
             // Create new user account
 
+            die();
+
             $user = array(
                 "email" => $profile["email"],
                 'tipo_perfil' => Configure::read("profileTypes")["UserProfileType"],
