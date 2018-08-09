@@ -1498,7 +1498,7 @@ class PontuacoesComprovantesController extends AppController
                 $validacaoQRCode = $this->validarUrlQrCode($url);
 
                 // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-                if ($validacaoQRCode["status"] == true) {
+                if ($validacaoQRCode["status"] == false) {
 
                     $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
 
@@ -1558,6 +1558,9 @@ class PontuacoesComprovantesController extends AppController
 
                 }
                 // echo $url;
+                // die();
+                // DebugUtil::printGeneric($url);
+                // die();
                 // Log::write("debug", $url);
 
                 $webContent = $this->web_tools->getPageContent($url);
@@ -1576,7 +1579,8 @@ class PontuacoesComprovantesController extends AppController
 
                     if ($nfeInexistente >= 0) break;
                 }
-
+                $nfeInexistente = -1;
+                // TODO: ajustar nfe inexistente
                 // $nfeInexistente = strpos("NOTA FISCAL ELETRÔNICA INEXISTENTE", $webContent["response"]);
 
                 if ($nfeInexistente >= 0) {
@@ -2077,13 +2081,13 @@ class PontuacoesComprovantesController extends AppController
         // se houve erro na análise da URL, o usuário deverá informar os dados manualmente
 
         $errorMessage = null;
-        $status = false;
+        $status = 1;
         $errors = array();
 
         if (sizeof($arrayErrors) > 0) {
 
             $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
-            $status = true;
+            $status = 0;
             $errors = $arrayErrors;
         }
 
