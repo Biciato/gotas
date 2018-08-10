@@ -397,7 +397,7 @@ class GotasController extends AppController
 
             $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
 
-            if (!$temAcesso){
+            if (!$temAcesso) {
                 return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
             }
 
@@ -571,6 +571,15 @@ class GotasController extends AppController
     public function habilitarGota(int $id)
     {
         try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+            }
+
+            $rede = $this->request->session()->read('Network.Main');
+
             $result = $this->_alteraEstadoGota($id, true);
             if ($result[0]) {
                 $this->Flash->success(Configure::read('messageEnableSuccess'));
@@ -618,6 +627,15 @@ class GotasController extends AppController
     public function desabilitarGota(int $id)
     {
         try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+            }
+
+            $rede = $this->request->session()->read('Network.Main');
+
             if ($this->_alteraEstadoGota($id, false)) {
                 $this->Flash->success(Configure::read('messageDisableSuccess'));
 

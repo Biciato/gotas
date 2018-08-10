@@ -213,7 +213,7 @@ Configure::write(
 
         // Gotas
 
-        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento não configurou os parâmetros de conversão de pontos, logo, não é possível fazer a conversão de pontos.",
+        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou as Gotas. Não é possível continuar!",
 
         // Mensagens de Pontuações
         "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
