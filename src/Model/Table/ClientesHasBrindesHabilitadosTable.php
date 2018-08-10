@@ -309,6 +309,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $estoque = [($entrada + $devolucao) - ($saidaBrinde + $saidaVenda)];
 
+            // DebugUtil::printGeneric($id);
             $brinde['estoque'] = $estoque;
 
             return $brinde;

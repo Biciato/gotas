@@ -253,7 +253,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
 
-        $historico_precos = $this->paginate($this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id), ['order' => ['data_preco' => 'desc'], 'limit' => 10]);
+        // debug($cliente_has_brinde_habilitado);
+        $historico_precos = $this->paginate(
+            $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id
+        ), ['order' => ['data_preco' => 'desc'], 'limit' => 10]);
 
         $clientes_id = $cliente_has_brinde_habilitado->clientes_id;
 
