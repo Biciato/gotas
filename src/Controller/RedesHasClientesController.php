@@ -834,10 +834,10 @@ class RedesHasClientesController extends AppController
 
                 $whereConditions = array();
 
-                $whereConditions[] = array(
-                    "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
-                    "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
-                );
+                // $whereConditions[] = array(
+                //     "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
+                //     "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
+                // );
 
                 // DebugUtil::printArray($whereConditions);
 
