@@ -213,7 +213,7 @@ Configure::write(
 
         // Gotas
 
-        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou as Gotas. As Gotas serão creditadas quando o estabelecimento efetuar a configuração!",
+        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!",
 
         // Mensagens de Pontuações
         "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
