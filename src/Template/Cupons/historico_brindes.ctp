@@ -23,7 +23,7 @@ echo $this->Breadcrumbs->render(
 
 <div class="col-lg-9 col-md-10 columns">
     <legend><?= __("Histórico de Brindes") ?></legend>
-    
+
       <!-- Filtro -->
         <h4>
             <?= __("Unidade {0}", $cliente) ?>
@@ -50,7 +50,7 @@ echo $this->Breadcrumbs->render(
         ]
     ) ?>
             </div>
-            
+
             <div class="hidden">
 
             <?= $this->Form->button(
@@ -73,7 +73,7 @@ echo $this->Breadcrumbs->render(
                 <th><?= $this->Paginator->sort('tipo_banho', ['label' => 'Tipo de Banho']) ?></th>
                 <th><?= $this->Paginator->sort('valor_pago', ['label' => 'Valor Pago']) ?></th>
                 <th><?= $this->Paginator->sort('data', ['label' => 'Data Impressão ']) ?></th>
-                
+
                 <th class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -83,13 +83,13 @@ echo $this->Breadcrumbs->render(
         <tbody>
             <?php foreach ($cupons as $cupom) : ?>
             <tr>
-                
+
                 <td><?= h($cupom->usuario->nome) ?></td>
                 <td><?= h($cupom->clientes_has_brindes_habilitado->brinde->nome) ?></td>
                 <td><?= h($this->Tickets->getTicketShowerType($cupom->tipo_banho)) ?></td>
                 <td><?= h($this->Number->precision($cupom->valor_pago, 2)); ?></td>
                 <td><?= h($cupom->data->format('d/m/Y H:i:s')) ?></td>
-                
+
                 <td class="actions" style="white-space:nowrap">
                     <?= $this->Html->link(
                         __(
@@ -106,7 +106,9 @@ echo $this->Breadcrumbs->render(
                         ]
                     ) ?>
 
-                    <?= $this->Html->tag(
+                    <?php
+                    // TODO: Deverá ser ajustado devido alteração do gênero de brindes
+                    $this->Html->tag(
                         'div',
                         __(
                             "{0}",
@@ -127,8 +129,8 @@ echo $this->Breadcrumbs->render(
                             )
                         ]
                     ) ?>
-                    
-                    
+
+
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -147,8 +149,8 @@ echo $this->Breadcrumbs->render(
             <p><?= $this->Paginator->counter(__('Página {{page}} de {{pages}}, mostrando {{current}} registros de  {{count}} total, iniciando no registro {{start}}, terminando em {{end}}')) ?></p>
          </center>
     </div>
-    
-	
+
+
 </div>
 
 <?= $this->Html->tag('div', '', ['class' => 'temporary-info', 'style' => 'display: none;']) ?>
@@ -159,7 +161,7 @@ echo $this->Breadcrumbs->render(
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/cupons/historico_brindes') ?>
     <?= $this->Html->script('scripts/cupons/reimpressao_shower_modal') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/cupons/historico_brindes.min') ?>
     <?= $this->Html->script('scripts/cupons/reimpressao_shower_modal.min') ?>
 <?php endif; ?>
