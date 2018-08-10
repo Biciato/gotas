@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5c30d6d522b9cacac982ffa03512f6e",
+    "hash": "ae14cb4c453104d759e212545640cd49",
+    "content-hash": "1bb18874f38d6478f78fbafec1b741d7",
     "packages": [
         {
             "name": "admad/cakephp-jwt-auth",
@@ -53,7 +54,47 @@
                 "cakephp",
                 "jwt"
             ],
-            "time": "2018-04-20T07:58:59+00:00"
+            "time": "2018-04-20 07:58:59"
+        },
+        {
+            "name": "admad/cakephp-social-auth",
+            "version": "0.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ADmad/cakephp-social-auth.git",
+                "reference": "42bf65d77821e0471783d728cfc886e34857b876"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ADmad/cakephp-social-auth/zipball/42bf65d77821e0471783d728cfc886e34857b876",
+                "reference": "42bf65d77821e0471783d728cfc886e34857b876",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^3.5",
+                "socialconnect/auth": "^1.12"
+            },
+            "require-dev": {
+                "cakephp/chronos": "^1.1",
+                "phpunit/phpunit": "^5.7.14|^6.0"
+            },
+            "type": "cakephp-plugin",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ADmad\\SocialAuth\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A CakePHP plugin which allows you to authenticate using social providers like Facebook/Google/Twitter etc.",
+            "time": "2018-06-05 20:17:46"
         },
         {
             "name": "aura/intl",
@@ -99,7 +140,7 @@
                 "l10n",
                 "localization"
             ],
-            "time": "2017-01-20T05:00:11+00:00"
+            "time": "2017-01-20 05:00:11"
         },
         {
             "name": "cakephp-brasil/twitter-bootstrap",
@@ -130,7 +171,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "TwitterBootstrap plugin for CakePHP 3",
-            "time": "2016-05-25T20:29:28+00:00"
+            "time": "2016-05-25 20:29:28"
         },
         {
             "name": "cakephp/cakephp",
@@ -216,7 +257,7 @@
                 "rapid-development",
                 "validation"
             ],
-            "time": "2018-05-21T01:31:33+00:00"
+            "time": "2018-05-21 01:31:33"
         },
         {
             "name": "cakephp/chronos",
@@ -273,7 +314,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-07-11T18:51:56+00:00"
+            "time": "2018-07-11 18:51:56"
         },
         {
             "name": "cakephp/migrations",
@@ -326,7 +367,7 @@
                 "cakephp",
                 "migrations"
             ],
-            "time": "2017-12-12T21:01:38+00:00"
+            "time": "2017-12-12 21:01:38"
         },
         {
             "name": "cakephp/plugin-installer",
@@ -367,7 +408,7 @@
                 }
             ],
             "description": "A composer installer for CakePHP 3.0+ plugins.",
-            "time": "2017-12-24T21:09:29+00:00"
+            "time": "2017-12-24 21:09:29"
         },
         {
             "name": "components/bootstrap",
@@ -435,7 +476,7 @@
                 "responsive",
                 "web"
             ],
-            "time": "2016-07-26T05:59:20+00:00"
+            "time": "2016-07-26 05:59:20"
         },
         {
             "name": "components/bootstrap-datetimepicker",
@@ -493,7 +534,7 @@
                 "time",
                 "timepicker"
             ],
-            "time": "2017-03-26T17:59:06+00:00"
+            "time": "2017-03-26 17:59:06"
         },
         {
             "name": "components/font-awesome",
@@ -528,7 +569,7 @@
                 "OFL-1.1"
             ],
             "description": "The iconic font designed for use with Twitter Bootstrap.",
-            "time": "2016-10-25T10:56:23+00:00"
+            "time": "2016-10-25 10:56:23"
         },
         {
             "name": "components/jquery",
@@ -570,7 +611,7 @@
             ],
             "description": "jQuery JavaScript Library",
             "homepage": "http://jquery.com",
-            "time": "2018-03-04T13:23:48+00:00"
+            "time": "2018-03-04 13:23:48"
         },
         {
             "name": "components/jqueryui",
@@ -655,7 +696,7 @@
                 }
             ],
             "description": "jQuery UI is a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library. Whether you're building highly interactive web applications or you just need to add a date picker to a form control, jQuery UI is the perfect choice.",
-            "time": "2016-09-16T05:47:55+00:00"
+            "time": "2016-09-16 05:47:55"
         },
         {
             "name": "firebase/php-jwt",
@@ -701,7 +742,7 @@
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
-            "time": "2017-06-27T22:17:23+00:00"
+            "time": "2017-06-27 22:17:23"
         },
         {
             "name": "matthiasmullie/minify",
@@ -761,7 +802,7 @@
                 "minifier",
                 "minify"
             ],
-            "time": "2018-04-18T08:50:35+00:00"
+            "time": "2018-04-18 08:50:35"
         },
         {
             "name": "matthiasmullie/path-converter",
@@ -810,7 +851,7 @@
                 "paths",
                 "relative"
             ],
-            "time": "2018-02-02T11:30:10+00:00"
+            "time": "2018-02-02 11:30:10"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
@@ -862,7 +903,56 @@
                 "mobile detector",
                 "php mobile detect"
             ],
-            "time": "2018-06-03T13:13:04+00:00"
+            "time": "2018-06-03 13:13:04"
+        },
+        {
+            "name": "paragonie/random_compat",
+            "version": "v2.0.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paragonie/random_compat.git",
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*|5.*"
+            },
+            "suggest": {
+                "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/random.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paragon Initiative Enterprises",
+                    "email": "security@paragonie.com",
+                    "homepage": "https://paragonie.com"
+                }
+            ],
+            "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
+            "keywords": [
+                "csprng",
+                "polyfill",
+                "pseudorandom",
+                "random"
+            ],
+            "time": "2018-07-04 16:31:37"
         },
         {
             "name": "psr/http-message",
@@ -912,7 +1002,7 @@
                 "request",
                 "response"
             ],
-            "time": "2016-08-06T14:39:51+00:00"
+            "time": "2016-08-06 14:39:51"
         },
         {
             "name": "psr/log",
@@ -959,7 +1049,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10T12:19:37+00:00"
+            "time": "2016-10-10 12:19:37"
         },
         {
             "name": "robmorgan/phinx",
@@ -1025,7 +1115,121 @@
                 "migrations",
                 "phinx"
             ],
-            "time": "2017-06-05T13:30:19+00:00"
+            "time": "2017-06-05 13:30:19"
+        },
+        {
+            "name": "socialconnect/auth",
+            "version": "1.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialConnect/auth.git",
+                "reference": "dde7283e36fc286c210b94da6c8c0821a5b48331"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialConnect/auth/zipball/dde7283e36fc286c210b94da6c8c0821a5b48331",
+                "reference": "dde7283e36fc286c210b94da6c8c0821a5b48331",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "paragonie/random_compat": "^2.0",
+                "php": ">=5.5",
+                "socialconnect/common": "^1.1"
+            },
+            "replace": {
+                "socialconnect/oauth1": "self.version",
+                "socialconnect/oauth2": "self.version",
+                "socialconnect/openid": "self.version",
+                "socialconnect/openid-connect": "self.version",
+                "socialconnect/provider": "self.version"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8.34",
+                "squizlabs/php_codesniffer": "~3.0.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialConnect\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Patsura",
+                    "email": "talk@dmtry.me"
+                }
+            ],
+            "description": "Social Connect Auth Component",
+            "keywords": [
+                "amazon",
+                "auth",
+                "bitbucket",
+                "facebook",
+                "github",
+                "gitlab",
+                "google",
+                "login",
+                "oauth",
+                "slack",
+                "socialconnect",
+                "twitch",
+                "twitter",
+                "vk"
+            ],
+            "time": "2018-05-12 05:05:46"
+        },
+        {
+            "name": "socialconnect/common",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialConnect/common.git",
+                "reference": "d9bc99b90a3d51bc6c753000079629bc33a63c8f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialConnect/common/zipball/d9bc99b90a3d51bc6c753000079629bc33a63c8f",
+                "reference": "d9bc99b90a3d51bc6c753000079629bc33a63c8f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "doctrine/cache": "^1.5.1",
+                "ext-curl": "*",
+                "guzzlehttp/guzzle": "^5.3|^6.0",
+                "phpunit/phpunit": "^4.2",
+                "squizlabs/php_codesniffer": "^2.8"
+            },
+            "suggest": {
+                "ext-curl": "Allows to use Http\\Client\\Curl",
+                "guzzlehttp/guzzle": "Allows to use Http\\Client\\Guzzle, require guzzlehttp/guzzle:~5.3|~6.0."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialConnect\\Common\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Patsura",
+                    "email": "talk@dmtry.me"
+                }
+            ],
+            "description": "Common component",
+            "time": "2018-04-11 11:24:55"
         },
         {
             "name": "symfony/config",
@@ -1089,7 +1293,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:19:56+00:00"
+            "time": "2018-07-26 11:19:56"
         },
         {
             "name": "symfony/console",
@@ -1158,7 +1362,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:19:56+00:00"
+            "time": "2018-07-26 11:19:56"
         },
         {
             "name": "symfony/debug",
@@ -1214,7 +1418,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-07-26 11:24:31"
         },
         {
             "name": "symfony/filesystem",
@@ -1264,7 +1468,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-07-26 11:24:31"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -1322,7 +1526,7 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "time": "2018-08-06 14:22:27"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1381,7 +1585,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "time": "2018-08-06 14:22:27"
         },
         {
             "name": "symfony/yaml",
@@ -1440,7 +1644,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:19:56+00:00"
+            "time": "2018-07-26 11:19:56"
         },
         {
             "name": "zendframework/zend-diactoros",
@@ -1503,7 +1707,7 @@
                 "psr",
                 "psr-7"
             ],
-            "time": "2018-08-01T13:47:49+00:00"
+            "time": "2018-08-01 13:47:49"
         }
     ],
     "packages-dev": [
@@ -1565,7 +1769,7 @@
                 "breakpoint",
                 "twig"
             ],
-            "time": "2017-11-20T13:04:11+00:00"
+            "time": "2017-11-20 13:04:11"
         },
         {
             "name": "aptoma/twig-markdown",
@@ -1622,7 +1826,7 @@
                 "markdown",
                 "twig"
             ],
-            "time": "2015-10-23T20:27:08+00:00"
+            "time": "2015-10-23 20:27:08"
         },
         {
             "name": "asm89/twig-cache-extension",
@@ -1676,7 +1880,7 @@
                 "extension",
                 "twig"
             ],
-            "time": "2017-01-10T22:04:15+00:00"
+            "time": "2017-01-10 22:04:15"
         },
         {
             "name": "cakephp/bake",
@@ -1724,7 +1928,7 @@
                 "bake",
                 "cakephp"
             ],
-            "time": "2018-03-10T01:47:21+00:00"
+            "time": "2018-03-10 01:47:21"
         },
         {
             "name": "cakephp/debug_kit",
@@ -1784,7 +1988,7 @@
                 "debug",
                 "kit"
             ],
-            "time": "2018-03-08T18:21:10+00:00"
+            "time": "2018-03-08 18:21:10"
         },
         {
             "name": "composer/ca-bundle",
@@ -1840,7 +2044,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2018-03-29T19:57:20+00:00"
+            "time": "2018-03-29 19:57:20"
         },
         {
             "name": "composer/composer",
@@ -1920,7 +2124,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2018-08-07T07:39:23+00:00"
+            "time": "2018-08-07 07:39:23"
         },
         {
             "name": "composer/semver",
@@ -1982,7 +2186,7 @@
                 "validation",
                 "versioning"
             ],
-            "time": "2016-08-30T16:08:34+00:00"
+            "time": "2016-08-30 16:08:34"
         },
         {
             "name": "composer/spdx-licenses",
@@ -2043,7 +2247,7 @@
                 "spdx",
                 "validator"
             ],
-            "time": "2018-04-30T10:33:04+00:00"
+            "time": "2018-04-30 10:33:04"
         },
         {
             "name": "composer/xdebug-handler",
@@ -2087,7 +2291,7 @@
                 "Xdebug",
                 "performance"
             ],
-            "time": "2018-04-11T15:42:36+00:00"
+            "time": "2018-04-11 15:42:36"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -2120,7 +2324,7 @@
                 "MIT"
             ],
             "description": "implementation of xdg base directory specification for php",
-            "time": "2014-10-24T07:27:01+00:00"
+            "time": "2014-10-24 07:27:01"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -2163,7 +2367,7 @@
                     "homepage": "http://www.acci.cz"
                 }
             ],
-            "time": "2014-04-08T15:00:19+00:00"
+            "time": "2014-04-08 15:00:19"
         },
         {
             "name": "jakub-onderka/php-console-highlighter",
@@ -2207,7 +2411,7 @@
                     "homepage": "http://www.acci.cz/"
                 }
             ],
-            "time": "2015-04-20T18:58:01+00:00"
+            "time": "2015-04-20 18:58:01"
         },
         {
             "name": "jasny/twig-extensions",
@@ -2267,7 +2471,7 @@
                 "text",
                 "time"
             ],
-            "time": "2017-09-13T07:38:01+00:00"
+            "time": "2017-09-13 07:38:01"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -2317,7 +2521,7 @@
                 "highlight",
                 "sql"
             ],
-            "time": "2014-01-12T16:20:24+00:00"
+            "time": "2014-01-12 16:20:24"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -2383,7 +2587,7 @@
                 "json",
                 "schema"
             ],
-            "time": "2018-02-14T22:26:30+00:00"
+            "time": "2018-02-14 22:26:30"
         },
         {
             "name": "nikic/php-parser",
@@ -2434,7 +2638,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2018-07-15T17:25:16+00:00"
+            "time": "2018-07-15 17:25:16"
         },
         {
             "name": "psy/psysh",
@@ -2506,7 +2710,7 @@
                 "interactive",
                 "shell"
             ],
-            "time": "2018-06-10T17:57:20+00:00"
+            "time": "2018-06-10 17:57:20"
         },
         {
             "name": "seld/jsonlint",
@@ -2555,7 +2759,7 @@
                 "parser",
                 "validator"
             ],
-            "time": "2018-01-24T12:46:19+00:00"
+            "time": "2018-01-24 12:46:19"
         },
         {
             "name": "seld/phar-utils",
@@ -2599,7 +2803,7 @@
             "keywords": [
                 "phra"
             ],
-            "time": "2015-10-13T18:44:15+00:00"
+            "time": "2015-10-13 18:44:15"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -2650,7 +2854,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-07-26T23:47:18+00:00"
+            "time": "2018-07-26 23:47:18"
         },
         {
             "name": "symfony/finder",
@@ -2699,7 +2903,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-07-26 11:24:31"
         },
         {
             "name": "symfony/polyfill-php72",
@@ -2754,7 +2958,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "time": "2018-08-06 14:22:27"
         },
         {
             "name": "symfony/process",
@@ -2803,7 +3007,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-07-26 11:24:31"
         },
         {
             "name": "symfony/var-dumper",
@@ -2878,7 +3082,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-07-26 11:24:31"
         },
         {
             "name": "twig/twig",
@@ -2944,7 +3148,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2018-07-13T07:12:17+00:00"
+            "time": "2018-07-13 07:12:17"
         },
         {
             "name": "umpirsky/twig-php-function",
@@ -2985,7 +3189,7 @@
                 }
             ],
             "description": "Call (almost) any PHP function from your Twig templates.",
-            "time": "2016-03-12T16:36:32+00:00"
+            "time": "2016-03-12 16:36:32"
         },
         {
             "name": "wyrihaximus/twig-view",
@@ -3043,7 +3247,7 @@
                 "twig",
                 "view"
             ],
-            "time": "2018-07-03T15:46:29+00:00"
+            "time": "2018-07-03 15:46:29"
         }
     ],
     "aliases": [],

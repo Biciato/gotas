@@ -228,3 +228,5 @@ Plugin::load('TwitterBootstrap');
 // }
 
 Plugin::load('ADmad/JwtAuth');
+
+Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
