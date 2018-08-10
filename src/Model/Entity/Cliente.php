@@ -56,10 +56,11 @@ class Cliente extends Entity
 
     protected function _getPropagandaImgCompleto()
     {
-        if (strlen($this->_properties["propaganda_img"]) > 0) {
+        if (isset($this->_properties["propaganda_img"]) && strlen($this->_properties["propaganda_img"]) > 0) {
             return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageClientPath"), $this->_properties["propaganda_img"]);
         }
 
-        return $this->_properties["propaganda_img"];
+        return "";
+        // return $this->_properties["propaganda_img"];
     }
 }
