@@ -2400,22 +2400,22 @@ class CuponsController extends AppController
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
 
                 } else if (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
 
                 } else if (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
                 } else {
-                    $dataFim = date("Y-m-d");
-                    $dataInicio = date('Y-m-d', strtotime("-30 days"));
+                    $dataFim = date("Y-m-d 00:00:00");
+                    $dataInicio = date('Y-m-d 23:59:59', strtotime("-30 days"));
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
                     $whereConditions[] = ["Cupons.data <= " => $dataFim];
                 }
 
