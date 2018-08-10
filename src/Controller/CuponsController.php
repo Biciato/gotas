@@ -474,7 +474,9 @@ class CuponsController extends AppController
             $this->user_logged = $user_managed;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $rede = $this->request->session()->read('Network.Main');
+
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $cupom = $this->Cupons->getCuponsById($id);
 
