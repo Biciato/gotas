@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use App\Custom\RTI\DebugUtil;
+use Cake\Log\Log;
 
 /**
  * GeneroBrindes Controller
