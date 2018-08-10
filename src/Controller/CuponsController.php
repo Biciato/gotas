@@ -1509,7 +1509,7 @@ class CuponsController extends AppController
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
 
-            Log::write("rest", $data);
+            Log::write("info", $data);
             // Validação de dados
             $errors = array();
             if (empty($data["brindes_id"])) {
