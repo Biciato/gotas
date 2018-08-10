@@ -2412,10 +2412,10 @@ class CuponsController extends AppController
 
                     $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
                 } else {
-                    $dataFim = date("Y-m-d 00:00:00");
-                    $dataInicio = date('Y-m-d 23:59:59', strtotime("-30 days"));
+                    $dataFim = date("Y-m-d 23:59:59");
+                    $dataInicio = date('Y-m-d 00:00:00', strtotime("-30 days"));
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio];
                     $whereConditions[] = ["Cupons.data <= " => $dataFim];
                 }
 
