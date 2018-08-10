@@ -48,18 +48,18 @@
 <?= $this->Form->end() ?>
 
 <?php
-    echo $this->Form->postLink(
-        'Login with Facebook',
-        [
-            'prefix' => false,
-            'plugin' => 'ADmad/SocialAuth',
-            'controller' => 'Auth',
+    // echo $this->Form->postLink(
+    //     'Login with Facebook',
+    //     [
+    //         'prefix' => false,
+    //         'plugin' => 'ADmad/SocialAuth',
+    //         'controller' => 'Auth',
 
-            'action' => 'login',
-            'provider' => 'facebook',
-            '?' => ['redirect' => $this->request->getQuery('redirect')]
-        ]
-    );
+    //         'action' => 'login',
+    //         'provider' => 'facebook',
+    //         '?' => ['redirect' => $this->request->getQuery('redirect')]
+    //     ]
+    // );
 ?>
 </div>
 
