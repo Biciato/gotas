@@ -19,6 +19,7 @@ use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Routing\Router;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use App\Custom\RTI\CryptUtil;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\EmailUtil;
@@ -64,6 +65,8 @@ class AppController extends Controller
     public function initialize()
     {
         parent::initialize();
+
+        ConnectionManager::alias("devel", "default");
 
         $this->loadComponent(
             'Auth',
