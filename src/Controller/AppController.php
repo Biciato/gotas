@@ -66,7 +66,7 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        ConnectionManager::alias("devel", "default");
+        // ConnectionManager::alias("devel", "default");
 
         $this->loadComponent(
             'Auth',
