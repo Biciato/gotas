@@ -2504,7 +2504,8 @@ class CuponsController extends AppController
             "pais",
             "cep",
             "latitude",
-            "longitude"
+            "longitude",
+            "propaganda_img"
         );
         $cliente = $this->Clientes->getClienteById($clientesId, $listaCamposClienteSelect);
         $quantidade = is_null($quantidade) ? 1 : $quantidade;
@@ -2590,7 +2591,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__("Para Brindes do tipo banho, a quantidade deve ser 1!"))
+                "errors" => array(__("Para Brindes do tipo banho, a quantidade mínima é 1!"))
             );
 
             $arraySet = array("mensagem");
