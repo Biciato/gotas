@@ -75,7 +75,7 @@ class Application extends BaseApplication
             'sessionKey' => 'Auth.User',
             // The method in user model which should be called in case of new user.
             // It should return a User entity.
-            'getUserCallback' => 'getUser',
+            'getUserCallback' => 'getUserFacebook',
             // SocialConnect Auth service's providers config. https://github.com/SocialConnect/auth/blob/master/README.md
             'serviceConfig' => [
                 'provider' => [

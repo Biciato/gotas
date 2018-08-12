@@ -619,7 +619,7 @@ class UsuariosTable extends GenericTable
 
     /* ------------------------ Find ------------------------ */
 
-    public function getUser(\Cake\Datasource\EntityInterface $profile)
+    public function getUserFacebook(\Cake\Datasource\EntityInterface $profile)
     {
         try {
 
@@ -629,12 +629,15 @@ class UsuariosTable extends GenericTable
                 throw new \RuntimeException('Could not find email in social profile.');
             }
 
-        // Check if user with same email exists. This avoids creating multiple
-        // user accounts for different social identities of same user. You should
-        // probably skip this check if your system doesn't enforce unique email
-        // per user.
+            // Check if user with same email exists. This avoids creating multiple
+            // user accounts for different social identities of same user. You should
+            // probably skip this check if your system doesn't enforce unique email
+            // per user.
 
-            // DebugUtil::print($profile);
+            if (!empty($profile["birth_day"])) {
+                $profile["birth_day"];
+            }
+
             $user = $this->_getUsuarioTable()->find()
                 ->where(['email' => $profile->email])
                 ->first();
@@ -671,39 +674,54 @@ class UsuariosTable extends GenericTable
             fputs($file, $fileData["response"]);
             fclose($file);
 
+            $birthDay = !empty($profile["birth_day"]) ? $profile["birth_day"] : 1;
+            $birthMonth = !empty($profile["birth_month"]) ? $profile["birth_month"] : 1;
+            $birthYear = !empty($profile["birth_year"]) ? $profile["birth_year"] : 1970;
+
+            $dataNascimento = __("{0}/{1}/{2}", $birthDay, $birthMonth, $birthYear);
+
+            if (!empty($profile["birth_day"])) {
+                $profile["birth_day"];
+            }
 
             $user = array(
                 "email" => $profile["email"],
                 'tipo_perfil' => Configure::read("profileTypes")["UserProfileType"],
                 'nome' => __("{0} {1}", $profile["first_name"], $profile["last_name"]),
                 'sexo' => 1,
-                'data_nasc' => "01/01/1970",
+                'data_nasc' => $dataNascimento,
                 'senha' => 9879,
                 'confirm_senha' => 9879,
                 "foto_perfil" => $fileResult["fileName"]
             );
 
-            // DebugUtil::print($user);
-
-            // die();
             $user = $this->_getUsuarioTable()->newEntity($user);
+            $userErrors = $user->errors();
             $user = $this->_getUsuarioTable()->save($user);
 
-            $destinationDir = Configure::read("imageUserProfilePath").$fileResult["fileName"];
+            $destinationDir = Configure::read("imageUserProfilePath") . $fileResult["fileName"];
+
             // move arquivo gerado
             rename($fileResult["fullDir"], $destinationDir);
 
             Log::write("info", $destinationDir);
 
             if (!$user) {
-                throw new \RuntimeException('Unable to save new user');
+                $message = "Erro ao registrar usuário! Contate o suporte!";
+                throw new \RuntimeException($message);
+                Log::write("error", $message);
+                Log::write("error", $userErrors);
             }
 
             return $user;
         } catch (\Exception $e) {
-            Log::write("error", $e);
-        }
+            $trace = $e->getTrace();
 
+            $stringError = __("Erro ao inserir novo registro de Usuário do Facebook: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+        }
     }
 
     /**
@@ -944,7 +962,7 @@ class UsuariosTable extends GenericTable
                 ->where($conditions)
                 ->first();
 
-                // DebugUtil::print($usuario);
+            // DebugUtil::print($usuario);
 
             return $usuario;
         } catch (\Exception $e) {

@@ -23,13 +23,13 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
         <li class="active">
             <?= $this->Html->link(__('Menu'), []) ?>
         </li>
-        <?php if ($cadastrar_veiculos) : ?> 
+        <?php if ($cadastrar_veiculos) : ?>
 
             <li>
                 <?= $this->Html->link(__("Veículos do Usuário"), ['controller' => 'veiculos', 'action' => 'veiculosUsuario', $usuario->id]) ?>
             </li>
         <?php endif; ?>
-        
+
         <li class="active">
             <?= $this->Html->link(__('Ações'), []) ?>
         </li>
@@ -107,15 +107,16 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
             <li><?= $this->Html->link(__('Usuários Aguardando Aprovação'), ['action' => 'usuarios_aguardando_aprovacao']) ?></li>
         <?php endif; ?>
 
-        <li class="active">
-            <?= $this->Html->link(__('Relatórios'), []) ?>
-        </li>
-
-        <?php if ($show_reports_admin_rti) : ?> 
+        <?php if ($user_logged["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]): ?>
+            <li class="active">
+                <?= $this->Html->link(__('Relatórios'), []) ?>
+            </li>
+        <?php endif; ?>
+        <?php if ($show_reports_admin_rti) : ?>
 
             <li><?= $this->Html->link(__("Usuários Cadastrados"), ['controller' => 'Usuarios', 'action' => 'relatorio_usuarios_cadastrados']) ?> </li>
             <li><?= $this->Html->link(__("Usuários Por Redes"), ['controller' => 'Usuarios', 'action' => 'relatorio_usuarios_redes']) ?> </li>
             <li><?= $this->Html->link(__("Brindes Adquiridos pelos Usuários "), ['controller' => 'UsuariosHasBrindes', 'action' => 'relatorio_brindes_usuarios_redes']) ?> </li>
-        <?php endif; ?> 
+        <?php endif; ?>
     </ul>
 </nav>
