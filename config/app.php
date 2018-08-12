@@ -250,6 +250,8 @@ return [
             'username' => 'rtibrindes',
             'password' => ']tS(nyjFXBwP=u8+',
             'database' => 'rtibrindes',
+            // 'database' => 'rtibrindes_devel',
+
             'encoding' => 'utf8',
             // 'timezone' => 'America/Sao_Paulo',
             //  'timezone' => 'UTC',

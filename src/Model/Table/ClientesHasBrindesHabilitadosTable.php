@@ -309,7 +309,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $estoque = [($entrada + $devolucao) - ($saidaBrinde + $saidaVenda)];
 
-            // DebugUtil::printGeneric($id);
+            // DebugUtil::print($id);
             $brinde['estoque'] = $estoque;
 
             return $brinde;
@@ -459,7 +459,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesTable = TableRegistry::get("Brindes");
             $brindes = $brindesTable->findBrindes($whereConditionsBrindes, false);
 
-            // DebugUtil::printGeneric($brindes);
+            // DebugUtil::print($brindes);
 
             if (sizeof($orderConditionsBrindes) > 0) {
                 $brindes = $brindes->order($orderConditionsBrindes);
@@ -565,7 +565,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->contain($containArray)
                     ->first();
 
-                // DebugUtil::printGeneric($clientesBrindesHabilitado);
+                // DebugUtil::print($clientesBrindesHabilitado);
 
                 $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 

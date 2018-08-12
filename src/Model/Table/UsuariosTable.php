@@ -15,6 +15,8 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\FilesUtil;
+use App\Custom\RTI\StringUtil;
 
 /**
  * Usuarios Model
@@ -632,30 +634,66 @@ class UsuariosTable extends GenericTable
         // probably skip this check if your system doesn't enforce unique email
         // per user.
 
-            debug($profile);
-            $user = $this->find()
+            // DebugUtil::print($profile);
+            $user = $this->_getUsuarioTable()->find()
                 ->where(['email' => $profile->email])
                 ->first();
 
+            // DebugUtil::print($profile);
+            // die();
             if ($user) {
                 return $user;
             }
 
             // Create new user account
 
-            die();
+            // Processo de download da foto
+
+            Log::write("info", $profile);
+
+            $imageUrl = __("{0}{1}{2}", "http://graph.facebook.com/", $profile["identifier"], "/picture?type=large");
+
+            log::write("info", $imageUrl);
+            // $imageUrl = "";
+
+            // Conteúdo do arquivo
+            $fileData = FilesUtil::downloadFile($imageUrl);
+
+            // Geração do arquivo
+            $fileResult = StringUtil::nomeArquivoAleatorio(Configure::read("imageUserProfilePathTemp"));
+
+            Log::write("info", $fileResult);
+
+            // DebugUtil::print($fileResult);
+
+            $file = fopen($fileResult["fullDir"], "w");
+
+            fputs($file, $fileData["response"]);
+            fclose($file);
+
 
             $user = array(
                 "email" => $profile["email"],
                 'tipo_perfil' => Configure::read("profileTypes")["UserProfileType"],
-                'nome' => $profile["email"],
+                'nome' => __("{0} {1}", $profile["first_name"], $profile["last_name"]),
                 'sexo' => 1,
                 'data_nasc' => "01/01/1970",
                 'senha' => 9879,
-                'confirm_senha' => 9879
+                'confirm_senha' => 9879,
+                "foto_perfil" => $fileResult["fileName"]
             );
-            $user = $this->newEntity($user);
-            $user = $this->save($user);
+
+            // DebugUtil::print($user);
+
+            // die();
+            $user = $this->_getUsuarioTable()->newEntity($user);
+            $user = $this->_getUsuarioTable()->save($user);
+
+            $destinationDir = Configure::read("imageUserProfilePath").$fileResult["fileName"];
+            // move arquivo gerado
+            rename($fileResult["fullDir"], $destinationDir);
+
+            Log::write("info", $destinationDir);
 
             if (!$user) {
                 throw new \RuntimeException('Unable to save new user');
@@ -905,6 +943,8 @@ class UsuariosTable extends GenericTable
                 ->find('all')
                 ->where($conditions)
                 ->first();
+
+                // DebugUtil::print($usuario);
 
             return $usuario;
         } catch (\Exception $e) {
@@ -1384,7 +1424,6 @@ class UsuariosTable extends GenericTable
                     ]
                 );
 
-
             return $usuarios;
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -1432,7 +1471,6 @@ class UsuariosTable extends GenericTable
                                 [
                                 'chu.id' => null
                             ]
-
                         ]
                     ]
                 );
@@ -1472,6 +1510,31 @@ class UsuariosTable extends GenericTable
 
             $usuarios = null;
 
+            $arraySelect = array(
+                "usuarios.id",
+                "usuarios.matriz_id",
+                "usuarios.tipo_perfil",
+                "usuarios.nome",
+                "usuarios.cpf",
+                "usuarios.sexo",
+                "usuarios.data_nasc",
+                "usuarios.email",
+                "usuarios.senha",
+                "usuarios.telefone",
+                "usuarios.endereco",
+                "usuarios.endereco_numero",
+                "usuarios.endereco_complemento",
+                "usuarios.bairro",
+                "usuarios.municipio",
+                "usuarios.estado",
+                "usuarios.cep",
+                "usuarios.audit_insert",
+                "usuarios.audit_update",
+                "chu.id",
+                "chu.matriz_id",
+                "chu.clientes_id",
+                "chu.usuarios_id"
+            );
             if (is_null($client->matriz_id)) {
                 array_push($conditions, ['Usuarios.matriz_id' => $client->id]);
 
@@ -1488,31 +1551,7 @@ class UsuariosTable extends GenericTable
                         ]
 
                     ]])
-                    ->select([
-                        'usuarios.id',
-                        'usuarios.matriz_id',
-                        'usuarios.tipo_perfil',
-                        'usuarios.nome',
-                        'usuarios.cpf',
-                        'usuarios.sexo',
-                        'usuarios.data_nasc',
-                        'usuarios.email',
-                        'usuarios.senha',
-                        'usuarios.telefone',
-                        'usuarios.endereco',
-                        'usuarios.endereco_numero',
-                        'usuarios.endereco_complemento',
-                        'usuarios.bairro',
-                        'usuarios.municipio',
-                        'usuarios.estado',
-                        'usuarios.cep',
-                        'usuarios.audit_insert',
-                        'usuarios.audit_update',
-                        'chu.id',
-                        'chu.matriz_id',
-                        'chu.clientes_id',
-                        'chu.usuarios_id'
-                    ]);
+                    ->select($arraySelect);
             } else {
                 array_push($conditions, ['usuarios.matriz_id' => $id]);
 
@@ -1528,31 +1567,7 @@ class UsuariosTable extends GenericTable
                             'usuarios.id = chu.usuarios_id',
                         ]
                     ]])
-                    ->select([
-                        'usuarios.id',
-                        'usuarios.matriz_id',
-                        'usuarios.tipo_perfil',
-                        'usuarios.nome',
-                        'usuarios.cpf',
-                        'usuarios.sexo',
-                        'usuarios.data_nasc',
-                        'usuarios.email',
-                        'usuarios.senha',
-                        'usuarios.telefone',
-                        'usuarios.endereco',
-                        'usuarios.endereco_numero',
-                        'usuarios.endereco_complemento',
-                        'usuarios.bairro',
-                        'usuarios.municipio',
-                        'usuarios.estado',
-                        'usuarios.cep',
-                        'usuarios.audit_insert',
-                        'usuarios.audit_update',
-                        'chu.id',
-                        'chu.matriz_id',
-                        'chu.clientes_id',
-                        'chu.usuarios_id'
-                    ]);
+                    ->select($arraySelect);
             }
 
             if (isset($minProfileType)) {
@@ -1704,9 +1719,7 @@ class UsuariosTable extends GenericTable
             $usuario->token_senha = $tokenSenha;
             $usuario->data_expiracao_token = $dataExpiracaoToken;
 
-            $this->_getUsuarioTable()->addUpdateUsuario($usuario);
-
-            return true;
+            return $this->_getUsuarioTable()->addUpdateUsuario($usuario);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);

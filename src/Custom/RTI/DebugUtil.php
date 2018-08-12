@@ -66,7 +66,7 @@ class DebugUtil
      *
      * @return void
      */
-    public static function printGeneric($item, bool $identify = true, bool $die = true, bool $formatted = true)
+    public static function print($item, bool $identify = true, bool $die = true, bool $formatted = true)
     {
         if ($identify) {
             echo gettype($item);

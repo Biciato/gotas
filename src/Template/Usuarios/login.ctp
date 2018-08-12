@@ -47,19 +47,30 @@
 
 <?= $this->Form->end() ?>
 
-<?php
-    // echo $this->Form->postLink(
-    //     'Login with Facebook',
-    //     [
-    //         'prefix' => false,
-    //         'plugin' => 'ADmad/SocialAuth',
-    //         'controller' => 'Auth',
+<br />
+<fieldset>
+    <legend>Ou entre utilizando os seguintes provedores disponíveis</legend>
+    <?php
+        echo $this->Form->postLink(
 
-    //         'action' => 'login',
-    //         'provider' => 'facebook',
-    //         '?' => ['redirect' => $this->request->getQuery('redirect')]
-    //     ]
-    // );
-?>
+            __('{0} Entrar com Facebook', $this->Html->tag("i", "", array("class" => "fa fa-facebook-official"))),
+            [
+                "prefix" => false,
+                "plugin" => 'ADmad/SocialAuth',
+                "controller" => 'Auth',
+
+
+                "action" => 'login',
+                "provider" => 'facebook',
+                "?" => ['redirect' => $this->request->getQuery('redirect')]
+            ],
+            array(
+                "class" => " btn btn-primary",
+                "escape" => false,
+            )
+        );
+    ?>
+</fieldset>
+
 </div>
 

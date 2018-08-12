@@ -51,9 +51,9 @@ if ($user_logged['tipo_perfil'] == 0) {
     <?= $this->Form->create($usuario) ?>
     <fieldset>
         <legend><?= __('Editar dados de {0}', $usuario->nome) ?></legend>
-        
+
         <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
-        <?= $this->Form->hidden('usuario_logado_tipo_perfil', ['value' => $usuario_logado_tipo_perfil, 'class' => 'usuario_logado_tipo_perfil']); ?>
+        <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
 
         <?= $this->Form->hidden(
             'clientes_id',
@@ -62,9 +62,9 @@ if ($user_logged['tipo_perfil'] == 0) {
                 'value' => isset($cliente) ? $cliente->id : null
             ]
         ); ?>
-        
+
         <?php if (isset($user_logged) && $user_logged['tipo_perfil'] == 0) {
-            ?> 
+            ?>
             <div class='col-lg-4'>
                 <?php
                 if ($usuario->tipo_perfil == Configure::read('profileTypes')['AdminRegionalProfileType']) {
@@ -77,8 +77,6 @@ if ($user_logged['tipo_perfil'] == 0) {
                         'readonly' => true
                     ]);
                 } else {
-
-
                     echo $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'options' =>
@@ -93,11 +91,9 @@ if ($user_logged['tipo_perfil'] == 0) {
                         ]
                     ]);
                 }
-                
-
-                ?> 
+                ?>
                 </div>
-                <?php 
+                <?php
                 // verifica primeiro se usuário é regional, ele não pode ser realocado se for
 
                 if ($usuario->tipo_perfil == Configure::read('profileTypes')['AdminRegionalProfileType']) {
@@ -107,13 +103,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                         <?= $this->Html->tag('span', 'Usuário é Administrador Regional, não pode ser realocado entre unidades!', ['class' => 'text-danger']) ?>
                     </div>
 
-                    <?php 
+                    <?php
+
                 } else {
 
                     ?>
 
                 <div class='col-lg-3 redes_input'>
-                    <?php 
+                    <?php
 
                     if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         echo $this->Form->input(
@@ -144,32 +141,31 @@ if ($user_logged['tipo_perfil'] == 0) {
                         );
 
                     }
-
-
-
                     ?>
                 </div>
-                
-                <?php 
-            } ?>
+
+                <?php } ?>
                 <div class='col-lg-4 redes_input'>
-                <?= $this->Form->input(
-                    'clientes_id',
-                    [
-                        'type' => 'select',
-                        'id' => 'clientes_rede',
-                        'class' => 'clientes_rede',
-                        'label' => 'Unidade da Rede'
-                    ]
-                )
-                ?> 
+                    <?= $this->Form->input(
+                        'clientes_id',
+                        [
+                            'type' => 'select',
+                            'id' => 'clientes_rede',
+                            'class' => 'clientes_rede',
+                            'label' => 'Unidade da Rede'
+                        ]
+                    )
+                    ?>
                 </div>
             <?php
 
         } else if ($user_logged['id'] == $usuario['id']) {
 
-            // se o usuário está se editando, ele não pode mudar o perfil à qual ele se encontra 
+            // se o usuário está se editando, ele não pode mudar o perfil à qual ele se encontra
+            ?>
 
+            <div class="col-lg-12">
+            <?php
             echo $this->Form->hidden('tipo_perfil');
             echo $this->Form->input('tipo_perfil_texto', [
                 'type' => 'text',
@@ -178,7 +174,10 @@ if ($user_logged['tipo_perfil'] == 0) {
                 'readonly' => true
             ]);
 
+            ?>
+            </div>
 
+            <?php
 
         } else {
             if ($user_logged['tipo_perfil'] == 1) {
@@ -230,7 +229,7 @@ if ($user_logged['tipo_perfil'] == 0) {
             <div id="doc_estrangeiro_box">
 
                 <?= $this->Form->input('doc_estrangeiro', ['id' => 'doc_estrangeiro', 'label' => 'Documento de Identificação Estrangeira']) ?>
-                
+
                 <span id="doc_estrangeiro_validation" class="text-danger validation-message"></span>
 
             </div>
@@ -244,7 +243,7 @@ if ($user_logged['tipo_perfil'] == 0) {
             <?php
             echo $this->Form->input('cpf', ['label' => 'CPF']);
             ?>
-            
+
         </div>
 
         <div class="form-group col-lg-6">
@@ -300,7 +299,7 @@ if ($user_logged['tipo_perfil'] == 0) {
             ]); ?>
         </div>
 
-            
+
 
         <div class="col-lg-4">
                 <?= $this->Form->input(
@@ -324,21 +323,21 @@ if ($user_logged['tipo_perfil'] == 0) {
         <div class="row col-lg-12">
 
             <div class="col-lg-3">
-                
+
                 <?= $this->Form->input('necessidades_especiais', ['label' => 'Portador de Nec. Especiais? ', 'options' => [
                     '' => '',
                     1 => 'Sim',
                     0 => 'Não',
                 ]]) ?>
         </div>
-        
+
         <div class="col-lg-3">
             <?= $this->Form->control('telefone'); ?>
         </div>
-        
+
         <div class="col-lg-6">
             <div></div>
-            
+
         </div>
         </div>
 
@@ -366,7 +365,7 @@ if ($user_logged['tipo_perfil'] == 0) {
         <div class="col-lg-2">
             <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
         </div>
-        
+
         <div class="col-lg-3">
 
             <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
@@ -412,7 +411,7 @@ if ($user_logged['tipo_perfil'] == 0) {
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/usuarios/edit'); ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/usuarios/edit.min'); ?>
 <?php endif; ?>
 

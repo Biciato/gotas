@@ -2697,7 +2697,7 @@ class CuponsController extends AppController
                         break;
                     }
 
-                    // DebugUtil::printGeneric($pontuacoesPendentesUso);
+                    // DebugUtil::print($pontuacoesPendentesUso);
 
                     if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
                         // TODO: conferir o que está acontecendo
@@ -2710,8 +2710,8 @@ class CuponsController extends AppController
                     $contador = 0;
                     foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
 
-                        // DebugUtil::printGeneric($pontuacoesProcessar, 1, 0);
-                        // DebugUtil::printGeneric($pontuacao);
+                        // DebugUtil::print($pontuacoesProcessar, 1, 0);
+                        // DebugUtil::print($pontuacao);
                         if (($pontuacoesProcessar >= 0) && ($pontuacoesProcessar >= $pontuacao->quantidade_gotas)) {
                             array_push(
                                 $pontuacoesPendentesUsoListaSave,
@@ -2956,7 +2956,7 @@ class CuponsController extends AppController
 
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
-            // DebugUtil::printGeneric($rede_has_cliente);
+            // DebugUtil::print($rede_has_cliente);
             // die();
 
             $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente["redes_id"]);
@@ -2987,7 +2987,7 @@ class CuponsController extends AppController
                 $unidades_id = $value->clientes_id;
             }
 
-            // DebugUtil::printGeneric($clientes_has_usuarios);
+            // DebugUtil::print($clientes_has_usuarios);
             // DebugUtil::printArray($funcionario);
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidades_id);
 

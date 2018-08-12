@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @date 12/07/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -111,7 +111,7 @@ $(document).ready(function () {
                         // atribui como true a imagem enviada
                         imageStored = true;
 
-                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem. 
+                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem.
                         $("#cpf").attr('disabled', true);
                     }
                 });
@@ -157,7 +157,7 @@ $(document).ready(function () {
 
     /**
      * Remove qualquer caracter especial
-     * @param {object} documentUser 
+     * @param {object} documentUser
      */
     var cleanIdentity = function (parameter) {
         var returnValue = parameter.replace(/\./g, '');
@@ -167,7 +167,7 @@ $(document).ready(function () {
 
     /**
      * Verifica se CPF é válido
-     * @param {*} strCPF 
+     * @param {*} strCPF
      */
     var checkCPFIsValid = function (strCPF) {
         var sum;
@@ -218,10 +218,10 @@ $(document).ready(function () {
         $.ajax({
             url: "/Usuarios/getUsuarioByCPF",
             type: 'POST',
-            data: JSON.stringify({
+            data: {
                 id: $("#usuarios_id").val(),
                 cpf: cpf.value
-            }),
+            },
             error: function (data) {
                 console.log(data);
                 closeLoaderAnimation();
@@ -437,7 +437,7 @@ $(document).ready(function () {
 
     /**
      * Carrega unidades de uma rede
-     * @param {object} data 
+     * @param {object} data
      */
     var loadUnidadesRede = function (data) {
 
@@ -495,13 +495,13 @@ $(document).ready(function () {
 
     /**
      * Atualiza dados de Perfil selecionado
-     * 
-     * @param {object} data 
+     *
+     * @param {object} data
      */
     var changeProfileType = function (data) {
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-        var tipo_perfil = $(".usuario_logado_tipo_perfil").val();
+        var tipo_perfil = $(".usuarioLogadoTipoPerfil").val();
 
         if (tipo_perfil !== undefined) {
             if (tipo_perfil == 0) {
