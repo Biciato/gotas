@@ -7,24 +7,68 @@ use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
 
 /**
- * GeneroBrindes Controller
+ * TiposBrindesRedes Controller
  *
- * @property \App\Model\Table\GeneroBrindesTable $GeneroBrindes
+ * @property \App\Model\Table\TiposBrindesRedesTable $TiposBrindesRedes
  *
  * @method \App\Model\Entity\GeneroBrinde[] paginate($object = null, array $settings = [])
  */
-class GeneroBrindesController extends AppController
+class TiposBrindesRedesController extends AppController
 {
 
     /**
-     * Index method
+     * Undocumented function
      *
-     * @return \Cake\Http\Response|void
+     * @return void
      */
     public function index()
     {
+        try {
+
+            $qteRegistros = 999;
+
+            $redes = $this->Redes;
+
+            if ($this->request->is('post')){
+                $data = $this->request->getData();
+                $nomeRede = $data["parametro"];
+                $redes = $this->Redes->findRedesByName($nomeRede, $qteRegistros);
+            }
+
+            $redes = $this->paginate($redes, ["limit" => $qteRegistros]);
+            $arraySet = array(
+                "redes",
+                "qteRegistros"
+            );
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+        } catch (\Exception $e) {
+            $messageString = __("Não foi possível exibir a tela de Escolha de Redes para configurar Tipos de Brindes!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            $this->Flash->error($mensagem);
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+    }
+
+    /**
+     * TiposBrindesRedesController::tiposBrindesRede
+     *
+     * Action para configurar os brindes de uma rede
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function configurarTiposBrindesRede(int $redesId)
+    {
         $qteRegistros = 999;
         $whereConditions = array();
+
+        $rede = $this->Redes->getRedeById($redesId);
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
@@ -63,12 +107,16 @@ class GeneroBrindesController extends AppController
             $qteRegistros = $data['qteRegistros'];
         }
 
-        $generoBrindes = $this->GeneroBrindes->findGeneroBrindes($whereConditions);
+        $whereConditions[] = array("redes_id" => $redesId);
 
-        $generoBrindes = $this->paginate($generoBrindes, ["limit" => $qteRegistros]);
+        $tiposBrindes = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions);
 
-        $this->set(compact('generoBrindes'));
-        $this->set('_serialize', ['generoBrindes']);
+        $tiposBrindes = $this->paginate($tiposBrindes, ["limit" => $qteRegistros]);
+
+        $arraySet = array("tiposBrindes", "rede");
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -80,17 +128,17 @@ class GeneroBrindesController extends AppController
      */
     public function verDetalhes($id = null)
     {
-        // $generoBrinde = $this->GeneroBrindes->get($id, [
+        // $generoBrinde = $this->TiposBrindesRedes->get($id, [
         //     'contain' => ['Clientes']
         // ]);
-        $generoBrinde = $this->GeneroBrindes->get($id);
+        $generoBrinde = $this->TiposBrindesRedes->get($id);
 
         $this->set('generoBrinde', $generoBrinde);
         $this->set('_serialize', ['generoBrinde']);
     }
 
     /**
-     * GeneroBrindesController::adicionarGeneroBrinde
+     * TiposBrindesRedesController::adicionarGeneroBrinde
      *
      * Método de adicionar Gênero de Brinde
      *
@@ -102,7 +150,7 @@ class GeneroBrindesController extends AppController
     public function adicionarGeneroBrinde()
     {
         try {
-            $generoBrinde = $this->GeneroBrindes->newEntity();
+            $generoBrinde = $this->TiposBrindesRedes->newEntity();
 
             if ($this->request->is('post')) {
 
@@ -133,7 +181,7 @@ class GeneroBrindesController extends AppController
                         "atribuir_automatico" => $data["atribuir_automatico"],
                     ];
 
-                    $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
+                    $generoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
 
                     // se for mesmas condições, impede
                     if ($generoBrindeEncontrado) {
@@ -149,8 +197,8 @@ class GeneroBrindesController extends AppController
                         return;
                     }
 
-                    $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
-                    if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
+                    $generoBrinde = $this->TiposBrindesRedes->patchEntity($generoBrinde, $data);
+                    if ($this->TiposBrindesRedes->saveTiposBrindesRedes($generoBrinde->toArray())) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
                         return $this->redirect(['action' => 'index']);
@@ -182,7 +230,7 @@ class GeneroBrindesController extends AppController
     }
 
     /**
-     * GeneroBrindesController::editarGeneroBrinde
+     * TiposBrindesRedesController::editarGeneroBrinde
      *
      * Método de editar Gênero de Brinde
      *
@@ -199,7 +247,7 @@ class GeneroBrindesController extends AppController
         try {
 
 
-            $generoBrinde = $this->GeneroBrindes->get($id, [
+            $generoBrinde = $this->TiposBrindesRedes->get($id, [
                 'contain' => ['Clientes']
             ]);
             if ($this->request->is(['patch', 'post', 'put'])) {
@@ -226,7 +274,7 @@ class GeneroBrindesController extends AppController
                         "atribuir_automatico" => $data["atribuir_automatico"],
                     ];
 
-                    $generoBrindeEncontrado = $this->GeneroBrindes->findGeneroBrindes($whereConditions, 1);
+                    $generoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
 
                 // se for mesmas condições, impede
                     if ($generoBrindeEncontrado) {
@@ -242,8 +290,8 @@ class GeneroBrindesController extends AppController
                         return;
                     }
 
-                    $generoBrinde = $this->GeneroBrindes->patchEntity($generoBrinde, $data);
-                    if ($this->GeneroBrindes->saveGeneroBrindes($generoBrinde->toArray())) {
+                    $generoBrinde = $this->TiposBrindesRedes->patchEntity($generoBrinde, $data);
+                    if ($this->TiposBrindesRedes->saveTiposBrindesRedes($generoBrinde->toArray())) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
                         return $this->redirect(['action' => 'index']);
@@ -272,7 +320,7 @@ class GeneroBrindesController extends AppController
     }
 
     /**
-     * GeneroBrindesController::delete
+     * TiposBrindesRedesController::delete
      *
      * Método de remover Gênero de Brinde
      *
@@ -294,9 +342,9 @@ class GeneroBrindesController extends AppController
             $cliente_id = $data['genero_brindes_id'];
             $return_url = $data['return_url'];
 
-            $generoBrinde = $this->GeneroBrindes->get($id);
+            $generoBrinde = $this->TiposBrindesRedes->get($id);
 
-            if ($this->GeneroBrindes->delete($generoBrinde)) {
+            if ($this->TiposBrindesRedes->delete($generoBrinde)) {
                 $this->Flash->success(__(Configure::read("messageDeleteSuccess")));
             } else {
                 $this->Flash->error(__(Configure::read("messageDeleteError")));
@@ -326,7 +374,7 @@ class GeneroBrindesController extends AppController
      */
 
     /**
-     * GeneroBrindesClientesController::getGeneroBrindesClienteAPI
+     * TiposBrindesRedesClientesController::getTiposBrindesRedeAPI
      *
      * Obtem a lista de Gênero de Brindes vinculada a unidades da rede
      *
@@ -341,7 +389,7 @@ class GeneroBrindesController extends AppController
      *
      * @return json object
      */
-    public function getGeneroBrindesClienteAPI()
+    public function getTiposBrindesRedeAPI()
     {
         $messageString = null;
         $status = false;
@@ -388,9 +436,9 @@ class GeneroBrindesController extends AppController
                     }
                     // Com a lista de Clientes Ids obtida, faz a pesquisa
 
-                    $generoBrindesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIds($clientesIds);
+                    $generoBrindesIds = $this->TiposBrindesClientes->findTiposBrindesRedesClienteByClientesIds($clientesIds);
 
-                    $resultado = $this->GeneroBrindes->findGeneroBrindesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
+                    $resultado = $this->TiposBrindesRedes->findTiposBrindesRedesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
 
                     $genero_brindes = $resultado["genero_brindes"];
                     $mensagem = $resultado["mensagem"];

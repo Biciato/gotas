@@ -1,23 +1,22 @@
 <?php
 
 /**
- * index.ctp
+ * configurarTiposBrindesRedes.ctp
  *
  * View para genero_brindes/index
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrinde[]|\Cake\Collection\CollectionInterface $genero_brindes
+ * @var \App\Model\Entity\TiposBrindesRede[]|\Cake\Collection\CollectionInterface $genero_brindes
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @date 30/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
  * @license  http://www.php.net/license/3_0.txt  PHP License 3.0
  * @version    1.0
  * @link       http://pear.php.net/package/PackageName
- * @since      File available since Release 1.0.0
+ * @since      2018-05-30
  *
  */
 
@@ -25,23 +24,24 @@ use Cake\Routing\Router;
 use Cake\Core\Configure;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Gênero de Brindes', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
+$this->Breadcrumbs->add('Tipos de Brindes da Rede', array(), array('class' => 'active'));
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
 <?= $this->element(
-    '../GeneroBrindes/left_menu',
+    '../TiposBrindesRedes/left_menu',
     [
         'mode' => 'view',
         'show_reports' => false
     ]
 ) ?>
 <div class="redes index col-lg-9 col-md-10 columns content">
-    <legend><?= __('Gênero de Brindes') ?></legend>
+    <legend><?= __('Tipos de Brindes para Rede: {0}', $rede["nome_rede"]) ?></legend>
 
     <?= $this->element(
-        '../GeneroBrindes/filtro_genero_brindes',
+        '../TiposBrindesRedes/filtro_genero_brindes',
         [
             'controller' => 'genero_brindes',
             'action' => 'index'
@@ -74,7 +74,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($generoBrindes as $genero) : ?>
+            <?php foreach ($tiposBrindes as $genero) : ?>
             <tr>
                 <td><?= h($genero->nome . ($genero->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($genero->equipamento_rti)) ?> </td>

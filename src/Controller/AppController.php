@@ -67,7 +67,8 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        // ConnectionManager::alias("devel", "default");
+        // Troca base de dados
+        ConnectionManager::alias("devel", "default");
 
         $this->loadComponent(
             'Auth',
@@ -192,27 +193,27 @@ class AppController extends Controller
      */
     public function beforeRender(Event $event)
     {
-        $user = $this->Auth->user();
+        // $user = $this->Auth->user();
 
-        if (!empty($user)) {
-            $user = $this->Usuarios->get($user["id"]);
-        }
+        // if (!empty($user)) {
+        //     $user = $this->Usuarios->get($user["id"]);
+        // }
 
-        $getRequest = $this->request->is('get');
+        // $getRequest = $this->request->is('get');
 
-        if ($getRequest && (!empty($user))
-            && ($user["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"])
-            && (empty($user["cpf"]) == 1 && empty($user["doc_estrangeiro"] == 1))) {
-            $controllerAtual = $this->request->getParam("controller");
-            $actionAtual = $this->request->getParam("action");
-            $urlDestino = Router::url(array("controller" => "Usuarios", "action" => "editar"));
+        // if ($getRequest && (!empty($user))
+        //     && ($user["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"])
+        //     && (empty($user["cpf"]) == 1 && empty($user["doc_estrangeiro"] == 1))) {
+        //     $controllerAtual = $this->request->getParam("controller");
+        //     $actionAtual = $this->request->getParam("action");
+        //     $urlDestino = Router::url(array("controller" => "Usuarios", "action" => "editar"));
 
-            $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
-            if ($urlAtual != $urlDestino) {
-                $this->Flash->error(Configure::read("messageUserProfileDocumentNotFoundError"));
-                return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
-            }
-        }
+        //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
+        //     if ($urlAtual != $urlDestino) {
+        //         $this->Flash->error(Configure::read("messageUserProfileDocumentNotFoundError"));
+        //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
+        //     }
+        // }
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])) {
             $this->set('_serialize', true);

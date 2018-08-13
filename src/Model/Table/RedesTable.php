@@ -165,6 +165,45 @@ class RedesTable extends GenericTable
     /* ------------------------ Read ------------------------ */
 
     /**
+     * RedesTable::findRedesByName
+     *
+     * Procura Redes por nome
+     *
+     * @param string $nomeRede Nome da rede
+     * @param integer $qteRegistros Qte de Registros
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-08-12
+     *
+     * @return Cake\ORM\Query Registros contendo redes
+     */
+    public function findRedesByName(string $nomeRede, int $qteRegistros = null)
+    {
+        try {
+            $options = array(
+                "conditions" => array(
+                    "nome_rede like '%$nomeRede%'"
+                )
+
+            );
+            $redes = $this->find("all", $options);
+
+            if ($qteRegistros > 0) {
+                $redes = $redes->limit($qteRegistros);
+            }
+
+            return $redes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao realizar pesquisa: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+        }
+    }
+
+    /**
      * RedesTable::getRedesList
      * Retorna uma lista de Redes para Select
      *
@@ -287,7 +326,7 @@ class RedesTable extends GenericTable
                 ->where($conditions);
 
             if (sizeof($selectFields) > 0) {
-                $redesQuery= $redesQuery->select($selectFields);
+                $redesQuery = $redesQuery->select($selectFields);
             }
 
             $redesTodas = $redesQuery->toArray();

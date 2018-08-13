@@ -9,12 +9,12 @@ use Cake\ORM\TableRegistry;
 use App\Custom\RTI\DebugUtil;
 
 /**
- * GeneroBrindesClientes Controller
+ * TiposBrindesClientes Controller
  *
  *
- * @method \App\Model\Entity\GeneroBrindesCliente[] paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\TiposBrindesCliente[] paginate($object = null, array $settings = [])
  */
-class GeneroBrindesClientesController extends AppController
+class TiposBrindesClientesController extends AppController
 {
 
     /**
@@ -24,7 +24,7 @@ class GeneroBrindesClientesController extends AppController
      */
     public function index()
     {
-        $generoBrindesClientes = $this->paginate($this->GeneroBrindesClientes);
+        $generoBrindesClientes = $this->paginate($this->TiposBrindesClientes);
 
         $this->set(compact('generoBrindesClientes'));
         $this->set('_serialize', ['generoBrindesClientes']);
@@ -33,7 +33,7 @@ class GeneroBrindesClientesController extends AppController
     /**
      * View method
      *
-     * @param string|null $id Genero Brindes Cliente id.
+     * @param string|null $id Tipos Brindes Cliente id.
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
@@ -43,7 +43,7 @@ class GeneroBrindesClientesController extends AppController
             $cliente = $this->Clientes->getClienteById($clientesId);
 
             if ($cliente) {
-                $generoBrindesClientes = $this->GeneroBrindesClientes->getGeneroBrindesClientesByClientesId($clientesId);
+                $generoBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
             } else {
                 $this->Flash->error(__(Configure::read("messageRecordClienteNotFound")));
             }
@@ -70,16 +70,16 @@ class GeneroBrindesClientesController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarGeneroBrindesCliente(int $clientesId)
+    public function adicionarTiposBrindesCliente(int $clientesId)
     {
         $cliente = null;
 
         try {
             $cliente = $this->Clientes->getClienteById($clientesId);
 
-            $generoBrindesCliente = $this->GeneroBrindesClientes->newEntity();
+            $generoBrindesCliente = $this->TiposBrindesClientes->newEntity();
 
-            $generoBrindes = $this->GeneroBrindesClientes->getGenerosBrindesClientesDisponiveis($cliente["id"]);
+            $generoBrindes = $this->TiposBrindesClientes->getTipossBrindesClientesDisponiveis($cliente["id"]);
 
             if ($this->request->is('post')) {
 
@@ -96,7 +96,7 @@ class GeneroBrindesClientesController extends AppController
 
                     $whereConditions = array(["clientes_id" => $clientesId, "genero_brindes_id" => $data["genero_brindes_id"]]);
 
-                    $generoBrindesCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
+                    $generoBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
                     if (!empty($generoBrindesCheck)) {
                         $this->Flash->error(__("Já existe um gênero de brinde configurado para este cliente, conforme informações passadas!"));
@@ -118,7 +118,7 @@ class GeneroBrindesClientesController extends AppController
                             $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
                         }
 
-                        $generoBrindesCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
+                        $generoBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
                         if (!empty($generoBrindesCheck)) {
                             $this->Flash->error(__("Já existe um gênero de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
@@ -132,7 +132,7 @@ class GeneroBrindesClientesController extends AppController
                                 $data["tipo_secundario_codigo_brinde"] = "00";
                             }
 
-                            if ($this->GeneroBrindesClientes->saveGeneroBrindeCliente($data)) {
+                            if ($this->TiposBrindesClientes->saveTiposBrindeCliente($data)) {
                                 $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
                                 return $this->redirect(['action' => 'generos_brindes_cliente', $clientesId]);
@@ -164,26 +164,26 @@ class GeneroBrindesClientesController extends AppController
     }
 
     /**
-     * GeneroBrindesClientesController::editarGeneroBrindesCliente
+     * TiposBrindesClientesController::editarTiposBrindesCliente
      *
      * Método de edição de um gênero de brindes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 06/06/2018
      *
-     * @param string|null $id Genero Brindes Cliente id.
+     * @param string|null $id Tipos Brindes Cliente id.
      *
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function editarGeneroBrindesCliente($id = null)
+    public function editarTiposBrindesCliente($id = null)
     {
         try {
-            $generoBrindesCliente = $this->GeneroBrindesClientes->get($id);
+            $generoBrindesCliente = $this->TiposBrindesClientes->get($id);
 
             $cliente = $this->Clientes->getClienteById($generoBrindesCliente["clientes_id"]);
 
-            $generoBrindes = $this->GeneroBrindes->find('list');
+            $generoBrindes = $this->TiposBrindes->find('list');
 
             if ($this->request->is(['patch', 'post', 'put'])) {
 
@@ -200,14 +200,14 @@ class GeneroBrindesClientesController extends AppController
                     "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
                 );
 
-                $generoBrindeClienteCheck = $this->GeneroBrindesClientes->findGeneroBrindesClientes($whereConditions, 1);
+                $generoBrindeClienteCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
                 if (!empty($generoBrindeClienteCheck)) {
                     $this->Flash->error(__("Já existe um brinde com a configuração de tipo principal e tipo secundário de código!"));
                 } else {
 
-                    $generoBrindesCliente = $this->GeneroBrindesClientes->patchEntity($generoBrindesCliente, $this->request->getData());
-                    if ($this->GeneroBrindesClientes->save($generoBrindesCliente)) {
+                    $generoBrindesCliente = $this->TiposBrindesClientes->patchEntity($generoBrindesCliente, $this->request->getData());
+                    if ($this->TiposBrindesClientes->save($generoBrindesCliente)) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
                         return $this->redirect(['action' => 'generos_brindes_cliente', $cliente["id"]]);
@@ -240,7 +240,7 @@ class GeneroBrindesClientesController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Genero Brindes Cliente id.
+     * @param string|null $id Tipos Brindes Cliente id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
@@ -254,8 +254,8 @@ class GeneroBrindesClientesController extends AppController
 
             $returnUrl = $query["return_url"];
 
-            $generoBrindesCliente = $this->GeneroBrindesClientes->get($generoBrindesClienteId);
-            if ($this->GeneroBrindesClientes->delete($generoBrindesCliente)) {
+            $generoBrindesCliente = $this->TiposBrindesClientes->get($generoBrindesClienteId);
+            if ($this->TiposBrindesClientes->delete($generoBrindesCliente)) {
                 $this->Flash->success(__(Configure::read("messageDeleteSuccess")));
             } else {
                 $this->Flash->error(__(Configure::read("messageDeleteError")));
@@ -275,7 +275,7 @@ class GeneroBrindesClientesController extends AppController
     }
 
     /**
-     * GeneroBrindesClientes::verDetalhes
+     * TiposBrindesClientes::verDetalhes
      *
      * Action de visualizar detalhes
      *
@@ -288,7 +288,7 @@ class GeneroBrindesClientesController extends AppController
      */
     public function verDetalhes(int $generoBrindesClienteId)
     {
-        $generoBrindesClientes = $this->GeneroBrindesClientes->getGeneroBrindesClientesById($generoBrindesClienteId);
+        $generoBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesById($generoBrindesClienteId);
 
         $cliente = $this->Clientes->getClienteById($generoBrindesClientes["clientes_id"]);
 
@@ -313,7 +313,7 @@ class GeneroBrindesClientesController extends AppController
      *
      * @return void
      */
-    public function alteraEstadoGeneroBrindesCliente()
+    public function alteraEstadoTiposBrindesCliente()
     {
         try {
 
@@ -323,7 +323,7 @@ class GeneroBrindesClientesController extends AppController
             $clientesId = $query["clientes_id"];
             $estado = $query["estado"];
 
-            if ($this->GeneroBrindesClientes->updateHabilitadoGeneroBrindeCliente($generoBrindesClienteId, $estado)) {
+            if ($this->TiposBrindesClientes->updateHabilitadoTiposBrindeCliente($generoBrindesClienteId, $estado)) {
 
                 $mensagemAviso = $estado ? __(Configure::read("messageEnableSuccess")) : __(Configure::read("messageDisableSuccess"));
 

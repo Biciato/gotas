@@ -90,11 +90,13 @@ use Cake\Core\Configure;
                 </table>
             </div>
             <div class="col lg-3">
+                <span style="font-weight: bolder;">Foto de perfil</span>
+                <br />
                 <?= $this->Html->image(__("{0}{1}", Configure::read("imageUserProfilePathRead"), $usuario->foto_perfil), array("alt" => "foto perfil", "title" => "Foto atual")) ?>
             </div>
         </div>
         <div class="form-group row">
-            <div class="col-lg-9">
+            <div class="col-lg-12">
                 <legend>Dados de contato</legend>
 
                 <table class="table table-striped table-hover">

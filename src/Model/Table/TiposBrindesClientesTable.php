@@ -13,27 +13,27 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 
 /**
- * GeneroBrindesClientes Model
+ * TipoBrindesClientes Model
  *
- * @property \App\Model\Table\GeneroBrindesTable|\Cake\ORM\Association\BelongsTo $GeneroBrindes
+ * @property \App\Model\Table\TipoBrindesTable|\Cake\ORM\Association\BelongsTo $TipoBrindes
  * @property \App\Model\Table\ClientesTable|\Cake\ORM\Association\BelongsTo $Clientes
  *
- * @method \App\Model\Entity\GeneroBrindesCliente get($primaryKey, $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrindesCliente findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente get($primaryKey, $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\TipoBrindesCliente findOrCreate($search, callable $callback = null, $options = [])
  */
-class GeneroBrindesClientesTable extends GenericTable
+class TipoBrindesClientesTable extends GenericTable
 {
     /**
      * -------------------------------------------------------------
      * Fields
      * -------------------------------------------------------------
      */
-    protected $generoBrindesClientesTable = null;
+    protected $tipoBrindesClientesTable = null;
 
     /**
      * -------------------------------------------------------------
@@ -46,12 +46,12 @@ class GeneroBrindesClientesTable extends GenericTable
      *
      * @return Cake\ORM\Table Table object
      */
-    private function _getGeneroBrindesClientesTable()
+    private function _getTipoBrindesClientesTable()
     {
-        if (is_null($this->generoBrindesClientesTable)) {
-            $this->_setGeneroBrindesClientesTable();
+        if (is_null($this->tipoBrindesClientesTable)) {
+            $this->_setTipoBrindesClientesTable();
         }
-        return $this->generoBrindesClientesTable;
+        return $this->tipoBrindesClientesTable;
     }
 
     /**
@@ -59,9 +59,9 @@ class GeneroBrindesClientesTable extends GenericTable
      *
      * @return void
      */
-    private function _setGeneroBrindesClientesTable()
+    private function _setTipoBrindesClientesTable()
     {
-        $this->generoBrindesClientesTable = TableRegistry::get('GeneroBrindesClientes');
+        $this->tipoBrindesClientesTable = TableRegistry::get('TipoBrindesClientes');
     }
 
     /**
@@ -74,11 +74,11 @@ class GeneroBrindesClientesTable extends GenericTable
     {
         parent::initialize($config);
 
-        $this->setTable('genero_brindes_clientes');
+        $this->setTable('tipos_brindes_clientes');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('GeneroBrindes', [
+        $this->belongsTo('TipoBrindes', [
             'foreignKey' => 'genero_brindes_id',
             'joinType' => 'INNER'
         ]);
@@ -138,7 +138,7 @@ class GeneroBrindesClientesTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['genero_brindes_id'], 'GeneroBrindes'));
+        $rules->add($rules->existsIn(['genero_brindes_id'], 'TipoBrindes'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
 
         return $rules;
@@ -153,7 +153,7 @@ class GeneroBrindesClientesTable extends GenericTable
      /* -------------------------- Read ----------------------------- */
 
     /**
-     * GeneroBrindesClientesTable::findGeneroBrindesClientes
+     * TipoBrindesClientesTable::findTipoBrindesClientes
      *
      * Procura gênero de brindes de um cliente conforme condições
      *
@@ -163,12 +163,12 @@ class GeneroBrindesClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrindesCliente[] $dados
+     * @return \App\Model\Entity\TipoBrindesCliente[] $dados
      */
-    public function findGeneroBrindesClientes(array $whereConditions = array(), int $limit = 999)
+    public function findTipoBrindesClientes(array $whereConditions = array(), int $limit = 999)
     {
         try {
-            $result = $this->_getGeneroBrindesClientesTable()
+            $result = $this->_getTipoBrindesClientesTable()
                 ->find('all')
                 ->where(
                     $whereConditions
@@ -192,7 +192,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesTable::findGeneroBrindesClienteByClientesIds
+     * TipoBrindesTable::findTipoBrindesClienteByClientesIds
      *
      * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
      *
@@ -201,13 +201,13 @@ class GeneroBrindesClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 28/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     * @return \App\Model\Entity\GeneroBrinde $tipoBrindes Objeto gravado
      */
-    public function findGeneroBrindesClienteByClientesIds(array $clientesIds = array())
+    public function findTipoBrindesClienteByClientesIds(array $clientesIds = array())
     {
         try {
 
-            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
+            $tipoBrindesClientes = $this->_getTipoBrindesClientesTable()
                 ->find('all')
                 ->where(
                     array(
@@ -223,13 +223,13 @@ class GeneroBrindesClientesTable extends GenericTable
                 ))
                 ->toArray();
 
-            $generoBrindesIds = array();
+            $tipoBrindesIds = array();
 
-            foreach ($generoBrindesClientes as $generoBrindeCliente) {
-                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
+            foreach ($tipoBrindesClientes as $generoBrindeCliente) {
+                $tipoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
-            return $generoBrindesIds;
+            return $tipoBrindesIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -241,7 +241,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesTable::findGeneroBrindesClienteByClientesIdGeneroBrindeId
+     * TipoBrindesTable::findTipoBrindesClienteByClientesIdGeneroBrindeId
      *
      * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
      *
@@ -250,9 +250,9 @@ class GeneroBrindesClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 28/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     * @return \App\Model\Entity\GeneroBrinde $tipoBrindes Objeto gravado
      */
-    public function findGeneroBrindesClienteByClientesIdGeneroBrindeId(int $clientesId, int $generoBrindesId = null)
+    public function findTipoBrindesClienteByClientesIdGeneroBrindeId(int $clientesId, int $tipoBrindesId = null)
     {
         try {
 
@@ -263,11 +263,11 @@ class GeneroBrindesClientesTable extends GenericTable
                 "clientes_id IN " => [$clientesId]
             );
 
-            if (!empty($generoBrindesId) && ($generoBrindesId > 0)) {
-                $whereConditions[] = array("genero_brindes_id" => $generoBrindesId);
+            if (!empty($tipoBrindesId) && ($tipoBrindesId > 0)) {
+                $whereConditions[] = array("genero_brindes_id" => $tipoBrindesId);
             }
 
-            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
+            $tipoBrindesClientes = $this->_getTipoBrindesClientesTable()
                 ->find('all')
                 ->where($whereConditions)
                 ->select(array(
@@ -276,13 +276,13 @@ class GeneroBrindesClientesTable extends GenericTable
                 ))
                 ->toArray();
 
-            $generoBrindesClientesIds = array();
+            $tipoBrindesClientesIds = array();
 
-            foreach ($generoBrindesClientes as $generoBrindeCliente) {
-                $generoBrindesClientesIds[] = $generoBrindeCliente["id"];
+            foreach ($tipoBrindesClientes as $generoBrindeCliente) {
+                $tipoBrindesClientesIds[] = $generoBrindeCliente["id"];
             }
 
-            return $generoBrindesClientesIds;
+            return $tipoBrindesClientesIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -294,7 +294,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::getGeneroBrindesClientesById
+     * TipoBrindesClientesTable::getTipoBrindesClientesById
      *
      * Obtem um item pelo Id
      *
@@ -303,18 +303,18 @@ class GeneroBrindesClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrindesCliente $dado
+     * @return \App\Model\Entity\TipoBrindesCliente $dado
      */
-    public function getGeneroBrindesClientesById(int $id)
+    public function getTipoBrindesClientesById(int $id)
     {
         try {
-            return $this->_getGeneroBrindesClientesTable()
+            return $this->_getTipoBrindesClientesTable()
                 ->find('all')
                 ->where(
                     [
-                        "GeneroBrindesClientes.id" => $id
+                        "TipoBrindesClientes.id" => $id
                     ]
-                )->contain(["GeneroBrindes"])
+                )->contain(["TipoBrindes"])
                 ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -326,7 +326,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::getGeneroBrindesClientesByClientesId
+     * TipoBrindesClientesTable::getTipoBrindesClientesByClientesId
      *
      * Obtem os gênero de brindes de um cliente através do ClientesId
      *
@@ -335,15 +335,15 @@ class GeneroBrindesClientesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrindesCliente[] $dados
+     * @return \App\Model\Entity\TipoBrindesCliente[] $dados
      */
-    public function getGeneroBrindesClientesByClientesId(int $clientesId)
+    public function getTipoBrindesClientesByClientesId(int $clientesId)
     {
         try {
-            return $this->_getGeneroBrindesClientesTable()->find('all')
+            return $this->_getTipoBrindesClientesTable()->find('all')
                 ->where([
                     "clientes_id" => $clientesId
-                ])->contain(["GeneroBrindes", "ClientesHasBrindesHabilitados"]);
+                ])->contain(["TipoBrindes", "ClientesHasBrindesHabilitados"]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -354,25 +354,25 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::getGeneroBrindesClientesByGeneroCliente
+     * TipoBrindesClientesTable::getTipoBrindesClientesByGeneroCliente
      *
      * Obtem o gênero de brindes de um cliente através do ClientesId e Gênero Brinde Id
      *
-     * @param integer $generoBrindesId Id do Gênero de Brinde
+     * @param integer $tipoBrindesId Id do Gênero de Brinde
      * @param integer $clientesId      Id de Cliente
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 12/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrindesCliente[] $dados
+     * @return \App\Model\Entity\TipoBrindesCliente[] $dados
      */
-    public function getGeneroBrindesClientesByGeneroCliente(int $generoBrindesId, int $clientesId)
+    public function getTipoBrindesClientesByGeneroCliente(int $tipoBrindesId, int $clientesId)
     {
         try {
-            return $this->_getGeneroBrindesClientesTable()->find('all')
+            return $this->_getTipoBrindesClientesTable()->find('all')
                 ->where(
                     array(
-                        "genero_brindes_id" => $generoBrindesId,
+                        "genero_brindes_id" => $tipoBrindesId,
                         "clientes_id" => $clientesId
                     )
                 )->first();
@@ -386,7 +386,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::getGenerosBrindesClientesDisponiveis
+     * TipoBrindesClientesTable::getGenerosBrindesClientesDisponiveis
      *
      * Obtem GêneroBrindes Disponíveis
      *
@@ -400,25 +400,25 @@ class GeneroBrindesClientesTable extends GenericTable
     public function getGenerosBrindesClientesDisponiveis(int $clientesId)
     {
         try {
-            $generoBrindesIds = array();
-            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => [$clientesId]]);
+            $tipoBrindesIds = array();
+            $tipoBrindesJaUsadosQuery = $this->_getTipoBrindesClientesTable()->findTipoBrindesClientes(["clientes_id in " => [$clientesId]]);
 
-            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
-                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
+            foreach ($tipoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
+                $tipoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
-            $generoBrindes = $this->GeneroBrindes->find('list');
+            $tipoBrindes = $this->TipoBrindes->find('list');
 
-            if (sizeof($generoBrindesIds) > 0) {
-                $generoBrindes = $generoBrindes->where(
+            if (sizeof($tipoBrindesIds) > 0) {
+                $tipoBrindes = $tipoBrindes->where(
                     [
-                        "id not in" => $generoBrindesIds,
+                        "id not in" => $tipoBrindesIds,
                         "habilitado" => 1
                     ]
                 );
             }
 
-            return $generoBrindes;
+            return $tipoBrindes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -430,7 +430,7 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::getGenerosBrindesClientesDisponiveis
+     * TipoBrindesClientesTable::getGenerosBrindesClientesDisponiveis
      *
      * Obtem GêneroBrindes Vinculados a um cliente
      *
@@ -444,25 +444,25 @@ class GeneroBrindesClientesTable extends GenericTable
     public function getGenerosBrindesClientesVinculados(array $clientesIds)
     {
         try {
-            $generoBrindesIds = array();
-            $generoBrindesJaUsadosQuery = $this->_getGeneroBrindesClientesTable()->findGeneroBrindesClientes(["clientes_id in " => $clientesIds]);
+            $tipoBrindesIds = array();
+            $tipoBrindesJaUsadosQuery = $this->_getTipoBrindesClientesTable()->findTipoBrindesClientes(["clientes_id in " => $clientesIds]);
 
-            foreach ($generoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
-                $generoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
+            foreach ($tipoBrindesJaUsadosQuery->toArray() as $key => $generoBrindeCliente) {
+                $tipoBrindesIds[] = $generoBrindeCliente["genero_brindes_id"];
             }
 
-            $generoBrindes = $this->GeneroBrindes->find('list');
+            $tipoBrindes = $this->TipoBrindes->find('list');
 
-            if (sizeof($generoBrindesIds) > 0) {
-                $generoBrindes = $generoBrindes->where(
+            if (sizeof($tipoBrindesIds) > 0) {
+                $tipoBrindes = $tipoBrindes->where(
                     [
-                        "id in" => $generoBrindesIds,
+                        "id in" => $tipoBrindesIds,
                         "habilitado" => 1
                     ]
                 );
             }
 
-            return $generoBrindes;
+            return $tipoBrindes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -473,32 +473,32 @@ class GeneroBrindesClientesTable extends GenericTable
         }
     }
     /**
-     * GeneroBrindesClientesTable::getGenerosBrindesClientesIdsFromConditions
+     * TipoBrindesClientesTable::getGenerosBrindesClientesIdsFromConditions
      *
      * Obtem Ids de Gênero Brindes Clientes de condição informada
      *
-     * @param array $generoBrindesClientesConditions Condições
+     * @param array $tipoBrindesClientesConditions Condições
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 06/07/2018
      *
-     * @return \App\Model\Entity\GeneroBrindesClientes[] $list
+     * @return \App\Model\Entity\TipoBrindesClientes[] $list
      */
-    public function getGenerosBrindesClientesIdsFromConditions(array $generoBrindesClientesConditions)
+    public function getGenerosBrindesClientesIdsFromConditions(array $tipoBrindesClientesConditions)
     {
         try {
-            $generoBrindesClientes = $this->_getGeneroBrindesClientesTable()
+            $tipoBrindesClientes = $this->_getTipoBrindesClientesTable()
                 ->find('all')
-                ->where($generoBrindesClientesConditions)
+                ->where($tipoBrindesClientesConditions)
                 ->toArray();
 
-            $generoBrindesClientesIds = array();
+            $tipoBrindesClientesIds = array();
 
-            foreach ($generoBrindesClientes as $item) {
-                $generoBrindesClientesIds[] = $item["id"];
+            foreach ($tipoBrindesClientes as $item) {
+                $tipoBrindesClientesIds[] = $item["id"];
             }
 
-            return $generoBrindesClientesIds;
+            return $tipoBrindesClientesIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -512,16 +512,16 @@ class GeneroBrindesClientesTable extends GenericTable
     /* -------------------------- Create/Update ----------------------------- */
 
     /**
-     * GeneroBrindesTable::saveGeneroBrindes()
+     * TipoBrindesTable::saveTipoBrindes()
      *
      * Salva/Atualiza um Gênero de Brinde
      *
-     * @param array $generoBrindes
+     * @param array $tipoBrindes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 31/05/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     * @return \App\Model\Entity\GeneroBrinde $tipoBrindes Objeto gravado
      */
     public function saveGeneroBrindeCliente(array $generoBrindeCliente = array())
     {
@@ -529,9 +529,9 @@ class GeneroBrindesClientesTable extends GenericTable
             $itemSave = null;
 
             if (!empty($generoBrindeCliente["id"]) && $generoBrindeCliente["id"] > 0) {
-                $itemSave = $this->getGeneroBrindesClientesById($generoBrindeCliente["id"]);
+                $itemSave = $this->getTipoBrindesClientesById($generoBrindeCliente["id"]);
             } else {
-                $itemSave = $this->_getGeneroBrindesClientesTable()->newEntity();
+                $itemSave = $this->_getTipoBrindesClientesTable()->newEntity();
             }
 
             $itemSave["genero_brindes_id"] = $generoBrindeCliente["genero_brindes_id"];
@@ -540,7 +540,7 @@ class GeneroBrindesClientesTable extends GenericTable
             $itemSave["tipo_secundario_codigo_brinde"] = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
             $itemSave["habilitado"] = $generoBrindeCliente["habilitado"];
 
-            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
+            return $this->_getTipoBrindesClientesTable()->save($itemSave);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -552,13 +552,13 @@ class GeneroBrindesClientesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesClientesTable::updateHabilitadoGeneroBrindeCliente
+     * TipoBrindesClientesTable::updateHabilitadoGeneroBrindeCliente
      *
      * Undocumented function
      *
      * @param integer $id
      * @param boolean $habilitado
-     * @return \App\Model\Entity\GeneroBrindesCliente Registro atualizado
+     * @return \App\Model\Entity\TipoBrindesCliente Registro atualizado
      */
     public function updateHabilitadoGeneroBrindeCliente(int $id, bool $habilitado)
     {
@@ -567,11 +567,11 @@ class GeneroBrindesClientesTable extends GenericTable
             if (empty($id) || $id == 0) {
                 throw new \Exception("Id não informado!");
             }
-            $itemSave = $this->_getGeneroBrindesClientesTable()->get($id);
+            $itemSave = $this->_getTipoBrindesClientesTable()->get($id);
 
             $itemSave["habilitado"] = $habilitado;
 
-            return $this->_getGeneroBrindesClientesTable()->save($itemSave);
+            return $this->_getTipoBrindesClientesTable()->save($itemSave);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -586,29 +586,30 @@ class GeneroBrindesClientesTable extends GenericTable
     /* -------------------------- Delete ----------------------------- */
 
     /**
-     * GeneroBrindesClientesTable::deleteGeneroBrindesClientesById
+     * TipoBrindesClientesTable::deleteTipoBrindesClientesById
      *
      * Remove um registro pelo Id
      *
-     * @param integer $generoBrindesClientesId Id do registro
+     * @param integer $tipoBrindesClientesId Id do registro
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 08/06/2018
      *
      * @return boolean
      */
-    public function deleteGeneroBrindesClientesById(int $generoBrindesClientesId)
+    public function deleteTipoBrindesClientesById(int $tipoBrindesClientesId)
     {
         try {
-            $generoBrindesCliente = $this->_getGeneroBrindesClientesTable()->get($generoBrindesClientesId);
+            $tipoBrindesCliente = $this->_getTipoBrindesClientesTable()->get($tipoBrindesClientesId);
 
-            return $this->_getGeneroBrindesClientesTable->delete($generoBrindesCliente);
+            return $this->_getTipoBrindesClientesTable->delete($tipoBrindesCliente);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
             $stringError = __("Erro ao remover gênero de brindes do cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 }

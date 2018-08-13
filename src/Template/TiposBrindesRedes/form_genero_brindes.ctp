@@ -29,8 +29,8 @@ use Cake\Core\Configure;
     <div class="form-group row">
         <div class="col-lg-12">
             <?= $this->Form->control('equipamento_rti', ["label" => "Equipamento RTI?"]); ?>
-            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Para Pessoas de Nec. Especiais?"]); ?>
-            <?= $this->Form->control('habilitado', ["label" => "Gênero Habilitado para Atribuição?"]); ?>
+            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Para Pessoas de Necessidades Especiais?"]); ?>
+            <?= $this->Form->control('habilitado', ["label" => "Gênero Habilitado para Uso?"]); ?>
             <?= $this->Form->control(
                 'atribuir_automatico',
                 [
