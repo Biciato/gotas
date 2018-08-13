@@ -652,6 +652,44 @@ class CuponsTable extends GenericTable
      * @param integer $id
      * @return void
      */
+    public function setCupomResgatado(int $id)
+    {
+        try {
+            return $this->updateAll(
+                [
+                    'resgatado' => 1,
+                    'usado' => 1
+                ],
+                [
+                    'id' => $id
+                ]
+            );
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['result' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+    /**
+     * Define o cupom como resgatado e usado
+     *
+     * @param integer $id
+     * @return void
+     */
     public function setCupomResgatadoUsado(int $id)
     {
         try {

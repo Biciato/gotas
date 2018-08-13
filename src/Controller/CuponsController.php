@@ -1427,7 +1427,6 @@ class CuponsController extends AppController
                 } else {
                     foreach ($cupons->toArray() as $key => $cupom) {
 
-
                         $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
                         $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
@@ -1439,7 +1438,14 @@ class CuponsController extends AppController
 
                         // diminuiu estoque, considera o item do cupom como resgatado
                         if ($estoque) {
-                            $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            $cupomSave = null;
+
+                            // Brinde Smart Shower ( <= 4 )
+                            if ($cupom["tipo_principal_codigo_brinde"] <= 4) {
+                                $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                            } else {
+                                $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            }
 
                             // adiciona novo registro de pontuação
 
@@ -2402,17 +2408,17 @@ class CuponsController extends AppController
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
 
                 } else if (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
 
                 } else if (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
                 } else {
                     $dataFim = date("Y-m-d 23:59:59");
                     $dataInicio = date('Y-m-d 00:00:00', strtotime("-30 days"));
