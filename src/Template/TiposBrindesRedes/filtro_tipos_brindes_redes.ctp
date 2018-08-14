@@ -3,7 +3,7 @@
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Clientes/filtro_redes.ctp
- * @date     24/11/2017
+ * @since    24/11/2017
  */
 
 use Cake\Core\Configure;

@@ -138,7 +138,7 @@ class TiposBrindesRedesController extends AppController
     }
 
     /**
-     * TiposBrindesRedesController::adicionarGeneroBrinde
+     * TiposBrindesRedesController::adicionarTipoBrindeRede
      *
      * Método de adicionar Gênero de Brinde
      *
@@ -147,15 +147,17 @@ class TiposBrindesRedesController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarGeneroBrinde()
+    public function adicionarTipoBrindeRede($redesId)
     {
         try {
+            $rede = $this->Redes->getRedeById($redesId);
             $generoBrinde = $this->TiposBrindesRedes->newEntity();
 
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
 
+                DebugUtil::print($data);
                 // Verifica se é automático ou não. Se não for automático, não precisa guardar o tipo
 
                 if (!$data["atribuir_automatico"]) {
@@ -211,7 +213,8 @@ class TiposBrindesRedesController extends AppController
 
             }
             $arraySet = [
-                "generoBrinde"
+                "generoBrinde",
+                "rede"
             ];
 
             $this->set(compact($arraySet));

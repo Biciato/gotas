@@ -8,8 +8,15 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use Cake\Database\Exception;
 
 $mode = isset($mode) ? $mode : false;
+
+if (empty($redesId)){
+    throw new Exception("Deve ser especificado a rede para adicionar novo tipo!");
+}
+
+
 
 $show_reports = isset($show_reports) ? $show_reports : false;
 ?>
@@ -34,7 +41,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
             <?php if ($mode == 'view') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Novo Gênero"), ['controller' => 'genero_brindes', 'action' => 'adicionar_genero_brinde']) ?>
+                    <?= $this->Html->link(__("Novo Tipo de Brinde"), ['controller' => 'tiposBrindesRedes', 'action' => 'adicionar_tipo_brinde_rede', $redesId]) ?>
                 </li>
 
             <?php endif; ?>

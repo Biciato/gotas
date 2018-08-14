@@ -34,17 +34,18 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     '../TiposBrindesRedes/left_menu',
     [
         'mode' => 'view',
-        'show_reports' => false
+        'show_reports' => false,
+        "redesId" => $rede["id"]
     ]
 ) ?>
 <div class="redes index col-lg-9 col-md-10 columns content">
     <legend><?= __('Tipos de Brindes para Rede: {0}', $rede["nome_rede"]) ?></legend>
 
     <?= $this->element(
-        '../TiposBrindesRedes/filtro_genero_brindes',
+        '../TiposBrindesRedes/filtro_tipos_brindes_redes',
         [
-            'controller' => 'genero_brindes',
-            'action' => 'index'
+            'controller' => 'tiposBrindesRedes',
+            'action' => 'configurar_tipos_brindes_rede', $rede["id"]
         ]
     ) ?>
     <table class="table table-striped table-hover table-responsive">
