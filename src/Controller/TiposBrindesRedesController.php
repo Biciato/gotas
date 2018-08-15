@@ -484,13 +484,13 @@ class TiposBrindesRedesController extends AppController
                         // Pesquisa pelo id da rede
                         $clientesIds[] = $clientesId;
                     }
-                    // Com a lista de Clientes Ids obtida, faz a pesquisa
 
-                    $tiposBrindesRedesIds = $this->TiposBrindesClientes->findTiposBrindesRedesClienteByClientesIds($clientesIds);
+                    // Com a lista de Clientes Ids obtida, faz a pesquisa
+                    $tiposBrindesRedesIds = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIds($clientesIds);
 
                     $resultado = $this->TiposBrindesRedes->findTiposBrindesRedesByIds($tiposBrindesRedesIds, $orderConditions, $paginationConditions);
 
-                    $genero_brindes = $resultado["genero_brindes"];
+                    $tipos_brindes = $resultado["tipos_brindes"];
                     $mensagem = $resultado["mensagem"];
                 }
             }
@@ -499,13 +499,14 @@ class TiposBrindesRedesController extends AppController
             $messageString = __("Não foi possível obter dados de Gênero de Brindes do Cliente!");
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $arraySet = [
-            'genero_brindes',
+            'tipos_brindes',
             'mensagem'
         ];
 

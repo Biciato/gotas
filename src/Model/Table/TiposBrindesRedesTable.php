@@ -34,7 +34,7 @@ class TiposBrindesRedesTable extends GenericTable
      * Fields
      * -------------------------------------------------------------
      */
-    protected $tiposBrindesRedeTable = null;
+    protected $tiposBrindesRedesTable = null;
 
     /**
      * -------------------------------------------------------------
@@ -47,12 +47,12 @@ class TiposBrindesRedesTable extends GenericTable
      *
      * @return Cake\ORM\Table Table object
      */
-    private function _getTiposBrindesRedeTable()
+    private function _getTiposBrindesRedesTable()
     {
-        if (is_null($this->tiposBrindesRedeTable)) {
-            $this->_setTiposBrindesRedeTable();
+        if (is_null($this->tiposBrindesRedesTable)) {
+            $this->_setTiposBrindesRedesTable();
         }
-        return $this->tiposBrindesRedeTable;
+        return $this->tiposBrindesRedesTable;
     }
 
     /**
@@ -60,9 +60,9 @@ class TiposBrindesRedesTable extends GenericTable
      *
      * @return void
      */
-    private function _setTiposBrindesRedeTable()
+    private function _setTiposBrindesRedesTable()
     {
-        $this->tiposBrindesRedeTable = TableRegistry::get('TiposBrindesRedes');
+        $this->tiposBrindesRedesTable = TableRegistry::get('TiposBrindesRedes');
     }
 
     /**
@@ -191,10 +191,10 @@ class TiposBrindesRedesTable extends GenericTable
 
             // Atualiza se o id está setado. Novo se id = null
             if (!empty($id) && isset($id) && $id > 0) {
-                $tipoBrindesRedesSave = $this->_getTiposBrindesRedeTable()->find('all')
+                $tipoBrindesRedesSave = $this->_getTiposBrindesRedesTable()->find('all')
                     ->where(array("id" => $id))->first();
             } else {
-                $tipoBrindesRedesSave = $this->_getTiposBrindesRedeTable()->newEntity();
+                $tipoBrindesRedesSave = $this->_getTiposBrindesRedesTable()->newEntity();
             }
 
             $tipoBrindesRedesSave->nome = $nome;
@@ -233,7 +233,7 @@ class TiposBrindesRedesTable extends GenericTable
     public function findTiposBrindesRedes(array $whereConditions = array(), int $limit = null)
     {
         try {
-            $tipoBrindesRedes = $this->_getTiposBrindesRedeTable()->find("all")
+            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()->find("all")
                 ->where($whereConditions);
 
             if (!empty($limit) && isset($limit)) {
@@ -255,7 +255,7 @@ class TiposBrindesRedesTable extends GenericTable
         }
     }
     /**
-     * TiposBrindesRedesTable::findTiposBrindesRedesClientes()
+     * TiposBrindesRedesTable::findTiposBrindesRedesByIds()
      *
      * Obtem Gênero de Brindes conforme condições passadas
      *
@@ -274,7 +274,7 @@ class TiposBrindesRedesTable extends GenericTable
                 "habilitado" => 1
             );
 
-            $tipoBrindesRedesQuery = $this->_getTiposBrindesRedeTable()->find("all")
+            $tipoBrindesRedesQuery = $this->_getTiposBrindesRedesTable()->find("all")
                 ->where($whereConditions)
                 ->select(
                     array(
@@ -289,7 +289,7 @@ class TiposBrindesRedesTable extends GenericTable
             $tipoBrindesRedesTodos = $tipoBrindesRedesQuery->toArray();
             $tipoBrindesRedesAtual = $tipoBrindesRedesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "genero_brindes", $paginationConditions);
+            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "tipos_brindes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -306,7 +306,7 @@ class TiposBrindesRedesTable extends GenericTable
 
             $tipoBrindesRedesAtual = $tipoBrindesRedesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "genero_brindes", $paginationConditions);
+            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "tipos_brindes", $paginationConditions);
 
             return $retorno;
         } catch (\Exception $e) {
@@ -335,7 +335,7 @@ class TiposBrindesRedesTable extends GenericTable
     public function findTiposBrindesRedesAtribuirAutomaticamente()
     {
         try {
-            $tipoBrindesRedes = $this->_getTiposBrindesRedeTable()
+            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()
                 ->find('all')
                 ->where(
                     array(
