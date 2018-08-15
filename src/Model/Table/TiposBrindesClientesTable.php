@@ -104,12 +104,10 @@ class TipoBrindesClientesTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->integer('tipo_principal_codigo_brinde')
             ->requirePresence('tipo_principal_codigo_brinde', 'create')
             ->notEmpty('tipo_principal_codigo_brinde');
 
         $validator
-            ->integer('tipo_secundario_codigo_brinde')
             ->requirePresence('tipo_secundario_codigo_brinde', 'create')
             ->notEmpty('tipo_secundario_codigo_brinde');
 

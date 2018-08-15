@@ -7,10 +7,10 @@
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrinde $generoBrinde
+ * @var \App\Model\Entity\TiposBrindesRede $tiposBrindesRede
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date 30/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -26,7 +26,8 @@ use Cake\Routing\Router;
 
 // Navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Gênero de Brindes', ['controller' => 'genero_brindes', 'action' => 'index']);
+$this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
+$this->Breadcrumbs->add('Tipos de Brindes da Rede', array("controller" => "tiposBrindesRedes", "action" => "configurar_tipos_brindes_rede", $tiposBrindesRede["rede"]["id"]));
 $this->Breadcrumbs->add('Detalhes do Gênero de Brindes', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
@@ -34,8 +35,8 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->Element("../GeneroBrindes/left_menu", ["mode" => "view"]) ?>
+<?= $this->Element("../TiposBrindesRedes/left_menu", ["mode" => "view"]) ?>
 <div class="genero-brindes view col-lg-9 col-md-10 columns content">
-    <legend><?= h($generoBrinde->nome) ?></legend>
-    <?= $this->Element("../GeneroBrindes/tabela_info_genero_brinde", ["generoBrinde" => $generoBrinde]) ?>
+    <legend><?= h($tiposBrindesRede->nome) ?></legend>
+    <?= $this->Element("../TiposBrindesRedes/tabela_info_genero_brinde", ["tiposBrindesRede" => $tiposBrindesRede]) ?>
 </div>

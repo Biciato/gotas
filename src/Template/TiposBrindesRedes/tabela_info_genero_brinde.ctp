@@ -1,36 +1,52 @@
 <table class="table table-striped table-hover">
     <tr>
         <th scope="row"><?= __('Código') ?></th>
-        <td><?= $this->Number->format($generoBrinde->id) ?></td>
+        <td><?= $this->Number->format($tiposBrindesRede->id) ?></td>
     </tr>
     <tr>
         <th scope="row"><?= __('Nome') ?></th>
-        <td><?= h($generoBrinde->nome) ?></td>
+        <td><?= h($tiposBrindesRede->nome) ?></td>
     </tr>
+
+    <tr>
+        <th scope="row"><?= __('Cadastrado para Rede:') ?></th>
+        <td><?= h($tiposBrindesRede["rede"]["nome_rede"]) ?></td>
+    </tr>
+
     <tr>
         <th scope="row"><?= __('Equipamento RTI') ?></th>
-        <td><?= $this->Boolean->convertBooleanToString($generoBrinde->equipamento_rti); ?></td>
+        <td><?= $this->Boolean->convertEquipamentoRTIBooleanToString($tiposBrindesRede->equipamento_rti); ?></td>
     </tr>
     <tr>
         <th scope="row"><?= __('Habilitado') ?></th>
-        <td><?= $this->Boolean->convertEnabledToString($generoBrinde->habilitado) ?></td>
+        <td><?= $this->Boolean->convertEnabledToString($tiposBrindesRede->habilitado) ?></td>
     </tr>
     <tr>
         <th scope="row"><?= __('Atribuir Automatico') ?></th>
-        <td><?= $this->Boolean->convertBooleanToString($generoBrinde->atribuir_automatico) ?></td>
+        <td><?= $this->Boolean->convertBooleanToString($tiposBrindesRede->atribuir_automatico) ?></td>
     </tr>
+    <?php if ($tiposBrindesRede["equipamento_rti"]): ?>
+        <tr>
+            <th scope="row"><?= __('Código Primário de Equipamento RTI') ?></th>
+            <td><?= h($tiposBrindesRede->tipo_principal_codigo_brinde_default) ?></td>
+        </tr>
+        <tr>
+        <th scope="row"><?= __('Código Secundário de Equipamento RTI') ?></th>
+            <td><?= h($tiposBrindesRede->tipo_secundario_codigo_brinde_default) ?></td>
+        </tr>
+    <?php endif; ?>
     <tr>
         <th scope="row"><?= __('Data de Criação') ?></th>
-        <td><?= h(!empty($generoBrinde->audit_insert) ? $generoBrinde->audit_insert->format('d/m/Y H:i:s') : null) ?></td>
+        <td><?= h(!empty($tiposBrindesRede->audit_insert) ? $tiposBrindesRede->audit_insert->format('d/m/Y H:i:s') : null) ?></td>
     </tr>
     <tr>
         <th scope="row"><?= __('Data da Última Alteração') ?></th>
-        <td><?= h(!empty($generoBrinde->audit_update) ? $generoBrinde->audit_update->format('d/m/Y H:i:s') : null) ?></td>
+        <td><?= h(!empty($tiposBrindesRede->audit_update) ? $tiposBrindesRede->audit_update->format('d/m/Y H:i:s') : null) ?></td>
     </tr>
 </table>
 <!-- <div class="related">
     <h4><?= __('Related Clientes') ?></h4>
-    <?php if (!empty($generoBrinde->clientes)) : ?>
+    <?php if (!empty($tiposBrindesRede->clientes)) : ?>
     <table cellpadding="0" cellspacing="0">
         <tr>
             <th scope="col"><?= __('Id') ?></th>
@@ -58,7 +74,7 @@
             <th scope="col"><?= __('Audit Update') ?></th>
             <th scope="col" class="actions"><?= __('Actions') ?></th>
         </tr>
-        <?php foreach ($generoBrinde->clientes as $clientes) : ?>
+        <?php foreach ($tiposBrindesRede->clientes as $clientes) : ?>
         <tr>
             <td><?= h($clientes->id) ?></td>
             <td><?= h($clientes->matriz) ?></td>

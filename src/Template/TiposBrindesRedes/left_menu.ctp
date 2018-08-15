@@ -12,11 +12,6 @@ use Cake\Database\Exception;
 
 $mode = isset($mode) ? $mode : false;
 
-if (empty($redesId)){
-    throw new Exception("Deve ser especificado a rede para adicionar novo tipo!");
-}
-
-
 
 $show_reports = isset($show_reports) ? $show_reports : false;
 ?>
@@ -38,7 +33,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 <?= $this->Html->link(__('Ações'), []) ?>
             </li>
 
-            <?php if ($mode == 'view') : ?>
+            <?php if ($mode == 'add') : ?>
 
                 <li>
                     <?= $this->Html->link(__("Novo Tipo de Brinde"), ['controller' => 'tiposBrindesRedes', 'action' => 'adicionar_tipo_brinde_rede', $redesId]) ?>

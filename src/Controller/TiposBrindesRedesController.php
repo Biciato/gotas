@@ -11,7 +11,7 @@ use Cake\Log\Log;
  *
  * @property \App\Model\Table\TiposBrindesRedesTable $TiposBrindesRedes
  *
- * @method \App\Model\Entity\GeneroBrinde[] paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\TiposBrindesRede[] paginate($object = null, array $settings = [])
  */
 class TiposBrindesRedesController extends AppController
 {
@@ -29,7 +29,7 @@ class TiposBrindesRedesController extends AppController
 
             $redes = $this->Redes;
 
-            if ($this->request->is('post')){
+            if ($this->request->is('post')) {
                 $data = $this->request->getData();
                 $nomeRede = $data["parametro"];
                 $redes = $this->Redes->findRedesByName($nomeRede, $qteRegistros);
@@ -128,13 +128,12 @@ class TiposBrindesRedesController extends AppController
      */
     public function verDetalhes($id = null)
     {
-        // $generoBrinde = $this->TiposBrindesRedes->get($id, [
-        //     'contain' => ['Clientes']
-        // ]);
-        $generoBrinde = $this->TiposBrindesRedes->get($id);
+        $tiposBrindesRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($id);
 
-        $this->set('generoBrinde', $generoBrinde);
-        $this->set('_serialize', ['generoBrinde']);
+        // DebugUtil::print($tiposBrindesRede);
+
+        $this->set('tiposBrindesRede', $tiposBrindesRede);
+        $this->set('_serialize', ['tiposBrindesRede']);
     }
 
     /**
@@ -151,18 +150,26 @@ class TiposBrindesRedesController extends AppController
     {
         try {
             $rede = $this->Redes->getRedeById($redesId);
-            $generoBrinde = $this->TiposBrindesRedes->newEntity();
+            $tipoBrinde = $this->TiposBrindesRedes->newEntity();
 
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
 
-                DebugUtil::print($data);
+                $data["redes_id"] = $redesId;
+                // DebugUtil::print($data);
                 // Verifica se é automático ou não. Se não for automático, não precisa guardar o tipo
 
                 if (!$data["atribuir_automatico"]) {
                     $data["tipo_principal_codigo_brinde_default"] = null;
                     $data["tipo_secundario_codigo_brinde_default"] = null;
+                }
+
+                // Mas se for Produto / Serviço, terá um código diferente
+
+                if ($data["equipamento_rti"] == 0) {
+                    $data["tipo_principal_codigo_brinde_default"] = "#";
+                    $data["tipo_secundario_codigo_brinde_default"] = "##";
                 }
 
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
@@ -178,19 +185,20 @@ class TiposBrindesRedesController extends AppController
 
                     $whereConditions[] = [
                         "nome" => $data["nome"],
+                        "redes_id" => $redesId,
                         "equipamento_rti" => $data["equipamento_rti"],
                         "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
                         "atribuir_automatico" => $data["atribuir_automatico"],
                     ];
 
-                    $generoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
+                    $tipoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
 
                     // se for mesmas condições, impede
-                    if ($generoBrindeEncontrado) {
+                    if ($tipoBrindeEncontrado) {
                         $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
 
                         $arraySet = [
-                            "generoBrinde"
+                            "tipoBrinde"
                         ];
 
                         $this->set(compact($arraySet));
@@ -199,21 +207,33 @@ class TiposBrindesRedesController extends AppController
                         return;
                     }
 
-                    $generoBrinde = $this->TiposBrindesRedes->patchEntity($generoBrinde, $data);
-                    if ($this->TiposBrindesRedes->saveTiposBrindesRedes($generoBrinde->toArray())) {
+                    // DebugUtil::print($data);
+
+                    $tipoBrinde = $this->TiposBrindesRedes->patchEntity($tipoBrinde, $data);
+                    $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
+                        $tipoBrinde["redes_id"],
+                        $tipoBrinde["nome"],
+                        $tipoBrinde["equipamento_rti"],
+                        $tipoBrinde["brinde_necessidades_especiais"],
+                        $tipoBrinde["habilitado"],
+                        $tipoBrinde["atribuir_automatico"],
+                        $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                        $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                        0
+                    );
+
+                    if ($brindeSave) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
                         return $this->redirect(['action' => 'index']);
                     }
                     $this->Flash->error(__(Configure::read("messageSavedError")));
 
-                    Log::write("error", $generoBrinde);
-
+                    Log::write("error", $tipoBrinde);
                 }
-
             }
             $arraySet = [
-                "generoBrinde",
+                "tipoBrinde",
                 "rede"
             ];
 
@@ -233,7 +253,7 @@ class TiposBrindesRedesController extends AppController
     }
 
     /**
-     * TiposBrindesRedesController::editarGeneroBrinde
+     * TiposBrindesRedesController::editarTiposBrindesRede
      *
      * Método de editar Gênero de Brinde
      *
@@ -245,66 +265,93 @@ class TiposBrindesRedesController extends AppController
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 31/05/2018
      */
-    public function editarGeneroBrinde($id = null)
+    public function editarTiposBrindesRede($id = null)
     {
         try {
+            $tiposBrindesRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($id);
 
-
-            $generoBrinde = $this->TiposBrindesRedes->get($id, [
-                'contain' => ['Clientes']
-            ]);
             if ($this->request->is(['patch', 'post', 'put'])) {
-
                 $data = $this->request->getData();
 
-            // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-                if ($data["tipo_principal_codigo_brinde_default"] <= 4) {
+                // Valida se o tipo é menor que 4 pois este já é default SMART Shower
+
+                if (!$data["atribuir_automatico"]) {
+                    $data["tipo_principal_codigo_brinde_default"] = null;
+                    $data["tipo_secundario_codigo_brinde_default"] = null;
+                }
+
+                // Mas se for Produto / Serviço, terá um código diferente
+
+                if ($data["equipamento_rti"] == 0) {
+                    $data["tipo_principal_codigo_brinde_default"] = "#";
+                    $data["tipo_secundario_codigo_brinde_default"] = "##";
+                }
+
+                // Valida se o tipo é menor que 4 pois este já é default SMART Shower
+                if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
                     $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
-                } else {
 
-                    /**
-                     * Valida se há outro gênero com mesmo nome
-                     * e se também é brinde de Nec. Especiais
-                     */
+                    return $this->redirect(array("action" => "editarTiposBrindesRede", $id));
+                }
 
-                    $whereConditions = array();
+                /**
+                 * Valida se há outro gênero com mesmo nome
+                 * e se também é brinde de Nec. Especiais
+                 */
 
-                    $whereConditions[] = [
-                        "id != " => $id,
-                        "nome" => $data["nome"],
-                        "equipamento_rti" => $data["equipamento_rti"],
-                        "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
-                        "atribuir_automatico" => $data["atribuir_automatico"],
-                    ];
+                $whereConditions = array();
 
-                    $generoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
+                $whereConditions[] = [
+                    "id != " => $id,
+                    "nome" => $data["nome"],
+                    "equipamento_rti" => $data["equipamento_rti"],
+                    "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
+                    "atribuir_automatico" => $data["atribuir_automatico"],
+                ];
+
+                $tiposBrindesRedeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
 
                 // se for mesmas condições, impede
-                    if ($generoBrindeEncontrado) {
-                        $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
+                if ($tiposBrindesRedeEncontrado) {
+                    $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
 
-                        $arraySet = [
-                            "generoBrinde"
-                        ];
+                    $arraySet = [
+                        "tiposBrindesRede"
+                    ];
 
-                        $this->set(compact($arraySet));
-                        $this->set('_serialize', $arraySet);
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
 
-                        return;
-                    }
-
-                    $generoBrinde = $this->TiposBrindesRedes->patchEntity($generoBrinde, $data);
-                    if ($this->TiposBrindesRedes->saveTiposBrindesRedes($generoBrinde->toArray())) {
-                        $this->Flash->success(__(Configure::read("messageSavedSuccess")));
-
-                        return $this->redirect(['action' => 'index']);
-                    }
-                    $this->Flash->error(__(Configure::read("messageSavedError")));
+                    return;
                 }
+
+                $tiposBrindesRede = $this->TiposBrindesRedes->patchEntity($tiposBrindesRede, $data);
+                $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
+                    $tiposBrindesRede["redes_id"],
+                    $tiposBrindesRede["nome"],
+                    $tiposBrindesRede["equipamento_rti"],
+                    $tiposBrindesRede["brinde_necessidades_especiais"],
+                    $tiposBrindesRede["habilitado"],
+                    $tiposBrindesRede["atribuir_automatico"],
+                    $tiposBrindesRede["tipo_principal_codigo_brinde_default"],
+                    $tiposBrindesRede["tipo_secundario_codigo_brinde_default"],
+                    $tiposBrindesRede["id"]
+                );
+
+                if ($brindeSave) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                    return $this->redirect(
+                        array(
+                            'action' => 'configurarTiposBrindesRede', $tiposBrindesRede["redes_id"]
+                        )
+                    );
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
             }
 
             $arraySet = [
-                "generoBrinde"
+                "tiposBrindesRede"
             ];
 
             $this->set(compact($arraySet));
@@ -342,18 +389,18 @@ class TiposBrindesRedesController extends AppController
 
             $data = $this->request->query();
 
-            $cliente_id = $data['genero_brindes_id'];
-            $return_url = $data['return_url'];
+            $returnUrl = $data['return_url'];
+            $redesId = $data["redes_id"];
 
-            $generoBrinde = $this->TiposBrindesRedes->get($id);
+            $tiposBrindesRede = $this->TiposBrindesRedes->get($id);
 
-            if ($this->TiposBrindesRedes->delete($generoBrinde)) {
+            if ($this->TiposBrindesRedes->delete($tiposBrindesRede)) {
                 $this->Flash->success(__(Configure::read("messageDeleteSuccess")));
             } else {
                 $this->Flash->error(__(Configure::read("messageDeleteError")));
             }
 
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect($returnUrl);
         } catch (\Exception $e) {
             $messageString = __("Não foi possível deletar um Gênero de Brindes!");
 
@@ -439,9 +486,9 @@ class TiposBrindesRedesController extends AppController
                     }
                     // Com a lista de Clientes Ids obtida, faz a pesquisa
 
-                    $generoBrindesIds = $this->TiposBrindesClientes->findTiposBrindesRedesClienteByClientesIds($clientesIds);
+                    $tiposBrindesRedesIds = $this->TiposBrindesClientes->findTiposBrindesRedesClienteByClientesIds($clientesIds);
 
-                    $resultado = $this->TiposBrindesRedes->findTiposBrindesRedesByIds($generoBrindesIds, $orderConditions, $paginationConditions);
+                    $resultado = $this->TiposBrindesRedes->findTiposBrindesRedesByIds($tiposBrindesRedesIds, $orderConditions, $paginationConditions);
 
                     $genero_brindes = $resultado["genero_brindes"];
                     $mensagem = $resultado["mensagem"];

@@ -18,9 +18,11 @@ use Cake\Core\Configure;
  * @since      File available since Release 1.0.0
  *
  */
+
 ?>
 
-<?= $this->Form->create($generoBrinde) ?>
+
+<?= $this->Form->create($tipoBrinde) ?>
 <fieldset>
     <legend><?= __($title) ?></legend>
     <div class="form-group row">
@@ -28,25 +30,23 @@ use Cake\Core\Configure;
     </div>
     <div class="form-group row">
         <div class="col-lg-12">
-            <!-- <?= $this->Form->control('equipamento_rti', ["label" => "Equipamento RTI?"]); ?> -->
 
-            <?= $this->Form->label(
-                "equipamento_rti",
-                "Especifique se é Equipamento RTI ou Produtos / Serviços:"
-            ) ?>
-            <br />
-            <?= $this->Form->radio(
+            <?php echo $this->Form->input(
                 "equipamento_rti",
                 array(
-                    array("value" => 0, "text" => "Produtos / Serviços"),
-                    array("value" => 1, "text" => "Equipamento RTI")
-                ),
-                array(
-                    "class" => "equipamentos_rti noLabel",
-
+                    "type" => "select",
+                    "id" => "equipamento_rti",
+                    "class" => "equipamento_rti",
+                    "label" => "Tipo de Prestação de Serviços",
+                    "empty" => "<Selecionar>",
+                    "options" => array(
+                        0 => "Produtos / Serviços",
+                        1 => "Equipamento RTI",
+                    ),
+                    "default" => null
                 )
-            )
-            ?>
+            ); ?>
+
             <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Tipo de Brinde Para Pessoas de Necessidades Especiais ?"]); ?>
             <?= $this->Form->control('habilitado', ["label" => "Habilitado para Uso ? "]); ?>
             <?= $this->Form->control(

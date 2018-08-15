@@ -5,49 +5,55 @@
  *
  */
 
-$(document).ready(function () {
+$(document).ready(function() {
     // ------------------------------------------------------------------
     // Métodos de Validação de dados
     // ------------------------------------------------------------------
 
-    var validaTipoCodigoBrindeDefault = function () {
+    var validaTipoCodigoBrindeDefault = function() {
         var tipoPrincipal = $(".tipo-principal-codigo-brinde-default").val();
         var tipoSecundario = $(".tipo-secundario-codigo-brinde-default").val();
 
         if (tipoPrincipal.length > 0 && tipoSecundario.length > 0) {
-            $(".save-button").attr('disabled', false);
+            $(".save-button").attr("disabled", false);
         } else {
-            $(".save-button").attr('disabled', true);
+            $(".save-button").attr("disabled", true);
         }
-    }
+    };
 
-    $(".tipo-principal-codigo-brinde-default").on('keyup', validaTipoCodigoBrindeDefault);
-    $(".tipo-secundario-codigo-brinde-default").on('keyup', validaTipoCodigoBrindeDefault);
+    $(".tipo-principal-codigo-brinde-default").on(
+        "keyup",
+        validaTipoCodigoBrindeDefault
+    );
+    $(".tipo-secundario-codigo-brinde-default").on(
+        "keyup",
+        validaTipoCodigoBrindeDefault
+    );
 
-    var atribuirAutomaticoOnChange = function (obj) {
+    var atribuirAutomaticoOnChange = function(obj) {
+        var equipamentoRTI = $("#equipamento_rti").val();
 
-        if ($(".atribuir-automatico").is(":checked")) {
-            $(".tipo-principal-codigo-brinde-default").attr('readonly', false);
-            $(".tipo-secundario-codigo-brinde-default").attr('readonly', false);
-            $(".tipo-principal-codigo-brinde-default").attr('required', true);
-            $(".tipo-secundario-codigo-brinde-default").attr('required', true);
-            $(".save-button").attr('disabled', true);
+        if ($(".atribuir-automatico").is(":checked") && equipamentoRTI == 1) {
+            $(".tipo-principal-codigo-brinde-default").attr("readonly", false);
+            $(".tipo-secundario-codigo-brinde-default").attr("readonly", false);
+            $(".tipo-principal-codigo-brinde-default").attr("required", true);
+            $(".tipo-secundario-codigo-brinde-default").attr("required", true);
+            $(".save-button").attr("disabled", true);
         } else {
-            $(".tipo-principal-codigo-brinde-default").attr('readonly', true);
-            $(".tipo-secundario-codigo-brinde-default").attr('readonly', true);
-            $(".tipo-principal-codigo-brinde-default").attr('required', false);
-            $(".tipo-secundario-codigo-brinde-default").attr('required', false);
+            $(".tipo-principal-codigo-brinde-default").attr("readonly", true);
+            $(".tipo-secundario-codigo-brinde-default").attr("readonly", true);
+            $(".tipo-principal-codigo-brinde-default").attr("required", false);
+            $(".tipo-secundario-codigo-brinde-default").attr("required", false);
 
-            $(".save-button").attr('disabled', false);
+            $(".save-button").attr("disabled", false);
         }
     };
     /**
      * Configura atribuição automática
      */
-    $(".atribuir-automatico").on('change', atribuirAutomaticoOnChange);
+    $(".atribuir-automatico").on("change", atribuirAutomaticoOnChange);
+    $(".equipamento_rti").on("change", atribuirAutomaticoOnChange);
 
     // $(".save-button").attr('disabled', false);
     $(".atribuir-automatico").change();
-
-
 });

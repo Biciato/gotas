@@ -1,9 +1,9 @@
 <?php
 
 /**
- * editar_genero_brinde.ctp
+ * editar_tipos_brindes_rede.ctp
  *
- * View para genero_brindes/editar_genero_brinde
+ * View para genero_brindes/editar_tipos_brindes_rede
  *
  * @category View
  * @package App\Template\GeneroBrindes
@@ -17,24 +17,31 @@
  *
  */
 
-$title = __("Editar Gênero de Brinde");
+$title = __("Editar Tipo de Brinde");
 
 // Navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Gênero de Brindes', ['controler' => 'genero_brinde', "action" => "index"], ['class' => 'active']);
+$this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
+$this->Breadcrumbs->add('Tipos de Brindes da Rede', array("controller" => "tiposBrindesRedes", "action" => "configurar_tipos_brindes_rede", $tiposBrindesRede["rede"]["id"]));
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 // Menu Esquerdo
-echo $this->element('../GeneroBrindes/left_menu')
+echo $this->element('../TiposBrindesRedes/left_menu')
 
 ?>
 <div class="redes form col-lg-9 col-md-8 columns content">
 
-    <?= $this->Form->create($generoBrinde) ?>
+    <?= $this->Form->create($tiposBrindesRede) ?>
 
     <!-- Formulário de Gênero de Brindes -->
-    <?= $this->element("../GeneroBrindes/form_genero_brindes", ["title" => $title]) ?>
+    <?= $this->element(
+        "../TiposBrindesRedes/form_tipos_brindes_rede",
+        array(
+            "title" => $title,
+            "tipoBrinde" => $tiposBrindesRede
+        )
+    ) ?>
 
     <?= $this->Form->end() ?>
 </div>

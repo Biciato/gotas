@@ -17,23 +17,32 @@ class BooleanHelper extends Helper
      * Convert boolean to String
      *
      * @param bool $param Parameter
-     * 
+     *
      * @return string word
      */
-    public function convertBooleanToString(bool $param)
+    public function convertBooleanToString(bool $param = null)
     {
-        return $param == 1 ? 'Sim' : 'Não';
+        return is_null($param) || $param == 0 ? 'Não' : 'Sim';
     }
 
     /**
      * Undocumented function
      *
      * @param bool $param Parameter
-     * 
+     *
      * @return string word
      */
-    public function convertEnabledToString(bool $param)
+    public function convertEnabledToString(bool $param = null)
     {
         return $param == 1 ? 'Habilitado' : 'Desabilitado';
+    }
+
+    public function convertEquipamentoRTIBooleanToString(bool $param = null)
+    {
+        if (is_null($param)) {
+            return "";
+        } else {
+            return $param == 1 ? "Equipamento RTI" : "Produtos / Serviços";
+        }
     }
 }

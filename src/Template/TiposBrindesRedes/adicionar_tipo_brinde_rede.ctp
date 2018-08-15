@@ -27,12 +27,14 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 // Menu Esquerdo
-echo $this->element('../TiposBrindesRedes/left_menu', array("redesId" => $rede["id"]))
+echo $this->element('../TiposBrindesRedes/left_menu', array(
+    "redesId" => $rede["id"]
+))
 
 ?>
 <div class="redes form col-lg-9 col-md-8 columns content">
 
-    <?= $this->Form->create($generoBrinde) ?>
+    <?= $this->Form->create($tipoBrinde) ?>
 
     <!-- Formulário de Gênero de Brindes -->
     <?= $this->element("../TiposBrindesRedes/form_tipos_brindes_rede", ["title" => $title]) ?>

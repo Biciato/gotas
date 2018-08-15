@@ -33,7 +33,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <?= $this->element(
     '../TiposBrindesRedes/left_menu',
     [
-        'mode' => 'view',
+        'mode' => 'add',
         'show_reports' => false,
         "redesId" => $rede["id"]
     ]
@@ -45,7 +45,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         '../TiposBrindesRedes/filtro_tipos_brindes_redes',
         [
             'controller' => 'tiposBrindesRedes',
-            'action' => 'configurar_tipos_brindes_rede', $rede["id"]
+            'action' => 'configurar_tipos_brindes_rede',
+            "id" => $rede["id"]
         ]
     ) ?>
     <table class="table table-striped table-hover table-responsive">
@@ -75,13 +76,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($tiposBrindes as $genero) : ?>
+            <?php foreach ($tiposBrindes as $tipo) : ?>
             <tr>
-                <td><?= h($genero->nome . ($genero->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->equipamento_rti)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->brinde_necessidades_especiais)) ?> </td>
-                <td><?= h($this->Boolean->convertEnabledToString($genero->habilitado)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->atribuir_automatico)) ?> </td>
+                <td><?= h($tipo->nome . ($tipo->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->equipamento_rti)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
+                <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>
                 <td class="actions" style="white-space:nowrap">
                     <!-- Info -->
 
@@ -92,7 +93,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         ),
                         [
                             'action' => 'ver_detalhes',
-                            $genero->id
+                            $tipo->id
                         ],
                         [
                             'class' => 'btn btn-default btn-xs',
@@ -107,8 +108,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                         ),
                         [
-                            'action' => 'editar_genero_brinde',
-                            $genero->id
+                            'action' => 'editar_tipos_brindes_rede',
+                            $tipo->id
                         ],
                         [
                             'class' => 'btn btn-primary btn-xs',
@@ -128,14 +129,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             "title" => "Deletar",
                             'data-toggle' => 'modal',
                             'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $genero->nome),
+                            'data-message' => __(Configure::read('messageDeleteQuestion'), $tipo->nome),
                             'data-action' => Router::url(
                                 [
-                                    'action' => 'delete', $genero->id,
+                                    'action' => 'delete', $tipo->id,
                                     '?' =>
                                         [
-                                        'genero_brinde_id' => $genero->id,
-                                        'return_url' => 'index'
+                                        'return_url' => $this->request->here
                                     ]
                                 ]
                             ),

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 
 use Cake\Core\Configure;
@@ -7,10 +7,10 @@ use Cake\Routing\Router;
 ?>
   <fieldset>
         <legend><?= __('Editar Usuario') ?></legend>
-        
+
             <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
             <?= $this->Form->hidden('usuario_logado_tipo_perfil', ['value' => $usuario_logado_tipo_perfil, 'class' => 'usuario_logado_tipo_perfil']); ?>
-            
+
             <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => (int)Configure::read('profileTypes')['UserProfileType']]) ?>
 
             <div class="col-lg-12">
@@ -20,7 +20,7 @@ use Cake\Routing\Router;
                 <div id="doc_estrangeiro_box">
 
                     <?= $this->Form->input('doc_estrangeiro', ['id' => 'doc_estrangeiro', 'label' => 'Documento de Identificação Estrangeira']) ?>
-                    
+
                     <span id="doc_estrangeiro_validation" class="text-danger validation-message"></span>
 
                 </div>
@@ -34,7 +34,7 @@ use Cake\Routing\Router;
                 <?php
                 echo $this->Form->input('cpf', ['label' => 'CPF']);
                 ?>
-                
+
             </div>
 
             <div class="form-group col-lg-6">
@@ -90,8 +90,6 @@ use Cake\Routing\Router;
                 ]); ?>
             </div>
 
-                
-
             <div class="col-lg-4">
                     <?= $this->Form->input(
                         'data_nasc',
@@ -113,14 +111,14 @@ use Cake\Routing\Router;
 
             <div class="row col-lg-12">
             <div class="col-lg-3">
-                
+
                 <?= $this->Form->input('necessidades_especiais', ['label' => 'Portador de Nec. Especiais? ', 'options' => [
                     '' => '',
                     1 => 'Sim',
                     0 => 'Não',
                 ]]) ?>
             </div>
-            
+
             <div class="col-lg-3">
                 <?= $this->Form->control('telefone'); ?>
             </div>
@@ -151,7 +149,7 @@ use Cake\Routing\Router;
             <div class="col-lg-2">
                 <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
             </div>
-            
+
             <div class="col-lg-3">
 
                 <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
