@@ -108,6 +108,16 @@ class MinifyShell extends ExtendedShell
                 'filtro_relatorio_usuarios_redes',
             ]
         ],
+        array(
+            "tipos_brindes_redes" => array(
+                "form_tipos_brindes_redes"
+            )
+        ),
+        array(
+            "tipos_brindes_clientes" => array(
+                "form_tipos_brindes_clientes"
+            )
+        ),
         [
             'transportadoras' => [
                 'filtro_relatorio_transportadoras_usuarios_redes',

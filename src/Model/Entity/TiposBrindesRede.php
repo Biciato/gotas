@@ -16,7 +16,7 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Cliente[] $clientes
  */
-class TipoBrindesRede extends Entity
+class TiposBrindesRede extends Entity
 {
 
     /**

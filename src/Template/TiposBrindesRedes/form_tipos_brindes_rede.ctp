@@ -110,11 +110,10 @@ use Cake\Core\Configure;
 
 
 <?php if (Configure::read("debug")) {
-
-    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes");
+    echo $this->Html->script("scripts/tipos_brindes_redes/form_tipos_brindes_redes");
     echo $this->Html->css("styles/tiposBrindesRedes/form");
 } else {
-    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes.min ");
+    echo $this->Html->script("scripts/tipos_brindes_redes/form_tipos_brindes_redes.min");
     echo $this->Html->css("styles/tiposBrindesRedes/form.min");
 }
 echo $this->fetch("script");

@@ -1,6 +1,6 @@
 /**
  * @author Gustavo Souza Gonçalves
- * @file webroot\js\scripts\genero_brindes_clientes\form_genero_brindes_clientes.js
+ * @file webroot\js\scripts\tipos_brindes_clientes\form_tipos_brindes_clientes.js
  * @date 2018/06/06
  *
  */

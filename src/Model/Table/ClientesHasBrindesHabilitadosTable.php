@@ -144,8 +144,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         $this->belongsTo(
             "GeneroBrindesClientes",
             array(
-                "className" => "GeneroBrindesClientes",
-                "foreignKey" => "genero_brindes_clientes_id",
+                "className" => "TiposBrindesClientes",
+                "foreignKey" => "tipos_brindes_clientes_id",
                 "joinType" => "INNER"
             )
         );

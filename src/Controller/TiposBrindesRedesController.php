@@ -303,6 +303,7 @@ class TiposBrindesRedesController extends AppController
 
                 $whereConditions[] = [
                     "id != " => $id,
+                    "redes_id" => $redesId,
                     "nome" => $data["nome"],
                     "equipamento_rti" => $data["equipamento_rti"],
                     "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],

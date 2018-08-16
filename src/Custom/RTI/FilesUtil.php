@@ -160,7 +160,7 @@ class FilesUtil
                 $newName = bin2hex(openssl_random_pseudo_bytes(16));
             }
 
-            $this->createPathIfNotExists($newPath);
+            self::createPathIfNotExists($newPath);
 
             $extension = "jpg";
             $dotPosition = strlen(strpos($extension, ".")) > 0 ? 1 : 0;

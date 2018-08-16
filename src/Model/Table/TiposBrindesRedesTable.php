@@ -79,11 +79,11 @@ class TiposBrindesRedesTable extends GenericTable
         $this->setDisplayField('nome_necessidades_especiais');
         $this->setPrimaryKey('id');
 
-        $this->belongsToMany('Clientes', [
-            'foreignKey' => 'genero_brindes_id',
-            'targetForeignKey' => 'clientes_id',
-            'joinTable' => 'tipos_brindes_clientes'
-        ]);
+        // $this->belongsToMany('Clientes', [
+        //     'foreignKey' => 'genero_brindes_id',
+        //     'targetForeignKey' => 'clientes_id',
+        //     'joinTable' => 'tipos_brindes_clientes'
+        // ]);
 
         $this->belongsTo("Rede", array(
             "className" => "Redes",
