@@ -624,29 +624,42 @@ class RedesHasClientesController extends AppController
                 }
 
                 $listaSelectClientes = array(
-                    "id",
-                    "matriz",
-                    "ativado",
-                    "tipo_unidade",
-                    "codigo_rti_shower",
-                    "nome_fantasia",
-                    "razao_social",
-                    "cnpj",
-                    "endereco",
-                    "endereco_numero",
-                    "endereco_complemento",
-                    "bairro",
-                    "municipio",
-                    "estado",
-                    "pais",
-                    "cep",
-                    "latitude",
-                    "longitude",
-                    "tel_fixo",
-                    "tel_fax",
-                    "tel_celular",
-                    "propaganda_img"
+                    "Clientes.id",
+                    "Clientes.matriz",
+                    "Clientes.ativado",
+                    "Clientes.tipo_unidade",
+                    "Clientes.codigo_rti_shower",
+                    "Clientes.nome_fantasia",
+                    "Clientes.razao_social",
+                    "Clientes.cnpj",
+                    "Clientes.endereco",
+                    "Clientes.endereco_numero",
+                    "Clientes.endereco_complemento",
+                    "Clientes.bairro",
+                    "Clientes.municipio",
+                    "Clientes.estado",
+                    "Clientes.pais",
+                    "Clientes.cep",
+                    "Clientes.latitude",
+                    "Clientes.longitude",
+                    "Clientes.tel_fixo",
+                    "Clientes.tel_fax",
+                    "Clientes.tel_celular",
+                    "Clientes.propaganda_img",
+                    "RedesHasClientes.id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.clientes_id",
+                    "Redes.id",
+                    "Redes.nome_rede",
+                    "Redes.nome_img",
+                    "Redes.ativado",
+                    "Redes.permite_consumo_gotas_funcionarios",
+                    "Redes.tempo_expiracao_gotas_usuarios",
+                    "Redes.propaganda_img",
+                    "Redes.propaganda_link"
                 );
+
+                // $listaSelectClientes = array();
 
                 // Se chegou até aqui, ocorreu tudo bem
                 $resultado = $this->Clientes->getClienteByIdWithPoints($clientesId, $usuario["id"], $listaSelectClientes);
@@ -866,20 +879,50 @@ class RedesHasClientesController extends AppController
                         $clientesIds[] = $redeHasCliente->clientes_id;
                     }
 
-                    $whereConditions[] = array("id in " => $clientesIds);
+                    $whereConditions[] = array("Clientes.id in " => $clientesIds);
 
                 }
                 if (isset($data["nome_fantasia"])) {
-                    $whereConditions[] = array("nome_fantasia like '%{$data["nome_fantasia"]}%'");
+                    $whereConditions[] = array("Clientes.nome_fantasia like '%{$data["nome_fantasia"]}%'");
                 }
 
                 if (isset($data["razao_social"])) {
-                    $whereConditions[] = array("razao_social like '%{$data["razao_social"]}%'");
+                    $whereConditions[] = array("Clientes.razao_social like '%{$data["razao_social"]}%'");
                 }
 
                 if (isset($data["cnpj"])) {
-                    $whereConditions[] = array("cnpj like '%{$data["cnpj"]}%'");
+                    $whereConditions[] = array("Clientes.cnpj like '%{$data["cnpj"]}%'");
                 }
+
+                // "nome_img",
+                // "nome_img_completo"
+
+                $listaSelectClientes = array(
+                    "id",
+                    "matriz",
+                    "ativado",
+                    "tipo_unidade",
+                    "codigo_rti_shower",
+                    "nome_fantasia",
+                    "razao_social",
+                    "cnpj",
+                    "endereco",
+                    "endereco_numero",
+                    "endereco_complemento",
+                    "bairro",
+                    "municipio",
+                    "estado",
+                    "pais",
+                    "cep",
+                    "latitude",
+                    "longitude",
+                    "tel_fixo",
+                    "tel_fax",
+                    "tel_celular",
+                    "propaganda_img",
+                    "nome_img",
+                    "nome_img_completo"
+                );
 
                 $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
 
