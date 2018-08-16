@@ -87,7 +87,7 @@ class ClientesTable extends GenericTable
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
-                'foreignKey' => 'clientes_id',
+                'foreignKey' => 'id',
                 'join' => 'left'
             ]
         );
@@ -418,6 +418,10 @@ class ClientesTable extends GenericTable
             $clientesQuery = $this->_getClientesTable()->find('all')
                 ->where($whereConditions);
 
+            $clientesQuery = $clientesQuery->contain(array("RedesHasClientes.Redes"));
+
+
+            // DebugUtil::print($clientesQuery);
             $count = $clientesQuery->count();
 
             $clientesId = 0;
@@ -693,6 +697,8 @@ class ClientesTable extends GenericTable
                             'Clientes.id' => $clientesId
                         ]
                     );
+
+                $cliente = $cliente->contain(array("RedesHasClientes.Redes"));
 
                 if (sizeof($selectFields) > 0) {
                     $cliente = $cliente->select($selectFields);
