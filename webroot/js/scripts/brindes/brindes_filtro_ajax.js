@@ -22,7 +22,7 @@ $(document).ready(function () {
             var brindeSelecionado = brindePesquisa[0];
 
             // Se for <=4 é SMART Shower
-            if (brindeSelecionado.genero_brindes_cliente.tipo_principal_codigo_brinde <= 4 && brindeSelecionado != null) {
+            if (brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4 && brindeSelecionado != null) {
                 $("#quantidade").attr('disabled', true);
             } else {
                 $("#quantidade").attr('disabled', false);

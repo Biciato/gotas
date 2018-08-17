@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "view", "clientesId" => $cliente->id]) ?>
+<?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "add", "clientesId" => $cliente->id]) ?>
 <div class="tiposBrindesClientes view col-lg-9 col-mg-8 columns content">
 
     <legend><?= __("Gênero de Brindes Habilitados para cliente [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
@@ -132,13 +132,13 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        "controller" => "tipo_brindes_clientes",
+                                        "controller" => "tipos_brindes_clientes",
                                         'action' => 'alteraEstadoTiposBrindesCliente',
                                         '?' =>
                                             array(
-                                            'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
+                                            'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
                                             'return_url' => array(
-                                                "controller" => "tipo_brindes_clientes",
+                                                "controller" => "tipos_brindes_clientes",
                                                 "action" => 'tipos_brindes_cliente', $cliente["id"]
                                             ),
                                             "estado" => false,
@@ -159,13 +159,13 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        "controller" => "tipo_brindes_clientes",
+                                        "controller" => "tipos_brindes_clientes",
                                         'action' => 'alteraEstadoTiposBrindesCliente',
                                         '?' =>
                                             array(
                                             'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
                                             'return_url' => array(
-                                                "controller" => "tipo_brindes_clientes",
+                                                "controller" => "tipos_brindes_clientes",
                                                 "action" => 'tipos_brindes_cliente', $cliente["id"]
                                             ),
                                             "estado" => true,
@@ -194,7 +194,7 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Deletar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem->tipo_brinde->nome),
+                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'delete', $tipoBrindeItem->id,
@@ -202,7 +202,7 @@ echo $this->Breadcrumbs->render(
                                                     [
                                                     'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
                                                     'return_url' => array(
-                                                        "controller" => "tipo_brindes_clientes",
+                                                        "controller" => "tipos_brindes_clientes",
                                                         "action" => 'tipos_brindes_cliente', $cliente["id"]
                                                     )
                                                 ]

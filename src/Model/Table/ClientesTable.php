@@ -273,33 +273,33 @@ class ClientesTable extends GenericTable
 
                 // Atribui os Gêneros de Brindes que são de atribuição automática
 
-                $generoBrindesTable = TableRegistry::get("GeneroBrindes");
-                $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+                $tiposBrindesRedesTable = TableRegistry::get("TiposBrindesRedes");
+                $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-                $generoBrindes = $generoBrindesTable->findGeneroBrindesAtribuirAutomaticamente();
-                $generoBrindesClientesArray = array();
+                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente();
+                $tiposBrindesClientesArray = array();
 
-                foreach ($generoBrindes as $key => $generoBrinde) {
-                    $generoBrindesClientesArray[] = array(
-                        "genero_brindes_id" => $generoBrinde["id"],
+                foreach ($tiposBrindesRedes as $key => $tiposBrindesRede) {
+                    $tiposBrindesClientesArray[] = array(
+                        "tipos_brindes_redes_id" => $tiposBrindesRede["id"],
                         "clientes_id" => $cliente["id"],
-                        "tipo_principal_codigo_brinde" => $generoBrinde["tipo_principal_codigo_brinde_default"],
-                        "tipo_secundario_codigo_brinde" => $generoBrinde["tipo_secundario_codigo_brinde_default"],
+                        "tipo_principal_codigo_brinde" => $tiposBrindesRede["tipo_principal_codigo_brinde_default"],
+                        "tipo_secundario_codigo_brinde" => $tiposBrindesRede["tipo_secundario_codigo_brinde_default"],
                         "habilitado" => 1
                     );
                 }
 
                 // Só grava se teve itens no array
-                if (sizeof($generoBrindesClientesArray) > 0) {
+                if (sizeof($tiposBrindesClientesArray) > 0) {
 
-                    $generoBrindesClientesSave = $generoBrindesClientesTable->newEntities($generoBrindesClientesArray);
+                    $tiposBrindesClientesSave = $tiposBrindesClientesTable->newEntities($tiposBrindesClientesArray);
 
                     // Gravação dos dados de gênero brindes
-                    $resultSave = $generoBrindesClientesTable->saveMany($generoBrindesClientesSave);
+                    $resultSave = $tiposBrindesClientesTable->saveMany($tiposBrindesClientesSave);
 
                     if (!$resultSave) {
                         Log::write("error", "Lista de Brindes para Gravar: ");
-                        Log::write("error", $generoBrindesClientesSave);
+                        Log::write("error", $tiposBrindesClientesSave);
 
                         throw new \Exception("Não foi possível salvar os gêneros de brindes ao cliente novo!");
                     }

@@ -3,14 +3,14 @@
 /**
  * index.ctp
  *
- * View para genero_brindes/index
+ * View para tipos_brindes_redes/index
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrinde[]|\Cake\Collection\CollectionInterface $genero_brindes
+ * @var \App\Model\Entity\TiposBrindesRedes[]|\Cake\Collection\CollectionInterface $tipos_brindes_redes
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date 30/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves

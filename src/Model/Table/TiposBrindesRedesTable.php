@@ -43,7 +43,7 @@ class TiposBrindesRedesTable extends GenericTable
      */
 
     /**
-     * Método para obter tabela de Genero Brindes
+     * Método para obter tabela de Tipos Brindes Redes
      *
      * @return Cake\ORM\Table Table object
      */
@@ -78,12 +78,6 @@ class TiposBrindesRedesTable extends GenericTable
         $this->setTable('tipos_brindes_redes');
         $this->setDisplayField('nome_necessidades_especiais');
         $this->setPrimaryKey('id');
-
-        // $this->belongsToMany('Clientes', [
-        //     'foreignKey' => 'genero_brindes_id',
-        //     'targetForeignKey' => 'clientes_id',
-        //     'joinTable' => 'tipos_brindes_clientes'
-        // ]);
 
         $this->belongsTo("Rede", array(
             "className" => "Redes",

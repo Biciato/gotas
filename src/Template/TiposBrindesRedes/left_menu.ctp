@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/GeneroBrindes/left_menu.ctp
+ * @file     src/Template/TiposBrindesRedes/left_menu.ctp
  * @date     30/05/2018
  */
 

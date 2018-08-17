@@ -21,13 +21,13 @@ use Cake\Core\Configure;
 				<?= $this->Html->image('icons/rti_cupom.png', ['width' => '100%',
 				'class' => 'logo-rti-shower']) ?>
 			<div>
-				
+
 				<div class="pull-right">
 					<?= $this->Html->tag('span', 'Impresso: ') ?>
 					<?= $this->Html->tag('span', '', ['id' => 'print_data_emissao']) ?>
 				</div>
 				<br />
-				
+
 				<div class="pull-right">
 					<?= $this->Html->tag('span', 'Banho de ') ?>
 					<?= $this->Html->tag('span', ' ', ['id' => 'rti_shower_minutos']) ?>
@@ -36,7 +36,7 @@ use Cake\Core\Configure;
 				<br />
 				<div class="pull-right">
 					<?= $this->Html->tag('span', 'Box ') ?>
-					<?= $this->Html->tag('span', '', ['id' => 'genero_box']) ?>
+					<?= $this->Html->tag('span', '', ['id' => 'tipos_brinde_box']) ?>
 				</div>
 			</div>
 		</div>
@@ -54,18 +54,18 @@ use Cake\Core\Configure;
 
 		<p class="text-center contact">
 
-			<?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>		
+			<?= $this->Html->tag('span', 'contato@rtisolutions.com.br'); ?>
 			<br />
-			<?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>		
+			<?= $this->Html->tag('span', 'Telefone: (31) 3037 8592'); ?>
 
 		</p>
-		
+
 	</div>
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
 		<?= $this->Html->css('styles/cupons/impressao_shower_layout') ?>
-<?php else : ?> 
+<?php else : ?>
 		<?= $this->Html->css('styles/cupons/impressao_shower_layout.min') ?>
 <?php endif; ?>
 

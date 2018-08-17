@@ -6,30 +6,30 @@ $(document).ready(function () {
 
     var nome = $("#nome").val();
 
-    var equipamentoRTIPadrao = $("#genero_brindes_id").val();
+    var equipamentoRTIPadrao = $("#tipos_brindes_redes_id").val();
     /**
      * Verifica se está em edição e se o brinde sendo editado é banho.
      * Se for, seleciona um índice correspondente e não permite alterar o nome
      */
     if (editMode == 1 && equipamentoRTIPadrao <= 4) {
         $("#nome").attr('readonly', true);
-        $("#genero_brindes_id").attr("readonly", true);
-        $("#genero_brindes_id").attr("disabled", true);
+        $("#tipos_brindes_redes_id").attr("readonly", true);
+        $("#tipos_brindes_redes_id").attr("disabled", true);
         $("#tempo_rti_shower").attr('readonly', false);
 
         $("#ilimitado").attr('checked', true);
         $("#ilimitado").attr('disabled', true);
     } else if (editMode == 1) {
-        $("#genero_brindes_id").attr("readonly", true);
-        $("#genero_brindes_id").attr("disabled", true);
+        $("#tipos_brindes_redes_id").attr("readonly", true);
+        $("#tipos_brindes_redes_id").attr("disabled", true);
         $("#tempo_rti_shower").attr('readonly', true);
 
     }
 
-    $("#genero_brindes_id").on("change", function (obj) {
+    $("#tipos_brindes_redes_id").on("change", function (obj) {
 
 
-        var nome = (this.value != undefined && this.value.length > 0) ? $("#genero_brindes_id option:selected").text() : "";
+        var nome = (this.value != undefined && this.value.length > 0) ? $("#tipos_brindes_redes_id option:selected").text() : "";
 
         $("#nome").val(nome);
 
@@ -47,14 +47,14 @@ $(document).ready(function () {
     })
     $("#tempo_rti_shower").on('blur', function () {
 
-        if ($("#genero_brindes_id").val() <= 4) {
+        if ($("#tipos_brindes_redes_id").val() <= 4) {
             if (this.value > 20) {
                 this.value = 20;
             } else if (this.value < 0) {
                 this.value = 0;
             }
 
-            var nome = $("#genero_brindes_id option:selected").text() + this.value + " minutos";
+            var nome = $("#tipos_brindes_redes_id option:selected").text() + this.value + " minutos";
 
             $("#nome").val(nome);
 

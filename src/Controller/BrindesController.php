@@ -283,7 +283,7 @@ class BrindesController extends AppController
 
             $brinde = $this->Brindes->newEntity();
 
-            $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($clientesId);
+            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados($clientesId);
 
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
@@ -360,7 +360,7 @@ class BrindesController extends AppController
                 "editMode",
                 "brinde",
                 "clientesId",
-                "generoBrindesCliente"
+                "tiposBrindesCliente"
             );
 
             $this->set(compact($arraySet));
@@ -383,7 +383,7 @@ class BrindesController extends AppController
 
         $brinde = $this->Brindes->get($id);
 
-        $generoBrindesId = $brinde["genero_brindes_id"];
+        $tiposBrindesRedesId = $brinde["tipos_brindes_redes_id"];
 
         $imagemOriginal = null;
         $imagemOriginalDisco = null;
@@ -409,7 +409,7 @@ class BrindesController extends AppController
             $rede["id"]
         );
 
-        $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados(array($brinde["clientes_id"]));
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados(array($brinde["clientes_id"]));
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -422,7 +422,7 @@ class BrindesController extends AppController
                 $brinde = $this->Brindes->patchEntity($brinde, $data);
 
                 // Preserva o id base de gênero brindes
-                $brinde["genero_brindes_id"] = $generoBrindesId;
+                $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
 
                 $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
 
@@ -452,7 +452,7 @@ class BrindesController extends AppController
             "brinde",
             "imagemOriginal",
             "clientes",
-            "generoBrindesCliente"
+            "tiposBrindesCliente"
         );
 
         $this->set(compact($arraySet));

@@ -15,13 +15,13 @@ use Cake\Core\Configure;
 <div class="form-group row">
     <div class="col-lg-6">
         <?= $this->Form->input(
-            'genero_brindes_id',
+            'tipos_brindes_redes_id',
             [
                 "type" => "select",
-                "id" => "genero_brindes_id",
+                "id" => "tipos_brindes_redes_id",
                 "label" => "Nome para Brinde baseado nos tipos disponíveis ",
                 "empty" => "<Selecionar>",
-                "options" => $generoBrindesCliente
+                "options" => $tiposBrindesCliente
             ]
         ) ?>
     </div>

@@ -3,7 +3,7 @@
 /**
  * ver_detalhes.ctp
  *
- * View para genero_brindes/ver_detlahes
+ * View para tipos_brindes_redes/ver_detlahes
  *
  * Variáveis:
  * @var \App\View\AppView $this
@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(
 
 ?>
 <?= $this->Element("../TiposBrindesRedes/left_menu", ["mode" => "view"]) ?>
-<div class="genero-brindes view col-lg-9 col-md-10 columns content">
+<div class="tipos-brindes view col-lg-9 col-md-10 columns content">
     <legend><?= h($tiposBrindesRede->nome) ?></legend>
-    <?= $this->Element("../TiposBrindesRedes/tabela_info_genero_brinde", ["tiposBrindesRede" => $tiposBrindesRede]) ?>
+    <?= $this->Element("../TiposBrindesRedes/tabela_info_tipos_brindes_rede", ["tiposBrindesRede" => $tiposBrindesRede]) ?>
 </div>

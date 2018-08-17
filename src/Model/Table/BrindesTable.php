@@ -218,7 +218,7 @@ class BrindesTable extends GenericTable
      *
      * @param integer $id
      * @param integer $clientesIds
-     * @param integer $generoBrindesId
+     * @param integer $tiposBrindesRedesId
      * @param string $nome
      * @param integer $tempoRtiShower
      * @param boolean $ilimitado
@@ -233,7 +233,7 @@ class BrindesTable extends GenericTable
     public function getBrindesIds(
         int $id = null,
         array $clientesIds = array(),
-        int $generoBrindesId = null,
+        int $tiposBrindesRedesId = null,
         string $nome = "",
         int $tempoRtiShower = null,
         bool $ilimitado = null,
@@ -250,8 +250,8 @@ class BrindesTable extends GenericTable
             if (sizeof($clientesIds) > 0) {
                 $whereConditions[] = array("clientes_id IN " => $clientesIds);
             }
-            if (!empty($generoBrindesId)) {
-                $whereConditions[] = array("genero_brindes_id" => $generoBrindesId);
+            if (!empty($tiposBrindesRedesId)) {
+                $whereConditions[] = array("tipos_brindes_redes_id" => $tiposBrindesRedesId);
             }
             if (!empty($nome)) {
                 $whereConditions[] = array("nome like '%{$nome}%'");

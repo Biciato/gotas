@@ -223,9 +223,9 @@ class TiposBrindesClientesController extends AppController
                     "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
                 );
 
-                $generoBrindeClienteCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                $tiposBrindesClienteCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
-                if (!empty($generoBrindeClienteCheck)) {
+                if (!empty($tiposBrindesClienteCheck)) {
                     $this->Flash->error(__("Já existe um brinde com a configuração de tipo principal e tipo secundário de código!"));
                 } else {
 
@@ -233,7 +233,7 @@ class TiposBrindesClientesController extends AppController
                     if ($this->TiposBrindesClientes->save($tiposBrindesCliente)) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                        return $this->redirect(['action' => 'generos_brindes_cliente', $cliente["id"]]);
+                        return $this->redirect(['action' => 'tiposs_brindes_cliente', $cliente["id"]]);
                     }
                     $this->Flash->error(__(Configure::read("messageSavedSuccess")));
                 }
@@ -315,6 +315,8 @@ class TiposBrindesClientesController extends AppController
 
         $cliente = $this->Clientes->getClienteById($tiposBrindesClientes["clientes_id"]);
 
+        // DebugUtil::print($tiposBrindesClientes);
+
         $arraySet = array(
             "tiposBrindesClientes",
             "cliente"
@@ -346,20 +348,20 @@ class TiposBrindesClientesController extends AppController
             $clientesId = $query["clientes_id"];
             $estado = $query["estado"];
 
-            if ($this->TiposBrindesClientes->updateHabilitadoTiposBrindeCliente($tiposBrindesClienteId, $estado)) {
+            if ($this->TiposBrindesClientes->updateHabilitadoTiposBrindesCliente($tiposBrindesClienteId, $estado)) {
 
                 $mensagemAviso = $estado ? __(Configure::read("messageEnableSuccess")) : __(Configure::read("messageDisableSuccess"));
 
                 $this->Flash->success(__($mensagemAviso));
 
-                return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "generos_brindes_cliente", $clientesId));
+                return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "tipos_brindes_cliente", $clientesId));
             }
 
             $mensagemErro = $estado ? __(Configure::read("messageEnableError")) : __(Configure::read("messageDisableError"));
 
             $this->Flash->error(__($mensagemErro));
 
-            return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "generos_brindes_cliente", $clientesId));
+            return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "tipos_brindes_cliente", $clientesId));
         } catch (\Exception $e) {
 
             $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Gênero de Brindes de Cliente!");

@@ -1610,7 +1610,7 @@ class CuponsController extends AppController
                 $this->set("_serialize", $arraySet);
 
                 return;
-            } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
+            } else if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
                 $mensagem = array(
                     "status" => false,
                     "message" => __("Para Brindes do tipo banho, a quantidade deve ser 1!"),
@@ -1816,7 +1816,7 @@ class CuponsController extends AppController
             $usuario = $usuario;
             $tempo = $brindeSelecionado->brinde->tempo_rti_shower;
             $tipoEmissaoCodigoBarras = $brindeSelecionado["tipo_codigo_barras"];
-            $isBrindeSmartShower = $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
+            $isBrindeSmartShower = $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4;
         }
 
         $arraySet = [
@@ -2331,7 +2331,7 @@ class CuponsController extends AppController
                 $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
 
                 $whereConditions = array();
-                $generoBrindesClientesConditions = array();
+                $tiposBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();
 
@@ -2375,11 +2375,11 @@ class CuponsController extends AppController
                     $whereConditions[] = ['clientes_id' => (int)($data['clientes_id'])];
                 }
 
-                // se genero_brindes_id estiver setado, pesquisa por um tipo de brinde
+                // se tipos_brindes_redes_id estiver setado, pesquisa por um tipo de brinde
 
-                if (isset($data["genero_brindes_id"])) {
-                    $generoBrindesClientesConditions[] = array(
-                        "genero_brindes_id" => $data['genero_brindes_id'],
+                if (isset($data["tipos_brindes_redes_id"])) {
+                    $tiposBrindesClientesConditions[] = array(
+                        "tipos_brindes_redes_id" => $data['tipos_brindes_redes_id'],
                         "clientes_id in " => $clientesIds
                     );
                 }
@@ -2429,7 +2429,7 @@ class CuponsController extends AppController
 
                 $orderConditions = $orderConditionsNew;
 
-                $resultado = $this->Cupons->getCupons($whereConditions, $generoBrindesClientesConditions, $orderConditions, $paginationConditions);
+                $resultado = $this->Cupons->getCupons($whereConditions, $tiposBrindesClientesConditions, $orderConditions, $paginationConditions);
 
                 // DebugUtil::printArray($resultado);
                 $mensagem = $resultado["mensagem"];
@@ -2587,7 +2587,7 @@ class CuponsController extends AppController
                 "is_brinde_smart_shower" => null,
             );
             return $retorno;
-        } else if ($brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
+        } else if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -2869,7 +2869,7 @@ class CuponsController extends AppController
         }
 
         // Se é Banho
-        if (!$brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
+        if (!$brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
             $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
 
             $cuponsRetorno = array();
@@ -2910,7 +2910,7 @@ class CuponsController extends AppController
             "usuario" => $usuario,
             "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
             "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
-            "is_brinde_smart_shower" => $brindeSelecionado["genero_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
+            "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
         );
 
         return $retorno;

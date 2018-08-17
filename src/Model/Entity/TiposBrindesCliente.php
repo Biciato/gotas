@@ -7,7 +7,7 @@ use Cake\ORM\Entity;
  * TiposBrindesCliente Entity
  *
  * @property int $id
- * @property int $genero_brindes_id
+ * @property int $tipos_brindes_redes_id
  * @property int $clientes_id
  * @property string $tipo_principal_codigo_brinde
  * @property string $tipo_secundario_codigo_brinde
@@ -15,7 +15,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
- * @property \App\Model\Entity\TiposBrindesRede $genero_brinde
+ * @property \App\Model\Entity\TiposBrindesRede $tipos_brindes_rede
  * @property \App\Model\Entity\Cliente $cliente
  */
 class TiposBrindesCliente extends Entity

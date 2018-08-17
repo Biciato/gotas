@@ -12,10 +12,10 @@
  *
  * Variáveis:
  * @var       \App\View\AppView $this
- * @var       \App\Model\Entity\GeneroBrindesCliente
+ * @var       \App\Model\Entity\TiposBrindesCliente
  *
  * @category  View
- * @package   App\Template\GeneroBrindesClientes
+ * @package   App\Template\TiposBrindesClientes
  * @author    Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date      06/06/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -29,7 +29,7 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGeneroBrindesEnabled : false;
+$selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBrindesEnabled : false;
 
 ?>
 
@@ -43,7 +43,7 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
                 "type" => "select",
                 "empty" => "<Selecionar>",
                 "options" => $tiposBrindesRedes,
-                "disabled" => $selectGeneroBrindesEnabled
+                "disabled" => $selectTiposBrindesEnabled
             ]
         ); ?>
     </div>
@@ -71,7 +71,7 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
 
 <div class="form-group row">
     <div class="col-lg-12">
-        <?= $this->Form->control('habilitado', ["Genero Habilitado para Cliente?"]); ?>
+        <?= $this->Form->control('habilitado', ["Tipo de Brinde Habilitado para Cliente?"]); ?>
     </div>
 </div>
 

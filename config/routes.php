@@ -141,7 +141,6 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
-        // "GeneroBrindes",
         "TiposBrindesRedes",
         [
             "map" => [

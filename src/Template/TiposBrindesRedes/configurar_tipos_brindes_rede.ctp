@@ -3,11 +3,11 @@
 /**
  * configurarTiposBrindesRedes.ctp
  *
- * View para genero_brindes/index
+ * View para tipos_brindes_redes/index
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\TiposBrindesRede[]|\Cake\Collection\CollectionInterface $genero_brindes
+ * @var \App\Model\Entity\TiposBrindesRede[]|\Cake\Collection\CollectionInterface $tipos_brindes_redes
  *
  * @category View
  * @package App\Template\TiposBrindesRedes

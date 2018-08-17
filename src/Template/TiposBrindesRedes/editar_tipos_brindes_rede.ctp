@@ -3,10 +3,10 @@
 /**
  * editar_tipos_brindes_rede.ctp
  *
- * View para genero_brindes/editar_tipos_brindes_rede
+ * View para tipos_brindes_redes/editar_tipos_brindes_rede
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date 31/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves

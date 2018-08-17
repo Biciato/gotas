@@ -210,9 +210,9 @@ class CuponsTable extends GenericTable
 
             // Obtem Gênero Brinde Cliente configurado
 
-            $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+            $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-            $generoBrindeCliente = $generoBrindesClientesTable->getGeneroBrindesClientesById($brindeHabilitado["genero_brindes_clientes_id"]);
+            $tiposBrindesCliente = $tiposBrindesClientesTable->getTiposBrindesClientesById($brindeHabilitado["tipos_brindes_clientes_id"]);
 
             /**
              *  TODO: Deve ser feito a lógica de geração do cupom caso o brinde não seja lido por um equipamento rti
@@ -220,8 +220,8 @@ class CuponsTable extends GenericTable
              * o código pode ser usado conforme lógica antiga de brinde
              */
 
-            $tipoPrincipalCodigoBrinde = $generoBrindeCliente["tipo_principal_codigo_brinde"];
-            $tipoSecundarioCodigoBrinde = $generoBrindeCliente["tipo_secundario_codigo_brinde"];
+            $tipoPrincipalCodigoBrinde = $tiposBrindesCliente["tipo_principal_codigo_brinde"];
+            $tipoSecundarioCodigoBrinde = $tiposBrindesCliente["tipo_secundario_codigo_brinde"];
 
             if ($tipoPrincipalCodigoBrinde <= 4) {
                 // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
@@ -231,7 +231,7 @@ class CuponsTable extends GenericTable
                 $tipoSecundarioCodigoBrinde = strlen($tipoSecundarioCodigoBrinde) == 1 ? '0' . $tipoSecundarioCodigoBrinde : $tipoSecundarioCodigoBrinde;
             }
 
-            $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_rti_shower"] + 10 : $generoBrindeCliente["tipo_secundario_codigo_brinde"];
+            $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_rti_shower"] + 10 : $tiposBrindesCliente["tipo_secundario_codigo_brinde"];
 
             /**
              * Se o brinde não for banho, pode acontecer do código secundário ter tamanho 1.
@@ -435,7 +435,7 @@ class CuponsTable extends GenericTable
      *
      * @return array('count', 'data') \App\Model\Entity\Cupom[] Lista de Cupons
      */
-    public function getCupons(array $whereConditions, array $generoBrindesClienteConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
+    public function getCupons(array $whereConditions, array $tiposBrindesClienteConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
 
@@ -449,16 +449,16 @@ class CuponsTable extends GenericTable
              * que serão filtrados
              */
 
-            $generoBrindesClientesIds = array();
+            $tiposBrindesClientesIds = array();
             $clientesHasBrindesHabilitadosIds = array();
-            if (sizeof($generoBrindesClienteConditions) > 0) {
+            if (sizeof($tiposBrindesClienteConditions) > 0) {
 
-                $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+                $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-                $generoBrindesClientesIds = $generoBrindesClientesTable->getGenerosBrindesClientesIdsFromConditions($generoBrindesClienteConditions);
+                $tiposBrindesClientesIds = $tiposBrindesClientesTable->getTiposBrindesClientesIdsFromConditions($tiposBrindesClienteConditions);
 
                 $clientesHasBrindesHabilitadosConditions = array(
-                    "genero_brindes_clientes_id in " => $generoBrindesClientesIds
+                    "tipos_brindes_clientes_id in " => $tiposBrindesClientesIds
                 );
 
                 $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");

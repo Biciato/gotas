@@ -8,7 +8,7 @@ use Cake\Core\Configure;
  * Form para input de dados de tipos de brindes da rede
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 31/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -43,7 +43,8 @@ use Cake\Core\Configure;
                         0 => "Produtos / Serviços",
                         1 => "Equipamento RTI",
                     ),
-                    "default" => null
+                    "default" => null,
+                    "required" => true
                 )
             ); ?>
 

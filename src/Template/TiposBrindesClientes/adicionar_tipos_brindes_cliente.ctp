@@ -8,14 +8,14 @@
  * adicionar_tipos_brindes_cliente.ctp
  *
  *
- * View para tipos_brindes_clientes/generos_brindes_cliente
+ * View para tipos_brindes_clientes/tipos_brindes_cliente
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrindesCliente
+ * @var \App\Model\Entity\TiposBrindesCliente
  *
  * @category  View
- * @package   App\Template\GeneroBrindesClientes
+ * @package   App\Template\TiposBrindesClientes
  * @author    Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since     03/06/2018
  * @copyright 2018 Gustavo Souza Gonçalves

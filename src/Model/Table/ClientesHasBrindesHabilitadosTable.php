@@ -142,7 +142,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         );
 
         $this->belongsTo(
-            "GeneroBrindesClientes",
+            "TiposBrindesClientes",
             array(
                 "className" => "TiposBrindesClientes",
                 "foreignKey" => "tipos_brindes_clientes_id",
@@ -276,7 +276,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     {
         try {
             $brinde = $this->_getClientesHasBrindesHabilitadosTable()->find('all')->where(['ClientesHasBrindesHabilitados.id' => $id])
-                ->contain(['Clientes', 'Brindes', 'BrindeHabilitadoPrecoAtual', "GeneroBrindesClientes"])
+                ->contain(['Clientes', 'Brindes', 'BrindeHabilitadoPrecoAtual', "TiposBrindesClientes"])
                 ->first();
 
             // Cálculo de estoque do item
@@ -382,7 +382,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     array(
                         "Brindes",
                         "BrindeHabilitadoPrecoAtual",
-                        "GeneroBrindesClientes"
+                        "TiposBrindesClientes"
                     )
                 )->first();
 
@@ -403,19 +403,19 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * Obtêm todos os brindes de um cliente conforme tipo
      *
      * @param int  $clientes_id Id de CLiente
-     * @param int $generoBrindesClientesIds Ids de Gênero
+     * @param int $tiposBrindesClientesIds Ids de Gênero
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
     public function getBrindesPorClienteId(
         int $clientesId,
-        array $generoBrindesClientesIds = array(),
+        array $tiposBrindesClientesIds = array(),
         array $whereConditionsBrindes = array(),
         float $precoMin = null,
         float $precoMax = null,
         array $orderConditionsBrindes = array(),
         array $paginationConditionsBrindes = array(),
-        array $filterGeneroBrindesClientesColumns = array()
+        array $filterTiposBrindesClientesColumns = array()
     ) {
         try {
 
@@ -528,30 +528,30 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitadosWhereConditions = array();
 
-            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.genero_brindes_clientes_id IS NOT NULL');
+            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.tipos_brindes_clientes_id IS NOT NULL');
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientesId);
 
-            if (isset($generoBrindesClientesIds) && sizeof($generoBrindesClientesIds) > 0) {
-                $clientesBrindesHabilitadosWhereConditions[] = array("ClientesHasBrindesHabilitados.genero_brindes_clientes_id in " => $generoBrindesClientesIds);
+            if (isset($tiposBrindesClientesIds) && sizeof($tiposBrindesClientesIds) > 0) {
+                $clientesBrindesHabilitadosWhereConditions[] = array("ClientesHasBrindesHabilitados.tipos_brindes_clientes_id in " => $tiposBrindesClientesIds);
             }
 
-            // DebugUtil::printArray($generoBrindesClientesIds);
+            // DebugUtil::printArray($tiposBrindesClientesIds);
             // DebugUtil::printArray($clientesBrindesHabilitadosWhereConditions);
             $containArray = array(
                 "Brindes",
                 "Clientes"
             );
 
-            if (sizeof($filterGeneroBrindesClientesColumns)) {
-                $containArray["GeneroBrindesClientes"] = array("fields" => $filterGeneroBrindesClientesColumns);
+            if (sizeof($filterTiposBrindesClientesColumns)) {
+                $containArray["TiposBrindesClientes"] = array("fields" => $filterTiposBrindesClientesColumns);
             } else {
-                $containArray[] = "GeneroBrindesClientes";
+                $containArray[] = "TiposBrindesClientes";
             }
 
             $clientesBrindesHabilitados = array();
 
-            $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+            $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
             foreach ($brindesIds as $key => $brindeId) {
 
@@ -680,7 +680,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * @param array $brindesIds Array de brindesIds
      * @param array $clientesIds Array de clientesIds
      * @param string $tipoCodigoBarras Tipo de código de barras
-     * @param array $generoBrindesClientesIds Array de generoBrindesClientesIds
+     * @param array $tiposBrindesClientesIds Array de tiposBrindesClientesIds
      * @param boolean $habilitado
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -692,7 +692,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         array $brindesIds = array(),
         array $clientesIds = array(),
         string $tipoCodigoBarras = "",
-        array $generoBrindesClientesIds = array(),
+        array $tiposBrindesClientesIds = array(),
         bool $habilitado = null
     ) {
 
@@ -707,8 +707,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             if (!empty($tipoCodigoBarras)) {
                 $whereConditions[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
             }
-            if (sizeof($generoBrindesClientesIds) > 0) {
-                $whereConditions[] = array("genero_brindes_clientes_id" => $generoBrindesClientesIds);
+            if (sizeof($tiposBrindesClientesIds) > 0) {
+                $whereConditions[] = array("tipos_brindes_clientes_id" => $tiposBrindesClientesIds);
             }
             if (!empty($ihabilitado)) {
                 $whereConditions[] = array("habilitado" => $habilitado);

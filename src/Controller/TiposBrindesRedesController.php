@@ -122,7 +122,7 @@ class TiposBrindesRedesController extends AppController
     /**
      * View method
      *
-     * @param string|null $id Genero Brinde id.
+     * @param string|null $id Tipos Brindes Redes Id.
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
@@ -207,6 +207,9 @@ class TiposBrindesRedesController extends AppController
                         return;
                     }
 
+                    // TODO: verifica se o usuário está cadastrando um mesmo código novamente
+
+
                     // DebugUtil::print($data);
 
                     $tipoBrinde = $this->TiposBrindesRedes->patchEntity($tipoBrinde, $data);
@@ -257,7 +260,7 @@ class TiposBrindesRedesController extends AppController
      *
      * Método de editar Gênero de Brinde
      *
-     * @param string|null $id Genero Brinde id.
+     * @param string|null $id Tipos Brinde Redes id.
      *
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
@@ -375,7 +378,7 @@ class TiposBrindesRedesController extends AppController
      *
      * Método de remover Gênero de Brinde
      *
-     * @param string|null $id Genero Brinde id.
+     * @param string|null $id Tipos Brindes Redes id.
      *
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
@@ -446,7 +449,7 @@ class TiposBrindesRedesController extends AppController
         $status = false;
 
         $mensagem = array();
-        $genero_brindes_cliente = array();
+        $tipos_brindes_cliente = array();
 
         try {
             if ($this->request->is(['post'])) {
