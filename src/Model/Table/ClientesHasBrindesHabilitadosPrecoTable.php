@@ -42,7 +42,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * Method get of brinde table property
-     * 
+     *
      * @return (Cake\ORM\Table) Table object
      */
     private function _getClientesHasBrindesHabilitadosPrecoTable()
@@ -55,7 +55,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * Method set of brinde table property
-     * 
+     *
      * @return void
      */
     private function _setClientesHasBrindesHabilitadosPrecoTable()
@@ -103,7 +103,15 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
         $validator
             ->decimal('preco')
             ->requirePresence('preco', 'create')
-            ->notEmpty('preco');
+            ->allowEmpty('preco');
+
+        $validator
+            ->decimal('preco')
+            ->allowEmpty('preco');
+
+        $validator
+            ->decimal('valor_moeda_venda')
+            ->allowEmpty('valor_moeda_venda');
 
         $validator
             ->dateTime('data_preco')
@@ -154,7 +162,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      * @param int $clientesHasBrindesHabilitadosId
      * @param int $clientes_id
      * @param int $preco_padrao
-     * 
+     *
      * @return (entity\ClientesHasBrindesHabilitadosPreco) $entity
      **/
     public function addBrindeHabilitadoPreco($clientesHasBrindesHabilitadosId, $clientes_id, $preco_padrao, $status_autorizacao)
@@ -178,7 +186,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    
+
     /* ------------------------ Read ------------------------ */
 
     /**

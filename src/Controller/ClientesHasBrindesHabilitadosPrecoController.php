@@ -12,6 +12,7 @@ use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * ClientesHasBrindesHabilitadosPreco Controller
@@ -158,21 +159,27 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             $this->user_logged = $user_managed;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $rede = $this->request->session()->read("Network.Main");
+        // DebugUtil::print($this->request->session()->read("Network.Main"));
 
-        $novo_preco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
-        $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
+        $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
+
+        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
 
         // pega último preço autorizado
         $ultimo_preco_autorizado = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($brindes_id, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
 
-        $clientes_id = $brinde_habilitado->clientes_id;
+        // Pega último preco de venda avulsa autorizado
+
+
+        $clientesId = $brindeHabilitado->clientes_id;
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $novo_preco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novo_preco, $data);
+            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
 
             // verifica se o último brinde autorizado
             // tem valor igual ao valor que o usuário informou
@@ -217,7 +224,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 }
             }
 
-            $novo_preco->preco = str_replace(",", "", $this->request->getData()['preco']);
+            $novoPreco->preco = str_replace(",", "", $this->request->getData()['preco']);
 
             /*
              * Preco deve ser alertado aos Administradores da Rede caso
@@ -227,13 +234,13 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $requer_autorizacao = Configure::read('giftApprovalStatus')['Allowed'];
 
-            if (!($cliente->matriz) && ($brinde_habilitado->brinde->preco_padrao != $novo_preco->preco) && $this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $requer_autorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
             }
 
-            $novo_preco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($brindes_id, $cliente->id, $novo_preco['preco'], $requer_autorizacao);
+            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($brindes_id, $cliente->id, $novoPreco['preco'], $requer_autorizacao);
 
-            if ($novo_preco) {
+            if ($novoPreco) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
 
                 /**
@@ -241,7 +248,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * da rede daquela rede informando à respeito da alteração do preço
                  */
                 if ($requer_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
-                    $matriz_id = $brinde_habilitado->brinde->clientes_id;
+                    $matriz_id = $brindeHabilitado->brinde->clientesId;
 
                     $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matriz_id, (int)Configure::read('profileTypes')['AdminNetworkProfileType']);
 
@@ -250,7 +257,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                             [
                                 'controller' => 'clientes_has_brindes_habilitados',
                                 'action' => 'detalhes_brinde',
-                                $brinde_habilitado->id
+                                $brindeHabilitado->id
                             ]
                         );
 
@@ -271,9 +278,9 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             $this->Flash->error(Configure::read('messageSavedError'));
         }
 
-        $array_set = ['novo_preco', 'brindes_id', 'brinde_habilitado', 'clientes_id', 'ultimo_preco_autorizado'];
-        $this->set(compact([$array_set]));
-        $this->set('_serialize', [$array_set]);
+        $arraySet = ['novoPreco', 'brindes_id', 'brindeHabilitado', 'clientesId', 'ultimo_preco_autorizado'];
+        $this->set(compact([$arraySet]));
+        $this->set('_serialize', [$arraySet]);
     }
 
     /**

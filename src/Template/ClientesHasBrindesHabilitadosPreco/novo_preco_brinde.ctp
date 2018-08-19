@@ -25,7 +25,7 @@ $this->Breadcrumbs->add(
     'Configurar um Brinde de Unidade',
     [
         'controller' => 'clientes_has_brindes_habilitados',
-        'action' => 'configurar_brindes_unidade', $clientes_id
+        'action' => 'configurar_brindes_unidade', $clientesId
     ]
 );
 
@@ -49,9 +49,9 @@ echo $this->element(
     ]
 ) ?>
 <div class="clientesHasBrindesHabilitados form col-lg-9 col-md-8 columns content">
-    <?= $this->Form->create($novo_preco) ?>
+    <?= $this->Form->create($novoPreco) ?>
     <fieldset>
-        <legend><?= __('Adicionar novo preço para {0}', $brinde_habilitado->brinde->nome) ?></legend>
+        <legend><?= __('Adicionar novo preço para {0}', $brindeHabilitado->brinde->nome) ?></legend>
 
 
         <?= $this->element('../ClientesHasBrindesHabilitadosPreco/novo_preco_form') ?>
