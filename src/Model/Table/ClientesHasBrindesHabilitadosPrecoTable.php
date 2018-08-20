@@ -255,7 +255,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getLastPrecoForBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $where_conditions = [])
+    public function getUltimoPrecoBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $where_conditions = [])
     {
         try {
 
@@ -271,6 +271,42 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
                 ->where($conditions)
                 ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
                 ->contain(['ClientesHasBrindesHabilitados'])->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtem último Preço para Brinde Habilitado
+     *
+     * @param int $clientesHasBrindesHabilitadosId Id de clientes has brindes habilitados
+     *
+     * @return entity $preco
+     **/
+    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, int $statusAutorizacao)
+    {
+        try {
+
+            $conditions = array();
+
+            $conditions[] = array('clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId);
+            $conditions[] = array('status_autorizacao' => $statusAutorizacao);
+
+            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+                ->where($conditions)
+                ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
+                ->contain(['ClientesHasBrindesHabilitados'])
+                ->select(array(
+                    "id",
+                    "valor_moeda_venda",
+                    "status_autorizacao",
+                    "data_preco",
+                ))->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);

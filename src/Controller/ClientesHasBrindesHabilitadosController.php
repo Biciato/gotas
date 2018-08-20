@@ -442,7 +442,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                         }
                     }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
-                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
+                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
 
                     if (!isset($precos)) {
                         $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientes_id, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
@@ -605,7 +605,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $array_return = [];
         foreach ($clientes_has_brindes_habilitados as $key => $value) {
             $value['BrindeHabilitadoPrecoAtual']
-                = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($value['id']);
+                = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($value['id']);
 
             array_push($array_return, $value);
         }

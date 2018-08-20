@@ -150,7 +150,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects to giftsDetails on success, renders view otherwize
      */
-    public function novoPrecoBrinde($brindes_id)
+    public function novoPrecoBrinde($brindesId)
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
@@ -166,18 +166,42 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
-        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
+        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindesId);
 
         // pega último preço autorizado
-        $ultimo_preco_autorizado = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($brindes_id, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
+        $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
+        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, (int)Configure::read('giftApprovalStatus')['Allowed']);
 
         // Pega último preco de venda avulsa autorizado
-
 
         $clientesId = $brindeHabilitado->clientes_id;
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
+
+            $preco = $data["preco"];
+            $valorMoedaVenda = $data["preco_atual_moeda"];
+
+            $message = null;
+            $errorFound = false;
+            if (empty($preco) && empty($valorMoedaVenda)) {
+                $message = "É necessário informar valor para Preço (em gotas) ou Preço (Venda avulsa)";
+                $errorFound = true;
+
+            } else if (empty($valorMoedaVenda) && (!empty($preco) && ($preco == $ultimoPrecoAutorizadoGotas["preco"]))) {
+                $message = "Este preço de gotas já foi utilizado anteriormente. Especifique outro valor para cadastro!";
+                $errorFound = true;
+
+            } else if (empty($preco) && (!empty($valorMoedaVenda) && ($valorMoedaVenda == $ultimoPrecoAutorizadoVendaAvulsa["valor_venda_moeda"]))) {
+                $message = "Este preço de venda avulsa já foi utilizado anteriormente. Especifique outro valor para cadastro!";
+                $errorFound = true;
+            }
+
+            if ($errorFound) {
+                $this->Flash->error($message);
+
+                return $this->redirect(array("action" => "novo_preco_brinde", $brindesId));
+            }
 
             $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
 
@@ -186,16 +210,16 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $preco_comparacao = str_replace(",", "", $this->request->getData()['preco']);
 
-            if ($ultimo_preco_autorizado->preco == $preco_comparacao) {
+            if ($ultimoPrecoAutorizadoGotas["preco"] == $preco_comparacao) {
 
                 $this->Flash->error("O valor informado é o mesmo do preço atual, não será criado um novo preço!");
 
-                return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindes_id]);
+                return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
             }
 
             // verifica se o brinde tem algum preço aguardando autorização.
 
-            $ultimo_preco = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($brindes_id);
+            $ultimo_preco = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId);
 
             /**
              * verifica se houve um último preço para atualizar os dados
@@ -213,7 +237,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
                         $this->Flash->error("Este brinde já possui um preço pendente de autorização. Não será possível cadastrar um novo até que o anterior seja autorizado ou negado!");
 
-                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindes_id]);
+                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
                     } else {
 
                     //caso contrário, atualiza ele para negado
@@ -238,7 +262,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $requer_autorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
             }
 
-            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($brindes_id, $cliente->id, $novoPreco['preco'], $requer_autorizacao);
+            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($brindesId, $cliente->id, $novoPreco['preco'], $requer_autorizacao);
 
             if ($novoPreco) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
@@ -272,13 +296,13 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     }
                 }
 
-                return $this->redirect(['controller' => 'clientesHasBrindesHabilitados', 'action' => 'configurar_brinde', $brindes_id]);
+                return $this->redirect(['controller' => 'clientesHasBrindesHabilitados', 'action' => 'configurar_brinde', $brindesId]);
             }
 
             $this->Flash->error(Configure::read('messageSavedError'));
         }
 
-        $arraySet = ['novoPreco', 'brindes_id', 'brindeHabilitado', 'clientesId', 'ultimo_preco_autorizado'];
+        $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa");
         $this->set(compact([$arraySet]));
         $this->set('_serialize', [$arraySet]);
     }

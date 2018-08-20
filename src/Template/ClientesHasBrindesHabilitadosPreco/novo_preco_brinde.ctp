@@ -29,7 +29,7 @@ $this->Breadcrumbs->add(
     ]
 );
 
-$this->Breadcrumbs->add('Configurar Brinde', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
+$this->Breadcrumbs->add('Configurar Brinde', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindesId]);
 
 $this->Breadcrumbs->add(__('Novo Preço de Brinde'), [], ['class' => 'active']);
 
@@ -41,10 +41,10 @@ echo $this->Breadcrumbs->render(
 echo $this->element(
     '../ClientesHasBrindesHabilitadosPreco/left_menu',
     [
-        'brindes_id' => $brindes_id,
+        'brindes_id' => $brindesId,
         'go_back_url' => [
             'controller' => 'clientes_has_brindes_habilitados',
-            'action' => 'detalhes_brinde', $brindes_id
+            'action' => 'detalhes_brinde', $brindesId
         ]
     ]
 ) ?>
@@ -52,8 +52,6 @@ echo $this->element(
     <?= $this->Form->create($novoPreco) ?>
     <fieldset>
         <legend><?= __('Adicionar novo preço para {0}', $brindeHabilitado->brinde->nome) ?></legend>
-
-
         <?= $this->element('../ClientesHasBrindesHabilitadosPreco/novo_preco_form') ?>
     </fieldset>
     <?= $this->Form->button(__('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])), ['escape' => false]) ?>

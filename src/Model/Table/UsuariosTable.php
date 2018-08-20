@@ -146,7 +146,7 @@ class UsuariosTable extends GenericTable
                     'message' => 'Este CPF já está em uso'
                 ]
             );
-                                    // ;
+
         $validator
             ->integer('sexo')
             ->requirePresence('sexo', 'create')
