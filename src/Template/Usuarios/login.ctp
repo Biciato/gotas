@@ -47,7 +47,7 @@
 
 <?= $this->Form->end() ?>
 
-<br />
+<!-- <br />
 <fieldset>
     <legend>Ou entre utilizando os seguintes provedores disponíveis</legend>
     <?php
@@ -70,7 +70,7 @@
             )
         );
     ?>
-</fieldset>
+</fieldset> -->
 
 </div>
 

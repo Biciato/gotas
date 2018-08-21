@@ -166,6 +166,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
+
         $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindesId);
 
         // pega último preço autorizado
@@ -180,7 +181,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             $data = $this->request->getData();
 
             $preco = $data["preco"];
-            $valorMoedaVenda = $data["preco_atual_moeda"];
+            $valorMoedaVenda = $data["valor_moeda_venda"];
 
             $message = null;
             $errorFound = false;
@@ -205,14 +206,19 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
 
+            // TODO: continuar
+            // DebugUtil::print($novoPreco);
+
+
             // verifica se o último brinde autorizado
             // tem valor igual ao valor que o usuário informou
 
-            $preco_comparacao = str_replace(",", "", $this->request->getData()['preco']);
+            $precoComparacao = str_replace(",", "", $this->request->getData()['preco']);
+            $precoComparacaoVendaAvulsa = null;
 
-            if ($ultimoPrecoAutorizadoGotas["preco"] == $preco_comparacao) {
+            if ($ultimoPrecoAutorizadoGotas["preco"] == $precoComparacao) {
 
-                $this->Flash->error("O valor informado é o mesmo do preço atual, não será criado um novo preço!");
+                $this->Flash->error("O valor informado para Preço em Gotas é o mesmo do preço atual, não será criado um novo preço!");
 
                 return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
             }

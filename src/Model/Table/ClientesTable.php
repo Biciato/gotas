@@ -321,50 +321,6 @@ class ClientesTable extends GenericTable
     /* ------------------------ Read -------------------------- */
 
     /**
-     * Undocumented function
-     *
-     * @param int $clientes_id Id de Clientes
-     *
-     * @return Cliente $cliente Registro da matriz
-     */
-    public function findClienteMatrizFromClientesId(int $clientes_id)
-    {
-        try {
-            $matriz = null;
-
-            // TODO: ajustar
-            while (true) {
-                $cliente = $this->_getClientesTable()->find('all')
-                    ->where(['id' => $clientes_id])
-                    ->first();
-
-                $clientes_id = $cliente->matriz_id;
-
-                if (!isset($clientes_id)) {
-                    $matriz = $cliente;
-                    break;
-                }
-            }
-
-            return
-                [
-                'result' => true,
-                'data' => $matriz
-            ];
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return [
-                'result' => false,
-                'data' => $stringError
-            ];
-        }
-    }
-
-    /**
      * Obtem todos os clientes
      *
      * @param array $where_conditions condições

@@ -4,12 +4,12 @@ namespace App\Model\Table;
 use ArrayObject;
 use Cake\Event\Event;
 use Cake\Log\Log;
+use Cake\Core\Configure;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use Cake\Core\Configure;
 
 /**
  * ClientesHasBrindesHabilitadosPreco Model
@@ -102,11 +102,6 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
         $validator
             ->decimal('preco')
-            ->requirePresence('preco', 'create')
-            ->allowEmpty('preco');
-
-        $validator
-            ->decimal('preco')
             ->allowEmpty('preco');
 
         $validator
@@ -149,10 +144,15 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * -------------------------------------------------------------
-     * Methods
+     * Métodos Validação
      * -------------------------------------------------------------
      */
 
+    /**
+     * -------------------------------------------------------------
+     * Métodos CRUD
+     * -------------------------------------------------------------
+     */
 
     /* ------------------------ Create ------------------------ */
 

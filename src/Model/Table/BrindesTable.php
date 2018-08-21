@@ -130,6 +130,11 @@ class BrindesTable extends GenericTable
             ->notEmpty('preco_padrao');
 
         $validator
+            ->decimal('valor_moeda_venda_padrao')
+            ->requirePresence('valor_moeda_venda_padrao', 'create')
+            ->allowEmpty('valor_moeda_venda_padrao');
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 

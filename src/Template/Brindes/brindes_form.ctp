@@ -48,15 +48,25 @@ use Cake\Core\Configure;
         ) ?>
     </div>
 
-<div class="col-lg-6">
-    <?= $this->Form->input(
-        'preco_padrao',
-        [
-            'type' => 'text',
-            'id' => 'preco_padrao',
-            'label' => 'Preço Padrão em Gotas'
-        ]
-    ); ?>
+    <div class="col-lg-3">
+        <?= $this->Form->input(
+            'preco_padrao',
+            [
+                'type' => 'text',
+                'id' => 'preco_padrao',
+                'label' => 'Preço Padrão em Gotas'
+            ]
+        ); ?>
+    </div>
+    <div class="col-lg-3">
+        <?= $this->Form->input(
+            'valor_moeda_venda_padrao',
+            [
+                'type' => 'text',
+                'id' => 'valor_moeda_venda_padrao',
+                'label' => 'Preço Padrão de Venda Avulsa (R$)'
+            ]
+        ); ?>
     </div>
 </div>
 

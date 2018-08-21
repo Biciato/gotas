@@ -285,6 +285,16 @@ class BrindesController extends AppController
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados($clientesId);
 
+            // Obtem a matriz pois o Brinde é atribuído sempre para a matriz
+            $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede["id"]);
+
+            if (empty($redeHasCliente)) {
+                throw new Exception("Matriz de Rede não foi encontrada!");
+            }
+            $clientesId = $redeHasCliente["clientes_id"];
+
+            // DebugUtil::print($tiposBrindesCliente);
+
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
             }
@@ -293,7 +303,10 @@ class BrindesController extends AppController
                 $data = $this->request->getData();
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
-                $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+                // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+                $brinde->preco_padrao = (float)$data['preco_padrao'];
+
+                // DebugUtil::print($brinde);
 
                 if ($this->Brindes->findBrindesByName($brinde['nome'])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -307,9 +320,15 @@ class BrindesController extends AppController
 
                     $brinde["clientes_id"] = $clientesId;
 
+                    // DebugUtil::print($brinde);
                     $brinde = $this->Brindes->save($brinde);
+
+                    $errors = $brinde->errors();
+                    // DebugUtil::print($errors);
+
+                    // DebugUtil::print($brinde);
                     if ($brinde) {
-                        // habilita brinde para venda em uma rede/loja
+                        // habilita brinde para venda na matriz
                         $clienteHasBrindeHabilitado
                             = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
                             $clientesId,
@@ -367,6 +386,15 @@ class BrindesController extends AppController
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $this->Flash->error($e->getMessage());
+
+            $messageString = __("Não foi possível gravar um novo Brinde!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
     }
 
@@ -424,7 +452,9 @@ class BrindesController extends AppController
                 // Preserva o id base de gênero brindes
                 $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
 
-                $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                $brinde->preco_padrao = (float)$data['preco_padrao'];
 
                 if ($enviouNovaImagem) {
                     $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);

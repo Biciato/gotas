@@ -14,7 +14,7 @@ use App\Custom\RTI\DebugUtil;
 
 <div class="form-group row">
     <div class="col-lg-6">
-        <legend>Preço em Gotas (Via troca de Pontos)</legend>
+        <legend>Preço em Gotas (Via troca de pontos)</legend>
         <div class="col-lg-12">
             <?= $this->Form->input(
                 "preco",
@@ -33,7 +33,8 @@ use App\Custom\RTI\DebugUtil;
                 [
                     "type" => "text",
                     "label" => "Preço (em gotas):",
-                    "id" => "preco"
+                    "id" => "preco",
+                    "required" => false
                 ]
             ); ?>
         </div>
@@ -54,11 +55,12 @@ use App\Custom\RTI\DebugUtil;
         </div>
         <div class="col-lg-12">
             <?= $this->Form->input(
-                "preco_atual_moeda",
+                "valor_moeda_venda",
                 [
                     "type" => "decimal",
                     "label" => "Preço (R$ / venda avulsa):",
-                    "id" => "valor_moeda_venda"
+                    "id" => "valor_moeda_venda",
+                    "required" => false
                 ]
             ); ?>
         </div>
