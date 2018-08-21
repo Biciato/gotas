@@ -134,6 +134,10 @@ class CuponsTable extends GenericTable
             ->notEmpty('resgatado');
 
         $validator
+            ->boolean('usado')
+            ->notEmpty('usado');
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
@@ -268,6 +272,10 @@ class CuponsTable extends GenericTable
              */
             $cupom->resgatado = $tipoPrincipalCodigoBrinde <= 4;
 
+            // Usado é automatico após 24 horas se for brinde de banho.
+            // Se não for, é atribuido quando faz o resgate
+            $cupom->usado = $tipoPrincipalCodigoBrinde <= 4;
+
             // Antes do save, calcular cupom emitido
 
             $identificador_cliente = $cliente->codigo_rti_shower;
@@ -299,7 +307,8 @@ class CuponsTable extends GenericTable
                 $senha
             );
 
-            return $this->_getCuponsTable()->save($cupom);
+            $cupom = $this->_getCuponsTable()->save($cupom);
+            return $this->find()->where(array("id" => $cupom["id"]))->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);

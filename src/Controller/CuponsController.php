@@ -2822,7 +2822,8 @@ class CuponsController extends AppController
 
                 if ($cupom) {
                     $status = true;
-                    $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
+                    // $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
+                    $cupom->data = ($cupom->data)->format('d/m/Y H:i:s');
                     $ticket = $cupom;
                     $message = null;
 
