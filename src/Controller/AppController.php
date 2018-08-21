@@ -68,7 +68,7 @@ class AppController extends Controller
         parent::initialize();
 
         // Troca base de dados
-        ConnectionManager::alias("devel", "default");
+        // ConnectionManager::alias("devel", "default");
 
         $this->loadComponent(
             'Auth',
