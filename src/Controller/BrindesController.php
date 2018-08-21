@@ -303,6 +303,7 @@ class BrindesController extends AppController
                 $data = $this->request->getData();
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
+                // DebugUtil::print($data);
                 // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
                 $brinde->preco_padrao = (float)$data['preco_padrao'];
 
@@ -326,14 +327,26 @@ class BrindesController extends AppController
                     $errors = $brinde->errors();
                     // DebugUtil::print($errors);
 
-                    // DebugUtil::print($brinde);
+                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
+                        $clientesId,
+                        $data["tipos_brindes_redes_id"]
+                    );
+
+                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0){
+                        $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
+                    }
+
+                    // DebugUtil::print($tiposBrindesClienteSelecionadoId);
                     if ($brinde) {
                         // habilita brinde para venda na matriz
                         $clienteHasBrindeHabilitado
                             = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
                             $clientesId,
-                            $brinde->id
+                            $brinde->id,
+                            $tiposBrindesClienteSelecionadoId
                         );
+
+                        // DebugUtil::print($clienteHasBrindeHabilitado);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -363,7 +376,13 @@ class BrindesController extends AppController
 
                         // brinde habilitado, então cadastra novo preço
                         if ($clienteHasBrindeHabilitado) {
-                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientesId, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
+                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                                $clienteHasBrindeHabilitado["id"],
+                                $clientesId,
+                                (int)Configure::read('giftApprovalStatus')['Allowed'],
+                                $brinde["preco_padrao"],
+                                $brinde["valor_moeda_venda_padrao"]
+                            );
                         }
 
                         if ($brindesHabilitadosPreco) {

@@ -255,13 +255,19 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         // debug($cliente_has_brinde_habilitado);
         $historico_precos = $this->paginate(
-            $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id
-        ), ['order' => ['data_preco' => 'desc'], 'limit' => 10]);
+            $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id),
+            ['order' => ['data_preco' => 'desc'], 'limit' => 10]
+        );
 
         $clientes_id = $cliente_has_brinde_habilitado->clientes_id;
 
-        $this->set(compact(['historico_precos', 'cliente_has_brinde_habilitado', 'clientes_id']));
-        $this->set('_serialize', ['historico_precos', 'clientes_id']);
+        $arraySet = array(
+            'historico_precos',
+            'cliente_has_brinde_habilitado',
+            'clientes_id'
+        );
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -445,7 +451,13 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
 
                     if (!isset($precos)) {
-                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientes_id, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
+                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                            $clienteHasBrindeHabilitado["id"],
+                            $clientes_id,
+                            (int)Configure::read('giftApprovalStatus')['Allowed'],
+                            $brinde["preco_padrao"],
+                            $brinde["valor_moeda_venda"]
+                        );
                     }
                 }
             }

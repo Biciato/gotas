@@ -64,7 +64,7 @@ use Cake\Core\Configure;
             [
                 'type' => 'text',
                 'id' => 'valor_moeda_venda_padrao',
-                'label' => 'Preço Padrão de Venda Avulsa (R$)'
+                'label' => 'Preço Padrão de Venda Avulsa (R$)',
             ]
         ); ?>
     </div>

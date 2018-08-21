@@ -34,7 +34,7 @@ use App\Custom\RTI\DebugUtil;
                     "type" => "text",
                     "label" => "Preço (em gotas):",
                     "id" => "preco",
-                    "required" => false
+                    "required" => true
                 ]
             ); ?>
         </div>
@@ -46,7 +46,7 @@ use App\Custom\RTI\DebugUtil;
                 "preco_atual_moeda",
                 [
                     "label" => "Preço Atual: ",
-                    "value" => is_null($ultimoPrecoAutorizadoVendaAvulsa) ? 0 : $ultimoPrecoAutorizadoVendaAvulsa->preco,
+                    "value" => is_null($ultimoPrecoAutorizadoVendaAvulsa) ? 0 : $ultimoPrecoAutorizadoVendaAvulsa->valor_moeda_venda,
                     "id" => "preco_atual_moeda",
                     "readonly" => true
                 ]
@@ -60,7 +60,7 @@ use App\Custom\RTI\DebugUtil;
                     "type" => "decimal",
                     "label" => "Preço (R$ / venda avulsa):",
                     "id" => "valor_moeda_venda",
-                    "required" => false
+                    "required" => true
                 ]
             ); ?>
         </div>

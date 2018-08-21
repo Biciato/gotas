@@ -101,10 +101,17 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 'foreignKey' => 'clientes_has_brindes_habilitados_id',
                 // 'joinType' => 'inner',
                 'strategy' => 'select',
-                'conditions' => ['status_autorizacao' => 1],
+                'conditions' =>
+                    array(
+                    'status_autorizacao' => 1,
+                    "preco IS NOT NULL"
+                ),
                 'order' => ['id' => 'desc']
             ]
         );
+
+
+
 
                     //    $this->hasOne('BrindeHabilitadoPrecoAtual', [
                     //    'className' => 'ClientesHasBrindesHabilitadosPreco',
@@ -208,14 +215,15 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * @return entity\ClienteHasBrindesHabilitados $entity
      * @author
      **/
-    public function addClienteHasBrindeHabilitado($clientes_id, $brindes_id)
+    public function addClienteHasBrindeHabilitado($clientesId, $brindesId, $tiposBrindesClientesId)
     {
         try {
             $clienteHasBrindeHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->newEntity();
 
-            $clienteHasBrindeHabilitado->clientes_id = $clientes_id;
-            $clienteHasBrindeHabilitado->brindes_id = $brindes_id;
-            $clienteHasBrindeHabilitado->habilitado = true;
+            $clienteHasBrindeHabilitado->clientes_id = $clientesId;
+            $clienteHasBrindeHabilitado->brindes_id = $brindesId;
+            $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesClientesId;
+            $clienteHasBrindeHabilitado->habilitado = 1;
 
             return $this->_getClientesHasBrindesHabilitadosTable()->save($clienteHasBrindeHabilitado);
         } catch (\Exception $e) {
@@ -223,8 +231,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $stringError = __("Erro ao inserir registro: {0} em: {1}", $e->getMessage(), $trace);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
         }
     }
 
@@ -276,7 +282,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     {
         try {
             $brinde = $this->_getClientesHasBrindesHabilitadosTable()->find('all')->where(['ClientesHasBrindesHabilitados.id' => $id])
-                ->contain(['Clientes', 'Brindes', 'BrindeHabilitadoPrecoAtual', "TiposBrindesClientes"])
+                ->contain(
+                    array(
+                        'Clientes',
+                        'Brindes',
+                        'BrindeHabilitadoPrecoAtual',
+                        "TiposBrindesClientes"
+                    )
+                )
                 ->first();
 
             // Cálculo de estoque do item
@@ -630,7 +643,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             if ($brindesPrecoOrdenacao) {
 
-                usort($clientesBrindesHabilitadosReturn, function ($a, $b) use ($brindesPrecoOrdenacao)  {
+                usort($clientesBrindesHabilitadosReturn, function ($a, $b) use ($brindesPrecoOrdenacao) {
                     $key = key($brindesPrecoOrdenacao);
 
                     if (strtoupper($brindesPrecoOrdenacao[$key]) == "ASC") {

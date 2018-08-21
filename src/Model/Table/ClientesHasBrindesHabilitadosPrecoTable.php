@@ -102,11 +102,13 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
         $validator
             ->decimal('preco')
-            ->allowEmpty('preco');
+            ->requirePresence("preco", "create")
+            ->notEmpty('preco');
 
-        $validator
+            $validator
             ->decimal('valor_moeda_venda')
-            ->allowEmpty('valor_moeda_venda');
+            ->requirePresence("valor_moeda_venda", "create")
+            ->notEmpty('valor_moeda_venda');
 
         $validator
             ->dateTime('data_preco')
@@ -157,23 +159,30 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     /* ------------------------ Create ------------------------ */
 
     /**
-     * Add a Preço for a BrindeHabilitado
+     * ClientesHasBrindesHabilitadosPrecoTable::addBrindeHabilitadoPreco
+     *
+     * Adiciona um preço para brinde habilitado
      *
      * @param int $clientesHasBrindesHabilitadosId
-     * @param int $clientes_id
-     * @param int $preco_padrao
+     * @param int $clientesId
+     * @param int $precoPadrao
+     * @param int $valorMoedaVenda
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 01/09/2017
      *
      * @return (entity\ClientesHasBrindesHabilitadosPreco) $entity
      **/
-    public function addBrindeHabilitadoPreco($clientesHasBrindesHabilitadosId, $clientes_id, $preco_padrao, $status_autorizacao)
+    public function addBrindeHabilitadoPreco(int $clientesHasBrindesHabilitadosId, int $clientesId, int $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
     {
         try {
             $brindeHabilitadoPreco = $this->_getClientesHasBrindesHabilitadosPrecoTable()->newEntity();
 
             $brindeHabilitadoPreco->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
-            $brindeHabilitadoPreco->clientes_id = $clientes_id;
-            $brindeHabilitadoPreco->preco = $preco_padrao;
-            $brindeHabilitadoPreco->status_autorizacao = $status_autorizacao;
+            $brindeHabilitadoPreco->clientes_id = $clientesId;
+            $brindeHabilitadoPreco->preco = $precoPadrao;
+            $brindeHabilitadoPreco->valor_moeda_venda = $valorMoedaVenda;
+            $brindeHabilitadoPreco->status_autorizacao = $statusAutorizacao;
             $brindeHabilitadoPreco->data_preco = date('Y-m-d H:i:s');
 
             return $this->_getClientesHasBrindesHabilitadosPrecoTable()->save($brindeHabilitadoPreco);

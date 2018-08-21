@@ -160,12 +160,10 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
         }
 
         $rede = $this->request->session()->read("Network.Main");
-        // DebugUtil::print($this->request->session()->read("Network.Main"));
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        // $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
-
 
         $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindesId);
 
@@ -176,6 +174,9 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
         // Pega último preco de venda avulsa autorizado
 
         $clientesId = $brindeHabilitado->clientes_id;
+
+        $cliente = $this->Clientes->getClienteById($clientesId);
+
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -198,6 +199,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $errorFound = true;
             }
 
+            // DebugUtil::print($data);
             if ($errorFound) {
                 $this->Flash->error($message);
 
@@ -206,39 +208,25 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
 
-            // TODO: continuar
-            // DebugUtil::print($novoPreco);
-
-
-            // verifica se o último brinde autorizado
-            // tem valor igual ao valor que o usuário informou
-
-            $precoComparacao = str_replace(",", "", $this->request->getData()['preco']);
-            $precoComparacaoVendaAvulsa = null;
-
-            if ($ultimoPrecoAutorizadoGotas["preco"] == $precoComparacao) {
-
-                $this->Flash->error("O valor informado para Preço em Gotas é o mesmo do preço atual, não será criado um novo preço!");
-
-                return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
-            }
-
             // verifica se o brinde tem algum preço aguardando autorização.
 
-            $ultimo_preco = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId);
+            $ultimoPreco = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId);
+
+            // echo __LINE__;
+            // DebugUtil::print($ultimoPreco);
 
             /**
              * verifica se houve um último preço para atualizar os dados
              * (conferir se realmente vai autorizar a mudança...)
              */
 
-            if ($ultimo_preco) {
+            if ($ultimoPreco) {
 
                 /**
                  * Caso esteja pendente e for alguém com permissão
                  * maior que Administrador Local, não permite continuar
                  */
-                if ($ultimo_preco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
+                if ($ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
                     if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
                         $this->Flash->error("Este brinde já possui um preço pendente de autorização. Não será possível cadastrar um novo até que o anterior seja autorizado ou negado!");
@@ -247,14 +235,18 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     } else {
 
                     //caso contrário, atualiza ele para negado
-                        $ultimo_preco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['Denied'];
+                        $ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['Denied'];
 
-                        $this->ClientesHasBrindesHabilitadosPreco->save($ultimo_preco);
+                        $this->ClientesHasBrindesHabilitadosPreco->save($ultimoPreco);
                     }
                 }
             }
 
-            $novoPreco->preco = str_replace(",", "", $this->request->getData()['preco']);
+            // $novoPreco->preco = str_replace(",", "", $this->request->getData()['preco']);
+            $novoPreco["preco"] = (float)$data['preco'] != 0 ? (float)$data["preco"] : null;
+            $novoPreco["valor_moeda_venda"] = (float)$data['valor_moeda_venda'] != 0 ? (float)$data["valor_moeda_venda"] : null;
+
+            // DebugUtil::print($novoPreco);
 
             /*
              * Preco deve ser alertado aos Administradores da Rede caso
@@ -262,13 +254,21 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
              * for fora da matriz.
              */
 
-            $requer_autorizacao = Configure::read('giftApprovalStatus')['Allowed'];
+            $requerAutorizacao = Configure::read('giftApprovalStatus')['Allowed'];
+
+            // DebugUtil::printArray($clientesId);
 
             if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $requer_autorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
+                $requerAutorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
             }
 
-            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($brindesId, $cliente->id, $novoPreco['preco'], $requer_autorizacao);
+            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                $brindesId,
+                $clientesId,
+                $requerAutorizacao,
+                $novoPreco["preco"],
+                $novoPreco["valor_moeda_venda"]
+            );
 
             if ($novoPreco) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
@@ -277,7 +277,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * Se o preço é diferente, envia um e-mail para cada administrador
                  * da rede daquela rede informando à respeito da alteração do preço
                  */
-                if ($requer_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
+                if ($requerAutorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
                     $matriz_id = $brindeHabilitado->brinde->clientesId;
 
                     $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matriz_id, (int)Configure::read('profileTypes')['AdminNetworkProfileType']);

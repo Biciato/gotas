@@ -153,7 +153,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::findTiposBrindesClientes
      *
-     * Procura gênero de brindes de um cliente conforme condições
+     * Procura tipo de brindes de um cliente conforme condições
      *
      * @param array $whereConditions Array de condições
      * @param int   $limit           Limite da consulta
@@ -182,7 +182,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao salvar tipo de brindes ao cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -192,7 +192,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TipoBrindesTable::findTiposBrindesClienteByClientesIds
      *
-     * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
+     * Obtem todos os tipos de brindes de cliente através dos ids de clientes
      *
      * @param array $clientesIds Ids de clientes
      *
@@ -231,7 +231,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -241,7 +241,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TipoBrindesTable::findTiposBrindesClienteByClientesIdTiposBrindesRedesId
      *
-     * Obtem todos os gêneros de brindes de cliente através dos ids de clientes
+     * Obtem todos os tipos de brindes de cliente através dos ids de clientes
      *
      * @param array $clientesIds Ids de clientes
      *
@@ -256,8 +256,9 @@ class TiposBrindesClientesTable extends GenericTable
 
             $whereConditions = array(
                 "habilitado" => 1,
-                "tipo_principal_codigo_brinde IS NOT NULL",
-                "tipo_secundario_codigo_brinde IS NOT NULL",
+                // Ele pode não ter código
+                // "tipo_principal_codigo_brinde IS NOT NULL",
+                // "tipo_secundario_codigo_brinde IS NOT NULL",
                 "clientes_id IN " => [$clientesId]
             );
 
@@ -284,7 +285,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -317,7 +318,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao salvar tipo de brindes ao cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -326,7 +327,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesByClientesId
      *
-     * Obtem os gênero de brindes de um cliente através do ClientesId
+     * Obtem os tipo de brindes de um cliente através do ClientesId
      *
      * @param integer $clientesId Id de Cliente
      *
@@ -345,7 +346,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao salvar tipo de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -354,9 +355,9 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesByTiposBrindesRedes
      *
-     * Obtem o gênero de brindes de um cliente através do ClientesId e Gênero Brinde Id
+     * Obtem o tipo de brindes de um cliente através do ClientesId e tipo Brinde Id
      *
-     * @param integer $tipoBrindesId Id do Gênero de Brinde
+     * @param integer $tipoBrindesId Id do tipo de Brinde
      * @param integer $clientesId      Id de Cliente
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -377,7 +378,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -386,7 +387,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesDisponiveis
      *
-     * Obtem GêneroBrindes Disponíveis
+     * Obtem TiposBrindes Disponíveis
      *
      * @param integer $clientesId Id de Cliente
      *
@@ -420,7 +421,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -430,7 +431,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesDisponiveis
      *
-     * Obtem GêneroBrindes Vinculados a um cliente
+     * Obtem TiposBrindes Vinculados a um cliente
      *
      * @param integer $clientesId Id de Cliente
      *
@@ -464,7 +465,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -473,7 +474,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesIdsFromConditions
      *
-     * Obtem Ids de Gênero Brindes Clientes de condição informada
+     * Obtem Ids de Tipos Brindes Clientes de condição informada
      *
      * @param array $tipoBrindesClientesConditions Condições
      *
@@ -500,7 +501,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -512,7 +513,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TipoBrindesTable::saveTiposBrindeCliente()
      *
-     * Salva/Atualiza um Gênero de Brinde
+     * Salva/Atualiza um Tipos de Brinde
      *
      * @param integer $tiposBrindesRedesId
      * @param integer $clientesId
@@ -555,7 +556,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao salvar gênero de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao salvar tipo de brindes ao cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -585,7 +586,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao atualizar estado de gênero de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao atualizar estado de tipo de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
@@ -614,7 +615,7 @@ class TiposBrindesClientesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao remover gênero de brindes do cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao remover tipo de brindes do cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
