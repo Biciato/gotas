@@ -141,13 +141,13 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
-        "GeneroBrindes",
+        "TiposBrindesRedes",
         [
             "map" => [
-                "getGeneroBrindesClienteAPI" => [
-                    "action" => "getGeneroBrindesClienteAPI",
+                "getTiposBrindesRedeAPI" => [
+                    "action" => "getTiposBrindesRedeAPI",
                     "method" => "POST",
-                    "path" => "/get_genero_brindes_cliente"
+                    "path" => "/get_tipos_brindes_rede"
                 ]
             ]
         ]

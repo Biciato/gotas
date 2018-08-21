@@ -38,7 +38,7 @@ class DebugUtil
      *
      * @return void
      */
-    public static function printArray(array $array, bool $die = true, bool $formatted = true)
+    public static function printArray($array, bool $die = true, bool $formatted = true)
     {
         if ($formatted) {
             echo "<pre>";
@@ -66,14 +66,14 @@ class DebugUtil
      *
      * @return void
      */
-    public static function printGeneric($item, bool $identify = true, bool $die = true, bool $formatted = true)
+    public static function print($item, bool $identify = true, bool $die = true, bool $formatted = true)
     {
         if ($identify) {
             echo gettype($item);
             if (gettype($item) == "array") {
                 self::printArray($item, $die, $formatted);
             } else if (gettype($item) == "object") {
-                self::printArray($item->toArray(), $die, $formatted);
+                self::printArray($item, $die, $formatted);
             } else if (gettype($item) == "integer") {
                 echo PHP_EOL;
                 echo $item;

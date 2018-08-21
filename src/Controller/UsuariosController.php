@@ -1081,39 +1081,41 @@ class UsuariosController extends AppController
 
             $redes = [];
 
-            $redes_conditions = [];
+            $redesConditions = [];
 
-            $clientes_has_usuarios_where = [];
+            $clientesHasUsuariosWhere = [];
 
             if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
-                array_push($clientes_has_usuarios_where, ['ClientesHasUsuarios.usuarios_id' => $id]);
-                array_push($clientes_has_usuarios_where, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
+                array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.usuarios_id' => $id]);
+                array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
 
-                $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_where);
+                $clientesHasUsuariosQuery = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosWhere);
 
+                if (sizeof($clientesHasUsuariosQuery->toArray()) > 0) {
                 // tenho o cliente alocado, pegar agora a rede que ele está
-                $cliente_has_usuario = $clientes_has_usuarios_query->toArray()[0];
-                $cliente = $cliente_has_usuario->cliente;
+                    $clienteHasUsuario = $clientesHasUsuariosQuery->toArray()[0];
+                    $cliente = $clienteHasUsuario->cliente;
 
-                $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente_has_usuario->clientes_id);
+                    $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario->clientes_id);
 
-                $rede = $rede_has_cliente->rede;
+                    $rede = $redeHasCliente->rede;
+                }
 
             }
             // pegar a rede a qual se encontra o usuário
             if (isset($redes_id)) {
-                $redes_conditions[] = ['id' => $redes_id];
+                $redesConditions[] = ['id' => $redes_id];
             }
 
             if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                $redes = $this->Redes->getRedesList($redes_conditions);
+                $redes = $this->Redes->getRedesList($redesConditions);
             } else if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // pega o Id de cliente que o usuário se encontra
                 // AdminLocalProfileType
 
                 // TODO: terminar de ajustar
-                $cliente_id = $this->RedesHasClientesAdministradores->getRedesHasClientesAdministradorByUsuariosId($this->user_logged['id']);
+                $clienteId = $this->RedesHasClientesAdministradores->getRedesHasClientesAdministradorByUsuariosId($this->user_logged['id']);
             }
 
             if ($this->request->is(['post', 'put'])) {
@@ -1128,9 +1130,11 @@ class UsuariosController extends AppController
                 $usuario_compare = $this->request->getData();
 
                 if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                    if ($cliente_has_usuario->clientes_id != $usuario_compare['clientes_id']
-                        || $cliente_has_usuario->tipo_perfil != $usuario_compare['tipo_perfil']) {
-                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($cliente_has_usuario->id, (int)$usuario_compare['clientes_id'], $usuario_compare['id'], (int)$usuario_compare['tipo_perfil']);
+                    if (!empty($clienteHasUsuario)) {
+                        if ($clienteHasUsuario->clientes_id != $usuario_compare['clientes_id']
+                            || $clienteHasUsuario->tipo_perfil != $usuario_compare['tipo_perfil']) {
+                            $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, (int)$usuario_compare['clientes_id'], $usuario_compare['id'], (int)$usuario_compare['tipo_perfil']);
+                        }
                     }
                 }
 
@@ -1154,10 +1158,11 @@ class UsuariosController extends AppController
                     $this->Flash->error(__('O usuário não pode ser atualizado.'));
                 }
             }
-            $usuario_logado_tipo_perfil = $this->user_logged['tipo_perfil'];
+            $usuarioLogadoTipoPerfil = $this->user_logged['tipo_perfil'];
 
-            $this->set(compact('usuario', 'usuario_logado_tipo_perfil', 'rede', 'redes', 'redes_id', 'cliente'));
-            $this->set('_serialize', ['usuario', 'usuario_logado_tipo_perfil', 'rede', 'redes', 'redes_id', 'cliente']);
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', 'rede', 'redes', 'redesId', 'cliente');
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -3314,6 +3319,7 @@ class UsuariosController extends AppController
             if ($this->request->is(['post', 'put', 'ajax'])) {
                 $data = $this->request->getData();
 
+                // DebugUtil::print($data);
                 $user = $this->Usuarios->getUsuarioByCPF($data['cpf']);
 
                 if ($data['id'] != 0) {
@@ -3323,7 +3329,7 @@ class UsuariosController extends AppController
                     }
                 }
 
-                if ($user) {
+                if (!empty($user)) {
                     $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
                 }
             }

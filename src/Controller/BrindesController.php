@@ -283,7 +283,17 @@ class BrindesController extends AppController
 
             $brinde = $this->Brindes->newEntity();
 
-            $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados($clientesId);
+            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados($clientesId);
+
+            // Obtem a matriz pois o Brinde é atribuído sempre para a matriz
+            $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede["id"]);
+
+            if (empty($redeHasCliente)) {
+                throw new Exception("Matriz de Rede não foi encontrada!");
+            }
+            $clientesId = $redeHasCliente["clientes_id"];
+
+            // DebugUtil::print($tiposBrindesCliente);
 
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
@@ -293,7 +303,11 @@ class BrindesController extends AppController
                 $data = $this->request->getData();
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
-                $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+                // DebugUtil::print($data);
+                // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+                $brinde->preco_padrao = (float)$data['preco_padrao'];
+
+                // DebugUtil::print($brinde);
 
                 if ($this->Brindes->findBrindesByName($brinde['nome'])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -307,14 +321,32 @@ class BrindesController extends AppController
 
                     $brinde["clientes_id"] = $clientesId;
 
+                    // DebugUtil::print($brinde);
                     $brinde = $this->Brindes->save($brinde);
+
+                    $errors = $brinde->errors();
+                    // DebugUtil::print($errors);
+
+                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
+                        $clientesId,
+                        $data["tipos_brindes_redes_id"]
+                    );
+
+                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0){
+                        $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
+                    }
+
+                    // DebugUtil::print($tiposBrindesClienteSelecionadoId);
                     if ($brinde) {
-                        // habilita brinde para venda em uma rede/loja
+                        // habilita brinde para venda na matriz
                         $clienteHasBrindeHabilitado
                             = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
                             $clientesId,
-                            $brinde->id
+                            $brinde->id,
+                            $tiposBrindesClienteSelecionadoId
                         );
+
+                        // DebugUtil::print($clienteHasBrindeHabilitado);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -344,7 +376,13 @@ class BrindesController extends AppController
 
                         // brinde habilitado, então cadastra novo preço
                         if ($clienteHasBrindeHabilitado) {
-                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientesId, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
+                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                                $clienteHasBrindeHabilitado["id"],
+                                $clientesId,
+                                (int)Configure::read('giftApprovalStatus')['Allowed'],
+                                $brinde["preco_padrao"],
+                                $brinde["valor_moeda_venda_padrao"]
+                            );
                         }
 
                         if ($brindesHabilitadosPreco) {
@@ -360,13 +398,22 @@ class BrindesController extends AppController
                 "editMode",
                 "brinde",
                 "clientesId",
-                "generoBrindesCliente"
+                "tiposBrindesCliente"
             );
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $this->Flash->error($e->getMessage());
+
+            $messageString = __("Não foi possível gravar um novo Brinde!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
     }
 
@@ -383,7 +430,7 @@ class BrindesController extends AppController
 
         $brinde = $this->Brindes->get($id);
 
-        $generoBrindesId = $brinde["genero_brindes_id"];
+        $tiposBrindesRedesId = $brinde["tipos_brindes_redes_id"];
 
         $imagemOriginal = null;
         $imagemOriginalDisco = null;
@@ -409,7 +456,7 @@ class BrindesController extends AppController
             $rede["id"]
         );
 
-        $generoBrindesCliente = $this->GeneroBrindesClientes->getGenerosBrindesClientesVinculados(array($brinde["clientes_id"]));
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados(array($brinde["clientes_id"]));
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -422,9 +469,11 @@ class BrindesController extends AppController
                 $brinde = $this->Brindes->patchEntity($brinde, $data);
 
                 // Preserva o id base de gênero brindes
-                $brinde["genero_brindes_id"] = $generoBrindesId;
+                $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
 
-                $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
+                $brinde->preco_padrao = (float)$data['preco_padrao'];
 
                 if ($enviouNovaImagem) {
                     $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
@@ -452,7 +501,7 @@ class BrindesController extends AppController
             "brinde",
             "imagemOriginal",
             "clientes",
-            "generoBrindesCliente"
+            "tiposBrindesCliente"
         );
 
         $this->set(compact($arraySet));

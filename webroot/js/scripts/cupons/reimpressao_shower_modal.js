@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\cupons\reimpressao_shower_modal.js
  * @date 21/12/2017
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -113,7 +113,7 @@ $(document).ready(function () {
 
                         var cupom_emitido = result.ticket.cupom_emitido;
 
-                        // altera data do cupom emitido 
+                        // altera data do cupom emitido
 
                         var cupom_emitido_1 = cupom_emitido.substr(0, 2);
                         var cupom_emitido_2 = cupom_emitido.substr(6);
@@ -128,14 +128,14 @@ $(document).ready(function () {
                         var tipo = 0;
 
                         if (sexo == 1) {
-                            $("#genero_box").text('Masculino');
+                            $("#tipos_brinde_box").text('Masculino');
                             if (necessidades == 1) {
                                 tipo = 2;
                             } else {
                                 tipo = 1;
                             }
                         } else {
-                            $("#genero_box").text('Feminino');
+                            $("#tipos_brinde_box").text('Feminino');
                             if (necessidades == 1) {
                                 tipo = 4;
                             } else {

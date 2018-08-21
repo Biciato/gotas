@@ -3,14 +3,14 @@
 /**
  * ver_detalhes.ctp
  *
- * View para genero_brindes_clientes/ver_detlahes
+ * View para tipos_brindes_clientes/ver_detlahes
  *
  * Variáveis:
  * @var       \App\View\AppView $this
- * @var       \App\Model\Entity\GeneroBrindesClientes $generoBrindeCliente
+ * @var       \App\Model\Entity\TiposBrindesClientes $tiposBrindesClientes
  *
  * @category  View
- * @package   App\Template\GeneroBrindesClientes
+ * @package   App\Template\TiposBrindesClientes
  * @author    Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date      03/06/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -25,21 +25,23 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 // Navegação
+
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
 $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
 $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
-$this->Breadcrumbs->add('Gênero de Brindes Habilitados', ["controller" => "genero_brindes_clientes", "action" => "genero_brindes_clientes", $cliente->id]);
-$this->Breadcrumbs->add('Info do Gênero de Brindes', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Tipos de Brindes Habilitados', array("action" => "tipos_brindes_cliente", $cliente["id"]));
+
+$this->Breadcrumbs->add('Info do Tipo de Brindes', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
 ?>
-<?= $this->Element("../GeneroBrindesClientes/left_menu", ["mode" => "view", "clientesId" => $cliente["id"]]) ?>
-<div class="genero-brindes view col-lg-9 col-md-10 columns content">
-    <legend><?= h($generoBrindesClientes->genero_brinde->nome) ?></legend>
+<?= $this->Element("../TiposBrindesClientes/left_menu", ["mode" => "view", "clientesId" => $cliente["id"]]) ?>
+<div class="tipos-brindes view col-lg-9 col-md-10 columns content">
+    <legend><?= h($tiposBrindesClientes["tipos_brindes_rede"]["nome"]) ?></legend>
 
-    <?= $this->Element("../GeneroBrindes/tabela_info_genero_brinde", ["generoBrinde" => $generoBrindesClientes["genero_brinde"]]) ?>
+    <?= $this->Element("../TiposBrindesClientes/tabela_info_tipos_brindes_cliente", array("tiposBrindesCliente" => $tiposBrindesClientes)) ?>
 </div>

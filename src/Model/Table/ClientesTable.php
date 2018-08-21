@@ -87,7 +87,7 @@ class ClientesTable extends GenericTable
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
-                'foreignKey' => 'clientes_id',
+                'foreignKey' => 'id',
                 'join' => 'left'
             ]
         );
@@ -273,33 +273,33 @@ class ClientesTable extends GenericTable
 
                 // Atribui os Gêneros de Brindes que são de atribuição automática
 
-                $generoBrindesTable = TableRegistry::get("GeneroBrindes");
-                $generoBrindesClientesTable = TableRegistry::get("GeneroBrindesClientes");
+                $tiposBrindesRedesTable = TableRegistry::get("TiposBrindesRedes");
+                $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-                $generoBrindes = $generoBrindesTable->findGeneroBrindesAtribuirAutomaticamente();
-                $generoBrindesClientesArray = array();
+                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente();
+                $tiposBrindesClientesArray = array();
 
-                foreach ($generoBrindes as $key => $generoBrinde) {
-                    $generoBrindesClientesArray[] = array(
-                        "genero_brindes_id" => $generoBrinde["id"],
+                foreach ($tiposBrindesRedes as $key => $tiposBrindesRede) {
+                    $tiposBrindesClientesArray[] = array(
+                        "tipos_brindes_redes_id" => $tiposBrindesRede["id"],
                         "clientes_id" => $cliente["id"],
-                        "tipo_principal_codigo_brinde" => $generoBrinde["tipo_principal_codigo_brinde_default"],
-                        "tipo_secundario_codigo_brinde" => $generoBrinde["tipo_secundario_codigo_brinde_default"],
+                        "tipo_principal_codigo_brinde" => $tiposBrindesRede["tipo_principal_codigo_brinde_default"],
+                        "tipo_secundario_codigo_brinde" => $tiposBrindesRede["tipo_secundario_codigo_brinde_default"],
                         "habilitado" => 1
                     );
                 }
 
                 // Só grava se teve itens no array
-                if (sizeof($generoBrindesClientesArray) > 0) {
+                if (sizeof($tiposBrindesClientesArray) > 0) {
 
-                    $generoBrindesClientesSave = $generoBrindesClientesTable->newEntities($generoBrindesClientesArray);
+                    $tiposBrindesClientesSave = $tiposBrindesClientesTable->newEntities($tiposBrindesClientesArray);
 
                     // Gravação dos dados de gênero brindes
-                    $resultSave = $generoBrindesClientesTable->saveMany($generoBrindesClientesSave);
+                    $resultSave = $tiposBrindesClientesTable->saveMany($tiposBrindesClientesSave);
 
                     if (!$resultSave) {
                         Log::write("error", "Lista de Brindes para Gravar: ");
-                        Log::write("error", $generoBrindesClientesSave);
+                        Log::write("error", $tiposBrindesClientesSave);
 
                         throw new \Exception("Não foi possível salvar os gêneros de brindes ao cliente novo!");
                     }
@@ -319,50 +319,6 @@ class ClientesTable extends GenericTable
     }
 
     /* ------------------------ Read -------------------------- */
-
-    /**
-     * Undocumented function
-     *
-     * @param int $clientes_id Id de Clientes
-     *
-     * @return Cliente $cliente Registro da matriz
-     */
-    public function findClienteMatrizFromClientesId(int $clientes_id)
-    {
-        try {
-            $matriz = null;
-
-            // TODO: ajustar
-            while (true) {
-                $cliente = $this->_getClientesTable()->find('all')
-                    ->where(['id' => $clientes_id])
-                    ->first();
-
-                $clientes_id = $cliente->matriz_id;
-
-                if (!isset($clientes_id)) {
-                    $matriz = $cliente;
-                    break;
-                }
-            }
-
-            return
-                [
-                'result' => true,
-                'data' => $matriz
-            ];
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return [
-                'result' => false,
-                'data' => $stringError
-            ];
-        }
-    }
 
     /**
      * Obtem todos os clientes
@@ -415,8 +371,14 @@ class ClientesTable extends GenericTable
     public function getClientes(array $whereConditions = array(), int $usuariosId = null, array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
             $clientesQuery = $this->_getClientesTable()->find('all')
                 ->where($whereConditions);
+
+            $clientesQuery = $clientesQuery->contain(array("RedesHasClientes.Redes"));
+
+            // DebugUtil::print($clientesQuery);
 
             $count = $clientesQuery->count();
 
@@ -432,8 +394,6 @@ class ClientesTable extends GenericTable
             if (sizeof($clientesQuery->toArray()) > 0) {
 
                 $clientesId = $clientesQuery->first()["id"];
-
-                $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
                 $redesHasClientesQuery = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
 
@@ -470,6 +430,17 @@ class ClientesTable extends GenericTable
             }
 
             $clientesAtual = $clientesQuery->toArray();
+
+            $clientesAtualTemp = array();
+
+            foreach ($clientesAtual as $key => $cliente) {
+                $clienteTemp = $cliente;
+                $clienteTemp["resumo_gotas_cliente"] = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, null, array($cliente["id"]));
+
+                $clientesAtualTemp[] = $clienteTemp;
+            }
+
+            $clientesAtual = $clientesAtualTemp;
 
             $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
 
@@ -693,6 +664,8 @@ class ClientesTable extends GenericTable
                             'Clientes.id' => $clientesId
                         ]
                     );
+
+                $cliente = $cliente->contain(array("RedesHasClientes.Redes"));
 
                 if (sizeof($selectFields) > 0) {
                     $cliente = $cliente->select($selectFields);

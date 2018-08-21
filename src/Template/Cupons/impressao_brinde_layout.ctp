@@ -35,7 +35,7 @@ use Cake\Core\Configure;
                 <br />
                 <div class="pull-right">
                     <?= $this->Html->tag('span', 'Box ') ?>
-                    <?= $this->Html->tag('span', '', ['id' => 'genero_box']) ?>
+                    <?= $this->Html->tag('span', '', ['id' => 'tipos_brinde_box']) ?>
                 </div>
             </div>
 

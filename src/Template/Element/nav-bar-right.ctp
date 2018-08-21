@@ -56,7 +56,7 @@ if (empty($user_logged)) {
                     </li>
                     <li role="separator" class="divider"></li>
                     <li>
-                        <?= $this->Html->link('Gênero de Brindes', ['controller' => 'GeneroBrindes', 'action' => 'index']) ?>
+                        <?= $this->Html->link('Tipos de Brindes', ['controller' => 'TiposBrindesRedes', 'action' => 'index']) ?>
                     </li>
 
                     <li role="separator" class="divider"></li>

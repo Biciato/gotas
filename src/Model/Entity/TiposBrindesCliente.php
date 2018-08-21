@@ -4,21 +4,21 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * GeneroBrindesCliente Entity
+ * TiposBrindesCliente Entity
  *
  * @property int $id
- * @property int $genero_brindes_id
+ * @property int $tipos_brindes_redes_id
  * @property int $clientes_id
- * @property bool $tipo_principal_codigo_brinde
- * @property int $tipo_secundario_codigo_brinde
+ * @property string $tipo_principal_codigo_brinde
+ * @property string $tipo_secundario_codigo_brinde
  * @property bool $habilitado
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
- * @property \App\Model\Entity\GeneroBrinde $genero_brinde
+ * @property \App\Model\Entity\TiposBrindesRede $tipos_brindes_rede
  * @property \App\Model\Entity\Cliente $cliente
  */
-class GeneroBrindesCliente extends Entity
+class TiposBrindesCliente extends Entity
 {
 
     /**

@@ -255,13 +255,19 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         // debug($cliente_has_brinde_habilitado);
         $historico_precos = $this->paginate(
-            $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id
-        ), ['order' => ['data_preco' => 'desc'], 'limit' => 10]);
+            $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($cliente_has_brinde_habilitado->id),
+            ['order' => ['data_preco' => 'desc'], 'limit' => 10]
+        );
 
         $clientes_id = $cliente_has_brinde_habilitado->clientes_id;
 
-        $this->set(compact(['historico_precos', 'cliente_has_brinde_habilitado', 'clientes_id']));
-        $this->set('_serialize', ['historico_precos', 'clientes_id']);
+        $arraySet = array(
+            'historico_precos',
+            'cliente_has_brinde_habilitado',
+            'clientes_id'
+        );
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -386,9 +392,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
          */
 
         $brinde = $this->Brindes->getBrindesById($brindes_id);
-        $generoBrindesCliente = $this->GeneroBrindesClientes->getGeneroBrindesClientesByGeneroCliente($brinde["genero_brindes_id"], $clientes_id);
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientes_id);
 
-        if (empty($generoBrindesCliente)) {
+        if (empty($tiposBrindesCliente)) {
             $this->Flash->error(__("{0} - {1}", Configure::read("messageEnableError"), "Unidade não possui Gênero de Brindes configurados!"));
 
             return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
@@ -401,10 +407,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
             $clienteHasBrindeHabilitado->brindes_id = $brindes_id;
             $clienteHasBrindeHabilitado->clientes_id = $clientes_id;
-            $clienteHasBrindeHabilitado->genero_brindes_clientes_id = $generoBrindesCliente["id"];
-        } else if (empty($clienteHasBrindeHabilitado["genero_brindes_clientes_id"])) {
+            $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesCliente["id"];
+        } else if (empty($clienteHasBrindeHabilitado["tipos_brindes_clientes_id"])) {
             // Atualiza o vínculo se estiver nulo
-            $clienteHasBrindeHabilitado->genero_brindes_clientes_id = $generoBrindesCliente["id"];
+            $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesCliente["id"];
         }
 
         $clienteHasBrindeHabilitado->habilitado = $status;
@@ -442,10 +448,16 @@ class ClientesHasBrindesHabilitadosController extends AppController
                         }
                     }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
-                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
+                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
 
                     if (!isset($precos)) {
-                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco($clienteHasBrindeHabilitado->id, $clientes_id, $brinde->preco_padrao, Configure::read('giftApprovalStatus')['Allowed']);
+                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                            $clienteHasBrindeHabilitado["id"],
+                            $clientes_id,
+                            (int)Configure::read('giftApprovalStatus')['Allowed'],
+                            $brinde["preco_padrao"],
+                            $brinde["valor_moeda_venda"]
+                        );
                     }
                 }
             }
@@ -605,7 +617,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $array_return = [];
         foreach ($clientes_has_brindes_habilitados as $key => $value) {
             $value['BrindeHabilitadoPrecoAtual']
-                = $this->ClientesHasBrindesHabilitadosPreco->getLastPrecoForBrindeHabilitadoId($value['id']);
+                = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($value['id']);
 
             array_push($array_return, $value);
         }
@@ -932,7 +944,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
      * Obtem todos os Brindes Habilitados de uma Unidade
      *
      * @param $clientes_id Id da unidade que deseja adquirir o brinde
-     * @param $genero_brindes_id Id do gênero de brinde que deseja filtrar
+     * @param $tipos_brindes_redes_id Id do tipo de brinde da rede que deseja filtrar
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 23/04/2018
@@ -970,7 +982,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     return;
                 }
 
-                $generoBrindesId = !empty($data["genero_brindes_id"]) ? $data["genero_brindes_id"] : null;
+                $tiposbrindesRedesid = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
 
                 $whereConditionsBrindes = array();
 
@@ -993,32 +1005,32 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     }
                 }
 
-                $generoBrindesClientesIds = array();
+                $tiposBrindesClientesIds = array();
 
-                if ($generoBrindesId > 0) {
-                    $generoBrindesClientesIds = $this->GeneroBrindesClientes->findGeneroBrindesClienteByClientesIdGeneroBrindeId($clientesId, $generoBrindesId);
+                if (!empty($tiposbrindesRedesId) && ($tiposbrindesRedesId > 0)) {
+                    $tiposBrindesClientesIds = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId($clientesId, $tiposbrindesRedesId);
                 }
 
-                $generoBrindesClientesIds = sizeof($generoBrindesClientesIds) > 0 ? $generoBrindesClientesIds : array(-1);
+                $tiposBrindesClientesIds = sizeof($tiposBrindesClientesIds) > 0 ? $tiposBrindesClientesIds : array();
 
-                $generoBrindesClientesIds = isset($generoBrindesId) ? $generoBrindesClientesIds : array();
+                $tiposBrindesClientesIds = isset($tiposBrindesClientesIds) ? $tiposBrindesClientesIds : array();
                 // Campos para retorno à API
-                $filterGeneroBrindesClientesColumns = array(
+                $filterTiposBrindesClientesColumns = array(
                     "id",
-                    "genero_brindes_id",
+                    "tipos_brindes_redes_id",
                     "clientes_id",
                     "habilitado"
                 );
 
                 $resultado = $this->ClientesHasBrindesHabilitados->getBrindesPorClienteId(
                     $clientesId,
-                    $generoBrindesClientesIds,
+                    $tiposBrindesClientesIds,
                     $whereConditionsBrindes,
                     $precoMin,
                     $precoMax,
                     $orderConditions,
                     $paginationConditions,
-                    $filterGeneroBrindesClientesColumns
+                    $filterTiposBrindesClientesColumns
                 );
 
                 // DebugUtil::printArray($resultado);

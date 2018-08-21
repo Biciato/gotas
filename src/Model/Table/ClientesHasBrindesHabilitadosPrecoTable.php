@@ -4,12 +4,12 @@ namespace App\Model\Table;
 use ArrayObject;
 use Cake\Event\Event;
 use Cake\Log\Log;
+use Cake\Core\Configure;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use Cake\Core\Configure;
 
 /**
  * ClientesHasBrindesHabilitadosPreco Model
@@ -42,7 +42,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * Method get of brinde table property
-     * 
+     *
      * @return (Cake\ORM\Table) Table object
      */
     private function _getClientesHasBrindesHabilitadosPrecoTable()
@@ -55,7 +55,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * Method set of brinde table property
-     * 
+     *
      * @return void
      */
     private function _setClientesHasBrindesHabilitadosPrecoTable()
@@ -102,8 +102,13 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
         $validator
             ->decimal('preco')
-            ->requirePresence('preco', 'create')
+            ->requirePresence("preco", "create")
             ->notEmpty('preco');
+
+            $validator
+            ->decimal('valor_moeda_venda')
+            ->requirePresence("valor_moeda_venda", "create")
+            ->notEmpty('valor_moeda_venda');
 
         $validator
             ->dateTime('data_preco')
@@ -141,31 +146,43 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
 
     /**
      * -------------------------------------------------------------
-     * Methods
+     * Métodos Validação
      * -------------------------------------------------------------
      */
 
+    /**
+     * -------------------------------------------------------------
+     * Métodos CRUD
+     * -------------------------------------------------------------
+     */
 
     /* ------------------------ Create ------------------------ */
 
     /**
-     * Add a Preço for a BrindeHabilitado
+     * ClientesHasBrindesHabilitadosPrecoTable::addBrindeHabilitadoPreco
+     *
+     * Adiciona um preço para brinde habilitado
      *
      * @param int $clientesHasBrindesHabilitadosId
-     * @param int $clientes_id
-     * @param int $preco_padrao
-     * 
+     * @param int $clientesId
+     * @param int $precoPadrao
+     * @param int $valorMoedaVenda
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 01/09/2017
+     *
      * @return (entity\ClientesHasBrindesHabilitadosPreco) $entity
      **/
-    public function addBrindeHabilitadoPreco($clientesHasBrindesHabilitadosId, $clientes_id, $preco_padrao, $status_autorizacao)
+    public function addBrindeHabilitadoPreco(int $clientesHasBrindesHabilitadosId, int $clientesId, int $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
     {
         try {
             $brindeHabilitadoPreco = $this->_getClientesHasBrindesHabilitadosPrecoTable()->newEntity();
 
             $brindeHabilitadoPreco->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
-            $brindeHabilitadoPreco->clientes_id = $clientes_id;
-            $brindeHabilitadoPreco->preco = $preco_padrao;
-            $brindeHabilitadoPreco->status_autorizacao = $status_autorizacao;
+            $brindeHabilitadoPreco->clientes_id = $clientesId;
+            $brindeHabilitadoPreco->preco = $precoPadrao;
+            $brindeHabilitadoPreco->valor_moeda_venda = $valorMoedaVenda;
+            $brindeHabilitadoPreco->status_autorizacao = $statusAutorizacao;
             $brindeHabilitadoPreco->data_preco = date('Y-m-d H:i:s');
 
             return $this->_getClientesHasBrindesHabilitadosPrecoTable()->save($brindeHabilitadoPreco);
@@ -178,7 +195,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    
+
     /* ------------------------ Read ------------------------ */
 
     /**
@@ -247,7 +264,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getLastPrecoForBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $where_conditions = [])
+    public function getUltimoPrecoBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $where_conditions = [])
     {
         try {
 
@@ -263,6 +280,42 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
                 ->where($conditions)
                 ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
                 ->contain(['ClientesHasBrindesHabilitados'])->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtem último Preço para Brinde Habilitado
+     *
+     * @param int $clientesHasBrindesHabilitadosId Id de clientes has brindes habilitados
+     *
+     * @return entity $preco
+     **/
+    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, int $statusAutorizacao)
+    {
+        try {
+
+            $conditions = array();
+
+            $conditions[] = array('clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId);
+            $conditions[] = array('status_autorizacao' => $statusAutorizacao);
+
+            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+                ->where($conditions)
+                ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
+                ->contain(['ClientesHasBrindesHabilitados'])
+                ->select(array(
+                    "id",
+                    "valor_moeda_venda",
+                    "status_autorizacao",
+                    "data_preco",
+                ))->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);

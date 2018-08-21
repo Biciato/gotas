@@ -175,7 +175,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                     </li>
 
                     <li>
-                        <?= $this->Html->link("Configurar Gênero de Brindes", ['controller' => 'genero_brindes_clientes', 'action' => 'generos_brindes_cliente', $cliente->id]); ?>
+                        <?= $this->Html->link("Configurar Tipos de Brindes", ['controller' => 'tiposBrindesClientes', 'action' => 'tipos_brindes_cliente', $cliente->id]); ?>
                     </li>
                 <?php endif; ?>
             </li>

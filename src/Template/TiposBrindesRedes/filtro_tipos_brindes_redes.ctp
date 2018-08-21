@@ -3,7 +3,7 @@
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Clientes/filtro_redes.ctp
- * @date     24/11/2017
+ * @since    24/11/2017
  */
 
 use Cake\Core\Configure;
@@ -35,7 +35,8 @@ $qteRegistros = [
                     'url' =>
                         [
                         'controller' => $controller,
-                        'action' => $action
+                        'action' => $action,
+                        !empty($id) ? $id : null
                     ]
                 ]) ?>
 
@@ -59,10 +60,13 @@ $qteRegistros = [
                             [
                                 "type" => "select",
                                 "id" => "equipamento_rti",
-                                "label" => "Equipamento RTI",
+                                "label" => "Tipo de Prestação de Serviços",
                                 "class" => "form-control col-lg-5",
                                 "empty" => "<Todos>",
-                                "options" => Configure::read("enabledDisabledArray")
+                                "options" => array(
+                                    0 => "Produtos / Serviços",
+                                    1 => "Equipamento RTI",
+                                ),
                             ]
                         ) ?>
                     </div>

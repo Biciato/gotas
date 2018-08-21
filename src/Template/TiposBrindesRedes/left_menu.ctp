@@ -2,14 +2,16 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/GeneroBrindes/left_menu.ctp
+ * @file     src/Template/TiposBrindesRedes/left_menu.ctp
  * @date     30/05/2018
  */
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use Cake\Database\Exception;
 
 $mode = isset($mode) ? $mode : false;
+
 
 $show_reports = isset($show_reports) ? $show_reports : false;
 ?>
@@ -31,10 +33,10 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 <?= $this->Html->link(__('Ações'), []) ?>
             </li>
 
-            <?php if ($mode == 'view') : ?>
+            <?php if ($mode == 'add') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Novo Gênero"), ['controller' => 'genero_brindes', 'action' => 'adicionar_genero_brinde']) ?>
+                    <?= $this->Html->link(__("Novo Tipo de Brinde"), ['controller' => 'tiposBrindesRedes', 'action' => 'adicionar_tipo_brinde_rede', $redesId]) ?>
                 </li>
 
             <?php endif; ?>

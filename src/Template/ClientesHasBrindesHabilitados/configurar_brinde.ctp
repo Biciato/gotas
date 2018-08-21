@@ -71,11 +71,21 @@ echo $this->Breadcrumbs->render(
             <?php endif; ?>
         </tr>
 
+        <?php
+            // debug($cliente_has_brinde_habilitado) ;
+        ?>
         <tr>
             <th scope="row"><?= __('Preço Atual (em Gotas)') ?></th>
             <td><?=
                 is_null($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual) ? null :
-                    $this->Number->precision($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual->preco, 2)
+                    $this->Number->precision($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual->preco, 3)
+                ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><?= __('Preço Atual (R$ / Venda Avulsa)') ?></th>
+            <td><?=
+                is_null($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual) ? "0,00" :
+                    $this->Number->precision($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual->valor_moeda_venda, 2)
                 ?></td>
         </tr>
         <tr>
@@ -104,6 +114,7 @@ echo $this->Breadcrumbs->render(
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('preco', ['label' => 'Preço (em Gotas)']) ?></th>
+                <th><?= $this->Paginator->sort('valor_moeda_venda', ['label' => 'Preço (R$ / Venda Avulsa)']) ?></th>
                 <th><?= $this->Paginator->sort('data_preco', ['label' => 'Data da Alteração']) ?></th>
                 <th><?= $this->Paginator->sort('status_autorizacao', ['label' => 'Estado da Autorização']) ?></th>
             </tr>
@@ -111,7 +122,8 @@ echo $this->Breadcrumbs->render(
         <tbody>
             <?php foreach ($historico_precos as $key => $value) : ?>
                 <tr>
-                    <td ><?= $this->Number->precision($value->preco, 2) ?></td>
+                    <td ><?= $this->Number->precision($value->preco, 3) ?></td>
+                    <td ><?= __("R$ {0}", $this->Number->precision($value->valor_moeda_venda, 2)) ?></td>
                     <td><?= $value->data_preco->format('d/m/Y H:i:s') ?></td>
                     <td ><?= $this->Gift->formatGift($value->status_autorizacao) ?></td>
                 </tr>

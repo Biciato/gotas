@@ -5,17 +5,17 @@
  */
 
 /**
- * form_genero_brindes_cliente.ctp
+ * form_tipos_brindes_cliente.ctp
  *
  *
  * Formulário de input de dados
  *
  * Variáveis:
  * @var       \App\View\AppView $this
- * @var       \App\Model\Entity\GeneroBrindesCliente
+ * @var       \App\Model\Entity\TiposBrindesCliente
  *
  * @category  View
- * @package   App\Template\GeneroBrindesClientes
+ * @package   App\Template\TiposBrindesClientes
  * @author    Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date      06/06/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -29,21 +29,21 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGeneroBrindesEnabled : false;
+$selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBrindesEnabled : false;
 
 ?>
 
 <div class="form-group row">
     <div class="col-lg-4">
         <?= $this->Form->control(
-            'genero_brindes_id',
+            'tipos_brindes_redes_id',
             [
-                "id" => "genero_brindes_id",
-                "class" => "genero_brindes_id",
+                "id" => "tipos_brindes_redes_id",
+                "class" => "tipos_brindes_redes_id",
                 "type" => "select",
                 "empty" => "<Selecionar>",
-                "options" => $generoBrindes,
-                "disabled" => $selectGeneroBrindesEnabled
+                "options" => $tiposBrindesRedes,
+                "disabled" => $selectTiposBrindesEnabled
             ]
         ); ?>
     </div>
@@ -52,10 +52,8 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
             'tipo_principal_codigo_brinde',
             [
                 "id" => 'tipo_principal_codigo_brinde',
-                "type" => "number",
-                "min" => 0,
-                "max" => 9,
-                "step" => 1
+                "type" => "text",
+                "maxLength" => 1
             ]
         ); ?>
     </div>
@@ -64,10 +62,8 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
             'tipo_secundario_codigo_brinde',
             [
                 "id" => 'tipo_secundario_codigo_brinde',
-                "type" => "number",
-                "min" => 00,
-                "max" => 99,
-                "step" => 1
+                "type" => "text",
+                "maxLength" => 2
             ]
         ); ?>
     </div>
@@ -75,7 +71,7 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
 
 <div class="form-group row">
     <div class="col-lg-12">
-        <?= $this->Form->control('habilitado', ["Genero Habilitado para Cliente?"]); ?>
+        <?= $this->Form->control('habilitado', ["Tipo de Brinde Habilitado para Cliente?"]); ?>
     </div>
 </div>
 
@@ -83,10 +79,9 @@ $selectGeneroBrindesEnabled = isset($selectGeneroBrindesEnabled) ? $selectGenero
 
 
 <?php if (Configure::read("debug")) {
-
-    echo $this->Html->script("scripts/genero_brindes_clientes/form_genero_brindes_clientes");
+    echo $this->Html->script("scripts/tipos_brindes_clientes/form_tipos_brindes_clientes");
 } else {
-    echo $this->Html->script("scripts/genero_brindes_clientes/form_genero_brindes_clientes.min");
+    echo $this->Html->script("scripts/tipos_brindes_clientes/form_tipos_brindes_clientes.min");
 }
 echo $this->fetch("script");
 ?>

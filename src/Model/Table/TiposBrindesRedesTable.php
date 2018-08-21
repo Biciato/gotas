@@ -14,19 +14,19 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 
 /**
- * GeneroBrindes Model
+ * TiposBrindesRedes Model
  *
  * @property \App\Model\Table\ClientesTable|\Cake\ORM\Association\BelongsToMany $Clientes
  *
- * @method \App\Model\Entity\GeneroBrinde get($primaryKey, $options = [])
- * @method \App\Model\Entity\GeneroBrinde newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\GeneroBrinde[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrinde|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\GeneroBrinde patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrinde[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\GeneroBrinde findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede get($primaryKey, $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\TiposBrindesRede findOrCreate($search, callable $callback = null, $options = [])
  */
-class GeneroBrindesTable extends GenericTable
+class TiposBrindesRedesTable extends GenericTable
 {
 
     /**
@@ -34,7 +34,7 @@ class GeneroBrindesTable extends GenericTable
      * Fields
      * -------------------------------------------------------------
      */
-    protected $generoBrindeTable = null;
+    protected $tiposBrindesRedesTable = null;
 
     /**
      * -------------------------------------------------------------
@@ -43,16 +43,16 @@ class GeneroBrindesTable extends GenericTable
      */
 
     /**
-     * Método para obter tabela de Genero Brindes
+     * Método para obter tabela de Tipos Brindes Redes
      *
      * @return Cake\ORM\Table Table object
      */
-    private function _getGeneroBrindeTable()
+    private function _getTiposBrindesRedesTable()
     {
-        if (is_null($this->generoBrindeTable)) {
-            $this->_setGeneroBrindeTable();
+        if (is_null($this->tiposBrindesRedesTable)) {
+            $this->_setTiposBrindesRedesTable();
         }
-        return $this->generoBrindeTable;
+        return $this->tiposBrindesRedesTable;
     }
 
     /**
@@ -60,9 +60,9 @@ class GeneroBrindesTable extends GenericTable
      *
      * @return void
      */
-    private function _setGeneroBrindeTable()
+    private function _setTiposBrindesRedesTable()
     {
-        $this->generoBrindeTable = TableRegistry::get('GeneroBrindes');
+        $this->tiposBrindesRedesTable = TableRegistry::get('TiposBrindesRedes');
     }
 
     /**
@@ -75,15 +75,15 @@ class GeneroBrindesTable extends GenericTable
     {
         parent::initialize($config);
 
-        $this->setTable('genero_brindes');
+        $this->setTable('tipos_brindes_redes');
         $this->setDisplayField('nome_necessidades_especiais');
         $this->setPrimaryKey('id');
 
-        $this->belongsToMany('Clientes', [
-            'foreignKey' => 'genero_brindes_id',
-            'targetForeignKey' => 'clientes_id',
-            'joinTable' => 'genero_brindes_clientes'
-        ]);
+        $this->belongsTo("Rede", array(
+            "className" => "Redes",
+            "foreignKey" => "redes_id",
+            "joinTable" => "Redes"
+        ));
     }
 
     /**
@@ -102,9 +102,18 @@ class GeneroBrindesTable extends GenericTable
             ->notEmpty('nome');
 
         $validator
-            ->boolean('equipamento_rti')
+            ->integer('equipamento_rti')
             ->requirePresence('equipamento_rti', 'create')
-            ->notEmpty('equipamento_rti');
+            ->notEmpty('equipamento_rti', 'Por favor informe o tipo de Prestação de Serviços')
+            ->add(
+                'equipamento_rti',
+                'inList',
+                [
+                    'rule' => ['inList', ['0', '1']],
+                    'message' => 'Por favor informe o tipo de Prestação de Serviços',
+                    "allowEmpty" => false
+                ]
+            );
 
         $validator
             ->boolean('brinde_necessidades_especiais')
@@ -122,12 +131,10 @@ class GeneroBrindesTable extends GenericTable
             ->notEmpty('atribuir_automatico');
 
         $validator
-            ->integer('tipo_principal_codigo_brinde_default')
             ->requirePresence('tipo_principal_codigo_brinde_default', 'create')
             ->allowEmpty('tipo_principal_codigo_brinde_default');
 
         $validator
-            ->integer('tipo_secundario_codigo_brinde_default')
             ->requirePresence('tipo_secundario_codigo_brinde_default', 'create')
             ->allowEmpty('tipo_secundario_codigo_brinde_default');
 
@@ -151,39 +158,49 @@ class GeneroBrindesTable extends GenericTable
     /* -------------------------- Create/Update ----------------------------- */
 
     /**
-     * GeneroBrindesTable::saveGeneroBrindes()
+     * TiposBrindesRedesTable::saveTiposBrindesRedes()
      *
      * Salva um Gênero de Brinde. Atualiza se informar o Id
      *
-     * @param array $generoBrindes
+     * @param array $tipoBrindesRedes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 31/05/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde $generoBrindes Objeto gravado
+     * @return \App\Model\Entity\TiposBrindesRede $tipoBrindesRedes Objeto gravado
      */
-    public function saveGeneroBrindes(array $generoBrindes = array())
-    {
+    public function saveTiposBrindesRedes(
+        int $redesId,
+        string $nome,
+        bool $equipamentoRti,
+        bool $brindeNecessidadesEspeciais,
+        bool $habilitado,
+        bool $atribuirAutomatico,
+        string $tipoPrincipalCodigoBrindeDefault = null,
+        string $tipoSecundarioCodigoBrindeDefault = null,
+        int $id = null
+    ) {
         try {
-            $generoBrindesSave = null;
+            $tipoBrindesRedesSave = null;
 
             // Atualiza se o id está setado. Novo se id = null
-            if (!empty($generoBrindes["id"]) && isset($generoBrindes["id"]) && $generoBrindes["id"] > 0) {
-                $generoBrindesSave = $this->_getGeneroBrindeTable()->find('all')
-                    ->where(["id" => $generoBrindes["id"]])->first();
+            if (!empty($id) && isset($id) && $id > 0) {
+                $tipoBrindesRedesSave = $this->_getTiposBrindesRedesTable()->find('all')
+                    ->where(array("id" => $id))->first();
             } else {
-                $generoBrindesSave = $this->_getGeneroBrindeTable()->newEntity();
+                $tipoBrindesRedesSave = $this->_getTiposBrindesRedesTable()->newEntity();
             }
 
-            $generoBrindesSave->nome = $generoBrindes["nome"];
-            $generoBrindesSave->equipamento_rti = $generoBrindes["equipamento_rti"];
-            $generoBrindesSave->brinde_necessidades_especiais = $generoBrindes["brinde_necessidades_especiais"];
-            $generoBrindesSave->habilitado = $generoBrindes["habilitado"];
-            $generoBrindesSave->atribuir_automatico = $generoBrindes["atribuir_automatico"];
-            $generoBrindesSave->tipo_principal_codigo_brinde_default = !empty($generoBrindes["tipo_principal_codigo_brinde_default"]) ? $generoBrindes["tipo_principal_codigo_brinde_default"] : null;
-            $generoBrindesSave->tipo_secundario_codigo_brinde_default = !empty($generoBrindes["tipo_secundario_codigo_brinde_default"]) ? $generoBrindes["tipo_secundario_codigo_brinde_default"] : null;
+            $tipoBrindesRedesSave->nome = $nome;
+            $tipoBrindesRedesSave->redes_id = $redesId;
+            $tipoBrindesRedesSave->equipamento_rti = $equipamentoRti;
+            $tipoBrindesRedesSave->brinde_necessidades_especiais = $brindeNecessidadesEspeciais;
+            $tipoBrindesRedesSave->habilitado = $habilitado;
+            $tipoBrindesRedesSave->atribuir_automatico = $atribuirAutomatico;
+            $tipoBrindesRedesSave->tipo_principal_codigo_brinde_default = !empty($tipoPrincipalCodigoBrindeDefault) ? $tipoPrincipalCodigoBrindeDefault : null;
+            $tipoBrindesRedesSave->tipo_secundario_codigo_brinde_default = !empty($tipoSecundarioCodigoBrindeDefault) ? $tipoSecundarioCodigoBrindeDefault : null;
 
-            return $this->save($generoBrindesSave);
+            return $this->save($tipoBrindesRedesSave);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -196,7 +213,7 @@ class GeneroBrindesTable extends GenericTable
     /* -------------------------- Read  ----------------------------- */
 
     /**
-     * GeneroBrindesTable::findGeneroBrindes()
+     * TiposBrindesRedesTable::findTiposBrindesRedes()
      *
      * Obtem Gênero de Brindes conforme condições passadas
      *
@@ -205,24 +222,24 @@ class GeneroBrindesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 31/05/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde[] $generoBrindes Objetos da consulta
+     * @return \App\Model\Entity\TiposBrindesRede[] $tipoBrindesRedes Objetos da consulta
      */
-    public function findGeneroBrindes(array $whereConditions = array(), int $limit = null)
+    public function findTiposBrindesRedes(array $whereConditions = array(), int $limit = null)
     {
         try {
-            $generoBrindes = $this->_getGeneroBrindeTable()->find("all")
+            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()->find("all")
                 ->where($whereConditions);
 
             if (!empty($limit) && isset($limit)) {
                 if ($limit == 1) {
-                    $generoBrindes = $generoBrindes->first();
+                    $tipoBrindesRedes = $tipoBrindesRedes->first();
                 } else {
-                    $generoBrindes = $generoBrindes->limit($limit);
+                    $tipoBrindesRedes = $tipoBrindesRedes->limit($limit);
                 }
             } else {
-                $generoBrindes = $generoBrindes->limit(999);
+                $tipoBrindesRedes = $tipoBrindesRedes->limit(999);
             }
-            return $generoBrindes;
+            return $tipoBrindesRedes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -232,7 +249,7 @@ class GeneroBrindesTable extends GenericTable
         }
     }
     /**
-     * GeneroBrindesTable::findGeneroBrindesClientes()
+     * TiposBrindesRedesTable::findTiposBrindesRedesByIds()
      *
      * Obtem Gênero de Brindes conforme condições passadas
      *
@@ -241,9 +258,9 @@ class GeneroBrindesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 28/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde[] $generoBrindes Objetos da consulta
+     * @return \App\Model\Entity\TiposBrindesRede[] $tipoBrindesRedes Objetos da consulta
      */
-    public function findGeneroBrindesByIds(array $ids = array(), array $orderConditions = array(), array $paginationConditions = array())
+    public function findTiposBrindesRedesByIds(array $ids = array(), array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
             $whereConditions = array(
@@ -251,7 +268,7 @@ class GeneroBrindesTable extends GenericTable
                 "habilitado" => 1
             );
 
-            $generoBrindesQuery = $this->_getGeneroBrindeTable()->find("all")
+            $tipoBrindesRedesQuery = $this->_getTiposBrindesRedesTable()->find("all")
                 ->where($whereConditions)
                 ->select(
                     array(
@@ -263,27 +280,27 @@ class GeneroBrindesTable extends GenericTable
                     )
                 );
 
-            $generoBrindesTodos = $generoBrindesQuery->toArray();
-            $generoBrindesAtual = $generoBrindesQuery->toArray();
+            $tipoBrindesRedesTodos = $tipoBrindesRedesQuery->toArray();
+            $tipoBrindesRedesAtual = $tipoBrindesRedesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($generoBrindesTodos, $generoBrindesAtual, "genero_brindes", $paginationConditions);
+            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "tipos_brindes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
             }
 
             if (sizeof($orderConditions) > 0) {
-                $generoBrindesQuery = $generoBrindesQuery->order($orderConditions);
+                $tipoBrindesRedesQuery = $tipoBrindesRedesQuery->order($orderConditions);
             }
 
             if (sizeof($paginationConditions) > 0) {
-                $generoBrindesQuery = $generoBrindesQuery->limit($paginationConditions["limit"])
+                $tipoBrindesRedesQuery = $tipoBrindesRedesQuery->limit($paginationConditions["limit"])
                     ->page($paginationConditions["page"]);
             }
 
-            $generoBrindesAtual = $generoBrindesQuery->toArray();
+            $tipoBrindesRedesAtual = $tipoBrindesRedesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($generoBrindesTodos, $generoBrindesAtual, "genero_brindes", $paginationConditions);
+            $retorno = $this->prepareReturnDataPagination($tipoBrindesRedesTodos, $tipoBrindesRedesAtual, "tipos_brindes", $paginationConditions);
 
             return $retorno;
         } catch (\Exception $e) {
@@ -299,7 +316,7 @@ class GeneroBrindesTable extends GenericTable
     }
 
     /**
-     * GeneroBrindesTable::findGeneroBrindesAtribuirAutomaticamente
+     * TiposBrindesRedesTable::findTiposBrindesRedesAtribuirAutomaticamente
      *
      * Procura todos os Gêneros de Brindes que estão habilitados e que podem
      * atribuir automaticamente para novas unidades de Redes
@@ -307,12 +324,12 @@ class GeneroBrindesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date   26/06/2018
      *
-     * @return \App\Model\Entity\GeneroBrinde[] $array de gêneros
+     * @return \App\Model\Entity\TiposBrindesRede[] $array de gêneros
      */
-    public function findGeneroBrindesAtribuirAutomaticamente()
+    public function findTiposBrindesRedesAtribuirAutomaticamente()
     {
         try {
-            $generoBrindes = $this->_getGeneroBrindeTable()
+            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()
                 ->find('all')
                 ->where(
                     array(
@@ -323,15 +340,49 @@ class GeneroBrindesTable extends GenericTable
                     )
                 )->toArray();
 
-            return $generoBrindes;
+            return $tipoBrindesRedes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
             $stringError = __("Erro ao obter gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 
+    /**
+     * TiposBrindesRedesTable::getTiposBrindesRedeById
+     *
+     * Obtem o tipo de brinde da rede pelo id
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since   26/06/2018
+     *
+     * @return \App\Model\Entity\TiposBrindesRede $tiposBrindesRede
+     */
+    public function getTiposBrindesRedeById(int $id)
+    {
+        try {
+            $tipoBrindesRedes = $this
+                ->find()
+                ->where(
+                    array(
+                        "TiposBrindesRedes.id" => $id
+                    )
+                )
+                ->contain("Rede")
+                ->first();
+
+            return $tipoBrindesRedes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
 
 }

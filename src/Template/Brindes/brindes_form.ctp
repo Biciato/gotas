@@ -15,13 +15,13 @@ use Cake\Core\Configure;
 <div class="form-group row">
     <div class="col-lg-6">
         <?= $this->Form->input(
-            'genero_brindes_id',
+            'tipos_brindes_redes_id',
             [
                 "type" => "select",
-                "id" => "genero_brindes_id",
+                "id" => "tipos_brindes_redes_id",
                 "label" => "Nome para Brinde baseado nos tipos disponíveis ",
                 "empty" => "<Selecionar>",
-                "options" => $generoBrindesCliente
+                "options" => $tiposBrindesCliente
             ]
         ) ?>
     </div>
@@ -48,15 +48,25 @@ use Cake\Core\Configure;
         ) ?>
     </div>
 
-<div class="col-lg-6">
-    <?= $this->Form->input(
-        'preco_padrao',
-        [
-            'type' => 'text',
-            'id' => 'preco_padrao',
-            'label' => 'Preço Padrão em Gotas'
-        ]
-    ); ?>
+    <div class="col-lg-3">
+        <?= $this->Form->input(
+            'preco_padrao',
+            [
+                'type' => 'text',
+                'id' => 'preco_padrao',
+                'label' => 'Preço Padrão em Gotas'
+            ]
+        ); ?>
+    </div>
+    <div class="col-lg-3">
+        <?= $this->Form->input(
+            'valor_moeda_venda_padrao',
+            [
+                'type' => 'text',
+                'id' => 'valor_moeda_venda_padrao',
+                'label' => 'Preço Padrão de Venda Avulsa (R$)',
+            ]
+        ); ?>
     </div>
 </div>
 

@@ -3,17 +3,17 @@
 /**
  * index.ctp
  *
- * Menu esquerdo para genero_brindes_clientes
+ * Menu esquerdo para tipos_brindes_clientes
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrinde[]|\Cake\Collection\CollectionInterface $genero_brindes
+ * @var \App\Model\Entity\TiposBrindesRede[]|\Cake\Collection\CollectionInterface $tipos_brindes
  *
- * @file     src/Template/GeneroBrindesClientes/left_menu.ctp
+ * @file     src/Template/TiposBrindesClientes/left_menu.ctp
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesClientes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @date 02/06/2018
+ * @since 02/06/2018
  * @copyright 2018 Gustavo Souza Gonçalves
  * @license  http://www.php.net/license/3_0.txt  PHP License 3.0
  * @version    1.0
@@ -40,10 +40,10 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 <?= $this->Html->link(__('Ações'), []) ?>
             </li>
 
-            <?php if ($mode == 'view') : ?>
+            <?php if ($mode == 'add') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Adicionar Gênero"), ['controller' => 'genero_brindes_clientes', 'action' => 'adicionar_genero_brindes_cliente', $clientesId]) ?>
+                    <?= $this->Html->link(__("Atribuir Tipo de Brinde"), ['controller' => 'tipos_brindes_clientes', 'action' => 'adicionar_tipos_brindes_cliente', $clientesId]) ?>
                 </li>
 
             <?php endif; ?>

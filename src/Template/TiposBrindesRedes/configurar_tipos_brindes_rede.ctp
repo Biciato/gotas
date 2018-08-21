@@ -1,23 +1,22 @@
 <?php
 
 /**
- * index.ctp
+ * configurarTiposBrindesRedes.ctp
  *
- * View para genero_brindes/index
+ * View para tipos_brindes_redes/index
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrinde[]|\Cake\Collection\CollectionInterface $genero_brindes
+ * @var \App\Model\Entity\TiposBrindesRede[]|\Cake\Collection\CollectionInterface $tipos_brindes_redes
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @date 30/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
  * @license  http://www.php.net/license/3_0.txt  PHP License 3.0
  * @version    1.0
  * @link       http://pear.php.net/package/PackageName
- * @since      File available since Release 1.0.0
+ * @since      2018-05-30
  *
  */
 
@@ -25,26 +24,29 @@ use Cake\Routing\Router;
 use Cake\Core\Configure;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Gênero de Brindes', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
+$this->Breadcrumbs->add('Tipos de Brindes da Rede', array(), array('class' => 'active'));
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
 <?= $this->element(
-    '../GeneroBrindes/left_menu',
+    '../TiposBrindesRedes/left_menu',
     [
-        'mode' => 'view',
-        'show_reports' => false
+        'mode' => 'add',
+        'show_reports' => false,
+        "redesId" => $rede["id"]
     ]
 ) ?>
 <div class="redes index col-lg-9 col-md-10 columns content">
-    <legend><?= __('Gênero de Brindes') ?></legend>
+    <legend><?= __('Tipos de Brindes para Rede: {0}', $rede["nome_rede"]) ?></legend>
 
     <?= $this->element(
-        '../GeneroBrindes/filtro_genero_brindes',
+        '../TiposBrindesRedes/filtro_tipos_brindes_redes',
         [
-            'controller' => 'genero_brindes',
-            'action' => 'index'
+            'controller' => 'tiposBrindesRedes',
+            'action' => 'configurar_tipos_brindes_rede',
+            "id" => $rede["id"]
         ]
     ) ?>
     <table class="table table-striped table-hover table-responsive">
@@ -74,13 +76,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($generoBrindes as $genero) : ?>
+            <?php foreach ($tiposBrindes as $tipo) : ?>
             <tr>
-                <td><?= h($genero->nome . ($genero->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->equipamento_rti)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->brinde_necessidades_especiais)) ?> </td>
-                <td><?= h($this->Boolean->convertEnabledToString($genero->habilitado)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($genero->atribuir_automatico)) ?> </td>
+                <td><?= h($tipo->nome . ($tipo->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->equipamento_rti)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
+                <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
+                <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>
                 <td class="actions" style="white-space:nowrap">
                     <!-- Info -->
 
@@ -91,7 +93,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         ),
                         [
                             'action' => 'ver_detalhes',
-                            $genero->id
+                            $tipo->id
                         ],
                         [
                             'class' => 'btn btn-default btn-xs',
@@ -106,8 +108,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                         ),
                         [
-                            'action' => 'editar_genero_brinde',
-                            $genero->id
+                            'action' => 'editar_tipos_brindes_rede',
+                            $tipo->id
                         ],
                         [
                             'class' => 'btn btn-primary btn-xs',
@@ -127,14 +129,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             "title" => "Deletar",
                             'data-toggle' => 'modal',
                             'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $genero->nome),
+                            'data-message' => __(Configure::read('messageDeleteQuestion'), $tipo->nome),
                             'data-action' => Router::url(
                                 [
-                                    'action' => 'delete', $genero->id,
+                                    'action' => 'delete', $tipo->id,
                                     '?' =>
                                         [
-                                        'genero_brinde_id' => $genero->id,
-                                        'return_url' => 'index'
+                                        'return_url' => $this->request->here
                                     ]
                                 ]
                             ),

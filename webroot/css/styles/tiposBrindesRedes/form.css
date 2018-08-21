@@ -1,0 +1,3 @@
+.nolabel > label {
+    font-weight: normal !important;
+}

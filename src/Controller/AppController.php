@@ -19,6 +19,7 @@ use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Routing\Router;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use App\Custom\RTI\CryptUtil;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\EmailUtil;
@@ -26,6 +27,7 @@ use App\Custom\RTI\GotasUtil;
 use App\Custom\RTI\Security;
 use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Application Controller
@@ -64,6 +66,9 @@ class AppController extends Controller
     public function initialize()
     {
         parent::initialize();
+
+        // Troca base de dados
+        ConnectionManager::alias("devel", "default");
 
         $this->loadComponent(
             'Auth',
@@ -188,6 +193,27 @@ class AppController extends Controller
      */
     public function beforeRender(Event $event)
     {
+        // $user = $this->Auth->user();
+
+        // if (!empty($user)) {
+        //     $user = $this->Usuarios->get($user["id"]);
+        // }
+
+        // $getRequest = $this->request->is('get');
+
+        // if ($getRequest && (!empty($user))
+        //     && ($user["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"])
+        //     && (empty($user["cpf"]) == 1 && empty($user["doc_estrangeiro"] == 1))) {
+        //     $controllerAtual = $this->request->getParam("controller");
+        //     $actionAtual = $this->request->getParam("action");
+        //     $urlDestino = Router::url(array("controller" => "Usuarios", "action" => "editar"));
+
+        //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
+        //     if ($urlAtual != $urlDestino) {
+        //         $this->Flash->error(Configure::read("messageUserProfileDocumentNotFoundError"));
+        //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
+        //     }
+        // }
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])) {
             $this->set('_serialize', true);

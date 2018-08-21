@@ -1,22 +1,22 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\GeneroBrindesClientesTable;
+use App\Model\Table\TiposBrindesClientesTable;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
- * App\Model\Table\GeneroBrindesClientesTable Test Case
+ * App\Model\Table\TiposBrindesClientesTable Test Case
  */
-class GeneroBrindesClientesTableTest extends TestCase
+class TiposBrindesClientesTableTest extends TestCase
 {
 
     /**
      * Test subject
      *
-     * @var \App\Model\Table\GeneroBrindesClientesTable
+     * @var \App\Model\Table\TiposBrindesClientesTable
      */
-    public $GeneroBrindesClientes;
+    public $TiposBrindesClientes;
 
     /**
      * Fixtures
@@ -63,8 +63,8 @@ class GeneroBrindesClientesTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('GeneroBrindesClientes') ? [] : ['className' => GeneroBrindesClientesTable::class];
-        $this->GeneroBrindesClientes = TableRegistry::get('GeneroBrindesClientes', $config);
+        $config = TableRegistry::exists('TiposBrindesClientes') ? [] : ['className' => TiposBrindesClientesTable::class];
+        $this->TiposBrindesClientes = TableRegistry::get('TiposBrindesClientes', $config);
     }
 
     /**
@@ -74,7 +74,7 @@ class GeneroBrindesClientesTableTest extends TestCase
      */
     public function tearDown()
     {
-        unset($this->GeneroBrindesClientes);
+        unset($this->TiposBrindesClientes);
 
         parent::tearDown();
     }

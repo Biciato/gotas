@@ -3,14 +3,14 @@
 use Cake\Core\Configure;
 
 /**
- * form_genero_brindes.ctp
+ * form_tipos_brindes_rede.ctp
  *
- * Form para input de dados de genero_brindes
+ * Form para input de dados de tipos de brindes da rede
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindesRedes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @date 31/05/2018
+ * @since 31/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
  * @license  http://www.php.net/license/3_0.txt  PHP License 3.0
  * @version    1.0
@@ -18,9 +18,11 @@ use Cake\Core\Configure;
  * @since      File available since Release 1.0.0
  *
  */
+
 ?>
 
-<?= $this->Form->create($generoBrinde) ?>
+
+<?= $this->Form->create($tipoBrinde) ?>
 <fieldset>
     <legend><?= __($title) ?></legend>
     <div class="form-group row">
@@ -28,15 +30,32 @@ use Cake\Core\Configure;
     </div>
     <div class="form-group row">
         <div class="col-lg-12">
-            <?= $this->Form->control('equipamento_rti', ["label" => "Equipamento RTI?"]); ?>
-            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Para Pessoas de Nec. Especiais?"]); ?>
-            <?= $this->Form->control('habilitado', ["label" => "Gênero Habilitado para Atribuição?"]); ?>
+
+            <?php echo $this->Form->input(
+                "equipamento_rti",
+                array(
+                    "type" => "select",
+                    "id" => "equipamento_rti",
+                    "class" => "equipamento_rti",
+                    "label" => "Tipo de Prestação de Serviços",
+                    "empty" => "<Selecionar>",
+                    "options" => array(
+                        0 => "Produtos / Serviços",
+                        1 => "Equipamento RTI",
+                    ),
+                    "default" => null,
+                    "required" => true
+                )
+            ); ?>
+
+            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Tipo de Brinde Para Pessoas de Necessidades Especiais ?"]); ?>
+            <?= $this->Form->control('habilitado', ["label" => "Habilitado para Uso ? "]); ?>
             <?= $this->Form->control(
                 'atribuir_automatico',
                 [
-                    "label" => "Atribuir automaticamente na criação de nova unidade de rede?",
-                    "id" => "atribuir_automatico",
-                    "class" => "atribuir-automatico"
+                    "label" => "Atribuir automaticamente na criação de nova unidade de rede ? ",
+                    "id" => " atribuir_automatico ",
+                    "class " => "atribuir-automatico "
                 ]
             ); ?>
         </div>
@@ -50,7 +69,7 @@ use Cake\Core\Configure;
             <?= $this->Form->control(
                 "tipo_principal_codigo_brinde_default",
                 [
-                    "label" => "Tipo Principal Codigo Brinde Default",
+                    "label" => "Tipo Principal Codigo Brinde default",
                     "id" => "tipo_principal_codigo_brinde_default",
                     "class" => "tipo-principal-codigo-brinde-default",
                     "type" => "number",
@@ -62,9 +81,9 @@ use Cake\Core\Configure;
         </div>
         <div class="col-lg-6">
             <?= $this->Form->control(
-                "tipo_secundario_codigo_brinde_default",
+                "tipo_secundario_codigo_brinde_default ",
                 [
-                    "label" => "Tipo Secundario Codigo Brinde Default",
+                    "label" => "Tipo Secundario Codigo Brinde default",
                     "id" => "tipo_secundario_codigo_brinde_default",
                     "class" => "tipo-secundario-codigo-brinde-default",
                     "type" => "number",
@@ -92,10 +111,12 @@ use Cake\Core\Configure;
 
 
 <?php if (Configure::read("debug")) {
-
-    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes");
+    echo $this->Html->script("scripts/tipos_brindes_redes/form_tipos_brindes_redes");
+    echo $this->Html->css("styles/tiposBrindesRedes/form");
 } else {
-    echo $this->Html->script("scripts/genero_brindes/form_genero_brindes.min");
+    echo $this->Html->script("scripts/tipos_brindes_redes/form_tipos_brindes_redes.min");
+    echo $this->Html->css("styles/tiposBrindesRedes/form.min");
 }
 echo $this->fetch("script");
+echo $this->fetch("css");
 ?>

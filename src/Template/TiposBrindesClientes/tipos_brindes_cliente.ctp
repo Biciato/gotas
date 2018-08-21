@@ -1,16 +1,16 @@
 <?php
 
 /**
- * generos_brindes_cliente.ctp
+ * tipos_brindes_cliente.ctp
  *
- * View para genero_brindes_clientes/generos_brindes_cliente
+ * View para tipo_brindes_clientes/tipos_brindes_cliente
  *
  * Variáveis:
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\GeneroBrindesCliente[]|\Cake\Collection\CollectionInterface $generoBrindesClientes
+ * @var \App\Model\Entity\TiposBrindesCliente[]|\Cake\Collection\CollectionInterface $tiposBrindesClientes
  *
  * @category View
- * @package App\Template\GeneroBrindes
+ * @package App\Template\TiposBrindes
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @date 30/05/2018
  * @copyright 2018 Gustavo Souza Gonçalves
@@ -29,19 +29,19 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
 $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
 $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
-$this->Breadcrumbs->add('Gênero de Brindes Habilitados', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
 ?>
-<?= $this->element("../GeneroBrindesClientes/left_menu", ["mode" => "view", "clientesId" => $cliente->id]) ?>
-<div class="generoBrindesClientes view col-lg-9 col-mg-8 columns content">
+<?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "add", "clientesId" => $cliente->id]) ?>
+<div class="tiposBrindesClientes view col-lg-9 col-mg-8 columns content">
 
     <legend><?= __("Gênero de Brindes Habilitados para cliente [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
 
-    <?php if (sizeof($generoBrindesClientes->toArray()) == 0) : ?>
+    <?php if (sizeof($tiposBrindesClientes->toArray()) == 0) : ?>
         <?= __("Dados não encontrados para o cliente {0} ! ", $cliente->nome_fantasia) ?>
 
     <?php else : ?>
@@ -49,7 +49,7 @@ echo $this->Breadcrumbs->render(
         <table class="table table-striped table-hover table-responsive">
             <thead>
                 <tr>
-                    <th scope="col"><?= $this->Paginator->sort("genero_brindes_id") ?> </th>
+                    <th scope="col"><?= $this->Paginator->sort("tipo_brindes_id") ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
                     <th scope="col"><?= __("Vinculado?") ?> </th>
@@ -74,18 +74,18 @@ echo $this->Breadcrumbs->render(
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($generoBrindesClientes as $key => $generoBrindeItem) : ?>
+                <?php foreach ($tiposBrindesClientes as $key => $tipoBrindeItem) : ?>
 
                     <?php
-                    $vinculado = count($generoBrindeItem->clientes_has_brindes_habilitados) > 0;
-                    $banhoSmart = $generoBrindeItem->genero_brinde["id"] <= 4;
+                    $vinculado = count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0;
+                    $banhoSmart = $tipoBrindeItem->tipo_brinde["id"] <= 4;
                     ?>
                     <tr>
-                        <td><?= $generoBrindeItem->genero_brinde->nome . ($generoBrindeItem->genero_brinde->brinde_necessidades_especiais == 1 ? " (PNE)" : null) ?> </td>
-                        <td><?= $generoBrindeItem->tipo_principal_codigo_brinde ?> </td>
-                        <td><?= strlen($generoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $generoBrindeItem->tipo_secundario_codigo_brinde : $generoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
-                        <td><?= $this->Boolean->convertBooleanToString(count($generoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
-                        <td><?= $this->Boolean->convertEnabledToString($generoBrindeItem->habilitado) ?> </td>
+                        <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
+                        <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
+                        <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
+                        <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
+                        <td><?= $this->Boolean->convertEnabledToString($tipoBrindeItem->habilitado) ?> </td>
                         <td class="actions" style="white-space:nowrap">
                             <!-- Info -->
 
@@ -96,7 +96,7 @@ echo $this->Breadcrumbs->render(
                                 ),
                                 [
                                     'action' => 'ver_detalhes',
-                                    $generoBrindeItem->id
+                                    $tipoBrindeItem->id
                                 ],
                                 [
                                     'class' => 'btn btn-default btn-xs',
@@ -113,8 +113,8 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                                     ),
                                     [
-                                        'action' => 'editar_genero_brindes_cliente',
-                                        $generoBrindeItem->id
+                                        'action' => 'editar_tipo_brindes_cliente',
+                                        $tipoBrindeItem->id
                                     ],
                                     [
                                         'class' => 'btn btn-primary btn-xs',
@@ -124,7 +124,7 @@ echo $this->Breadcrumbs->render(
                                 ) ?>
 
                             <?php endif; ?>
-                            <?php if ($generoBrindeItem->habilitado) : ?>
+                            <?php if ($tipoBrindeItem->habilitado) : ?>
                                 <!-- Desabilitar -->
                                 <?= $this->Html->link(
                                     __(
@@ -132,14 +132,14 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        "controller" => "genero_brindes_clientes",
-                                        'action' => 'alteraEstadoGeneroBrindesCliente',
+                                        "controller" => "tipos_brindes_clientes",
+                                        'action' => 'alteraEstadoTiposBrindesCliente',
                                         '?' =>
                                             array(
-                                            'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                            'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
                                             'return_url' => array(
-                                                "controller" => "genero_brindes_clientes",
-                                                "action" => 'generos_brindes_cliente', $cliente["id"]
+                                                "controller" => "tipos_brindes_clientes",
+                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
                                             ),
                                             "estado" => false,
                                             "clientes_id" => $cliente["id"]
@@ -159,14 +159,14 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
                                     [
-                                        "controller" => "genero_brindes_clientes",
-                                        'action' => 'alteraEstadoGeneroBrindesCliente',
+                                        "controller" => "tipos_brindes_clientes",
+                                        'action' => 'alteraEstadoTiposBrindesCliente',
                                         '?' =>
                                             array(
-                                            'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                            'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
                                             'return_url' => array(
-                                                "controller" => "genero_brindes_clientes",
-                                                "action" => 'generos_brindes_cliente', $cliente["id"]
+                                                "controller" => "tipos_brindes_clientes",
+                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
                                             ),
                                             "estado" => true,
                                             "clientes_id" => $cliente["id"]
@@ -194,16 +194,16 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Deletar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $generoBrindeItem->genero_brinde->nome),
+                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             [
-                                                'action' => 'delete', $generoBrindeItem->id,
+                                                'action' => 'delete', $tipoBrindeItem->id,
                                                 '?' =>
                                                     [
-                                                    'genero_brindes_cliente_id' => $generoBrindeItem->id,
+                                                    'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
                                                     'return_url' => array(
-                                                        "controller" => "genero_brindes_clientes",
-                                                        "action" => 'generos_brindes_cliente', $cliente["id"]
+                                                        "controller" => "tipos_brindes_clientes",
+                                                        "action" => 'tipos_brindes_cliente', $cliente["id"]
                                                     )
                                                 ]
                                             ]

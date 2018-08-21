@@ -1559,7 +1559,7 @@ class PontuacoesComprovantesController extends AppController
                 }
                 // echo $url;
                 // die();
-                // DebugUtil::printGeneric($url);
+                // DebugUtil::print($url);
                 // die();
                 // Log::write("debug", $url);
 
@@ -1639,7 +1639,7 @@ class PontuacoesComprovantesController extends AppController
                 // Se encontrou o cnpj, procura o cliente através do cnpj.
                 // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
 
-                // DebugUtil::printGeneric($cnpjArray);
+                // DebugUtil::print($cnpjArray);
                 $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
 
                 if (is_null($cliente)) {

@@ -54,8 +54,6 @@ Configure::write(
             "ClientesHasBrindesHabilitadosPreco",
             "ClientesHasUsuarios",
             "Cupons",
-            "GeneroBrindes",
-            "GeneroBrindesClientes",
             "Gotas",
             "Pontuacoes",
             "PontuacoesComprovantes",
@@ -63,6 +61,8 @@ Configure::write(
             "Redes",
             "RedesHasClientes",
             "RedesHasClientesAdministradores",
+            "TiposBrindesRedes",
+            "TiposBrindesClientes",
             "Transportadoras",
             "TransportadorasHasUsuarios",
             "UsuariosEncrypted",
@@ -116,6 +116,9 @@ Configure::write(
             3 => 'Feminino',
             4 => 'Feminino PNE'
         ],
+        'imageUserProfilePath' => 'img/usuarios/fotosPerfil/',
+        'imageUserProfilePathTemp' => 'img/tmp/usuarios/fotosPerfil/',
+        'imageUserProfilePathRead' => '/img/usuarios/fotosPerfil/',
         'temporaryDocumentUserPath' => 'img/tmp/usuarios/documentos/',
         'documentUserPath' => 'img/usuarios/documentos/',
         'documentUserPathRead' => '/img/usuarios/documentos/',
@@ -224,6 +227,7 @@ Configure::write(
         "messageUserCPFNotValidInvalidSize" => "Tamanho do CPF errado, esperado 11 dígitos! {0}",
 
         "messageUserCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
+        "messageUserProfileDocumentNotFoundError" => "Atenção! Para usar o sistema, é necessário ter um CPF ou Documento Estrangeiro cadastrado! Complete seu perfil.",
 
         'messageUserLoggedInSuccessfully' => "Usuário logado com sucesso!",
         'messageUserLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",

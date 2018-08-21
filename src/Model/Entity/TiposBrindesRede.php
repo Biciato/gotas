@@ -4,7 +4,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * GeneroBrinde Entity
+ * TipoBrindesRede Entity
  *
  * @property int $id
  * @property string $nome
@@ -16,7 +16,7 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Cliente[] $clientes
  */
-class GeneroBrinde extends Entity
+class TiposBrindesRede extends Entity
 {
 
     /**

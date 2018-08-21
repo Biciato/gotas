@@ -511,7 +511,7 @@ class UsuariosHasVeiculosController extends AppController
 
                     $mensagem = array(
                         "status" => $veiculo? 1 : 0,
-                        "mensagem" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
+                        "message" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
                         "errors" => $veiculo ? array() : $veiculo->errors()
                     );
 
