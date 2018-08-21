@@ -23,6 +23,8 @@ use Cake\Core\Configure;
  * @property string $tel_fixo
  * @property string $tel_fax
  * @property string $tel_celular
+ * @property string $propaganda_link
+ * @property string $propaganda_img
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
