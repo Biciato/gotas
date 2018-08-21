@@ -696,7 +696,8 @@ class UsuariosTable extends GenericTable
                 // verifica se é uma conta sem ser usuário.
                 // se não for, verifica se a rede a qual ele se encontra está desativada
 
-                if ($usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
+                if ($usuario['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
+                    && $usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
                     // pega o vínculo do usuário com a rede
 
                     $cliente_has_usuario_table = TableRegistry::get('ClientesHasUsuarios');
