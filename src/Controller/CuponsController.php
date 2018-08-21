@@ -2402,17 +2402,17 @@ class CuponsController extends AppController
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
 
                 } else if (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio. " 00:00:00"];
+                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
 
                 } else if (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim. " 23:59:59"];
+                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
                 } else {
                     $dataFim = date("Y-m-d 23:59:59");
                     $dataInicio = date('Y-m-d 00:00:00', strtotime("-30 days"));
@@ -2612,6 +2612,35 @@ class CuponsController extends AppController
         }
 
         // $usuario['pontuacoes'] = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario['id'], $rede["id"], $clientesIds);
+
+        // Verifica se o brinde em questão está com brinde zerado.
+
+        // DebugUtil::print($brindeSelecionado);
+        $preco = $usuarioAvulso ? $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] : $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
+
+        if (empty($preco)) {
+            $mensagem = array(
+                "status" => false,
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => array(__("O brinde escolhido não está com seu preço configurado!"))
+            );
+
+            $arraySet = array("mensagem");
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "status" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
+            );
+
+            return $retorno;
+        }
 
          // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
         if ($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade

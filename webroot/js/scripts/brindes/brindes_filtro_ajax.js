@@ -111,6 +111,9 @@ $(document).ready(function () {
                 $(".list-gifts").append($('<option>'));
 
                 var brindeSemPreco = false;
+
+                var isVendaAvulsa = $("#usuarios_id").val() == "conta_avulsa";
+
                 $.each(result.brindes, function (index, value) {
 
                     if (value.brinde_habilitado_preco_atual == null) {
@@ -122,9 +125,13 @@ $(document).ready(function () {
                     }
                     else {
 
+                        var valorAvulso = (value.brinde_habilitado_preco_atual.valor_moeda_venda != null) ? parseFloat(value.brinde_habilitado_preco_atual.valor_moeda_venda) : 0;
+                        var valorGotas = (value.brinde_habilitado_preco_atual.preco != null) ? parseFloat(value.brinde_habilitado_preco_atual.preco) : 0;
+
+
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: " + value.brinde_habilitado_preco_atual.preco
+                            text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso  :  valorGotas)
                         }));
                     }
 

@@ -541,6 +541,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitadosWhereConditions = array();
 
+            $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.tipo_codigo_barras IS NOT NULL');
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.tipos_brindes_clientes_id IS NOT NULL');
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientesId);
