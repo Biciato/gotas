@@ -1063,18 +1063,18 @@ class RedesHasClientesController extends AppController
                     } else {
 
                         $whereConditions = array();
-                        $whereConditions[] = array("id in " => $clientesIds);
+                        $whereConditions[] = array("Clientes.id in " => $clientesIds);
 
                         if (isset($data["nome_fantasia"])) {
-                            $whereConditions[] = array("nome_fantasia like '%{$data["nome_fantasia"]}%'");
+                            $whereConditions[] = array("Clientes.nome_fantasia like '%{$data["nome_fantasia"]}%'");
                         }
 
                         if (isset($data["razao_social"])) {
-                            $whereConditions[] = array("razao_social like '%{$data["razao_social"]}%'");
+                            $whereConditions[] = array("Clientes.razao_social like '%{$data["razao_social"]}%'");
                         }
 
                         if (isset($data["cnpj"])) {
-                            $whereConditions[] = array("cnpj like '%{$data["cnpj"]}%'");
+                            $whereConditions[] = array("Clientes.cnpj like '%{$data["cnpj"]}%'");
                         }
 
                         $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);

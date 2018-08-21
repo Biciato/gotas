@@ -2330,7 +2330,7 @@ class CuponsController extends AppController
                 $usuario = $this->Auth->user();
                 $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
 
-                $whereConditions = array();
+                $whereConditions = array("Cupons.usuarios_id" => $usuario["id"]);
                 $tiposBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();

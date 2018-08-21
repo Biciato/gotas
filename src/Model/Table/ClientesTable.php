@@ -371,13 +371,15 @@ class ClientesTable extends GenericTable
     public function getClientes(array $whereConditions = array(), int $usuariosId = null, array $orderConditions = array(), array $paginationConditions = array())
     {
         try {
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
             $clientesQuery = $this->_getClientesTable()->find('all')
                 ->where($whereConditions);
 
             $clientesQuery = $clientesQuery->contain(array("RedesHasClientes.Redes"));
 
-
             // DebugUtil::print($clientesQuery);
+
             $count = $clientesQuery->count();
 
             $clientesId = 0;
@@ -392,8 +394,6 @@ class ClientesTable extends GenericTable
             if (sizeof($clientesQuery->toArray()) > 0) {
 
                 $clientesId = $clientesQuery->first()["id"];
-
-                $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
                 $redesHasClientesQuery = $redesHasClientesTable->getRedesHasClientesByClientesId($clientesId);
 
@@ -430,6 +430,17 @@ class ClientesTable extends GenericTable
             }
 
             $clientesAtual = $clientesQuery->toArray();
+
+            $clientesAtualTemp = array();
+
+            foreach ($clientesAtual as $key => $cliente) {
+                $clienteTemp = $cliente;
+                $clienteTemp["resumo_gotas_cliente"] = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, null, array($cliente["id"]));
+
+                $clientesAtualTemp[] = $clienteTemp;
+            }
+
+            $clientesAtual = $clientesAtualTemp;
 
             $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
 

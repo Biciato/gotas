@@ -1007,17 +1007,17 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                 $tiposBrindesClientesIds = array();
 
-                if ($tiposbrindesRedesId > 0) {
+                if (!empty($tiposbrindesRedesId) && ($tiposbrindesRedesId > 0)) {
                     $tiposBrindesClientesIds = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId($clientesId, $tiposbrindesRedesId);
                 }
 
-                $tiposBrindesClientesIds = sizeof($tiposBrindesClientesIds) > 0 ? $tiposBrindesClientesIds : array(-1);
+                $tiposBrindesClientesIds = sizeof($tiposBrindesClientesIds) > 0 ? $tiposBrindesClientesIds : array();
 
                 $tiposBrindesClientesIds = isset($tiposBrindesClientesIds) ? $tiposBrindesClientesIds : array();
                 // Campos para retorno à API
                 $filterTiposBrindesClientesColumns = array(
                     "id",
-                    "tiposbrindes_redes_id",
+                    "tipos_brindes_redes_id",
                     "clientes_id",
                     "habilitado"
                 );
