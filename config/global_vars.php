@@ -16,8 +16,8 @@ Configure::write(
     [
         // configuração de banco de dados:
 
-        // "environmentMode" => "development",
-        "workMode" => "production",
+        "environmentMode" => "development",
+        // "workMode" => "production",
         // 'appAddress' => 'https://40.71.26.138/',
         'appAddress' => 'https://www.rtibrindes.com.br/',
         // 'appAddress' => "https://www.rtibrindes.local/",
