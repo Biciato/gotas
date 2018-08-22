@@ -645,6 +645,7 @@ class RedesHasClientesController extends AppController
                     "Clientes.tel_fixo",
                     "Clientes.tel_fax",
                     "Clientes.tel_celular",
+                    "Clientes.propaganda_link",
                     "Clientes.propaganda_img",
                     "RedesHasClientes.id",
                     "RedesHasClientes.redes_id",
