@@ -1132,6 +1132,7 @@ class PontuacoesTable extends GenericTable
 
                 $brindesIds = $brindesTable->getBrindesIds(null, array(), null, $brindesNome);
 
+                // Se não achar o brinde, não tem problema, pois o nome do parâmetro é o mesmo para gotas
                 if (sizeof($brindesIds) > 0) {
                     $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
                     $whereConditions[] = array(
@@ -1141,23 +1142,6 @@ class PontuacoesTable extends GenericTable
                             "clientes_has_brindes_habilitados_id IS NULL"
                         )
                     );
-                } else {
-                    // Não achou o brinde , retorna erro
-
-                    $resultado = array(
-                        "mensagem" => array(
-                            "status" => 0,
-                            "message" => Configure::read("messageLoadDataWithError"),
-                            "errors" => array("Nome de Brinde informado não encontrado!")
-                        ),
-                        "pontuacoes" => array(
-                            "count" => 0,
-                            "page_count" => 0,
-                            "data" => array()
-                        )
-                    );
-
-                    return $resultado;
                 }
             }
 
