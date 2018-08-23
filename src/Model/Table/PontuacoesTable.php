@@ -1142,8 +1142,12 @@ class PontuacoesTable extends GenericTable
                             "clientes_has_brindes_habilitados_id IS NULL"
                         )
                     );
+                } else {
+                    $whereConditions[] = array("clientes_has_brindes_habilitados_id IS NULL");
                 }
             }
+
+            // DebugUtil::print($whereConditions);
 
             if (!empty($dataInicio)) {
                 $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $dataInicio), "Y-m-d");
