@@ -162,7 +162,7 @@ $(document).ready(function () {
                 if (result.error) {
                     callModalError(result.message);
                 } else {
-//
+
                     if ($("#opcoes").val() == "placa" && result.veiculoEncontrado === null) {
                         callModalError("Veículo não encontrado! Se usuário já está cadastrado, adicione um novo veículo para este usuário.");
                         return;
