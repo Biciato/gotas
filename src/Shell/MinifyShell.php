@@ -130,6 +130,7 @@ class MinifyShell extends ExtendedShell
                 'edit',
                 'filtro_relatorio_usuarios_cadastrados',
                 'filtro_usuarios_ajax',
+                'filtro_usuarios_venda_avulsa_ajax',
                 'login',
                 'pesquisar_cliente_alterar_dados',
                 'reativar_conta',
@@ -218,6 +219,7 @@ class MinifyShell extends ExtendedShell
         [
             'usuarios' => [
                 'filtro_usuarios_ajax',
+                'filtro_usuarios_venda_avulsa_ajax',
             ]
         ],
 

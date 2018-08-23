@@ -3492,7 +3492,7 @@ class UsuariosController extends AppController
                         if (!empty($value)) {
                             $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], array());
 
-                            $value->pontuacoes = $pontuacoes["saldo"];
+                            $value->pontuacoes = $pontuacoes["resumo_gotas"]["saldo"];
                             $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;
 
                             $usuariosTemp[] = $value;
@@ -3526,6 +3526,15 @@ class UsuariosController extends AppController
 
             Log::write('error', $stringError);
         }
+    }
+
+    public function findUsuariosAPI()
+    {
+        $teste = 'oi';
+        $arraySet = array("teste");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

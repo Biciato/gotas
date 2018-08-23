@@ -313,6 +313,11 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/registrar'
             ],
+            "findUsuariosAPI" => array(
+                "action"=> "findUsuariosAPI",
+                "method" => "POST",
+                "path" => "/find_usuarios"
+            )
 
         ]
     ]);

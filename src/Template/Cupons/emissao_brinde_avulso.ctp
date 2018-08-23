@@ -19,6 +19,12 @@ use Cake\Core\Configure;
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
 
+        <div class="form-group row">
+            <?php
+                echo $this->element("../Usuarios/filtro_usuarios_venda_avulsa_ajax");
+            ?>
+        </div>
+
         <!-- Id de Usuários -->
         <?= $this->Form->text('usuarios_id', [
             'id' => 'usuarios_id',
@@ -53,12 +59,12 @@ use Cake\Core\Configure;
 
      <!-- Confirmação cupom -->
      <?php
-        echo $this->element("../Cupons/confirmacao_emissao_cupom");
+    echo $this->element("../Cupons/confirmacao_emissao_cupom");
     ?>
 
     <!-- Confirmação canhoto -->
     <?php
-        echo $this->element("../Cupons/confirmacao_canhoto");
+    echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
 
 </div>
