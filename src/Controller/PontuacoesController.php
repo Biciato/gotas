@@ -629,6 +629,7 @@ class PontuacoesController extends AppController
                 $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
                 $brindesNome = isset($data["brindes_nome"]) ? $data["brindes_nome"] : "";
+                $gotasNomeParametro = isset($data["gotas_nome_parametro"]) ? $data["gotas_nome_parametro"] : "";
 
                 $dataInicio = isset($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim = isset($data["data_fim"]) ? $data["data_fim"] : null;
@@ -683,7 +684,18 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario($usuario["id"], $redesId, array($clientesId), $tipoOperacao, $brindesNome, $dataInicio, $dataFim, $orderConditions, $paginationConditions);
+                $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario(
+                    $usuario["id"],
+                    $redesId,
+                    array($clientesId),
+                    $tipoOperacao,
+                    $brindesNome,
+                    $gotasNomeParametro,
+                    $dataInicio,
+                    $dataFim,
+                    $orderConditions,
+                    $paginationConditions
+                );
 
                 $mensagem = $retorno["mensagem"];
                 $pontuacoes = $retorno["pontuacoes"];

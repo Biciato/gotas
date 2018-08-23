@@ -1074,6 +1074,7 @@ class PontuacoesTable extends GenericTable
      * @param integer $redesId Id da rede
      * @param array $clientesIds Id das Unidades de Atendimento
      * @param string $brindesNome Nome do Brinde
+     * @param string $gotasNomeParametro Nome da Gota de pesquisa
      * @param bool $tipoOperacao Tipo de Operacao (1 = entrada / 0 = saída)
      * @param string $dataInicio Data Início (Formato YYYY-MM-DD)
      * @param string $dataFim Data Fim (Formato YYYY-MM-DD)
@@ -1091,6 +1092,7 @@ class PontuacoesTable extends GenericTable
         array $clientesIds = array(),
         int $tipoOperacao = null,
         string $brindesNome = "",
+        string $gotasNomeParametro = "",
         string $dataInicio = null,
         string $dataFim = null,
         array $orderConditions = array(),
@@ -1132,7 +1134,13 @@ class PontuacoesTable extends GenericTable
 
                 if (sizeof($brindesIds) > 0) {
                     $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
-                    $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds);
+                    $whereConditions[] = array(
+                        "OR" =>
+                            array(
+                            "clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds,
+                            "clientes_has_brindes_habilitados_id IS NULL"
+                        )
+                    );
                 } else {
                     // Não achou o brinde , retorna erro
 
@@ -1180,6 +1188,8 @@ class PontuacoesTable extends GenericTable
             $todasPontuacoes = $pontuacoesQuery->toArray();
             $pontuacoesAtual = $pontuacoesQuery->toArray();
 
+            // DebugUtil::printArray($todasPontuacoes);
+
             $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "pontuacoes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
@@ -1194,6 +1204,7 @@ class PontuacoesTable extends GenericTable
                 $isBrinde = true;
             }
 
+
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
 
@@ -1207,11 +1218,17 @@ class PontuacoesTable extends GenericTable
                             )
                         )->first();
 
-                    $gota = $gotasTable->getGotaById($pontuacao["gotas_id"]);
-                    $pontuacao["gotas"] = $gota;
-                    $pontuacao["pontuacoes_comprovante"] = $comprovante;
-                    $pontuacao["tipo_operacao"] = 1;
-                    $pontuacoesRetorno[] = $pontuacao;
+                    if (!empty($gotasNomeParametro) && strlen($gotasNomeParametro) > 0) {
+                        $gota = $gotasTable->getGotaByIdNome($pontuacao["gotas_id"], $gotasNomeParametro);
+                    } else {
+                        $gota = $gotasTable->getGotaById($pontuacao["gotas_id"]);
+                    }
+                    if (!empty($gota)) {
+                        $pontuacao["gotas"] = $gota;
+                        $pontuacao["pontuacoes_comprovante"] = $comprovante;
+                        $pontuacao["tipo_operacao"] = 1;
+                        $pontuacoesRetorno[] = $pontuacao;
+                    }
 
                 } else if (!empty($pontuacao["clientes_has_brindes_habilitados_id"]) && $isBrinde) {
 
@@ -1245,13 +1262,12 @@ class PontuacoesTable extends GenericTable
 
             // DebugUtil::printArray($paginationConditions);
 
-            $pagina = 1 ;
-            $limite = sizeof($pontuacoesRetorno) ;
+            $pagina = 1;
+            $limite = sizeof($pontuacoesRetorno);
 
             $totalPage = sizeof($pontuacoesRetorno);
             $currentPage = sizeof($pontuacoesRetorno);
-            if (sizeof($paginationConditions) > 0)
-            {
+            if (sizeof($paginationConditions) > 0) {
                 $pagina = $paginationConditions["page"];
                 $limite = $paginationConditions["limit"];
                 $limiteInicial = (($pagina * $limite) - $limite);
@@ -1273,7 +1289,6 @@ class PontuacoesTable extends GenericTable
                     "page_count" => $currentPage,
                     "data" => $pontuacoesRetorno
                 )
-
             );
 
             return $resultado;

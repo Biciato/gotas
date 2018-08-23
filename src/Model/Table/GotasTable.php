@@ -319,6 +319,49 @@ class GotasTable extends GenericTable
     }
 
     /**
+     * GotasTable::getGotaByIdNome
+     *
+     * Obtêm gota pelo ID e nome
+     *
+     * @param int $id Id da Gota
+     * @param string $nomeParametro Nome do Parametro de gota
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 22/08/2018
+     *
+     * @return object $gota Gota
+     */
+    public function getGotaByIdNome(int $id, string $nomeParametro = null)
+    {
+        try {
+            return $this->_getGotasTable()->find('all')
+                ->where(
+                    array(
+                        'id' => $id,
+                        "nome_parametro like '%$nomeParametro%'"
+                    )
+                )->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = [false, $stringError];
+            return $error;
+        }
+    }
+
+    /**
      * Obtem gota por id e clientes Id
      *
      * @param int $id          Id da gota
