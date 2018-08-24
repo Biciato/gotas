@@ -2488,6 +2488,8 @@ class CuponsController extends AppController
         $mensagem = array();
         $dados_impressao = array();
 
+        echo 'oi';
+        die();
         // pega id de todos os clientes que estão ligados à uma rede
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $rede = $redesHasClientes->rede;
@@ -2523,6 +2525,9 @@ class CuponsController extends AppController
             $usuario = $this->Usuarios->getUsuarioById($usuariosId);
         }
 
+
+        DebugUtil::print($usuario);
+        die();
         /**
          * Validação de senha do usuário
          * Só deve ocorrer se não for via mobile.

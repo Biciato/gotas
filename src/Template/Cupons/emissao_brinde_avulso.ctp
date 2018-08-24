@@ -19,12 +19,6 @@ use Cake\Core\Configure;
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
 
-        <div class="form-group row">
-            <?php
-                echo $this->element("../Usuarios/filtro_usuarios_venda_avulsa_ajax");
-            ?>
-        </div>
-
         <!-- Id de Usuários -->
         <?= $this->Form->text('usuarios_id', [
             'id' => 'usuarios_id',
@@ -32,11 +26,18 @@ use Cake\Core\Configure;
             'value' => 'conta_avulsa',
             'style' => 'display: none;'
         ]); ?>
-
+        <div class="form-group row">
+            <?php
+                echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1));
+            ?>
+        </div>
 
         <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
+        <div class="form-group">
         <?= $this->element('../Brindes/brindes_filtro_ajax', ["usuarioVendaAvulsa" => true]) ?>
+        </div>
+
 
         <div class="gifts-query-region">
 

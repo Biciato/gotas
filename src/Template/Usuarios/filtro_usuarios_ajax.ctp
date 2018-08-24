@@ -6,6 +6,9 @@
  * @date     14/08/2017
  */
 use Cake\Core\Configure;
+use Cake\Routing\Router;
+
+$isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 ?>
 
 <div class="form-group">
@@ -37,9 +40,6 @@ use Cake\Core\Configure;
             ]
         ) ?>
     </div>
-    <!-- <div class="col-lg-1">
-        <?= $this->Form->label('Parâmetro') ?>
-    </div> -->
 
     <div class="col-lg-7">
         <?= $this->Form->input(
@@ -81,86 +81,95 @@ use Cake\Core\Configure;
     </div>
 
 
-    <div class="user-result user-result-plates" >
+    <div class="form-group">
+        <div class="user-result user-result-plates" >
 
-        <div id="vehicle" class="col-lg-12">
-            <h4>Veículo Encontrado</h4>
+            <div id="vehicle">
+                <h4>Veículo Encontrado</h4>
 
 
-            <div class="col-lg-3 col-md-3">
-                <?= $this->Form->input('placa', ['readonly' => true, 'label' => 'Placa', 'id' => 'veiculosPlaca']) ?>
+                <div class="col-lg-3 col-md-3">
+                    <?= $this->Form->input('placa', ['readonly' => true, 'label' => 'Placa', 'id' => 'veiculosPlaca']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-3">
+                    <?= $this->Form->input('modelo', ['readonly' => true, 'label' => 'Modelo', 'id' => 'veiculosModelo']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-3">
+                    <?= $this->Form->input('fabricante', ['readonly' => true, 'label' => 'Fabricante', 'id' => 'veiculosFabricante']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-3">
+                    <?= $this->Form->input('veiculosAno', ['readonly' => true, 'label' => 'Ano', 'id' => 'veiculosAno']) ?>
+                </div>
+
             </div>
 
-            <div class="col-lg-3 col-md-3">
-                <?= $this->Form->input('modelo', ['readonly' => true, 'label' => 'Modelo', 'id' => 'veiculosModelo']) ?>
-            </div>
+            <div class="col-lg-12">
+                <table class="table table-striped table-hover" id="user-result-plates">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Data de Nascimento</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-            <div class="col-lg-3 col-md-3">
-                <?= $this->Form->input('fabricante', ['readonly' => true, 'label' => 'Fabricante', 'id' => 'veiculosFabricante']) ?>
-            </div>
-
-            <div class="col-lg-3 col-md-3">
-                <?= $this->Form->input('veiculosAno', ['readonly' => true, 'label' => 'Ano', 'id' => 'veiculosAno']) ?>
+                    </tbody>
+                </table>
             </div>
 
         </div>
-
-        <table class="table table-striped table-hover" id="user-result-plates">
-            <thead>
-                <tr>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Data de Nascimento</th>
-                    <th scope="col">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-
-            </tbody>
-        </table>
-
     </div>
 
-    <div class="form user-result col-lg-12">
 
-        <?= $this->Html->tag(
-            'div',
-            ' Pesquisar cliente',
-            ['class' => 'col-lg-2 btn btn-primary fa fa-rotate-right', 'type' => 'button', 'id' => 'new-user-search']
-        ) ?>
+    <div class="user-result ">
 
-        <h4>Cliente selecionado</h4>
-
-        <?= $this->Form->text('usuarios_id', [
-            'id' => 'usuarios_id',
-            'class' => "usuarios_id",
-            'style' => 'display: none;'
-        ]); ?>
-
-        <div class='col-lg-1'>
-            <?= $this->Form->label('Nome') ?>
-        </div>
-        <div class="col-lg-3 col-md-2">
-            <?= $this->Form->input('nome', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'usuariosNome']) ?>
+        <div class="col-lg-12">
+            <?= $this->Html->tag(
+                'div',
+                ' Pesquisar cliente',
+                ['class' => 'col-lg-2 btn btn-primary fa fa-rotate-right', 'type' => 'button', 'id' => 'new-user-search']
+            ) ?>
         </div>
 
-        <div class='col-lg-2'>
-            <?= $this->Form->label('Data Nascimento') ?>
+        <div class="form-group row  col-lg-12">
+            <h4>Cliente selecionado</h4>
+
+            <?= $this->Form->text('usuarios_id', [
+                'id' => 'usuarios_id',
+                'class' => "usuarios_id",
+                'style' => 'display: none;'
+            ]); ?>
+
+            <?php if ($isVendaAvulsa) : ?>
+
+                <div class="col-lg-9 col-md-2">
+                    <?= $this->Form->input('nome', ['readonly' => true, 'required' => false, 'label' => "Nome", 'id' => 'usuariosNome']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-1">
+                    <?= $this->Form->input('data_nasc', ['readonly' => true, 'required' => false, 'label' => "Data de Nascimento", 'id' => 'usuariosDataNasc']) ?>
+                </div>
+            <?php else : ?>
+
+                <div class="col-lg-4 col-md-2">
+                    <?= $this->Form->input('nome', ['readonly' => true, 'required' => false, 'label' => "Nome", 'id' => 'usuariosNome']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-1">
+                    <?= $this->Form->input('data_nasc', ['readonly' => true, 'required' => false, 'label' => "Data de Nascimento", 'id' => 'usuariosDataNasc']) ?>
+                </div>
+
+                <div class="col-lg-3 col-md-2">
+
+                    <?= $this->Form->input('pontuacoes', ['readonly' => true, 'required' => false, 'label' => "Total Pontos", 'id' => 'usuariosPontuacoes']) ?>
+                </div>
+
+            <?php endif; ?>
         </div>
-
-        <div class="col-lg-2 col-md-1">
-
-            <?= $this->Form->input('data_nasc', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'usuariosDataNasc']) ?>
-        </div>
-
-        <div class='col-lg-1'>
-            <?= $this->Form->label('Total Pontos') ?>
-        </div>
-
-        <div class="col-lg-3 col-md-2">
-
-            <?= $this->Form->input('pontuacoes', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'usuariosPontuacoes']) ?>
-        </div>
-
     </div>
 </div>
 

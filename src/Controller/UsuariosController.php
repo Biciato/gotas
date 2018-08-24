@@ -401,9 +401,10 @@ class UsuariosController extends AppController
             $errors = $trace;
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         $arraySet = [
@@ -3522,19 +3523,16 @@ class UsuariosController extends AppController
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao procurar usuário: [{0}] ", $e->getMessage());
+            $messageString = __("Erro ao pesquisar usuário!");
 
-            Log::write('error', $stringError);
+            $errors = $trace;
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
+
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
-    }
-
-    public function findUsuariosAPI()
-    {
-        $teste = 'oi';
-        $arraySet = array("teste");
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -3555,29 +3553,34 @@ class UsuariosController extends AppController
 
                 // verifica cliente (Usuário deve estar vinculado à rede, seja matriz ou filial)
 
-                $clientes_ids = $this->Clientes->getIdsMatrizFiliaisByClienteId($data['clientes_id']);
+                $usuariosId = isset($data["usuarios_id"]) ? (int)$data["usuarios_id"] : null;
 
-                $cliente_has_usuario = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork($data['usuarios_id'], $clientes_ids);
+                if (!empty($usuariosId)) {
+                    $clientes_ids = $this->Clientes->getIdsMatrizFiliaisByClienteId($data['clientes_id']);
 
-                // achou usuário, retorna o objeto
-                if ($cliente_has_usuario->usuario) {
-                    // consulta de pontuação, se encontrou usuário
+                    $cliente_has_usuario = $this->ClientesHasUsuarios->findClienteHasUsuarioInsideNetwork($data['usuarios_id'], $clientes_ids);
 
-                    $cliente_has_usuario->usuario['data_nasc'] = $cliente_has_usuario->usuario['data_nasc']->format('d/m/Y');
+                    // achou usuário, retorna o objeto
+                    if ($cliente_has_usuario->usuario) {
+                        // consulta de pontuação, se encontrou usuário
 
-                    $cliente_has_usuario->usuario['pontuacoes']
-                        = Number::precision(
-                        $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                            $data['usuarios_id'],
-                            null,
-                            $clientes_ids
-                        ),
-                        2
-                    );
+                        $cliente_has_usuario->usuario['data_nasc'] = $cliente_has_usuario->usuario['data_nasc']->format('d/m/Y');
 
-                    // $result = json_encode(['user' => $cliente_has_usuario->usuario, 'count' => 1]);
-                    $user = $cliente_has_usuario->usuario;
-                    $count = 1;
+                        $cliente_has_usuario->usuario['pontuacoes']
+                            = Number::precision(
+                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                                $data['usuarios_id'],
+                                null,
+                                $clientes_ids
+                            ),
+                            2
+                        );
+
+                        // $result = json_encode(['user' => $cliente_has_usuario->usuario, 'count' => 1]);
+                        $user = $cliente_has_usuario->usuario;
+                        $count = 1;
+
+                    }
 
                 }
             }

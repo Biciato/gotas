@@ -5,7 +5,10 @@
  *
  */
 
+var contaAvulsa = $("#usuarios_id").val() == "conta_avulsa";
+
 $(document).ready(function () {
+
 
     // ------------------------------------------------------------------
     // Métodos de inicialização
@@ -36,7 +39,7 @@ $(document).ready(function () {
             }
         }).done(function (result) {
             closeLoaderAnimation();
-            setUsuariosInfo(result.user);
+            setUsuariosInfo(result.user, contaAvulsa);
         });
     }
 
@@ -44,7 +47,7 @@ $(document).ready(function () {
 
     $("#new-user-search").click(function () {
         $(".user-query-region").show();
-        setUsuariosInfo(null);
+        setUsuariosInfo(null, contaAvulsa);
         $(".user-result").hide();
     });
 
@@ -75,7 +78,7 @@ $(document).ready(function () {
                     return false;
                 }
             });
-            setUsuariosInfo(result);
+            setUsuariosInfo(result, contaAvulsa);
         });
     }
 
@@ -174,13 +177,13 @@ $(document).ready(function () {
                         if (result.count == 1) {
                             if (typeof (result.usuarios === 'object')) {
                                 if (result.usuarios.length !== undefined) {
-                                    setUsuariosInfo(result.usuarios[0]);
+                                    setUsuariosInfo(result.usuarios[0], contaAvulsa);
                                 } else {
-                                    setUsuariosInfo(result.usuarios);
+                                    setUsuariosInfo(result.usuarios, contaAvulsa);
 
                                 }
                             } else {
-                                setUsuariosInfo(result.usuarios[0]);
+                                setUsuariosInfo(result.usuarios[0], contaAvulsa);
 
                             }
 
@@ -241,7 +244,7 @@ $(document).ready(function () {
 var resetUserFilter = function () {
 
     // reseta informações de usuário selecionado
-    setUsuariosInfo(null);
+    setUsuariosInfo(null, contaAvulsa);
 
     // reseta layout
     $(".user-result").hide();
@@ -254,7 +257,7 @@ var resetUserFilter = function () {
  * Seta informações de usuário
  * @param {*} data
  */
-var setUsuariosInfo = function (data) {
+var setUsuariosInfo = function (data, contaAvulsa) {
     if (data !== undefined && data !== null) {
         $("#usuarios_id").val(data.id);
         $("#usuariosNome").val(data.nome);
@@ -262,12 +265,6 @@ var setUsuariosInfo = function (data) {
 
         $("#sexo").val(data.sexo == true ? 1 : 0);
         $("#necessidades_especiais").val(data.necessidades_especiais == true ? 1 : 0);
-
-        // if (data.pontuacoes.indexOf('.') > 0) {
-        //     $("#usuariosPontuacoes").val(parseFloat(data.pontuacoes) * 1000);
-        // } else {
-        //     $("#usuariosPontuacoes").val(parseFloat(data.pontuacoes));
-        // }
 
         $("#usuariosPontuacoes").val(data.pontuacoes);
 
@@ -277,7 +274,9 @@ var setUsuariosInfo = function (data) {
         $(".user-query-region").hide();
 
     } else {
-        $("#usuarios_id").val(null);
+
+        $("#usuarios_id").val(contaAvulsa ? "conta_avulsa" : null);
+
         $("#usuariosNome").val(null);
         $("#usuariosDataNasc").val(null);
         $("#usuariosPontuacoes").val(null);

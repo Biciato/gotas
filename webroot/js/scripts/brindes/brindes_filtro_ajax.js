@@ -128,7 +128,6 @@ $(document).ready(function () {
                         var valorAvulso = (value.brinde_habilitado_preco_atual.valor_moeda_venda != null) ? parseFloat(value.brinde_habilitado_preco_atual.valor_moeda_venda) : 0;
                         var valorGotas = (value.brinde_habilitado_preco_atual.preco != null) ? parseFloat(value.brinde_habilitado_preco_atual.preco) : 0;
 
-
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
                             text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso  :  valorGotas)

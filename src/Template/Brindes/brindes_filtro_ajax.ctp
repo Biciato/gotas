@@ -10,61 +10,67 @@ use Cake\Core\Configure;
 
 $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
 ?>
-
-<div class="form-group ">
-
-
     <div class="gifts-query-region">
-
-    <div class="row">
         <h4>Selecione um brinde</h4>
-    </div>
-
-    <div class="row">
-
-        <div class="col-lg-6">
-
-            <?= $this->Form->text('restrict_query', ['id' => 'restrict_query', 'value' => true, 'style' => 'display: none;']); ?>
-
-            <?= $this->Form->input('lista_brindes', ['type' => 'select', 'id' => 'lista_brindes', 'class' => 'form-control list-gifts', 'label' => 'Brinde', 'required' => true]) ?>
-
+        <div class="row">
+            <div class="col-lg-6">
+                <?= $this->Form->text(
+                    'restrict_query',
+                    array(
+                        'id' => 'restrict_query',
+                        'value' => true,
+                        'style' => 'display: none;'
+                    )
+                ); ?>
+                <?= $this->Form->input(
+                    'lista_brindes',
+                    array(
+                        'type' => 'select',
+                        'id' => 'lista_brindes',
+                        'class' => 'form-control list-gifts',
+                        'label' => 'Brinde',
+                        'required' => true
+                    )
+                ) ?>
                 <?= $this->Form->text('brindes_id', ['id' => 'brindes_id', 'style' => 'display: none;']); ?>
-
                 <?= $this->Form->text('preco', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'preco_banho', 'style' => 'display:none;']) ?>
             </div>
 
             <div class="col-lg-6" >
                 <label for="gift-image">Imagem do Brinde</label>
                 <br />
-                <?= $this->Html->image("/", [
-                    "name" => "gift-image",
-                    "class" => "gift-image",
-                    "label" => "Imagem do Brinde",
-                    // "style" => "position: absolute;"
-
-                ]) ?>
+                <?= $this->Html->image(
+                    "/",
+                    array(
+                        "name" => "gift-image",
+                        "class" => "gift-image",
+                        "label" => "Imagem do Brinde",
+                    )
+                ) ?>
             </div>
         </div>
-
         <div class="row">
-
+            <!-- Se for usuário de venda avulsa: -->
             <?php if ($usuarioVendaAvulsa) : ?>
                 <div class="col-lg-6">
-                    <?= $this->Form->input('quantidade', [
-                        'type' => 'number',
-                        'readonly' => false,
-                        'required' => true,
-                        'label' => 'Quantidade (Se Não é SMART Shower)',
-                        'min' => 1,
-                        'id' => 'quantidade',
-                        'class' => 'quantidade-brindes',
-                        'step' => 1.0,
-                        'default' => 0,
-                        'min' => 0
-                    ]) ?>
+                    <?= $this->Form->input(
+                        'quantidade',
+                        array(
+                            'type' => 'number',
+                            'readonly' => false,
+                            'required' => true,
+                            'label' => 'Quantidade (Se Não é SMART Shower)',
+                            'min' => 1,
+                            'id' => 'quantidade',
+                            'class' => 'quantidade-brindes',
+                            'step' => 1.0,
+                            'default' => 0,
+                            'min' => 0
+                        )
+                    ) ?>
                 </div>
 
-            <?php else: ?>
+            <?php else : ?>
                 <div class="col-lg-4">
                     <?= $this->Form->input('quantidade', [
                         'type' => 'number',

@@ -179,11 +179,9 @@ $(document).ready(function () {
                                     setUsuariosInfo(result.usuarios[0]);
                                 } else {
                                     setUsuariosInfo(result.usuarios);
-
                                 }
                             } else {
                                 setUsuariosInfo(result.usuarios[0]);
-
                             }
 
                         } else if (result.usuarios.length == 0) {

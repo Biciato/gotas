@@ -95,12 +95,12 @@ if (empty($user_logged['nome'])) {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="<?php echo $this->Url->build(isset($project_url) ? $project_url : '/'); ?>"><?php
-                                                                                                                            if (isset($project_name)) {
-                                                                                                                                echo $project_name;
-                                                                                                                            } else {
-                                                                                                                                echo 'Cake Twitter Bootstrap';
-                                                                                                                            } ?></a>
+                <a class="navbar-brand" href="<?php echo $this->Url->build(isset($project_url) ? $project_url : '/'); ?>">
+                <?php if (isset($project_name)) {
+                    echo $project_name;
+                } else {
+                    echo 'Cake Twitter Bootstrap';
+                } ?></a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
@@ -131,18 +131,18 @@ if (empty($user_logged['nome'])) {
         <!-- <section class="container clearfix"> -->
         <?= $this->element('header') ?>
         <?= $this->element('loader') ?>
-        
+
         <section class="container-content clearfix">
 			<div class="row row-container">
                 <div>
 				<?= $this->Flash->render() ?>
 				<?= $this->fetch('content') ?>
-				
+
 				<?= $this->element('modal_container') ?>
 
                 </div>
 			</div>
-			
+
 		</section>
 
      <?php
