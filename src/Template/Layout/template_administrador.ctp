@@ -15,14 +15,14 @@
  *
  * @author        Gustavo Souza Gonçalves
  * @date          13/07/2017
- * @project_name  RTI Brindes
+ * @project_name  GOTAS
  * @file          src\Template\Layout\template_administrador.ctp
  * @info          Template para perfil do tipo Adminstrador
  */
 use Cake\Core\Configure;
 
 
-$titlePage = 'RTI Brindes - Administrador';
+$titlePage = 'GOTAS - Administrador';
 
 ?>
 <!DOCTYPE html>

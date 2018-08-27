@@ -15,7 +15,7 @@
  *
  * @author        Gustavo Souza Gonçalves
  * @date          13/07/2017
- * @project_name  RTI Brindes
+ * @project_name  GOTAS
  * @file          src\Template\Layout\template_funcionario.ctp
  * @info          Template para perfil do tipo Funcionário
  */
@@ -24,7 +24,7 @@ use Cake\Core\Configure;
 header("Access-Control-Allow-Origin: *");
 $user_logged = $this->Auth->User();
 
-$titlePage = 'RTI Brindes - Funcionário ' . $user_logged['nome'];
+$titlePage = 'GOTAS - Funcionário ' . $user_logged['nome'];
 
 ?>
 <!DOCTYPE html>

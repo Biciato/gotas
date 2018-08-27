@@ -1,11 +1,11 @@
-<?php 
+<?php
 //echo $this->fetch('content') ;
 use Cake\Core\Configure;
 ?>
 
 <header>
     <div class="header-title">
-        <h1>Bem vindo ao sistema RTI Brindes</h1>
+        <h1>Bem vindo ao sistema GOTAS</h1>
     </div>
 </header>
 
@@ -13,7 +13,7 @@ use Cake\Core\Configure;
     <div class="container-content-funcionario columns col-lg-12">
 
         <?= $this->element('../Pages/left_menu') ?>
-        
+
     </div>
 
 <?= $this->Form->create($funcionario) ?>
@@ -28,7 +28,7 @@ use Cake\Core\Configure;
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/pages/dashboard_funcionario') ?>
     <?= $this->Html->css('styles/pages/dashboard_funcionario') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/pages/dashboard_funcionario.min') ?>
     <?= $this->Html->css('styles/pages/dashboard_funcionario.min') ?>
 <?php endif; ?>

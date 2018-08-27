@@ -15,7 +15,7 @@
  *
  * @author        Gustavo Souza Gonçalves
  * @date          13/07/2017
- * @project_name  RTI Brindes
+ * @project_name  GOTAS
  * @file          src\Template\Layout\template_desenvolvedor.ctp
  * @info          Template para perfil do tipo Desenvolvedor
  */
@@ -23,7 +23,7 @@ use Cake\Core\Configure;
 
 $user_logged = $this->Auth->User();
 
-$cakeDescription = 'RTI Brindes - Desenvolvedor ' . $user_logged['nome'];
+$cakeDescription = 'GOTAS - Desenvolvedor ' . $user_logged['nome'];
 
 ?>
 <!DOCTYPE html>

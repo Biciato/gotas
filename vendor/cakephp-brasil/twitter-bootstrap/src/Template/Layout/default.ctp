@@ -1,6 +1,6 @@
 <?php
 
-$titlePage = 'RTI Brindes';
+$titlePage = 'GOTAS';
 
 ?>
 <!DOCTYPE html>
@@ -14,7 +14,7 @@ $titlePage = 'RTI Brindes';
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	
+
 	<?= $this->Html->meta('icon') ?>
 
 	<?= $this->Html->css('home-rti')?>

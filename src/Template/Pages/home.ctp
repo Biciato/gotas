@@ -14,7 +14,7 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  * @author        Gustavo Souza Gonçalves
  * @date          06/07/2017
- * @projectname   RTI BRINDES
+ * @projectname   GOTAS
  * @url           www.rtibrindes.com.br
  *
  */
@@ -29,7 +29,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Error\Debugger;
 use Cake\Network\Exception\NotFoundException;
 
-$titlePage = 'RTI Brindes';
+$titlePage = 'GOTAS';
 
 ?>
 <!DOCTYPE html>
@@ -43,7 +43,7 @@ $titlePage = 'RTI Brindes';
 
     <?= $this->Html->meta('icon'); ?>
 
-    <?php 
+    <?php
     $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
     ?>
@@ -55,7 +55,7 @@ $titlePage = 'RTI Brindes';
     <header class="row">
         <div class="header-image"><?= $this->Html->image('rti-logo.png') ?></div>
         <div class="header-title">
-            <h1>Bem vindo ao sistema RTI Brindes</h1>
+            <h1>Bem vindo ao sistema GOTAS</h1>
         </div>
     </header>
 

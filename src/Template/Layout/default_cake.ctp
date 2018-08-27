@@ -15,7 +15,7 @@
 
 use Cake\Core\Configure;
 
-$cakeDescription = 'RTI Brindes';
+$cakeDescription = 'GOTAS';
 ?>
 <!DOCTYPE html>
 <html>

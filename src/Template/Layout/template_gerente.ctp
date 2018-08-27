@@ -15,13 +15,13 @@
  *
  * @author        Gustavo Souza Gonçalves
  * @date          13/07/2017
- * @project_name  RTI Brindes
+ * @project_name  GOTAS
  * @file          src\Template\Layout\template_gerente.ctp
  * @info          Template para perfil do tipo Gestor
  */
 use Cake\Core\Configure;
 
-$titlePage = 'RTI Brindes - Gestor';
+$titlePage = 'GOTAS - Gestor';
 
 ?>
 <!DOCTYPE html>
@@ -126,19 +126,19 @@ $titlePage = 'RTI Brindes - Gestor';
         </nav>
         <!-- <section class="container clearfix"> -->
         <?= $this->element('header') ?>
-        
+
         <?= $this->element('loader') ?>
-        
+
         <section class="container-content clearfix">
-            
+
 			<div class="row row-container">
 
 				<?= $this->Flash->render() ?>
 				<?= $this->fetch('content') ?>
-				
+
 				<?= $this->element('modal_container') ?>
 			</div>
-			
+
 		</section>
 
      <?php

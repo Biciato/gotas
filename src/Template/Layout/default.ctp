@@ -15,7 +15,7 @@
 
 use Cake\Core\Configure;
 
-$cakeDescription = 'RTI Brindes';
+$cakeDescription = 'GOTAS';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -30,7 +30,7 @@ $cakeDescription = 'RTI Brindes';
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	
+
 	<?= $this->Html->meta('icon') ?>
 
     <?= $this->fetch('meta') ?>
@@ -94,11 +94,11 @@ $cakeDescription = 'RTI Brindes';
         <?= $this->Flash->render() ?>
         <?= $this->fetch('content') ?>
 
-		
+
     </section>
 
     <?php
-	  
+
 	?>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

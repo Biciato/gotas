@@ -15,7 +15,7 @@
  *
  * @author        Gustavo Souza Gonçalves
  * @date          13/07/2017
- * @project_name  RTI Brindes
+ * @project_name  GOTAS
  * @file          src\Template\Layout\template_usuario.ctp
  * @info          Template para perfil do tipo Usuario
  */
@@ -24,9 +24,9 @@ use Cake\Core\Configure;
 $user_logged = $this->Auth->user();
 
 if (empty($user_logged['nome'])) {
-    $cakeDescription = 'RTI Brindes';
+    $cakeDescription = 'GOTAS';
 } else {
-    $cakeDescription = 'RTI Brindes - Cliente ' . $user_logged['nome'];
+    $cakeDescription = 'GOTAS - Cliente ' . $user_logged['nome'];
 }
 
 ?>

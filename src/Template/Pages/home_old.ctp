@@ -13,9 +13,9 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  * @author        Gustavo Souza Gonçalves
  * @date          06/07/2017
- * @projectname   RTI BRINDES
+ * @projectname   GOTAS
  * @url           www.rtibrindes.com.br
- * 
+ *
  */
 use Cake\Cache\Cache;
 use Cake\Core\Configure;

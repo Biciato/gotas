@@ -14,7 +14,7 @@
  */
 use Cake\Core\Configure;
 
-$cakeDescription = 'RTI Brindes';
+$cakeDescription = 'GOTAS';
 ?>
 <!DOCTYPE html>
 <html>
@@ -43,12 +43,12 @@ $cakeDescription = 'RTI Brindes';
     <?= $this->Html->css(array('bootstrap/css/bootstrap.css', 'bootstrap-theme.css'))?>
 
     <?php else: ?>
-     
+
     <!-- Carrega extensões em modo production -->
 
     <!-- jQuery -->
     <?=  $this->Html->script(array('jquery/jquery.min.js','jqueryui/jquery-ui.min.js', 'jquery-Mask/jquery.mask.min.js')) ?>
-    
+
     <!-- Bootstrap -->
 
     <?= $this->Html->script('bootstrap/js/bootstrap.js') ?>
@@ -83,11 +83,11 @@ $cakeDescription = 'RTI Brindes';
     </div>
     <footer>
 
-    <?php 
+    <?php
         if (Configure::read('debug'))
             echo "debug mode on";
     ?>
-    
+
     </footer>
 </body>
 </html>

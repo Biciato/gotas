@@ -158,7 +158,7 @@ class AppController extends Controller
             }
         }
 
-        $this->set('project_name', 'RTI Brindes');
+        $this->set('project_name', 'GOTAS');
         $this->viewBuilder()->theme('TwitterBootstrap');
 
         $this->loadComponent('RequestHandler');
