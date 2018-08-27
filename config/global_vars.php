@@ -19,10 +19,8 @@ Configure::write(
         "environmentMode" => "development",
         // "environmentMode" => "production",
         // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => 'https://www.rtibrindes.com.br/',
-        // 'appAddress' => "https://www.rtibrindes.local/",
-        "webrootAddress" => "https://www.rtibrindes.com.br/webroot",
-        // "webrootAddress" => "https://www.rtibrindes.local/webroot",
+        'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
 
         // Gotas
 

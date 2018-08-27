@@ -23,6 +23,7 @@ class ComposerStaticInit9549c06c137cf4e7695f418ef79b0404
         '90236b492da7ca2983a2ad6e33e4152e' => __DIR__ . '/..' . '/cakephp/cakephp/src/I18n/functions.php',
         'b1fc73705e1bec51cd2b20a32cf1c60a' => __DIR__ . '/..' . '/cakephp/cakephp/src/Utility/bootstrap.php',
         '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
+        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
     );
@@ -58,6 +59,8 @@ class ComposerStaticInit9549c06c137cf4e7695f418ef79b0404
             'Symfony\\Component\\Debug\\' => 24,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
+            'SocialConnect\\Common\\' => 21,
+            'SocialConnect\\' => 14,
             'Seld\\PharUtils\\' => 15,
             'Seld\\JsonLint\\' => 14,
         ),
@@ -111,6 +114,7 @@ class ComposerStaticInit9549c06c137cf4e7695f418ef79b0404
             'App\\Test\\' => 9,
             'App\\' => 4,
             'Ajgl\\Twig\\Extension\\' => 20,
+            'ADmad\\SocialAuth\\' => 17,
             'ADmad\\JwtAuth\\' => 14,
         ),
     );
@@ -179,6 +183,14 @@ class ComposerStaticInit9549c06c137cf4e7695f418ef79b0404
         'Symfony\\Component\\Config\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/config',
+        ),
+        'SocialConnect\\Common\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/socialconnect/common/src',
+        ),
+        'SocialConnect\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/socialconnect/auth/src',
         ),
         'Seld\\PharUtils\\' => 
         array (
@@ -295,6 +307,10 @@ class ComposerStaticInit9549c06c137cf4e7695f418ef79b0404
         'Ajgl\\Twig\\Extension\\' => 
         array (
             0 => __DIR__ . '/..' . '/ajgl/breakpoint-twig-extension/src',
+        ),
+        'ADmad\\SocialAuth\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/admad/cakephp-social-auth/src',
         ),
         'ADmad\\JwtAuth\\' => 
         array (

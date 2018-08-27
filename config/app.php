@@ -249,7 +249,7 @@ return [
             //'port' => 'non_standard_port_number',
             'username' => 'rtibrindes',
             'password' => ']tS(nyjFXBwP=u8+',
-            'database' => 'rtibrindes',
+            'database' => 'rti_gotas',
             // 'database' => 'rtibrindes_devel',
 
             'encoding' => 'utf8',
@@ -296,7 +296,7 @@ return [
              */
             'username' => 'rtibrindes',
             'password' => ']tS(nyjFXBwP=u8+',
-            'database' => 'rtibrindes_devel',
+            'database' => 'rti_gotas_devel',
             'encoding' => 'utf8',
             'flags' => [],
             'cacheMetadata' => true,
