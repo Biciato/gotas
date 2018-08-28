@@ -247,10 +247,10 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rtibrindes',
+            'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
             'database' => 'rti_gotas',
-            // 'database' => 'rtibrindes_devel',
+            // 'database' => 'rti_gotas_devel',
 
             'encoding' => 'utf8',
             // 'timezone' => 'America/Sao_Paulo',
@@ -294,7 +294,7 @@ return [
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
              * the following line and set the port accordingly
              */
-            'username' => 'rtibrindes',
+            'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
             'database' => 'rti_gotas_devel',
             'encoding' => 'utf8',

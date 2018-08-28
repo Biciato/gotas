@@ -19,6 +19,8 @@ use Cake\Core\Configure;
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
 
+        <input type="hidden" id="venda_avulsa" class="venda_avulsa" value="true" />
+
         <!-- Id de Usuários -->
         <?= $this->Form->text('usuarios_id', [
             'id' => 'usuarios_id',
@@ -59,23 +61,23 @@ use Cake\Core\Configure;
     </div>
 
      <!-- Confirmação cupom -->
-     <?php
-    echo $this->element("../Cupons/confirmacao_emissao_cupom");
+    <?php
+        echo $this->element("../Cupons/confirmacao_emissao_cupom");
     ?>
 
     <!-- Confirmação canhoto -->
     <?php
-    echo $this->element("../Cupons/confirmacao_canhoto");
+        echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
 
 </div>
 
 <?php
-echo $this->element('../Cupons/impressao_brinde_layout');
+    echo $this->element('../Cupons/impressao_brinde_layout');
 ?>
 
 <?php
-echo $this->element("../Cupons/impressao_canhoto_layout");
+    echo $this->element("../Cupons/impressao_canhoto_layout");
 ?>
 
 <?php if (Configure::read('debug') == true) : ?>

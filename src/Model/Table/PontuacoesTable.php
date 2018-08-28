@@ -152,14 +152,32 @@ class PontuacoesTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->decimal('quantidade')
-            ->requirePresence('quantidade', 'create')
-            ->notEmpty('quantidade');
+            ->decimal('quantidade_multiplicador')
+            ->requirePresence('quantidade_multiplicador', 'create')
+            ->allowEmpty('quantidade_multiplicador');
+
+        $validator
+            ->decimal('quantidade_gotas')
+            ->requirePresence('quantidade_gotas', 'create')
+            ->allowEmpty('quantidade_gotas');
+
+        $validator
+            ->decimal('valor_moeda_venda')
+            ->requirePresence('valor_moeda_venda', 'create')
+            ->allowEmpty('valor_moeda_venda');
 
         $validator
             ->dateTime('data')
             ->requirePresence('data', 'create')
             ->notEmpty('data');
+
+        /**
+         * Define se a pontuação está expirada
+         * 0 - não (default)
+         * 1 - sim
+         */
+        $validator
+            ->integer('expirado');
 
         /**
          * 0 = não usado
