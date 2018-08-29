@@ -1904,8 +1904,7 @@ class CuponsController extends AppController
         }
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
-        if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade)
-            || $vendaAvulsa) {
+        if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
 
             // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
             $clientesHasUsuariosConditions = [];
@@ -1936,28 +1935,57 @@ class CuponsController extends AppController
                 // TODO: implementar
                 // Realiza a venda de pontuações
 
-                $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                    $cliente["id"],
-                    $usuario["id"],
-                    $brindeSelecionado["id"],
-                    $preco * $quantidade,
-                    $funcionariosId,
-                    false
-                );
+                try {
+
+
+                    $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                        $cliente["id"],
+                        $usuario["id"],
+                        $brindeSelecionado["id"],
+                        $preco * $quantidade,
+                        $funcionariosId,
+                        false
+                    );
 
                 // Emitir Cupom e retornar
 
-                $cupom = $this->Cupons->addCupomForUsuario(
-                    $brindeSelecionado["id"],
-                    $cliente["id"],
-                    $usuario["id"],
-                    $preco * $quantidade,
-                    $quantidade,
+                    $cupom = $this->Cupons->addCupomForUsuario(
+                        $brindeSelecionado["id"],
+                        $cliente["id"],
+                        $usuario["id"],
+                        $preco * $quantidade,
+                        $quantidade,
                     // Dinheiro
-                    1
-                );
+                        1
+                    );
 
+                    $mensagem = array(
+                        "status" => false,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
+                    );
+
+                    $arraySet = array("mensagem");
+
+                    $retorno = array(
+                        "arraySet" => $arraySet,
+                        "mensagem" => $mensagem,
+                        "ticket" => $cupom["ticket"],
+                        "status" => null,
+                        "cliente" => null,
+                        "usuario" => null,
+                        "tempo" => null,
+                        "tipo_emissao_codigo_barras" => null,
+                        "is_brinde_smart_shower" => null,
+                    );
+
+                    DebugUtil::print($retorno);
                 // Gera o cupom
+                } catch (\Exception $e) {
+                    $message = $e->getMessage();
+
+                    Log::write("error", $message);
+                }
 
             } else {
                 // ------------------- Atualiza pontos à serem debitados -------------------
@@ -2153,6 +2181,56 @@ class CuponsController extends AppController
 
                     return $retorno;
                 }
+
+
+                // Se é Banho
+                // TODO: conferir esta lógica
+                if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
+                    $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
+
+                    $cuponsRetorno = array();
+
+                    foreach ($cupons as $key => $cupom) {
+                        $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
+
+                        $cuponsRetorno[] = $cupom;
+                    }
+
+                    $dados_impressao = $this->processarCupom($cuponsRetorno);
+                }
+
+                // Se chegou até aqui, ocorreu tudo bem
+                $mensagem = array(
+                    "status" => true,
+                    "message" => Configure::read("messageProcessingCompleted"),
+                    "errors" => array()
+                );
+
+                $arraySet = [
+                    'mensagem',
+                    'ticket',
+                    'cliente',
+                    'usuario',
+                    'tempo',
+                    'tipo_emissao_codigo_barras',
+                    "is_brinde_smart_shower",
+                    'dados_impressao'
+                ];
+
+                $retorno = array(
+                    "arraySet" => $arraySet,
+                    "mensagem" => $mensagem,
+                    "ticket" => $ticket,
+                    "status" => $status,
+                    "cliente" => $cliente,
+                    "usuario" => $usuario,
+                    "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                    "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
+                    "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
+                );
+
+                DebugUtil::print($retorno);
+                return $retorno;
             }
         } else {
             $mensagem = array(
@@ -2175,56 +2253,10 @@ class CuponsController extends AppController
                 "is_brinde_smart_shower" => null,
             );
 
+            DebugUtil::print($retorno);
             return $retorno;
         }
 
-        // Se é Banho
-        // TODO: conferir esta lógica
-        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
-            $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
-
-            $cuponsRetorno = array();
-
-            foreach ($cupons as $key => $cupom) {
-                $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
-
-                $cuponsRetorno[] = $cupom;
-            }
-
-            $dados_impressao = $this->processarCupom($cuponsRetorno);
-        }
-
-        // Se chegou até aqui, ocorreu tudo bem
-        $mensagem = array(
-            "status" => true,
-            "message" => Configure::read("messageProcessingCompleted"),
-            "errors" => array()
-        );
-
-        $arraySet = [
-            'mensagem',
-            'ticket',
-            'cliente',
-            'usuario',
-            'tempo',
-            'tipo_emissao_codigo_barras',
-            "is_brinde_smart_shower",
-            'dados_impressao'
-        ];
-
-        $retorno = array(
-            "arraySet" => $arraySet,
-            "mensagem" => $mensagem,
-            "ticket" => $ticket,
-            "status" => $status,
-            "cliente" => $cliente,
-            "usuario" => $usuario,
-            "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
-            "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
-            "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
-        );
-
-        return $retorno;
     }
 
     /**
