@@ -226,28 +226,35 @@ class PontuacoesTable extends GenericTable
     /**
      * Adiciona pontuação de brinde para usuário
      *
-     * @param int   $clientes_id             Id de cliente
-     * @param int   $usuarios_id             Id de usuário
-     * @param int   $brindes_habilitados_id  Id do brinde habilitado
-     * @param float $total_pontuacao_debitar Quantidade de pontos
-     * @param int   $funcionariosId          Id de funcionário (opcional)
+     * @param int   $clientesId            Id de cliente
+     * @param int   $usuariosId            Id de usuário
+     * @param int   $brindesHabilitadosId  Id do brinde habilitado
+     * @param float $quantidadePontos      Quantidade de pontos
+     * @param int   $funcionariosId        Id de funcionário (opcional)
+     * @param int   $tipoVenda             Tipo de venda (True = Gotas / false = Dinheiro)
      *
      * @return boolean Resultado de inserção
      */
     public function addPontuacoesBrindesForUsuario(
-        int $clientes_id,
-        int $usuarios_id,
-        int $brindes_habilitados_id,
-        float $total_pontuacao_debitar,
-        int $funcionariosId = null
+        int $clientesId,
+        int $usuariosId,
+        int $brindesHabilitadosId,
+        float $quantidadePontos,
+        int $funcionariosId = null,
+        bool $tipoVenda = true
     ) {
         try {
             $pontuacao = $this->_getPontuacoesTable()->newEntity();
 
-            $pontuacao->clientes_id = $clientes_id;
-            $pontuacao->usuarios_id = $usuarios_id;
-            $pontuacao->clientes_has_brindes_habilitados_id = $brindes_habilitados_id;
-            $pontuacao->quantidade_gotas = $total_pontuacao_debitar;
+            if ($tipoVenda) {
+                $pontuacao->quantidade_gotas = $quantidadePontos;
+            } else {
+                $pontuacao->valor_moeda_venda = $quantidadePontos;
+            }
+
+            $pontuacao->clientes_id = $clientesId;
+            $pontuacao->usuarios_id = $usuariosId;
+            $pontuacao->clientes_has_brindes_habilitados_id = $brindesHabilitadosId;
             $pontuacao->utilizado = Configure::read('dropletsUsageStatus')['FullyUsed'];
             $pontuacao->data = date('Y-m-d H:i:s');
             $pontuacao->funcionarios_id = $funcionariosId;

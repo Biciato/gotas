@@ -112,7 +112,7 @@ $(document).ready(function () {
 
                 var brindeSemPreco = false;
 
-                var isVendaAvulsa = $("#usuarios_id").val() == "conta_avulsa";
+                var isVendaAvulsa = $(".venda_avulsa").val();
 
                 $.each(result.brindes, function (index, value) {
 

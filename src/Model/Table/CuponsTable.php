@@ -112,13 +112,24 @@ class CuponsTable extends GenericTable
             ->allowEmpty('tipo_banho');
 
         $validator
-            ->integer('tempo_banho')
-            ->allowEmpty('tempo_banho');
+            ->integer('tipo_principal_codigo_brinde')
+            ->notEmpty('tipo_principal_codigo_brinde');
+
+        $validator
+            ->integer('tipo_secundario_codigo_brinde')
+            ->notEmpty('tipo_secundario_codigo_brinde');
+
+        $validator
+            ->decimal('valor_pago')
+            ->allowEmpty('valor_pago');
+
+        $validator
+            ->integer('tipo_venda')
+            ->notEmpty('tipo_venda');
 
         $validator
             ->integer('senha')
             ->allowEmpty('senha');
-
 
         $validator
             ->requirePresence('cupom_emitido', 'create')
@@ -136,6 +147,10 @@ class CuponsTable extends GenericTable
         $validator
             ->boolean('usado')
             ->notEmpty('usado');
+
+        $validator
+            ->boolean('quantidade')
+            ->allowEmpty('quantidade');
 
         $validator
             ->dateTime('audit_insert')
@@ -182,11 +197,11 @@ class CuponsTable extends GenericTable
      * @param int   $tempo_banho                         Tempo de Banho
      * @param float $valor_pago                          Valor Pago
      * @param int   $quantidade                          Quantidade Solicitada
+     * @param int   $tipoVenda                           Tipo de Venda (0 = Gotas, 1 = Dinheiro)
      *
      * @return \App\Model\Entity\Cupom
      */
-    // public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, int $tipo_banho, int $tempo_banho, float $valor_pago)
-    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago, int $quantidade)
+    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago, int $quantidade, int $tipoVenda = 0)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
@@ -264,6 +279,7 @@ class CuponsTable extends GenericTable
             $cupom->senha = $qteSenhas + 1;
             $cupom->data = $data;
             $cupom->quantidade = $quantidade;
+            $cupom->tipo_venda = $tipoVenda;
 
             /**
              * Se Smart Shower, já considera resgatado
@@ -407,7 +423,7 @@ class CuponsTable extends GenericTable
 
             $whereConditions[] = array('Cupons.cupom_emitido' => $cupom_emitido);
 
-            if (sizeof($clientesIds) > 0){
+            if (sizeof($clientesIds) > 0) {
                 $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
             }
 

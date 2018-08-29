@@ -307,12 +307,13 @@ class ClientesHasBrindesEstoqueController extends AppController
                     );
 
                     // salvar pontuação do usuário
-
                     $pontos = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                         $clientes_id,
                         $usuario->id,
                         $brinde->id,
-                        $totalPontosAGastar
+                        $totalPontosAGastar,
+                        $this->user_logged["id"],
+                        true
                     );
 
                     if ($brinde_estoque && $brindeUsuario && $pontos) {

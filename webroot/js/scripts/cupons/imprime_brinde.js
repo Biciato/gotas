@@ -314,15 +314,15 @@ $(document).ready(function () {
     var validateBeforePurchase = function () {
 
         var message = "";
+        var usuarioIsAvulso = $(".venda_avulsa").val();
         if ($("#brindes_id").val().length == 0) {
             message += "É necessário selecionar um brinde para continuar. <br />";
         }
 
-        if ($("#usuarios_id").val().length == 0) {
+        if ($("#usuarios_id").val().length == 0 && !usuarioIsAvulso) {
             message += "Necessário selecionar um cliente para imprimir o ticket. <br />";
         }
 
-        var usuarioIsAvulso = $(".usuarios_id").val() == "conta_avulsa";
         var senha = $(".current_password").val();
 
         if (!usuarioIsAvulso) {
@@ -399,6 +399,7 @@ $(document).ready(function () {
                 funcionarios_id: $("#funcionarios_id").val(),
                 usuarios_id: $(".usuarios_id").val(),
                 quantidade: $(".quantidade-brindes").val(),
+                venda_avulsa: $(".venda_avulsa").val(),
                 current_password: $("#current_password").val(),
                 _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
             };

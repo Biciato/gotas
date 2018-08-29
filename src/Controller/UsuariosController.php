@@ -2644,7 +2644,9 @@ class UsuariosController extends AppController
             ]
         )->first();
 
-        if (!isset($clienteHasUsuario) && $user_managed["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
+        // DebugUtil::print($clienteHasUsuario);
+
+        if (empty($clienteHasUsuario) && $user_managed["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
             $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");
 
             return $this->redirect(['controller' => 'usuarios', 'action' => 'administrarUsuario']);

@@ -111,16 +111,6 @@ Router::scope("/api", function ($routes) {
         "Cupons",
         [
             "map" => [
-                // "resgatarCupomSmartShowerAPI" => [
-                //     "action" => "resgatarCupomSmartShowerAPI",
-                //     "method" => "POST",
-                //     "path" => "/resgatar_cupom_smart_shower"
-                // ],
-                // "resgatarCupomComumAPI" => [
-                //     "action" => "resgatarCupomComumAPI",
-                //     "method" => "POST",
-                //     "path" => "/resgatar_cupom_comum"
-                // ],
                 "efetuarBaixaCupomAPI" => array(
                     "action" => "efetuarBaixaCupomAPI",
                     "method" => "POST",

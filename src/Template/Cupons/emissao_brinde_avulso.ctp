@@ -25,7 +25,6 @@ use Cake\Core\Configure;
         <?= $this->Form->text('usuarios_id', [
             'id' => 'usuarios_id',
             'class' => 'usuarios_id',
-            'value' => 'conta_avulsa',
             'style' => 'display: none;'
         ]); ?>
         <div class="form-group row">
