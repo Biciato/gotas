@@ -47,7 +47,9 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
         <legend><?= __("Emissão de Cupom") ?></legend>
 
         <?= $this->Form->create(); ?>
-            <?php echo $this->element("../Usuarios/filtro_usuarios_ajax") ?>
+            <div class="row">
+                <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
+            </div>
 
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 

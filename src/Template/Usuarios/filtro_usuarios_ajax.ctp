@@ -155,11 +155,11 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
                 </div>
             <?php else : ?>
 
-                <div class="col-lg-4 col-md-2">
+                <div class="col-lg-5 col-md-2">
                     <?= $this->Form->input('nome', ['readonly' => true, 'required' => false, 'label' => "Nome", 'id' => 'usuariosNome']) ?>
                 </div>
 
-                <div class="col-lg-3 col-md-1">
+                <div class="col-lg-4 col-md-1">
                     <?= $this->Form->input('data_nasc', ['readonly' => true, 'required' => false, 'label' => "Data de Nascimento", 'id' => 'usuariosDataNasc']) ?>
                 </div>
 
@@ -168,21 +168,6 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
                     <?= $this->Form->input('pontuacoes', ['readonly' => true, 'required' => false, 'label' => "Total Pontos", 'id' => 'usuariosPontuacoes']) ?>
                 </div>
 
-            <?php endif; ?>
-
-            <?php if ($isVendaAvulsa) : ?>
-                <div class="col-lg-12">
-                    <?php echo $this->Form->input(
-                        "current_password",
-                        array(
-                            "type" => "password",
-                            "id" => "current_password",
-                            "class" => "current_password",
-                            "label" => "Senha do Usuário",
-                            "maxLength" => 8
-                        )
-                    ); ?>
-                </div>
             <?php endif; ?>
 
         </div>
