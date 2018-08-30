@@ -1783,7 +1783,7 @@ class CuponsController extends AppController
          */
 
         $senhaValida = false;
-        echo __LINE__;
+
         if (($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType'] && !$usoViaMobile) || !$vendaAvulsa) {
             if ((new DefaultPasswordHasher)->check($senhaAtualUsuario, $usuario->senha)) {
                 $senhaValida = true;
@@ -1809,9 +1809,6 @@ class CuponsController extends AppController
             );
             return $retorno;
         }
-
-        echo __LINE__;
-
 
         if ($vendaAvulsa) {
             $usuario["pontuacoes"] = 0;
@@ -1932,11 +1929,9 @@ class CuponsController extends AppController
 
             if ($vendaAvulsa) {
 
-                // TODO: implementar
                 // Realiza a venda de pontuações
 
                 try {
-
 
                     $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                         $cliente["id"],
@@ -1947,7 +1942,7 @@ class CuponsController extends AppController
                         false
                     );
 
-                // Emitir Cupom e retornar
+                    // Emitir Cupom e retornar
 
                     $cupom = $this->Cupons->addCupomForUsuario(
                         $brindeSelecionado["id"],
@@ -1955,31 +1950,49 @@ class CuponsController extends AppController
                         $usuario["id"],
                         $preco * $quantidade,
                         $quantidade,
-                    // Dinheiro
+                        // Dinheiro
                         1
                     );
 
                     $mensagem = array(
-                        "status" => false,
-                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
+                        "status" => true,
+                        "message" => Configure::read("messageProcessingCompleted"),
+                        "errors" => array()
                     );
 
-                    $arraySet = array("mensagem");
+                    if (empty($cupom)) {
+
+                        $mensagem = array(
+                            "status" => false,
+                            "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                            "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
+                        );
+
+                    }
+                    $arraySet = array(
+                        'mensagem',
+                        'ticket',
+                        'cliente',
+                        'usuario',
+                        'tempo',
+                        'tipo_emissao_codigo_barras',
+                        "is_brinde_smart_shower",
+                        'dados_impressao'
+                    );
 
                     $retorno = array(
                         "arraySet" => $arraySet,
                         "mensagem" => $mensagem,
-                        "ticket" => $cupom["ticket"],
-                        "status" => null,
-                        "cliente" => null,
-                        "usuario" => null,
-                        "tempo" => null,
-                        "tipo_emissao_codigo_barras" => null,
-                        "is_brinde_smart_shower" => null,
+                        "ticket" => $cupom,
+                        "status" => $mensagem["status"],
+                        "cliente" => $cliente,
+                        "usuario" => $usuario,
+                        "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                        "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
+                        "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                     );
 
-                    DebugUtil::print($retorno);
+                    return $retorno;
                 // Gera o cupom
                 } catch (\Exception $e) {
                     $message = $e->getMessage();
@@ -1990,7 +2003,7 @@ class CuponsController extends AppController
             } else {
                 // ------------------- Atualiza pontos à serem debitados -------------------
 
-                    /*
+                /*
                  * Se há pontuação à debitar, devo verificar quais são as
                  * pontuações do usuário que serão utilizadas, para notificar
                  * quantos pontos ele possui que estão prestes à vencer
@@ -2001,8 +2014,8 @@ class CuponsController extends AppController
                 $podeContinuar = true;
                 $pontuacoesPendentesUsoListaSave = [];
 
-                    // Obter pontos não utilizados totalmente
-                    // verifica se tem algum pendente para continuar o cálculo sobre ele
+                // Obter pontos não utilizados totalmente
+                // verifica se tem algum pendente para continuar o cálculo sobre ele
 
                 $pontuacaoPendenteUso
                     = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
@@ -2044,7 +2057,6 @@ class CuponsController extends AppController
                         break;
                     }
 
-                        // DebugUtil::print($pontuacoesPendentesUso);
 
                     if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
                             // TODO: conferir o que está acontecendo
@@ -2060,18 +2072,18 @@ class CuponsController extends AppController
                         if (($pontuacoesProcessar >= 0) && ($pontuacoesProcessar >= $pontuacao->quantidade_gotas)) {
                             array_push(
                                 $pontuacoesPendentesUsoListaSave,
-                                [
+                                array(
                                     'id' => $pontuacao->id,
                                     'utilizado' => 2
-                                ]
+                                )
                             );
                         } else {
                             array_push(
                                 $pontuacoesPendentesUsoListaSave,
-                                [
+                                array(
                                     'id' => $pontuacao->id,
                                     'utilizado' => 1
-                                ]
+                                )
                             );
                         }
 
@@ -2129,12 +2141,9 @@ class CuponsController extends AppController
 
                     if ($cupom) {
                         $status = true;
-                        // $cupom->data = (new \DateTime($cupom->data))->format('d/m/Y H:i:s');
                         $cupom->data = ($cupom->data)->format('d/m/Y H:i:s');
                         $ticket = $cupom;
                         $message = null;
-
-
                     } else {
                         $mensagem = array(
                             "status" => false,
@@ -2182,7 +2191,6 @@ class CuponsController extends AppController
                     return $retorno;
                 }
 
-
                 // Se é Banho
                 // TODO: conferir esta lógica
                 if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
@@ -2229,7 +2237,6 @@ class CuponsController extends AppController
                     "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                 );
 
-                DebugUtil::print($retorno);
                 return $retorno;
             }
         } else {
@@ -2253,7 +2260,6 @@ class CuponsController extends AppController
                 "is_brinde_smart_shower" => null,
             );
 
-            DebugUtil::print($retorno);
             return $retorno;
         }
 
