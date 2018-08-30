@@ -282,5 +282,6 @@ var setUsuariosInfo = function (data, contaAvulsa) {
         $("#usuariosPontuacoes").val(null);
         $("#sexo").val(null);
         $("#necessidades_especiais").val(null);
+        $("#current_password").val(null);
     }
 }

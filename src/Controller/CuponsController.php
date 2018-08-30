@@ -1770,7 +1770,6 @@ class CuponsController extends AppController
             if (empty($usuariosId) || $usuariosId == 0) {
                 $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyUserProfileType"], 1);
             } else {
-                echo 'oi';
                 $usuario = $this->Usuarios->getUsuarioById($usuariosId);
             }
         } else {
@@ -1796,7 +1795,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => "Senha incorreta para usuário. Nâo foi possível resgatar o brinde!",
+                "errors" => array("Senha incorreta para usuário. Nâo foi possível resgatar o brinde!"),
             );
 
             $arraySet = array(
@@ -1805,7 +1804,12 @@ class CuponsController extends AppController
 
             $retorno = array(
                 "arraySet" => $arraySet,
-                "mensagem" => $mensagem
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null
             );
             return $retorno;
         }

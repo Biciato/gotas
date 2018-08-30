@@ -169,6 +169,22 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
                 </div>
 
             <?php endif; ?>
+
+            <?php if ($isVendaAvulsa) : ?>
+                <div class="col-lg-12">
+                    <?php echo $this->Form->input(
+                        "current_password",
+                        array(
+                            "type" => "password",
+                            "id" => "current_password",
+                            "class" => "current_password",
+                            "label" => "Senha do Usuário",
+                            "maxLength" => 8
+                        )
+                    ); ?>
+                </div>
+            <?php endif; ?>
+
         </div>
     </div>
 </div>
