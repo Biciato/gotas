@@ -22,21 +22,25 @@ use Cake\Core\Configure;
         <input type="hidden" id="venda_avulsa" class="venda_avulsa" value="true" />
 
         <!-- Id de Usuários -->
-        <?= $this->Form->text('usuarios_id', [
-            'id' => 'usuarios_id',
-            'class' => 'usuarios_id',
-            'style' => 'display: none;'
-        ]); ?>
+        <?= $this->Form->text(
+            'usuarios_id',
+            array(
+                'id' => 'usuarios_id',
+                'class' => 'usuarios_id',
+                'style' => 'display: none;'
+            )
+        ); ?>
+
         <div class="form-group row">
             <?php
-                echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1));
+            echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1));
             ?>
         </div>
 
-        <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
+        <?php echo $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
         <div class="form-group">
-        <?= $this->element('../Brindes/brindes_filtro_ajax', ["usuarioVendaAvulsa" => true]) ?>
+            <?php echo $this->element('../Brindes/brindes_filtro_ajax', array("usuarioVendaAvulsa" => true)) ?>
         </div>
 
 
@@ -61,22 +65,22 @@ use Cake\Core\Configure;
 
      <!-- Confirmação cupom -->
     <?php
-        echo $this->element("../Cupons/confirmacao_emissao_cupom");
+    echo $this->element("../Cupons/confirmacao_emissao_cupom");
     ?>
 
     <!-- Confirmação canhoto -->
     <?php
-        echo $this->element("../Cupons/confirmacao_canhoto");
+    echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
 
 </div>
 
 <?php
-    echo $this->element('../Cupons/impressao_brinde_layout');
+echo $this->element('../Cupons/impressao_brinde_layout');
 ?>
 
 <?php
-    echo $this->element("../Cupons/impressao_canhoto_layout");
+echo $this->element("../Cupons/impressao_canhoto_layout");
 ?>
 
 <?php if (Configure::read('debug') == true) : ?>

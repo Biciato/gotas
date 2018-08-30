@@ -1933,6 +1933,11 @@ class CuponsController extends AppController
 
                 try {
 
+                    // efetua saida na tabela de estoque
+
+                    $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($brindeSelecionado["id"], $usuario["id"], $quantidade, Configure::read("stockOperationTypes")["sellTypeSale"]);
+
+                    // atribui uso de pontuações ao usuário
                     $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                         $cliente["id"],
                         $usuario["id"],
@@ -1943,7 +1948,6 @@ class CuponsController extends AppController
                     );
 
                     // Emitir Cupom e retornar
-
                     $cupom = $this->Cupons->addCupomForUsuario(
                         $brindeSelecionado["id"],
                         $cliente["id"],

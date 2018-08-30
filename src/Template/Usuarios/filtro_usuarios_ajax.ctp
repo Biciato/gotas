@@ -17,27 +17,23 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
     <h4>Selecione um cliente</h4>
 
-    <!-- <div class="col-lg-2">
-        <?= $this->Form->label('Pesquisar por') ?>
-    </div> -->
-
     <div class="col-lg-3">
 
         <?= $this->Form->input(
             'opcoes',
-            [
+            array(
                 'type' => 'select',
                 'id' => 'opcoes',
                 'class' => 'form-control col-lg-2 opcoes',
                 'label' => 'Pesquisar Por',
-                'options' => [
+                'options' => array(
                     'nome' => 'nome',
                     'cpf' => 'cpf',
                     'doc_estrangeiro' => 'documento estrangeiro',
                     'placa' => 'placa'
-                ],
+                ),
                 'default' => 'placa'
-            ]
+            )
         ) ?>
     </div>
 
@@ -47,7 +43,6 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
             [
                 'id' => 'parametro',
                 'label' => 'Parâmetro',
-            // 'label' => false,
                 'class' => 'form-control col-lg-5 parametro'
             ]
         ) ?>
@@ -55,7 +50,14 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
     <div class="col-lg-2 vertical-align">
 
-        <?= $this->Form->button(__("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'), ['class' => 'btn btn-primary btn-block', 'type' => 'button', 'id' => 'searchUsuario']) ?>
+        <?= $this->Form->button(
+            __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
+            [
+                'class' => 'btn btn-primary btn-block',
+                'type' => 'button',
+                'id' => 'searchUsuario'
+            ]
+        ) ?>
     </div>
 
     <span class="text-danger validation-message" id="userValidationMessage"></span>
@@ -86,7 +88,6 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
             <div id="vehicle">
                 <h4>Veículo Encontrado</h4>
-
 
                 <div class="col-lg-3 col-md-3">
                     <?= $this->Form->input('placa', ['readonly' => true, 'label' => 'Placa', 'id' => 'veiculosPlaca']) ?>
@@ -124,9 +125,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
         </div>
     </div>
 
-
     <div class="user-result ">
-
         <div class="col-lg-12">
             <?= $this->Html->tag(
                 'div',
@@ -136,6 +135,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
         </div>
 
         <div class="form-group row  col-lg-12">
+        <!-- <div class="form-group row  "> -->
             <h4>Cliente selecionado</h4>
 
             <?= $this->Form->text('usuarios_id', [
