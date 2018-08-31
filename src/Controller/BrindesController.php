@@ -579,6 +579,8 @@ class BrindesController extends AppController
             $this->user_logged = $user_managed;
         }
 
+        $user_logged = $this->user_logged;
+
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
@@ -610,6 +612,7 @@ class BrindesController extends AppController
         $veiculoPath = "UsuariosHasVeiculos.Veiculos.";
 
         $arraySet = array(
+            "user_logged",
             "usuario",
             "cliente",
             "clientes_id",

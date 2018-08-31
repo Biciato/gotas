@@ -350,9 +350,12 @@ if (empty($user_logged)) {
                         </li>
 
                         <li>
-                            <?= $this->Html->link('Emissão de Brindes', ['controller' => 'cupons', 'action' => 'emissao_brinde_superiores']) ?>
+                            <?= $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
                         </li>
 
+                        <li>
+                            <?= $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
+                        </li>
 
                         <li>
                             <?= $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
@@ -403,7 +406,11 @@ if (empty($user_logged)) {
                         <li role="separator" class="divider"></li>
 
                         <li>
-                            <?= $this->Html->link('Emissão de Brindes', ['controller' => 'cupons', 'action' => 'escolher_brinde']) ?>
+                            <?= $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
+                        </li>
+
+                        <li>
+                            <?= $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
                         </li>
 
                         <li>

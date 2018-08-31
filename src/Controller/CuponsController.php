@@ -168,7 +168,6 @@ class CuponsController extends AppController
 
         $cliente = $this->request->session()->read("Network.Unit");
 
-
         $arraySet = array(
             "cliente",
             "urlRedirectConfirmacao"
@@ -198,6 +197,7 @@ class CuponsController extends AppController
         if ($user_admin) {
             $this->user_logged = $user_managed;
         }
+        $user_logged = $this->user_logged;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
@@ -231,6 +231,7 @@ class CuponsController extends AppController
 
         $arraySet = array(
             "urlRedirectConfirmacao",
+            "user_logged",
             "usuario",
             "cliente",
             "clientes_id",

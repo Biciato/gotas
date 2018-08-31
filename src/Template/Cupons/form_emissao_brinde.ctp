@@ -43,38 +43,37 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
     <div class="col-lg-9 col-md-10 columns">
 <?php endif; ?>
 
-    <div class="container-emissao-cupom">
-        <legend><?= __("Emissão de Cupom") ?></legend>
+        <div class="container-emissao-cupom">
+            <legend><?= __("Emissão de Cupom") ?></legend>
 
-        <?= $this->Form->create(); ?>
-            <div class="row">
-                <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
-            </div>
-
-            <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
-
-            <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
-
-            <div class="gifts-query-region">
-
-                <div class="col-lg-12">
-                    <?= $this->Form->button(
-                        __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
-                        [
-                            'type' => 'button',
-                            'id' => 'print_gift',
-                            'escape' => false,
-                            'class' => 'print-gift-shower'
-                        ]
-                    ) ?>
-
-                    <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
-                    <?= $this->Html->tag('/div') ?>
+            <?= $this->Form->create(); ?>
+                <div class="row">
+                    <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
                 </div>
-            </div>
 
-        <?= $this->Form->end(); ?>
-    </div>
+                <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
+
+                <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
+
+                <div class="gifts-query-region">
+
+                    <div class="col-lg-12">
+                        <?= $this->Form->button(
+                            __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
+                            [
+                                'type' => 'button',
+                                'id' => 'print_gift',
+                                'escape' => false,
+                                'class' => 'print-gift-shower'
+                            ]
+                        ) ?>
+
+                        <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
+                        <?= $this->Html->tag('/div') ?>
+                    </div>
+                </div>
+
+            <?= $this->Form->end(); ?>
 
     <!-- Confirmação cupom -->
     <?php
@@ -85,6 +84,8 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
     <?php
         echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
+        </div>
+
 </div>
 
 <?php

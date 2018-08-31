@@ -8,6 +8,11 @@
 
 use Cake\Core\Configure;
 
+// Navegação
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Impressão de Cupom', [], ['class' => 'active']);
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+
 ?>
 
 <?= $this->element('../Pages/left_menu', ['mode' => 'escolher_brinde', 'controller' => 'cupons', 'action' => 'print_gift', 'item_selected' => 'emissao_brinde_avulso']) ?>
@@ -43,7 +48,6 @@ use Cake\Core\Configure;
             <?php echo $this->element('../Brindes/brindes_filtro_ajax', array("usuarioVendaAvulsa" => true)) ?>
         </div>
 
-
         <div class="gifts-query-region">
 
             <div class="col-lg-12">
@@ -61,7 +65,6 @@ use Cake\Core\Configure;
                 <?= $this->Html->tag('/div') ?>
             </div>
         </div>
-    </div>
 
      <!-- Confirmação cupom -->
     <?php
@@ -72,6 +75,8 @@ use Cake\Core\Configure;
     <?php
     echo $this->element("../Cupons/confirmacao_canhoto");
     ?>
+    </div>
+
 
 </div>
 

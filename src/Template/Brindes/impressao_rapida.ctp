@@ -9,6 +9,12 @@
  */
 use Cake\Core\Configure;
 
+
+// Navegação
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Impressão de Cupom', [], ['class' => 'active']);
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+
 ?>
 
 <?= $this->element('../Pages/left_menu', ['item_selected' => 'impressao_rapida']) ?>
