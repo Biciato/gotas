@@ -9,6 +9,7 @@ use Cake\Validation\Validator;
 use Cake\Log\Log;
 use App\Model\Entity;
 use App\Custom\RTI\DebugUtil;
+use Cake\Core\Configure;
 
 /**
  * TransportadorasHasUsuarios Model
