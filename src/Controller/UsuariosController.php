@@ -177,7 +177,7 @@ class UsuariosController extends AppController
         // Permitir aos usuários se registrarem e efetuar login e logout.
 
         // TODO: remover findUsuario
-        $this->Auth->allow(['registrar', 'registrarAPI', 'esqueciMinhaSenhaAPI', 'loginAPI', 'login', 'logout', 'esqueciMinhaSenha', 'reativarConta', 'resetarMinhaSenha', 'getUsuarioByCPF', 'getUsuarioByEmail', 'uploadDocumentTemporaly']);
+        $this->Auth->allow(['registrar', 'registrarAPI', 'esqueciMinhaSenhaAPI', 'loginAPI', 'login', 'logout', 'esqueciMinhaSenha', 'reativarConta', 'resetarMinhaSenha', 'getUsuarioByCPF', 'getUsuarioByEmail', 'uploadDocumentTemporaly', "testAPI"]);
     }
 
     /**
@@ -3267,14 +3267,15 @@ class UsuariosController extends AppController
      * ------------------------------------------------------------
      */
 
-    public function Test()
+    public function testAPI()
     {
-        $value = "test";
+        $value = $this->Cupons->find()->toArray();
+        // $value = bin2hex(openssl_random_pseudo_bytes(10));
 
-        $this->set([
-            'value' => $value,
-            '_serialize' => ['value']
-        ]);
+        $arraySet = array("value");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
 

@@ -302,7 +302,12 @@ Router::scope("/api", function ($routes) {
                 'action' => 'registrarAPI',
                 'method' => 'POST',
                 'path' => '/registrar'
-            ]
+            ],
+            "testAPI" => array(
+                "action" => "testAPI",
+                "method" => "GET",
+                "path" => "/test"
+            )
         ]
     ]);
 
