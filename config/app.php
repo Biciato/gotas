@@ -294,7 +294,7 @@ return [
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
              * the following line and set the port accordingly
              */
-            'username' => 'rti_gotas',
+            'username' => 'rti_gotas_devel',
             'password' => ']tS(nyjFXBwP=u8+',
             'database' => 'rti_gotas_devel',
             'encoding' => 'utf8',
