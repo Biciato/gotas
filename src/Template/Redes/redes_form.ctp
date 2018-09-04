@@ -38,7 +38,7 @@ use Cake\Core\Configure;
     <div class="form-group row hidden">
         <div class="row">
             <div class="col-lg-12">
-                <?= $this->Form->input('img-upload', ["type" => "text", "label" => false, "id" => "img-upload", "class" => "img-upload", "readonly" => true ]) ?>
+                <?= $this->Form->input('img-upload', ["type" => "text", "label" => false, "id" => "img-upload", "class" => "img-upload", "readonly" => true]) ?>
             </div>
         </div>
         <div class="row ">
@@ -62,6 +62,19 @@ use Cake\Core\Configure;
             </div>
         </div>
     </div>
+</div>
+
+<div class="col-lg-12">
+    <?php echo $this->Form->input(
+        'quantidade_pontuacoes_usuarios_ida',
+        array(
+            "type" => "number",
+            "min" => 1,
+            "max" => 365,
+            "default" => 3,
+            "label" => "Máximo de Abastecimento de Gotas Diárias por Usuários"
+        )
+    ); ?>
 </div>
 
 <div class="col-lg-12">
