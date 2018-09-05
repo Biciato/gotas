@@ -3267,16 +3267,21 @@ class UsuariosController extends AppController
      * ------------------------------------------------------------
      */
 
-    public function testAPI()
-    {
-        $value = $this->Cupons->find()->toArray();
-        // $value = bin2hex(openssl_random_pseudo_bytes(10));
+    // /**
+    //  * Função apenas para teste de acesso e benchmark
+    //  *
+    //  * @return void
+    //  */
+    // public function testAPI()
+    // {
+    //     $value = $this->Cupons->find()->toArray();
+    //     // $value = bin2hex(openssl_random_pseudo_bytes(10));
 
-        $arraySet = array("value");
+    //     $arraySet = array("value");
 
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-    }
+    //     $this->set(compact($arraySet));
+    //     $this->set("_serialize", $arraySet);
+    // }
 
 
 
