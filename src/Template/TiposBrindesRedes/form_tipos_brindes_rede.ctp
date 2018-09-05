@@ -62,14 +62,11 @@ use Cake\Core\Configure;
     </div>
     <div class="form-group row">
 
-        <h4>
-            Se Atribuir Automático, informe os seguintes valores para configuração automática:
-        </h4>
         <div class="col-lg-6">
             <?= $this->Form->control(
                 "tipo_principal_codigo_brinde_default",
                 [
-                    "label" => "Tipo Principal Codigo Brinde default",
+                    "label" => "Tipo Principal Codigo Brinde",
                     "id" => "tipo_principal_codigo_brinde_default",
                     "class" => "tipo-principal-codigo-brinde-default",
                     "type" => "number",
@@ -83,7 +80,7 @@ use Cake\Core\Configure;
             <?= $this->Form->control(
                 "tipo_secundario_codigo_brinde_default ",
                 [
-                    "label" => "Tipo Secundario Codigo Brinde default",
+                    "label" => "Tipo Secundario Codigo Brinde",
                     "id" => "tipo_secundario_codigo_brinde_default",
                     "class" => "tipo-secundario-codigo-brinde-default",
                     "type" => "number",

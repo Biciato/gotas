@@ -39,10 +39,11 @@ class Brinde extends Entity
 
     protected function _getNomeImgCompleto()
     {
-        if (strlen($this->_properties["nome_img"]) > 0) {
+        if (!empty($this->_properties["nome_img"]) && strlen($this->_properties["nome_img"]) > 0) {
             return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["nome_img"]);
         }
 
-        return $this->_properties["nome_img"];
+        return null;
+        // return $this->_properties["nome_img"];
     }
 }

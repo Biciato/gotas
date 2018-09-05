@@ -153,7 +153,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             array(
                 "className" => "TiposBrindesClientes",
                 "foreignKey" => "tipos_brindes_clientes_id",
-                "joinType" => "INNER"
+                "joinType" => "LEFT"
             )
         );
     }
@@ -472,11 +472,13 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesTable = TableRegistry::get("Brindes");
             $brindes = $brindesTable->findBrindes($whereConditionsBrindes, false);
 
-            // DebugUtil::print($brindes);
+            // DebugUtil::print($brindes->toArray());
 
             if (sizeof($orderConditionsBrindes) > 0) {
                 $brindes = $brindes->order($orderConditionsBrindes);
             }
+
+            // DebugUtil::print($brindes->toArray());
 
             $count = $brindes->count();
 
@@ -486,7 +488,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->page($paginationConditionsBrindes["page"]);
             }
 
+            // $brindesIdsQuery = $brindes->select(['id', 'nome_img'])->toArray();
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
+
+            // DebugUtil::print($brindesIdsQuery);
 
             // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
             if (sizeof($brindesIdsQuery) == 0) {
@@ -539,6 +544,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $brindesIds[] = $brinde["id"];
             }
 
+            // DebugUtil::print($brindesIds);
+
             $clientesBrindesHabilitadosWhereConditions = array();
 
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.tipo_codigo_barras IS NOT NULL');
@@ -573,19 +580,22 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
                 $whereConditions[] = array("ClientesHasBrindesHabilitados.brindes_id" => $brindeId);
 
-                $clientesBrindesHabilitado = $this->_getClientesHasBrindesHabilitadosTable()
+                $clientesBrindesHabilitado = $this
                     ->find('all')
                     ->where($whereConditions)
                     ->contain($containArray)
                     ->first();
 
+                    // die();
+
                 // DebugUtil::print($clientesBrindesHabilitado);
+                // DebugUtil::print($clientesBrindesHabilitado, true, false);
 
                 $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
 
                 $brinde = $brindesTable->getBrindesById($brindeId);
 
-                if (!empty($clientesBrindesHabilitado)) {
+                if (!empty($clientesBrindesHabilitado) && ($clientesBrindesHabilitado["tipos_brindes_clientes_id"] != 0)) {
 
                     $clientesBrindesHabilitado["brinde"] = $brinde;
 
@@ -608,6 +618,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             }
 
             $clientesBrindesHabilitadosReturn = array();
+
+            // DebugUtil::print($clientesBrindesHabilitados);
 
             if ($precoMin == 0 && $precoMax == 0) {
                 $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;

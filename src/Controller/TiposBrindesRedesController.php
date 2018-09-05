@@ -172,68 +172,73 @@ class TiposBrindesRedesController extends AppController
                     $data["tipo_secundario_codigo_brinde_default"] = "##";
                 }
 
+
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-                if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
-                    $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
-                } else {
+                // Regra não existe mais. RTI deverá informar o código de cada equipamento manualmente.
+                // O máximo que irá fazer é verificar se o código não conflita.
+                // if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
+                //     $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
 
-                    /**
-                     * Valida se há outro gênero com mesmo nome
-                     * e se também é brinde de Nec. Especiais
-                     */
-                    $whereConditions = array();
+                //     return $this->redirect(array("action" => "editarTiposBrindesRede", $id));
+                // }
 
-                    $whereConditions[] = [
-                        "nome" => $data["nome"],
-                        "redes_id" => $redesId,
-                        "equipamento_rti" => $data["equipamento_rti"],
-                        "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
-                        "atribuir_automatico" => $data["atribuir_automatico"],
-                    ];
 
-                    $tipoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
+                /**
+                 * Valida se há outro gênero com mesmo nome
+                 * e se também é brinde de Nec. Especiais
+                 */
+                $whereConditions = array();
+
+                $whereConditions[] = [
+                    "nome" => $data["nome"],
+                    "redes_id" => $redesId,
+                    "equipamento_rti" => $data["equipamento_rti"],
+                    "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
+                    "atribuir_automatico" => $data["atribuir_automatico"],
+                ];
+
+                $tipoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
 
                     // se for mesmas condições, impede
-                    if ($tipoBrindeEncontrado) {
-                        $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
+                if ($tipoBrindeEncontrado) {
+                    $this->Flash->error(Configure::read("messageRecordExistsSameCharacteristics"));
 
-                        $arraySet = [
-                            "tipoBrinde"
-                        ];
+                    $arraySet = [
+                        "tipoBrinde",
+                        "rede"
+                    ];
 
-                        $this->set(compact($arraySet));
-                        $this->set('_serialize', $arraySet);
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
 
-                        return;
-                    }
-
-                    // TODO: verifica se o usuário está cadastrando um mesmo código novamente
-
-
-                    // DebugUtil::print($data);
-
-                    $tipoBrinde = $this->TiposBrindesRedes->patchEntity($tipoBrinde, $data);
-                    $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
-                        $tipoBrinde["redes_id"],
-                        $tipoBrinde["nome"],
-                        $tipoBrinde["equipamento_rti"],
-                        $tipoBrinde["brinde_necessidades_especiais"],
-                        $tipoBrinde["habilitado"],
-                        $tipoBrinde["atribuir_automatico"],
-                        $tipoBrinde["tipo_principal_codigo_brinde_default"],
-                        $tipoBrinde["tipo_secundario_codigo_brinde_default"],
-                        0
-                    );
-
-                    if ($brindeSave) {
-                        $this->Flash->success(__(Configure::read("messageSavedSuccess")));
-
-                        return $this->redirect(['action' => 'index']);
-                    }
-                    $this->Flash->error(__(Configure::read("messageSavedError")));
-
-                    Log::write("error", $tipoBrinde);
+                    return;
                 }
+
+                // TODO: verifica se o usuário está cadastrando um mesmo código novamente
+
+                // DebugUtil::print($data);
+
+                $tipoBrinde = $this->TiposBrindesRedes->patchEntity($tipoBrinde, $data);
+                $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
+                    $tipoBrinde["redes_id"],
+                    $tipoBrinde["nome"],
+                    $tipoBrinde["equipamento_rti"],
+                    $tipoBrinde["brinde_necessidades_especiais"],
+                    $tipoBrinde["habilitado"],
+                    $tipoBrinde["atribuir_automatico"],
+                    $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                    $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                    0
+                );
+
+                if ($brindeSave) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
+
+                Log::write("error", $tipoBrinde);
             }
             $arraySet = [
                 "tipoBrinde",
@@ -291,11 +296,13 @@ class TiposBrindesRedesController extends AppController
                 }
 
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-                if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
-                    $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
+                // Regra não existe mais. RTI deverá informar o código de cada equipamento manualmente.
+                // O máximo que irá fazer é verificar se o código não conflita.
+                // if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
+                //     $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
 
-                    return $this->redirect(array("action" => "editarTiposBrindesRede", $id));
-                }
+                //     return $this->redirect(array("action" => "editarTiposBrindesRede", $id));
+                // }
 
                 /**
                  * Valida se há outro gênero com mesmo nome
@@ -306,7 +313,7 @@ class TiposBrindesRedesController extends AppController
 
                 $whereConditions[] = [
                     "id != " => $id,
-                    "redes_id" => $redesId,
+                    "redes_id" => $id,
                     "nome" => $data["nome"],
                     "equipamento_rti" => $data["equipamento_rti"],
                     "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],

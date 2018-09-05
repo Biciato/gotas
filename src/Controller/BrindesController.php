@@ -876,6 +876,8 @@ class BrindesController extends AppController
 
             $brindesHabilitadosCliente = $resultado["brindes"]["data"];
 
+            // DebugUtil::print($resultado);
+
             $brindesTemp = array();
 
             foreach ($brindesHabilitadosCliente as $key => $brindeHabilitadoCliente) {

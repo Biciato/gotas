@@ -22,7 +22,9 @@ $(document).ready(function () {
             var brindeSelecionado = brindePesquisa[0];
 
             // Se for <=4 é SMART Shower
-            if (brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4 && brindeSelecionado != null) {
+            if (brindeSelecionado != undefined
+                && (brindeSelecionado.tipos_brindes_cliente != undefined
+                || brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4)) {
                 $("#quantidade").attr('disabled', true);
             } else {
                 $("#quantidade").attr('disabled', false);
@@ -130,7 +132,7 @@ $(document).ready(function () {
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso  :  valorGotas)
+                            text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
                         }));
                     }
 

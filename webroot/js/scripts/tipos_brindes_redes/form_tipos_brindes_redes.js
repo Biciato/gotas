@@ -33,7 +33,8 @@ $(document).ready(function() {
     var atribuirAutomaticoOnChange = function(obj) {
         var equipamentoRTI = $("#equipamento_rti").val();
 
-        if ($(".atribuir-automatico").is(":checked") && equipamentoRTI == 1) {
+        // if ($(".atribuir-automatico").is(":checked") && equipamentoRTI == 1) {
+        if (equipamentoRTI == 1) {
             $(".tipo-principal-codigo-brinde-default").attr("readonly", false);
             $(".tipo-secundario-codigo-brinde-default").attr("readonly", false);
             $(".tipo-principal-codigo-brinde-default").attr("required", true);
