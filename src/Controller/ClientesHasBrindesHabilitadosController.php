@@ -395,7 +395,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
         $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientes_id);
 
         if (empty($tiposBrindesCliente)) {
-            $this->Flash->error(__("{0} - {1}", Configure::read("messageEnableError"), "Unidade não possui Gênero de Brindes configurados!"));
+
+            $error = $status == 1 ? Configure::read("messageEnableError") : Configure::read("messageDisableError");
+
+            $this->Flash->error(__("{0} - {1}", $error, "Unidade não possui Tipo de Brinde configurado!"));
 
             return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
         }
