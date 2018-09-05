@@ -8,9 +8,11 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
 $tipoPerfil = isset($user_logged) ? $user_logged["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
 
+
 ?>
 
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
+
 
     <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
 

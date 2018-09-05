@@ -238,6 +238,7 @@ class PagesController extends AppController
         if ($user_admin) {
             $this->user_logged = $user_managed;
         }
+        $user_logged = $this->user_logged;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
@@ -266,7 +267,7 @@ class PagesController extends AppController
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
         // $usuario_logado_tipo_perfil = $funcionario->tipo_perfil;
         $usuario_logado_tipo_perfil = 6;
-        $this->set(compact(['usuario', 'cliente', 'funcionario', 'estado_funcionario', 'usuario_logado_tipo_perfil']));
+        $this->set(compact(['usuario', 'cliente', 'funcionario', 'estado_funcionario', 'usuario_logado_tipo_perfil', 'user_logged']));
 
         $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
         $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
