@@ -26,7 +26,7 @@ $titlePage = 'GOTAS - Administrador';
 
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" ng-app="GotasApp">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,48 +37,49 @@ $titlePage = 'GOTAS - Administrador';
 	<script src="https://maps.googleapis.com/maps/api/js?sensor=true&key=AIzaSyBzwpETAdxu2NQyLLtw16ndZkldjQ5Zqxg" async defer></script>
 	<?php
 
-if (Configure::read('debug')) {
+echo $this->element("../Layout/librarys");
+// if (Configure::read('debug')) {
 
-	echo $this->Html->meta('icon');
-	echo $this->Html->css('home-rti');
-	echo $this->Html->css(['bootstrap/css/bootstrap', 'bootstrap/css/bootstrap-theme']);
-	echo $this->Html->css(['font-awesome/css/font-awesome']);
-	echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker']);
-	echo $this->Html->script('jquery/jquery');
-	echo $this->Html->script('jquery-Mask/jquery.mask');
-	echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode');
-	echo $this->Html->script('printThis-master/printThis');
+// 	echo $this->Html->meta('icon');
+// 	echo $this->Html->css('home-rti');
+// 	echo $this->Html->css(['bootstrap/css/bootstrap', 'bootstrap/css/bootstrap-theme']);
+// 	echo $this->Html->css(['font-awesome/css/font-awesome']);
+// 	echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker']);
+// 	echo $this->Html->script('jquery/jquery');
+// 	echo $this->Html->script('jquery-Mask/jquery.mask');
+// 	echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode');
+// 	echo $this->Html->script('printThis-master/printThis');
 
-	echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney');
-	echo $this->Html->script('bootstrap/js/bootstrap');
-	echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
-	echo $this->Html->script('scripts/pages/home');
-	echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0');
-	echo $this->Html->script('pdf417-gh-pages/pdf417');
-    echo $this->Html->script('scripts/util/pdf417_helper');
-    echo $this->Html->css("cropper-master/dist/cropper");
-    echo $this->Html->script("cropper-master/dist/cropper");
-} else {
-	echo $this->Html->meta('icon');
-	echo $this->Html->css('home-rti');
-	echo $this->Html->css(['bootstrap/css/bootstrap.min', 'bootstrap/css/bootstrap-theme.min']);
-	echo $this->Html->css(['font-awesome/css/font-awesome.min']);
-	echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker.min']);
-	echo $this->Html->script('jquery/jquery.min');
-	echo $this->Html->script('jquery-Mask/jquery.mask.min');
-	echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode.min');
-	echo $this->Html->script('printThis-master/printThis');
-	echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
-	echo $this->Html->script('bootstrap/js/bootstrap.min');
-	echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker.min', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
-	echo $this->Html->script('scripts/pages/home');
-	echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0.min');
-	echo $this->Html->script('pdf417-gh-pages/pdf417');
-    echo $this->Html->script('scripts/util/pdf417_helper');
+// 	echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney');
+// 	echo $this->Html->script('bootstrap/js/bootstrap');
+// 	echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
+// 	echo $this->Html->script('scripts/pages/home');
+// 	echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0');
+// 	echo $this->Html->script('pdf417-gh-pages/pdf417');
+//     echo $this->Html->script('scripts/util/pdf417_helper');
+//     echo $this->Html->css("cropper-master/dist/cropper");
+//     echo $this->Html->script("cropper-master/dist/cropper");
+// } else {
+// 	echo $this->Html->meta('icon');
+// 	echo $this->Html->css('home-rti');
+// 	echo $this->Html->css(['bootstrap/css/bootstrap.min', 'bootstrap/css/bootstrap-theme.min']);
+// 	echo $this->Html->css(['font-awesome/css/font-awesome.min']);
+// 	echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker.min']);
+// 	echo $this->Html->script('jquery/jquery.min');
+// 	echo $this->Html->script('jquery-Mask/jquery.mask.min');
+// 	echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode.min');
+// 	echo $this->Html->script('printThis-master/printThis');
+// 	echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
+// 	echo $this->Html->script('bootstrap/js/bootstrap.min');
+// 	echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker.min', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
+// 	echo $this->Html->script('scripts/pages/home');
+// 	echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0.min');
+// 	echo $this->Html->script('pdf417-gh-pages/pdf417');
+//     echo $this->Html->script('scripts/util/pdf417_helper');
 
-    echo $this->Html->css("cropper-master/dist/cropper.min");
-    echo $this->Html->script("cropper-master/dist/cropper.min");
-}
+//     echo $this->Html->css("cropper-master/dist/cropper.min");
+//     echo $this->Html->script("cropper-master/dist/cropper.min");
+// }
 
 $this->fetch('meta');
 $this->fetch('css');
@@ -151,10 +152,10 @@ $this->fetch('script');
 							$default_footer = ROOT . DS . 'src' . DS . 'Template' . DS . 'Element' . DS . 'footer.ctp';
 							if (file_exists($default_footer)) {
 								ob_start();
-								include $default_footer;
+								// include $default_footer;
 								echo ob_get_clean();
 							} else {
-								echo $this->element('footer');
+								// echo $this->element('footer');
 							}
 							?>
 	</body>

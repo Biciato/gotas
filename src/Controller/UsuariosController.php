@@ -2830,6 +2830,11 @@ class UsuariosController extends AppController
      * ------------------------------------------------------------
      */
 
+    public function relatorios()
+    {
+        # code...
+    }
+
     /**
      * ------------------------------------------------------------
      * Relatórios (Dashboard de Admin RTI)
