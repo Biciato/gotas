@@ -59,6 +59,7 @@ if ($debug) {
  <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
 <link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
 
+<link rel="stylesheet" href="/webroot/app/lib/ui.select/select.min.css" >
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->
@@ -75,14 +76,18 @@ if ($debug) {
 <script src="/webroot/app/lib/moment/locales.min.js" ></script>
 <script src="/webroot/app/lib/ui.bootstrap/ui-bootstrap-tpls-2.5.0.min.js" ></script>
 
-<link rel="stylesheet" href="/webroot/app/lib/ui.select/select.min.css" >
 <script src="/webroot/app/js/app.js"></script>
 <script src="/webroot/app/js/app.module.js"></script>
 <script src="/webroot/app/js/config/routeConfig.js"></script>
+
+<!-- Controllers -->
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js" ></script>
-<script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizados.js" ></script>
+<script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizadosController.js" ></script>
 
-
+<!-- Services -->
+<script src="/webroot/app/js/services/clientes/clientesService.js" ></script>
+<script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js" ></script>
+<!-- /webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js -->
 <!-- <script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js" ></script> -->
 <?php
 $this->fetch('meta');

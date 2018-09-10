@@ -193,6 +193,16 @@ Router::scope("/api", function ($routes) {
         ]
     ]);
 
+    $routes->resources("Clientes", array(
+        "map" => array(
+            "getClientesAPI" => array(
+                "action" => "getClientesAPI",
+                "method" => "POST",
+                "path" => "/get_clientes"
+            )
+        )
+    ));
+
     $routes->resources("RedesHasClientes", [
         "map" => array(
             "getUnidadeRedeByIdAPI" => array(

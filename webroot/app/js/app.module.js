@@ -1,5 +1,5 @@
 // var GotasApp = angular.module("GotasApp", ["ngRoute", "ngSanitize", "ui.mask", "ui.select", "ui.bootstrap"]);
-var GotasApp = angular.module("GotasApp", ["ngRoute", "ngSanitize", "ui.mask", "ui.select", "ui.bootstrap"]);
+var GotasApp = angular.module("GotasApp");
 
 GotasApp.run(function ($rootScope) {
 

@@ -660,6 +660,24 @@ class ClientesController extends AppController
 
     /**
      * ------------------------------------------------------------
+     * Métodos REST
+     * ------------------------------------------------------------
+     */
+
+    public function getClientesAPI()
+    {
+
+        $clientes = $this->Clientes->find('all');
+
+        $arraySet = array("clientes");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+    }
+
+    /**
+     * ------------------------------------------------------------
      * Métodos AJAX
      * ------------------------------------------------------------
      */

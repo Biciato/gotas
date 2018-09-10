@@ -1,7 +1,8 @@
 /**
  * Controller para Relatório de Usuários Ativos
  */
-angular.module("GotasApp",  ["ngRoute", "ngSanitize", "ui.bootstrap", "ui.mask", "ui.select"]).controller("relUsuariosFidelizados", function ($scope) {
+// var GotasApp = angular.module("GotasApp");
+angular.module("GotasApp").controller("relUsuariosFidelizadosController", function ($scope, clientesService) {
 
     console.log('oi');
 
@@ -10,6 +11,7 @@ angular.module("GotasApp",  ["ngRoute", "ngSanitize", "ui.bootstrap", "ui.mask",
     var month = date.getMonth();
     $scope.inputData = {
         nome: undefined,
+        clientesList: [],
         statusList: {
             null: "<Todos>",
             1: "Ativos",
@@ -17,8 +19,10 @@ angular.module("GotasApp",  ["ngRoute", "ngSanitize", "ui.bootstrap", "ui.mask",
         },
         statusSelectedItem: "<Todos>",
         dataInicial: new Date(year, month, 1),
-        dataFinal: new Date(year, month, 0)
+        dataFinal: new Date(year, month + 1, 0)
     };
+
+
 
 
     $scope.limparDados = function () {
@@ -27,6 +31,7 @@ angular.module("GotasApp",  ["ngRoute", "ngSanitize", "ui.bootstrap", "ui.mask",
         var month = date.getMonth();
         $scope.inputData = {
             nome: undefined,
+            clientesList: [],
             statusList: {
                 null: "<Todos>",
                 1: "Ativos",
@@ -34,11 +39,21 @@ angular.module("GotasApp",  ["ngRoute", "ngSanitize", "ui.bootstrap", "ui.mask",
             },
             statusSelectedItem: "<Todos>",
             dataInicial: new Date(year, month, 1),
-            dataFinal: new Date(year, month, 0)
+            dataFinal: new Date(year, month + 1, 0)
         };
     };
 
+    $scope.obterClientes = function () {
+        clientesService.obterClientes().then(function (success) {
+            $scope.clientesList = success.data.clientes;
+        }).then(function (error) {
+            console.log(error);
+        })
+    }
+
     $scope.init = function () {
         $scope.limparDados();
+
+        $scope.obterClientes();
     };
 });

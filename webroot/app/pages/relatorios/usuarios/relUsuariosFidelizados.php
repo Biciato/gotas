@@ -5,10 +5,16 @@
 
     <legend>Relatório de Usuários Fidelizados:</legend>
 
+    {{inputData.clientesSelectedItem}}
         <div class="row">
             <div class="col-lg-12">
                 <label>Posto:</label>
-                    <ui-select ng-model="inputData.clientesSelectedItem" ng-options="y for (x,y) in inputData.clientesList" class="form-control"></ui-select>
+                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap">
+                    <ui-select-match placeholder="Posto de Atendimento...">{{$select.selected.razao_social}} / {{$select.selected.nome_fantasia}}</ui-select-match>
+                    <ui-select-choices repeat="cliente in clientesList | filter: $select.search track by cliente.nome_fantasia">
+                        {{cliente.nome_fantasia || cliente.razao_social}}
+                    </ui-select-choices>
+                </ui-select>
             </div>
         </div>
 
@@ -45,7 +51,7 @@
                 <select ng-model="inputData.statusSelectedItem" ng-options="y for (x,y) in inputData.statusList" class="form-control"></select>
             </div>
             <!-- Data Inicial -->
-            <div class="col-md-3">
+            <div class="col-lg-2">
                 <label>Data Inicial:</label>
                 <p class="input-group">
                     <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataInicial" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />
@@ -56,7 +62,7 @@
             </div>
 
             <!-- Data Final-->
-            <div class="col-md-3">
+            <div class="col-lg-2">
                 <label>Data Final:</label>
                 <p class="input-group">
                     <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataFinal" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />

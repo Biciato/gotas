@@ -13,6 +13,6 @@ angular.module("GotasApp").config(function ($routeProvider) {
     })
     .when("/relUsuariosFidelizados", {
         templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosFidelizados.php",
-        controller: "relUsuariosFidelizados"
+        controller: "relUsuariosFidelizadosController"
     });
 })
