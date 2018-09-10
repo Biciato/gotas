@@ -1,7 +1,7 @@
 <div class="col-lg-3">
     <nav class="navbar navbar-default">
         <ul>
-           <span class="fa fa-user"></span> Relatório de Usuários
+           <span class="fas fa-file-signature"></span> Relatório de Usuários
         </ul>
         <ul>
 

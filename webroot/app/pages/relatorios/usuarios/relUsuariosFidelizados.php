@@ -5,14 +5,15 @@
 
     <legend>Relatório de Usuários Fidelizados:</legend>
 
-    {{inputData.clientesSelectedItem}}
         <div class="row">
             <div class="col-lg-12">
-                <label>Posto:</label>
-                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap">
-                    <ui-select-match placeholder="Posto de Atendimento...">{{$select.selected.razao_social}} / {{$select.selected.nome_fantasia}}</ui-select-match>
-                    <ui-select-choices repeat="cliente in clientesList | filter: $select.search track by cliente.nome_fantasia">
-                        {{cliente.nome_fantasia || cliente.razao_social}}
+                <label>Posto de Atendimento:</label>
+                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento">
+                    <ui-select-match placeholder="Posto de Atendimento...">
+                        {{$select.selected.razao_social}} / {{$select.selected.nome_fantasia}}
+                    </ui-select-match>
+                    <ui-select-choices repeat="cliente in clientesList | filter: {nome_fantasia: $select.search}">
+                        <span>{{cliente.nome_fantasia}}</span>
                     </ui-select-choices>
                 </ui-select>
             </div>
@@ -70,6 +71,20 @@
                         <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
                 </p>
+            </div>
+
+            <div class="col-lg-3 pull-right">
+                <button class="col-lg-6 btn btn-primary" ng-click="pesquisar(inputData)">
+                    <span class="fa fa-search">
+                    </span>
+                    <div>Pesquisar</div>
+                </button>
+
+                <button class="col-lg-6 btn btn-default" ng-click="gerarExcel(inputData)">
+                    <span class="fa fa-file-excel-o">
+                    </span>
+                    <div>Gerar Excel</div>
+                </button>
             </div>
         </div>
 

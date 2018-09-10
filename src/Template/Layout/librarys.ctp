@@ -51,8 +51,9 @@ if ($debug) {
 
 ?>
 <!-- Início Estilos -->
+<link href="/webroot/css/fontawesome5/css/all.css" rel="stylesheet" />
+<link href="/webroot/app/css/site.css" rel="stylesheet" >
 <!-- <link href="/webroot/app/css/main.css" rel="stylesheet" />
-<link href="/webroot/app/css/fontawesome/css/all.css" rel="stylesheet" />
 <link href="/webroot/app/css/site.css" rel="stylesheet" /> -->
 
  <!-- Icones -->

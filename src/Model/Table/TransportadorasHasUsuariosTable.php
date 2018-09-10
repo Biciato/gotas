@@ -152,14 +152,12 @@ class TransportadorasHasUsuariosTable extends GenericTable
     public function addTransportadoraHasUsuario($transportadoras_id = null, $usuarios_id = null)
     {
         try {
-
             $transportadoraHasUsuario = $this->getTransportadorasHasUsuariosTable()->newEntity();
 
             $transportadoraHasUsuario->transportadoras_id = (int)$transportadoras_id;
             $transportadoraHasUsuario->usuarios_id = (int)$usuarios_id;
 
             return $this->getTransportadorasHasUsuariosTable()->save($transportadoraHasUsuario);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -412,9 +410,7 @@ class TransportadorasHasUsuariosTable extends GenericTable
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
-
     }
-
 
     /* -------------------------- Delete -------------------------- */
 
@@ -458,14 +454,13 @@ class TransportadorasHasUsuariosTable extends GenericTable
     {
         try {
 
-            $transportadora = $this->getTransportadorasHasUsuariosTable()->find("all")
-                ->where(
+            $transportadora = $this->getTransportadorasHasUsuariosTable()
+                ->find("all")->where(
                     array(
                         "transportadoras_id" => $transportadorasId,
                         "usuarios_id" => $usuariosId
                     )
-                )
-                ->first();
+                )->first();
 
             return $this->getTransportadorasHasUsuariosTable()->delete($transportadora);
 

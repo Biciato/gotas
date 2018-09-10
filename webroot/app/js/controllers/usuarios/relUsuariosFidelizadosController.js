@@ -23,7 +23,9 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
     };
 
 
-
+    $scope.pesquisar = function(inputData){
+        console.log(inputData);
+    }
 
     $scope.limparDados = function () {
         var date = new Date();
