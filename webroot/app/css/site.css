@@ -362,4 +362,14 @@ input[type="file"] {
 
 /*Máx 320*/
 
-@media only screen and (max-width: 320px) {
+@media only screen and (max-width: 320px) {}
+
+/* Estilos Gustavo */
+
+.group-btn-area{
+    padding-top: 1.5em;
+}
+
+.row{
+    padding-top: 5px;
+}

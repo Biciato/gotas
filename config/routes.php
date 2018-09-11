@@ -195,10 +195,10 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Clientes", array(
         "map" => array(
-            "getClientesAPI" => array(
-                "action" => "getClientesAPI",
+            "getClientesListAPI" => array(
+                "action" => "getClientesListAPI",
                 "method" => "POST",
-                "path" => "/get_clientes"
+                "path" => "/get_clientes_list"
             )
         )
     ));
@@ -317,6 +317,13 @@ Router::scope("/api", function ($routes) {
                 "action" => "testAPI",
                 "method" => "GET",
                 "path" => "/test"
+            ),
+
+
+            "pesquisarUsuariosFidelizadosAPI" => array(
+                "action" => "pesquisarUsuariosFidelizadosAPI",
+                "method" => "POST",
+                "path" => "/pesquisar_usuarios_fidelizados"
             )
         ]
     ]);

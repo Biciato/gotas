@@ -3,16 +3,19 @@ angular
     .service('clientesService', function clientesService($http) {
 
         $self = {
-            obterClientes: obterClientes
+            obterListaClientes: obterListaClientes
         }
 
         ////////////////
 
-        function obterClientes() {
-            var url = "/api/clientes/get_clientes";
-            var data = {
-                // redesId: redesId
-            };
+        function obterListaClientes(redesId = undefined) {
+            var url = "/api/clientes/get_clientes_list";
+            var data = {};
+
+            if (redesId != undefined) {
+                data.redesId = redesId;
+            }
+
             var options = {
                 headers: {
 

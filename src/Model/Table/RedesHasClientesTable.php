@@ -435,7 +435,7 @@ class RedesHasClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getRedesHasClientesByRedesId(int $redes_id, array $clientes_ids = [])
+    public function getRedesHasClientesByRedesId(int $redes_id, array $clientes_ids = [], array $selectList = array())
     {
         try {
 
@@ -447,9 +447,15 @@ class RedesHasClientesTable extends GenericTable
                 $where_condition[] = ['clientes_id in ' => $clientes_ids];
             }
 
-            return $this->_getRedesHasClientesTable()->find('all')
+            $redesHasClientes = $this->_getRedesHasClientesTable()->find('all')
                 ->where($where_condition)
                 ->contain(['Redes', 'Clientes']);
+
+            if (sizeof($selectList) > 0) {
+                $redesHasClientes = $redesHasClientes->select($selectList);
+            }
+
+            return $redesHasClientes;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

@@ -3272,6 +3272,22 @@ class UsuariosController extends AppController
      * ------------------------------------------------------------
      */
 
+
+    public function pesquisarUsuariosFidelizadosAPI()
+    {
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+        }
+
+        $usuarios = $this->Usuarios->find("all");
+        $arraySet = array("data", "usuarios");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+    }
+
     // /**
     //  * Função apenas para teste de acesso e benchmark
     //  *

@@ -13,6 +13,7 @@ use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Clientes Controller
@@ -625,8 +626,7 @@ class ClientesController extends AppController
                                 "controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'
                             )
                         );
-                    }
-                    else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
+                    } else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
                         return $this->redirect(
                             array(
                                 "controller" => "Pages", 'action' => 'display'
@@ -664,10 +664,46 @@ class ClientesController extends AppController
      * ------------------------------------------------------------
      */
 
-    public function getClientesAPI()
+    /**
+     * ClientesController::getClientesListAPI
+     *
+     * Obtem lista de Clientes
+     *
+     * @param int $redesId Id da Rede (opcional)
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-09-10
+     *
+     * @return json_encode
+     */
+    public function getClientesListAPI()
     {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
 
-        $clientes = $this->Clientes->find('all');
+        // Caso o método seja chamado via post
+        if ($this->request->is("post")){
+            $data = $this->request->getData();
+
+            if (!empty($data["redesId"])) {
+                $redesId = $data["redesId"];
+            }
+        }
+
+        $selectList = array(
+            "Clientes.id",
+            "Clientes.nome_fantasia",
+            "Clientes.razao_social",
+            "Clientes.propaganda_img"
+        );
+
+        $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+
+        $clientes = array();
+
+        foreach($redeHasClientes as $redeHasCliente){
+            $clientes[] = $redeHasCliente["Clientes"];
+        }
 
         $arraySet = array("clientes");
 

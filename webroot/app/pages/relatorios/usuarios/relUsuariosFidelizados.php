@@ -8,8 +8,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <label>Posto de Atendimento:</label>
-                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento">
-                    <ui-select-match placeholder="Posto de Atendimento...">
+                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento" >
+                    <ui-select-match placeholder="Posto de Atendimento..." allow-clear="true">
                         {{$select.selected.razao_social}} / {{$select.selected.nome_fantasia}}
                     </ui-select-match>
                     <ui-select-choices repeat="cliente in clientesList | filter: {nome_fantasia: $select.search}">
@@ -49,7 +49,14 @@
             <!-- Status: -->
             <div class="col-lg-3">
                 <label>Status: </label>
-                <select ng-model="inputData.statusSelectedItem" ng-options="y for (x,y) in inputData.statusList" class="form-control"></select>
+                <ui-select ng-model="inputData.statusSelectedItem" theme="bootstrap" title="Status" >
+                    <ui-select-match placeholder="Status..." allow-clear="true">
+                        {{$select.selected.nome}}
+                    </ui-select-match>
+                    <ui-select-choices repeat="status in inputData.statusList | filter: {nome: $select.search}">
+                        <span>{{status.nome}}</span>
+                    </ui-select-choices>
+                </ui-select>
             </div>
             <!-- Data Inicial -->
             <div class="col-lg-2">
@@ -73,26 +80,50 @@
                 </p>
             </div>
 
-            <div class="col-lg-3 pull-right">
-                <button class="col-lg-6 btn btn-primary" ng-click="pesquisar(inputData)">
-                    <span class="fa fa-search">
-                    </span>
-                    <div>Pesquisar</div>
+            <div class="col-lg-3 pull-right group-btn-area">
+                <button class="col-lg-6 btn btn-primary text-center" escape="#" ng-click="pesquisarUsuarios(inputData)">
+                    <i class="fa fa-search">
+                    </i>
+                    Pesquisar
                 </button>
 
                 <button class="col-lg-6 btn btn-default" ng-click="gerarExcel(inputData)">
                     <span class="fa fa-file-excel-o">
                     </span>
-                    <div>Gerar Excel</div>
+                    Gerar Excel
                 </button>
             </div>
         </div>
-
-
-
-
     </div>
 
+    <!-- Tabela -->
+    <div class="row">
+        <div class="col-lg-12">
+
+        <table class="table table-condensed table-responsive table-striped table-hover">
+            <thead >
+                <th ng-repeat="cabecalho in cabecalhos">{{cabecalho}}</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="usuario in dadosUsuarios | filter: paginate | itemsPerPage: pageLimit">
+                    <td>{{usuario.nome}}</td>
+                    <td>{{usuario.cpf}}</td>
+                    <td>{{usuario.clientes_has_usuarios.audit_insert}}</td>
+                    <td>{{usuario.audit_insert}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center">
+        <ul uib-pagination boundary-links="true" total-items="dadosUsuarios.length" ng-model="currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></ul>
+        </div>
+        <div ng-show="dadosUsuarios.length == 0">
+            <span class="alert alert-warning">Não há registros à serem exibidos!</span>
+        </div>
+        </div>
+    </div>
+
+Debug:
 {{ inputData }}
 
 </div>
