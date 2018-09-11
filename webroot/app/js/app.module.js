@@ -1,6 +1,37 @@
 // var GotasApp = angular.module("GotasApp", ["ngRoute", "ngSanitize", "ui.mask", "ui.select", "ui.bootstrap"]);
 var GotasApp = angular.module("GotasApp");
 
+//filtro para limitar tamanho da frase incluindo tres pontos no final
+GotasApp.filter('ellipsis', function () {
+	return function (input, size) {
+		if (input != undefined && input != null && input.length > 0) {
+			var offset = 0;
+			var i = 0;
+			for (; i < input.length && offset <= size; i++) {
+				if (input.charAt(i) == input.charAt(i).toUpperCase()) { //conte caracteres uppercase como 2
+					offset += 1.5;
+				} else {
+					offset += 1;
+				}
+			}
+			var output = input;
+			if (input.length > i) { //caso realmente necessite de elipsis
+				output = input.substring(0, i - 1) + "...";
+			}
+			return output;
+		}
+	};
+});
+
+
+GotasApp.filter('startFrom', function () {
+	return function (input, start) {
+		start = +start; //parse to int
+		if (input !== undefined)
+			return input.slice(start);
+	};
+});
+
 GotasApp.run(function ($rootScope) {
 
 

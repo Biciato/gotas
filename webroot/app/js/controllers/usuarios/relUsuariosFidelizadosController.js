@@ -33,7 +33,8 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
     // ---------------------------------------- Configurações de tabela ----------------------------------------
 
     $scope.currentPage = 1;
-    $scope.pageLimit = 20;
+    $scope.pageLimit = 50;
+    $scope.pageSize = 10;
 
     $scope.cabecalhos = [
         "Usuário",

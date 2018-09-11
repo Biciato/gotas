@@ -105,7 +105,7 @@
                 <th ng-repeat="cabecalho in cabecalhos">{{cabecalho}}</th>
             </thead>
             <tbody>
-                <tr ng-repeat="usuario in dadosUsuarios | filter: paginate | itemsPerPage: pageLimit">
+                <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(currentPage - 1 ) * pageSize | limitTo:pageSize">
                     <td>{{usuario.nome}}</td>
                     <td>{{usuario.cpf}}</td>
                     <td>{{usuario.clientes_has_usuarios.audit_insert}}</td>
@@ -115,7 +115,9 @@
         </table>
 
         <div class="text-center">
-        <ul uib-pagination boundary-links="true" total-items="dadosUsuarios.length" ng-model="currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></ul>
+        <ul uib-pagination boundary-links="true" total-items="dadosUsuarios.length" ng-model="currentPage"
+        items-per-page="pageSize" class="pagination-sm"
+        max-size="5" previous-text="<< Ant." next-text="Próx. >>" first-text="Primeira" last-text="Última"></ul>
         </div>
         <div ng-show="dadosUsuarios.length == 0">
             <span class="alert alert-warning">Não há registros à serem exibidos!</span>
@@ -125,5 +127,8 @@
 
 Debug:
 {{ inputData }}
+{{ currentPage }}
+{{ pageLimit }}
+{{ pageSize }}
 
 </div>
