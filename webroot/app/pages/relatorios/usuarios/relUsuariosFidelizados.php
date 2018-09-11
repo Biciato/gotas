@@ -108,8 +108,9 @@
                 <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(currentPage - 1 ) * pageSize | limitTo:pageSize">
                     <td>{{usuario.nome}}</td>
                     <td>{{usuario.cpf}}</td>
-                    <td>{{usuario.clientes_has_usuarios.audit_insert}}</td>
-                    <td>{{usuario.audit_insert}}</td>
+                    <td>{{usuario.docEstrangeiro}}</td>
+                    <td>{{usuario.saldoAtual}}</td>
+                    <td>{{usuario.dataVinculo}}</td>
                 </tr>
             </tbody>
         </table>

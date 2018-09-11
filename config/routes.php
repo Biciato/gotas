@@ -320,10 +320,10 @@ Router::scope("/api", function ($routes) {
             ),
 
 
-            "pesquisarUsuariosFidelizadosAPI" => array(
-                "action" => "pesquisarUsuariosFidelizadosAPI",
+            "getUsuariosFidelizadosAPI" => array(
+                "action" => "getUsuariosFidelizadosAPI",
                 "method" => "POST",
-                "path" => "/pesquisar_usuarios_fidelizados"
+                "path" => "/get_usuarios_fidelizados"
             )
         ]
     ]);

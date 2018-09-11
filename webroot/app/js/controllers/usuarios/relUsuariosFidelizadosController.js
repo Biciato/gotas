@@ -40,13 +40,13 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
         "Usuário",
         "CPF",
         "Documento Estrangeiro",
+        "SaldoAtual",
         "Data Cadastro na Rede"
     ];
 
     $scope.dadosUsuarios = [];
+
     // ---------------------------------------- Configurações de tabela ----------------------------------------
-
-
 
     // ---------------------------------------- Funções ----------------------------------------
 

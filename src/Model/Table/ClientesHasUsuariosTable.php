@@ -123,7 +123,7 @@ class ClientesHasUsuariosTable extends Table
             'Usuarios',
             [
                 'className' => 'Usuarios',
-                'foreignKey'=> 'id',
+                'foreignKey' => 'id',
                 'where' => [
                     'usuarios_id = Usuarios.id',
                 ],
@@ -232,11 +232,11 @@ class ClientesHasUsuariosTable extends Table
     /* ------------------------ Read ------------------------ */
 
     /**
-     * Verifica se usuário está vinculado à cliente (rede / posto)
+     * Obtem um relacionamento cliente has usuario
      *
      * @param array $where_conditions Condições de pesquisa
      *
-     * @return void
+     * @return Cake\ORM\Query
      **/
     public function findClienteHasUsuario(array $where_conditions)
     {
@@ -283,6 +283,76 @@ class ClientesHasUsuariosTable extends Table
 
             $this->Flash->error($stringError);
         }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param array $clientesIds
+     * @param string $nome
+     * @param string $cpf
+     * @param string $veiculo
+     * @param string $documentoEstrangeiro
+     * @param int $status
+     * @param string $dataInicial
+     * @param string $dataFinal
+     * @return void
+     */
+    public function getUsuariosFidelizadosClientes(
+        array $clientesIds = array(),
+        string $nome = null,
+        string $cpf = null,
+        string $veiculo = null,
+        string $documentoEstrangeiro = null,
+        int $status = null,
+        string $dataInicial = null,
+        string $dataFinal = null
+    ) {
+
+        if (sizeof($clientesIds) == 0) {
+            throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
+        }
+        // Obtem os ids de usuarios
+        $usuariosCliente = $this->find()
+            // ->select(array(
+            //     "usuarios_id",
+            //     "audit_insert"
+            // ))
+            ->where(array(
+                "clientes_id in " => $clientesIds
+            ))
+            ->contain("Usuario")
+            ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
+            ->toArray();
+
+
+        $usuarios = array();
+        $usuariosIds = array();
+        $usuariosTable = TableRegistry::get("Usuarios");
+        $pontuacoesTable = TableRegistry::get("Pontuacoes");
+        if (sizeof($usuariosCliente) > 0) {
+
+            foreach ($usuariosCliente as $clienteHasUsuario) {
+                if (!array_search($clienteHasUsuario["usuarios_id"], $usuariosIds)) {
+                    $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
+                    $usuario["id"] = $clienteHasUsuario["usuarios_id"];
+                    $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
+                    $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
+                    $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
+                    $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
+                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
+                    $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+
+                    // $usuario = $clienteHasUsuario;
+
+                    $usuarios[] = $usuario;
+                }
+            }
+
+            return $usuarios;
+        }
+
+        return $usuarios;
     }
 
     /**

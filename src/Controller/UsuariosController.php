@@ -3273,14 +3273,51 @@ class UsuariosController extends AppController
      */
 
 
-    public function pesquisarUsuariosFidelizadosAPI()
+    /**
+     * Obtem dados de usuários fidelizados
+     *
+     * @return void
+     */
+    public function getUsuariosFidelizadosAPI()
     {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
+
         $data = array();
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+
+            if (!empty($data["redesId"]) && $data["redesId"] > 0) {
+                $redesId = (int)$data["redesId"];
+            }
+
+            $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
+            $nome = !empty($data["nome"]) ? $data["nome"] : null;
+            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+            $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
+            $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
+            $status = !empty($data["status"]) ? $data["status"] : null;
+            $dataInicial = !empty($data["dataInicial"]) ? $data["dataInicial"] : null;
+            $dataFinal = !empty($data["dataFinal"]) ? $data["dataFinal"] : null;
+
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+
+            $clientesHasUsuarios = $this->ClientesHasUsuarios->getUsuariosFidelizadosClientes(
+                $clientesIds,
+                $nome,
+                $cpf,
+                $veiculo,
+                $documentoEstrangeiro,
+                $status,
+                $dataInicial,
+                $dataFinal
+            );
+
+            $usuarios = $clientesHasUsuarios;
         }
 
-        $usuarios = $this->Usuarios->find("all");
+
+        // $usuarios = $this->Usuarios->find("all");
         $arraySet = array("data", "usuarios");
 
         $this->set(compact($arraySet));

@@ -29,7 +29,7 @@ angular
          */
         function pesquisarUsuarios(clientesId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, dataInicio = undefined, dataFim = undefined) {
 
-            var url = "/api/usuarios/pesquisar_usuarios_fidelizados";
+            var url = "/api/usuarios/get_usuarios_fidelizados";
             var data = {
                 clientesId: clientesId,
                 nome: nome,
