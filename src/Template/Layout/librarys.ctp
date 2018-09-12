@@ -88,6 +88,10 @@ if ($debug) {
 <!-- Services -->
 <script src="/webroot/app/js/services/clientes/clientesService.js" ></script>
 <script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js" ></script>
+
+<!-- Diretivas -->
+
+<script src="/webroot/app/js/directives/loading-spinner.js"></script>
 <!-- /webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js -->
 <!-- <script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js" ></script> -->
 <?php

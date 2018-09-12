@@ -1,5 +1,12 @@
 <div class="col-lg-12">
 
+    <div class="loading" if-loading>
+        <!--
+            TODO:
+            Isto deverá ser portado para o template principal depois da mudança para AngularJS
+        -->
+        <img src="/webroot/img/icons/loading.gif" alt="">
+    </div>
 
     <div ng-model="inputData" ng-init="init()">
 
