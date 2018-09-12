@@ -3297,8 +3297,8 @@ class UsuariosController extends AppController
             $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
             $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
             $status = !empty($data["status"]) ? $data["status"] : null;
-            $dataInicial = !empty($data["dataInicial"]) ? $data["dataInicial"] : null;
-            $dataFinal = !empty($data["dataFinal"]) ? $data["dataFinal"] : null;
+            $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
+            $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
 
             $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
@@ -3309,8 +3309,8 @@ class UsuariosController extends AppController
                 $veiculo,
                 $documentoEstrangeiro,
                 $status,
-                $dataInicial,
-                $dataFinal
+                $dataInicio,
+                $dataFim
             );
 
             $usuarios = $clientesHasUsuarios;

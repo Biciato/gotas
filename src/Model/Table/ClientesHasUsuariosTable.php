@@ -12,6 +12,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * ClientesHasUsuarios Model
@@ -312,16 +313,49 @@ class ClientesHasUsuariosTable extends Table
         if (sizeof($clientesIds) == 0) {
             throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
         }
+
+        $arrayConditions = array();
+
+        if (!empty($nome)) {
+            $arrayConditions[] = array("Usuario.nome like '%$nome%'");
+        }
+
+        if (!empty($cpf)) {
+            $arrayConditions[] = array("Usuario.cpf like '%$cpf%'");
+        }
+
+        if (!empty($veiculo)) {
+            $arrayConditions[] = array("Veiculos.placa like '%$veiculo%'");
+        }
+
+        if (!empty($documentoEstrangeiro)) {
+            $arrayConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
+        }
+
+        if (!empty($status)) {
+            $arrayConditions[] = array("Usuario.conta_ativa" => $status);
+        }
+
+        if (!empty($dataInicial)) {
+            $arrayConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+        }
+
+        if (!empty($dataFinal)) {
+            $arrayConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+        }
+
+        $arrayConditions[] = array("clientes_id in " => $clientesIds);
+
+
+        // DebugUtil::print($arrayConditions);
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find()
             // ->select(array(
             //     "usuarios_id",
             //     "audit_insert"
             // ))
-            ->where(array(
-                "clientes_id in " => $clientesIds
-            ))
-            ->contain("Usuario")
+            ->where($arrayConditions)
+            ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
             ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
             ->toArray();
 

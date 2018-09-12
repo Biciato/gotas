@@ -10,21 +10,23 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
     var year = date.getFullYear();
     var month = date.getMonth();
     $scope.inputData = {
+        clientesSelectedItem: undefined,
+        clientesId: undefined,
         nome: undefined,
         clientesList: [],
         statusList: [
-
             { codigo: 0, nome: "Ativo" },
             { codigo: 1, nome: "Inativo" }
         ],
+        veiculo: undefined,
+        documentoEstrangeiro: undefined,
         statusSelectedItem: undefined,
-
         dataInicial: new Date(year, month, 1),
         dataFinal: new Date(year, month + 1, 0)
     };
 
-    $scope.empty = function(value){
-        if (value !== undefined){
+    $scope.empty = function (value) {
+        if (value !== undefined) {
             return false;
         }
         return true;
@@ -50,7 +52,7 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
 
     // ---------------------------------------- Funções ----------------------------------------
 
-    $scope.validarFiltro = function(inputData) {
+    $scope.validarFiltro = function (inputData) {
 
     }
 
@@ -64,18 +66,25 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
         var dataInicio = undefined;
         var dataFim = undefined;
 
-        if (!$scope.empty(inputData.dataInicial)){
+        if (!$scope.empty(inputData.dataInicial)) {
             dataInicio = moment(inputData.dataInicial).format("YYYY-MM-DD");
         }
 
-        if (!$scope.empty(inputData.dataFinal)){
+        if (!$scope.empty(inputData.dataFinal)) {
             dataFim = moment(inputData.dataFinal).format("YYYY-MM-DD");
         }
 
-        console.log(dataInicio);
+        var clientesIds = [];
+        if (!$scope.empty(inputData.clientesSelectedItem) && inputData.clientesSelectedItem.id > 0) {
+            clientesIds = inputData.clientesSelectedItem.id;
+        } else {
+            angular.forEach($scope.clientesList, function (value, key) {
+                clientesIds.push(value.id);
+            });
+        }
 
         relUsuariosFidelizadosService.pesquisarUsuarios(
-            inputData.clientesId,
+            clientesIds,
             inputData.nome,
             inputData.cpf,
             inputData.documentoEstrangeiro,
@@ -98,6 +107,8 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
         var year = date.getFullYear();
         var month = date.getMonth();
         $scope.inputData = {
+            clientesSelectedItem: undefined,
+            clientesId: undefined,
             nome: undefined,
             clientesList: [],
             statusList: [
@@ -105,6 +116,8 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
                 { codigo: 0, nome: "Ativo" },
                 { codigo: 1, nome: "Inativo" }
             ],
+            veiculo: undefined,
+            documentoEstrangeiro: undefined,
             statusSelectedItem: undefined,
             dataInicial: new Date(year, month, 1),
             dataFinal: new Date(year, month + 1, 0)

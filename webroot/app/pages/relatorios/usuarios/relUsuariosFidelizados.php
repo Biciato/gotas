@@ -21,7 +21,7 @@
 
         <div class="row">
             <!-- Nome: -->
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <label>Nome: </label>
                 <input type="text" ng-model="inputData.nome" ng-maxlength="50" ng-trim="true" class="form-control">
             </div>
@@ -39,7 +39,7 @@
             </div>
 
             <!-- Documento Estrangeiro -->
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="input-id">Documento Estrangeiro</label>
                 <input type="text" ng-model="inputData.documentoEstrangeiro" ng-trim="true" class="form-control">
             </div>
@@ -62,7 +62,7 @@
             <div class="col-lg-2">
                 <label>Data Inicial:</label>
                 <p class="input-group">
-                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataInicial" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />
+                    <input type="text" model-view-value="true" ui-mask="99/99/9999" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataInicial" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
@@ -73,21 +73,27 @@
             <div class="col-lg-2">
                 <label>Data Final:</label>
                 <p class="input-group">
-                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataFinal" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />
+                    <input type="text" model-view-value="true" ui-mask="99/99/9999" class="form-control" uib-datepicker-popup="{{format}}" ng-model="inputData.dataFinal" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="false" close-text="Fechar" current-text="Hoje" clear-text="Limpar" alt-input-formats="altInputFormats" />
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
                 </p>
             </div>
 
-            <div class="col-lg-3 pull-right group-btn-area">
-                <button class="col-lg-6 btn btn-primary text-center" escape="#" ng-click="pesquisarUsuarios(inputData)">
+            <div class="col-lg-4 pull-right group-btn-area">
+                <button class="col-lg-4 btn btn-primary text-center" escape="#" ng-click="limparDados()">
+                    <i class="fa fa-trash">
+                    </i>
+                    Limpar
+                </button>
+
+                <button class="col-lg-4 btn btn-primary text-center" escape="#" ng-click="pesquisarUsuarios(inputData)">
                     <i class="fa fa-search">
                     </i>
                     Pesquisar
                 </button>
 
-                <button class="col-lg-6 btn btn-default" ng-click="gerarExcel(inputData)">
+                <button class="col-lg-4 btn btn-default" ng-click="gerarExcel(inputData)">
                     <span class="fa fa-file-excel-o">
                     </span>
                     Gerar Excel
@@ -106,11 +112,11 @@
             </thead>
             <tbody>
                 <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(currentPage - 1 ) * pageSize | limitTo:pageSize">
-                    <td>{{usuario.nome}}</td>
-                    <td>{{usuario.cpf}}</td>
-                    <td>{{usuario.docEstrangeiro}}</td>
-                    <td>{{usuario.saldoAtual}}</td>
-                    <td>{{usuario.dataVinculo}}</td>
+                    <td width="30%">{{usuario.nome}}</td>
+                    <td width="15%">{{usuario.cpf}}</td>
+                    <td width="15%">{{usuario.docEstrangeiro}}</td>
+                    <td width="15%">{{usuario.saldoAtual}}</td>
+                    <td width="25%">{{usuario.dataVinculo}}</td>
                 </tr>
             </tbody>
         </table>

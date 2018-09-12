@@ -13,7 +13,7 @@ angular
 
         /**
          *
-         * @param int clientesId
+         * @param int clientesIds
          * @param string nome
          * @param int cpf
          * @param int documentoEstrangeiro
@@ -27,11 +27,11 @@ angular
          *
          * @return promise
          */
-        function pesquisarUsuarios(clientesId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, dataInicio = undefined, dataFim = undefined) {
+        function pesquisarUsuarios(clientesIds = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, dataInicio = undefined, dataFim = undefined) {
 
             var url = "/api/usuarios/get_usuarios_fidelizados";
             var data = {
-                clientesId: clientesId,
+                clientesIds: clientesIds,
                 nome: nome,
                 cpf: cpf,
                 documentoEstrangeiro: documentoEstrangeiro,

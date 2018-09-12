@@ -367,7 +367,11 @@ input[type="file"] {
 /* Estilos Gustavo */
 
 .group-btn-area{
-    padding-top: 1.5em;
+    padding-top: 1.8em;
+    display: flex;
+}
+.group-btn-area > button{
+    margin: 0px 3px;
 }
 
 .row{
