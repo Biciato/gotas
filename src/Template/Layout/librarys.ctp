@@ -70,6 +70,9 @@ if ($debug) {
 <script src="/webroot/app/lib/angularjs/angular-route.min.js" ></script>
 <script src="/webroot/app/lib/angularjs/angular-sanitize.min.js"></script>
 <script src="/webroot/app/lib/angularjs/angular-touch.min.js" ></script>
+<script src="/webroot/app/lib/angularjs/extra/angular-file-saver.bundle.min.js"></script>
+<script src="/webroot/app/lib/FileSaver.js"></script>
+<script src="/webroot/app/lib/Blob.js"></script>
 <script src="/webroot/app/lib/ui.mask/mask.min.js"></script>
 <script src="/webroot/app/lib/ui.select/select.min.js"></script>
 <script src="/webroot/app/lib/moment/moment.min.js" ></script>

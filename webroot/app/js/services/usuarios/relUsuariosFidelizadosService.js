@@ -100,7 +100,7 @@ angular
 
             var dataReturn = undefined;
             return $http.post(url, data, options).then(function (success) {
-                return success.data.usuarios;
+                return success.data.excel;
             }).then(function (error) {
                 return error;
             });

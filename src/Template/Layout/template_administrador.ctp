@@ -156,7 +156,7 @@ $this->fetch('script');
 								// include $default_footer;
             echo ob_get_clean();
         } else {
-								// echo $this->element('footer');
+            // echo $this->element('footer');
         }
         ?>
 	</body>

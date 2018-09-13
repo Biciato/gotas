@@ -5,5 +5,6 @@ angular.module("GotasApp",
         "ngSanitize",
         "ui.bootstrap",
         "ui.mask",
-        "ui.select"
+        "ui.select",
+        "ngFileSaver"
     ]);
