@@ -324,7 +324,13 @@ Router::scope("/api", function ($routes) {
                 "action" => "getUsuariosFidelizadosAPI",
                 "method" => "POST",
                 "path" => "/get_usuarios_fidelizados"
-            )
+            ),
+
+            "generateExcelUsuariosFidelizadosAPI" => array(
+                "action" => "generateExcelUsuariosFidelizadosAPI",
+                "method" => "POST",
+                "path" => "/generate_excel_usuarios_fidelizados"
+            ),
         ]
     ]);
 

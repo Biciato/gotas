@@ -61,8 +61,6 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
 
     $scope.pesquisarUsuarios = function (inputData) {
 
-
-
         var dataInicio = undefined;
         var dataFim = undefined;
 
@@ -96,6 +94,47 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController", functi
             console.log(success);
 
             $scope.dadosUsuarios = success;
+        }).then(function (error) {
+
+            console.log(error);
+        });
+    }
+
+    $scope.gerarExcel = function (inputData) {
+
+        var dataInicio = undefined;
+        var dataFim = undefined;
+
+        if (!$scope.empty(inputData.dataInicial)) {
+            dataInicio = moment(inputData.dataInicial).format("YYYY-MM-DD");
+        }
+
+        if (!$scope.empty(inputData.dataFinal)) {
+            dataFim = moment(inputData.dataFinal).format("YYYY-MM-DD");
+        }
+
+        var clientesIds = [];
+        if (!$scope.empty(inputData.clientesSelectedItem) && inputData.clientesSelectedItem.id > 0) {
+            clientesIds = inputData.clientesSelectedItem.id;
+        } else {
+            angular.forEach($scope.clientesList, function (value, key) {
+                clientesIds.push(value.id);
+            });
+        }
+
+        relUsuariosFidelizadosService.gerarExcel(
+            clientesIds,
+            inputData.nome,
+            inputData.cpf,
+            inputData.documentoEstrangeiro,
+            inputData.placa,
+            inputData.status,
+            dataInicio,
+            dataFim
+        ).then(function (success) {
+            console.log(success);
+
+            download(window.btoa(success));
         }).then(function (error) {
 
             console.log(error);

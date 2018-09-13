@@ -17,6 +17,7 @@ use Cake\Network\Exception\UnauthorizedException;
 use App\Custom\RTI\EmailUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ExcelUtil;
 
 
 
@@ -3272,6 +3273,47 @@ class UsuariosController extends AppController
      * ------------------------------------------------------------
      */
 
+    /**
+     * UsuariosController::_consultaUsuariosFidelizados
+     *
+     * Consulta Usuários Fidelizados conforme requisição
+     *
+     * @param array $data $Array de Post
+     * @param int $redesId Id da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 12/09/2018
+     *
+     * @return array $dados
+     */
+    private function _consultaUsuariosFidelizados(array $data, int $redesId)
+    {
+        if (!empty($data["redesId"]) && $data["redesId"] > 0) {
+            $redesId = (int)$data["redesId"];
+        }
+
+        $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
+        $nome = !empty($data["nome"]) ? $data["nome"] : null;
+        $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+        $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
+        $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
+        $status = !empty($data["status"]) ? $data["status"] : null;
+        $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
+        $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
+
+        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+
+        return $this->ClientesHasUsuarios->getUsuariosFidelizadosClientes(
+            $clientesIds,
+            $nome,
+            $cpf,
+            $veiculo,
+            $documentoEstrangeiro,
+            $status,
+            $dataInicio,
+            $dataFim
+        );
+    }
 
     /**
      * Obtem dados de usuários fidelizados
@@ -3287,42 +3329,48 @@ class UsuariosController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
-            if (!empty($data["redesId"]) && $data["redesId"] > 0) {
-                $redesId = (int)$data["redesId"];
-            }
-
-            $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
-            $nome = !empty($data["nome"]) ? $data["nome"] : null;
-            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
-            $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
-            $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
-            $status = !empty($data["status"]) ? $data["status"] : null;
-            $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
-            $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
-
-            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
-
-            $clientesHasUsuarios = $this->ClientesHasUsuarios->getUsuariosFidelizadosClientes(
-                $clientesIds,
-                $nome,
-                $cpf,
-                $veiculo,
-                $documentoEstrangeiro,
-                $status,
-                $dataInicio,
-                $dataFim
-            );
-
-            $usuarios = $clientesHasUsuarios;
+            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
         }
 
-
-        // $usuarios = $this->Usuarios->find("all");
         $arraySet = array("data", "usuarios");
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
 
+    public function generateExcelUsuariosFidelizadosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
+        }
+
+        // $arraySet = array("data", "usuarios");
+
+        // $this->set(compact($arraySet));
+        // $this->set("_serialize", $arraySet);
+        // die();
+
+        // return;
+        $cabecalho = array(
+            "Usuário",
+            "CPF",
+            "Documento Estrangeiro",
+            "SaldoAtual",
+            "Data Cadastro na Rede"
+        );
+
+        $excel = ExcelUtil::generateExcel("teste", $cabecalho, $usuarios);
+
+        $arraySet = array("data", "excel");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     // /**
