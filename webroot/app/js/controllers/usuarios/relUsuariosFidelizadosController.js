@@ -133,16 +133,13 @@ angular.module("GotasApp").controller("relUsuariosFidelizadosController",
                 dataInicio,
                 dataFim
             ).then(function (success) {
-                // console.log(success);
-
-                // download(window.atob(success));
-                excel = window.atob(success);
-                // var blob = new Blob(excel, { type: ""});
+                // TODO: Criar função excel
+                excel = JSON.parse(success);
                 var blob = new Blob([excel], {
-                    type: "application/vnd.ms-excel;charset=charset=utf-8"
+                    type: 'application/xml;charset=utf-8',
+                    encoding: "utf-8"
                 });
                 FileSaver.saveAs(blob, "Report.xls");
-                // saveAs()
             }).then(function (error) {
 
                 console.log(error);

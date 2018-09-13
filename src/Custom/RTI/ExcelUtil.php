@@ -34,8 +34,11 @@ class ExcelUtil
     public static function generateExcel($title, $headers, $contentData)
     {
         $file = "demo.xls";
+        // <meta http-equiv='content-type' content='application/xhtml+xml; charset=UTF-8' />
         // Cabeçalho
         $excelContent = "
+        <html>
+        <meta http-equiv='content-type' content='text/html; charset=UTF-8' />
         <table>
             <tr>
                 <td colspan=" . sizeof($headers) . " style='margin: 0px auto'>TÍTULO</td>
@@ -55,9 +58,10 @@ class ExcelUtil
             }
             $excelContent .= "</tr>";
         }
-        $excelContent .= "</table>";
-        header("Content-type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment; filename=$file");
-        return base64_encode($excelContent);
+        $excelContent .= "</table>
+        </html>
+        ";
+        return json_encode($excelContent);
+        // return base64_encode($excelContent);
     }
 }

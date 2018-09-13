@@ -95,6 +95,7 @@ angular
                     "IsMobile": true,
                     "Accept": "application/json",
                     "Content-Type": "application/json",
+                    "ResponseType": "arrayBuffer"
                 }
             };
 
