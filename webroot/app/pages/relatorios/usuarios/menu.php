@@ -12,24 +12,28 @@
 
             </li>
             <li>
-                <a href="#!/relUsuariosAtivos">
+                <!-- <a href="#!/relUsuariosAtivos">
                     Total de Usuários Ativos
-                </a>
+                </a> -->
+                    Total de Usuários Ativos
             </li>
             <li>
-                <a href="#!/relUsuariosAtivos">
+                <!-- <a href="#!/relUsuariosAtivos">
                     Frequencia Média
-                </a>
+                </a> -->
+                    Frequencia Média
             </li>
             <li>
-                <a href="#!/relUsuariosAtivos">
+                <!-- <a href="#!/relUsuariosAtivos">
                     ?? Total de Novos Clientes Fidelizados
-                </a>
+                </a> -->
+                    ?? Total de Novos Clientes Fidelizados
             </li>
             <li>
-                <a href="#!/relUsuariosAtivos">
+                <!-- <a href="#!/relUsuariosAtivos">
                     Estatístico
-                </a>
+                </a> -->
+                    Estatístico
             </li>
         </ul>
     </nav>

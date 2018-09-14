@@ -678,15 +678,26 @@ class ClientesController extends AppController
      */
     public function getClientesListAPI()
     {
-        // header("HTTP/1.0 404 Not Found");
-        // exit;
-        // throw new \Exception("Erro");
+        // try {
+
+        //     throw new \Exception("Erro");
+        // } catch (\Exception $e) {
+        //     header("HTTP/1.0 400");
+        //     json_encode(array("data" => $e->getMessage()));
+        //     // header("HTTP/1.1 500 Internal Server Error");
+        //     // echo '{"data": "Exception occurred: '.$e->getMessage().'"}';
+        //     die();
+
+        //     // exit;
+        //     // return;
+
+        // }
         // return;
         $rede = $this->request->session()->read("Network.Main");
         $redesId = $rede["id"];
 
         // Caso o método seja chamado via post
-        if ($this->request->is("post")){
+        if ($this->request->is("post")) {
             $data = $this->request->getData();
 
             if (!empty($data["redesId"])) {
@@ -705,7 +716,7 @@ class ClientesController extends AppController
 
         $clientes = array();
 
-        foreach($redeHasClientes as $redeHasCliente){
+        foreach ($redeHasClientes as $redeHasCliente) {
             $clientes[] = $redeHasCliente["Clientes"];
         }
 

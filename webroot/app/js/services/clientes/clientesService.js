@@ -1,7 +1,8 @@
 angular
     .module('GotasApp')
-    .service('clientesService', function clientesService($http) {
+    .service('clientesService', function clientesService($http, $q) {
 
+        var deferred = $q.defer();
         $self = {
             obterListaClientes: obterListaClientes
         }
@@ -31,14 +32,14 @@ angular
                 console.log(response.data.msg);
 
                 result = response;
-                return response;
-            }).then(function (error) {
+                return $q.resolve(response);
+            }, function (error) {
+                return deferred.reject(error);
                 console.log(error);
 
                 result = error;
                 return error;
-            })
-                ;
+            });
 
         }
 

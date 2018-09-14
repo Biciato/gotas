@@ -89,9 +89,11 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                     $scope.clientesSelectedItem = $scope.clientesList[0];
                 }
 
-            }).then(function (error) {
-                toastr.error(error);
-                console.log(error);
+            }, function (error) {
+                if (!$scope.empty(error)){
+                    toastr.error(error);
+                    console.log(error);
+                }
             })
         }
 
