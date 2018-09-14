@@ -28,7 +28,7 @@ angular
 
             var result = undefined;
             return $http.post(url, data, options).then(function (response) {
-                console.log(response);
+                console.log(response.data.msg);
 
                 result = response;
                 return response;

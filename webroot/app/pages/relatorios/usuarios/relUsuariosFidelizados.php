@@ -88,7 +88,7 @@
             </div>
 
             <div class="col-lg-4 pull-right group-btn-area">
-                <button class="col-lg-4 btn btn-primary text-center" escape="#" ng-click="limparDados()">
+                <button class="col-lg-4 btn btn-danger text-center" escape="#" ng-click="limparDados()">
                     <i class="fa fa-trash">
                     </i>
                     Limpar
@@ -100,7 +100,7 @@
                     Pesquisar
                 </button>
 
-                <button class="col-lg-4 btn btn-default" ng-click="gerarExcel(inputData)">
+                <button class="col-lg-4 btn btn-success" ng-click="gerarExcel(inputData)">
                     <span class="fa fa-file-excel-o">
                     </span>
                     Gerar Excel
@@ -118,19 +118,21 @@
                 <th ng-repeat="cabecalho in cabecalhos">{{cabecalho}}</th>
             </thead>
             <tbody>
-                <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(currentPage - 1 ) * pageSize | limitTo:pageSize">
-                    <td width="30%">{{usuario.nome}}</td>
-                    <td width="15%">{{usuario.cpf}}</td>
-                    <td width="15%">{{usuario.docEstrangeiro}}</td>
-                    <td width="15%">{{usuario.saldoAtual}}</td>
-                    <td width="25%">{{usuario.dataVinculo}}</td>
+                <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(paginaAtual - 1 ) * tamanhoDaPagina | limitTo:tamanhoDaPagina">
+                    <td width="20%">{{usuario.nome}}</td>
+                    <td width="10%">{{usuario.cpf}}</td>
+                    <td width="20%">{{usuario.docEstrangeiro}}</td>
+                    <td width="10%">{{usuario.saldoAtual}}</td>
+                    <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
+                    <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
+                    <td width="15%">{{usuario.dataVinculo}}</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="text-center">
-        <ul uib-pagination boundary-links="true" total-items="dadosUsuarios.length" ng-model="currentPage"
-        items-per-page="pageSize" class="pagination-sm"
+        <ul uib-pagination boundary-links="true" total-items="dadosUsuarios.length" ng-model="paginaAtual"
+        items-per-page="tamanhoDaPagina" class="pagination-sm"
         max-size="5" previous-text="<< Ant." next-text="Próx. >>" first-text="Primeira" last-text="Última"></ul>
         </div>
         <div ng-show="dadosUsuarios.length == 0">
@@ -138,11 +140,4 @@
         </div>
         </div>
     </div>
-
-Debug:
-{{ inputData }}
-{{ currentPage }}
-{{ pageLimit }}
-{{ pageSize }}
-
 </div>

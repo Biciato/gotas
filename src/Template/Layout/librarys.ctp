@@ -80,6 +80,12 @@ if ($debug) {
 <script src="/webroot/app/lib/moment/locales.min.js" ></script>
 <script src="/webroot/app/lib/ui.bootstrap/ui-bootstrap-tpls-2.5.0.min.js" ></script>
 
+<!-- angular-toastr -->
+
+<script src="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.js"></script>
+<script src="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.tpls.min.js"></script>
+<link rel="stylesheet" href="/webroot/app/lib/angularjs/extra/angular-toaster/angular-toastr.min.css">
+
 <script src="/webroot/app/js/app.js"></script>
 <script src="/webroot/app/js/app.module.js"></script>
 <script src="/webroot/app/js/config/routeConfig.js"></script>

@@ -678,6 +678,10 @@ class ClientesController extends AppController
      */
     public function getClientesListAPI()
     {
+        // header("HTTP/1.0 404 Not Found");
+        // exit;
+        // throw new \Exception("Erro");
+        // return;
         $rede = $this->request->session()->read("Network.Main");
         $redesId = $rede["id"];
 
@@ -705,7 +709,9 @@ class ClientesController extends AppController
             $clientes[] = $redeHasCliente["Clientes"];
         }
 
-        $arraySet = array("clientes");
+        $msg = $clientes;
+
+        $arraySet = array("msg");
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);

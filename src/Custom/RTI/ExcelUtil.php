@@ -40,8 +40,8 @@ class ExcelUtil
         <html>
         <meta http-equiv='content-type' content='text/html; charset=UTF-8' />
         <table>
-            <tr>
-                <td colspan=" . sizeof($headers) . " style='margin: 0px auto'>TÍTULO</td>
+            <tr style='text-align:center;'>
+                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important'>TÍTULO</td>
             <tr style='background-color: #a0efe6; font-weight: bolder;'>
         ";
 

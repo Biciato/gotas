@@ -3350,18 +3350,13 @@ class UsuariosController extends AppController
             $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
         }
 
-        // $arraySet = array("data", "usuarios");
-
-        // $this->set(compact($arraySet));
-        // $this->set("_serialize", $arraySet);
-        // die();
-
-        // return;
         $cabecalho = array(
             "Usuário",
             "CPF",
             "Documento Estrangeiro",
-            "SaldoAtual",
+            "Saldo Gotas",
+            "Gotas Consumidas",
+            "Moeda Adquirida ",
             "Data Cadastro na Rede"
         );
 

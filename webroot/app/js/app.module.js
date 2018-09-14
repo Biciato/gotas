@@ -1,4 +1,5 @@
 // var GotasApp = angular.module("GotasApp", ["ngRoute", "ngSanitize", "ui.mask", "ui.select", "ui.bootstrap"]);
+
 var GotasApp = angular.module("GotasApp");
 
 //filtro para limitar tamanho da frase incluindo tres pontos no final

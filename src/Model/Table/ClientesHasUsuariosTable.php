@@ -287,7 +287,9 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
-     * Undocumented function
+     * ClientesHasUsuarios::getUsuariosFidelizadosClientes
+     *
+     * Obtem clientes fidelizados de postos/rede
      *
      * @param array $clientesIds
      * @param string $nome
@@ -297,7 +299,11 @@ class ClientesHasUsuariosTable extends Table
      * @param int $status
      * @param string $dataInicial
      * @param string $dataFinal
-     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 13/09/2018
+     *
+     * @return array
      */
     public function getUsuariosFidelizadosClientes(
         array $clientesIds = array(),
@@ -376,14 +382,12 @@ class ClientesHasUsuariosTable extends Table
                     $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
                     $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
                     $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
-
-                    // $usuario = $clienteHasUsuario;
+                    $usuario["totalGotasConsumidas"] = 0;
+                    $usuario["totalMoedaAdquirida"] = 0;
 
                     $usuarios[] = $usuario;
                 }
             }
-
-            return $usuarios;
         }
 
         return $usuarios;
