@@ -1,6 +1,7 @@
 angular
     .module('GotasApp')
-    .service('relUsuariosFidelizadosService', function relUsuariosFidelizadosService($http) {
+    .service('relUsuariosFidelizadosService', function relUsuariosFidelizadosService($http, $q) {
+
 
         $self = {
             exposedFn: exposedFn,
@@ -44,19 +45,22 @@ angular
 
             var options = {
                 headers: {
-
                     "IsMobile": true,
                     "Accept": "application/json",
                     "Content-Type": "application/json",
                 }
             };
 
-            var dataReturn = undefined;
-            return $http.post(url, data, options).then(function (success) {
-                return success.data.usuarios;
-            }).then(function (error) {
-                return error;
-            });
+            var deferred = $q.defer();
+            $http.post(url, data, options).then(
+                function (success) {
+                    deferred.resolve(success.data.msg);
+                }
+                , function (error) {
+                    deferred.reject(error.data);
+                });
+
+            return deferred.promise;
         }
 
         /**
@@ -99,12 +103,14 @@ angular
                 }
             };
 
-            var dataReturn = undefined;
-            return $http.post(url, data, options).then(function (success) {
-                return success.data.excel;
-            }).then(function (error) {
-                return error;
+            var deferred = $q.defer();
+            $http.post(url, data, options).then(function (success) {
+                deferred.resolve(success.data.msg);
+            }, function (error) {
+                deferred.reject(error.data);
             });
+
+            return deferred.promise;
         }
 
         return $self;

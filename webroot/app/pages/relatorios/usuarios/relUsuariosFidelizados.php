@@ -87,7 +87,7 @@
                 </p>
             </div>
 
-            <div class="col-lg-4 pull-right group-btn-area">
+            <div class="col-lg-5 pull-right group-btn-area">
                 <button class="col-lg-4 btn btn-danger text-center" escape="#" ng-click="limparDados()">
                     <i class="fa fa-trash">
                     </i>

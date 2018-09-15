@@ -14,6 +14,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Clientes Controller
@@ -678,21 +679,6 @@ class ClientesController extends AppController
      */
     public function getClientesListAPI()
     {
-        // try {
-
-        //     throw new \Exception("Erro");
-        // } catch (\Exception $e) {
-        //     header("HTTP/1.0 400");
-        //     json_encode(array("data" => $e->getMessage()));
-        //     // header("HTTP/1.1 500 Internal Server Error");
-        //     // echo '{"data": "Exception occurred: '.$e->getMessage().'"}';
-        //     die();
-
-        //     // exit;
-        //     // return;
-
-        // }
-        // return;
         $rede = $this->request->session()->read("Network.Main");
         $redesId = $rede["id"];
 
@@ -720,13 +706,11 @@ class ClientesController extends AppController
             $clientes[] = $redeHasCliente["Clientes"];
         }
 
-        $msg = $clientes;
-
-        $arraySet = array("msg");
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-
+        if (sizeof($clientes) > 0) {
+            ResponseUtil::success($clientes);
+        } else {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
     }
 
     /**

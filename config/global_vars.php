@@ -181,6 +181,7 @@ Configure::write(
 
         'messageLoadDataWithSuccess' => "Dados carregados com sucesso!",
         'messageLoadDataWithError' => "Erro durante carregamento dos dados!",
+        'messageLoadDataNotFound' => "A consulta não retornou dados!",
 
         'messageInvalidateSuccess' => 'O registro foi invalidado com sucesso',
         'messageInvalidateError' => 'Não foi possível invalidar o registro!',
@@ -204,6 +205,7 @@ Configure::write(
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",
         "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
 
+        "messageErrorDefault" => "Erro!",
         "messageWarningDefault" => "Atenção!",
 
         /**

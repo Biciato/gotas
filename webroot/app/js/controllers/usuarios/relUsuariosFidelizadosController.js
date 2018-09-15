@@ -83,15 +83,15 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
          */
         $scope.obterListaClientes = function () {
             clientesService.obterListaClientes().then(function (success) {
-                data = success.data.msg;
-                $scope.clientesList = data;
-                if (data.length == 1) {
+                $scope.clientesList = success;
+
+                if (success.length == 1) {
                     $scope.clientesSelectedItem = $scope.clientesList[0];
                 }
 
             }, function (error) {
-                if (!$scope.empty(error)){
-                    toastr.error(error);
+                if (!$scope.empty(error)) {
+                    toastr.error(error.description, error.title);
                     console.log(error);
                 }
             })
@@ -142,12 +142,15 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                     inputData.status,
                     dataInicial,
                     dataFinal
-                ).then(function (success) {
-                    $scope.dadosUsuarios = success;
-                }).then(function (error) {
-
-                    console.log(error);
-                });
+                ).then(
+                    function (success) {
+                        $scope.dadosUsuarios = success;
+                    },
+                    function (error) {
+                        console.log(error);
+                        toastr.error(error.description, error.title);
+                    }
+                );
 
             }
 
@@ -192,8 +195,8 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                     encoding: "utf-8"
                 });
                 FileSaver.saveAs(blob, "Report.xls");
-            }).then(function (error) {
-
+            }, function (error) {
+                toastr.error(error.description, error.title);
                 console.log(error);
             });
         }

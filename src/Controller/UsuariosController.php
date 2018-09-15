@@ -18,6 +18,7 @@ use App\Custom\RTI\EmailUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ExcelUtil;
+use App\Custom\RTI\ResponseUtil;
 
 
 
@@ -3332,12 +3333,23 @@ class UsuariosController extends AppController
             $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
         }
 
-        $arraySet = array("data", "usuarios");
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+        if (sizeof($usuarios) > 0) {
+            ResponseUtil::success($usuarios);
+        } else {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
     }
 
+    /**
+     * UsuariosController::generateExcelUsuariosFidelizadosAPI
+     *
+     * Gera relatório de usuários fidelizados pela rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 12/09/2018
+     *
+     * @return json_encode Dados de excel em json_encode
+     */
     public function generateExcelUsuariosFidelizadosAPI()
     {
         $rede = $this->request->session()->read("Network.Main");
@@ -3360,12 +3372,29 @@ class UsuariosController extends AppController
             "Data Cadastro na Rede"
         );
 
+        if (sizeof($usuarios) == 0) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        $usuariosArray = array();
+        $usuarioTemp = array();
+        foreach ($usuarios as $usuario) {
+            $usuarioTemp["nome"] = $usuario["nome"];
+            $usuarioTemp["cpf"] = $usuario["cpf"];
+            $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+            $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
+            $usuarioTemp["totalGotasConsumidas"] = $usuario["totalGotasConsumidas"];
+            $usuarioTemp["totalMoedaAdquirida"] =  $usuario["totalMoedaAdquirida"];
+            $usuarioTemp["dataVinculo"] = $usuario["dataVinculo"];
+
+            $usuariosArray[] = $usuarioTemp;
+        }
+
+        $usuarios = $usuariosArray;
+
         $excel = ExcelUtil::generateExcel("teste", $cabecalho, $usuarios);
 
-        $arraySet = array("data", "excel");
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+        ResponseUtil::success($excel);
     }
 
     // /**

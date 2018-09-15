@@ -2,7 +2,6 @@ angular
     .module('GotasApp')
     .service('clientesService', function clientesService($http, $q) {
 
-        var deferred = $q.defer();
         $self = {
             obterListaClientes: obterListaClientes
         }
@@ -10,6 +9,7 @@ angular
         ////////////////
 
         function obterListaClientes(redesId = undefined) {
+
             var url = "/api/clientes/get_clientes_list";
             var data = {};
 
@@ -19,28 +19,21 @@ angular
 
             var options = {
                 headers: {
-
                     "IsMobile": true,
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    // "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTksInN1YiI6MTksImV4cCI6MTUzNzE1NDQxNH0.MrTTBh_QFF9EQoeSXw2tT6aPuiSJ33liwWG4oQ0W0A4"
                 }
             };
 
-            var result = undefined;
-            return $http.post(url, data, options).then(function (response) {
-                console.log(response.data.msg);
-
-                result = response;
-                return $q.resolve(response);
+            var deferred = $q.defer();
+            $http.post(url, data, options).then(function (success) {
+                deferred.resolve(success.data.msg);
             }, function (error) {
-                return deferred.reject(error);
                 console.log(error);
-
-                result = error;
-                return error;
+                deferred.reject(error.data);
             });
 
+            return deferred.promise;
         }
 
         return $self;
