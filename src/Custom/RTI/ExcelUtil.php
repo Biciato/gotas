@@ -41,12 +41,11 @@ class ExcelUtil
         <meta http-equiv='content-type' content='text/html; charset=UTF-8' />
         <table>
             <tr style='text-align:center;'>
-                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important'>TÍTULO</td>
-            <tr style='background-color: #a0efe6; font-weight: bolder;'>
-        ";
+                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>".strtoupper($title)."</td>";
+        $excelContent .= "<tr>";
 
         foreach ($headers as $header) {
-            $excelContent .= "<td style='border: 1px solid black;'>" . strtoupper($header) . "</td>";
+            $excelContent .= "<td style='border: 1px solid black; background-color: #D6DCE4; font-weight: bolder;'>" . strtoupper($header) . "</td>";
         }
         $excelContent .= "</tr>";
 
@@ -54,7 +53,7 @@ class ExcelUtil
         foreach ($contentData as $data) {
             $excelContent .= "<tr>";
             foreach ($data as $column) {
-                $excelContent .= "<td>" . $column . "</td>";
+                $excelContent .= "<td style='border:1px solid black;'>" . $column . "</td>";
             }
             $excelContent .= "</tr>";
         }

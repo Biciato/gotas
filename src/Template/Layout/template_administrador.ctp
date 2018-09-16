@@ -34,6 +34,9 @@ $titlePage = 'GOTAS - Administrador';
 	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	<title><?= $titlePage ?></title>
 
+    <!-- TODO: Alterar depois quando a aplicação for toda angular -->
+    <base href="/">
+
 	<script src="https://maps.googleapis.com/maps/api/js?sensor=true&key=AIzaSyBzwpETAdxu2NQyLLtw16ndZkldjQ5Zqxg" async defer></script>
 	<?php
 

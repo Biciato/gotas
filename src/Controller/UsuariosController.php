@@ -3392,7 +3392,7 @@ class UsuariosController extends AppController
 
         $usuarios = $usuariosArray;
 
-        $excel = ExcelUtil::generateExcel("teste", $cabecalho, $usuarios);
+        $excel = ExcelUtil::generateExcel("Relatório de Usuários Fidelizados", $cabecalho, $usuarios);
 
         ResponseUtil::success($excel);
     }
