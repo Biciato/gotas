@@ -2,11 +2,13 @@
  * Controller para Relatório de Usuários Ativo
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 13/09/2018
+ * @since 17/09/2018
  */
 // var GotasApp = angular.module("GotasApp");
-angular.module('GotasApp').controller("relUsuariosAtivosController",
-    function ($scope, FileSaver, Blob, toastr, clientesService, relUsuariosAtivosService) {
+angular.module('GotasApp').controller("relUsuariosAssiduosController",
+    function ($scope, FileSaver, Blob, toastr, clientesService,
+        downloadService,
+        relUsuariosAssiduosService) {
 
         $scope.inputData = {
             clientesSelectedItem: undefined,
@@ -14,12 +16,17 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
             nome: undefined,
             clientesList: [],
             statusList: [
-                { codigo: 0, nome: "Ativo" },
-                { codigo: 1, nome: "Inativo" }
+                { codigo: 0, nome: "Ativado" },
+                { codigo: 1, nome: "Desativado" }
+            ],
+            assiduidadeList: [
+                { codigo: 0, nome: "Ativado" },
+                { codigo: 1, nome: "Desativado" }
             ],
             veiculo: undefined,
             documentoEstrangeiro: undefined,
-            statusSelectedItem: undefined,
+            usuarioContaAtivadaSelectedItem: undefined,
+            assiduidadeSelectedItem: undefined,
             dataInicial: undefined,
             dataFinal: undefined
         };
@@ -41,7 +48,7 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
 
         $scope.paginaAtual = 1;
         $scope.limitePagina = 50;
-        $scope.tamanhoDaPagina = 10;
+        $scope.tamanhoDaPagina = 50;
 
         $scope.cabecalhos = [
             "Usuário",
@@ -98,7 +105,7 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
         }
 
         /**
-         * relUsuariosFidelizadosController::pesquisarUsuarios
+         * relUsuariosAssiduosController::pesquisarUsuarios
          *
          * Realiza pesquisa dos usuários conforme filtro informado
          *
@@ -133,7 +140,7 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
                     });
                 }
 
-                relUsuariosAtivosService.pesquisarUsuarios(
+                relUsuariosAssiduosService.pesquisarUsuarios(
                     clientesIds,
                     inputData.nome,
                     inputData.cpf,
@@ -153,9 +160,18 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
                 );
 
             }
-
         }
 
+        /**
+         * relUsuariosFidelizadosController::$scope.gerarExcel
+         *
+         * Gera excel
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 15/09/2018
+         *
+         * @param {Object} inputData Dados de formulário
+         */
         $scope.gerarExcel = function (inputData) {
 
             var dataInicial = undefined;
@@ -178,7 +194,7 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
                 });
             }
 
-            relUsuariosAtivosService.gerarExcel(
+            relUsuariosAssiduosService.gerarExcel(
                 clientesIds,
                 inputData.nome,
                 inputData.cpf,
@@ -188,19 +204,22 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
                 dataInicial,
                 dataFinal
             ).then(function (success) {
-                // TODO: Criar função excel
-                excel = JSON.parse(success);
-                var blob = new Blob([excel], {
-                    type: 'application/xml;charset=utf-8',
-                    encoding: "utf-8"
-                });
-                FileSaver.saveAs(blob, "Report.xls");
+                downloadService.downloadExcel(success, "relUsuariosAssiduos");
             }, function (error) {
                 toastr.error(error.description, error.title);
                 console.log(error);
             });
         }
 
+        /**
+         * relUsuariosAssiduosController::limparDados
+         *
+         * Limpa todos os campos da tela e aplica reset inicial aos filtros
+         *
+         * @author Gustavo Souza Gonçalves
+         * @since 14/09/2018
+         *
+         */
         $scope.limparDados = function () {
             var date = new Date();
             var year = date.getFullYear();
@@ -211,25 +230,27 @@ angular.module('GotasApp').controller("relUsuariosAtivosController",
                 nome: undefined,
                 clientesList: [],
                 statusList: [
-
-                    { codigo: 0, nome: "Ativo" },
-                    { codigo: 1, nome: "Inativo" }
+                    { codigo: 0, nome: "Ativado" },
+                    { codigo: 1, nome: "Desativado" }
+                ],
+                assiduidadeList: [
+                    { codigo: 0, nome: "Ativado" },
+                    { codigo: 1, nome: "Desativado" }
                 ],
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,
-                statusSelectedItem: undefined,
+                usuarioContaAtivadaSelectedItem: undefined,
+                assiduidadeSelectedItem: undefined,
                 dataInicial: new Date(year, month, 1),
                 dataFinal: new Date(year, month + 1, 0)
             };
-
-
         };
 
-
-
+        /**
+         * Inicializa a tela
+         */
         $scope.init = function () {
             $scope.limparDados();
-
             $scope.obterListaClientes();
         };
     }

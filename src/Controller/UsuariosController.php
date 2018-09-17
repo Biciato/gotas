@@ -3293,12 +3293,14 @@ class UsuariosController extends AppController
             $redesId = (int)$data["redesId"];
         }
 
+        // ResponseUtil::success($data);
+
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
         $nome = !empty($data["nome"]) ? $data["nome"] : null;
         $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
         $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
         $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
-        $status = !empty($data["status"]) ? $data["status"] : null;
+        $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
         $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
         $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
 
@@ -3384,7 +3386,7 @@ class UsuariosController extends AppController
             $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
             $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
             $usuarioTemp["totalGotasConsumidas"] = $usuario["totalGotasConsumidas"];
-            $usuarioTemp["totalMoedaAdquirida"] =  $usuario["totalMoedaAdquirida"];
+            $usuarioTemp["totalMoedaAdquirida"] = $usuario["totalMoedaAdquirida"];
             $usuarioTemp["dataVinculo"] = $usuario["dataVinculo"];
 
             $usuariosArray[] = $usuarioTemp;

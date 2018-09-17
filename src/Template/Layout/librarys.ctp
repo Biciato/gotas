@@ -92,12 +92,14 @@ if ($debug) {
 <script src="/webroot/app/js/config/routeConfig.js"></script>
 
 <!-- Controllers -->
-<script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js" ></script>
+<script src="/webroot/app/js/controllers/usuarios/relUsuariosAssiduosController.js" ></script>
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizadosController.js" ></script>
 
 <!-- Services -->
 <script src="/webroot/app/js/services/utils/downloadService.js" ></script>
 <script src="/webroot/app/js/services/clientes/clientesService.js" ></script>
+<script src="/webroot/app/js/services/usuarios/relUsuariosAssiduosService.js" ></script>
+
 <script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js" ></script>
 
 <!-- Diretivas -->

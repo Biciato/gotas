@@ -10,7 +10,7 @@
 
     <div ng-model="inputData" ng-init="init()">
 
-    <legend>Relatório de Usuários Ativos:</legend>
+    <legend>Relatório de Usuários Assíduos:</legend>
 
         <div class="row">
             <div class="col-lg-12">
@@ -28,7 +28,7 @@
 
         <div class="row">
             <!-- Nome: -->
-            <div class="col-lg-5">
+            <div class="col-lg-3">
                 <label>Nome: </label>
                 <input type="text" ng-model="inputData.nome" ng-maxlength="50" ng-trim="true" class="form-control">
             </div>
@@ -46,22 +46,34 @@
             </div>
 
             <!-- Documento Estrangeiro -->
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <label for="input-id">Documento Estrangeiro</label>
                 <input type="text" ng-model="inputData.documentoEstrangeiro" ng-trim="true" class="form-control">
             </div>
 
-        </div>
-        <div class="row">
-            <!-- Status: -->
+            <!-- Status de Cadastro: -->
             <div class="col-lg-3">
-                <label>Status: </label>
+                <label>Status de Cadastro: </label>
                 <ui-select ng-model="inputData.statusSelectedItem" theme="bootstrap" title="Status" >
                     <ui-select-match placeholder="Status..." allow-clear="true">
                         {{$select.selected.nome}}
                     </ui-select-match>
                     <ui-select-choices repeat="status in inputData.statusList | filter: {nome: $select.search}">
                         <span>{{status.nome}}</span>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Usuários Assíduos: -->
+            <div class="col-lg-3">
+                <label>Usuários Assíduos: </label>
+                <ui-select ng-model="inputData.assiduidadeSelectedItem" theme="bootstrap" title="Status" >
+                    <ui-select-match placeholder="Status..." allow-clear="true">
+                        {{$select.selected.nome}}
+                    </ui-select-match>
+                    <ui-select-choices repeat="status in inputData.assiduidadeList | filter: {nome: $select.search}">
+                        <span>{{assiduidade.nome}}</span>
                     </ui-select-choices>
                 </ui-select>
             </div>

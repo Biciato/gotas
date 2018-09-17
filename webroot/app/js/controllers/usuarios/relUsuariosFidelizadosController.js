@@ -7,21 +7,21 @@
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("relUsuariosFidelizadosController",
     function ($scope, FileSaver, Blob, toastr, clientesService,
-         downloadService,
-          relUsuariosFidelizadosService) {
+        downloadService,
+        relUsuariosFidelizadosService) {
 
         $scope.inputData = {
             clientesSelectedItem: undefined,
             clientesId: undefined,
             nome: undefined,
             clientesList: [],
-            statusList: [
-                { codigo: 0, nome: "Ativo" },
-                { codigo: 1, nome: "Inativo" }
+            usuarioContaAtivadaList: [
+                { codigo: '1', nome: "Ativado" },
+                { codigo: '0', nome: "Desativado" }
             ],
             veiculo: undefined,
             documentoEstrangeiro: undefined,
-            statusSelectedItem: undefined,
+            usuarioContaAtivadaSelectedItem: undefined,
             dataInicial: undefined,
             dataFinal: undefined
         };
@@ -33,7 +33,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
          * @returns bool
          */
         $scope.empty = function (value) {
-            if (value !== undefined) {
+            if (value !== undefined && value !== null) {
                 return false;
             }
             return true;
@@ -43,7 +43,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
 
         $scope.paginaAtual = 1;
         $scope.limitePagina = 50;
-        $scope.tamanhoDaPagina = 10;
+        $scope.tamanhoDaPagina = 50;
 
         $scope.cabecalhos = [
             "Usuário",
@@ -135,13 +135,14 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                     });
                 }
 
+                var usuarioContaAtivada = !$scope.empty(inputData.usuarioContaAtivadaSelectedItem) ? inputData.usuarioContaAtivadaSelectedItem.codigo : undefined;
                 relUsuariosFidelizadosService.pesquisarUsuarios(
                     clientesIds,
                     inputData.nome,
                     inputData.cpf,
                     inputData.documentoEstrangeiro,
                     inputData.placa,
-                    inputData.status,
+                    usuarioContaAtivada,
                     dataInicial,
                     dataFinal
                 ).then(
@@ -149,6 +150,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                         $scope.dadosUsuarios = success;
                     },
                     function (error) {
+                        $scope.dadosUsuarios = [];
                         console.log(error);
                         toastr.error(error.description, error.title);
                     }
@@ -158,6 +160,16 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
 
         }
 
+        /**
+         * relUsuariosFidelizadosController::$scope.gerarExcel
+         *
+         * Gera excel
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 15/09/2018
+         *
+         * @param {Object} inputData Dados de formulário
+         */
         $scope.gerarExcel = function (inputData) {
 
             var dataInicial = undefined;
@@ -190,13 +202,6 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                 dataInicial,
                 dataFinal
             ).then(function (success) {
-                // TODO: Criar função excel
-                // excel = JSON.parse(success);
-                // var blob = new Blob([excel], {
-                //     type: 'application/xml;charset=utf-8',
-                //     encoding: "utf-8"
-                // });
-                // FileSaver.saveAs(blob, "Report.xls");
                 downloadService.downloadExcel(success, "relUsuariosFidelizados");
             }, function (error) {
                 toastr.error(error.description, error.title);
@@ -222,14 +227,13 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                 clientesId: undefined,
                 nome: undefined,
                 clientesList: [],
-                statusList: [
-
-                    { codigo: 0, nome: "Ativo" },
-                    { codigo: 1, nome: "Inativo" }
+                usuarioContaAtivadaList: [
+                    { codigo: '1', nome: "Ativado" },
+                    { codigo: '0', nome: "Desativado" }
                 ],
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,
-                statusSelectedItem: undefined,
+                usuarioContaAtivadaSelectedItem: undefined,
                 dataInicial: new Date(year, month, 1),
                 dataFinal: new Date(year, month + 1, 0)
             };

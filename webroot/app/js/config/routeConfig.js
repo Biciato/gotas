@@ -7,14 +7,16 @@ angular.module("GotasApp").config(function ($routeProvider, $locationProvider) {
     // $routeProvider.when("/relatorios", {
     //     templateUrl: "/webroot/app/pages/relatorios/usuarios/relatorios.php",
     // });
-    $routeProvider.when("/usuarios/relatorios/relUsuariosAtivos", {
-        templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosAtivos.php",
-        controller: "relUsuariosAtivos"
-    }
-    ).when("/usuarios/relatorios/relUsuariosFidelizados", {
-        templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosFidelizados.php",
-        controller: "relUsuariosFidelizadosController"
-    });
+    $routeProvider
+        .when("/usuarios/relatorios/relUsuariosAssiduos", {
+            templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosAssiduos.php",
+            controller: "relUsuariosAssiduosController"
+        })
+        .when("/usuarios/relatorios/relUsuariosFidelizados", {
+            templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosFidelizados.php",
+            controller: "relUsuariosFidelizadosController"
+        })
+        ;
 
     $locationProvider.html5Mode(true);
     $locationProvider.hashPrefix('');

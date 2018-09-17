@@ -55,12 +55,12 @@
         <div class="row">
             <!-- Status: -->
             <div class="col-lg-3">
-                <label>Status: </label>
-                <ui-select ng-model="inputData.statusSelectedItem" theme="bootstrap" title="Status" >
+                <label>Conta Ativada/Desativada: </label>
+                <ui-select ng-model="inputData.usuarioContaAtivadaSelectedItem" theme="bootstrap" title="Status" >
                     <ui-select-match placeholder="Status..." allow-clear="true">
                         {{$select.selected.nome}}
                     </ui-select-match>
-                    <ui-select-choices repeat="status in inputData.statusList | filter: {nome: $select.search}">
+                    <ui-select-choices repeat="status in inputData.usuarioContaAtivadaList | filter: {nome: $select.search}">
                         <span>{{status.nome}}</span>
                     </ui-select-choices>
                 </ui-select>
@@ -120,12 +120,12 @@
             <tbody>
                 <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(paginaAtual - 1 ) * tamanhoDaPagina | limitTo:tamanhoDaPagina">
                     <td width="20%">{{usuario.nome}}</td>
-                    <td width="10%">{{usuario.cpf}}</td>
+                    <td width="10%">{{usuario.cpf | cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
                     <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
                     <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
-                    <td width="15%">{{usuario.dataVinculo}}</td>
+                    <td width="15%">{{usuario.dataVinculo | date : "dd/MM/yyyy HH:MM:ss"}}</td>
                 </tr>
             </tbody>
         </table>

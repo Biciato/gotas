@@ -13,6 +13,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * ClientesHasUsuarios Model
@@ -338,7 +339,7 @@ class ClientesHasUsuariosTable extends Table
             $arrayConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
         }
 
-        if (!empty($status)) {
+        if (strlen($status) > 0) {
             $arrayConditions[] = array("Usuario.conta_ativa" => $status);
         }
 
@@ -350,21 +351,23 @@ class ClientesHasUsuariosTable extends Table
             $arrayConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
         }
 
+        // ResponseUtil::success($arrayConditions);
         $arrayConditions[] = array("clientes_id in " => $clientesIds);
 
 
-        // DebugUtil::print($arrayConditions);
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find()
-            // ->select(array(
-            //     "usuarios_id",
-            //     "audit_insert"
-            // ))
+            ->select(array(
+                "ClientesHasUsuarios.usuarios_id",
+                "ClientesHasUsuarios.audit_insert",
+                "Usuario.nome",
+                "Usuario.cpf",
+                "Usuario.doc_estrangeiro"
+            ))
             ->where($arrayConditions)
             ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
             ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
             ->toArray();
-
 
         $usuarios = array();
         $usuariosIds = array();

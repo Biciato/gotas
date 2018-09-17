@@ -4,37 +4,21 @@
            <span class="fas fa-file-signature"></span> Relatório de Usuários
         </ul>
         <ul>
-
             <li>
-                <a href="/usuarios/relatorios/relUsuariosFidelizados">
-                    Total de Usuários Fidelizados
-                </a>
-
+                <a href="/usuarios/relatorios/relUsuariosAssiduos">Relatório de Usuários Assíduos</a>
             </li>
             <li>
-                <!-- <a href="relatorios/relUsuariosAtivos">
-                    Total de Usuários Ativos
-                </a> -->
-                    Total de Usuários Ativos
+                <a href="/usuarios/relatorios/relUsuariosFidelizados">Relatório de Usuários Fidelizados</a>
+            </li>
+            <!-- <li>
+                <a href="/usuarios/relatorios/relUsuariosAssiduos">Frequência Média</a>
             </li>
             <li>
-                <!-- <a href="relatorios/relUsuariosAtivos">
-                    Frequencia Média
-                </a> -->
-                    Frequencia Média
+                <a href="/usuarios/relatorios/relUsuariosAssiduos">?? Relatório de Novos Clientes Fidelizados</a>
             </li>
             <li>
-                <!-- <a href="relatorios/relUsuariosAtivos">
-                    ?? Total de Novos Clientes Fidelizados
-                </a> -->
-                    ?? Total de Novos Clientes Fidelizados
-            </li>
-            <li>
-                <!-- <a href="relatorios/relUsuariosAtivos">
-                    Estatístico
-                </a> -->
-                    Estatístico
-            </li>
+                <a href="/usuarios/relatorios/relUsuariosAssiduos">Estatístico</a>
+            </li> -->
         </ul>
     </nav>
 </div>
