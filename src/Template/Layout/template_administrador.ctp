@@ -35,7 +35,7 @@ $titlePage = 'GOTAS - Administrador';
 	<title><?= $titlePage ?></title>
 
     <!-- TODO: Alterar depois quando a aplicação for toda angular -->
-    <base href="/">
+    <!-- <base href="/a"> -->
 
 	<script src="https://maps.googleapis.com/maps/api/js?sensor=true&key=AIzaSyBzwpETAdxu2NQyLLtw16ndZkldjQ5Zqxg" async defer></script>
 	<?php

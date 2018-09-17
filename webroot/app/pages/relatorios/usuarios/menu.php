@@ -5,10 +5,11 @@
         </ul>
         <ul>
             <li>
-                <a href="/usuarios/relatorios/relUsuariosAssiduos">Relatório de Usuários Assíduos</a>
+                <a href="#!/relUsuariosAssiduos">Relatório de Usuários Assíduos</a>
+                <!-- <a href="/usuarios/relatorios/relUsuariosAssiduos">Relatório de Usuários Assíduos</a> -->
             </li>
             <li>
-                <a href="/usuarios/relatorios/relUsuariosFidelizados">Relatório de Usuários Fidelizados</a>
+                <a href="#!/relUsuariosFidelizados">Relatório de Usuários Fidelizados</a>
             </li>
             <!-- <li>
                 <a href="/usuarios/relatorios/relUsuariosAssiduos">Frequência Média</a>

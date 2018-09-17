@@ -3304,7 +3304,13 @@ class UsuariosController extends AppController
         $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
         $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
 
-        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+        if (gettype($clientesIds) == "integer") {
+            $clientesIds = array($clientesIds);
+        }
+
+        if (!is_null($clientesIds) && sizeof($clientesIds) == 0) {
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+        }
 
         return $this->ClientesHasUsuarios->getUsuariosFidelizadosClientes(
             $clientesIds,
@@ -3368,6 +3374,7 @@ class UsuariosController extends AppController
             "Usuário",
             "CPF",
             "Documento Estrangeiro",
+            "Conta Ativa",
             "Saldo Gotas",
             "Gotas Consumidas",
             "Moeda Adquirida ",
@@ -3384,6 +3391,7 @@ class UsuariosController extends AppController
             $usuarioTemp["nome"] = $usuario["nome"];
             $usuarioTemp["cpf"] = $usuario["cpf"];
             $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+            $usuarioTemp["contaAtiva"] = $usuario["contaAtiva"] == 1 ? "Sim" : "Nâo";
             $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
             $usuarioTemp["totalGotasConsumidas"] = $usuario["totalGotasConsumidas"];
             $usuarioTemp["totalMoedaAdquirida"] = $usuario["totalMoedaAdquirida"];

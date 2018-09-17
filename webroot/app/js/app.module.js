@@ -2,6 +2,14 @@
 
 var GotasApp = angular.module("GotasApp");
 
+// Filtro para Sim/Não
+
+GotasApp.filter('yesNo', function () {
+    return function (input) {
+        return input ? 'Sim' : 'Não';
+     }
+  })
+
 // Filtro para CPF
 GotasApp.filter('cpf', function () {
     return function (input) {

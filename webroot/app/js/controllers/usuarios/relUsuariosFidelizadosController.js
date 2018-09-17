@@ -16,8 +16,8 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             nome: undefined,
             clientesList: [],
             usuarioContaAtivadaList: [
-                { codigo: '1', nome: "Ativado" },
-                { codigo: '0', nome: "Desativado" }
+                { codigo: 1, nome: "Ativado" },
+                { codigo: 0, nome: "Desativado" }
             ],
             veiculo: undefined,
             documentoEstrangeiro: undefined,
@@ -49,6 +49,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             "Usuário",
             "CPF",
             "Documento Estrangeiro",
+            "Conta Ativa",
             "Saldo Gotas",
             "Gotas Consumidas",
             "Moeda Adquirida ",
@@ -228,8 +229,8 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                 nome: undefined,
                 clientesList: [],
                 usuarioContaAtivadaList: [
-                    { codigo: '1', nome: "Ativado" },
-                    { codigo: '0', nome: "Desativado" }
+                    { codigo: 1, nome: "Ativado" },
+                    { codigo: 0, nome: "Desativado" }
                 ],
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,

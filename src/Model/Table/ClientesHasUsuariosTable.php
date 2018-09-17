@@ -341,6 +341,7 @@ class ClientesHasUsuariosTable extends Table
 
         if (strlen($status) > 0) {
             $arrayConditions[] = array("Usuario.conta_ativa" => $status);
+            // $arrayConditions[] = array("Usuario.conta_ativa" => 1);
         }
 
         if (!empty($dataInicial)) {
@@ -352,32 +353,38 @@ class ClientesHasUsuariosTable extends Table
         }
 
         // ResponseUtil::success($arrayConditions);
-        $arrayConditions[] = array("clientes_id in " => $clientesIds);
-
+        $arrayConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
 
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find()
             ->select(array(
                 "ClientesHasUsuarios.usuarios_id",
                 "ClientesHasUsuarios.audit_insert",
+                "Usuario.id",
                 "Usuario.nome",
                 "Usuario.cpf",
-                "Usuario.doc_estrangeiro"
+                "Usuario.doc_estrangeiro",
+                "Usuario.conta_ativa"
             ))
             ->where($arrayConditions)
             ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
             ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
             ->toArray();
 
+        // ResponseUtil::success($arrayConditions);
+        // ResponseUtil::success($usuariosCliente);
+        // die();
         $usuarios = array();
         $usuariosIds = array();
         $usuariosTable = TableRegistry::get("Usuarios");
         $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+        // ResponseUtil::success($usuariosCliente);
         if (sizeof($usuariosCliente) > 0) {
 
             foreach ($usuariosCliente as $clienteHasUsuario) {
-                if (!array_search($clienteHasUsuario["usuarios_id"], $usuariosIds)) {
-                    $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
+                if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
+                    $usuariosIds[] = $clienteHasUsuario["usuario"]["id"];
                     $usuario["id"] = $clienteHasUsuario["usuarios_id"];
                     $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
                     $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
@@ -387,9 +394,11 @@ class ClientesHasUsuariosTable extends Table
                     $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
                     $usuario["totalGotasConsumidas"] = 0;
                     $usuario["totalMoedaAdquirida"] = 0;
+                    $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
 
                     $usuarios[] = $usuario;
                 }
+
             }
         }
 

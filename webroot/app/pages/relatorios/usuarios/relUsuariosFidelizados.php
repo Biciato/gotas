@@ -122,6 +122,7 @@
                     <td width="20%">{{usuario.nome}}</td>
                     <td width="10%">{{usuario.cpf | cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
+                    <td width="10%">{{usuario.contaAtiva | yesNo}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
                     <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
                     <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
