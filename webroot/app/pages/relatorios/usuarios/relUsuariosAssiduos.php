@@ -45,9 +45,9 @@
                 <input type="text" ui-mask="AAA9999" ng-model="inputData.veiculo" ng-change="inputData.veiculo=inputData.veiculo.toUpperCase()" ng-trim="true" class="form-control">
             </div>
 
-            <!-- Documento Estrangeiro -->
+            <!-- Doc. Estrangeiro -->
             <div class="col-lg-2">
-                <label for="input-id">Documento Estrangeiro</label>
+                <label for="input-id">Doc. Estrangeiro</label>
                 <input type="text" ng-model="inputData.documentoEstrangeiro" ng-trim="true" class="form-control">
             </div>
 
@@ -69,10 +69,10 @@
             <div class="col-lg-3">
                 <label>Usuários Assíduos: </label>
                 <ui-select ng-model="inputData.assiduidadeSelectedItem" theme="bootstrap" title="Status" >
-                    <ui-select-match placeholder="Status..." allow-clear="true">
+                    <ui-select-match placeholder="Assiduidade..." allow-clear="true">
                         {{$select.selected.nome}}
                     </ui-select-match>
-                    <ui-select-choices repeat="status in inputData.assiduidadeList | filter: {nome: $select.search}">
+                    <ui-select-choices repeat="assiduidade in inputData.assiduidadeList | filter: {nome: $select.search}">
                         <span>{{assiduidade.nome}}</span>
                     </ui-select-choices>
                 </ui-select>
@@ -134,10 +134,16 @@
                     <td width="20%">{{usuario.nome}}</td>
                     <td width="10%">{{usuario.cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
+                    <td width="20%">{{usuario.mediaAssiduidade}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
                     <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
                     <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
                     <td width="15%">{{usuario.dataVinculo}}</td>
+                    <td width="15%">
+                        <button ng-click="detalhes(usuario.id)" ng-tooltip="Detalhes">
+                        <i class="fas fa-info"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -53,7 +53,8 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             "Saldo Gotas",
             "Gotas Consumidas",
             "Moeda Adquirida ",
-            "Data Cadastro na Rede"
+            "Data Cadastro na Rede",
+            "Ações"
         ];
 
         $scope.dadosUsuarios = [];

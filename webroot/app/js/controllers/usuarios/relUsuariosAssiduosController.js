@@ -20,8 +20,8 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                 { codigo: 1, nome: "Desativado" }
             ],
             assiduidadeList: [
-                { codigo: 0, nome: "Ativado" },
-                { codigo: 1, nome: "Desativado" }
+                { codigo: 0, nome: "Sim" },
+                { codigo: 1, nome: "Não" }
             ],
             veiculo: undefined,
             documentoEstrangeiro: undefined,
@@ -234,8 +234,8 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                     { codigo: 1, nome: "Desativado" }
                 ],
                 assiduidadeList: [
-                    { codigo: 0, nome: "Ativado" },
-                    { codigo: 1, nome: "Desativado" }
+                    { codigo: 0, nome: "Sim" },
+                    { codigo: 1, nome: "Não" }
                 ],
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,

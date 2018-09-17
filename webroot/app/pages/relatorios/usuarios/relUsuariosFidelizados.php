@@ -45,9 +45,9 @@
                 <input type="text" ui-mask="AAA9999" ng-model="inputData.veiculo" ng-change="inputData.veiculo=inputData.veiculo.toUpperCase()" ng-trim="true" class="form-control">
             </div>
 
-            <!-- Documento Estrangeiro -->
+            <!-- Doc. Estrangeiro -->
             <div class="col-lg-3">
-                <label for="input-id">Documento Estrangeiro</label>
+                <label for="input-id">Doc. Estrangeiro</label>
                 <input type="text" ng-model="inputData.documentoEstrangeiro" ng-trim="true" class="form-control">
             </div>
 
@@ -127,6 +127,11 @@
                     <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
                     <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
                     <td width="15%">{{usuario.dataVinculo | date : "dd/MM/yyyy HH:MM:ss"}}</td>
+                    <td width="15%">
+                        <div ng-click="detalhes(usuario.id)" ng-tooltip="Detalhes" class="btn btn-default btn-xs">
+                        <i class="fa fa-info-circle"></i>
+                        </div>
+                    </td>
                 </tr>
             </tbody>
         </table>
