@@ -14,9 +14,34 @@
     </div>
 
     <div class="modal-body">
-        <legend>Dados Cadastrais</legend>
+        <h4 class="modal-title">Dados Cadastrais</h4>
 
-        <legend>Veículos</legend>
+        <div class="row ">
+            <div class="col-lg-4 form-group">
+                <label for="nome">Nome Completo:</label>
+                <input ng-disabled="true" id="nome" ng-model="usuario.nome" class="form-control" />
+            </div>
+            <div class="col-lg-4 form-group">
+                <label for="dataNasc">Data de Nascimento:</label>
+
+                <input ng-disabled="true" id="dataNasc" ng-model="usuario.data_nasc | date: 'dd/MM/yyyy'" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 form-group">
+                <label for="sexo">Sexo:</label>
+                <input ng-disabled="true" id="sexo" ng-model="usuario.sexo | gender" class="form-control" />
+            </div>
+            <div class="col-lg-4 form-group">
+                <label for="necessidades_especiais">Necessidades Especiais:</label>
+                <input ng-disabled="true" id="necessidades_especiais" ng-model="usuario.necessidades_especiais | yesNo" class="form-control" />
+            </div>
+
+            <!-- <img src="{{inputData.usuario.foto_perfil_completo}}" alt=""> -->
+
+        </div>
+
+        <h4 class="modal-title">Veículos</h4>
 
         <table class="table table-condensed table-responsive table-striped table-hover">
             <thead>

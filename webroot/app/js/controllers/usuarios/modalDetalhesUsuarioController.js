@@ -6,10 +6,11 @@
  */
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("modalDetalhesUsuarioController",
-    function ($scope, $uibModalInstance, toastr, veiculosService, relUsuariosFidelizadosService, usuarioId) {
+    function ($scope, $uibModalInstance, toastr, veiculosService, usuariosService, usuarioId) {
 
         $scope.inputData = {
             usuarioId: undefined,
+            usuario: {},
             dadosVeiculosUsuario: []
         }
 
@@ -27,7 +28,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
             "Data de Cadastro",
         ];
 
-        $scope.dadosUsuarios = [];
+        $scope.usuario = {};
 
         // ---------------------------------------- Configurações de tabela ----------------------------------------
 
@@ -44,8 +45,35 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
             return true;
         }
 
+        /**
+         *
+         * Realiza pesquisa de dados de Usuário
+         *
+         * @param int id Id de Usuários
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 18/09/2018
+         *
+         * @return Object dados de usuário
+         */
         $scope.obterDadosUsuario = function (id) {
+            var prosseguir = true;
+            if ($scope.empty(id)) {
+                prosseguir = false;
+            }
 
+            if (prosseguir) {
+                usuariosService.obterDadosUsuario(id).then(
+                    function (success) {
+                        $scope.usuario = success;
+
+                    },
+                    function (error) {
+                        toastr.error(error.description, error.title);
+                        $scope.usuario = {};
+                    }
+                );
+            }
         }
 
         /**

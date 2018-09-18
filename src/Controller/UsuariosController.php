@@ -3325,6 +3325,41 @@ class UsuariosController extends AppController
     }
 
     /**
+     * UsuariosController::getUsuarioAPI
+     *
+     * Obtem dados de usuário
+     *
+     * @params $data["id"] Id de Usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 18/09/2018
+     *
+     * @return Object Model\Entity\Usuario
+     */
+    public function getUsuarioAPI()
+    {
+        $id = null;
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $id = $data["id"];
+        }
+
+        if (empty($id)) {
+            ResponseUtil::error("Id do usuário não informado!", Configure::read("messageWarningDefault"));
+        }
+
+        $usuario = $this->Usuarios->getUsuarioById($id);
+
+        if (empty($usuario)) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        ResponseUtil::success($usuario);
+    }
+
+    /**
      * Obtem dados de usuários fidelizados
      *
      * @return void

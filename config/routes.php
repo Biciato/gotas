@@ -350,6 +350,11 @@ Router::scope("/api", function ($routes) {
             //     "path" => "/test"
             // ),
 
+            "getUsuarioAPI" => array(
+                "action" => "getUsuarioAPI",
+                "method" => "POST",
+                "path" => "/get_usuario"
+            ),
 
             // utilizado pelo Angular
             "getUsuariosFidelizadosAPI" => array(

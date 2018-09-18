@@ -101,6 +101,7 @@ if ($debug) {
 
 <!-- Serviços Básicos -->
 <script src="/webroot/app/js/services/clientes/clientesService.js" ></script>
+<script src="/webroot/app/js/services/usuarios/usuariosService.js" ></script>
 <script src="/webroot/app/js/services/veiculos/veiculosService.js" ></script>
 
 <script src="/webroot/app/js/services/usuarios/relUsuariosAssiduosService.js" ></script>
