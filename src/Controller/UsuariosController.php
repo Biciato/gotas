@@ -3375,10 +3375,12 @@ class UsuariosController extends AppController
             "CPF",
             "Documento Estrangeiro",
             "Conta Ativa",
-            "Saldo Gotas",
-            "Gotas Consumidas",
+            "Gotas Adquiridas",
+            "Gotas Utilizadas",
+            "Gotas Expiradas",
+            "Saldo Atual",
             "Moeda Adquirida ",
-            "Data Cadastro na Rede"
+            "Data Cadastro na Rede",
         );
 
         if (sizeof($usuarios) == 0) {
@@ -3392,8 +3394,10 @@ class UsuariosController extends AppController
             $usuarioTemp["cpf"] = $usuario["cpf"];
             $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
             $usuarioTemp["contaAtiva"] = $usuario["contaAtiva"] == 1 ? "Sim" : "Nâo";
+            $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
+            $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
+            $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
             $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
-            $usuarioTemp["totalGotasConsumidas"] = $usuario["totalGotasConsumidas"];
             $usuarioTemp["totalMoedaAdquirida"] = $usuario["totalMoedaAdquirida"];
             $usuarioTemp["dataVinculo"] = $usuario["dataVinculo"];
 

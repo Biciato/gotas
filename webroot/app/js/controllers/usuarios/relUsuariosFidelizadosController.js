@@ -37,7 +37,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             return true;
         }
 
-        // ---------------------------------------- Configurações de tabela ----------------------------------------
+        // -------------------- Configurações de tabela --------------------
 
         $scope.paginaAtual = 1;
         $scope.limitePagina = 50;
@@ -48,8 +48,10 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             "CPF",
             "Documento Estrangeiro",
             "Conta Ativa",
-            "Saldo Gotas",
-            "Gotas Consumidas",
+            "Gotas Adquiridas",
+            "Gotas Utilizadas",
+            "Gotas Expiradas",
+            "Saldo Atual",
             "Moeda Adquirida ",
             "Data Cadastro na Rede",
             "Ações"
@@ -57,9 +59,9 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
 
         $scope.dadosUsuarios = [];
 
-        // ---------------------------------------- Configurações de tabela ----------------------------------------
+        // -------------------- Configurações de tabela --------------------
 
-        // ---------------------------------------- Funções ----------------------------------------
+        // -------------------- Funções --------------------
 
         $scope.validarFiltro = function (inputData) {
 
@@ -78,7 +80,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             return true;
         }
 
-        // ---------------------------------------- Pesquisas ----------------------------------------
+        // -------------------- Pesquisas --------------------
 
         /**
          * Obtem a lista de clientes

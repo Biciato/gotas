@@ -123,8 +123,10 @@
                     <td width="10%">{{usuario.cpf | cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
                     <td width="10%">{{usuario.contaAtiva | yesNo}}</td>
+                    <td width="10%">{{usuario.gotasAdquiridas}}</td>
+                    <td width="10%">{{usuario.gotasUtilizadas}}</td>
+                    <td width="10%">{{usuario.gotasExpiradas}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
-                    <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
                     <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
                     <td width="15%">{{usuario.dataVinculo | date : "dd/MM/yyyy HH:MM:ss"}}</td>
                     <td width="15%">

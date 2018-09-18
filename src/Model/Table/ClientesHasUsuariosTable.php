@@ -391,6 +391,9 @@ class ClientesHasUsuariosTable extends Table
                     $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
                     $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
                     $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
+                    $usuario["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
+                    $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
+                    $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
                     $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
                     $usuario["totalGotasConsumidas"] = 0;
                     $usuario["totalMoedaAdquirida"] = 0;

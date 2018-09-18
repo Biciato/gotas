@@ -191,7 +191,7 @@ h4 {
     -webkit-font-smoothing: antialiased;
     margin-top: 0;
     margin-bottom: 20px;
-    padding: 20px;
+    /* padding: 20px; */
 }
 
 .more {

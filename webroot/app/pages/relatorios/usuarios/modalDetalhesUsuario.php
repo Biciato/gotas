@@ -5,15 +5,16 @@
     @path   /webroot/app/pages/relatorios/usuarios/modalDetalhesUsuario.php
  -->
 
-<div class="modal-content">
+<div class="modal-demo">
 
     <div class="modal-header">
-        <legend>Detalhes do Usuário {{inputData.usuario.nome}} </legend>
+        <h3 class="modal-title">
+            Detalhes do Usuário {{inputData.usuario.nome}}
+        </h3>
     </div>
 
     <div class="modal-body">
         <legend>Dados Cadastrais</legend>
-
 
         <legend>Veículos</legend>
 
