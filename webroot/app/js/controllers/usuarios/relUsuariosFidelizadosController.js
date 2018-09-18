@@ -6,9 +6,7 @@
  */
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("relUsuariosFidelizadosController",
-    function ($scope, FileSaver, Blob, toastr, clientesService,
-        downloadService,
-        relUsuariosFidelizadosService) {
+    function ($scope, $uibModal, FileSaver, Blob, toastr, clientesService, downloadService, relUsuariosFidelizadosService) {
 
         $scope.inputData = {
             clientesSelectedItem: undefined,
@@ -153,7 +151,6 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                     },
                     function (error) {
                         $scope.dadosUsuarios = [];
-                        console.log(error);
                         toastr.error(error.description, error.title);
                     }
                 );
@@ -209,6 +206,21 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
                 toastr.error(error.description, error.title);
                 console.log(error);
             });
+        }
+
+        $scope.detalhesUsuario = function (usuario) {
+            var modalInstance = $uibModal.open(
+                {
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: "/webroot/app/pages/relatorios/usuarios/modalDetalhesUsuario.php",
+                    backdrop: "static",
+                    controller: "modalDetalhesUsuarioController",
+                    size: "lg",
+                    resolve: {
+                        usuarioId: function () { return usuario.id }
+                    }
+                });
         }
 
         /**

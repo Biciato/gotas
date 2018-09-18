@@ -93,11 +93,16 @@ if ($debug) {
 
 <!-- Controllers -->
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosAssiduosController.js" ></script>
+<script src="/webroot/app/js/controllers/usuarios/modalDetalhesUsuarioController.js"></script>
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizadosController.js" ></script>
 
 <!-- Services -->
 <script src="/webroot/app/js/services/utils/downloadService.js" ></script>
+
+<!-- Serviços Básicos -->
 <script src="/webroot/app/js/services/clientes/clientesService.js" ></script>
+<script src="/webroot/app/js/services/veiculos/veiculosService.js" ></script>
+
 <script src="/webroot/app/js/services/usuarios/relUsuariosAssiduosService.js" ></script>
 
 <script src="/webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js" ></script>

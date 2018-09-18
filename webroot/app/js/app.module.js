@@ -1,5 +1,3 @@
-// var GotasApp = angular.module("GotasApp", ["ngRoute", "ngSanitize", "ui.mask", "ui.select", "ui.bootstrap"]);
-
 var GotasApp = angular.module("GotasApp");
 
 // Filtro para Sim/Não

@@ -77,8 +77,17 @@ class VeiculosTable extends GenericTable
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->hasMany('UsuariosHasVeiculos')
-            ->setForeignKey('veiculos_id');
+        $this->belongsTo(
+            'UsuariosHasVeiculos',
+            array(
+                "foreignKey" => 'id',
+                "joinType" => "LEFT"
+            )
+        );
+
+        // $this->belongsTo('UsuariosHasVeiculos', array(
+        //     "foreignKey" => 'id'
+        // ));
     }
 
     /**
@@ -380,6 +389,78 @@ class VeiculosTable extends GenericTable
                 'result' => false,
                 'data' => $stringError
             ];
+        }
+    }
+
+    /**
+     * Obtem veículos conforme filtro
+     *
+     * @param string $placa
+     * @param string $modelo
+     * @param string $fabricante
+     * @param integer $ano
+     * @param integer $usuariosId
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 18/09/2018
+     *
+     * @return array $data
+     */
+    public function getVeiculosUsuario(
+        string $placa = null,
+        string $modelo = null,
+        string $fabricante = null,
+        int $ano = null,
+        int $usuariosId = null
+    ) {
+        try {
+
+            $arrayConditions = array();
+
+            if (!empty($placa)) {
+                $arrayConditions[] = array("Veiculos.placa like '%{$placa}%'");
+            }
+
+            if (!empty($modelo)) {
+                $arrayConditions[] = array("Veiculos.modelo like '%{$modelo}%'");
+            }
+
+            if (!empty($fabricante)) {
+                $arrayConditions[] = array("Veiculos.fabricante like '%{$fabricante}%'");
+            }
+
+            if (!empty($ano) && $ano > 0) {
+                $arrayConditions[] = array("Veiculos.ano" => $ano);
+            }
+
+            if (!empty($usuariosId)) {
+                $arrayConditions[] = array("UsuariosHasVeiculos.usuarios_id" => $usuariosId);
+            }
+
+            $veiculos = $this->find("all")
+                ->where($arrayConditions)
+                ->contain(array("UsuariosHasVeiculos"))
+                ->select(
+                    array(
+                        "Veiculos.id",
+                        "Veiculos.placa",
+                        "Veiculos.modelo",
+                        "Veiculos.fabricante",
+                        "Veiculos.ano",
+                        "dataCadastro" => "Veiculos.audit_insert",
+                        "ultimaAlteracao" => "Veiculos.audit_update",
+                        "UsuariosHasVeiculos.id"
+                    )
+                )
+                ->toArray();
+
+            return $veiculos;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao buscar veículos: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
         }
     }
 

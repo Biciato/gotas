@@ -11,6 +11,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Veiculos Controller
@@ -295,6 +296,42 @@ class VeiculosController extends AppController
         $this->set('_serialize', $arraySet);
     }
 
+
+    /**
+     * ------------------------------------------------------------
+     * Serviços REST
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * VeiculosController::getVeiculosUsuarioAPI
+     *
+     * Obtem Veículos de usuário através de filtro
+     *
+     * @return void
+     */
+    public function getVeiculosUsuarioAPI()
+    {
+        $veiculos = array();
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $placa = !empty($data["placa"]) ? $data["placa"] : null;
+            $modelo = !empty($data["modelo"]) ? $data["modelo"] : null;
+            $fabricante = !empty($data["fabricante"]) ? $data["fabricante"] : null;
+            $ano = !empty($data["ano"]) ? $data["ano"] : null;
+            $usuariosId = !empty($data["usuariosId"]) ? $data["usuariosId"] : null;
+
+            $veiculos = $this->Veiculos->getVeiculosUsuario($placa, $modelo, $fabricante, $ano, $usuariosId);
+        }
+
+        if (sizeof($veiculos) == 0){
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        ResponseUtil::success($veiculos);
+    }
 
     /**
      * ------------------------------------------------------------
