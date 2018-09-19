@@ -1,0 +1,11 @@
+.fotoPerfil{
+    border: 0px solid white;
+    border-radius: 50%;
+    max-width: 224px;
+    max-height: 332px;
+}
+
+.fotoPerfil:hover{
+    opacity: 0.6;
+    transition: 1s;
+}

@@ -4,17 +4,36 @@ var GotasApp = angular.module("GotasApp");
 GotasApp.filter('gender', function () {
     return function (input) {
         return input ? 'Masculino' : 'Feminino';
-     }
-  });
+    }
+});
 
 
 // Filtro para Sim/Não
 GotasApp.filter('yesNo', function () {
     return function (input) {
         return input ? 'Sim' : 'Não';
-     }
-  });
+    }
+});
 
+// Filtro para Telefone / Celular
+GotasApp.filter('phoneNumber', function () {
+    return function (input) {
+        var str = input + '';
+        if (str.length == 10) {
+            str = str.replace(/D/g, "");
+            str = str.replace(/(\d{2})(\d{4})(\d{4})/, "($1)$2-$3");
+
+            // return str;
+        }
+        else if (str.length == 11) {
+            str = str.replace(/\D/g, '');
+            str = str.replace(/(\d{2})(\d{5})(\d{4})/, "($1)$2-$3");
+        } else {
+            str = '';
+        }
+        return str;
+    };
+});
 // Filtro para CPF
 GotasApp.filter('cpf', function () {
     return function (input) {
