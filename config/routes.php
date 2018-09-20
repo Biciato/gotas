@@ -247,7 +247,13 @@ Router::scope("/api", function ($routes) {
                 "action" => "getTransportadoraByCNPJ",
                 "method" => "POST",
                 "path" => "/get_transportadora_by_cnpj"
-            ]
+            ],
+            // Utilizado pelo angular
+            "getTransportadorasUsuarioAPI" => array(
+                "action" => "getTransportadorasUsuarioAPI",
+                "method" => "POST",
+                "path" => "/get_transportadoras_usuario"
+            )
         ]
     ]);
 

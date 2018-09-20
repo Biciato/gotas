@@ -21,6 +21,7 @@ angular
          *
          * Realiza chamada ao serviço de dados de veículos do usuário
          *
+         * @param int id
          * @param string placa
          * @param string modelo
          * @param string fabricante
@@ -32,20 +33,17 @@ angular
          *
          * @return Array dados
          */
-        function obterDadosVeiculosUsuario(placa = undefined, modelo = undefined, fabricante = undefined, ano = undefined, usuariosId = undefined) {
+        function obterDadosVeiculosUsuario(id = undefined, placa = undefined, modelo = undefined, fabricante = undefined, ano = undefined, usuariosId = undefined) {
 
             var url = "/api/veiculos/get_veiculos_usuario";
             var data = {
+                id: id,
                 placa: placa,
                 modelo: modelo,
                 fabricante: fabricante,
                 ano: ano,
                 usuariosId: usuariosId
             };
-
-            // if (usuariosId != undefined) {
-            //     data.usuariosId = usuariosId;
-            // }
 
             var options = {
                 headers: {

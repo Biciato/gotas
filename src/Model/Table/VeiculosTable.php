@@ -447,7 +447,7 @@ class VeiculosTable extends GenericTable
                         "Veiculos.modelo",
                         "Veiculos.fabricante",
                         "Veiculos.ano",
-                        "dataCadastro" => "Veiculos.audit_insert",
+                        "dataInsercao" => "Veiculos.audit_insert",
                         "ultimaAlteracao" => "Veiculos.audit_update",
                         "UsuariosHasVeiculos.id"
                     )

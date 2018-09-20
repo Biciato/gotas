@@ -75,6 +75,11 @@ class TransportadorasTable extends GenericTable
         $this->setTable('transportadoras');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo("TransportadorasHasUsuarios", array(
+            "foreignKey" => "id",
+            "joinType" => "left"
+        ));
     }
 
     /**
@@ -300,4 +305,66 @@ class TransportadorasTable extends GenericTable
             Log::write('error', $stringError);
         }
     }
+
+    /**
+     * TransportadorasTable::getTransportadorasUsuario
+     *
+     * Obtem dados de transportadora de Usuário
+     *
+     * @param integer $id  Id
+     * @param string $cnpj Cnpj
+     * @param string $nomeFantasia Nome Fantasia
+     * @param string $razaoSocial Razao Social
+     * @param integer $usuariosId  Usuarios Id
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/09/2018
+     *
+     * @return \App\Model\Entity\Transportadoras[] $data
+     */
+    public function getTransportadorasUsuario(int $id = null, string $cnpj = null, string $nomeFantasia = null, string $razaoSocial = null, int $usuariosId = null)
+    {
+        $whereConditions = array();
+
+        if (!empty($id)) {
+            $whereConditions[] = array("Transportadoras.id" => $id);
+        }
+
+        if (!empty($cnpj)) {
+            $whereConditions[] = array("cnpj" => $cnpj);
+        }
+
+        if (!empty($nomeFantasia)) {
+            $whereConditions[] = array("nomeFantasia like '%{$nomeFantasia}%");
+        }
+
+        if (!empty($razaoSocial)) {
+            $whereConditions[] = array("razaoSocial like '%{$razaoSocial}%'");
+        }
+
+        if (!empty($usuariosId)) {
+            $whereConditions[] = array("TransportadorasHasUsuarios.usuarios_id" => $usuariosId);
+        }
+
+        $selectFields = array(
+            "id" => "Transportadoras.id",
+            "cnpj" => "Transportadoras.cnpj",
+            "nomeFantasia" => "Transportadoras.nome_fantasia",
+            "razaoSocial" => "Transportadoras.razao_social",
+            "municipio" => "Transportadoras.municipio",
+            "estado" => "Transportadoras.estado",
+            "telFixo" => "Transportadoras.tel_fixo",
+            "telCelular" => "Transportadoras.tel_celular",
+            "dataInsercao" => "Transportadoras.audit_insert",
+            "usuariosId" => "TransportadorasHasUsuarios.usuarios_id"
+        );
+
+        return $this->find("all")
+            ->where($whereConditions)
+            ->select($selectFields)
+            ->contain("TransportadorasHasUsuarios")
+            ->toArray();
+
+    }
+
 }

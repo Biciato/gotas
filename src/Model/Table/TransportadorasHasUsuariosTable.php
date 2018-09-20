@@ -101,7 +101,7 @@ class TransportadorasHasUsuariosTable extends GenericTable
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Transportadoras', [
-            'foreignKey' => 'transportadoras_id',
+            'foreignKey' => 'id',
             'joinType' => 'INNER'
         ]);
         $this->belongsTo('Usuarios', [

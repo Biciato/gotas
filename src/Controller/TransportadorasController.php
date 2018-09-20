@@ -12,6 +12,7 @@ use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Transportadoras Controller
@@ -159,6 +160,51 @@ class TransportadorasController extends AppController
         }
 
         return $this->redirect(['action' => $return_url]);
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Serviços REST
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * TransportadorasController::getTransportadorasUsuario
+     *
+     * Obtem Transportadoras do Usuário
+     *
+     * @param string $data["id"] Id
+     * @param string $data["cnpj"] Cnpj
+     * @param string $data["nomeFantasia"] Nome Fantasia
+     * @param string $data["razaoSocial"] Razao Social
+     * @param string $data["usuariosId"] Usuarios Id
+     *
+     * @return json_encode $data
+     */
+    public function getTransportadorasUsuarioAPI()
+    {
+        $transportadoras = array();
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            // ResponseUtil::success($data);
+
+            $id = !empty($data["id"]) ? $data["id"] : null;
+            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+            $nomeFantasia = !empty($data["nomeFantasia"]) ? $data["nomeFantasia"] : null;
+            $razaoSocial = !empty($data["razaoSocial"]) ? $data["razaoSocial"] : null;
+            $usuariosId = !empty($data["usuariosId"]) ? $data["usuariosId"] : null;
+
+            $transportadoras = $this->Transportadoras->getTransportadorasUsuario($id, $cnpj, $nomeFantasia, $razaoSocial, $usuariosId);
+        }
+
+        // Só alertar que não teve retorno se a pesquisa foi pelos dados de transportadora
+        if (sizeof($transportadoras) == 0 && (empty($nomeFantasia) && empty($razaoSocial) && empty($cnpj) && !empty($usuariosId) )){
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        ResponseUtil::success($transportadoras);
     }
 
     /**

@@ -6,21 +6,22 @@
  */
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("modalDetalhesUsuarioController",
-    function ($scope, $uibModalInstance, toastr, veiculosService, usuariosService, usuarioId) {
+    function ($scope, $uibModalInstance, toastr, transportadorasService, veiculosService, usuariosService, usuarioId) {
 
         $scope.inputData = {
             usuarioId: undefined,
             usuario: {},
-            dadosVeiculosUsuario: []
+            dadosVeiculosUsuario: [],
+            dadosTransportadorasUsuario: []
         }
 
         // ---------------------------------------- Configurações de tabela ----------------------------------------
 
-        $scope.paginaAtual = 1;
-        $scope.limitePagina = 50;
-        $scope.tamanhoDaPagina = 50;
+        $scope.paginaAtualVeiculos = 1;
+        $scope.limitePaginaVeiculos = 50;
+        $scope.tamanhoDaPaginaVeiculos = 50;
 
-        $scope.cabecalhos = [
+        $scope.cabecalhosVeiculos = [
             "Placa",
             "Modelo",
             "Fabricante",
@@ -28,9 +29,28 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
             "Data de Cadastro",
         ];
 
-        $scope.usuario = {};
+        // ---------------------------------------- Configurações de tabela ----------------------------------------
+        // ---------------------------------------- Configurações de tabela ----------------------------------------
+
+        $scope.paginaAtualTransportadoras = 1;
+        $scope.limitePaginaTransportadoras = 50;
+        $scope.tamanhoDaPaginaTransportadoras = 50;
+
+        $scope.cabecalhosTransportadoras = [
+            "Nome Fantasia",
+            "Razao Social",
+            "CNPJ",
+            "Municipio",
+            "Estado",
+            "Tel Fixo",
+            "Tel Celular",
+            "Data de Cadastro",
+        ];
 
         // ---------------------------------------- Configurações de tabela ----------------------------------------
+
+        $scope.usuario = {};
+
 
         /**
          * Função que valida vazio
@@ -77,6 +97,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
         }
 
         /**
+         * modalDetalhesUsuarioController::obterDadosVeiculosUsuario
          *
          * Realiza pesquisa de dados de veículo do Usuário
          *
@@ -88,8 +109,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
          * @return Array data
          */
         $scope.obterDadosVeiculosUsuario = function (usuariosId) {
-
-            veiculosService.obterDadosVeiculosUsuario(undefined, undefined, undefined, undefined, usuariosId).then(
+            veiculosService.obterDadosVeiculosUsuario(undefined, undefined, undefined, undefined, undefined, usuariosId).then(
                 function (success) {
                     $scope.dadosVeiculosUsuario = success;
                 },
@@ -98,7 +118,30 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
                     $scope.dadosVeiculosUsuario = [];
                 }
             )
+        }
 
+        /**
+         * modalDetalhesUsuarioController::obterDadosTransportadorasUsuario
+         *
+         * Realiza pesquisa de dados de transportadora do Usuário
+         *
+         * @param int usuariosId Id de Usuários
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 20/09/2018
+         *
+         * @return Array data
+         */
+        $scope.obterDadosTransportadorasUsuario = function (usuariosId) {
+            transportadorasService.obterDadosTransportadorasUsuario(undefined, undefined, undefined, undefined, usuariosId).then(
+                function (success) {
+                    $scope.dadosTransportadorasUsuario = success;
+                },
+                function (error) {
+                    toastr.error(error.description, error.title);
+                    $scope.dadosTransportadorasUsuario = [];
+                }
+            )
         }
 
         /**
@@ -119,6 +162,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
             $scope.usuarioId = usuarioId;
             $scope.obterDadosUsuario(usuarioId);
             $scope.obterDadosVeiculosUsuario(usuarioId);
+            $scope.obterDadosTransportadorasUsuario(usuarioId);
 
         };
 
