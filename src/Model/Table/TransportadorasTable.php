@@ -322,7 +322,7 @@ class TransportadorasTable extends GenericTable
      *
      * @return \App\Model\Entity\Transportadoras[] $data
      */
-    public function getTransportadorasUsuario(int $id = null, string $cnpj = null, string $nomeFantasia = null, string $razaoSocial = null, int $usuariosId = null)
+    public function getTransportadorasUsuario(string $cnpj = null, string $nomeFantasia = null, string $razaoSocial = null, int $usuariosId = null)
     {
         $whereConditions = array();
 

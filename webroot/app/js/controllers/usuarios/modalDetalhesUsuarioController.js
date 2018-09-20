@@ -112,11 +112,12 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
             veiculosService.obterDadosVeiculosUsuario(undefined, undefined, undefined, undefined, undefined, usuariosId).then(
                 function (success) {
                     $scope.dadosVeiculosUsuario = success;
-                },
-                function (error) {
-                    toastr.error(error.description, error.title);
-                    $scope.dadosVeiculosUsuario = [];
                 }
+                // ,
+                // function (error) {
+                //     toastr.error(error.description, error.title);
+                //     $scope.dadosVeiculosUsuario = [];
+                // }
             )
         }
 
@@ -133,15 +134,21 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
          * @return Array data
          */
         $scope.obterDadosTransportadorasUsuario = function (usuariosId) {
-            transportadorasService.obterDadosTransportadorasUsuario(undefined, undefined, undefined, undefined, usuariosId).then(
-                function (success) {
-                    $scope.dadosTransportadorasUsuario = success;
-                },
-                function (error) {
-                    toastr.error(error.description, error.title);
-                    $scope.dadosTransportadorasUsuario = [];
-                }
-            )
+            transportadorasService.obterDadosTransportadorasUsuario(
+                undefined,
+                undefined,
+                undefined,
+                usuariosId)
+                .then(
+                    function (success) {
+                        $scope.dadosTransportadorasUsuario = success;
+                    }
+                    // ,
+                    // function (error) {
+                    //     toastr.error(error.description, error.title);
+                    //     $scope.dadosTransportadorasUsuario = [];
+                    // }
+                )
         }
 
         /**

@@ -190,17 +190,17 @@ class TransportadorasController extends AppController
 
             // ResponseUtil::success($data);
 
-            $id = !empty($data["id"]) ? $data["id"] : null;
             $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
             $nomeFantasia = !empty($data["nomeFantasia"]) ? $data["nomeFantasia"] : null;
             $razaoSocial = !empty($data["razaoSocial"]) ? $data["razaoSocial"] : null;
             $usuariosId = !empty($data["usuariosId"]) ? $data["usuariosId"] : null;
 
-            $transportadoras = $this->Transportadoras->getTransportadorasUsuario($id, $cnpj, $nomeFantasia, $razaoSocial, $usuariosId);
+            $transportadoras = $this->Transportadoras->getTransportadorasUsuario($cnpj, $nomeFantasia, $razaoSocial, $usuariosId);
         }
 
         // Só alertar que não teve retorno se a pesquisa foi pelos dados de transportadora
-        if (sizeof($transportadoras) == 0 && (empty($nomeFantasia) && empty($razaoSocial) && empty($cnpj) && !empty($usuariosId) )){
+        if (sizeof($transportadoras) == 0
+            && ((empty($nomeFantasia) && empty($razaoSocial) && empty($cnpj)) && !empty($usuariosId))) {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
         }
 

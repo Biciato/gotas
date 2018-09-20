@@ -27,7 +27,6 @@ angular
          * @return Array data
          */
         function obterDadosTransportadorasUsuario(
-            id = undefined,
             cnpj = undefined,
             nomeFantasia = undefined,
             razaoSocial = undefined,
@@ -36,7 +35,6 @@ angular
             var url = "/api/transportadoras/get_transportadoras_usuario";
 
             var data = {
-                id: id,
                 cnpj: cnpj,
                 nomeFantasia: nomeFantasia,
                 razaoSocial: razaoSocial,
