@@ -17,16 +17,8 @@ angular
                 data.redesId = redesId;
             }
 
-            var options = {
-                headers: {
-                    "IsMobile": true,
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                }
-            };
-
             var deferred = $q.defer();
-            $http.post(url, data, options).then(function (success) {
+            $http.post(url, data).then(function (success) {
                 deferred.resolve(success.data.msg);
             }, function (error) {
                 console.log(error);

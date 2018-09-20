@@ -356,10 +356,24 @@ Router::scope("/api", function ($routes) {
             //     "path" => "/test"
             // ),
 
-            "getUsuarioAPI" => array(
-                "action" => "getUsuarioAPI",
+            "getUsuarioByIdAPI" => array(
+                "action" => "getUsuarioByIdAPI",
                 "method" => "POST",
-                "path" => "/get_usuario"
+                "path" => "/get_usuario_by_id"
+            ),
+
+            // utilizado pelo Angular
+            "getUsuariosAssiduosAPI" => array(
+                "action" => "getUsuariosAssiduosAPI",
+                "method" => "POST",
+                "path" => "/get_usuarios_assiduos"
+            ),
+
+            // utilizado pelo Angular
+            "generateExcelUsuariosAssiduosAPI" => array(
+                "action" => "generateExcelUsuariosAssiduosAPI",
+                "method" => "POST",
+                "path" => "/generate_excel_usuarios_assiduos_api"
             ),
 
             // utilizado pelo Angular

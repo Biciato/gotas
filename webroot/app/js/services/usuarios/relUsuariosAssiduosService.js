@@ -43,16 +43,8 @@ angular
                 dataFim: dataFim
             };
 
-            var options = {
-                headers: {
-                    "IsMobile": true,
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                }
-            };
-
             var deferred = $q.defer();
-            $http.post(url, data, options).then(
+            $http.post(url, data).then(
                 function (success) {
                     deferred.resolve(success.data.msg);
                 }
@@ -81,7 +73,7 @@ angular
          */
         function gerarExcel(clientesIds = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, dataInicio = undefined, dataFim = undefined) {
 
-            var url = "/api/usuarios/generate_excel_usuarios_Assiduos";
+            var url = "/api/usuarios/generate_excel_usuarios_assiduos";
             var data = {
                 clientesIds: clientesIds,
                 nome: nome,
@@ -93,18 +85,9 @@ angular
                 dataFim: dataFim
             };
 
-            var options = {
-                headers: {
-
-                    "IsMobile": true,
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "ResponseType": "arrayBuffer"
-                }
-            };
-
             var deferred = $q.defer();
-            $http.post(url, data, options).then(function (success) {
+
+            $http.post(url, data).then(function (success) {
                 deferred.resolve(success.data.msg);
             }, function (error) {
                 deferred.reject(error.data);

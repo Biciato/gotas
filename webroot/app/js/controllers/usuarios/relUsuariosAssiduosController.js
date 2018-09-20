@@ -44,7 +44,7 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             return true;
         }
 
-        // ---------------------------------------- Configurações de tabela ----------------------------------------
+        // ------------------------ Configurações de tabela ------------------------
 
         $scope.paginaAtual = 1;
         $scope.limitePagina = 50;
@@ -57,15 +57,26 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             "Saldo Gotas",
             "Gotas Consumidas",
             "Moeda Adquirida ",
-            "Data Cadastro na Rede"
+            "Data Cadastro na Rede",
+            "Ações"
         ];
 
         $scope.dadosUsuarios = [];
 
-        // ---------------------------------------- Configurações de tabela ----------------------------------------
+        // ------------------------ Configurações de tabela ------------------------
 
-        // ---------------------------------------- Funções ----------------------------------------
+        // ------------------------ Funções ------------------------
 
+        /**
+         * relUsuariosAssiduosController::$scope.validarFiltro
+         *
+         * @param {Object} inputData Dados de Formulário
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 13/09/2018
+         *
+         * @return {Boolean} validação
+         */
         $scope.validarFiltro = function (inputData) {
 
             var dataInicial = $scope.empty(inputData.dataInicial) ? undefined : moment(inputData.dataInicial);
@@ -83,10 +94,15 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             return true;
         }
 
-        // ---------------------------------------- Pesquisas ----------------------------------------
+        // ------------------------ Pesquisas ------------------------
 
         /**
+         * relUsuariosAssiduosController::$scope.obterListaClientes
+         *
          * Obtem a lista de clientes
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 13/09/2018
          */
         $scope.obterListaClientes = function () {
             clientesService.obterListaClientes().then(function (success) {
@@ -105,7 +121,7 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
         }
 
         /**
-         * relUsuariosAssiduosController::pesquisarUsuarios
+         * relUsuariosAssiduosController::$scope.pesquisarUsuarios
          *
          * Realiza pesquisa dos usuários conforme filtro informado
          *

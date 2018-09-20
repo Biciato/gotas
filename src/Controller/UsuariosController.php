@@ -3275,6 +3275,50 @@ class UsuariosController extends AppController
      */
 
     /**
+     * Consulta Usuários assíduos
+     *
+     * @param array $data Dados de Post
+     * @param integer $redesId
+     * @return void
+     */
+    private function _consultaUsuariosAssiduos(array $data = array(), int $redesId = null)
+    {
+        if (!empty($data["redesId"]) && $data["redesId"] > 0) {
+            $redesId = (int)$data["redesId"];
+        }
+
+        $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
+        $nome = !empty($data["nome"]) ? $data["nome"] : null;
+        $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+        $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
+        $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
+        $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
+        $assiduidade = isset($data["assiduidade"]) && $data["assiduidade"] > 0 ? $data["assiduidade"] : null;
+        $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
+        $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
+
+        if (gettype($clientesIds) == "integer") {
+            $clientesIds = array($clientesIds);
+        }
+
+        if (!is_null($clientesIds) && sizeof($clientesIds) == 0) {
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+        }
+
+        return $this->Usuarios->getUsuariosAssiduosClientes(
+            $clientesIds,
+            $nome,
+            $cpf,
+            $veiculo,
+            $documentoEstrangeiro,
+            $status,
+            $assiduidade,
+            $dataInicio,
+            $dataFim
+        );
+    }
+
+    /**
      * UsuariosController::_consultaUsuariosFidelizados
      *
      * Consulta Usuários Fidelizados conforme requisição
@@ -3292,8 +3336,6 @@ class UsuariosController extends AppController
         if (!empty($data["redesId"]) && $data["redesId"] > 0) {
             $redesId = (int)$data["redesId"];
         }
-
-        // ResponseUtil::success($data);
 
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
         $nome = !empty($data["nome"]) ? $data["nome"] : null;
@@ -3336,7 +3378,7 @@ class UsuariosController extends AppController
      *
      * @return Object Model\Entity\Usuario
      */
-    public function getUsuarioAPI()
+    public function getUsuarioByIdAPI()
     {
         $id = null;
 
@@ -3357,6 +3399,30 @@ class UsuariosController extends AppController
         }
 
         ResponseUtil::success($usuario);
+    }
+
+    /**
+     * Obtem dados de usuários fidelizados
+     *
+     * @return void
+     */
+    public function getUsuariosAssiduosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId);
+        }
+
+        if (sizeof($usuarios) > 0) {
+            ResponseUtil::success($usuarios);
+        } else {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
     }
 
     /**
