@@ -1396,6 +1396,130 @@ class UsuariosTable extends GenericTable
         }
     }
 
+    public function getUsuariosAssiduosClientes(
+        array $clientesIds = array(),
+        string $nome = null,
+        string $cpf = null,
+        string $veiculo = null,
+        string $documentoEstrangeiro = null,
+        int $status = null,
+        bool $assiduidade = null,
+        bool $agrupamento = false,
+        string $dataInicio = null,
+        string $dataFim = null
+    ) {
+        if (sizeof($clientesIds) == 0) {
+            throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
+        }
+
+        $whereConditions = array();
+
+        if (!empty($nome)) {
+            $whereConditions[] = array("Usuarios.nome like '%$nome%'");
+        }
+
+        if (!empty($cpf)) {
+            $whereConditions[] = array("Usuarios.cpf like '%$cpf%'");
+        }
+
+        if (!empty($veiculo)) {
+            $whereConditions[] = array("Veiculos.placa like '%$veiculo%'");
+        }
+
+        if (!empty($documentoEstrangeiro)) {
+            $whereConditions[] = array("Usuarios.doc_estrangeiro like '%$documentoEstrangeiro%'");
+        }
+
+        if (strlen($status) > 0) {
+            $whereConditions[] = array("Usuarios.conta_ativa" => $status);
+        }
+
+        if (!empty($dataInicial)) {
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+        }
+
+        if (!empty($dataFinal)) {
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+        }
+
+        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
+        $whereConditions[] = array("Usuarios.conta_ativa" => 1);
+
+        // select
+        $selectArray = array(
+
+            // "usuariosId" => "PontuacoesComprovantes.usuarios_id",
+            // "clientesId" => "PontuacoesComprovantes.clientes_id",
+            "ClientesHasUsuarios.audit_insert",
+            "Usuarios.id",
+            "Usuarios.nome",
+            "Usuarios.cpf",
+            // "quantidadeMes" => $this->find()->func()->count("usuariosId"),
+        );
+
+        $groupByConditions = array();
+        $groupByConditions[] = "usuariosId";
+        $groupByConditions[] = "clientesId";
+
+        if ($agrupamento) {
+            // $selectArray["mes"] = "MONTH(PontuacoesComprovantes.data)";
+            // $selectArray["ano"] = "YEAR(PontuacoesComprovantes.data)";
+
+            $groupByConditions[] = "ano";
+            $groupByConditions[] = "mes";
+        }
+
+        // ResponseUtil::success($whereConditions);
+
+        // Obtem os ids de usuarios
+        $usuariosCliente = $this->find("all")
+            ->select(
+                $selectArray
+            )
+            ->where($whereConditions)
+            ->contain(["ClientesHasUsuarios"])
+            // , "UsuariosHasVeiculos", "Veiculos", "PontuacoesComprovantes")
+            ->group($groupByConditions)
+            ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
+            ->toArray();
+
+        $usuarios = array();
+        $usuariosIds = array();
+        $usuariosTable = TableRegistry::get("Usuarios");
+        $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+        if (strlen($assiduidade) > 0) {
+            $whereConditions[] = array("Usuario.conta_ativa" => $status);
+        }
+
+        if (sizeof($usuariosCliente) > 0) {
+
+            foreach ($usuariosCliente as $clienteHasUsuario) {
+                if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
+                    $usuariosIds[] = $clienteHasUsuario["usuario"]["id"];
+                    $usuario["id"] = $clienteHasUsuario["usuarios_id"];
+                    $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
+                    $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
+                    $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
+                    $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
+                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
+                    $usuario["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
+                    $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
+                    $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
+                    $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+                    $usuario["totalGotasConsumidas"] = 0;
+                    $usuario["totalMoedaAdquirida"] = 0;
+                    $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
+
+                    $usuarios[] = $usuario;
+                }
+            }
+        }
+
+        return $usuarios;
+    }
+
+
     /**
      * Undocumented function
      *

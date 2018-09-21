@@ -317,43 +317,38 @@ class ClientesHasUsuariosTable extends Table
         string $dataFinal = null
     ) {
 
-        if (sizeof($clientesIds) == 0) {
-            throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
-        }
-
-        $arrayConditions = array();
+        $whereConditions = array();
 
         if (!empty($nome)) {
-            $arrayConditions[] = array("Usuario.nome like '%$nome%'");
+            $whereConditions[] = array("Usuario.nome like '%$nome%'");
         }
 
         if (!empty($cpf)) {
-            $arrayConditions[] = array("Usuario.cpf like '%$cpf%'");
+            $whereConditions[] = array("Usuario.cpf like '%$cpf%'");
         }
 
         if (!empty($veiculo)) {
-            $arrayConditions[] = array("Veiculos.placa like '%$veiculo%'");
+            $whereConditions[] = array("Veiculos.placa like '%$veiculo%'");
         }
 
         if (!empty($documentoEstrangeiro)) {
-            $arrayConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
+            $whereConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
         }
 
         if (strlen($status) > 0) {
-            $arrayConditions[] = array("Usuario.conta_ativa" => $status);
-            // $arrayConditions[] = array("Usuario.conta_ativa" => 1);
+            $whereConditions[] = array("Usuario.conta_ativa" => $status);
         }
 
         if (!empty($dataInicial)) {
-            $arrayConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
         }
 
         if (!empty($dataFinal)) {
-            $arrayConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
         }
 
-        // ResponseUtil::success($arrayConditions);
-        $arrayConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
+        // ResponseUtil::success($whereConditions);
+        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
 
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find()
@@ -366,14 +361,11 @@ class ClientesHasUsuariosTable extends Table
                 "Usuario.doc_estrangeiro",
                 "Usuario.conta_ativa"
             ))
-            ->where($arrayConditions)
+            ->where($whereConditions)
             ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
             ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
             ->toArray();
 
-        // ResponseUtil::success($arrayConditions);
-        // ResponseUtil::success($usuariosCliente);
-        // die();
         $usuarios = array();
         $usuariosIds = array();
         $usuariosTable = TableRegistry::get("Usuarios");
@@ -401,7 +393,6 @@ class ClientesHasUsuariosTable extends Table
 
                     $usuarios[] = $usuario;
                 }
-
             }
         }
 
