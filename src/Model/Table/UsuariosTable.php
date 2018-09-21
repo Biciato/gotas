@@ -73,18 +73,30 @@ class UsuariosTable extends GenericTable
      */
     public function initialize(array $config)
     {
-        parent::initialize($config);
+        // parent::initialize($config);
 
         $this->setTable('usuarios');
         $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
-        $this->hasMany(
-            'ClientesHasUsuarios',
+        $this->hasOne(
+            'ClienteHasUsuario',
             [
+                'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
-                'join' => 'INNER'
+                "joinType" => "INNER"
+
             ]
+        );
+
+        $this->hasOne(
+            "PontuacaoComprovante",
+            array(
+                "className" => "PontuacoesComprovantes",
+                "foreignKey" => "usuarios_id",
+                "joinType" => "INNER"
+            )
+
         );
 
         $this->hasMany('UsuariosHasVeiculos')
@@ -1435,26 +1447,27 @@ class UsuariosTable extends GenericTable
         }
 
         if (!empty($dataInicial)) {
-            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+            $whereConditions[] = array("DATE_FORMAT(ClienteHasUsuario.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
         }
 
         if (!empty($dataFinal)) {
-            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+            $whereConditions[] = array("DATE_FORMAT(ClienteHasUsuario.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
         }
 
-        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
+        $whereConditions[] = array("ClienteHasUsuario.clientes_id in " => $clientesIds);
         $whereConditions[] = array("Usuarios.conta_ativa" => 1);
 
         // select
         $selectArray = array(
 
-            // "usuariosId" => "PontuacoesComprovantes.usuarios_id",
-            // "clientesId" => "PontuacoesComprovantes.clientes_id",
-            "ClientesHasUsuarios.audit_insert",
-            "Usuarios.id",
-            "Usuarios.nome",
-            "Usuarios.cpf",
-            // "quantidadeMes" => $this->find()->func()->count("usuariosId"),
+            "usuariosId" => "PontuacaoComprovante.usuarios_id",
+            "clientesId" => "PontuacaoComprovante.clientes_id",
+            "statusConta" => "Usuarios.conta_ativa",
+            "nome" => "Usuarios.nome",
+            "cpf" => "Usuarios.cpf",
+            "docEstrangeiro" => "Usuarios.doc_estrangeiro",
+            "dataNascimento" => "Usuarios.data_nasc",
+            "quantidadeMes" => $this->find()->func()->count("PontuacaoComprovante.usuarios_id"),
         );
 
         $groupByConditions = array();
@@ -1462,8 +1475,8 @@ class UsuariosTable extends GenericTable
         $groupByConditions[] = "clientesId";
 
         if ($agrupamento) {
-            // $selectArray["mes"] = "MONTH(PontuacoesComprovantes.data)";
-            // $selectArray["ano"] = "YEAR(PontuacoesComprovantes.data)";
+            $selectArray["mes"] = "MONTH(PontuacaoComprovante.data)";
+            $selectArray["ano"] = "YEAR(PontuacaoComprovante.data)";
 
             $groupByConditions[] = "ano";
             $groupByConditions[] = "mes";
@@ -1473,47 +1486,15 @@ class UsuariosTable extends GenericTable
 
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find("all")
-            ->select(
-                $selectArray
-            )
+            ->select($selectArray)
             ->where($whereConditions)
-            ->contain(["ClientesHasUsuarios"])
-            // , "UsuariosHasVeiculos", "Veiculos", "PontuacoesComprovantes")
+            ->contain(array("ClienteHasUsuario", "UsuariosHasVeiculos.Veiculos", "PontuacaoComprovante"))
             ->group($groupByConditions)
-            ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
+            // ->order(array("ClienteHasUsuario.audit_insert" => "ASC"))
             ->toArray();
-
-        $usuarios = array();
-        $usuariosIds = array();
-        $usuariosTable = TableRegistry::get("Usuarios");
-        $pontuacoesTable = TableRegistry::get("Pontuacoes");
 
         if (strlen($assiduidade) > 0) {
             $whereConditions[] = array("Usuario.conta_ativa" => $status);
-        }
-
-        if (sizeof($usuariosCliente) > 0) {
-
-            foreach ($usuariosCliente as $clienteHasUsuario) {
-                if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
-                    $usuariosIds[] = $clienteHasUsuario["usuario"]["id"];
-                    $usuario["id"] = $clienteHasUsuario["usuarios_id"];
-                    $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
-                    $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
-                    $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
-                    $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
-                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
-                    $usuario["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
-                    $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
-                    $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
-                    $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
-                    $usuario["totalGotasConsumidas"] = 0;
-                    $usuario["totalMoedaAdquirida"] = 0;
-                    $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
-
-                    $usuarios[] = $usuario;
-                }
-            }
         }
 
         return $usuarios;

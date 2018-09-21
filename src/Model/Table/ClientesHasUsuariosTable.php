@@ -80,7 +80,7 @@ class ClientesHasUsuariosTable extends Table
      */
     public function initialize(array $config)
     {
-        parent::initialize($config);
+        // parent::initialize($config);
 
         $this->setTable('clientes_has_usuarios');
         $this->setDisplayField('id');
@@ -121,15 +121,15 @@ class ClientesHasUsuariosTable extends Table
             ]
         );
 
-        $this->hasMany(
+        $this->belongsTo(
             'Usuarios',
             [
                 'className' => 'Usuarios',
-                'foreignKey' => 'id',
+                'foreignKey' => 'usuarios_id',
                 'where' => [
                     'usuarios_id = Usuarios.id',
                 ],
-                'joinType' => 'INNER'
+                'joinType' => 'LEFT'
             ]
         );
         $this->hasMany(

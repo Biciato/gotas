@@ -3293,7 +3293,7 @@ class UsuariosController extends AppController
         $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
         $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
         $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
-        $assiduidade = isset($data["assiduidade"]) && $data["assiduidade"] > 0 ? $data["assiduidade"] : null;
+        $assiduidade = isset($data["assiduidade"]) && strlen($data["assiduidade"]) > 0 ? $data["assiduidade"] : null;
         $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
         $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
 
