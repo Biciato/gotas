@@ -3294,9 +3294,11 @@ class UsuariosController extends AppController
         $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
         $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
         $assiduidade = isset($data["assiduidade"]) && strlen($data["assiduidade"]) > 0 ? $data["assiduidade"] : null;
+        $agrupamento = !empty($data["agrupamento"]) ? $data["agrupamento"] : false;
         $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
         $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
 
+        // ResponseUtil::success($agrupamento);
         if (gettype($clientesIds) == "integer") {
             $clientesIds = array($clientesIds);
         }
@@ -3307,12 +3309,14 @@ class UsuariosController extends AppController
 
         return $this->Usuarios->getUsuariosAssiduosClientes(
             $clientesIds,
+            null,
             $nome,
             $cpf,
             $veiculo,
             $documentoEstrangeiro,
             $status,
             $assiduidade,
+            $agrupamento,
             $dataInicio,
             $dataFim
         );

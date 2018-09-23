@@ -132,7 +132,7 @@
             <tbody>
                 <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(paginaAtual - 1 ) * tamanhoDaPagina | limitTo:tamanhoDaPagina">
                     <td width="20%">{{usuario.nome}}</td>
-                    <td width="10%">{{usuario.cpf}}</td>
+                    <td width="10%">{{usuario.cpf | cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
                     <td width="20%">{{usuario.mediaAssiduidade}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>

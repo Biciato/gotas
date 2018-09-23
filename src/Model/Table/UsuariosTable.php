@@ -15,6 +15,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Usuarios Model
@@ -1410,6 +1411,7 @@ class UsuariosTable extends GenericTable
 
     public function getUsuariosAssiduosClientes(
         array $clientesIds = array(),
+        int $usuariosId = null,
         string $nome = null,
         string $cpf = null,
         string $veiculo = null,
@@ -1426,7 +1428,9 @@ class UsuariosTable extends GenericTable
 
         $whereConditions = array();
 
-        if (!empty($nome)) {
+        if (!empty($usuariosId) && $usuariosId > 0) {
+            $whereConditions[] = array("Usuarios.id" => $usuariosId);
+        } else if (!empty($nome)) {
             $whereConditions[] = array("Usuarios.nome like '%$nome%'");
         }
 
@@ -1466,7 +1470,7 @@ class UsuariosTable extends GenericTable
             "nome" => "Usuarios.nome",
             "cpf" => "Usuarios.cpf",
             "docEstrangeiro" => "Usuarios.doc_estrangeiro",
-            "dataNascimento" => "Usuarios.data_nasc",
+            // "dataNascimento" => "Usuarios.data_nasc",
             "quantidadeMes" => $this->find()->func()->count("PontuacaoComprovante.usuarios_id"),
         );
 
@@ -1474,13 +1478,13 @@ class UsuariosTable extends GenericTable
         $groupByConditions[] = "usuariosId";
         $groupByConditions[] = "clientesId";
 
-        if ($agrupamento) {
-            $selectArray["mes"] = "MONTH(PontuacaoComprovante.data)";
-            $selectArray["ano"] = "YEAR(PontuacaoComprovante.data)";
+        // if ($agrupamento) {
+        $selectArray["mes"] = "MONTH(PontuacaoComprovante.data)";
+        $selectArray["ano"] = "YEAR(PontuacaoComprovante.data)";
 
-            $groupByConditions[] = "ano";
-            $groupByConditions[] = "mes";
-        }
+        $groupByConditions[] = "ano";
+        $groupByConditions[] = "mes";
+        // }
 
         // ResponseUtil::success($whereConditions);
 
@@ -1490,14 +1494,87 @@ class UsuariosTable extends GenericTable
             ->where($whereConditions)
             ->contain(array("ClienteHasUsuario", "UsuariosHasVeiculos.Veiculos", "PontuacaoComprovante"))
             ->group($groupByConditions)
-            // ->order(array("ClienteHasUsuario.audit_insert" => "ASC"))
+            ->order(array("PontuacaoComprovante.usuarios_id" => "DESC"))
             ->toArray();
 
         if (strlen($assiduidade) > 0) {
             $whereConditions[] = array("Usuario.conta_ativa" => $status);
         }
 
-        return $usuarios;
+        // ResponseUtil::success($usuariosCliente);
+
+        /**
+         * Se agrupamento estiver habilitado, ele vai buscar
+         * todos os usuários normalmente... A diferença, é que
+         * ele vai ter que ver qual é a somatória para cada usuário
+         *
+         * Se não for para fazer o agrupamento, eu não preciso mostrar
+         * os detalhes do usuário
+         * (pois estes detalhes estarão disponíveis em um modal)
+         */
+        if ($agrupamento) {
+            $usuariosListTemp = array();
+
+            $usuariosIdTemp = 0;
+            $totalUsuarios = sizeof($usuariosCliente);
+
+            // Variáveis para cálculo de assiduidade por mês
+            $totalAssiduidade = 0;
+            $contadorUsuarioMes = 0;
+            $usuarioTemp = array();
+            $podeAdicionar = false;
+
+            for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
+
+                $usuario = $usuariosCliente[$index];
+
+                if ($usuariosIdTemp != $usuario["usuariosId"]) {
+                    $usuariosIdTemp = $usuario["usuariosId"];
+                    $totalAssiduidade = 0;
+                    $contadorUsuarioMes = 0;
+                }
+
+                // É o primeiro índice e tem mais de um registro?
+                if ($index == 0 && $totalUsuarios > 1) {
+
+                    $proximoUsuario = $usuariosCliente[$index + 1];
+
+                    // O id do próximo usuário é igual o do atual?
+                    // Se sim, então não adiciona
+                    if ($usuariosIdTemp == $proximoUsuario["usuariosId"]) {
+                        $podeAdicionar = false;
+                    } else {
+                        $podeAdicionar = true;
+                    }
+                }
+
+                if ($index == $totalUsuarios - 1) {
+                    $podeAdicionar = true;
+                }
+
+                // É o primeiro registro, então já adiciona.
+                $totalAssiduidade += $usuario["quantidadeMes"];
+                $contadorUsuarioMes += 1;
+
+                if ($podeAdicionar) {
+                    $usuarioTemp["nome"] = $usuario["nome"];
+                    $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
+                    $usuarioTemp["mediaAssiduidade"] = number_format((float)$totalAssiduidade / $contadorUsuarioMes, 2, '.', '');
+                    $usuarioTemp["statusConta"] = $usuario["statusConta"];
+                    $usuarioTemp["nome"] = $usuario["nome"];
+                    $usuarioTemp["cpf"] = $usuario["cpf"];
+                    $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+
+                    $usuariosListTemp[] = $usuarioTemp;
+                }
+
+                $podeAdicionar = false;
+            }
+
+            $usuariosCliente = $usuariosListTemp;
+        }
+
+        return $usuariosCliente;
     }
 
 

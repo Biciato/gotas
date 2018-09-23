@@ -54,6 +54,7 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             "Usuário",
             "CPF",
             "Documento Estrangeiro",
+            "Média Assiduidade/Mês",
             "Saldo Gotas",
             "Gotas Consumidas",
             "Moeda Adquirida ",
@@ -158,11 +159,13 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
 
                 relUsuariosAssiduosService.pesquisarUsuarios(
                     clientesIds,
+                    undefined,
                     inputData.nome,
                     inputData.cpf,
                     inputData.documentoEstrangeiro,
                     inputData.placa,
                     inputData.status,
+                    true,
                     dataInicial,
                     dataFinal
                 ).then(
