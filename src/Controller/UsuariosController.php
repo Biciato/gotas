@@ -3281,7 +3281,7 @@ class UsuariosController extends AppController
      * @param integer $redesId
      * @return void
      */
-    private function _consultaUsuariosAssiduos(array $data = array(), int $redesId = null)
+    private function _consultaUsuariosAssiduos(array $data = array(), int $redesId = null, float $mediaAssiduidadeClientes = null)
     {
         if (!empty($data["redesId"]) && $data["redesId"] > 0) {
             $redesId = (int)$data["redesId"];
@@ -3308,6 +3308,7 @@ class UsuariosController extends AppController
         }
 
         return $this->Usuarios->getUsuariosAssiduosClientes(
+            $redesId,
             $clientesIds,
             null,
             $nome,
@@ -3316,6 +3317,7 @@ class UsuariosController extends AppController
             $documentoEstrangeiro,
             $status,
             $assiduidade,
+            $mediaAssiduidadeClientes,
             $agrupamento,
             $dataInicio,
             $dataFim
@@ -3413,13 +3415,15 @@ class UsuariosController extends AppController
     public function getUsuariosAssiduosAPI()
     {
         $rede = $this->request->session()->read("Network.Main");
+
+        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
         $redesId = $rede["id"];
 
         $data = array();
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
-            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId);
+            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
         }
 
         if (sizeof($usuarios) > 0) {
@@ -3484,7 +3488,7 @@ class UsuariosController extends AppController
             "Gotas Utilizadas",
             "Gotas Expiradas",
             "Saldo Atual",
-            "Moeda Adquirida ",
+            "Brindes Vendidos (R$)",
             "Data Cadastro na Rede",
         );
 

@@ -55,10 +55,13 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             "CPF",
             "Documento Estrangeiro",
             "Média Assiduidade/Mês",
-            "Saldo Gotas",
-            "Gotas Consumidas",
-            "Moeda Adquirida ",
-            "Data Cadastro na Rede",
+            "Status Assiduidade",
+            "Gotas Adquiridas",
+            "Gotas Utilizadas",
+            "Gotas Expiradas",
+            "Saldo Atual",
+            "Total Compras Brinde (R$)",
+            // "Data Cadastro na Rede",
             "Ações"
         ];
 

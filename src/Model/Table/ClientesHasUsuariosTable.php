@@ -387,8 +387,7 @@ class ClientesHasUsuariosTable extends Table
                     $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
                     $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
                     $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
-                    $usuario["totalGotasConsumidas"] = 0;
-                    $usuario["totalMoedaAdquirida"] = 0;
+                    $usuario["brindesVendidosReais"] = 0;
                     $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
 
                     $usuarios[] = $usuario;

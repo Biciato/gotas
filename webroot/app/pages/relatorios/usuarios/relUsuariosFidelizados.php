@@ -127,7 +127,7 @@
                     <td width="10%">{{usuario.gotasUtilizadas}}</td>
                     <td width="10%">{{usuario.gotasExpiradas}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
-                    <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
+                    <td width="10%">{{usuario.brindesVendidosReais | currency}}</td>
                     <td width="15%">{{usuario.dataVinculo | date : "dd/MM/yyyy HH:MM:ss"}}</td>
                     <td width="15%">
                         <div ng-click="detalhesUsuario(usuario)" ng-tooltip="Detalhes" class="btn btn-default btn-xs">

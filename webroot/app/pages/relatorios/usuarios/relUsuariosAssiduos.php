@@ -135,10 +135,13 @@
                     <td width="10%">{{usuario.cpf | cpf}}</td>
                     <td width="20%">{{usuario.docEstrangeiro}}</td>
                     <td width="20%">{{usuario.mediaAssiduidade}}</td>
+                    <td width="20%">{{usuario.statusAssiduidade}}</td>
+                    <td width="10%">{{usuario.gotasAdquiridas}}</td>
+                    <td width="10%">{{usuario.gotasUtilizadas}}</td>
+                    <td width="10%">{{usuario.gotasExpiradas}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
-                    <td width="10%">{{usuario.totalGotasConsumidas | currency}}</td>
-                    <td width="10%">{{usuario.totalMoedaAdquirida | currency}}</td>
-                    <td width="15%">{{usuario.dataVinculo}}</td>
+                    <td width="10%">{{usuario.totalMoedaCompraBrindes | currency}}</td>
+                    <!-- <td width="15%">{{usuario.dataVinculo}}</td> -->
                     <td width="15%">
                         <button ng-click="detalhes(usuario.id)" ng-tooltip="Detalhes">
                         <i class="fas fa-info"></i>

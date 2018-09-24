@@ -52,7 +52,7 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             "Gotas Utilizadas",
             "Gotas Expiradas",
             "Saldo Atual",
-            "Moeda Adquirida ",
+            "Brindes Vendidos (R$)",
             "Data Cadastro na Rede",
             "Ações"
         ];

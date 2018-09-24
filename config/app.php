@@ -158,6 +158,13 @@ return [
         'log' => true,
         'trace' => true,
     ],
+    'Info' => [
+        'errorLevel' => E_ALL,
+        'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
+        'skipLog' => [],
+        'log' => true,
+        'trace' => false,
+    ],
 
     /**
      * Email configuration.
@@ -365,7 +372,7 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'error',
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency', "info"],
             'url' => env('LOG_ERROR_URL', null),
         // ]
         ],
@@ -373,7 +380,7 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'info',
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'levels' => ["info"],
             'url' => env('LOG_ERROR_URL', null),
         // ]
         ],

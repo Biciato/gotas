@@ -16,6 +16,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ResponseUtil;
+use Cake\I18n\Number;
 
 /**
  * Usuarios Model
@@ -1410,6 +1411,7 @@ class UsuariosTable extends GenericTable
     }
 
     public function getUsuariosAssiduosClientes(
+        int $redesId = null,
         array $clientesIds = array(),
         int $usuariosId = null,
         string $nome = null,
@@ -1418,6 +1420,7 @@ class UsuariosTable extends GenericTable
         string $documentoEstrangeiro = null,
         int $status = null,
         bool $assiduidade = null,
+        float $mediaAssiduidadeClientes = null,
         bool $agrupamento = false,
         string $dataInicio = null,
         string $dataFim = null
@@ -1426,6 +1429,7 @@ class UsuariosTable extends GenericTable
             throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
         }
 
+        // Obtem a média de assiduidade da rede
         $whereConditions = array();
 
         if (!empty($usuariosId) && $usuariosId > 0) {
@@ -1470,7 +1474,6 @@ class UsuariosTable extends GenericTable
             "nome" => "Usuarios.nome",
             "cpf" => "Usuarios.cpf",
             "docEstrangeiro" => "Usuarios.doc_estrangeiro",
-            // "dataNascimento" => "Usuarios.data_nasc",
             "quantidadeMes" => $this->find()->func()->count("PontuacaoComprovante.usuarios_id"),
         );
 
@@ -1478,6 +1481,7 @@ class UsuariosTable extends GenericTable
         $groupByConditions[] = "usuariosId";
         $groupByConditions[] = "clientesId";
 
+        // TODO: à Confirmar: Na hora de fazer o modal se vai usar condicional
         // if ($agrupamento) {
         $selectArray["mes"] = "MONTH(PontuacaoComprovante.data)";
         $selectArray["ano"] = "YEAR(PontuacaoComprovante.data)";
@@ -1524,6 +1528,8 @@ class UsuariosTable extends GenericTable
             $usuarioTemp = array();
             $podeAdicionar = false;
 
+            $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
             for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
 
                 $usuario = $usuariosCliente[$index];
@@ -1556,10 +1562,23 @@ class UsuariosTable extends GenericTable
                 $totalAssiduidade += $usuario["quantidadeMes"];
                 $contadorUsuarioMes += 1;
 
+                // $podeAdicionar = true;
                 if ($podeAdicionar) {
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
-                    $usuarioTemp["mediaAssiduidade"] = number_format((float)$totalAssiduidade / $contadorUsuarioMes, 2, '.', '');
+                    $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
+                    $usuarioTemp["mediaAssiduidade"] = $mediaAssiduidade;
+                    // Esta configuração pode ser via rede
+                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["usuariosId"], $redesId, $clientesIds);
+
+                    $totalMoedaCompraBrindes = $pontuacoesTable->getSumPontuacoesReaisByUsuarioId($usuario["usuariosId"], $redesId, $clientesIds);
+                    // var_dump($saldoAtual);
+                    $usuarioTemp["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
+                    $usuarioTemp["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
+                    $usuarioTemp["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
+                    $usuarioTemp["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+                    $usuarioTemp["totalMoedaCompraBrindes"] = $totalMoedaCompraBrindes;
+                    $usuarioTemp["statusAssiduidade"] = $mediaAssiduidade <= $mediaAssiduidadeClientes;
                     $usuarioTemp["statusConta"] = $usuario["statusConta"];
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["cpf"] = $usuario["cpf"];

@@ -589,7 +589,7 @@ class PontuacoesTable extends GenericTable
      * @author      Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date        15/06/2018
      *
-     * @return array $pontuacoes ("", "", "", "saldo")
+     * @return array $pontuacoes ("total_gotas_adquiridas", "total_gotas_utilizadas", "total_gotas_expiradas", "saldo")
      **/
     public function getSumPontuacoesOfUsuario(int $usuariosId, int $redesId = null, array $clientesIds = array())
     {
@@ -725,6 +725,76 @@ class PontuacoesTable extends GenericTable
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * Obtêm soma de dinheiro utilizado em brindes do usuário
+     *
+     * @param int   $usuariosId  Id de usuário
+     * @param int   $redesId     Id da Rede (Opcional)
+     *
+     * @author      Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date        23/09/2018
+     *
+     * @return array $pontuacoes ("total_gotas_adquiridas", "total_gotas_utilizadas", "total_gotas_expiradas", "saldo")
+     **/
+    public function getSumPontuacoesReaisByUsuarioId(int $usuariosId, int $redesId = null)
+    {
+        try {
+            $clientesIds = array();
+
+            // Obtem os ids de clientes da rede selecionada
+            if (!empty($redesId) && $redesId > 0) {
+                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+
+                $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
+
+
+                $clientesIds = array();
+
+                foreach ($redeHasClientesQuery->toArray() as $key => $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
+            }
+
+            $mensagem = array();
+
+            // A pesquisa só será feita se tiver clientes. Se não tiver, cliente não possui pontuações.
+
+            if (sizeof($clientesIds) == 0) {
+                $resultado = array("totalMoedaCompraBrindes" => 0);
+
+                return $resultado;
+            } else {
+
+                // Array de Condições
+
+                $whereConditions = array(
+                    "clientes_id in " => $clientesIds,
+                    "usuarios_id" => $usuariosId,
+                    "valor_moeda_venda IS NOT NULL"
+                );
+                // Total de Brindes adquiridos pelo usuário na rede inteira:
+
+                $retorno = $this->find()
+                    ->where($whereConditions)
+                    ->select(
+                        array(
+                            "totalMoedaCompraBrindes" => $this->find()->func()->sum("valor_moeda_venda")
+                        )
+                    )->first();
+
+                $totalMoedaCompraBrindes = !empty($retorno) ? $retorno["totalMoedaCompraBrindes"] : 0;
+                return $totalMoedaCompraBrindes;
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
 
             return $stringError;
         }
