@@ -97,6 +97,7 @@ if ($debug) {
 <!-- Controllers -->
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosAssiduosController.js" ></script>
 <script src="/webroot/app/js/controllers/usuarios/modalDetalhesUsuarioController.js"></script>
+<script src="/webroot/app/js/controllers/usuarios/modalDetalhesAssiduidadeUsuarioController.js"></script>
 <script src="/webroot/app/js/controllers/usuarios/relUsuariosFidelizadosController.js" ></script>
 
 <!-- Services -->

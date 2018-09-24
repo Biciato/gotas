@@ -131,20 +131,23 @@
             </thead>
             <tbody>
                 <tr ng-repeat="usuario in dadosUsuarios | orderBy: usuario.nome | startFrom:(paginaAtual - 1 ) * tamanhoDaPagina | limitTo:tamanhoDaPagina">
-                    <td width="20%">{{usuario.nome}}</td>
-                    <td width="10%">{{usuario.cpf | cpf}}</td>
-                    <td width="20%">{{usuario.docEstrangeiro}}</td>
-                    <td width="20%">{{usuario.mediaAssiduidade}}</td>
-                    <td width="20%">{{usuario.statusAssiduidade}}</td>
+                    <td width="10%">{{usuario.nome}}</td>
+                    <td width="8%">{{usuario.cpf | cpf}}</td>
+                    <td width="8%">{{usuario.docEstrangeiro}}</td>
+                    <td width="6%">{{usuario.mediaAssiduidade}}</td>
+                    <td width="10%">{{usuario.statusAssiduidade}}</td>
                     <td width="10%">{{usuario.gotasAdquiridas}}</td>
                     <td width="10%">{{usuario.gotasUtilizadas}}</td>
                     <td width="10%">{{usuario.gotasExpiradas}}</td>
                     <td width="10%">{{usuario.saldoAtual}}</td>
                     <td width="10%">{{usuario.totalMoedaCompraBrindes | currency}}</td>
                     <!-- <td width="15%">{{usuario.dataVinculo}}</td> -->
-                    <td width="15%">
-                        <button ng-click="detalhes(usuario.id)" ng-tooltip="Detalhes">
-                        <i class="fas fa-info"></i>
+                    <td width="12%">
+                        <button ng-click="detalhesUsuario(usuario)" ng-tooltip="Detalhes">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button ng-click="detalhesAssiduidadeUsuario(usuario)" ng-tooltip="Detalhes">
+                            <i class="fas fa-info"></i>
                         </button>
                     </td>
                 </tr>

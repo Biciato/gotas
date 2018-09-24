@@ -131,7 +131,7 @@
                     <td width="15%">{{usuario.dataVinculo | date : "dd/MM/yyyy HH:MM:ss"}}</td>
                     <td width="15%">
                         <div ng-click="detalhesUsuario(usuario)" ng-tooltip="Detalhes" class="btn btn-default btn-xs">
-                        <i class="fa fa-info-circle"></i>
+                        <i class="fas fa-user"></i>
                         </div>
                     </td>
                 </tr>

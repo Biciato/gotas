@@ -6,9 +6,7 @@
  */
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("relUsuariosAssiduosController",
-    function ($scope, FileSaver, Blob, toastr, clientesService,
-        downloadService,
-        relUsuariosAssiduosService) {
+    function ($scope, FileSaver, Blob, toastr, $uibModal, clientesService, downloadService, relUsuariosAssiduosService) {
 
         $scope.inputData = {
             clientesSelectedItem: undefined,
@@ -269,11 +267,62 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
         };
 
         /**
+         * relUsuariosAssiduosController::detalhesUsuario
+         *
+         * Exibe Modal de detalhes de usuário
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 24/09/2018
+         *
+         * @param {Object} usuario
+         */
+        $scope.detalhesUsuario = function (usuario) {
+            var modalInstance = $uibModal.open(
+                {
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: "/webroot/app/pages/relatorios/usuarios/modalDetalhesUsuario.php",
+                    backdrop: "static",
+                    controller: "modalDetalhesUsuarioController",
+                    size: "lg",
+                    resolve: {
+                        usuarioId: function () { return usuario.id }
+                    }
+                });
+        }
+
+        /**
+         * relUsuariosAssiduosController::detalhesUsuario
+         *
+         * Exibe Modal de detalhes de usuário
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 24/09/2018
+         *
+         * @param {Object} usuario
+         */
+        $scope.detalhesAssiduidadeUsuario = function (usuario) {
+            var modalInstance = $uibModal.open(
+                {
+                    ariaLabelledBy: 'modal-title',
+                    ariaDescribedBy: 'modal-body',
+                    templateUrl: "/webroot/app/pages/relatorios/usuarios/modalDetalhesAssiduidadeUsuario.php",
+                    backdrop: "static",
+                    controller: "modalDetalhesAssiduidadeUsuarioController",
+                    size: "lg",
+                    resolve: {
+                        usuario: function () { return usuario }
+                    }
+                });
+        }
+
+        /**
          * Inicializa a tela
          */
         $scope.init = function () {
             $scope.limparDados();
             $scope.obterListaClientes();
+            // $scope.obterDadosSessao();
         };
     }
 );

@@ -1564,6 +1564,7 @@ class UsuariosTable extends GenericTable
 
                 // $podeAdicionar = true;
                 if ($podeAdicionar) {
+                    $usuarioTemp["id"] = $usuario["usuariosId"];
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
                     $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);

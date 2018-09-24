@@ -210,6 +210,16 @@ angular.module('GotasApp').controller("relUsuariosFidelizadosController",
             });
         }
 
+        /**
+         * relUsuariosAssiduosController::detalhesUsuario
+         *
+         * Exibe Modal de detalhes de usuário
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 24/09/2018
+         *
+         * @param {Object} usuario
+         */
         $scope.detalhesUsuario = function (usuario) {
             var modalInstance = $uibModal.open(
                 {

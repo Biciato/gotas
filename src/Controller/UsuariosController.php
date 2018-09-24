@@ -3303,7 +3303,7 @@ class UsuariosController extends AppController
             $clientesIds = array($clientesIds);
         }
 
-        if (!is_null($clientesIds) && sizeof($clientesIds) == 0) {
+        if (is_null($clientesIds) && sizeof($clientesIds) == 0) {
             $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
         }
 
