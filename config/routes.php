@@ -373,7 +373,7 @@ Router::scope("/api", function ($routes) {
             "generateExcelUsuariosAssiduosAPI" => array(
                 "action" => "generateExcelUsuariosAssiduosAPI",
                 "method" => "POST",
-                "path" => "/generate_excel_usuarios_assiduos_api"
+                "path" => "/generate_excel_usuarios_assiduos"
             ),
 
             // utilizado pelo Angular

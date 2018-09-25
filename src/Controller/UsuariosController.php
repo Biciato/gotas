@@ -3287,9 +3287,8 @@ class UsuariosController extends AppController
             $redesId = (int)$data["redesId"];
         }
 
-        // Log::info($data["assiduidade"]);
-        // die();
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
+        $usuariosId = !empty($data["usuariosId"]) ? $data["usuariosId"] : null;
         $nome = !empty($data["nome"]) ? $data["nome"] : null;
         $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
         $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
@@ -3313,7 +3312,7 @@ class UsuariosController extends AppController
         return $this->Usuarios->getUsuariosAssiduosClientes(
             $redesId,
             $clientesIds,
-            null,
+            $usuariosId,
             $nome,
             $cpf,
             $veiculo,
@@ -3411,9 +3410,16 @@ class UsuariosController extends AppController
     }
 
     /**
+     * UsuariosController::getUsuariosAssiduosAPI
+     *
      * Obtem dados de usuários fidelizados
      *
-     * @return void
+     * @param array $data Dados de Post
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/09/2018
+     *
+     * @return json_encode
      */
     public function getUsuariosAssiduosAPI()
     {
@@ -3421,7 +3427,6 @@ class UsuariosController extends AppController
 
         $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
 
-        Log::info($rede);
         $redesId = $rede["id"];
 
         $data = array();
@@ -3437,6 +3442,96 @@ class UsuariosController extends AppController
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
         }
     }
+
+    /**
+     * UsuariosController::generateExcelUsuariosAssiduosAPI
+     *
+     * Gera relatório de usuários fidelizados pela rede
+     *
+     * @param array $data Dados de Post
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/09/2018
+     *
+     * @return json_encode Dados de excel em json_encode
+     */
+    public function generateExcelUsuariosAssiduosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+
+        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
+
+        $redesId = $rede["id"];
+
+        $filtrarPorUsuario = false;
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $filtrarPorUsuario = !empty($data["filtrarPorUsuario"]) ? $data["filtrarPorUsuario"] : false;
+
+            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
+        }
+
+        $cabecalho = array(
+            "Usuário",
+            "CPF",
+            "Documento Estrangeiro",
+            "Conta Ativa",
+            "Status Assiduidade",
+            "Total Assiduidade",
+            "Media Assiduidade",
+            "Gotas Adquiridas",
+            "Gotas Utilizadas",
+            "Gotas Expiradas",
+            "Saldo Atual",
+            "Total Moeda Compra Brindes (R$)"
+        );
+
+        if (sizeof($usuarios) == 0) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        $usuariosArray = array();
+        $usuarioTemp = array();
+
+        $titulo = "";
+
+        if ($filtrarPorUsuario) {
+            $nomeUsuario = $usuarios[0]["nome"];
+            $cpf = $usuarios[0]["cpf"];
+            $documentoEstrangeiro = $usuarios[0]["docEstrangeiro"];
+            $documento = !empty($cpf) ? $cpf : $documentoEstrangeiro;
+            $titulo = sprintf("%s: Usuário: %s (%s)", "Relatório de Usuários Assíduos", $nomeUsuario, $documento);
+        } else {
+            $titulo = "Relatório de Usuários Assíduos";
+        }
+
+        foreach ($usuarios as $usuario) {
+            $usuarioTemp["nome"] = $usuario["nome"];
+            $usuarioTemp["cpf"] = $usuario["cpf"];
+            $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+            $usuarioTemp["statusConta"] = $usuario["statusConta"];
+            $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] ? "Regular" : "Irregular";
+            $usuarioTemp["totalAssiduidade"] = $usuario["totalAssiduidade"];
+            $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
+            $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
+            $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
+            $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
+            $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
+            $usuarioTemp["totalMoedaCompraBrindes"] = $usuario["totalMoedaCompraBrindes"];
+
+            $usuariosArray[] = $usuarioTemp;
+        }
+
+        $usuarios = $usuariosArray;
+
+        $excel = ExcelUtil::generateExcel($titulo, $cabecalho, $usuarios);
+
+        ResponseUtil::success($excel);
+    }
+
 
     /**
      * Obtem dados de usuários fidelizados

@@ -76,7 +76,7 @@ angular.module('GotasApp').controller("modalDetalhesAssiduidadeUsuarioController
 
                 relUsuariosAssiduosService.pesquisarUsuarios(
                     undefined,
-                    $scope.usuario.id,
+                    id,
                     undefined,
                     undefined,
                     undefined,

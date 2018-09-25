@@ -201,41 +201,52 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
          */
         $scope.gerarExcel = function (inputData) {
 
-            var dataInicial = undefined;
-            var dataFinal = undefined;
+            if ($scope.validarFiltro(inputData)) {
 
-            if (!$scope.empty(inputData.dataInicial)) {
-                dataInicial = moment(inputData.dataInicial).format("YYYY-MM-DD");
-            }
+                var dataInicial = undefined;
+                var dataFinal = undefined;
 
-            if (!$scope.empty(inputData.dataFinal)) {
-                dataFinal = moment(inputData.dataFinal).format("YYYY-MM-DD");
-            }
+                if (!$scope.empty(inputData.dataInicial)) {
+                    dataInicial = moment(inputData.dataInicial).format("YYYY-MM-DD");
+                }
 
-            var clientesIds = [];
-            if (!$scope.empty(inputData.clientesSelectedItem) && inputData.clientesSelectedItem.id > 0) {
-                clientesIds = inputData.clientesSelectedItem.id;
-            } else {
-                angular.forEach($scope.clientesList, function (value, key) {
-                    clientesIds.push(value.id);
+                if (!$scope.empty(inputData.dataFinal)) {
+                    dataFinal = moment(inputData.dataFinal).format("YYYY-MM-DD");
+                }
+
+                var clientesIds = [];
+
+                if (!$scope.empty(inputData.clientesSelectedItem) && inputData.clientesSelectedItem.id > 0) {
+                    clientesIds = inputData.clientesSelectedItem.id;
+                } else {
+                    angular.forEach($scope.clientesList, function (value, key) {
+                        clientesIds.push(value.id);
+                    });
+                }
+
+                var status = !$scope.empty(inputData.statusSelectedItem) ? inputData.statusSelectedItem.id : null;
+
+                var assiduidade = !$scope.empty(inputData.assiduidadeSelectedItem) ? inputData.assiduidadeSelectedItem.id : null;
+
+                relUsuariosAssiduosService.gerarExcel(
+                    clientesIds,
+                    undefined,
+                    inputData.nome,
+                    inputData.cpf,
+                    inputData.documentoEstrangeiro,
+                    inputData.placa,
+                    status,
+                    assiduidade,
+                    true,
+                    dataInicial,
+                    dataFinal
+                ).then(function (success) {
+                    downloadService.downloadExcel(success, "relUsuariosAssiduos");
+                }, function (error) {
+                    toastr.error(error.description, error.title);
+                    console.log(error);
                 });
             }
-
-            relUsuariosAssiduosService.gerarExcel(
-                clientesIds,
-                inputData.nome,
-                inputData.cpf,
-                inputData.documentoEstrangeiro,
-                inputData.placa,
-                inputData.status,
-                dataInicial,
-                dataFinal
-            ).then(function (success) {
-                downloadService.downloadExcel(success, "relUsuariosAssiduos");
-            }, function (error) {
-                toastr.error(error.description, error.title);
-                console.log(error);
-            });
         }
 
         /**

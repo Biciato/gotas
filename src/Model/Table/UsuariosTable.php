@@ -1536,9 +1536,7 @@ class UsuariosTable extends GenericTable
 
             $pontuacoesTable = TableRegistry::get("Pontuacoes");
 
-            // Log::write("info", $assiduidade);
-
-
+            // ResponseUtil::success($usuariosCliente);
             for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
 
                 $usuario = $usuariosCliente[$index];
@@ -1550,48 +1548,39 @@ class UsuariosTable extends GenericTable
                 }
 
                 // É o primeiro índice e tem mais de um registro?
-                if ($index == 0 && $totalUsuarios > 1) {
 
+                if ($index != sizeof($usuariosCliente) - 1) {
                     $proximoUsuario = $usuariosCliente[$index + 1];
-
-                    // O id do próximo usuário é igual o do atual?
-                    // Se sim, então não adiciona
-                    if ($usuariosIdTemp == $proximoUsuario["usuariosId"]) {
-                        $podeAdicionar = false;
-                    } else {
-                        $podeAdicionar = true;
-                    }
                 }
 
+                // O id do próximo usuário é igual o do atual?
+                // Se sim, então não adiciona
+                if ($usuariosIdTemp == $proximoUsuario["usuariosId"]) {
+                    $podeAdicionar = false;
+                } else {
+                    $podeAdicionar = true;
+                }
+
+                // Sempre adiciona o último usuário
                 if ($index == $totalUsuarios - 1) {
                     $podeAdicionar = true;
                 }
 
-                // É o primeiro registro, então já adiciona.
                 $totalAssiduidade += $usuario["quantidadeMes"];
                 $contadorUsuarioMes += 1;
 
-                // $podeAdicionar = true;
                 $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
 
                 $filtrarPorAssiduidade = strlen($assiduidade) > 0;
 
-                Log::write("info", __("Filtrar por assiduidade {0}, linha {1}", $filtrarPorAssiduidade, __LINE__));
-
-                // Log::write("info", $filtrarPorAssiduidade);
-
-                Log::write("info", array($mediaAssiduidade, $mediaAssiduidadeClientes));
-
                 if ($podeAdicionar) {
+                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["usuariosId"], $redesId, $clientesIds);
+                    $totalMoedaCompraBrindes = $pontuacoesTable->getSumPontuacoesReaisByUsuarioId($usuario["usuariosId"], $redesId, $clientesIds);
+
                     $usuarioTemp["id"] = $usuario["usuariosId"];
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
                     $usuarioTemp["mediaAssiduidade"] = $mediaAssiduidade;
-                    // Esta configuração pode ser via rede
-                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["usuariosId"], $redesId, $clientesIds);
-
-                    $totalMoedaCompraBrindes = $pontuacoesTable->getSumPontuacoesReaisByUsuarioId($usuario["usuariosId"], $redesId, $clientesIds);
-                    // var_dump($saldoAtual);
                     $usuarioTemp["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
                     $usuarioTemp["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
                     $usuarioTemp["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
@@ -1607,11 +1596,9 @@ class UsuariosTable extends GenericTable
                         if ($assiduidade && $mediaAssiduidade >= $mediaAssiduidadeClientes) {
                             $usuariosListTemp[] = $usuarioTemp;
                         } else if (!$assiduidade && $mediaAssiduidade < $mediaAssiduidadeClientes) {
-                            Log::info("passou");
                             $usuariosListTemp[] = $usuarioTemp;
                         }
                     } else {
-                        Log::info("passou2");
                         $usuariosListTemp[] = $usuarioTemp;
                     }
                 }
@@ -1624,7 +1611,6 @@ class UsuariosTable extends GenericTable
 
         return $usuariosCliente;
     }
-
 
     /**
      * Undocumented function

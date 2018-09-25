@@ -16,33 +16,25 @@ angular
 
 
         /**
+         * relUsuariosAssiduosService::pesquisarUsuarios
          *
-         * @param int clientesIds
-         * @param string nome
-         * @param int cpf
-         * @param int documentoEstrangeiro
-         * @param int placa
-         * @param int status
-         * @param int dataInicio
-         * @param int dataFim
+         * Busca dados de assiduidade de usuários da rede, conforme filtros
+         *
+         * @param int clientesIds Clientes Ids
+         * @param string nome Nome
+         * @param int cpf Cpf
+         * @param int documentoEstrangeiro Documento Estrangeiro
+         * @param int placa Placa
+         * @param int status Status
+         * @param int dataInicio Data Inicio
+         * @param int dataFim Data Fim
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2018-09-10
          *
          * @return promise
          */
-        function pesquisarUsuarios(
-            clientesIds = undefined,
-            usuariosId = undefined,
-            nome = undefined,
-            cpf = undefined,
-            documentoEstrangeiro = undefined,
-            placa = undefined,
-            status = undefined,
-            assiduidade = undefined,
-            agrupamento = undefined,
-            dataInicio = undefined,
-            dataFim = undefined) {
+        function pesquisarUsuarios(clientesIds = undefined, usuariosId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, assiduidade = undefined, agrupamento = undefined, dataInicio = undefined, dataFim = undefined) {
 
             var url = "/api/usuarios/get_usuarios_assiduos";
             var data = {
@@ -53,10 +45,10 @@ angular
                 documentoEstrangeiro: documentoEstrangeiro,
                 placa: placa,
                 status: status,
-                agrupamento: agrupamento,
                 assiduidade: assiduidade,
+                agrupamento: agrupamento,
                 dataInicio: dataInicio,
-                dataFim: dataFim
+                dataFim: dataFim,
             };
 
             var deferred = $q.defer();
@@ -72,31 +64,37 @@ angular
         }
 
         /**
+         * relUsuariosAssiduosService::gerarExcel
          *
-         * @param int clientesIds
-         * @param string nome
-         * @param int cpf
-         * @param int documentoEstrangeiro
-         * @param int placa
-         * @param int status
-         * @param int dataInicio
-         * @param int dataFim
+         * Busca dados de assiduidade de usuários da rede, conforme filtros, e gera excel
+         *
+         * @param int clientesIds Clientes Ids
+         * @param string nome Nome
+         * @param int cpf Cpf
+         * @param int documentoEstrangeiro Documento Estrangeiro
+         * @param int placa Placa
+         * @param int status Status
+         * @param int dataInicio Data Inicio
+         * @param int dataFim Data Fim
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2018-09-10
          *
          * @return promise
          */
-        function gerarExcel(clientesIds = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, dataInicio = undefined, dataFim = undefined) {
+        function gerarExcel(clientesIds = undefined, usuariosId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, assiduidade = undefined, agrupamento = undefined, dataInicio = undefined, dataFim = undefined) {
 
             var url = "/api/usuarios/generate_excel_usuarios_assiduos";
             var data = {
                 clientesIds: clientesIds,
+                usuariosId: usuariosId,
                 nome: nome,
                 cpf: cpf,
                 documentoEstrangeiro: documentoEstrangeiro,
                 placa: placa,
                 status: status,
+                assiduidade: assiduidade,
+                agrupamento: agrupamento,
                 dataInicio: dataInicio,
                 dataFim: dataFim
             };
