@@ -14,16 +14,17 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
             nome: undefined,
             clientesList: [],
             statusList: [
-                { codigo: 0, nome: "Ativado" },
-                { codigo: 1, nome: "Desativado" }
+                { id: 1, nome: "Ativado" },
+                { id: 0, nome: "Desativado" }
             ],
             assiduidadeList: [
-                { codigo: 0, nome: "Sim" },
-                { codigo: 1, nome: "Não" }
+                { id: 1, nome: "Sim" },
+                { id: 0, nome: "Não" }
             ],
             veiculo: undefined,
             documentoEstrangeiro: undefined,
             usuarioContaAtivadaSelectedItem: undefined,
+            statusSelectedItem: undefined,
             assiduidadeSelectedItem: undefined,
             dataInicial: undefined,
             dataFinal: undefined
@@ -36,7 +37,7 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
          * @returns bool
          */
         $scope.empty = function (value) {
-            if (value !== undefined) {
+            if (value !== undefined && value !== null) {
                 return false;
             }
             return true;
@@ -158,6 +159,10 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                     });
                 }
 
+                var status = !$scope.empty(inputData.statusSelectedItem) ? inputData.statusSelectedItem.id : null;
+
+                var assiduidade = !$scope.empty(inputData.assiduidadeSelectedItem) ? inputData.assiduidadeSelectedItem.id : null;
+
                 relUsuariosAssiduosService.pesquisarUsuarios(
                     clientesIds,
                     undefined,
@@ -165,17 +170,19 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                     inputData.cpf,
                     inputData.documentoEstrangeiro,
                     inputData.placa,
-                    inputData.status,
+                    status,
+                    assiduidade,
                     true,
                     dataInicial,
                     dataFinal
                 ).then(
                     function (success) {
+                        $scope.dadosUsuarios = [];
                         $scope.dadosUsuarios = success;
                     },
                     function (error) {
-                        console.log(error);
                         toastr.error(error.description, error.title);
+                        $scope.dadosUsuarios = [];
                     }
                 );
 
@@ -250,16 +257,17 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                 nome: undefined,
                 clientesList: [],
                 statusList: [
-                    { codigo: 0, nome: "Ativado" },
-                    { codigo: 1, nome: "Desativado" }
+                    { id: 1, nome: "Ativado" },
+                    { id: 0, nome: "Desativado" }
                 ],
                 assiduidadeList: [
-                    { codigo: 0, nome: "Sim" },
-                    { codigo: 1, nome: "Não" }
+                    { id: 1, nome: "Sim" },
+                    { id: 0, nome: "Não" }
                 ],
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,
                 usuarioContaAtivadaSelectedItem: undefined,
+                statusSelectedItem: undefined,
                 assiduidadeSelectedItem: undefined,
                 dataInicial: new Date(year, month, 1),
                 dataFinal: new Date(year, month + 1, 0)

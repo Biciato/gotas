@@ -135,7 +135,7 @@
                     <td width="8%">{{usuario.cpf | cpf}}</td>
                     <td width="8%">{{usuario.docEstrangeiro}}</td>
                     <td width="6%">{{usuario.mediaAssiduidade}}</td>
-                    <td width="10%">{{usuario.statusAssiduidade}}</td>
+                    <td width="10%">{{usuario.statusAssiduidade | regularIrregular}}</td>
                     <td width="10%">{{usuario.gotasAdquiridas}}</td>
                     <td width="10%">{{usuario.gotasUtilizadas}}</td>
                     <td width="10%">{{usuario.gotasExpiradas}}</td>

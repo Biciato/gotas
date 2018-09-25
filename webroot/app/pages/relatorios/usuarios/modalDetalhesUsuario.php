@@ -8,9 +8,9 @@
 <div class="modal-demo">
 
     <div class="modal-header">
-        <h3 class="modal-title">
+        <h4 class="modal-title">
             Detalhes do Usuário {{inputData.usuario.nome}}
-        </h3>
+        </h4>
     </div>
 
     <div class="modal-body">

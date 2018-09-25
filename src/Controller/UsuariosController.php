@@ -3287,6 +3287,8 @@ class UsuariosController extends AppController
             $redesId = (int)$data["redesId"];
         }
 
+        // Log::info($data["assiduidade"]);
+        // die();
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
         $nome = !empty($data["nome"]) ? $data["nome"] : null;
         $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
@@ -3294,9 +3296,10 @@ class UsuariosController extends AppController
         $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
         $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
         $assiduidade = isset($data["assiduidade"]) && strlen($data["assiduidade"]) > 0 ? $data["assiduidade"] : null;
-        $agrupamento = !empty($data["agrupamento"]) ? $data["agrupamento"] : false;
+        $agrupamento = !empty($data["agrupamento"]) ? $data["agrupamento"] : null;
         $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
         $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
+
 
         // ResponseUtil::success($agrupamento);
         if (gettype($clientesIds) == "integer") {
@@ -3417,6 +3420,8 @@ class UsuariosController extends AppController
         $rede = $this->request->session()->read("Network.Main");
 
         $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
+
+        Log::info($rede);
         $redesId = $rede["id"];
 
         $data = array();

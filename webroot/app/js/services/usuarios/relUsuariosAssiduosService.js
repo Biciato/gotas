@@ -31,7 +31,18 @@ angular
          *
          * @return promise
          */
-        function pesquisarUsuarios(clientesIds = undefined, usuariosId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, agrupamento = undefined, dataInicio = undefined, dataFim = undefined) {
+        function pesquisarUsuarios(
+            clientesIds = undefined,
+            usuariosId = undefined,
+            nome = undefined,
+            cpf = undefined,
+            documentoEstrangeiro = undefined,
+            placa = undefined,
+            status = undefined,
+            assiduidade = undefined,
+            agrupamento = undefined,
+            dataInicio = undefined,
+            dataFim = undefined) {
 
             var url = "/api/usuarios/get_usuarios_assiduos";
             var data = {
@@ -43,6 +54,7 @@ angular
                 placa: placa,
                 status: status,
                 agrupamento: agrupamento,
+                assiduidade: assiduidade,
                 dataInicio: dataInicio,
                 dataFim: dataFim
             };

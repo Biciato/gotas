@@ -15,6 +15,13 @@ GotasApp.filter('yesNo', function () {
     }
 });
 
+// Filtro para Regular/Irregular
+GotasApp.filter('regularIrregular', function () {
+    return function (input) {
+        return input ? 'Regular' : 'Irregular';
+    }
+});
+
 // Filtro para Telefone / Celular
 GotasApp.filter('phoneNumber', function () {
     return function (input) {

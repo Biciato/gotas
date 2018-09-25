@@ -91,6 +91,16 @@ class UsuariosTable extends GenericTable
             ]
         );
 
+        $this->hasMany(
+            'ClientesHasUsuarios',
+            [
+                'className' => "ClientesHasUsuarios",
+                'foreignKey' => 'usuarios_id',
+                "joinType" => "INNER"
+
+            ]
+        );
+
         $this->hasOne(
             "PontuacaoComprovante",
             array(
@@ -1419,9 +1429,9 @@ class UsuariosTable extends GenericTable
         string $veiculo = null,
         string $documentoEstrangeiro = null,
         int $status = null,
-        bool $assiduidade = null,
+        int $assiduidade = null,
         float $mediaAssiduidadeClientes = null,
-        bool $agrupamento = false,
+        bool $agrupamento = null,
         string $dataInicio = null,
         string $dataFim = null
     ) {
@@ -1481,16 +1491,12 @@ class UsuariosTable extends GenericTable
         $groupByConditions[] = "usuariosId";
         $groupByConditions[] = "clientesId";
 
-        // TODO: à Confirmar: Na hora de fazer o modal se vai usar condicional
-        // if ($agrupamento) {
         $selectArray["mes"] = "MONTH(PontuacaoComprovante.data)";
         $selectArray["ano"] = "YEAR(PontuacaoComprovante.data)";
 
         $groupByConditions[] = "ano";
         $groupByConditions[] = "mes";
-        // }
 
-        // ResponseUtil::success($whereConditions);
 
         // Obtem os ids de usuarios
         $usuariosCliente = $this->find("all")
@@ -1501,7 +1507,7 @@ class UsuariosTable extends GenericTable
             ->order(array("PontuacaoComprovante.usuarios_id" => "DESC"))
             ->toArray();
 
-        if (strlen($assiduidade) > 0) {
+        if (strlen($status) > 0) {
             $whereConditions[] = array("Usuario.conta_ativa" => $status);
         }
 
@@ -1529,6 +1535,9 @@ class UsuariosTable extends GenericTable
             $podeAdicionar = false;
 
             $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+            // Log::write("info", $assiduidade);
+
 
             for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
 
@@ -1563,11 +1572,20 @@ class UsuariosTable extends GenericTable
                 $contadorUsuarioMes += 1;
 
                 // $podeAdicionar = true;
+                $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
+
+                $filtrarPorAssiduidade = strlen($assiduidade) > 0;
+
+                Log::write("info", __("Filtrar por assiduidade {0}, linha {1}", $filtrarPorAssiduidade, __LINE__));
+
+                // Log::write("info", $filtrarPorAssiduidade);
+
+                Log::write("info", array($mediaAssiduidade, $mediaAssiduidadeClientes));
+
                 if ($podeAdicionar) {
                     $usuarioTemp["id"] = $usuario["usuariosId"];
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
-                    $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
                     $usuarioTemp["mediaAssiduidade"] = $mediaAssiduidade;
                     // Esta configuração pode ser via rede
                     $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["usuariosId"], $redesId, $clientesIds);
@@ -1579,13 +1597,23 @@ class UsuariosTable extends GenericTable
                     $usuarioTemp["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
                     $usuarioTemp["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
                     $usuarioTemp["totalMoedaCompraBrindes"] = $totalMoedaCompraBrindes;
-                    $usuarioTemp["statusAssiduidade"] = $mediaAssiduidade <= $mediaAssiduidadeClientes;
+                    $usuarioTemp["statusAssiduidade"] = $mediaAssiduidade >= $mediaAssiduidadeClientes;
                     $usuarioTemp["statusConta"] = $usuario["statusConta"];
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["cpf"] = $usuario["cpf"];
                     $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
 
-                    $usuariosListTemp[] = $usuarioTemp;
+                    if ($filtrarPorAssiduidade) {
+                        if ($assiduidade && $mediaAssiduidade >= $mediaAssiduidadeClientes) {
+                            $usuariosListTemp[] = $usuarioTemp;
+                        } else if (!$assiduidade && $mediaAssiduidade < $mediaAssiduidadeClientes) {
+                            Log::info("passou");
+                            $usuariosListTemp[] = $usuarioTemp;
+                        }
+                    } else {
+                        Log::info("passou2");
+                        $usuariosListTemp[] = $usuarioTemp;
+                    }
                 }
 
                 $podeAdicionar = false;
