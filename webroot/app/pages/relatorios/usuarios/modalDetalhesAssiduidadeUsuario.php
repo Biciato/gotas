@@ -28,7 +28,7 @@
                                     <tr ng-repeat="assiduidade in dadosAssiduidade | orderBy: assiduidade.ano | startFrom:(paginaAtual - 1 ) * tamanhoDaPagina | limitTo:tamanhoDaPagina">
                                         <td>{{assiduidade.ano}}</td>
                                         <td>{{assiduidade.mes}}</td>
-                                        <td>{{assiduidade.quantidadeMes}}</td>
+                                        <td>{{assiduidade.mediaAssiduidade}}</td>
                                     </tr>
                                 </tbody>
                             </table>
