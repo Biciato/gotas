@@ -5,7 +5,7 @@
  * @since 24/09/2018
  */
 angular.module('GotasApp').controller("modalDetalhesAssiduidadeUsuarioController",
-    function ($scope, $uibModalInstance, toastr, relUsuariosAssiduosService, usuariosService, usuario) {
+    function ($scope, $uibModalInstance, toastr, downloadService, relUsuariosAssiduosService, usuariosService, usuario) {
 
         $scope.inputData = {
             usuario: {},
@@ -16,11 +16,11 @@ angular.module('GotasApp').controller("modalDetalhesAssiduidadeUsuarioController
 
         // -------------------------- Configurações de tabela --------------------------
 
-        $scope.paginaAtualVeiculos = 1;
-        $scope.limitePaginaVeiculos = 50;
-        $scope.tamanhoDaPaginaVeiculos = 50;
+        $scope.paginaAtual = 1;
+        $scope.limitePagina = 50;
+        $scope.tamanhoDaPagina = 10;
 
-        $scope.cabecalhosVeiculos = [
+        $scope.cabecalhos = [
             "Placa",
             "Modelo",
             "Fabricante",
@@ -95,6 +95,38 @@ angular.module('GotasApp').controller("modalDetalhesAssiduidadeUsuarioController
                     }
                 );
             }
+        }
+
+        /**
+         * modalDetalhesAssiduidadeUsuarioController::gerarExcel
+         *
+         * Gera excel
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 25/09/2018
+         *
+         */
+        $scope.gerarExcel = function () {
+            relUsuariosAssiduosService.gerarExcel(
+                undefined,
+                undefined,
+                $scope.usuario.id,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                false,
+                undefined,
+                undefined,
+                true
+            ).then(function (success) {
+                downloadService.downloadExcel(success, "relUsuariosAssiduos " + $scope.usuario.nome);
+            }, function (error) {
+                toastr.error(error.description, error.title);
+                console.log(error);
+            });
         }
 
         /**

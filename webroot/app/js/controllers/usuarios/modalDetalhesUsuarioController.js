@@ -19,7 +19,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
 
         $scope.paginaAtualVeiculos = 1;
         $scope.limitePaginaVeiculos = 50;
-        $scope.tamanhoDaPaginaVeiculos = 50;
+        $scope.tamanhoDaPaginaVeiculos = 10;
 
         $scope.cabecalhosVeiculos = [
             "Placa",
@@ -34,7 +34,7 @@ angular.module('GotasApp').controller("modalDetalhesUsuarioController",
 
         $scope.paginaAtualTransportadoras = 1;
         $scope.limitePaginaTransportadoras = 50;
-        $scope.tamanhoDaPaginaTransportadoras = 50;
+        $scope.tamanhoDaPaginaTransportadoras = 10;
 
         $scope.cabecalhosTransportadoras = [
             "Nome Fantasia",

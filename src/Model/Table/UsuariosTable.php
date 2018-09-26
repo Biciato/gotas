@@ -1504,7 +1504,13 @@ class UsuariosTable extends GenericTable
             ->where($whereConditions)
             ->contain(array("ClienteHasUsuario", "UsuariosHasVeiculos.Veiculos", "PontuacaoComprovante"))
             ->group($groupByConditions)
-            ->order(array("PontuacaoComprovante.usuarios_id" => "DESC"))
+            ->order(
+                array(
+                    "PontuacaoComprovante.usuarios_id" => "DESC",
+                    "ano" => "DESC",
+                    "mes" => "DESC"
+                )
+            )
             ->toArray();
 
         if (strlen($status) > 0) {
@@ -1512,6 +1518,8 @@ class UsuariosTable extends GenericTable
         }
 
         // ResponseUtil::success($usuariosCliente);
+
+        $pontuacoesTable = TableRegistry::get("Pontuacoes");
 
         /**
          * Se agrupamento estiver habilitado, ele vai buscar
@@ -1522,6 +1530,7 @@ class UsuariosTable extends GenericTable
          * os detalhes do usuário
          * (pois estes detalhes estarão disponíveis em um modal)
          */
+
         if ($agrupamento) {
             $usuariosListTemp = array();
 
@@ -1534,7 +1543,6 @@ class UsuariosTable extends GenericTable
             $usuarioTemp = array();
             $podeAdicionar = false;
 
-            $pontuacoesTable = TableRegistry::get("Pontuacoes");
 
             // ResponseUtil::success($usuariosCliente);
             for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
@@ -1588,7 +1596,6 @@ class UsuariosTable extends GenericTable
                     $usuarioTemp["totalMoedaCompraBrindes"] = $totalMoedaCompraBrindes;
                     $usuarioTemp["statusAssiduidade"] = $mediaAssiduidade >= $mediaAssiduidadeClientes;
                     $usuarioTemp["statusConta"] = $usuario["statusConta"];
-                    $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["cpf"] = $usuario["cpf"];
                     $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
 
@@ -1604,6 +1611,38 @@ class UsuariosTable extends GenericTable
                 }
 
                 $podeAdicionar = false;
+            }
+
+            $usuariosCliente = $usuariosListTemp;
+        } else {
+            // Se não é para agrupar, significa que está buscando os dados de um só usuário
+
+            if (sizeof($usuariosCliente) > 0) {
+
+                $usuariosId = $usuariosCliente[0]["usuariosId"];
+                $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, $redesId, $clientesIds);
+                $totalMoedaCompraBrindes = $pontuacoesTable->getSumPontuacoesReaisByUsuarioId($usuariosId, $redesId, $clientesIds);
+                // $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
+
+                Log::write("info", $usuariosCliente);
+                // die();
+                foreach ($usuariosCliente as $usuario) {
+                    $usuarioTemp["id"] = $usuario["usuariosId"];
+                    $usuarioTemp["nome"] = $usuario["nome"];
+                    $usuarioTemp["cpf"] = $usuario["cpf"];
+                    $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+                    $usuarioTemp["statusAssiduidade"] = $usuario["quantidadeMes"] >= $mediaAssiduidadeClientes;
+                    $usuarioTemp["mediaAssiduidade"] = $usuario["quantidadeMes"];
+                    $usuarioTemp["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
+                    $usuarioTemp["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
+                    $usuarioTemp["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
+                    $usuarioTemp["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+                    $usuarioTemp["totalMoedaCompraBrindes"] = $totalMoedaCompraBrindes;
+                    $usuarioTemp["ano"] = $usuario["ano"];
+                    $usuarioTemp["mes"] = $usuario["mes"];
+
+                    $usuariosListTemp[] = $usuarioTemp;
+                }
             }
 
             $usuariosCliente = $usuariosListTemp;

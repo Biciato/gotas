@@ -3474,20 +3474,7 @@ class UsuariosController extends AppController
             $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
         }
 
-        $cabecalho = array(
-            "Usuário",
-            "CPF",
-            "Documento Estrangeiro",
-            "Conta Ativa",
-            "Status Assiduidade",
-            "Total Assiduidade",
-            "Media Assiduidade",
-            "Gotas Adquiridas",
-            "Gotas Utilizadas",
-            "Gotas Expiradas",
-            "Saldo Atual",
-            "Total Moeda Compra Brindes (R$)"
-        );
+        // ResponseUtil::success($usuarios);
 
         if (sizeof($usuarios) == 0) {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
@@ -3498,31 +3485,66 @@ class UsuariosController extends AppController
 
         $titulo = "";
 
+        // Log::write("info", $usuarios);
+        // die();
         if ($filtrarPorUsuario) {
+
+            $cabecalho = array(
+                "Ano",
+                "Mes",
+                "Status Assiduidade",
+                "Media Assiduidade"
+            );
+
             $nomeUsuario = $usuarios[0]["nome"];
             $cpf = $usuarios[0]["cpf"];
             $documentoEstrangeiro = $usuarios[0]["docEstrangeiro"];
             $documento = !empty($cpf) ? $cpf : $documentoEstrangeiro;
-            $titulo = sprintf("%s: Usuário: %s (%s)", "Relatório de Usuários Assíduos", $nomeUsuario, $documento);
+            $titulo = sprintf("%s: %s (%s)", "Relatório de Usuários Assíduos", $nomeUsuario, $documento);
+
+            foreach ($usuarios as $usuario) {
+                $usuarioTemp["ano"] = $usuario["ano"];
+                $usuarioTemp["mes"] = $usuario["mes"];
+                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] == 1 ? "Regular" : "Irregular";
+                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
+
+                $usuariosArray[] = $usuarioTemp;
+            }
         } else {
+
+            $cabecalho = array(
+                "Usuário",
+                "CPF",
+                "Documento Estrangeiro",
+                "Conta Ativa",
+                "Status Assiduidade",
+                "Total Assiduidade",
+                "Media Assiduidade",
+                "Gotas Adquiridas",
+                "Gotas Utilizadas",
+                "Gotas Expiradas",
+                "Saldo Atual",
+                "Total Moeda Compra Brindes (R$)"
+            );
+
             $titulo = "Relatório de Usuários Assíduos";
-        }
 
-        foreach ($usuarios as $usuario) {
-            $usuarioTemp["nome"] = $usuario["nome"];
-            $usuarioTemp["cpf"] = $usuario["cpf"];
-            $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
-            $usuarioTemp["statusConta"] = $usuario["statusConta"];
-            $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] ? "Regular" : "Irregular";
-            $usuarioTemp["totalAssiduidade"] = $usuario["totalAssiduidade"];
-            $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
-            $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
-            $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
-            $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
-            $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
-            $usuarioTemp["totalMoedaCompraBrindes"] = $usuario["totalMoedaCompraBrindes"];
+            foreach ($usuarios as $usuario) {
+                $usuarioTemp["nome"] = $usuario["nome"];
+                $usuarioTemp["cpf"] = $usuario["cpf"];
+                $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+                $usuarioTemp["statusConta"] = $usuario["statusConta"];
+                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] ? "Regular" : "Irregular";
+                $usuarioTemp["totalAssiduidade"] = $usuario["totalAssiduidade"];
+                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
+                $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
+                $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
+                $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
+                $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
+                $usuarioTemp["totalMoedaCompraBrindes"] = $usuario["totalMoedaCompraBrindes"];
 
-            $usuariosArray[] = $usuarioTemp;
+                $usuariosArray[] = $usuarioTemp;
+            }
         }
 
         $usuarios = $usuariosArray;

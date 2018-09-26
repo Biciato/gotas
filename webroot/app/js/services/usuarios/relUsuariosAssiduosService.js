@@ -76,16 +76,18 @@ angular
          * @param int status Status
          * @param int dataInicio Data Inicio
          * @param int dataFim Data Fim
+         * @param bool filtrarPorUsuario Filtrar Por Usuario
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2018-09-10
          *
          * @return promise
          */
-        function gerarExcel(clientesIds = undefined, usuariosId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, assiduidade = undefined, agrupamento = undefined, dataInicio = undefined, dataFim = undefined) {
+        function gerarExcel(redesId = undefined, clientesIds = undefined, usuariosId = undefined, nome = undefined, cpf = undefined, documentoEstrangeiro = undefined, placa = undefined, status = undefined, assiduidade = undefined, agrupamento = undefined, dataInicio = undefined, dataFim = undefined, filtrarPorUsuario = false) {
 
             var url = "/api/usuarios/generate_excel_usuarios_assiduos";
             var data = {
+                redesId: redesId,
                 clientesIds: clientesIds,
                 usuariosId: usuariosId,
                 nome: nome,
@@ -96,7 +98,8 @@ angular
                 assiduidade: assiduidade,
                 agrupamento: agrupamento,
                 dataInicio: dataInicio,
-                dataFim: dataFim
+                dataFim: dataFim,
+                filtrarPorUsuario: filtrarPorUsuario
             };
 
             var deferred = $q.defer();

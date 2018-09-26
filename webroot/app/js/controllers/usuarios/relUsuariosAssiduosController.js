@@ -229,6 +229,7 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                 var assiduidade = !$scope.empty(inputData.assiduidadeSelectedItem) ? inputData.assiduidadeSelectedItem.id : null;
 
                 relUsuariosAssiduosService.gerarExcel(
+                    undefined,
                     clientesIds,
                     undefined,
                     inputData.nome,
@@ -239,7 +240,8 @@ angular.module('GotasApp').controller("relUsuariosAssiduosController",
                     assiduidade,
                     true,
                     dataInicial,
-                    dataFinal
+                    dataFinal,
+                    true
                 ).then(function (success) {
                     downloadService.downloadExcel(success, "relUsuariosAssiduos");
                 }, function (error) {
