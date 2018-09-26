@@ -143,10 +143,10 @@
                     <td width="10%">{{usuario.totalMoedaCompraBrindes | currency}}</td>
                     <!-- <td width="15%">{{usuario.dataVinculo}}</td> -->
                     <td width="12%">
-                        <button ng-click="detalhesUsuario(usuario)" ng-tooltip="Detalhes">
+                        <button ng-click="detalhesUsuario(usuario)" title="Detalhes Usuário" style="width: 25px">
                             <i class="fas fa-user"></i>
                         </button>
-                        <button ng-click="detalhesAssiduidadeUsuario(usuario)" ng-tooltip="Detalhes">
+                        <button ng-click="detalhesAssiduidadeUsuario(usuario)" title="Detalhes Assiduidade" style="width: 25px">
                             <i class="fas fa-info"></i>
                         </button>
                     </td>
