@@ -3291,7 +3291,7 @@ class UsuariosController extends AppController
         $usuariosId = !empty($data["usuariosId"]) ? $data["usuariosId"] : null;
         $nome = !empty($data["nome"]) ? $data["nome"] : null;
         $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
-        $veiculo = !empty($data["veiculo"]) ? $data["veiculo"] : null;
+        $placa = !empty($data["placa"]) ? $data["placa"] : null;
         $documentoEstrangeiro = !empty($data["documentoEstrangeiro"]) ? $data["documentoEstrangeiro"] : null;
         $status = isset($data["status"]) && strlen($data["status"]) > 0 ? $data["status"] : null;
         $assiduidade = isset($data["assiduidade"]) && strlen($data["assiduidade"]) > 0 ? $data["assiduidade"] : null;
@@ -3315,7 +3315,7 @@ class UsuariosController extends AppController
             $usuariosId,
             $nome,
             $cpf,
-            $veiculo,
+            $placa,
             $documentoEstrangeiro,
             $status,
             $assiduidade,
@@ -3474,7 +3474,7 @@ class UsuariosController extends AppController
             $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
         }
 
-        // ResponseUtil::success($usuarios);
+        ResponseUtil::success($usuarios);
 
         if (sizeof($usuarios) == 0) {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));

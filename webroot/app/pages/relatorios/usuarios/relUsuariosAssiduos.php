@@ -42,7 +42,7 @@
             <!-- Veículo: -->
             <div class="col-lg-2">
                 <label>Veículo: </label>
-                <input type="text" ui-mask="AAA9999" ng-model="inputData.veiculo" ng-change="inputData.veiculo=inputData.veiculo.toUpperCase()" ng-trim="true" class="form-control">
+                <input type="text" ui-mask="AAA9999" ng-model="inputData.placa" ng-change="inputData.placa=inputData.placa.toUpperCase()" ng-trim="true" class="form-control">
             </div>
 
             <!-- Doc. Estrangeiro -->

@@ -111,6 +111,16 @@ class UsuariosTable extends GenericTable
 
         );
 
+        $this->hasOne(
+            'UsuarioHasVeiculo',
+            array(
+
+                "className" => "UsuariosHasVeiculos",
+                "foreignKey" => "usuarios_id",
+                "joinType" => "INNER"
+            )
+        );
+
         $this->hasMany('UsuariosHasVeiculos')
             ->setForeignKey('usuarios_id');
 
@@ -1453,7 +1463,22 @@ class UsuariosTable extends GenericTable
         }
 
         if (!empty($veiculo)) {
-            $whereConditions[] = array("Veiculos.placa like '%$veiculo%'");
+
+            $usuariosHasVeiculosTable = TableRegistry::get("UsuariosHasVeiculos");
+
+            $usuariosQuery = $usuariosHasVeiculosTable->find("all")
+                ->where("Veiculos.placa like '%$veiculo%'")
+                ->contain("Veiculos")
+                ->select("UsuariosHasVeiculos.usuarios_id")
+                ->toArray();
+
+            $usuariosIds = array();
+
+            foreach ($usuariosQuery as $usuarioQuery) {
+                $usuariosIds[] = $usuarioQuery["usuarios_id"];
+            }
+
+            $whereConditions[] = array("Usuarios.id in" => $usuariosIds);
         }
 
         if (!empty($documentoEstrangeiro)) {
@@ -1502,7 +1527,8 @@ class UsuariosTable extends GenericTable
         $usuariosCliente = $this->find("all")
             ->select($selectArray)
             ->where($whereConditions)
-            ->contain(array("ClienteHasUsuario", "UsuariosHasVeiculos.Veiculos", "PontuacaoComprovante"))
+            // ->contain(array("ClienteHasUsuario", "UsuarioHasVeiculo.Veiculos", "PontuacaoComprovante"))
+            ->contain(array("ClienteHasUsuario", "PontuacaoComprovante"))
             ->group($groupByConditions)
             ->order(
                 array(
@@ -1563,7 +1589,7 @@ class UsuariosTable extends GenericTable
 
                 // O id do próximo usuário é igual o do atual?
                 // Se sim, então não adiciona
-                if ($usuariosIdTemp == $proximoUsuario["usuariosId"]) {
+                if ((sizeof($usuariosCliente) > 1) && $usuariosIdTemp == $proximoUsuario["usuariosId"]) {
                     $podeAdicionar = false;
                 } else {
                     $podeAdicionar = true;
