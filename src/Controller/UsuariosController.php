@@ -3474,8 +3474,6 @@ class UsuariosController extends AppController
             $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
         }
 
-        ResponseUtil::success($usuarios);
-
         if (sizeof($usuarios) == 0) {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
         }
