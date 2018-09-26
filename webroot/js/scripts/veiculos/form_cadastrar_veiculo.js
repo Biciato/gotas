@@ -35,7 +35,7 @@ $(document).ready(function () {
             if (result.mensagem.status == 0) {
                 callModalError(result.mensagem.message, result.mensagem.errors);
             }
-            populateVeiculosForm(result.veiculo.data);
+            populateVeiculosForm(result.veiculo);
         });
     });
 

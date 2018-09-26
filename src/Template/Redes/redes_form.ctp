@@ -17,7 +17,7 @@ use Cake\Core\Configure;
         'nome_img',
         [
             'type' => 'file',
-            'label' => 'Banner da Rede'
+            'label' => 'Logo da Rede'
         ]
     ) ?>
 </div>

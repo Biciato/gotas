@@ -34,7 +34,7 @@ $(document).ready(function () {
 
             callLoaderAnimation();
             $.ajax({
-                url: '/api/veiculos/getVeiculoByPlacaAPI',
+                url: '/api/veiculos/get_veiculo_by_placa',
                 type: 'POST',
                 data: JSON.stringify({
                     'placa': this.value
@@ -42,6 +42,7 @@ $(document).ready(function () {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                    xhr.setRequestHeader("IsMobile", true);
                 },
                 success: function (e) {
                     console.log(e);
@@ -57,7 +58,7 @@ $(document).ready(function () {
                 if (result.mensagem.status == 0) {
                     callModalError(result.mensagem.message, result.mensagem.errors);
                 }
-                populateData(result.veiculo.data);
+                populateData(result.veiculo);
             });
         }
     });

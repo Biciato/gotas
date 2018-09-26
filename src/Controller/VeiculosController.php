@@ -173,6 +173,7 @@ class VeiculosController extends AppController
 
                 $veiculo = $this->Veiculos->getVeiculoByPlaca($data['placa']);
 
+                $veiculo = $veiculo["veiculo"];
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
                     $veiculo = $this->Veiculos->saveUpdateVeiculo(
@@ -184,6 +185,7 @@ class VeiculosController extends AppController
                     );
                 }
 
+                // debug($veiculo);
                 // Com o Veículo do Banco de Dados (ou novo) insere e faz vínculo
                 if ($veiculo) {
                     $usuario_has_veiculo = $this->UsuariosHasVeiculos->addUsuarioHasVeiculo($veiculo->id, $usuario->id);
@@ -377,6 +379,7 @@ class VeiculosController extends AppController
 
                 $veiculo = $this->Veiculos->getVeiculoByPlaca($data['placa']);
 
+                $veiculo = $veiculo["veiculo"];
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
                     $veiculo = $this->Veiculos->saveUpdateVeiculo(
