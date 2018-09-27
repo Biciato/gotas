@@ -232,6 +232,10 @@ class UsuariosController extends AppController
             }
         }
 
+        $conditions[] = array("usuarios.tipo_perfil not in " => array(
+            Configure::read("profileTypes")["DummyWorkerProfileType"],
+            Configure::read("profileTypes")["DummyUserProfileType"]
+        ));
 
         array_push($conditions, ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminDeveloperProfileType']]);
         $usuarios = $this->Usuarios->findAllUsuarios($conditions);
@@ -1613,7 +1617,7 @@ class UsuariosController extends AppController
 
         $rede = $this->request->session()->read("Network.Main");
 
-        if (empty($rede)){
+        if (empty($rede)) {
             $rede = $this->Redes->getRedeById($redes_id);
         }
         $redes_id = $rede["id"];
