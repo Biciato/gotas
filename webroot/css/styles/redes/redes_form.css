@@ -4,7 +4,7 @@
   * @date     2018/05/21
   */
 
-  .img-crop {
+.img-crop {
     overflow: hidden;
     max-height: 300px;
     max-width: 400px;
@@ -23,7 +23,6 @@
     overflow: hidden;
     max-height: 300px;
     max-width: 400px;
-
     height: 300px;
     width: 480px;
     border: 5px solid black;
@@ -37,4 +36,9 @@
 
 .img-crop-container {
     display: none;
+}
+
+.imagem-rede {
+    max-width: 600px;
+    max-height: 480px;
 }

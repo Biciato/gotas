@@ -40,12 +40,13 @@
 
     <?php if (isset($imagem) && strlen($imagem) > 0) : ?>
         <tr>
-            <th scope="row">
+            <th scope="row" style="display: inline;">
                 <?= __('Imagem atualmente alocada') ?>
             </th>
-            <td>
+            <td class="col-lg-6">
                 <img src="<?php echo $imagem ?>" class="imagem-rede"/>
                 <!-- <img src="<?php echo $imagem ?>" height="120px" width="380px"/> -->
+            <!-- </th> -->
             </td>
         </tr>
     <?php endif; ?>

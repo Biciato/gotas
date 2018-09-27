@@ -74,13 +74,14 @@ $(document).ready(function () {
 
                             $(".img-crop").cropper('destroy');
                             image.cropper({
-                                aspectRatio: 1/1,
+                                // aspectRatio: 1/1,
                                 preview: ".img-crop-preview",
                                 autoCrop: true,
                                 dragDrop: true,
                                 movable: true,
                                 resizable: true,
-                                zoomable: false,
+                                // zoomable: false,
+                                zoomable: true,
                                 crop: function (event) {
                                     coordenadas(event.detail);
                                 },

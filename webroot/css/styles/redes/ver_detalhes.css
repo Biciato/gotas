@@ -5,5 +5,7 @@
   */
 
 .imagem-rede{
-    max-width: 100%;
+    /* max-width: 100%; */
+    max-width: 640px;
+    max-height: 480px;
 }

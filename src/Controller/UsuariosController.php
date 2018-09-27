@@ -2329,10 +2329,13 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function administradoresRede()
+    public function administradoresRede(int $redes_id = null)
     {
         $rede = $this->request->session()->read("Network.Main");
-        $redes_id = $rede["id"];
+
+        if (!empty($rede)) {
+            $redes_id = $rede["id"];
+        }
 
         $cliente = $this->request->session()->read('Network.Unit');
         $client_to_manage = $this->request->session()->read('ClientToManage');
