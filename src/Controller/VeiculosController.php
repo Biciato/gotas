@@ -102,8 +102,11 @@ class VeiculosController extends AppController
     public function edit($id = null)
     {
         $veiculo = $this->Veiculos->get($id, [
-            'contain' => []
+            'contain' => ["UsuariosHasVeiculos.Usuarios"]
         ]);
+
+        $usuario = $veiculo["usuarios_has_veiculos"][0]["usuario"];
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $veiculo = $this->Veiculos->patchEntity($veiculo, $this->request->getData());
             if ($this->Veiculos->save($veiculo)) {
@@ -113,8 +116,11 @@ class VeiculosController extends AppController
             }
             $this->Flash->error(__('The veiculo could not be saved. Please, try again.'));
         }
-        $this->set(compact('veiculo'));
-        $this->set('_serialize', ['veiculo']);
+
+        $arraySet = array("veiculo", "usuario");
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**

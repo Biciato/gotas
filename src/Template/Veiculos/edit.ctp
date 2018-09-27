@@ -1,31 +1,40 @@
 <?php
+
 /**
-  * @var \App\View\AppView $this
-  */
+ * @description View para adicionar veículo de um usuário
+ * @author      Gustavo Souza Gonçalves
+ * @file        Template\Veiculos\adicionar_veiculo.php
+ * @date        25/07/2017
+ *
+ */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+if ($user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['UserProfileType']) {
+
+    $this->Breadcrumbs->add(
+        'Meus Veículos',
+        ['controller' => 'veiculos', 'action' => 'meus_veiculos']
+    );
+
+} else {
+    $this->Breadcrumbs->add('Veículos', ['controller' => 'veiculos', 'action' => 'index']);
+}
+
+$this->Breadcrumbs->add('Editar Veículo', [], ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
+
+
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Form->postLink(
-                __('Delete'),
-                ['action' => 'delete', $veiculo->id],
-                ['confirm' => __('Are you sure you want to delete # {0}?', $veiculo->id)]
-            )
-        ?></li>
-        <li><?= $this->Html->link(__('List Veiculos'), ['action' => 'index']) ?></li>
-    </ul>
-</nav>
-<div class="veiculos form large-9 medium-8 columns content">
-    <?= $this->Form->create($veiculo) ?>
-    <fieldset>
-        <legend><?= __('Edit Veiculo') ?></legend>
-        <?php
-            echo $this->Form->control('placa');
-            echo $this->Form->control('modelo');
-            echo $this->Form->control('fabricante');
-            echo $this->Form->control('ano');
-        ?>
-    </fieldset>
-    <?= $this->Form->button(__('Salvar')) ?>
-    <?= $this->Form->end() ?>
+
+<?= $this->element('../Veiculos/left_menu', ['usuario' => $usuario]) ?>
+<div class="veiculos form col-lg-9 col-md-8 columns content">
+    <?= $this->element('../Veiculos/form_cadastrar_veiculo', ['veiculo' => $veiculo, "title" => "Editar Veículo"]) ?>
 </div>
+

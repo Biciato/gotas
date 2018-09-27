@@ -35,6 +35,6 @@ echo $this->Breadcrumbs->render(
 
 <?= $this->element('../Veiculos/left_menu', ['usuario' => $usuario]) ?>
 <div class="veiculos form col-lg-9 col-md-8 columns content">
-    <?= $this->element('../Veiculos/form_cadastrar_veiculo', ['veiculo' => $veiculo]) ?>
+    <?= $this->element('../Veiculos/form_cadastrar_veiculo', ['veiculo' => $veiculo, "title" => "Editar Veículo"]) ?>
 </div>
 

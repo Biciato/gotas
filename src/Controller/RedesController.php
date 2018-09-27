@@ -212,6 +212,7 @@ class RedesController extends AppController
 
                 $rede = $this->Redes->patchEntity($rede, $data);
 
+                debug($rede->errors());
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {

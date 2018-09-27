@@ -64,7 +64,7 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<div class="col-lg-12">
+<div class="col-lg-4">
     <?php echo $this->Form->input(
         'quantidade_pontuacoes_usuarios_ida',
         array(
@@ -76,6 +76,28 @@ use Cake\Core\Configure;
         )
     ); ?>
 </div>
+
+<div class="col-lg-4">
+    <?= $this->Form->input("valor_referencia_gotas", array(
+        "label" => "Valor Referencia Gotas",
+        "id" => "valor_referencia_gotas",
+        "type" => "text"
+    )); ?>
+</div>
+
+<div class="col-lg-4">
+    <?= $this->Form->control(
+        "media_assiduidade_clientes",
+        array(
+            "label" => "Media de Assiduidade dos Clientes",
+            "type" => "number",
+            "min" => 1,
+            "max" => 30
+        )
+    ); ?>
+</div>
+
+
 
 <div class="col-lg-12">
     <?= $this->Form->control('ativado', ['label' => 'Rede Ativada']); ?>

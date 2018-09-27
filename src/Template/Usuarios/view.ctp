@@ -26,13 +26,14 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 
 if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
-    
+
 } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
 && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
-$this->Breadcrumbs->add('Detalhes de Usuário', [], ['class' =>'active']);
+// $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "index"), ['class' =>'active']);
+$this->Breadcrumbs->add('Detalhes de Usuário', array(), ['class' =>'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']

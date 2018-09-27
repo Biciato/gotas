@@ -11,6 +11,24 @@
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 
+// $this->Breadcrumbs->add('Veículos do Usuário', array(), array('class' => 'active'));
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
+
+} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
+&& $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
+}
+
+$this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "view", $usuarios_id), []);
+
+$this->Breadcrumbs->add('Veículos do Usuário', array(), ['class' =>'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 
 ?>
 
@@ -18,7 +36,7 @@ use Cake\Core\Configure;
 <div class="veiculos index col-lg-9 col-md-8 columns content">
 
 <div class="form-group">
-	
+
 
 
 
@@ -32,9 +50,9 @@ use Cake\Core\Configure;
         <div class="form-group row">
 
             <?= $this->Form->label('placa', 'Procurar', ['class' => 'col-sm-1 col-form-label']) ?>
-            
+
             <div class="col-sm-9">
-                
+
                 <?= $this->Form->text('placa', ['class' => 'form-control', 'placeholder' => 'Informe a placa do veículo']) ?>
             </div>
 
@@ -53,7 +71,7 @@ use Cake\Core\Configure;
                 <th scope="col"><?= $this->Paginator->sort('modelo') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('fabricante') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('ano') ?></th>
-                
+
                 <th scope="col" class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -62,13 +80,13 @@ use Cake\Core\Configure;
         </thead>
         <tbody>
             <?php foreach ($usuariosHasVeiculos as $usuario_has_veiculo) : ?>
-                
+
             <tr>
                 <td><?= h($usuario_has_veiculo->veiculo->placa) ?></td>
                 <td><?= h($usuario_has_veiculo->veiculo->modelo) ?></td>
                 <td><?= h($usuario_has_veiculo->veiculo->fabricante) ?></td>
                 <td><?= h($usuario_has_veiculo->veiculo->ano) ?></td>
-                
+
                 <td class="actions">
                     <?= $this->Html->link(
                         __(

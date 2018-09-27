@@ -674,6 +674,7 @@ class UsuariosController extends AppController
             if (isset($this->user_logged)) {
                 $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
 
+                $veiculoDataBase = $veiculoDataBase["veiculo"];
                 if ($veiculosData) {
                     if ($veiculoDataBase) {
                         $veiculo = $veiculoDataBase;
@@ -1606,11 +1607,15 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarOperador()
+    public function adicionarOperador(int $redes_id = null)
     {
         $usuario = $this->Usuarios->newEntity();
 
         $rede = $this->request->session()->read("Network.Main");
+
+        if (empty($rede)){
+            $rede = $this->Redes->getRedeById($redes_id);
+        }
         $redes_id = $rede["id"];
 
         $user_admin = $this->request->session()->read('User.RootLogged');
@@ -1652,6 +1657,11 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+
+            if (empty($redes_id)) {
+                $redes_id = $data["redes_id"];
+                $rede = $this->Redes->getRedeById($redes_id);
+            }
 
             $usuarioData = $data;
 
@@ -1766,7 +1776,7 @@ class UsuariosController extends AppController
                     return $this->redirect(['action' => 'index']);
                 } else {
                     if (isset($redes_id)) {
-                        return $this->redirect(['action' => 'usuarios_rede']);
+                        return $this->redirect(['action' => 'usuarios_rede', $redes_id]);
                     }
                     return $this->redirect(['action' => 'index']);
                 }
@@ -2251,10 +2261,14 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function usuariosRede()
+    public function usuariosRede(int $redes_id = null)
     {
         $rede = $this->request->session()->read("Network.Main");
-        $redes_id = $rede["id"];
+
+        if (!empty($rede)) {
+            $redes_id = $rede["id"];
+        }
+
         $cliente = $this->request->session()->read('Network.Unit');
         $client_to_manage = $this->request->session()->read('ClientToManage');
 
@@ -2418,9 +2432,14 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function administradoresRegionaisComuns()
+    public function administradoresRegionaisComuns(int $redes_id = null)
     {
         $rede = $this->request->session()->read('Network.Main');
+
+        if (empty($rede)) {
+            $rede = $this->Redes->getRedeById($redes_id);
+        }
+
         $redes_id = $rede["id"];
         $cliente = $this->request->session()->read('Network.Unit');
         $client_to_manage = $this->request->session()->read('ClientToManage');

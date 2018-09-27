@@ -11,6 +11,20 @@ $(document).ready(function () {
         $(this).val($(this).val().toUpperCase());
     });
 
+    $("#placa").mask("AAA9999", {
+        'translation': {
+            A: {
+                pattern: /[A-Za-z]/
+            },
+            9: {
+                pattern: /[0-9]/
+            }
+        },
+        onKeyPress: function (value, event) {
+            event.currentTarget.value = value.toUpperCase();
+        }
+    });
+
     $("#placa").on('blur', function () {
         var data = {
             placa: $(this).val()
@@ -20,7 +34,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: "/Veiculos/getVeiculoByPlacaAPI",
+            url: "api/Veiculos/get_veiculo_by_placa",
             data: JSON.stringify(data),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");

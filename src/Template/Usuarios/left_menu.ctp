@@ -15,6 +15,7 @@ $update_password = isset($update_password) ? $update_password : false;
 $mode = isset($mode) ? $mode : false;
 $list_users_pending_approval = isset($list_users_pending_approval) ? $list_users_pending_approval : false;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
+$redes_id = isset($redes_id) ? $redes_id : null;
 
 ?>
 
@@ -53,16 +54,16 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
             </li>
 
             <li>
-                <?= $this->Html->link(__('Novo Operador/Funcionário'), ['action' => 'adicionar_operador']) ?>
+                <?= $this->Html->link(__('Novo Operador/Funcionário'), ['action' => 'adicionar_operador', $redes_id]) ?>
             </li>
 
             <?php if (isset($redes_id)) : ?>
             <li>
-                <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede']) ?>
+                <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
             </li>
 
             <li>
-                <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns']) ?>
+                <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
             </li>
 
             <?php endif; ?>
@@ -70,17 +71,17 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
         <?php elseif ($mode == 'management') : ?>
 
             <li>
-                <?= $this->Html->link(__('Novo Funcionário'), ['action' => 'adicionar_operador']) ?>
+                <?= $this->Html->link(__('Novo Funcionário'), ['action' => 'adicionar_operador', $redes_id]) ?>
             </li>
 
             <?php if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
                 <?php if (isset($redes_id)) : ?>
                 <li>
-                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede']) ?>
+                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
                 </li>
 
                 <li>
-                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns']) ?>
+                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
                 </li>
 
                 <?php endif; ?>

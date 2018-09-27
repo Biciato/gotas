@@ -4,7 +4,6 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-
 if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
@@ -13,6 +12,8 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
         ['class' => 'active']
     );
 }
+
+$redes_id = isset($redes_id) ? $redes_id : null;
 
 $this->Breadcrumbs->add('Usuários da Rede', [], ['class' => 'active']);
 
@@ -23,7 +24,6 @@ echo $this->Breadcrumbs->render(
 $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
     || Configure::read('profileTypes')['AdminNetworkProfileType']
     || Configure::read('profileTypes')['AdminRegionalProfileType'];
-
 ?>
 
 <?= $this->element(
@@ -32,9 +32,11 @@ $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')[
         'add_user' => true,
         'mode' => 'management',
         'controller' => 'pages',
-        'action' => 'display'
+        'action' => 'display',
+        "redes_id" => $redes_id
     ]
 ) ?>
+
     <div class="usuarios index col-lg-9 col-md-10 columns content">
         <legend>
             <?= __("Usuários da Rede") ?>

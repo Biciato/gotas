@@ -1,11 +1,13 @@
-<?php 
+<?php
 
 use Cake\Core\Configure;
+
+$title = isset($title) ? $title : __('Adicionar Veículo');
 ?>
 
 <?= $this->Form->create($veiculo) ?>
     <fieldset>
-        <legend><?= __('Adicionar Veículo') ?></legend>
+        <legend><?= $title  ?></legend>
             <?= $this->Form->control('placa', ['id' => 'placa']); ?>
 
             <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message'])?>
@@ -19,13 +21,13 @@ use Cake\Core\Configure;
             'class' => 'btn btn-primary',
             'escape' => false
         ]
-    
+
     ) ?>
     <?= $this->Form->end() ?>
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/veiculos/form_cadastrar_veiculo') ?>
-<?php else: ?> 
+<?php else: ?>
     <?= $this->Html->script('scripts/veiculos/form_cadastrar_veiculo.min') ?>
 <?php endif; ?>
 

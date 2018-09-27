@@ -111,6 +111,15 @@ class RedesTable extends GenericTable
             ->allowEmpty('ativado');
 
         $validator
+            ->decimal("valor_referencia_gotas")
+            // ->requirePresence('valor_referencia_gotas', 'create')
+            ->notEmpty("valor_referencia_gotas");
+
+        $validator
+            ->integer("media_assiduidade_clientes")
+            ->notEmpty("media_assiduidade_clientes");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
