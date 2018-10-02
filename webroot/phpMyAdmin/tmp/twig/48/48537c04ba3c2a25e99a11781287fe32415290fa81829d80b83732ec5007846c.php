@@ -40,6 +40,6 @@ class __TwigTemplate_f889dd6eaec23f4d97c797f537a528e00d47d4e28825ccc0fed846c0558
 
     public function getSourceContext()
     {
-        return new Twig_Source("", "config/form_display/tabs_bottom.twig", "/var/www/html/phpMyAdmin/templates/config/form_display/tabs_bottom.twig");
+        return new Twig_Source("", "config/form_display/tabs_bottom.twig", "/media/sf_gotas/webroot/phpMyAdmin/templates/config/form_display/tabs_bottom.twig");
     }
 }

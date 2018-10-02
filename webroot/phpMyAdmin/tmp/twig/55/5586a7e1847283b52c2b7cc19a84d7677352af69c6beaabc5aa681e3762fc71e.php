@@ -73,6 +73,6 @@ class __TwigTemplate_243838d4044defdcbd326cb71fd01dbef728f1f42121e11a9ad1333b08a
 
     public function getSourceContext()
     {
-        return new Twig_Source("", "navigation/logo.twig", "/var/www/html/phpMyAdmin/templates/navigation/logo.twig");
+        return new Twig_Source("", "navigation/logo.twig", "/media/sf_gotas/webroot/phpMyAdmin/templates/navigation/logo.twig");
     }
 }

@@ -121,6 +121,6 @@ class __TwigTemplate_37eb3003c90c7e4481d489b64349f6476164a811f0775382b1c3cbcb204
 
     public function getSourceContext()
     {
-        return new Twig_Source("", "list/item.twig", "/var/www/html/phpMyAdmin/templates/list/item.twig");
+        return new Twig_Source("", "list/item.twig", "/media/sf_gotas/webroot/phpMyAdmin/templates/list/item.twig");
     }
 }
