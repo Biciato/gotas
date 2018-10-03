@@ -1956,6 +1956,22 @@ class PontuacoesComprovantesController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+
+    public function setPontuacoesUsuarioViaPostoAPI()
+    {
+
+        $data = array();
+
+        if ($this->request->is("post")){
+            $data = $this->request->getData();
+            $arraySet = array("data");
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+        }
+
+    }
+
     /**
      * PontuacoesComprovantesController::validarUrlQrCode
      *

@@ -174,6 +174,11 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/set_comprovante_fiscal_usuario"
                 ],
+                "setPontuacoesUsuarioViaPostoAPI" => array(
+                    "action" => "setPontuacoesUsuarioViaPostoAPI",
+                    "method" => "POST",
+                    "path" => "/set_pontuacoes_usuario_via_posto"
+                ),
                 "removerPontuacoesDevAPI" => array(
                     "action" => "removerPontuacoesDevAPI",
                     "method" => "GET",
