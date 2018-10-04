@@ -79,12 +79,21 @@ class UsuariosTable extends GenericTable
         $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
+        // $this->hasMany(
+        //     'ClientesHasUsuarios',
+        //     array(
+        //         'foreignKey' => 'usuarios_id',
+        //         'joinType' => 'INNER'
+        //     )
+        // );
+
         $this->hasMany(
             'ClientesHasUsuarios',
-            [
-                'foreignKey' => 'usuarios_id',
-                'join' => 'INNER'
-            ]
+            array(
+                "className" => "ClientesHasUsuarios",
+                'foreignKey' => 'id',
+                'joinType' => 'LEFT'
+            )
         );
 
         $this->hasMany('UsuariosHasVeiculos')
@@ -1191,7 +1200,7 @@ class UsuariosTable extends GenericTable
             return $this->_getUsuarioTable()
                 ->find('all')
                 ->where($whereConditions)
-                ->contain(['ClientesHasUsuarios.Cliente.RedeHasCliente.Redes']);
+                ->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
 
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

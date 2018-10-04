@@ -89,7 +89,7 @@ class ClientesHasUsuariosTable extends Table
             [
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'joinType' => 'LEFT'
             ]
         );
 
@@ -98,7 +98,7 @@ class ClientesHasUsuariosTable extends Table
             [
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'joinType' => 'LEFT'
             ]
         );
         // $this->belongsToMany(

@@ -215,7 +215,7 @@ class UsuariosController extends AppController
                 array_push(
                     $conditions,
                     [
-                        $data['opcoes'] . ' like ' => '%' . $value . '%'
+                        'redes.' . $data['opcoes'] . ' like ' => '%' . $value . '%'
                     ]
                 );
             } else {
@@ -237,10 +237,12 @@ class UsuariosController extends AppController
             Configure::read("profileTypes")["DummyUserProfileType"]
         ));
 
-        array_push($conditions, ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminDeveloperProfileType']]);
+        array_push($conditions, ['usuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminDeveloperProfileType']]);
+
         $usuarios = $this->Usuarios->findAllUsuarios($conditions);
 
-        $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['tipo_perfil' => 'ASC']]);
+        // $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['tipo_perfil' => 'ASC']]);
+        $usuarios = $this->paginate($usuarios, ['limit' => 10]);
 
         $this->set(compact('usuarios'));
         $this->set('_serialize', ['usuarios']);
@@ -676,15 +678,17 @@ class UsuariosController extends AppController
             }
 
             if (isset($this->user_logged)) {
-                $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
+                if (strlen($veiculosData["placa"]) > 0) {
+                    $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
 
-                $veiculoDataBase = $veiculoDataBase["veiculo"];
-                if ($veiculosData) {
-                    if ($veiculoDataBase) {
-                        $veiculo = $veiculoDataBase;
-                    } else {
-                        $veiculo = $this->Veiculos->patchEntity($veiculo, $veiculosData);
-                        $veiculo = $this->Veiculos->save($veiculo);
+                    $veiculoDataBase = $veiculoDataBase["veiculo"];
+                    if ($veiculosData) {
+                        if ($veiculoDataBase) {
+                            $veiculo = $veiculoDataBase;
+                        } else {
+                            $veiculo = $this->Veiculos->patchEntity($veiculo, $veiculosData);
+                            $veiculo = $this->Veiculos->save($veiculo);
+                        }
                     }
                 }
 
@@ -721,7 +725,13 @@ class UsuariosController extends AppController
             }
             $errors = $usuario->errors();
 
+            // debug($errors);
+
             $usuario = $this->Usuarios->save($usuario);
+
+            // debug($usuario);
+            // debug($veiculo);
+            // die();
 
             if ($usuario) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
@@ -1617,7 +1627,7 @@ class UsuariosController extends AppController
 
         $rede = $this->request->session()->read("Network.Main");
 
-        if (empty($rede)) {
+        if (empty($rede) && !empty($redes_id)) {
             $rede = $this->Redes->getRedeById($redes_id);
         }
         $redes_id = $rede["id"];

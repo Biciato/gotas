@@ -2,9 +2,9 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']); 
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-//$this->Breadcrumbs->add('Usuários', ['controller' => 'pages' , 'action' => 'display']); 
+//$this->Breadcrumbs->add('Usuários', ['controller' => 'pages' , 'action' => 'display']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -31,7 +31,8 @@ $list_users_pending_approval = $user_is_admin;
             <?= __("Usuários") ?>
         </legend>
 
-        <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'index', 'show_filiais' => false, 'filter_redes' => true]) ?>
+        <?php // echo $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'index', 'show_filiais' => false, 'filter_redes' => true]) ?>
+        <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'index', 'show_filiais' => false, 'filter_redes' => false]) ?>
             <table class="table table-striped table-hover table-condensed table-responsive">
                 <thead>
                     <tr>
@@ -68,7 +69,7 @@ $list_users_pending_approval = $user_is_admin;
                 <tbody>
                     <?php foreach ($usuarios as $usuario) : ?>
 
-                    <?php 
+                    <?php
                     if (isset($usuario['usuario'])) {
                         $usuario = $usuario['usuario'];
                     }
@@ -224,7 +225,12 @@ $list_users_pending_approval = $user_is_admin;
                                                             '?' =>
                                                                 [
                                                                 'usuario_id' => $usuario->id,
-                                                                'return_url' => 'index'
+                                                                'return_url' => Router::url(
+                                                                    [
+                                                                        'controller' => 'usuarios',
+                                                                        'action' => 'index'
+                                                                    ]
+                                                                )
                                                             ]
                                                         ]
                                                     ),

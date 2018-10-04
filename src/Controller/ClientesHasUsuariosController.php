@@ -214,7 +214,7 @@ class ClientesHasUsuariosController extends AppController
             $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id, $tipo_perfil);
 
             // atualiza todos os outros registros de administrador do usuário citado,
-            // dentro daquela rede 
+            // dentro daquela rede
 
             // pega os ids de clientes que pertencem à uma rede
 
@@ -307,7 +307,7 @@ class ClientesHasUsuariosController extends AppController
 
             if (sizeof($clientes_has_usuarios_query->toArray()) == 1) {
 
-                $this->Flash->error("Não é possível remover a permissão do usuário. Ele deve ter ao menos um vínculo à uma Unidade da Rede!");
+                $this->Flash->error("Não é possível remover a permissão do administrador. Ele deve ter ao menos um vínculo à uma Unidade da Rede!");
 
                 return $this->redirect(
                     [
@@ -330,7 +330,7 @@ class ClientesHasUsuariosController extends AppController
                     $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
                     $usuario->tipo_perfil = Configure::read('profileTypes')['AdminLocalProfileType'];
-                    
+
                     // salva o usuário
 
                     $usuario = $this->Usuarios->addUpdateUsuario($usuario);

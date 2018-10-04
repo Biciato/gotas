@@ -97,7 +97,7 @@ class ClientesTable extends GenericTable
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'joinType' => 'left'
             ]
         );
 

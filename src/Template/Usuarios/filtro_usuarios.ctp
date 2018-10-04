@@ -15,7 +15,7 @@ $options = [
     'email' => 'e-mail'
 ];
 
-if (isset($filter_redes)) {
+if (isset($filter_redes) && $filter_redes) {
     $options = [
         'nome' => 'nome',
         'cpf' => 'cpf',
@@ -30,16 +30,16 @@ if (isset($filter_redes)) {
 
     <div class="panel-group">
         <div class="panel panel-default">
-            <div class="panel-heading panel-heading-sm text-center"     
-                data-toggle="collapse" 
-                href="#collapse1"   
+            <div class="panel-heading panel-heading-sm text-center"
+                data-toggle="collapse"
+                href="#collapse1"
                 data-target="#filter-coupons">
                 <!-- <h4 class="panel-title"> -->
                     <div>
                         <span class="fa fa-search"></span>
                             Exibir / Ocultar Filtros
                     </div>
-            
+
                 <!-- </h4> -->
             </div>
             <div id="filter-coupons" class="panel-collapse collapse">
@@ -61,9 +61,9 @@ if (isset($filter_redes)) {
 
                     <div class="inline-block">
                         <?php if ($show_filiais) : ?>
-                            
+
                             <div class="col-lg-5">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6 parametro']) ?> 
+                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6 parametro']) ?>
                             </div>
 
                             <div class="col-lg-3">
@@ -78,7 +78,7 @@ if (isset($filter_redes)) {
                                         'class' => 'form-control col-lg-2'
                                     ]
                                 ) ?>
-                            </div>  
+                            </div>
                             <div class="col-lg-2">
                                 <?= $this->Form->input(
                                     'incluir_filiais',
@@ -101,7 +101,7 @@ if (isset($filter_redes)) {
                             </div>
                         <?php else : ?>
                             <div class="col-lg-7">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6']) ?> 
+                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6']) ?>
                             </div>
 
                             <div class="col-lg-3">
@@ -112,7 +112,7 @@ if (isset($filter_redes)) {
                                     'options' => $options,
                                     'class' => 'form-control col-lg-2'
                                 ]) ?>
-                            </div>  
+                            </div>
 
                             <div class="col-lg-2 vertical-align">
 
@@ -125,5 +125,5 @@ if (isset($filter_redes)) {
             </div>
         </div>
     </div>
-    
+
 </div>

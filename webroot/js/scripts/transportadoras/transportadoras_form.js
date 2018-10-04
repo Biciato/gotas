@@ -45,6 +45,7 @@ $(document).ready(function () {
     $(".transportadora #cnpj").mask('99.999.999/9999-99');
     $(".transportadora #tel_fixo").mask('(99)9999-9999');
     $(".transportadora #tel_celular").mask('(99)99999-9999');
+    $(".transportadora #cep").mask('99.999-999');
 
     $("#cnpj").on('keyup', function () {
         if (this.value.length == 18) {
@@ -116,7 +117,7 @@ var getCEPTransportadora = function (parameter) {
 
                 }
             });
-        } 
+        }
         else {
             //cep é inválido.
 
