@@ -57,6 +57,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <th scope="col"><?= $this->Paginator->sort('brinde_necessidades_especiais', ["label" => "Brinde Nec. Especiais?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('habilitado', ["label" => "Habilitado?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('atribuir_automatico', ["label" => "Atribuir Auto.?"]) ?></th>
+                <th scope="col"><?= $this->Paginator->sort('tipo_principal_codigo_brinde_default', ["label" => "Cód. Principal"]) ?></th>
+                <th scope="col"><?= $this->Paginator->sort('tipo_secundario_codigo_brinde_default', ["label" => "Cód. Secundário"]) ?></th>
+
                 <th scope="col" class="actions">
                     <?= __('Ações') ?>
                     <?= $this->Html->tag(
@@ -83,6 +86,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
                 <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>
+                <td><?= h($tipo->tipo_principal_codigo_brinde_default) ?> </td>
+                <td><?= h($tipo->tipo_secundario_codigo_brinde_default) ?> </td>
                 <td class="actions" style="white-space:nowrap">
                     <!-- Info -->
 

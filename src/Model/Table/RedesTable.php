@@ -456,22 +456,17 @@ class RedesTable extends GenericTable
      *
      * @return \App\Model\Entity\Rede
      */
-    public function getRedeById(int $id, bool $ativado = true)
+    public function getRedeById(int $id)
     {
         try {
             return $this->_getRedesTable()->find('all')
-                ->where(
-                    [
-                        'id' => $id,
-                        'ativado' => $ativado
-                    ]
-                )
+                ->where(array('id' => $id))
                 ->contain(
-                    [
+                    array(
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
                         'RedesHasClientes.Clientes.ClientesHasBrindesHabilitados.Brindes'
-                    ]
+                    )
                 )
                 ->first();
         } catch (\Exception $e) {

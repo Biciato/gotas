@@ -454,16 +454,51 @@ class RedesHasClientesTable extends GenericTable
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return ['success' => false, 'message' => $stringError];
+        }
+    }
+
+    /**
+     * Obtem todos os clientes e a rede pelo id da rede
+     *
+     * @param int   $redes_id     Id de Redes
+     * @param array $clientes_ids Ids de clientes
+     *
+     * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
+     */
+    public function getClientesFromRedesIdAndParams(int $redes_id, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
+    {
+        try {
+
+            $whereCondition = array();
+
+            $whereCondition[] = array('redes_id' => $redes_id);
+
+            if (!empty($nomeFantasia)) {
+                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
             }
 
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            if (!empty($razaoSocial)) {
+                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
+            }
+
+            if (!empty($cnpj)) {
+                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
+            }
+
+            return $this->_getRedesHasClientesTable()->find('all')
+                ->where($whereCondition)
+                ->contain(['Redes', 'Clientes']);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 

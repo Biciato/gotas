@@ -79,7 +79,7 @@ $qteRegistros = [
                                 "label" => "Brindes Necessidades Especiais",
                                 "class" => "form-control col-lg-5",
                                 "empty" => "<Todos>",
-                                "options" => Configure::read("enabledDisabledArray")
+                                "options" => Configure::read("yesNoArray")
                             ]
                         ) ?>
                     </div>
@@ -92,7 +92,7 @@ $qteRegistros = [
                                     "type" => 'select',
                                     "id" => 'habilitado',
                                     "label" => 'Habilitado',
-                                    "options" => Configure::read("yesNoArray"),
+                                    "options" => Configure::read("enabledDisabledArray"),
                                     "empty" => "<Todos>",
                                     "default" => '10',
                                     "class" => 'form-control col-lg-2'

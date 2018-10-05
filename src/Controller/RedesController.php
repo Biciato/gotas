@@ -73,8 +73,25 @@ class RedesController extends AppController
 
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($id);
+            $nomeFantasia = null;
+            $razaoSocial = null;
+            $cnpj = null;
 
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
+
+                $nomeFantasia = !empty($data["nomeFantasia"]) ? $data["nomeFantasia"] : null;
+                $razaoSocial = !empty($data["razaoSocial"]) ? $data["razaoSocial"] : null;
+                $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
+
+                // debug($data);
+                // die();
+            }
+
+            $redes_has_clientes = $this->RedesHasClientes->getClientesFromRedesIdAndParams($id, $nomeFantasia, $razaoSocial, $cnpj);
+            // $redes_has_clientes = $rede["redes_has_clientes"];
+
+            // $this->paginate($rede["redes_has_clientes"], ['limit' => 10]);
             $this->paginate($redes_has_clientes, ['limit' => 10]);
 
             $this->set(compact('rede', 'redes_has_clientes', 'imagem'));
@@ -212,7 +229,7 @@ class RedesController extends AppController
 
                 $rede = $this->Redes->patchEntity($rede, $data);
 
-                debug($rede->errors());
+                // debug($rede->errors());
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
@@ -420,7 +437,7 @@ class RedesController extends AppController
 
             $rede = $this->Redes->getRedeById($rede["id"]);
 
-            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead") , $rede["propaganda_img"]);
+            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $rede["propaganda_img"]);
 
             $imagemOriginal = null;
 

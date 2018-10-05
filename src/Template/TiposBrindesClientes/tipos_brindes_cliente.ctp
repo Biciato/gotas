@@ -131,20 +131,31 @@ echo $this->Breadcrumbs->render(
                                         '{0}',
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
-                                    [
-                                        "controller" => "tipos_brindes_clientes",
-                                        'action' => 'alteraEstadoTiposBrindesCliente',
-                                        '?' =>
+                                    "#",
+                                    array(
+                                        'class' => 'btn btn-danger btn-xs',
+                                        'escape' => false,
+                                        "title" => "Habilitar",
+                                        'data-toggle' => 'modal',
+                                        'data-target' => '#modal-delete-with-message',
+                                        'data-message' => __(Configure::read('messageEnableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-action' => Router::url(
                                             array(
-                                            'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
-                                            'return_url' => array(
-                                                "controller" => "tipos_brindes_clientes",
-                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
-                                            ),
-                                            "estado" => false,
-                                            "clientes_id" => $cliente["id"]
-                                        )
-                                    ],
+                                                'action' => 'alteraEstadoTiposBrindesCliente',
+                                                '?' =>
+                                                    array(
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    "clientes_id" => $cliente["id"],
+                                                    "estado" => false,
+                                                    'return_url' => array(
+                                                        "controller" => "tipos_brindes_clientes",
+                                                        "action" => 'tipos_brindes_cliente', $cliente["id"]
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        "escape" => false
+                                    ),
                                     [
                                         'class' => 'btn btn-danger btn-xs',
                                         'escape' => false,
@@ -158,25 +169,31 @@ echo $this->Breadcrumbs->render(
                                         '{0}',
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
-                                    [
-                                        "controller" => "tipos_brindes_clientes",
-                                        'action' => 'alteraEstadoTiposBrindesCliente',
-                                        '?' =>
-                                            array(
-                                            'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
-                                            'return_url' => array(
-                                                "controller" => "tipos_brindes_clientes",
-                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
-                                            ),
-                                            "estado" => true,
-                                            "clientes_id" => $cliente["id"]
-                                        )
-                                    ],
-                                    [
+                                    "#",
+                                    array(
                                         'class' => 'btn btn-primary btn-xs',
                                         'escape' => false,
-                                        "title" => "Habilitar"
-                                    ]
+                                        "title" => "Habilitar",
+                                        'data-toggle' => 'modal',
+                                        'data-target' => '#modal-delete-with-message',
+                                        'data-message' => __(Configure::read('messageDisableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-action' => Router::url(
+                                            array(
+                                                'action' => 'alteraEstadoTiposBrindesCliente',
+                                                '?' =>
+                                                    array(
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    "clientes_id" => $cliente["id"],
+                                                    "estado" => true,
+                                                    'return_url' => array(
+                                                        "controller" => "tipos_brindes_clientes",
+                                                        "action" => 'tipos_brindes_cliente', $cliente["id"]
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        "escape" => false
+                                    )
                                 ) ?>
 
                             <?php endif; ?>

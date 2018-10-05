@@ -1381,26 +1381,37 @@ class PontuacoesComprovantesController extends AppController
 
                 // Critérios de pesquisa
                 if (!is_null($redesId)) {
-                    $rede = $this->Redes->getRedeById($redesId, true);
+                    $rede = $this->Redes->getRedeById($redesId);
 
-                    if (!is_null($rede)) {
-
-                        foreach ($rede->redes_has_clientes as $key => $value) {
-                            $clientesIds[] = $value->clientes_id;
-                        }
-
-                    } else {
-
+                    if (empty($rede) || !$rede["ativado"]) {
                         // Situação rara de acontecer, pois o usuário só irá conseguir selecionar uma rede que está desativada
                         // se a alteração aconteceu durante a utilização
-                        $mensagem = ['status' => false, 'message' => __("Não foi encontrado unidades para a rede informada, pois esta rede não existe ou está desabilitada no sistema!")];
+                        $mensagem = ['status' => false, 'message' => __("Não foi possível realizar a operação, pois a rede se encontra desabilitada no sistema!")];
 
                         $arraySet = ["mensagem"];
                         $this->set(compact($arraySet));
                         $this->set("_serialize", $arraySet);
 
                         return;
+                    } else {
+
+                        foreach ($rede->redes_has_clientes as $key => $value) {
+                            $clientesIds[] = $value->clientes_id;
+                        }
+
                     }
+                    // else {
+
+                    //     // Situação rara de acontecer, pois o usuário só irá conseguir selecionar uma rede que está desativada
+                    //     // se a alteração aconteceu durante a utilização
+                    //     $mensagem = ['status' => false, 'message' => __("Não foi encontrado unidades para a rede informada, pois esta rede não existe ou está desabilitada no sistema!")];
+
+                    //     $arraySet = ["mensagem"];
+                    //     $this->set(compact($arraySet));
+                    //     $this->set("_serialize", $arraySet);
+
+                    //     return;
+                    // }
                 } else if (!is_null($clientesId)) {
                     $clientesIds[] = $clientesId;
                 }
@@ -1962,7 +1973,7 @@ class PontuacoesComprovantesController extends AppController
 
         $data = array();
 
-        if ($this->request->is("post")){
+        if ($this->request->is("post")) {
             $data = $this->request->getData();
             $arraySet = array("data");
 
@@ -2151,13 +2162,13 @@ class PontuacoesComprovantesController extends AppController
                 $status = 0;
             } else {
                 $message = Configure::read("messageWarningDefault");
-                $errors[] ="Este registro está aguardando processamento, não é necessário importar novamente!";
+                $errors[] = "Este registro está aguardando processamento, não é necessário importar novamente!";
                 $status = 0;
             }
         } elseif ($pontuacaoComprovante) {
             $status = 0;
             $message = Configure::read("messageOperationFailureDuringProcessing");
-                $errors[] = "Este registro já foi importado previamente!";
+            $errors[] = "Este registro já foi importado previamente!";
         }
 
         return array("status" => $status, "message" => $message, "errors" => $errors);

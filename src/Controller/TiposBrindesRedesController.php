@@ -84,7 +84,7 @@ class TiposBrindesRedesController extends AppController
              * Se não for: Lógica padrão Developer
              *
              */
-            if ((!empty($data["equipamento_rti"]) && isset($data["equipamento_rti"]))) {
+            if (isset($data["equipamento_rti"]) && strlen($data["equipamento_rti"]) > 0) {
                 $whereConditions[] = ["equipamento_rti" => $data["equipamento_rti"]];
             }
 
@@ -94,12 +94,12 @@ class TiposBrindesRedesController extends AppController
             }
 
             // Habilitado
-            if (!empty($data["habilitado"]) && isset($data["habilitado"])) {
+            if (isset($data["habilitado"]) && strlen($data["habilitado"]) > 0) {
                 $whereConditions[] = ["habilitado" => $data["habilitado"]];
             }
 
             // Atribuir automaticamente
-            if (!empty($data["atribuir_automatico"]) && isset($data["atribuir_automatico"])) {
+            if (isset($data["atribuir_automatico"]) && strlen($data["atribuir_automatico"]) > 0) {
                 $whereConditions[] = ["atribuir_automatico" => $data["atribuir_automatico"]];
             }
 
@@ -413,7 +413,7 @@ class TiposBrindesRedesController extends AppController
 
             return $this->redirect($returnUrl);
         } catch (\Exception $e) {
-            $messageString = __("Não foi possível deletar um Gênero de Brindes!");
+            $messageString = __("Não foi possível deletar um Tipo de Brindes de Rede!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);

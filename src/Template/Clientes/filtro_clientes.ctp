@@ -33,7 +33,7 @@
                     <span class="fa fa-search"></span>
                         Exibir / Ocultar Filtros
                 </div>
-          
+
             <!-- </h4> -->
         </div>
         <div id="filter-coupons" class="panel-collapse collapse">
@@ -42,32 +42,44 @@
                         'url' =>
                         [
                             'controller' => $controller,
-                            'action' => $action
+                            'action' => $action,
+                            $id
                         ]
                     ]
                 ) ?>
                 <div class="col-lg-3">
-
-                    <?= $this->Form->input('opcoes', ['type' => 'select',
-                        'id' => 'opcoes',
-                        'label' => 'Pesquisar por',
-                        'options' => $list_options,
-                        'class' => 'form-control col-lg-2'
-                    ]) ?>
-                </div>  
-        
-                <div class="col-lg-7">
                     <?= $this->Form->input(
-                        'parametro',
+                        'nomeFantasia',
                         [
-                            'id' => 'parametro',
-                            'label' => 'Parâmetro',
+                            'id' => 'nomeFantasia',
+                            'label' => 'Nome Fantasia',
                             'class' => 'form-control col-lg-5'
                         ]
-                    ) ?> 
+                    ) ?>
+                </div>
+                <div class="col-lg-3">
+                    <?= $this->Form->input(
+                        'razaoSocial',
+                        [
+                            'id' => 'razaoSocial',
+                            'label' => 'Razão Social',
+                            'class' => 'form-control col-lg-5'
+                        ]
+                    ) ?>
+                </div>
+                <div class="col-lg-3">
+                    <?= $this->Form->input(
+                        'cnpj',
+                        [
+                            'id' => 'cnpj',
+                            'label' => 'CNPJ',
+                            'class' => 'form-control col-lg-5',
+                            "type" => "text"
+                        ]
+                    ) ?>
                 </div>
 
-                <div class="col-lg-2 vertical-align">
+                <div class="col-lg-2 vertical-align pull-right">
 
                     <?= $this->Form->button(
                         __("{0} Pesquisar", '<i class="fa       fa-search" aria-hidden="true"></i>'),
@@ -76,20 +88,20 @@
                             'type' => 'submit'
                         ]
                     ) ?>
-                                
+
                 <?= $this->Form->end() ?>
                 </div>
 
             </div>
         </div>
     </div>
-    
+
 </div>
 
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/clientes/filtro_clientes')?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/clientes/filtro_clientes.min')?>
 <?php endif; ?>
 
