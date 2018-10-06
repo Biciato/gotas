@@ -122,6 +122,83 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             "title" => "Editar"
                         ]
                     ) ?>
+
+
+                    <?php if ($tipo["habilitado"]) : ?>
+                        <!-- Desabilitar -->
+                        <?= $this->Html->link(
+                            __(
+                                '{0} ',
+                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                            ),
+                            '#',
+                            [
+                                'title' => 'Desativar',
+                                'class' => 'btn btn-xs btn-danger btn-confirm',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#modal-delete-with-message',
+                                'data-message' => __(Configure::read('messageDisableQuestion'), $tipo["nome"]),
+                                'data-action' => Router::url(
+                                    [
+                                        'controller' => 'tipos_brindes_redes',
+                                        'action' => 'alteraEstadoTipoBrindeRede', $tipo["id"],
+                                        '?' =>
+                                            [
+                                            'tipos_brindes_redes_id' => $tipo["id"],
+                                            "habilitar" => 0,
+                                            'return_url' =>
+                                                [
+                                                'controller' => 'tipos_brindes_redes',
+                                                'action' => 'configurar_tipos_brindes_rede',
+                                                $tipo["redes_id"]
+                                            ]
+                                        ]
+                                    ]
+                                ),
+                                'escape' => false
+                            ],
+                            false
+                        );
+                        ?>
+                    <?php else: ?>
+                        <!-- Ativar -->
+                        <?= $this->Html->link(
+                            __(
+                                '{0} ',
+                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                            ),
+                            '#',
+                            [
+                                'title' => 'Habilitar',
+                                'class' => 'btn btn-xs btn-primary btn-confirm',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#modal-delete-with-message',
+                                'data-message' => __(Configure::read('messageEnableQuestion'), $tipo["nome"]),
+                                'data-action' => Router::url(
+                                    [
+                                        'controller' => 'tipos_brindes_redes',
+                                        'action' => 'alteraEstadoTipoBrindeRede', $tipo["id"],
+                                        '?' =>
+                                            [
+                                            'tipos_brindes_redes_id' => $tipo["id"],
+                                            "habilitar" => 1,
+                                            'return_url' =>
+                                                [
+                                                'controller' => 'tipos_brindes_redes',
+                                                'action' => 'configurar_tipos_brindes_rede',
+                                                $tipo["redes_id"]
+                                            ]
+                                        ]
+                                    ]
+                                ),
+                                'escape' => false
+                            ],
+                            false
+                        );
+                        ?>
+
+                    <?php endif; ?>
+
                     <!-- Delete -->
                     <?= $this->Html->link(
                         __(

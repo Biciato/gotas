@@ -210,6 +210,19 @@ class TiposBrindesRedesTable extends GenericTable
         }
     }
 
+    public function updateStateTiposBrindesRedesById(int $id, int $estado)
+    {
+        try {
+            $tipoBrindeRede = $this->getTiposBrindesRedeById($id);
+            $tipoBrindeRede["habilitado"] = $estado;
+
+            return $this->save($tipoBrindeRede);
+        } catch (\Exception $e) {
+
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     /* -------------------------- Read  ----------------------------- */
 
     /**

@@ -428,6 +428,36 @@ class TiposBrindesRedesController extends AppController
         }
     }
 
+    public function alteraEstadoTipoBrindeRede()
+    {
+        try {
+
+            $query = $this->request->query;
+
+            $tiposBrindesRedesId = $query["tipos_brindes_redes_id"];
+            $habilitar = $query["habilitar"];
+
+            $returnUrl = $query["return_url"];
+
+            // debug($query); die();
+
+            $tipoBrindeRede = $this->TiposBrindesRedes->updateStateTiposBrindesRedesById($tiposBrindesRedesId, $habilitar);
+
+            debug($tipoBrindeRede);
+
+            if ($tipoBrindeRede) {
+                $message = $habilitar ? "messageEnableSuccess" : "messageDisableSuccess";
+                $this->Flash->success(Configure::read($message));
+
+                return $this->redirect($returnUrl);
+            } else {
+                $this->Flash->error("Registro não pode ser {0}. Tente novamente!");
+            }
+        } catch (\Exception $e) {
+
+        }
+    }
+
     /**
      * --------------------------------------------------------------------------------
      * Métodos de Serviços REST
