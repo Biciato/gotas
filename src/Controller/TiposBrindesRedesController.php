@@ -73,7 +73,7 @@ class TiposBrindesRedesController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
-            // Nome do gênero
+            // Nome do Tipo de brinde
             if ((!empty($data["nome"]) && isset($data["nome"])) && strlen($data["nome"]) > 0) {
                 $whereConditions[] = ["nome like '%" . $data["nome"] . "%'"];
             }
@@ -139,7 +139,7 @@ class TiposBrindesRedesController extends AppController
     /**
      * TiposBrindesRedesController::adicionarTipoBrindeRede
      *
-     * Método de adicionar Gênero de Brinde
+     * Método de adicionar Tipo de Brinde
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 31/05/2018
@@ -184,7 +184,7 @@ class TiposBrindesRedesController extends AppController
 
 
                 /**
-                 * Valida se há outro gênero com mesmo nome
+                 * Valida se há outro tipo de brinde com mesmo nome
                  * e se também é brinde de Nec. Especiais
                  */
                 $whereConditions = array();
@@ -248,7 +248,7 @@ class TiposBrindesRedesController extends AppController
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
-            $messageString = __("Não foi possível adicionar um Gênero de Brindes!");
+            $messageString = __("Não foi possível adicionar um Tipo de Brindes!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -263,7 +263,7 @@ class TiposBrindesRedesController extends AppController
     /**
      * TiposBrindesRedesController::editarTiposBrindesRede
      *
-     * Método de editar Gênero de Brinde
+     * Método de editar Tipo de Brinde
      *
      * @param string|null $id Tipos Brinde Redes id.
      *
@@ -305,7 +305,7 @@ class TiposBrindesRedesController extends AppController
                 // }
 
                 /**
-                 * Valida se há outro gênero com mesmo nome
+                 * Valida se há outro tipo de brinde com mesmo nome
                  * e se também é brinde de Nec. Especiais
                  */
 
@@ -368,7 +368,7 @@ class TiposBrindesRedesController extends AppController
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
-            $messageString = __("Não foi possível editar um Gênero de Brindes!");
+            $messageString = __("Não foi possível editar um Tipo de Brindes!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -383,7 +383,7 @@ class TiposBrindesRedesController extends AppController
     /**
      * TiposBrindesRedesController::delete
      *
-     * Método de remover Gênero de Brinde
+     * Método de remover Tipo de Brinde
      *
      * @param string|null $id Tipos Brindes Redes id.
      *
@@ -428,7 +428,16 @@ class TiposBrindesRedesController extends AppController
         }
     }
 
-    public function alteraEstadoTipoBrindeRede()
+    /**
+     * TiposBrindesRedesController::alteraEstadoTiposBrindesRede
+     *
+     * Altera o estado do brinde para a rede
+     *
+     *
+     *
+     * @return void
+     */
+    public function alteraEstadoTiposBrindesRede()
     {
         try {
 
@@ -467,7 +476,7 @@ class TiposBrindesRedesController extends AppController
     /**
      * TiposBrindesRedesClientesController::getTiposBrindesRedeAPI
      *
-     * Obtem a lista de Gênero de Brindes vinculada a unidades da rede
+     * Obtem a lista de Tipo de Brindes vinculada a unidades da rede
      *
      * @param int $post["redesId"] Id da rede
      * @param int $post["clientesId"] Id do cliente
@@ -537,7 +546,7 @@ class TiposBrindesRedesController extends AppController
             }
 
         } catch (\Exception $e) {
-            $messageString = __("Não foi possível obter dados de Gênero de Brindes do Cliente!");
+            $messageString = __("Não foi possível obter dados de Tipo de Brindes do Cliente!");
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

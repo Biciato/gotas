@@ -54,7 +54,7 @@ class TiposBrindesClientesController extends AppController
             $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível exibir os dados de Gênero de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
+            $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -85,7 +85,19 @@ class TiposBrindesClientesController extends AppController
             throw new \Exception(__("{0}{1}"), Configure::read("messageLoadDataWithError"), __(Configure::read("messageRecordClienteNotFound")));
         }
 
-        $tiposBrindesRedes = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"]);
+        $tiposBrindesRedesQuery = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"]);
+
+        $tiposBrindesRedes = array();
+        foreach ($tiposBrindesRedesQuery as $tipoBrinde) {
+            $tipo = array(
+                "text" => $tipoBrinde["nome"],
+                "value" => $tipoBrinde["id"],
+                "id" => "tipos_brindes_redes_id",
+                "data-tipo-principal" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                "data-tipo-secundario" => $tipoBrinde["tipo_secundario_codigo_brinde_default"]
+            );
+            $tiposBrindesRedes[] = $tipo;
+        }
 
         try {
 
@@ -111,13 +123,13 @@ class TiposBrindesClientesController extends AppController
                     $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
                     if (!empty($tiposBrindesCheck)) {
-                        $this->Flash->error(__("Já existe um gênero de brinde configurado para este cliente, conforme informações passadas!"));
+                        $this->Flash->error(__("Já existe um tipo de brinde configurado para este cliente, conforme informações passadas!"));
 
                     } else {
 
                         /**
                          * Agora verifica se o mesmo código primário / secundário já não existe
-                         * Cada Gênero deve pertencer a uma combinação única
+                         * Cada Tipo de Brinde deve pertencer a uma combinação única
                          */
                         $whereConditions = array(
                             [
@@ -166,7 +178,7 @@ class TiposBrindesClientesController extends AppController
 
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível gravar um novo Gênero de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
+            $messageString = __("Não foi possível gravar um novo Tipo de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -189,7 +201,7 @@ class TiposBrindesClientesController extends AppController
     /**
      * TiposBrindesClientesController::editarTiposBrindesCliente
      *
-     * Método de edição de um gênero de brindes
+     * Método de edição de um tipos de brindes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 06/06/2018
@@ -206,19 +218,18 @@ class TiposBrindesClientesController extends AppController
 
             $cliente = $this->Clientes->getClienteById($tiposBrindesCliente["clientes_id"]);
 
-            $tiposBrindes = $this->TiposBrindes->find('list');
-
             if ($this->request->is(['patch', 'post', 'put'])) {
 
                 $data = $this->request->getData();
                 /**
-                 * Verifica se há algum outro gênero de brinde cadastrado para este usuário,
+                 * Verifica se há algum outro tipo de brinde cadastrado para este usuário,
                  * onde o tipo principal e secundário batem com outro mas o id é diferente do que
                  * está sendo modificado.
                  */
 
                 $whereConditions = array(
                     "id != " => $id,
+                    "clientes_id != " => $tiposBrindesCliente["clientes_id"],
                     "tipo_principal_codigo_brinde" => $data["tipo_principal_codigo_brinde"],
                     "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
                 );
@@ -233,15 +244,17 @@ class TiposBrindesClientesController extends AppController
                     if ($this->TiposBrindesClientes->save($tiposBrindesCliente)) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                        return $this->redirect(['action' => 'tiposs_brindes_cliente', $cliente["id"]]);
+                        return $this->redirect(['action' => 'tipos_brindes_cliente', $cliente["id"]]);
                     }
                     $this->Flash->error(__(Configure::read("messageSavedSuccess")));
                 }
             }
 
+            $tiposBrindesRedes = array();
+
             $arraySet = [
                 "cliente",
-                "tiposBrindes",
+                "tiposBrindesRedes",
                 "tiposBrindesCliente"
             ];
 
@@ -250,7 +263,7 @@ class TiposBrindesClientesController extends AppController
 
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível gravar um novo Gênero de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
+            $messageString = __("Não foi possível gravar um novo Tipo de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -270,11 +283,9 @@ class TiposBrindesClientesController extends AppController
     public function delete($id = null)
     {
         try {
-            $query = $this->request->query;
             $this->request->allowMethod(['post', 'delete']);
-
+            $query = $this->request->query;
             $tiposBrindesClienteId = $query["tipos_brindes_cliente_id"];
-
             $returnUrl = $query["return_url"];
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->get($tiposBrindesClienteId);
@@ -287,7 +298,7 @@ class TiposBrindesClientesController extends AppController
             return $this->redirect($returnUrl);
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível remover um Gênero de Brindes!");
+            $messageString = __("Não foi possível remover um Tipo de Brindes!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -327,7 +338,7 @@ class TiposBrindesClientesController extends AppController
     }
 
     /**
-     * Altera o estado de um Gênero de Brinde de Cliente
+     * Altera o estado de um Tipo de Brinde de Cliente
      *
      * @param  $query["tipos_brindes_cliente_id"]
      * @param  $query["clientes_id"]
@@ -364,7 +375,7 @@ class TiposBrindesClientesController extends AppController
             return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "tipos_brindes_cliente", $clientesId));
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Gênero de Brindes de Cliente!");
+            $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Tipo de Brindes de Cliente!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);

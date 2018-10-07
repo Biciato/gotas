@@ -25,6 +25,10 @@ $(document).ready(function () {
             $("#tipo_principal_codigo_brinde").attr("readonly", true);
             $("#tipo_secundario_codigo_brinde").attr("readonly", true);
         } else {
+            var tipoPrincipal = jQuery("option:selected", this).data("tipo-principal");
+            $("#tipo_principal_codigo_brinde").val(tipoPrincipal);
+            var tipoSecundario = jQuery("option:selected", this).data("tipo-secundario");
+            $("#tipo_secundario_codigo_brinde").val(tipoSecundario);
             $("#tipo_principal_codigo_brinde").attr("readonly", false);
             $("#tipo_secundario_codigo_brinde").attr("readonly", false);
         }

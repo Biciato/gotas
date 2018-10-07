@@ -387,7 +387,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         }
 
         /**
-         * Verifica se a unidade do cliente tem o gênero configurado.
+         * Verifica se a unidade do cliente tem o tipo de brinde configurado.
          * Sem isso, não é possível continuar.
          */
 

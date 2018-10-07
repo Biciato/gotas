@@ -468,7 +468,7 @@ class BrindesController extends AppController
 
                 $brinde = $this->Brindes->patchEntity($brinde, $data);
 
-                // Preserva o id base de gênero brindes
+                // Preserva o id base de tipos brindes
                 $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
 
                 // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);

@@ -406,7 +406,7 @@ class TiposBrindesClientesTable extends GenericTable
                 $tipoBrindesIds[] = $tipoBrindesClienteJaUsado["tipos_brindes_redes_id"];
             }
 
-            $tipoBrindes = $this->TiposBrindesRedes->find('list');
+            $tipoBrindes = $this->TiposBrindesRedes->find('all');
 
             if (sizeof($tipoBrindesIds) > 0) {
                 $tipoBrindes = $tipoBrindes->where(

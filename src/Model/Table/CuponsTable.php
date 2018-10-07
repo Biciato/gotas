@@ -222,12 +222,12 @@ class CuponsTable extends GenericTable
 
             /**
              * Para saber se o brinde é banho ou não (e como será 'calculado' os códigos primários e secundários),
-             * preciso pegar qual é o Gênero Brindes Cliente associado ào registro e ver o que realmente está configurado.
+             * preciso pegar qual é o Tipo Brindes Cliente associado ào registro e ver o que realmente está configurado.
              * Se for menor ou igual a 4, é banho. Aí, o tempo de banho tem que ser adicionado 10.
              * Se não for, é a configuração passada.
              */
 
-            // Obtem Gênero Brinde Cliente configurado
+            // Obtem Tipo Brinde Cliente configurado
 
             $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
@@ -343,7 +343,7 @@ class CuponsTable extends GenericTable
      * @param int                                              $quantidade
      * @return void
      *
-     * @deprecated 1.0 Versão não será mais utilizada, pois perdeu o sentido desta função com a regra de gêneros no sistema
+     * @deprecated 1.0 Versão não será mais utilizada, pois perdeu o sentido desta função com a regra de Tipos no sistema
      */
     public function addCuponsBrindesForUsuario($brinde_habilitado, $usuarios_id, $quantidade)
     {
@@ -465,7 +465,7 @@ class CuponsTable extends GenericTable
         try {
 
             /**
-             * Nesta pesquisa, se o usuário informar Condições de Gênero Brindes Clientes,
+             * Nesta pesquisa, se o usuário informar Condições de Tipo Brindes Clientes,
              * a pesquisa será particularmente pelo tipo principal de código de brinde.
              * Mas foi deixado como array, pois esta pesquisa pode ampliar no futuro
              *

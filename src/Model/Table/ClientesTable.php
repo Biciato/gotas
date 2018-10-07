@@ -271,7 +271,7 @@ class ClientesTable extends GenericTable
 
                 $result = $this->_getClientesTable()->RedeHasCliente->save($redes_has_cliente);
 
-                // Atribui os Gêneros de Brindes que são de atribuição automática
+                // Atribui os Tipos de Brindes que são de atribuição automática
 
                 $tiposBrindesRedesTable = TableRegistry::get("TiposBrindesRedes");
                 $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
@@ -294,14 +294,14 @@ class ClientesTable extends GenericTable
 
                     $tiposBrindesClientesSave = $tiposBrindesClientesTable->newEntities($tiposBrindesClientesArray);
 
-                    // Gravação dos dados de gênero brindes
+                    // Gravação dos dados de Tipo brindes
                     $resultSave = $tiposBrindesClientesTable->saveMany($tiposBrindesClientesSave);
 
                     if (!$resultSave) {
                         Log::write("error", "Lista de Brindes para Gravar: ");
                         Log::write("error", $tiposBrindesClientesSave);
 
-                        throw new \Exception("Não foi possível salvar os gêneros de brindes ao cliente novo!");
+                        throw new \Exception("Não foi possível salvar os tipos de brindes ao cliente novo!");
                     }
                 }
             }

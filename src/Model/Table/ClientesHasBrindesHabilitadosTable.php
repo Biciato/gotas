@@ -416,7 +416,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * Obtêm todos os brindes de um cliente conforme tipo
      *
      * @param int  $clientes_id Id de CLiente
-     * @param int $tiposBrindesClientesIds Ids de Gênero
+     * @param int $tiposBrindesClientesIds Ids de Tipo
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */

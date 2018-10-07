@@ -34,8 +34,9 @@ $selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBri
 ?>
 
 <div class="form-group row">
+    <?php if ($selectTiposBrindesEnabled) : ?>
     <div class="col-lg-4">
-        <?= $this->Form->control(
+        <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
                 "id" => "tipos_brindes_redes_id",
@@ -43,10 +44,11 @@ $selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBri
                 "type" => "select",
                 "empty" => "<Selecionar>",
                 "options" => $tiposBrindesRedes,
-                "disabled" => $selectTiposBrindesEnabled
+                // "disabled" => $selectTiposBrindesEnabled
             ]
         ); ?>
     </div>
+    <?php endif;?>
     <div class="col-lg-4">
         <?= $this->Form->control(
             'tipo_principal_codigo_brinde',

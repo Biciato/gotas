@@ -141,15 +141,15 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 'data-action' => Router::url(
                                     [
                                         'controller' => 'tipos_brindes_redes',
-                                        'action' => 'alteraEstadoTipoBrindeRede', $tipo["id"],
+                                        'action' => 'alteraEstadoTiposBrindesRede', $tipo["id"],
                                         '?' =>
                                             [
                                             'tipos_brindes_redes_id' => $tipo["id"],
                                             "habilitar" => 0,
                                             'return_url' =>
                                                 [
-                                                'controller' => 'tipos_brindes_redes',
-                                                'action' => 'configurar_tipos_brindes_rede',
+                                                'controller' => 'tiposBrindesRedes',
+                                                'action' => 'configurarTiposBrindesRede',
                                                 $tipo["redes_id"]
                                             ]
                                         ]
@@ -177,7 +177,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 'data-action' => Router::url(
                                     [
                                         'controller' => 'tipos_brindes_redes',
-                                        'action' => 'alteraEstadoTipoBrindeRede', $tipo["id"],
+                                        'action' => 'alteraEstadoTiposBrindesRede', $tipo["id"],
                                         '?' =>
                                             [
                                             'tipos_brindes_redes_id' => $tipo["id"],
@@ -199,6 +199,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                     <?php endif; ?>
 
+                    <?php if (sizeof($tipo["tipos_brindes_clientes"]) == 0) : ?>
                     <!-- Delete -->
                     <?= $this->Html->link(
                         __(
@@ -226,6 +227,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         false
                     );
                     ?>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>

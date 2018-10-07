@@ -39,7 +39,7 @@ echo $this->Breadcrumbs->render(
 <?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "add", "clientesId" => $cliente->id]) ?>
 <div class="tiposBrindesClientes view col-lg-9 col-mg-8 columns content">
 
-    <legend><?= __("Gênero de Brindes Habilitados para cliente [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
+    <legend><?= __("Tipos de Brindes Habilitados para Cliente: [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
 
     <?php if (sizeof($tiposBrindesClientes->toArray()) == 0) : ?>
         <?= __("Dados não encontrados para o cliente {0} ! ", $cliente->nome_fantasia) ?>
@@ -113,7 +113,7 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                                     ),
                                     [
-                                        'action' => 'editar_tipo_brindes_cliente',
+                                        'action' => 'editarTiposBrindesCliente',
                                         $tipoBrindeItem->id
                                     ],
                                     [
@@ -125,7 +125,7 @@ echo $this->Breadcrumbs->render(
 
                             <?php endif; ?>
                             <?php if ($tipoBrindeItem->habilitado) : ?>
-                                <!-- Desabilitar -->
+                                <!-- Desativar -->
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -135,7 +135,7 @@ echo $this->Breadcrumbs->render(
                                     array(
                                         'class' => 'btn btn-danger btn-xs',
                                         'escape' => false,
-                                        "title" => "Habilitar",
+                                        "title" => "Desativar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
                                         'data-message' => __(Configure::read('messageEnableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
@@ -155,15 +155,10 @@ echo $this->Breadcrumbs->render(
                                             )
                                         ),
                                         "escape" => false
-                                    ),
-                                    [
-                                        'class' => 'btn btn-danger btn-xs',
-                                        'escape' => false,
-                                        "title" => "Desabilitar"
-                                    ]
+                                    )
                                 ) ?>
                             <?php else : ?>
-                                <!-- Habilitar -->
+                                <!-- Ativar -->
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -173,7 +168,7 @@ echo $this->Breadcrumbs->render(
                                     array(
                                         'class' => 'btn btn-primary btn-xs',
                                         'escape' => false,
-                                        "title" => "Habilitar",
+                                        "title" => "Ativar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
                                         'data-message' => __(Configure::read('messageDisableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
@@ -217,7 +212,7 @@ echo $this->Breadcrumbs->render(
                                                 'action' => 'delete', $tipoBrindeItem->id,
                                                 '?' =>
                                                     [
-                                                    'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
                                                     'return_url' => array(
                                                         "controller" => "tipos_brindes_clientes",
                                                         "action" => 'tipos_brindes_cliente', $cliente["id"]

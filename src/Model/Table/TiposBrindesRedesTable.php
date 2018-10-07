@@ -84,6 +84,15 @@ class TiposBrindesRedesTable extends GenericTable
             "foreignKey" => "redes_id",
             "joinTable" => "Redes"
         ));
+
+        $this->hasMany(
+            "TiposBrindesClientes",
+            array(
+                "className" => "TiposBrindesClientes",
+                "foreignKey" => "tipos_brindes_redes_id",
+                "joinType" => "LEFT"
+            )
+        );
     }
 
     /**
@@ -241,7 +250,8 @@ class TiposBrindesRedesTable extends GenericTable
     {
         try {
             $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()->find("all")
-                ->where($whereConditions);
+                ->where($whereConditions)
+                ->contain("TiposBrindesClientes");
 
             if (!empty($limit) && isset($limit)) {
                 if ($limit == 1) {

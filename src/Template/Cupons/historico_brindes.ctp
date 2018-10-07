@@ -107,7 +107,7 @@ echo $this->Breadcrumbs->render(
                     ) ?>
 
                     <?php
-                    // TODO: Deverá ser ajustado devido alteração do gênero de brindes
+                    // TODO: Deverá ser ajustado devido alteração do Tipo de brindes
                     $this->Html->tag(
                         'div',
                         __(
