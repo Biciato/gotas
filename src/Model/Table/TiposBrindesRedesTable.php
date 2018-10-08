@@ -206,8 +206,8 @@ class TiposBrindesRedesTable extends GenericTable
             $tipoBrindesRedesSave->brinde_necessidades_especiais = $brindeNecessidadesEspeciais;
             $tipoBrindesRedesSave->habilitado = $habilitado;
             $tipoBrindesRedesSave->atribuir_automatico = $atribuirAutomatico;
-            $tipoBrindesRedesSave->tipo_principal_codigo_brinde_default = !empty($tipoPrincipalCodigoBrindeDefault) ? $tipoPrincipalCodigoBrindeDefault : null;
-            $tipoBrindesRedesSave->tipo_secundario_codigo_brinde_default = !empty($tipoSecundarioCodigoBrindeDefault) ? $tipoSecundarioCodigoBrindeDefault : null;
+            $tipoBrindesRedesSave->tipo_principal_codigo_brinde_default = $tipoPrincipalCodigoBrindeDefault;
+            $tipoBrindesRedesSave->tipo_secundario_codigo_brinde_default = $tipoSecundarioCodigoBrindeDefault;
 
             return $this->save($tipoBrindesRedesSave);
         } catch (\Exception $e) {

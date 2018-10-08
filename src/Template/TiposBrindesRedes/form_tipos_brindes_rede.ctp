@@ -78,7 +78,7 @@ use Cake\Core\Configure;
         </div>
         <div class="col-lg-6">
             <?= $this->Form->control(
-                "tipo_secundario_codigo_brinde_default ",
+                "tipo_secundario_codigo_brinde_default",
                 [
                     "label" => "Tipo Secundario Codigo Brinde",
                     "id" => "tipo_secundario_codigo_brinde_default",

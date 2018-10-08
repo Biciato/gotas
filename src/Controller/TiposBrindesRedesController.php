@@ -295,6 +295,9 @@ class TiposBrindesRedesController extends AppController
                     $data["tipo_secundario_codigo_brinde_default"] = "##";
                 }
 
+                // debug($data);
+                // die();
+
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
                 // Regra não existe mais. RTI deverá informar o código de cada equipamento manualmente.
                 // O máximo que irá fazer é verificar se o código não conflita.
@@ -337,6 +340,7 @@ class TiposBrindesRedesController extends AppController
                 }
 
                 $tiposBrindesRede = $this->TiposBrindesRedes->patchEntity($tiposBrindesRede, $data);
+
                 $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
                     $tiposBrindesRede["redes_id"],
                     $tiposBrindesRede["nome"],
