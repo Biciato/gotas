@@ -152,7 +152,7 @@ class TransportadorasHasUsuariosController extends AppController
             return $this->redirect(
                 [
                     'controller' => 'Transportadoras',
-                    'action' => 'transportadoras_usuario_final', $transportadora_has_usuario->usuarios_id
+                    'action' => 'transportadorasUsuario', $transportadora_has_usuario->usuarios_id
                 ]
             );
         } catch (\Exception $e) {

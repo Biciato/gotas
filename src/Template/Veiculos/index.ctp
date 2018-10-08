@@ -17,12 +17,7 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-<?= $this->element(
-    '../Veiculos/left_menu',
-    [
-
-    ]
-) ?>
+<?= $this->element('../Veiculos/left_menu', array()) ?>
 
 <div class="veiculos index col-lg-9 col-md-8 columns content">
     <legend><?= __('Veiculos') ?></legend>
@@ -47,7 +42,7 @@ echo $this->Breadcrumbs->render(
                 <td><?= h($veiculo->placa) ?></td>
                 <td><?= h($veiculo->modelo) ?></td>
                 <td><?= h($veiculo->fabricante) ?></td>
-                <td><?= $this->Number->format($veiculo->ano) ?></td>
+                <td><?= $veiculo->ano ?></td>
                 <td class="actions">
                     <?= $this->Html->link(
                         __(
@@ -58,7 +53,7 @@ echo $this->Breadcrumbs->render(
                             'action' => 'view', $veiculo->id
                         ],
                         [
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-default btn-xs',
                             'escape' => false,
                             'title' => 'Ver'
                         ]

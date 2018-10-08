@@ -7,14 +7,23 @@ $item_selected = isset($item_selected) ? $item_selected : null;
 $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
 $tipoPerfil = isset($user_logged) ? $user_logged["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
-
-
 ?>
 
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
 
 
-    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
+    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminDeveloperProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
+
+        <ul class="nav nav-pills nav-stacked list-group">
+        <li class="list-group-item active">
+                <?= __('Menu') ?>
+        </li>
+        <li class="list-group-item active">
+                <?= __('Ações') ?>
+        </li>
+        <li><?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarios_id]) ?></li>
+        </ul>
+    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
         <li class="list-group-item active">
@@ -78,6 +87,7 @@ $tipoPerfil = isset($user_logged) ? $user_logged["tipo_perfil"] : Configure::rea
                 <?= $this->Html->link(__('Atualizar Cad. Cliente'), ['controller' => 'Usuarios', 'action' => 'pesquisar_cliente_alterar_dados']) ?>
             </li>
 
+
             <?php if ($mode_selected == 'atualizar_cadastro_cliente_veiculos') : ?>
                 <nav class="columns" id="actions-sidebar">
                     <ul class="nav nav-pills nav-stacked list-group">
@@ -94,7 +104,7 @@ $tipoPerfil = isset($user_logged) ? $user_logged["tipo_perfil"] : Configure::rea
             <?php elseif ($mode_selected == 'atualizar_cadastro_cliente_transportadoras') : ?>
             <nav class="columns" id="actions-sidebar">
                     <ul class="nav nav-pills nav-stacked list-group">
-                        <li><?= $this->Html->link(__('Gerenciar Transportadoras de Usuário'), ['controller' => 'Transportadoras', 'action' => 'transportadoras_usuario_final', $usuarios_id]) ?></li>
+                        <li><?= $this->Html->link(__('Gerenciar Transportadoras de Usuário'), ['controller' => 'Transportadoras', 'action' => 'transportadorasUsuario', $usuarios_id]) ?></li>
 
                         <nav class="columns" id="actions-sidebar">
 

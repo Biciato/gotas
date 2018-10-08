@@ -137,8 +137,8 @@ $qteRegistros = [
                             ]
                         ) ?>
 
-                    <?= $this->Form->end() ?>
                     </div>
+                    <?= $this->Form->end() ?>
                 </div>
 
             </div>

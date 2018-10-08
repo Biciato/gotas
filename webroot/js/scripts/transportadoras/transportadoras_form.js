@@ -53,7 +53,7 @@ $(document).ready(function () {
             callLoaderAnimation();
 
             $.ajax({
-                url: '/transportadoras/findTransportadoraByCNPJ',
+                url: '/api/transportadoras/get_transportadora_by_cnpj',
                 type: 'post',
                 data: JSON.stringify({
                     cnpj: this.value
@@ -61,6 +61,7 @@ $(document).ready(function () {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                    xhr.setRequestHeader("IsMobile", true);
                 },
                 success: function (e) {
                     console.log(e);

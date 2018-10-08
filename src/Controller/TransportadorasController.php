@@ -43,26 +43,23 @@ class TransportadorasController extends AppController
             $this->Flash->error(Configure::read("messageNotAuthorized"));
         }
 
-        $conditions = [];
+        $whereConditions = array();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cnpj') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
+            $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+            $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+            $cnpj = !empty($data["cnpj"]) ? $this->cleanNumber($data["cnpj"]) : null;
 
-            array_push(
-                $conditions,
-                [
-                    $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
+            $whereConditions = array(
+                "nome_fantasia like '%{$nomeFantasia}%'",
+                "razao_social like '%{$razaoSocial}%'",
+                "cnpj like '%{$cnpj}%'"
             );
         }
 
-        $transportadoras = $this->Transportadoras->findTransportadoras($conditions);
+        $transportadoras = $this->Transportadoras->findTransportadoras($whereConditions);
 
         $this->paginate($transportadoras, ['limit' => 10]);
 
@@ -95,6 +92,7 @@ class TransportadorasController extends AppController
     public function add()
     {
         $transportadora = $this->Transportadoras->newEntity();
+        // debug($transportadora);
         if ($this->request->is('post')) {
             $transportadora = $this->Transportadoras->patchEntity($transportadora, $this->request->getData());
             if ($this->Transportadoras->save($transportadora)) {
@@ -175,7 +173,7 @@ class TransportadorasController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function transportadorasUsuarioFinal(int $usuarios_id)
+    public function transportadorasUsuario(int $usuarios_id)
     {
         try {
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
@@ -185,18 +183,26 @@ class TransportadorasController extends AppController
                 ->findTransportadorasHasUsuariosByUsuariosId($usuarios_id);
 
             if ($this->request->is(['post', 'put'])) {
-                $param = $this->request->getData();
+                $data = $this->request->getData();
 
-                if (strlen($param['placa'] > 0)) {
+                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+                $cnpj = !empty($data["cnpj"]) ? $this->cleanNumber($data["cnpj"]) : null;
+
+                $whereConditions = array(
+                    "nome_fantasia like '%{$nomeFantasia}%'",
+                    "razao_social like '%{$razaoSocial}%'",
+                    "cnpj like '%{$cnpj}%'"
+                );
+
+                if (sizeof($whereConditions) > 0) {
                     $transportadora_has_usuario = $transportadora_has_usuario->where(
-                        [
-                            'placa' => $param['placa']
-                        ]
+                        $whereConditions
                     );
                 }
             }
 
-            $this->paginate($transportadora_has_usuario);
+            $transportadora_has_usuario = $this->paginate($transportadora_has_usuario);
 
             $array_set = [
                 'transportadora_has_usuario',
@@ -276,7 +282,7 @@ class TransportadorasController extends AppController
                     if ($transportadora_has_usuario) {
                         $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                        $url = Router::url(['controller' => 'Transportadoras', 'action' => 'transportadoras_usuario_final', $usuarios_id]);
+                        $url = Router::url(['controller' => 'Transportadoras', 'action' => 'transportadorasUsuario', $usuarios_id]);
                         return $this->response = $this->response->withLocation($url);
                     }
                 }

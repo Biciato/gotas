@@ -31,24 +31,30 @@ class VeiculosController extends AppController
      */
     public function index()
     {
-        $conditions = [];
+        $whereConditions = [];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $value = $data['parametro'];
+            $placa = !empty($data["placa"]) ? strtoupper($data["placa"]) : null;
+            $modelo = !empty($data["modelo"]) ? $data["modelo"] : null;
+            $fabricante = !empty($data["fabricante"]) ? $data["fabricante"] : null;
+            $ano = !empty($data["ano"]) ? $data["ano"] : null;
 
-            array_push(
-                $conditions,
-                [
-                    $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
+            $whereConditions = array(
+                "placa like '%{$placa}%'",
+                "modelo like '%{$modelo}%'",
+                "fabricante like '%{$fabricante}%'"
             );
+
+            if (!empty($ano)){
+                $whereConditions[] = array("ano" => $ano);
+            }
         }
 
-        $veiculos = $this->Veiculos->findVeiculos($conditions);
+        $veiculos = $this->Veiculos->findVeiculos($whereConditions);
 
-        $this->paginate($this->Veiculos, ['limit' => 10]);
+        $veiculos = $this->paginate($this->Veiculos, ['limit' => 10]);
 
         $this->set(compact('veiculos'));
         $this->set('_serialize', ['veiculos']);

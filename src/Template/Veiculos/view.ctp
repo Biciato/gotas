@@ -11,17 +11,19 @@ use Cake\Routing\Router;
 $this->Breadcrumbs->add('Início', ['controller' => 'pages']);
 
 // $this->Breadcrumbs->add('Veículos do Usuário', array(), array('class' => 'active'));
-$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
 if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
+    // $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
+    $this->Breadcrumbs->add('Veículos', ['controller' => 'veiculos', 'action' => 'index']);
 
 } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
 && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
-$this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "index"), ['class' =>'active']);
+$this->Breadcrumbs->add("Detalhes do Veículo", array(), array("class" => "active"));
+
+// $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "index"), ['class' =>'active']);
 // $this->Breadcrumbs->add('Detalhes de Usuário', array(), ['class' =>'active']);
 
 echo $this->Breadcrumbs->render(
@@ -29,12 +31,10 @@ echo $this->Breadcrumbs->render(
 );
 ?>
 
-
 <?= $this->element("../Veiculos/left_menu", array()); ?>
 
-
 <div class="veiculos view col-lg-9 col-md-8 columns content">
-    <h3><?= h($veiculo->id) ?></h3>
+    <h3><?= h($veiculo["placa"]) ?></h3>
     <table class="table table-striped table-hover">
         <tr>
             <th scope="row"><?= __('Placa') ?></th>

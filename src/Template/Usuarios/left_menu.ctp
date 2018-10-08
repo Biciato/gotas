@@ -27,6 +27,9 @@ $redes_id = isset($redes_id) ? $redes_id : null;
         <?php if ($cadastrar_veiculos) : ?>
 
             <li>
+                <?= $this->Html->link(__("Transportadoras do Usuário"), ['controller' => 'transportadoras', 'action' => 'transportadorasUsuario', $usuario->id]) ?>
+            </li>
+            <li>
                 <?= $this->Html->link(__("Veículos do Usuário"), ['controller' => 'veiculos', 'action' => 'veiculosUsuario', $usuario->id]) ?>
             </li>
         <?php endif; ?>

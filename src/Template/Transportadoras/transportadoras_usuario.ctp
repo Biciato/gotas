@@ -3,7 +3,7 @@
 /**
  * @description Lista as transportadoras de um usuário (Interface Funcionário)
  * @author 	    Gustavo Souza Gonçalves
- * @file 	    Template\Transportadoras\transportadoras_usuario.php
+ * @file 	    Template\Transportadoras\transportadorasUsuario.ctp
  * @date 	    18/02/2018
  *
  */
@@ -18,24 +18,15 @@ use Cake\Core\Configure;
 <div class="transportadoras index col-lg-9 col-md-8 columns content">
 
 <div class="form-group">
-	
+
 </div>
     <legend><?= __('Transportadoras do Usuário {0} ', $usuario->nome) ?> </legend>
 
-    <?= $this->Form->create('Post', ['url' => ['controller' => 'transportadoras', 'action' => 'transportadoras_usuario_final', $usuarios_id]]) ?>
+    <?= $this->Form->create('Post', ['url' => ['controller' => 'transportadoras', 'action' => 'transportadorasUsuario', $usuarios_id]]) ?>
 
     <div class="form-group row">
+        <?= $this->element("../Transportadoras/filtro_transportadoras", array("controller" => "transportadoras", "action" => "transportadorasUsuario", $usuario["id"])); ?>
 
-        <?= $this->Form->label('placa', 'Procurar', ['class' => 'col-sm-1 col-form-label']) ?>
-        
-        <div class="col-sm-9">
-            
-            <?= $this->Form->text('placa', ['class' => 'form-control', 'placeholder' => 'Informe a placa do veículo']) ?>
-        </div>
-
-    <?= $this->Form->submit("Pesquisar") ?>
-
-    <?= $this->Form->end() ?>
     </div>
 
     <table class="table table-striped table-hover table-condensed table-responsive">
@@ -49,7 +40,7 @@ use Cake\Core\Configure;
                 <th scope="col"><?= __('País') ?></th>
                 <th scope="col"><?= __('Fixo') ?></th>
                 <th scope="col"><?= __('Celular') ?></th>
-                
+
                 <th scope="col" class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -58,7 +49,7 @@ use Cake\Core\Configure;
         </thead>
         <tbody>
             <?php foreach ($transportadora_has_usuario as $transportadora_has_usuario) : ?>
-                
+
             <tr>
                   <td><?= h($transportadora_has_usuario->transportadora->nome_fantasia) ?></td>
                     <td><?= h($transportadora_has_usuario->transportadora->razao_social) ?></td>
