@@ -79,26 +79,26 @@ class PontuacoesComprovantesShell extends ExtendedShell
     {
         try {
             Log::write('info', 'Iniciando processamento de envio de Comprovantes dos Cupoms Fiscais processados...');
-    
+
             // pega a data que será feito a análise
             $today = date('Y-m-d');
-            
+
             $yesterday = $this->datetime_util->substractDaysFromDateTime($today, 1, 'Y-m-d');
-            
+
             // TODO: usar só para carater de teste
             // $yesterday = $today;
-            
+
             $date_start = $yesterday . ' 00:00:00';
             $date_end = $yesterday . ' 23:59:59';
-            
+
             $array_options = [];
-            
+
             array_push($array_options, ['data between "'.$date_start.'" and "'.$date_end.'"']);
-            
+
             // pegar lista de todos os clientes
 
             $clientes = $this->Clientes->getAllClientes();
-            
+
             foreach ($clientes as $key => $cliente) {
                 $content_array = [];
 
@@ -110,16 +110,17 @@ class PontuacoesComprovantesShell extends ExtendedShell
                 );
 
                 // obtêm a lista de funcionários de cada cliente
+                // TODO: Ver se impactará a mudança do serviço com novas assinaturas
                 $funcionarios_array = $this->Usuarios->findFuncionariosRede(
                     $cliente->id,
                     false,
                     false
                 );
-                
+
                 // para cada funcionário, obtêm a lista de cupons processados
                 // no dia que foram feitos de forma manual e
                 // sorteia um para auditoria
-                
+
                 $comprovantes_array = [];
                 $attachments_array = [];
 
@@ -134,10 +135,10 @@ class PontuacoesComprovantesShell extends ExtendedShell
                             true,
                             false
                         );
-                    
-                        
+
+
                     $comprovantes_id_array_not_selected = [];
-                        
+
                     foreach ($comprovantes_id as $key => $comprovante) {
                         array_push($comprovantes_id_array_not_selected, $comprovante['id']);
                     }
@@ -159,7 +160,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
                     // comprovante encontrado, chama função que retorna
                     // as informações para enviar à função de e-mail
-                    
+
                     if ($comprovante) {
                         array_push(
                             $comprovantes_array,
@@ -168,32 +169,32 @@ class PontuacoesComprovantesShell extends ExtendedShell
                     }
 
                 }
-                
+
                 foreach ($comprovantes_array as $key => $value) {
                     array_push($attachments_array, $value['attachment']);
                 }
 
                 // E-mail deve ser enviado somente se teve atendimento
                 if (sizeof($comprovantes_array) > 0) {
-                    
+
                     $content_array['pontuacoes_comprovantes'] = $comprovantes_array;
 
                     $subject = __(
                         "Relatório dos Cupons Fiscais Inseridos Manualmente de {0}",
                         date('d/m/Y')
                     );
-    
+
                     $content_array['link_sefaz'] = $this->sefaz_util->getUrlSefazByState($cliente->estado);
-                    
+
                     foreach ($destination_users_array as $key => $destination_user) {
-                        
+
                         $content_array['admin_name'] = $destination_user->usuario->nome . ' / '. $destination_user->usuario->email;
-                        
+
                         Log::write(
                             'info',
-                            __( 
-                                'Enviando e-mail para administrador {0} / {1} ...', 
-                                $destination_user->usuario->nome, 
+                            __(
+                                'Enviando e-mail para administrador {0} / {1} ...',
+                                $destination_user->usuario->nome,
                                 $destination_user->usuario->email
                             )
                         );

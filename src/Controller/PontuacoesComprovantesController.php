@@ -538,6 +538,7 @@ class PontuacoesComprovantesController extends AppController
                      * de clientesIdsList
                      */
 
+                    // TODO: ajustar
                     $funcionariosIdsQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIdsList)->toArray();
 
                     $funcionariosIds = [];

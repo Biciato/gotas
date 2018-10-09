@@ -2297,7 +2297,7 @@ class UsuariosController extends AppController
 
         $conditions = [];
 
-        $clientes_ids = [];
+        $clientesIds = [];
 
         // se for developer / rti / rede, mostra todas as unidades da rede
 
@@ -2305,41 +2305,33 @@ class UsuariosController extends AppController
 
         if (!is_null($unidades_ids)) {
             foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+                $clientesIds[] = $key;
             }
         }
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cpf') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
+            $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+            $nome = !empty($data["nome"]) ? $data["nome"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-            array_push(
-                $conditions,
-                [
-                    'usuarios.' . $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
-            );
+
 
             if ($data['filtrar_unidade'] != "") {
-                $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+                $clientesIds = [];
+                $clientesIds[] = (int)$data['filtrar_unidade'];
             }
         }
 
-        if (sizeof($clientes_ids) == 0) {
-            $clientes_ids[] = 0;
+        if (sizeof($clientesIds) == 0) {
+            $clientesIds[] = 0;
         }
 
-        $usuarios = $this->Usuarios->findFuncionariosRede(
-            $redes_id,
-            $clientes_ids,
-            $conditions
-        );
+        // TODO: ajustado
+        $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
 
         $user_logged = $this->user_logged;
 
@@ -2418,6 +2410,7 @@ class UsuariosController extends AppController
             $clientes_ids[] = 0;
         }
 
+        // criar novo serviço só para administradores, ou fixar o tipo de perfil
         $usuarios = $this->Usuarios->findFuncionariosRede(
             $redes_id,
             $clientes_ids,
@@ -2511,6 +2504,7 @@ class UsuariosController extends AppController
             $clientes_ids[] = 0;
         }
 
+        // TODO: ver se é necessário ajustar ou fixar tipo de perfil
         $usuarios = $this->Usuarios->findFuncionariosRede(
             $redes_id,
             $clientes_ids,
@@ -2974,6 +2968,7 @@ class UsuariosController extends AppController
                 $unidades_ids[] = $value->clientes_id;
             }
 
+            // TODO: Se for usar mesmo serviço, será necessário criar novos campos de assinatura
             $usuarios = $this->Usuarios->findFuncionariosRede(
                 $rede->id,
                 $unidades_ids,

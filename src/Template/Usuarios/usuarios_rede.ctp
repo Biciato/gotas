@@ -21,7 +21,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
+$userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
     || Configure::read('profileTypes')['AdminNetworkProfileType']
     || Configure::read('profileTypes')['AdminRegionalProfileType'];
 ?>
@@ -42,7 +42,7 @@ $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')[
             <?= __("Usuários da Rede") ?>
         </legend>
 
-        <?php if ($user_is_admin) : ?>
+        <?php if ($userIsAdmin) : ?>
             <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
         <?php else : ?>
             <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true]) ?>

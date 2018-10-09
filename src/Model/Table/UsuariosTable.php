@@ -1288,16 +1288,40 @@ class UsuariosTable extends GenericTable
      *
      * @return entity\usuarios[] $usuarios
      */
-    public function findFuncionariosRede(int $redes_id, array $clientes_ids, array $where_conditions = array())
-    {
+    public function findFuncionariosRede(
+        int $redes_id,
+        array $clientes_ids,
+        string $nome = null,
+        string $cpf = null,
+        string $documentoEstrangeiro = null,
+        int $tipoPerfil = null
+    ) {
+        // TODO: Ajustar todos os locais que utilizam este serviço.
+        // Criar novo serviço caso a pesquisa seja de outro tipo de usuário (como administradores regionais)
         try {
 
-            // condições de pesquisa
-            $conditions = [];
+            // ---------- condições de pesquisa ----------
+            $conditions = array(
+                "Usuarios.nome LIKE '%{$nome}%'",
+            );
 
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
+            if (!empty($tipoPerfil)) {
+                $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
             }
+
+            if (!empty($docEstrangeiro)) {
+                $conditions[] = array(
+                    "Usuarios.doc_estrangeiro LIKE '%{$docEstrangeiro}%'"
+                );
+            }
+
+            if (!empty($cpf)) {
+                $conditions[] = array(
+                    "Usuarios.cpf LIKE '%{$cpf}%'"
+                );
+            }
+
+            // ---------- condições de pesquisa ----------
 
             /**
              * Pega o usuário informado e vê qual é a permissão dele.
@@ -1335,7 +1359,9 @@ class UsuariosTable extends GenericTable
 
             array_push($conditions, ['Usuarios.id IN ' => $usuarios_ids]);
 
-            array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
+            if (!array_key_exists("Usuarios.tipo_perfil", $conditions)) {
+                array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
+            }
 
             $usuarios = $this->_getUsuarioTable()->find('all')
                 ->where($conditions)
