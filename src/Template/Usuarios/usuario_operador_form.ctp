@@ -104,7 +104,8 @@ use Cake\Routing\Router;
                 )
                 ?>
             </div>
-            <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
+            <?php elseif (($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminNetworkProfileType'])
+            && ($user_logged["id"] !== $usuario["id"])) : ?>
 
                 <div class='col-lg-6'>
                     <!-- Tipo Perfil -->

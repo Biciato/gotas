@@ -7,13 +7,15 @@
  */
 
 use Cake\Core\Configure;
+
+
 ?>
+
+    <div class="col-lg-9 col-md-8 group-video-capture-gotas">
 
     <legend>Atribuição de Gotas</legend>
 
-    <div class="col-lg-9 group-video-capture-gotas">
-
-        <?php if (isset($clientes_id)) : ?> 
+        <?php if (isset($clientes_id)) : ?>
 
             <?= $this->Form->input('clientes_id', [
                 'type' => 'text',
@@ -21,9 +23,9 @@ use Cake\Core\Configure;
                 'id' => 'clientes_id',
                 'value' => $clientes_id,
                 'label' => false
-            ]) ?> 
-           <?php endif; ?> 
-           
+            ]) ?>
+           <?php endif; ?>
+
            <?= $this->Form->input(
                 'id',
                 [
@@ -45,7 +47,7 @@ use Cake\Core\Configure;
         <?= $this->Form->input(
             'image_name',
             [
-                'type' => 'hidden', 
+                'type' => 'hidden',
                 'id' => 'image_name'
             ]
         ) ?>
@@ -69,8 +71,8 @@ use Cake\Core\Configure;
                         <div>
 
                             <button class="btn btn-default btn-block disabled user-btn-proceed" type="button">
-                                <div class="fa fa-2x fa-arrow-right"> 
-                                    
+                                <div class="fa fa-2x fa-arrow-right">
+
                                 </div>
                                 <span>Prosseguir</span>
                             </button>
@@ -85,7 +87,7 @@ use Cake\Core\Configure;
 
         <div class="col-lg-12 group-video-capture-gotas video-gotas-scanning-container">
 
-            
+
             <div class="col-lg-12">
                 <h4>Capturar Cupom Fiscal</h4>
             </div>
@@ -101,7 +103,7 @@ use Cake\Core\Configure;
                         'autocomplete' => 'off'
                     ]
                 ) ?>
-                
+
             </div>
 
             <div class="col-lg-2 vertical-align">
@@ -113,8 +115,8 @@ use Cake\Core\Configure;
                 </div>
 
             </div>
-          
-        
+
+
 
         </div>
 
@@ -224,7 +226,7 @@ use Cake\Core\Configure;
 
             </div>
         </div>
-        
+
     </div>
 
     <div>
@@ -236,7 +238,7 @@ use Cake\Core\Configure;
 <?php if (Configure::read('debug')) : ?>
     <?= $this->Html->css('styles/gotas/atribuir_gotas_form') ?>
     <?= $this->Html->script('scripts/gotas/atribuir_gotas_form') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->css('styles/gotas/atribuir_gotas_form.min') ?>
     <?= $this->Html->script('scripts/gotas/atribuir_gotas_form.min') ?>
 <?php endif; ?>

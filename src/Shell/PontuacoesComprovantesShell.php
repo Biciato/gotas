@@ -110,11 +110,9 @@ class PontuacoesComprovantesShell extends ExtendedShell
                 );
 
                 // obtêm a lista de funcionários de cada cliente
-                // TODO: Ver se impactará a mudança do serviço com novas assinaturas
                 $funcionarios_array = $this->Usuarios->findFuncionariosRede(
                     $cliente->id,
-                    false,
-                    false
+                    array()
                 );
 
                 // para cada funcionário, obtêm a lista de cupons processados

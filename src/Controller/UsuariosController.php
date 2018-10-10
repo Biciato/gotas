@@ -259,6 +259,16 @@ class UsuariosController extends AppController
      */
     public function view($id = null)
     {
+        $user_admin = $this->request->session()->read('User.RootLogged');
+        $user_managed = $this->request->session()->read('User.ToManage');
+
+        $rede = $this->request->session()->read("Network.Main");
+
+        if ($user_admin) {
+            $this->user_logged = $user_managed;
+            $user_logged = $this->user_logged;
+        }
+
         $usuario = $this->Usuarios->get(
             $id,
             [
@@ -266,8 +276,10 @@ class UsuariosController extends AppController
             ]
         );
 
-        $this->set('usuario', $usuario);
-        $this->set('_serialize', ['usuario']);
+        $arraySet = array("usuario", "user_logged", "rede");
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -1833,6 +1845,7 @@ class UsuariosController extends AppController
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
+            $user_logged = $user_managed;
         }
 
         $rede = $this->request->session()->read('Network.Main');
@@ -1868,7 +1881,7 @@ class UsuariosController extends AppController
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = (int)$data['clientes_id'];
 
-            $tipo_perfil = $data['tipo_perfil'];
+            $tipo_perfil = empty($data["tipo_perfil"]) ? $usuario["tipo_perfil"] : $data['tipo_perfil'];
 
             $cliente = null;
             if (isset($this->user_logged)) {
@@ -1945,9 +1958,10 @@ class UsuariosController extends AppController
             }
         }
 
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'clientes_id', 'usuario_logado_tipo_perfil', "user_logged");
         $usuario_logado_tipo_perfil = $this->user_logged['tipo_perfil'];
-        $this->set(compact(['usuario', 'rede', 'redes', 'redes_id', 'clientes_id', 'usuario_logado_tipo_perfil']));
-        $this->set('_serialize', ['usuario', 'rede', 'redes', 'redes_id', 'clientes_id', 'usuario_logado_tipo_perfil']);
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
 
@@ -2309,6 +2323,11 @@ class UsuariosController extends AppController
             }
         }
 
+        $nome = null;
+        $cpf = null;
+        $docEstrangeiro = null;
+        $tipoPerfil = null;
+
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
@@ -2317,8 +2336,6 @@ class UsuariosController extends AppController
             $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
             $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
-
-
 
             if ($data['filtrar_unidade'] != "") {
                 $clientesIds = [];
@@ -2468,47 +2485,48 @@ class UsuariosController extends AppController
 
         $entire_network = false;
 
-        $clientes_ids = [];
+        $clientesIds = [];
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->user_logged['id']);
 
         if (!is_null($unidades_ids)) {
             foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+                $clientesIds[] = $key;
             }
         }
+
+        $nome = null;
+        $cpf = null;
+        $docEstrangeiro = null;
+        $tipoPerfil = null;
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cpf') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
-
-            array_push(
-                $conditions,
-                [
-                    'usuarios.' . $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
-            );
+            $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+            $nome = !empty($data["nome"]) ? $data["nome"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
             if ($data['filtrar_unidade'] != "") {
-                $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+                $clientesIds = [];
+                $clientesIds[] = (int)$data['filtrar_unidade'];
             }
         }
 
-        if (sizeof($clientes_ids) == 0) {
-            $clientes_ids[] = 0;
+        if (sizeof($clientesIds) == 0) {
+            $clientesIds[] = 0;
         }
 
         // TODO: ver se é necessário ajustar ou fixar tipo de perfil
         $usuarios = $this->Usuarios->findFuncionariosRede(
             $redes_id,
-            $clientes_ids,
-            $conditions
+            $clientesIds,
+            $nome,
+            $cpf,
+            $docEstrangeiro,
+            $tipoPerfil
         );
 
         $usuarios = $this->paginate($usuarios, ['limit' => 10]);

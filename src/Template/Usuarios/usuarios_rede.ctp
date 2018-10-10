@@ -2,6 +2,8 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
+$redes_id = isset($redes_id) ? $redes_id : null;
+
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
 if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
@@ -12,8 +14,6 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
         ['class' => 'active']
     );
 }
-
-$redes_id = isset($redes_id) ? $redes_id : null;
 
 $this->Breadcrumbs->add('Usuários da Rede', [], ['class' => 'active']);
 

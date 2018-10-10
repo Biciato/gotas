@@ -12,6 +12,26 @@ use Cake\Routing\Router;
 use Cake\Core\Configure;
 
 
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
+
+} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
+&& $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
+}
+
+$this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "view", $usuarios_id), ['class' =>'active']);
+// $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", ), ['class' =>'active']);
+
+
+$this->Breadcrumbs->add('Transportadoras de  Usuário', array(), ['class' =>'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
+
 ?>
 
 <?= $this->element('../Pages/left_menu', ['item_selected' => 'atualizar_cadastro_cliente', 'mode_selected' => 'atualizar_cadastro_cliente_transportadoras']) ?>

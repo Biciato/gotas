@@ -313,7 +313,6 @@ class PontuacoesController extends AppController
                 $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
             }
 
-            // TODO: ver se é necessário ajustar
             $funcionarios_array = $this->Usuarios->findFuncionariosRede($rede->id, $clientes_ids)->select(['id', 'nome']);
 
             $funcionarios = [null => null];

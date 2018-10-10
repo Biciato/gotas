@@ -277,6 +277,7 @@ class VeiculosController extends AppController
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
+        $rede = $this->request->session()->read("Network.Main");
 
         if ($user_admin) {
             $user_logged = $user_managed;
@@ -302,7 +303,11 @@ class VeiculosController extends AppController
         $this->paginate($usuariosHasVeiculos);
 
         $arraySet = array(
-            'usuariosHasVeiculos', 'usuarios_id', 'usuario', 'user_logged'
+            'usuariosHasVeiculos',
+            'usuarios_id',
+            'usuario',
+            'user_logged',
+            "rede"
         );
 
         $this->set(compact($arraySet));

@@ -176,6 +176,16 @@ class TransportadorasController extends AppController
     public function transportadorasUsuario(int $usuarios_id)
     {
         try {
+            $user_admin = $this->request->session()->read('User.RootLogged');
+            $user_managed = $this->request->session()->read('User.ToManage');
+
+            $rede = $this->request->session()->read("Network.Main");
+
+            if ($user_admin) {
+                $this->user_logged = $user_managed;
+                $user_logged = $this->user_logged;
+            }
+
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
             $transportadora_has_usuario = $this
@@ -204,14 +214,16 @@ class TransportadorasController extends AppController
 
             $transportadora_has_usuario = $this->paginate($transportadora_has_usuario);
 
-            $array_set = [
+            $arraySet = [
                 'transportadora_has_usuario',
                 'usuarios_id',
-                'usuario'
+                'usuario',
+                "user_logged",
+                "rede"
             ];
 
-            $this->set(compact($array_set));
-            $this->set('_serialize', $array_set);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -233,6 +245,7 @@ class TransportadorasController extends AppController
         try {
             $user_admin = $this->request->session()->read('User.RootLogged');
             $user_managed = $this->request->session()->read('User.ToManage');
+            $rede = $this->request->session()->read('Network.Main');
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
@@ -289,15 +302,16 @@ class TransportadorasController extends AppController
                 $this->Flash->error(Configure::read('messageSavedError'));
             }
 
-            $array_set = [
+            $arraySet = [
                 'transportadora',
                 'usuario',
                 'user_logged',
-                'usuarios_id'
+                'usuarios_id',
+                "rede"
             ];
 
-            $this->set(compact($array_set));
-            $this->set('_serialize', [$array_set]);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', [$arraySet]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
