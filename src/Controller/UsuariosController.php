@@ -244,8 +244,11 @@ class UsuariosController extends AppController
         // $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['tipo_perfil' => 'ASC']]);
         $usuarios = $this->paginate($usuarios, ['limit' => 10]);
 
-        $this->set(compact('usuarios'));
-        $this->set('_serialize', ['usuarios']);
+        $unidades_ids = $this->Clientes->find('list')->toArray();
+
+        $arraySet = array("usuarios", "unidades_ids");
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -2366,97 +2369,7 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function administradoresRede(int $redes_id = null)
-    {
-        $rede = $this->request->session()->read("Network.Main");
-
-        if (!empty($rede)) {
-            $redes_id = $rede["id"];
-        }
-
-        $cliente = $this->request->session()->read('Network.Unit');
-        $client_to_manage = $this->request->session()->read('ClientToManage');
-
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $this->user_logged;
-        }
-
-        $conditions = [];
-
-        // define que só poderá buscar administradores e administradores regionais para esta tela
-
-        array_push($conditions, ['usuarios.tipo_perfil' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-
-        $clientes_ids = [];
-
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->user_logged['id']);
-
-        if (!is_null($unidades_ids)) {
-            foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
-            }
-        }
-
-        if ($this->request->is(['post', 'put'])) {
-            $data = $this->request->getData();
-
-            if ($data['opcoes'] == 'cpf') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
-
-            array_push(
-                $conditions,
-                [
-                    'usuarios.' . $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
-            );
-
-            if ($data['filtrar_unidade'] != "") {
-                $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
-            }
-        }
-
-        if (sizeof($clientes_ids) == 0) {
-            $clientes_ids[] = 0;
-        }
-
-        // criar novo serviço só para administradores, ou fixar o tipo de perfil
-        $usuarios = $this->Usuarios->findFuncionariosRede(
-            $redes_id,
-            $clientes_ids,
-            $conditions
-        );
-
-        $usuarios = $this->paginate($usuarios, ['limit' => 10]);
-
-        $arraySet = [
-            "usuarios",
-            "unidades_ids",
-            "redes_id",
-            "user_logged"
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
-
-
-
-    /**
-     * Exibe os administradores de uma rede
-     *
-     * @param int $redes_id Id da rede
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function administradoresRegionaisComuns(int $redes_id = null)
+    public function atribuirAdminRegionalComum(int $redes_id = null)
     {
         $rede = $this->request->session()->read('Network.Main');
 
@@ -2526,7 +2439,8 @@ class UsuariosController extends AppController
             $nome,
             $cpf,
             $docEstrangeiro,
-            $tipoPerfil
+            Configure::read("profileTypes")["AdminRegionalProfileType"],
+            Configure::read("profileTypes")["AdminLocalProfileType"]
         );
 
         $usuarios = $this->paginate($usuarios, ['limit' => 10]);

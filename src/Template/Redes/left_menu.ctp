@@ -27,11 +27,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 </li>
 
                 <li>
-                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
-                </li>
-
-                <li>
-                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
+                    <?= $this->Html->link(__("Atribuir Administração Regional/Comum"), ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $redes_id]) ?>
                 </li>
 
             <?php endif; ?>

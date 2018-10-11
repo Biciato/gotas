@@ -61,9 +61,6 @@ $redes_id = isset($redes_id) ? $redes_id : null;
             </li>
 
             <?php if (isset($redes_id)) : ?>
-            <li>
-                <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
-            </li>
 
             <li>
                 <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
@@ -79,12 +76,9 @@ $redes_id = isset($redes_id) ? $redes_id : null;
 
             <?php if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
                 <?php if (isset($redes_id)) : ?>
-                <li>
-                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
-                </li>
 
                 <li>
-                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
+                    <?= $this->Html->link(__("Atribuir Administração Regional/Comum"), ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $redes_id]) ?>
                 </li>
 
                 <?php endif; ?>

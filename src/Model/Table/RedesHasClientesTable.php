@@ -108,6 +108,7 @@ class RedesHasClientesTable extends GenericTable
         $this->belongsToMany(
             'ClientesHasUsuarios',
             [
+                "className" => "ClientesHasUsuarios",
                 'foreignKey' => 'clientes_id',
                 'joinType' => 'INNER'
             ]

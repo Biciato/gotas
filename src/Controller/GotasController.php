@@ -280,42 +280,42 @@ class GotasController extends AppController
 
             // pega a matriz da rede
 
-            $clientes_ids = [];
+            $clientesIds = [];
+            $clientesId = 0;
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
 
-            foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+            foreach ($unidadesIds as $key => $value) {
+                $clientesIds[] = $key;
             }
 
             $conditions = [];
 
-            $cliente = $unidades_ids->toArray()[$clientes_ids[0]];
+            $unidadesIds = $unidadesIds->toArray();
 
             if ($this->request->is(['post', 'put'])) {
                 // verifica se há consulta de filtro
                 $data = $this->request->getData();
 
                 if ($data['filtrar_unidade'] != "") {
-                    $clientes_ids = [];
-                    $clientes_ids[] = (int)$data['filtrar_unidade'];
+                    $clientesIds = [];
+                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesId = $data["filtrar_unidade"];
                 }
-
             }
-
-            // pega o primeiro registro de clientes_id
-            $clientes_id = $clientes_ids[0];
-            $clientes_ids = [];
-            $clientes_ids[] = $clientes_id;
+            // DebugUtil::print($clientesId);
 
             $gotas = $this->Gotas->findGotasByClientesId(
-                $clientes_ids
+                $clientesIds
             );
 
-            $this->paginate($gotas, ['limit' => 10]);
+            $gotas = $this->paginate($gotas, ['limit' => 10]);
 
-            $this->set(compact(['gotas_matriz', 'clientes', 'clientes_id', 'cliente', 'gotas', 'unidades_ids']));
-            $this->set('_serialize', ['clientes', 'cliente', 'clientes_id', 'gotas', 'unidades_ids']);
+            // $arraySet = array('gotas_matriz', 'clientes', 'clientes_id', 'cliente', 'gotas', 'unidadesIds');
+            $arraySet = array('gotas_matriz', 'clientes', 'clientesId', 'gotas', 'unidadesIds');
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao exibir gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -386,51 +386,53 @@ class GotasController extends AppController
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $user_logged = $user_managed;
             }
 
-            // verifica se usuário é pelo menos administrador.
+            // verifica se usuário é pelo menos administrador regional
 
             if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
+
+            $unidades = array();
+
+            if ($user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
+                $unidades = $this->Clientes->getClientesListByRedesId($rede["id"]);
+            } else {
+                $unidades = $this->ClientesHasUsuarios->getAllClientesIdsAllowedFromRedesIdUsuariosId($rede["id"], $user_logged["id"], $user_logged["tipo_perfil"]);
+            }
             // Verifica permissão do usuário na rede / unidade da rede
 
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
+            // TODO: desabilitado por enquanto, isto será migrado para ambiente novo e será seguro
+            // $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
 
-            if (!$temAcesso) {
-                return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
-            }
+            // if (!$temAcesso) {
+            //     return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
+            // }
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                $clientes_has_usuarios_query = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
-
-                $found = false;
-
-                foreach ($clientes_has_usuarios_query->toArray() as $key => $value) {
-                    if ($key == $cliente_id) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    $this->security_util->redirectUserNotAuthorized($this);
-                }
+            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                $this->security_util->redirectUserNotAuthorized($this);
             }
 
             // concluiu validação de cliente, agora cadastra uma gota para o cliente em questão
-
-            $cliente = $this->Clientes->getClienteById($cliente_id);
 
             $gota = $this->Gotas->newEntity();
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
+                if (empty($data["clientes_id"])) {
+                    $this->Flash->error("É necessário informar o Posto de Atendimento!");
+
+                    return $this->redirect(array("controller" => "gotas", "action" => "adicionarGota"));
+                }
+
+                $clientesId = $data["clientes_id"];
                 // Verifica se há um registro de mesmo nome para aquele cliente, não pode ter dois registros
-                $record_exists = $this->Gotas->getGotaClienteByName($cliente->id, $data['nome_parametro']);
+                $record_exists = $this->Gotas->getGotaClienteByName($clientesId, $data['nome_parametro']);
 
                 if ($record_exists) {
                     $this->Flash->Error(__("Já existe uma gota configurada de nome {0}", $data['nome_parametro']));
@@ -440,7 +442,7 @@ class GotasController extends AppController
                     } else {
                         $gota = $this->Gotas->patchEntity($gota, $data);
 
-                        $gota['clientes_id'] = $cliente->id;
+                        $gota['clientes_id'] = $clientesId;
 
                         if ($this->Gotas->save($gota)) {
                             $this->Flash->success(__(Configure::read('messageSavedSuccess')));
@@ -458,8 +460,9 @@ class GotasController extends AppController
                 }
             }
 
-            $this->set(compact(['gota', 'cliente']));
-            $this->set('_serialize', ['gota', 'cliente']);
+            $arraySet = array('gota', "user_logged", "unidades");
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -498,27 +501,22 @@ class GotasController extends AppController
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                $clientes_has_usuarios_query = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
-
-                $found = false;
-
-                foreach ($clientes_has_usuarios_query->toArray() as $key => $value) {
-                    if ($key == $cliente_id) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    $this->security_util->redirectUserNotAuthorized($this);
-                }
+            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                $this->security_util->redirectUserNotAuthorized($this);
             }
 
             $gota = $this->Gotas->getGotaById($id);
 
+            $unidades = $this->Clientes->find('list')->where(array("id" => $gota["clientes_id"]));
+
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+
+                if (empty($data["clientes_id"])) {
+                    $this->Flash->error("É necessário informar o Posto de Atendimento!");
+
+                    return $this->redirect(array("controller" => "gotas", "action" => "editarGota", $id));
+                }
 
                 $gota = $this->Gotas->patchEntity($gota, $data);
 
@@ -550,8 +548,10 @@ class GotasController extends AppController
                 }
             }
 
-            $this->set(compact('gota'));
-            $this->set('_serialize', ['gota']);
+            $arraySet = array("gota", "unidades");
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao editar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);

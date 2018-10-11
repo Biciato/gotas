@@ -22,7 +22,7 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
-$this->Breadcrumbs->add('Administradores Regionais e Comuns', ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $rede->id]);
+$this->Breadcrumbs->add('Atribuir Administração Regional/Comum', ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $rede->id]);
 
 $this->Breadcrumbs->add('Unidades do Administrador', [], ['class' => 'active']);
 
@@ -56,7 +56,7 @@ if ($user_logged['tipo_perfil'] == 0) {
 <div class="usuarios view col-lg-9 col-md-10">
     <?= $this->Form->create($usuario) ?>
         <legend><?= __('Unidades que o Administrador {0} Gerencia', $usuario->nome) ?></legend>
-        
+
         <table class="table table-striped table-hover table-condensed table-responsive">
             <thead>
 
@@ -97,7 +97,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                         <?= h($cliente->nome_fantasia) ?>
                     </td>
 
-                        <?php 
+                        <?php
 
                         $record_found = false;
                         $cliente_has_usuario_id = null;
@@ -113,14 +113,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                         }
 
                         if ($record_found) {
-                            ?> 
+                            ?>
 
                             <td>
                                 <?= __("Habilitado") ?>
                             </td>
                             <td>
 
-                            <?php 
+                            <?php
                             echo $this->Html->link(
                                 $this->Html->tag('i', '', array('class' => 'fa fa-power-off')),
                                 '#',
@@ -147,14 +147,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                                 false
                             );
                         } else {
-                            ?> 
+                            ?>
 
                             <td>
                                 <?= __("Desabilitado") ?>
                             </td>
 
                             <td>
-                            <?php 
+                            <?php
                             echo $this->Html->link(
                                 $this->Html->tag('i', '', array('class' => 'fa fa-power-off')),
                                 '#',
@@ -185,10 +185,10 @@ if ($user_logged['tipo_perfil'] == 0) {
                         ?>
                     </td>
 
-                    
+
                 </tr>
                 <?php endforeach; ?>
             </tbody>
-                
+
         </table>
 </div>

@@ -14,7 +14,7 @@ use Cake\Routing\Router;
 
 <?= $this->element('../Usuarios/left_menu', ['controller' => 'pages', 'action' => 'display', 'mode' => 'view' ]) ?>
 <div class="usuarios index col-lg-9 col-md-10 columns content">
-    
+
     <legend>
         <?= __("Administrar usuário")?>
     </legend>
@@ -48,7 +48,7 @@ use Cake\Routing\Router;
                 <td><?= h(isset($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "") ?></td>
                 <td><?= h($usuario->email) ?></td>
                 <td class="actions" style="white-space:nowrap">
-                    <?= $this->Html->link(__('{0} Gerenciar', 
+                    <?= $this->Html->link(__('{0} Gerenciar',
                           $this->Html->tag('i', '', ['class' => 'fa fa-gears']) ),
                           '#',
                           array(
@@ -57,10 +57,10 @@ use Cake\Routing\Router;
                              'data-target' => '#modal-confirm-with-message',
                              'data-message' => __("Você está prestes a utilizar o sistema conforme o usuário {0} selecionado. Deseja continuar?", $usuario->nome),
                              'data-action'=> Router::url(
-                                ['action'=>'iniciar_administracao_usuario', "?" => 
+                                ['action'=>'iniciar_administracao_usuario', "?" =>
                                     [
                                         'usuarios_id' => $usuario->id,
-                                        
+
                                     ]
                                 ]
                              ),

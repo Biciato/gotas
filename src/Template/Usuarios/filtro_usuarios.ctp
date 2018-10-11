@@ -1,5 +1,7 @@
 <?php
 
+use Cake\Core\Configure;
+
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Usuarios/filtro_usuarios.ctp
@@ -42,7 +44,7 @@ if (isset($filter_redes) && $filter_redes) {
 
                 <!-- </h4> -->
             </div>
-            <div id="filter-coupons" class="panel-collapse collapse">
+            <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
 
                     <?=
@@ -59,7 +61,87 @@ if (isset($filter_redes) && $filter_redes) {
                     )
                     ?>
 
-                    <div class="inline-block">
+                        <div class="inline-block">
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'tipo_perfil',
+                                    [
+                                        'type' => 'select',
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "<Todos>",
+                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-6">
+                                <?= $this->Form->input(
+                                    'nome',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'nome',
+                                        'label' => 'Nome',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'cpf',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'cpf',
+                                        'label' => 'CPF',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'doc_estrangeiro',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'doc_estrangeiro',
+                                        'label' => 'Doc Estrangeiro',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+
+                            <div class="col-lg-7 ">
+
+                                <?php
+
+                                if (isset($unidades_ids) &&  sizeof($unidades_ids) > 0) {
+
+                                    $this->Form->input(
+                                        'filtrar_unidade',
+                                        [
+                                            'type' => 'select',
+                                            'id' => 'filtrar_unidade',
+                                            'label' => "Filtrar por unidade?",
+                                            'empty' => '<Todas>',
+                                            'options' => $unidades_ids
+                                        ]
+                                    );
+                                }
+                                ?>
+                            </div>
+
+                            <div class="col-lg-2 vertical-align">
+
+                                <?= $this->Form->button(
+                                    __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
+                                    [
+                                        'class' => 'btn btn-primary btn-block',
+                                        'type' => 'submit'
+                                    ]
+                                ) ?>
+                            </div>
+
+                    </div>
+                    <!-- <div class="inline-block">
                         <?php if ($show_filiais) : ?>
 
                             <div class="col-lg-5">
@@ -119,7 +201,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
                             </div>
                         <?php endif; ?>
-                    </div>
+                    </div> -->
                 <?= $this->Form->end() ?>
 
             </div>

@@ -7,7 +7,7 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 if ($user_logged["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminDeveloperProfileType"])
 {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-    
+
     $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'redes', 'action' => 'ver_detalhes', $redes_id]);
 }
 else if ($user_logged["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminNetworkProfileType"])
@@ -15,7 +15,7 @@ else if ($user_logged["tipo_perfil"] == (int) Configure::read("profileTypes")["A
     $this->Breadcrumbs->add('Usuarios Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']);
 }
 
-$this->Breadcrumbs->add('Administradores da Rede', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Administradores Regionais e Comuns', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -30,13 +30,13 @@ $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')[
 <?= $this->element('../Usuarios/left_menu', ['add_user' => true, 'mode' => 'addUser', 'controller' => 'pages', 'action' => 'display']) ?>
     <div class="usuarios index col-lg-9 col-md-10 columns content">
         <legend>
-            <?= __("Administradores da Rede") ?>
+            <?= __("Administradores Regionais / Comuns") ?>
         </legend>
 
         <?php if ($user_is_admin) : ?>
-            <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'administradores_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
+            <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
         <?php else : ?>
-            <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'administradores_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true]) ?>
+            <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true]) ?>
         <?php endif; ?>
             <table class="table table-striped table-hover table-condensed table-responsive">
                 <thead>
@@ -74,7 +74,7 @@ $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')[
                 <tbody>
                     <?php foreach ($usuarios as $usuario) : ?>
 
-                    <?php 
+                    <?php
                     if (isset($usuario['usuario'])) {
                         $usuario = $usuario['usuario'];
                     }
@@ -109,25 +109,26 @@ $user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')[
                         </td>
                         <td class="actions" style="white-space:nowrap">
 
-                        <?=
-                        $this->Html->link(
-                            __(
-                                '{0} ',
-                                $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
-                            ),
-                            [
-                                'action' => 'view',
-                                $usuario->id
-                            ],
-                            [
-                                'class' => 'btn btn-xs btn-default ',
-                                'escape' => false,
-                                'title' => 'Ver detalhes'
+                            <?=
+                            $this->Html->link(
+                                __(
+                                    '{0}',
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-gear'])
+                                ),
+                                [
+                                    'controller' => 'clientes_has_usuarios',
+                                    'action' => 'editar_administracao',
+                                    $usuario->id
+                                ],
+                                [
+                                    'class' => 'btn btn-xs btn-primary ',
+                                    'escape' => false,
+                                    'title' => 'Editar Permissão de Administrador Regional'
+                                ]
+                            )
+                            ?>
 
-                            ]
-                        )
-                        ?>
-                            
+
                         </td>
                     </tr>
                     <?php endforeach; ?>

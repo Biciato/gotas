@@ -1282,9 +1282,13 @@ class UsuariosTable extends GenericTable
     /**
      * Obtêm todos os funcionários de uma rede
      *
-     * @param int   $redes_id         Id da rede
-     * @param array $clientes_ids     Array de Id de clientes (Se for toda a rede, passar todos os ids de clientes_ids)
-     * @param array $where_conditions Condições extras de pesquisa
+     * @param int   $redes_id Id da rede
+     * @param array $clientes_ids Array de Id de clientes (Se for toda a rede, passar todos os ids de clientes_ids)
+     * @param string $nome Nome
+     * @param string $cpf Cpf
+     * @param string $documentoEstrangeiro Documento Estrangeiro
+     * @param integer $tipoPerfilMin Tipo Perfil Minimo
+     * @param integer $tipoPerfilMax Tipo Perfil Maximo
      *
      * @return entity\usuarios[] $usuarios
      */
@@ -1294,7 +1298,8 @@ class UsuariosTable extends GenericTable
         string $nome = null,
         string $cpf = null,
         string $documentoEstrangeiro = null,
-        int $tipoPerfil = null
+        int $tipoPerfilMin = null,
+        int $tipoPerfilMax = null
     ) {
         // TODO: Ajustar todos os locais que utilizam este serviço.
         // Criar novo serviço caso a pesquisa seja de outro tipo de usuário (como administradores regionais)
@@ -1305,8 +1310,11 @@ class UsuariosTable extends GenericTable
                 "Usuarios.nome LIKE '%{$nome}%'",
             );
 
-            if (!empty($tipoPerfil)) {
+            if (!empty($tipoPerfilMin) && empty($tipoPerfilMax)) {
                 $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+            } else if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
+                $conditions[] = array("Usuarios.tipo_perfil BETWEEN '{$tipoPerfilMin}' AND '{$tipoPerfilMax}'");
+
             }
 
             if (!empty($docEstrangeiro)) {
@@ -1359,7 +1367,7 @@ class UsuariosTable extends GenericTable
 
             array_push($conditions, ['Usuarios.id IN ' => $usuarios_ids]);
 
-            if (!array_key_exists("Usuarios.tipo_perfil", $conditions)) {
+            if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
                 array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
             }
 

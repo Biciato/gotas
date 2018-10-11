@@ -101,7 +101,7 @@ class ClientesTable extends GenericTable
             ]
         );
 
-        $this->hasMany(
+        $this->belongsTo(
             'ClientesHasUsuarios',
             [
                 'className' => 'ClientesHasUsuarios',

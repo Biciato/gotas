@@ -25,9 +25,6 @@ echo $this->Breadcrumbs->render(
         <div class="gotas index col-lg-9 col-md-8 columns content">
 
         <legend>Cadastro de Gotas de Minha Rede</legend>
-        <h4>
-            <?= __("Unidade {0}", $cliente) ?>
-        </h4>
 
             <div class="col-lg-12">
                 <?= $this->Form->create(
@@ -40,17 +37,17 @@ echo $this->Breadcrumbs->render(
                     ]
                 ) ?>
 				<?= $this->Form->input(
-                    'filtrar_unidade',
-                    [
-                        'type' => 'select',
-                        'id' => 'filtrar_unidade',
-                        'label' => "Filtrar por unidade?",
-                        'empty' => false,
-                        'options' => $unidades_ids
-                    ]
-                ) ?>
+        'filtrar_unidade',
+        [
+            'type' => 'select',
+            'id' => 'filtrar_unidade',
+            'label' => "Filtrar por unidade?",
+            'empty' => '<Todas>',
+            'options' => $unidadesIds
+        ]
+    ) ?>
             </div>
-            
+
             <div class="hidden">
 
             <?= $this->Form->button(
@@ -91,7 +88,7 @@ echo $this->Breadcrumbs->render(
                                         <?= $this->Number->precision($gota->multiplicador_gota, 2) ?>
                                     </td>
                                     <td>
-                                        <?= __($this->Boolean->convertEnabledToString($gota->habilitado))?>
+                                        <?= __($this->Boolean->convertEnabledToString($gota->habilitado)) ?>
                                     </td>
                                     <td class="actions" style="white-space:nowrap">
                                         <?= $this->Html->link(
@@ -110,7 +107,7 @@ echo $this->Breadcrumbs->render(
                                             ]
                                         ) ?>
 
-                                       <?php if ($gota->habilitado) : ?> 
+                                       <?php if ($gota->habilitado) : ?>
 
                                             <?= $this->Html->link(
                                                 __(
@@ -167,27 +164,35 @@ echo $this->Breadcrumbs->render(
                                         <div class="col-lg-6 col-md-6 col-sm-6">
                                             <?= h(__("Unidade sem gotas definidas!")) ?>
                                         </div>
+
                                         <div class="col-lg-6 col-md-6 col-sm-6">
-                                            <?= $this->Html->link(
-                                                __(
-                                                    "{0} Definir gotas",
-                                                    $this->Html->tag('i', '', ['class' => 'fa fa-plus'])
-                                                ),
-                                                [
-                                                    'action' => 'adicionar_gota',
-                                                    $cliente->id
-                                                ],
-                                                [
-                                                    'class' => 'btn btn-info',
-                                                    'escape' => false
-                                                ]
-                                            ) ?>
-                                        
+
+                                            <?php
+
+                                            if ((int)$clientesId > 0) {
+
+                                                $this->Html->link(
+                                                    __(
+                                                        "{0} Definir gotas",
+                                                        $this->Html->tag('i', '', ['class' => 'fa fa-plus'])
+                                                    ),
+                                                    [
+                                                        'action' => 'adicionar_gota',
+                                                        $clientesId
+                                                    ],
+                                                    [
+                                                        'class' => 'btn btn-info',
+                                                        'escape' => false
+                                                    ]
+                                                    );
+                                            }
+                                            ?>
+
                                         </div>
                                     </div>
                                     </td>
                                 </tr>
-                                                    
+
                             <?php endif; ?>
                             </tbody>
                     </table>
@@ -207,7 +212,7 @@ echo $this->Breadcrumbs->render(
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/gotas/gotas_minha_rede') ?>
-	<?php else : ?> 
+	<?php else : ?>
     <?= $this->Html->script('scripts/gotas/gotas_minha_rede.min') ?>
 <?php endif; ?>
 

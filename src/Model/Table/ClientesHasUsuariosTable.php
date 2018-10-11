@@ -12,6 +12,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * ClientesHasUsuarios Model
@@ -97,18 +98,18 @@ class ClientesHasUsuariosTable extends Table
             'Clientes',
             [
                 'className' => 'Clientes',
-                'foreignKey' => 'clientes_id',
+                'foreignKey' => 'id',
                 'joinType' => 'LEFT'
             ]
         );
-        // $this->belongsToMany(
-        //     'Clientes',
-        //     [
-        //         'className' => 'Clientes',
-        //         'foreignKey' => 'clientes_id',
-        //         'join' => 'INNER'
-        //     ]
-        // );
+        $this->belongsTo(
+            'Clientes',
+            [
+                'className' => 'Clientes',
+                'foreignKey' => 'clientes_id',
+                'join' => 'INNER'
+            ]
+        );
 
         $this->belongsTo(
             'Usuario',
@@ -123,19 +124,29 @@ class ClientesHasUsuariosTable extends Table
             'Usuarios',
             [
                 'className' => 'Usuarios',
-                'foreignKey'=> 'id',
+                'foreignKey' => 'id',
                 'where' => [
                     'usuarios_id = Usuarios.id',
                 ],
                 'joinType' => 'INNER'
             ]
         );
-        $this->hasMany(
+
+        $this->belongsTo(
+            "Usuarios",
+            array(
+                "className" => "Usuarios",
+                "foreignKey" => "usuarios_id",
+                "joinType" => "INNER"
+            )
+        );
+
+        $this->belongsTo(
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
-                'joinType' => 'left'
+                'joinType' => 'INNER'
             ]
         );
     }
@@ -178,58 +189,8 @@ class ClientesHasUsuariosTable extends Table
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
 
-    /**
-     * Adiciona novo Usuário em cliente
-     *
-     * @param int $clientes_id  Id do cliente
-     * @param int $usuarios_id Id do usuário
-     *
-     * @return boolean
-     */
-    public function saveClienteHasUsuario(int $clientes_id, int $usuarios_id, int $tipo_perfil)
-    {
-        try {
-            $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->find('all')
-                ->where(
-                    [
-                        'usuarios_id' => $usuarios_id,
-                        'clientes_id' => $clientes_id,
-                        'tipo_perfil' => $tipo_perfil
-                    ]
-                )->first();
-
-            if (!$clientesHasUsuario) {
-                $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->newEntity();
-            }
-
-            $clientesHasUsuario->clientes_id = (int)$clientes_id;
-            $clientesHasUsuario->usuarios_id = (int)$usuarios_id;
-            $clientesHasUsuario->tipo_perfil = (int)$tipo_perfil;
-
-            return $this->_getClienteHasUsuarioTable()->save($clientesHasUsuario);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao inserir registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            $error = ['success' => false, 'message' => $stringError];
-            return $error;
-        }
-    }
-
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Verifica se usuário está vinculado à cliente (rede / posto)
@@ -469,6 +430,60 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * ClientesHasUsuariosTable::getAllClientesIdsAllowedFromRedesIdUsuariosId
+     *
+     * Obtem todos os vínculos de um usuário em uma rede específica
+     *
+     * @param integer $redesId
+     * @param integer $usuariosId
+     * @param integer $tipo_perfil
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 11/10/2018
+     *
+     * @return array Lista de seleção
+     */
+    public function getAllClientesIdsAllowedFromRedesIdUsuariosId(int $redesId, int $usuariosId, int $tipo_perfil)
+    {
+        try {
+            $query = $this->find("all")
+                ->contain(array(
+                    "RedesHasClientes",
+                    "Clientes",
+                    "Usuarios"
+                ))
+                ->where(
+                    array(
+                        "RedesHasClientes.redes_id" => $redesId,
+                        "Usuarios.id" => $usuariosId,
+                        "Usuarios.tipo_perfil" => $tipo_perfil
+                    )
+                )
+                ->select(
+                    array(
+                        "ClientesHasUsuarios.clientes_id",
+                        "Clientes.nome_fantasia"
+                    )
+                )
+                ->toArray();
+
+            $items = array();
+
+            foreach ($query as $key => $value) {
+                $items[$value["clientes_id"]] = $value["cliente"]["nome_fantasia"];
+            }
+
+            return $items;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registros: {0}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
      * Obtêm todos os clientes através de um usuário e tipo de perfil
      *
      * @param int $usuarios_id Id de usuário
@@ -510,7 +525,62 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
+
+    #region  Create
+
+    /**
+     * Adiciona novo Usuário em cliente
+     *
+     * @param int $clientes_id  Id do cliente
+     * @param int $usuarios_id Id do usuário
+     *
+     * @return boolean
+     */
+    public function saveClienteHasUsuario(int $clientes_id, int $usuarios_id, int $tipo_perfil)
+    {
+        try {
+            $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->find('all')
+                ->where(
+                    [
+                        'usuarios_id' => $usuarios_id,
+                        'clientes_id' => $clientes_id,
+                        'tipo_perfil' => $tipo_perfil
+                    ]
+                )->first();
+
+            if (!$clientesHasUsuario) {
+                $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->newEntity();
+            }
+
+            $clientesHasUsuario->clientes_id = (int)$clientes_id;
+            $clientesHasUsuario->usuarios_id = (int)$usuarios_id;
+            $clientesHasUsuario->tipo_perfil = (int)$tipo_perfil;
+
+            return $this->_getClienteHasUsuarioTable()->save($clientesHasUsuario);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao inserir registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['success' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+    #endregion
+
+    #region  Update
 
     /**
      * Atualiza o relacionamento de cliente e usuário
@@ -628,7 +698,9 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #endregion
+
+    #region  Delete
 
     /**
      * Apaga todos os vínculos de um usuário à um cliente

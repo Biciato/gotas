@@ -142,6 +142,7 @@ class ClientesHasUsuariosController extends AppController
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $user_logged = $user_managed;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -153,6 +154,8 @@ class ClientesHasUsuariosController extends AppController
 
             $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
+            // debug($clientes_has_usuarios_query->toArray());
+            // die();
             // tenho o cliente alocado, pegar agora a rede que ele está
             $cliente_has_usuario = $clientes_has_usuarios_query->toArray()[0];
             $cliente = $cliente_has_usuario->cliente;
@@ -173,8 +176,10 @@ class ClientesHasUsuariosController extends AppController
 
             $clientes = $this->Clientes->getAllClientes($where_conditions);
 
-            $this->set(compact('usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes'));
-            $this->set('_serialize', ['usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes']);
+            $arraySet = array('usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes', "user_logged");
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao realizar remoção de unidade de uma rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
