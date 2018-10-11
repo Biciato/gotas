@@ -30,7 +30,7 @@ use Cake\Core\Configure;
 
 				<?= $this->Form->create('Post', ['url' => ['controller' => $controller, 'action' => $action]]) ?>
 
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                     <?= $this->Form->input(
                         "nome",
                         array(
@@ -54,30 +54,38 @@ use Cake\Core\Configure;
                             )
                         ); ?>
                     </div>
-					<div class="col-lg-8">
-						<?= $this->Form->input(
-            'parametro',
-            [
-                'id' => 'parametro',
-                'class' => 'form-control col-lg-6',
-                'label' => 'Parâmetro'
-            ]
-        ) ?>
-					</div>
-					<div class="col-lg-2">
 
-						<?= $this->Form->input('opcoes', [
-            'type' => 'select',
-            'id' => 'opcoes',
-            'label' => 'Opções',
-            'options' =>
-                [
-                'nome' => 'nome',
-                'preco' => 'preco'
-            ],
-            'class' => 'form-control col-lg-2'
-        ]) ?>
-					</div>
+                    <div class="col-lg-2">
+                    <?= $this->Form->input("preco_padrao",
+                    array(
+                        "id" => "preco_padrao",
+                        "type" => "text",
+                        "class" => "input-control"
+                    )
+                    ); ?>
+                    </div>
+                    <div class="col-lg-2">
+                    <?= $this->Form->input("valor_moeda_venda_padrao",
+                    array(
+                        "id" => "valor_moeda_venda_padrao",
+                        "type" => "text",
+                        "class" => "input-control"
+                    )
+                    ); ?>
+                    </div>
+                    <div class="col-lg-2">
+                    <?= $this->Form->input("habilitado",
+                    array(
+                        "id" => "habilitado",
+                        "type" => "select",
+                        "label" => "Status",
+                        "class" => "input-control",
+                        "empty" => "<Todos>",
+                        "options" => Configure::read("yesNoArray")
+                    )
+                    ); ?>
+                    </div>
+
 
 					<div class="col-lg-2 vertical-align">
 

@@ -173,6 +173,14 @@ class BrindesController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
+            DebugUtil::print($data);
+
+            // [nome]
+            // [ilimitado]
+            // [preco_padrao]
+            // [valor_moeda_venda_padrao]
+            // [habilitado]
+
             if (strlen($data['parametro']) > 0) {
                 if ($data['opcoes'] == 'nome') {
                     array_push($conditions, ['nome like' => '%' . $data['parametro'] . '%']);
