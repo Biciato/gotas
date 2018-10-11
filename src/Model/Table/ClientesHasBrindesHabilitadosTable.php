@@ -865,15 +865,21 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesConfiguradosIds = array();
             $brindesNaoConfiguradosIds = $brindesRedeIds;
 
+            // echo 'oi';
+
+            // DebugUtil::print($brindesRede);
+            // DebugUtil::print($brindesRedeIds);
             // Obtem todos os brindes que estão configurados para aquela unidade.
 
-            $brindesAtribuidos = $this->_getClientesHasBrindesHabilitadosTable()->find("all")
+            $brindesAtribuidos = $this->find("all")
                 ->where(
                     array(
                         "brindes_id in " => $brindesRedeIds,
                         "clientes_id" => $clienteAplicarConfiguracaoId
                     )
                 )->toArray();
+
+
 
             foreach ($brindesAtribuidos as $key => $brindeAtribuido) {
                 if (in_array($brindeAtribuido["brindes_id"], $brindesNaoConfiguradosIds)) {
@@ -932,6 +938,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     }
                 }
             }
+
+            // echo __LINE__;
+            // DebugUtil::printArray($brindesVinculados, true);
+            // DebugUtil::printArray($brindesVinculados, true);
             return array_merge($brindesVinculados, $brindesNaoVinculados);
         } catch (\Exception $e) {
             $trace = $e->getTrace();

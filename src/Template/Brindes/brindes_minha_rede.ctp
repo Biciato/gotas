@@ -65,8 +65,8 @@ echo $this->Breadcrumbs->render(
                                 'action' => 'ver_brinde_rede', $brinde->id
                             ],
                             [
-                                'title' => 'Ver',
-                                'class' => 'btn btn-primary btn-xs',
+                                'title' => 'Ver detalhes',
+                                'class' => 'btn btn-default btn-xs',
                                 'escape' => false
                             ]
                         ) ?>

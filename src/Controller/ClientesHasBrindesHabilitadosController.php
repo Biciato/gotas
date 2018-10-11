@@ -222,7 +222,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $brindesConfigurarArrayRetorno = array();
 
-        foreach ($brindesConfigurar as $key => $brinde) {
+        foreach ($brindesConfigurar as $brinde) {
             $brinde["pendente_configuracao"] = empty($brinde["brindeVinculado"]["tipo_codigo_barras"]);
 
             $brindesConfigurarArrayRetorno[] = $brinde;
