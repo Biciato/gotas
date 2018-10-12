@@ -7,7 +7,8 @@
 
 $(document).ready(function () {
 
-    $("#preco_padrao").mask("###.###");
+    $("#preco_padrao").mask("#,##0,00", {reverse: true});
+    // $("#preco_padrao").mask("###.###");
     $("#valor_moeda_venda_padrao").mask("#,##0,00", {reverse: true});
 
     $("#filtrar_unidade").on('change', function(){

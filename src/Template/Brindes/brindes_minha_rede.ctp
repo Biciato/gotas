@@ -51,7 +51,7 @@ echo $this->Breadcrumbs->render(
 
                     <td><?= h($brinde->nome) ?></td>
                     <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
-                    <td><?= $this->Number->precision($brinde->preco_padrao, 3) ?></td>
+                    <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?></td>
                     <td><?= $this->Number->precision($brinde->valor_moeda_venda_padrao, 2) ?></td>
                     <td><?= $this->Boolean->convertEnabledToString($brinde->habilitado) ?></td>
 

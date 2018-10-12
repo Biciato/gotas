@@ -192,7 +192,7 @@ class BrindesTable extends GenericTable
                 $containConditions = array("Clientes");
             }
 
-            $brindes = $this->_getBrindeTable()->find('all')
+            $brindes = $this->find('all')
                 ->where($where_parameters);
 
             if (sizeof($containConditions) == 0 && $useContain) {

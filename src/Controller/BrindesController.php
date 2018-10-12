@@ -173,22 +173,40 @@ class BrindesController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            DebugUtil::print($data);
+            $nome = !empty($data["nome"]) ? $data["nome"] : null;
+            $ilimitado = strlen($data["ilimitado"]) > 0 ? $data["ilimitado"] : null;
+            $precoPadrao = !empty($data["preco_padrao"]) ? $data["preco_padrao"] : null;
+            $valorMoedaVendaPadrao = strlen($data["valor_moeda_venda_padrao"]) > 0 ? $data["valor_moeda_venda_padrao"] : null;
+            $habilitado = strlen($data["habilitado"]) > 0 ? $data["habilitado"] : null;
 
-            // [nome]
-            // [ilimitado]
-            // [preco_padrao]
-            // [valor_moeda_venda_padrao]
-            // [habilitado]
+            $conditions[] = array("nome like '%{$nome}%'");
 
-            if (strlen($data['parametro']) > 0) {
-                if ($data['opcoes'] == 'nome') {
-                    array_push($conditions, ['nome like' => '%' . $data['parametro'] . '%']);
+            if (strlen($ilimitado) > 0) {
+                $conditions[] = array("ilimitado" => $ilimitado);
+            }
+
+            if ($precoPadrao > 0) {
+                $conditions[] = array("preco_padrao" => (float)$precoPadrao);
+            }
+
+            if (strlen($valorMoedaVendaPadrao) > 0) {
+                if ($valorMoedaVendaPadrao == "0,00") {
+                    $conditions[] = array(
+                        "OR" => array(
+                            "valor_moeda_venda_padrao IS NULL",
+                            "valor_moeda_venda_padrao " => $valorMoedaVendaPadrao
+                        )
+                    );
                 } else {
-                    array_push($conditions, ['preco_padrao' => $data['parametro']]);
+                    $conditions[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
                 }
             }
 
+            if (strlen($habilitado) > 0) {
+                $conditions[] = array("habilitado" => $habilitado);
+            }
+
+            // DebugUtil::print($conditions);
         }
 
         array_push($conditions, ['clientes_id ' => $unidadesIds]);
@@ -340,7 +358,7 @@ class BrindesController extends AppController
                         $data["tipos_brindes_redes_id"]
                     );
 
-                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0){
+                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0) {
                         $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
                     }
 
