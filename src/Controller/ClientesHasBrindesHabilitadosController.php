@@ -230,6 +230,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $brindesConfigurar = $brindesConfigurarArrayRetorno;
 
+        // debug($brindesConfigurar);
         $arraySet = ['brindesConfigurar', 'clientes_id'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -391,7 +392,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
          * Sem isso, não é possível continuar.
          */
 
-        $brinde = $this->Brindes->getBrindesById($brindes_id);
+        // verifica se o cliente tem o brinde habilitado
+        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
+
+        $brinde = $this->Brindes->getBrindesById($clienteHasBrindeHabilitado["brindes_id"]);
         $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientes_id);
 
         if (empty($tiposBrindesCliente)) {
@@ -403,8 +407,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
         }
 
-        // verifica se o cliente tem o brinde habilitado
-        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
+
 
         if (is_null($clienteHasBrindeHabilitado)) {
             $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();

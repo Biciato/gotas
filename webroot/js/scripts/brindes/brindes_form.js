@@ -62,10 +62,15 @@ $(document).ready(function() {
                 this.value = 0;
             }
 
+
             var nome =
                 $("#tipos_brindes_redes_id option:selected").text() + " " + this.value + " minutos";
 
-            $("#nome").val(nome);
+
+
+            if (nome.indexOf("<Selecionar>") < 0){
+                $("#nome").val(nome);
+            }
         }
     });
 

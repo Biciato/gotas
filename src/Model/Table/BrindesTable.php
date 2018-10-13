@@ -120,6 +120,10 @@ class BrindesTable extends GenericTable
             ->boolean('equipamento_rti_shower');
 
         $validator
+            ->integer("tipos_brindes_redes_id")
+            ->requirePresence("tipos_brindes_redes_id", true);
+
+        $validator
             ->integer('ilimitado')
             ->requirePresence('ilimitado', 'create')
             ->notEmpty('ilimitado');
@@ -306,15 +310,15 @@ class BrindesTable extends GenericTable
     public function getBrindesById($brindes_id)
     {
         try {
-            return $this->_getBrindeTable()->get($brindes_id);
+            return $this->get($brindes_id);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
+            // $this->Flash->error($stringError);
         }
     }
 

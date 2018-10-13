@@ -19,7 +19,7 @@ use Cake\Core\Configure;
             [
                 "type" => "select",
                 "id" => "tipos_brindes_redes_id",
-                "label" => "Nome para Brinde baseado nos tipos disponíveis ",
+                "label" => "Tipo de Brinde ",
                 "empty" => "<Selecionar>",
                 "options" => $tiposBrindesCliente
             ]
@@ -43,7 +43,8 @@ use Cake\Core\Configure;
                 'label' => 'Se for Smart Shower, informe o Tempo de Banho',
                 'min' => 0,
                 'max' => 20,
-                'readonly' => false
+                'readonly' => false,
+                'required' => true
             ]
         ) ?>
     </div>

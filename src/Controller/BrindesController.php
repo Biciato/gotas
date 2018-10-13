@@ -329,6 +329,14 @@ class BrindesController extends AppController
                 $data = $this->request->getData();
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
+                $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+
+                if (empty($tiposBrindesRedesId)){
+                    $this->Flash->error("É necessário selecionar um tipo de brinde!");
+
+                    return $this->redirect(array("controller" => "brindes", "action" => "adicionarBrindeRede"));
+                }
+
                 // DebugUtil::print($data);
                 // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
                 $brinde->preco_padrao = (float)$data['preco_padrao'];
