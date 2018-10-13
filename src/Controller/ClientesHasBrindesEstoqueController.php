@@ -11,6 +11,7 @@ use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * ClientesHasBrindesEstoque Controller
@@ -236,9 +237,11 @@ class ClientesHasBrindesEstoqueController extends AppController
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
+        $rede = $this->request->session()->read('Network.Main');
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
+            $user_logged = $user_managed;
         }
 
         $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -263,7 +266,13 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             $totalPontosAGastar = $data['quantidade'] * (float)$data['preco'];
 
-            $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+            $usuario = null;
+            // Se usuário for nulo, define venda para o usuário avulso
+            if (empty($data["usuarios_id"])){
+                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyUserProfileType"], 1);
+            } else {
+                $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+            }
 
             $array_clientes_id = $this->Clientes->getIdsMatrizFiliaisByClienteId($clientes_id);
 
@@ -281,6 +290,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                 $usuario->pontuacoes
                     = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                     $usuario['id'],
+                    $rede["id"],
                     $array_clientes_id
                 );
 

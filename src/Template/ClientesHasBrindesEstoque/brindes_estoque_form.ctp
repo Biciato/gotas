@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/ClientesHasBrindesEstoque/brindes_estoque_form.ctp
@@ -15,10 +15,10 @@ $brinde = isset($brinde) ? $brinde : null;
 
 
 if (!is_null($brinde)) {
-	?> 
+	?>
 
 <div class='col-lg-4'>
-	
+
 	<?= $this->Form->input('nome', ['readonly' => true, 'value' => $brinde->brinde->nome, 'label' => 'Brinde Selecionado']); ?>
 </div>
 <div class='col-lg-4'>
@@ -29,10 +29,10 @@ if (!is_null($brinde)) {
 	<?= $this->Form->input('estoque', ['readonly' => true, 'value' => $this->Number->precision($brinde->estoque[0], 2), 'label' => 'Estoque Atual:']); ?>
 </div>
 <div class='col-lg-12'>
-	<?= $this->Form->input('quantidade', ['type' => 'number', 'id' => 'quantidade', 'min' => 0, 'step' => null]); ?>
+	<?= $this->Form->input('quantidade', ['type' => 'number', 'id' => 'quantidade', 'min' => 0, "max"=> 1000000, 'step' => null]); ?>
 </div>
-	
-<?php 
+
+<?php
 } else {
 	echo $this->Form->input('quantidade', ['type' => 'number', 'id' => 'quantidade', 'min' => 0, 'step' => null]);
 	echo $this->Form->hidden('tipo_operacao', ['required' => $required_tipo_operacao]);

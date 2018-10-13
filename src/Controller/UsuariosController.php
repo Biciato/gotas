@@ -2314,8 +2314,6 @@ class UsuariosController extends AppController
 
         $conditions = [];
 
-        $clientesIds = [];
-
         // se for developer / rti / rede, mostra todas as unidades da rede
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->user_logged['id']);
@@ -2350,8 +2348,11 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
+        // echo "tipoPerfil '{$tipoPerfil}'";
         // TODO: ajustado
+        // $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
         $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
+        // echo $usuarios->sql();
 
         $user_logged = $this->user_logged;
 

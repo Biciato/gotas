@@ -87,7 +87,15 @@ class UsuariosTable extends GenericTable
         //     )
         // );
 
-        $this->hasMany(
+        $this->hasOne(
+            "ClienteHasUsuario",
+            array(
+                "className" => "ClientesHasUsuarios",
+                "foreignKey" => "usuarios_id",
+                "joinType" => "LEFT"
+            )
+        );
+        $this->belongsTo(
             'ClientesHasUsuarios',
             array(
                 "className" => "ClientesHasUsuarios",
@@ -1294,7 +1302,7 @@ class UsuariosTable extends GenericTable
      */
     public function findFuncionariosRede(
         int $redes_id,
-        array $clientes_ids,
+        array $clientesIds,
         string $nome = null,
         string $cpf = null,
         string $documentoEstrangeiro = null,
@@ -1314,7 +1322,6 @@ class UsuariosTable extends GenericTable
                 $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
             } else if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
                 $conditions[] = array("Usuarios.tipo_perfil BETWEEN '{$tipoPerfilMin}' AND '{$tipoPerfilMax}'");
-
             }
 
             if (!empty($docEstrangeiro)) {
@@ -1339,33 +1346,45 @@ class UsuariosTable extends GenericTable
              * Admin comum/Gerente -> lista somente da sua unidade
              */
 
-            $redes_table = TableRegistry::get("Redes");
+            $redesTable = TableRegistry::get("Redes");
 
-            $rede = $redes_table->find('all')
-                ->where(['Redes.id' => $redes_id])
-                ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
-                ->first();
+            // $rede = $redesTable->find('all')
+            // ->where(['Redes.id' => $redes_id])
+            // ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
+            // ->first();
 
+            // DIE();
             // se a pesquisa é pela rede inteira, pega o id
             // de usuários de todas as unidades às quais o
             // usuário tem acesso (informado na chamada)
 
-            $usuarios_ids_array = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
-                ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientes_ids])
-                ->contain(['Usuarios'])
-                ->select(['ClientesHasUsuarios.usuarios_id'])->toArray();
+            $usuariosIdsArray = $this->find('all')
+            ->where(['ClienteHasUsuario.clientes_id IN ' => $clientesIds])
+                ->contain('ClienteHasUsuario')
+                ->select(['Usuarios.id']);
+
+            // echo $usuariosIdsArray->sql();
+
+            // $usuariosIdsArray = $this->find('all')
+            // ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientes_ids])
+            // ->contain('ClientesHasUsuarios')
+            //     ->select(['ClientesHasUsuarios.usuarios_id'])->toArray();
+
+            // DebugUtil::print($clientesIds);
+
+            // DebugUtil::print($usuariosIdsArray->toArray());
 
             $usuarios_ids = [];
 
-            foreach ($usuarios_ids_array as $key => $value) {
-                $usuarios_ids[] = $value['usuarios_id'];
+            foreach ($usuariosIdsArray as $key => $value) {
+                $usuarios_ids[] = $value['id'];
             }
 
             if (sizeof($usuarios_ids) == 0) {
                 $usuarios_ids[] = 0;
             }
 
-            array_push($conditions, ['Usuarios.id IN ' => $usuarios_ids]);
+            $conditions[] = array('Usuarios.id IN ' => $usuarios_ids);
 
             if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
                 array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
@@ -1373,8 +1392,11 @@ class UsuariosTable extends GenericTable
 
             $usuarios = $this->_getUsuarioTable()->find('all')
                 ->where($conditions)
-                ->contain(['ClientesHasUsuarios.Cliente']);
+                ->contain('ClientesHasUsuarios.Cliente');
 
+            echo $usuarios->sql();
+
+            // debug($usuarios);
             return $usuarios;
         } catch (\Exception $e) {
             $trace = $e->getTrace();

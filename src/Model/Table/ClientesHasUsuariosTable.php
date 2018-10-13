@@ -120,23 +120,23 @@ class ClientesHasUsuariosTable extends Table
             ]
         );
 
-        $this->hasMany(
-            'Usuarios',
-            [
-                'className' => 'Usuarios',
-                'foreignKey' => 'id',
-                'where' => [
-                    'usuarios_id = Usuarios.id',
-                ],
-                'joinType' => 'INNER'
-            ]
-        );
+        // $this->hasMany(
+        //     'Usuarios',
+        //     [
+        //         'className' => 'Usuarios',
+        //         'foreignKey' => 'usuarios_id',
+        //         // 'where' => [
+        //         //     'usuarios_id = Usuarios.id',
+        //         // ],
+        //         'joinType' => 'INNER'
+        //     ]
+        // );
 
         $this->belongsTo(
             "Usuarios",
             array(
                 "className" => "Usuarios",
-                "foreignKey" => "usuarios_id",
+                "foreignKey" => "id",
                 "joinType" => "INNER"
             )
         );

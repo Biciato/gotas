@@ -13,6 +13,7 @@ use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\DebugUtil;
+use Cake\I18n\Number;
 
 /**
  * ClientesHasBrindesHabilitadosPreco Controller
@@ -307,6 +308,8 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $this->Flash->error(Configure::read('messageSavedError'));
         }
+
+        $ultimoPrecoAutorizadoGotas["preco"] = empty($ultimoPrecoAutorizadoGotas["preco"]) ? 0 : $ultimoPrecoAutorizadoGotas["preco"];
 
         $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa");
         $this->set(compact([$arraySet]));
