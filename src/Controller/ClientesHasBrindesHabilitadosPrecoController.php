@@ -166,7 +166,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
-        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindesId);
+        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
 
         // pega último preço autorizado
         $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
@@ -271,6 +271,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $novoPreco["valor_moeda_venda"]
             );
 
+            // DebugUtil::print($brindeHabilitado);
             if ($novoPreco) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
 
@@ -279,9 +280,9 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * da rede daquela rede informando à respeito da alteração do preço
                  */
                 if ($requerAutorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
-                    $matriz_id = $brindeHabilitado->brinde->clientesId;
+                    $matrizId = $brindeHabilitado->brinde->clientes_id;
 
-                    $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matriz_id, (int)Configure::read('profileTypes')['AdminNetworkProfileType']);
+                    $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, (int)Configure::read('profileTypes')['AdminNetworkProfileType']);
 
                     foreach ($usuarios as $key => $usuario) {
                         $url = Router::url(
@@ -292,12 +293,12 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                             ]
                         );
 
-                        $full_url = Configure::read('appAddress') . $url;
+                        $fullUrl = Configure::read('appAddress') . $url;
 
-                        $admin_name = $usuario->nome;
+                        $adminName = $usuario->nome;
 
-                        $content['full_url'] = $full_url;
-                        $content['admin_name'] = $admin_name;
+                        $content['full_url'] = $fullUrl;
+                        $content['admin_name'] = $adminName;
 
                         $this->email_util->sendMail('price_update_gift', $usuario, 'Preço de Brinde Aguardando Autorização', $content);
                     }

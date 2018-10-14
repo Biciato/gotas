@@ -516,5 +516,4 @@ class BrindesTable extends GenericTable
         }
     }
 
-
 }

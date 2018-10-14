@@ -95,7 +95,7 @@ class UsuariosTable extends GenericTable
                 "joinType" => "LEFT"
             )
         );
-        $this->belongsTo(
+        $this->hasMany(
             'ClientesHasUsuarios',
             array(
                 "className" => "ClientesHasUsuarios",
@@ -1202,20 +1202,117 @@ class UsuariosTable extends GenericTable
      *
      * @return array $usuarios Lista de Usuários
      */
-    public function findAllUsuarios(array $whereConditions = [])
-    {
+    // public function findAllUsuarios(array $whereConditions = [])
+    public function findAllUsuarios(
+        int $redesId = null,
+        array $clientesIds = array(),
+        string $nome = null,
+        string $email = null,
+        int $tipoPerfilMin = null,
+        int $tipoPerfilMax = null,
+        string $cpf = null,
+        string $docEstrangeiro = null,
+        int $contaAtiva = null,
+        bool $join = true
+    ) {
+
+        // $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $tipoPerfil, $cpf, $docEstrangeiro);
         try {
-            return $this->_getUsuarioTable()
+
+            $whereConditions = array();
+
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("ClienteHasUsuario.clientes_id IN" => $clientesIds);
+            } else if (strlen($redesId) > 0) {
+                $whereConditions[] = array("Redes.id" => $redesId);
+            }
+
+            if (!empty($nome)) {
+                $whereConditions[] = array("Usuarios.nome like '%{$nome}%'");
+            }
+
+            if (!empty($email)) {
+                $whereConditions[] = array("Usuarios.email like '%{$email}%'");
+            }
+
+            if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
+                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
+                $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
+
+                $whereConditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+            } else {
+                $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
+                $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
+                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            }
+
+            if (!empty($cpf)) {
+                $whereConditions[] = array("Usuarios.cpf like '%{$cpf}%'");
+            }
+
+            if (!empty($docEstrangeiro)) {
+                $whereConditions[] = array("Usuarios.doc_estrangeiro like '%{$docEstrangeiro}%'");
+            }
+
+            if (!empty($contaAtiva)) {
+                $whereConditions[] = array("Usuarios.conta_ativa" => $contaAtiva);
+            }
+
+
+            $usuarios = $this->_getUsuarioTable()
                 ->find('all')
-                ->where($whereConditions)
-                ->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
+                ->where($whereConditions);
+
+            if ($join) {
+                $usuarios = $usuarios->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
+                // $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
+            }
+            $usuarios = $usuarios->order(array("Usuarios.tipo_perfil" => "ASC"));
+
+            $usuarios = $usuarios->select(
+                array(
+                    "Usuarios.id",
+                    "Usuarios.tipo_perfil",
+                    "Usuarios.nome",
+                    "Usuarios.data_nasc",
+                    "Usuarios.sexo",
+                    "Usuarios.necessidades_especiais",
+                    "Usuarios.cpf",
+                    "Usuarios.foto_documento",
+                    "Usuarios.foto_perfil",
+                    "Usuarios.doc_estrangeiro",
+                    "Usuarios.aguardando_aprovacao",
+                    "Usuarios.data_limite_aprovacao",
+                    "Usuarios.email",
+                    "Usuarios.senha",
+                    "Usuarios.telefone",
+                    "Usuarios.endereco",
+                    "Usuarios.endereco_numero",
+                    "Usuarios.endereco_complemento",
+                    "Usuarios.bairro",
+                    "Usuarios.municipio",
+                    "Usuarios.estado",
+                    "Usuarios.pais",
+                    "Usuarios.cep",
+                    "Usuarios.token_senha",
+                    "Usuarios.data_expiracao_token",
+                    "Usuarios.conta_ativa",
+                    "Usuarios.conta_bloqueada",
+                    "Usuarios.tentativas_login",
+                    "Usuarios.ultima_tentativa_login"
+                )
+            );
+            // die($usuarios->sql());
+            return $usuarios;
 
         } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            return $stringError;
+            Log::write('error', $trace);
         }
     }
 
@@ -1359,7 +1456,7 @@ class UsuariosTable extends GenericTable
             // usuário tem acesso (informado na chamada)
 
             $usuariosIdsArray = $this->find('all')
-            ->where(['ClienteHasUsuario.clientes_id IN ' => $clientesIds])
+                ->where(['ClienteHasUsuario.clientes_id IN ' => $clientesIds])
                 ->contain('ClienteHasUsuario')
                 ->select(['Usuarios.id']);
 
@@ -1394,7 +1491,7 @@ class UsuariosTable extends GenericTable
                 ->where($conditions)
                 ->contain('ClientesHasUsuarios.Cliente');
 
-            echo $usuarios->sql();
+            // echo $usuarios->sql();
 
             // debug($usuarios);
             return $usuarios;

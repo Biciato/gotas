@@ -81,7 +81,7 @@ echo $this->Breadcrumbs->render(
                     $banhoSmart = $tipoBrindeItem->tipo_brinde["id"] <= 4;
                     ?>
                     <tr>
-                        <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
+                        <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipos_brindes_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
                         <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
                         <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
                         <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>

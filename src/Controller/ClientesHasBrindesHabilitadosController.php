@@ -378,7 +378,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
      *
      * @return void
      */
-    private function _alteraEstadoBrinde(int $brindes_id, int $clientes_id, $status)
+    private function _alteraEstadoBrinde(int $brindesId, int $clientesId, $status)
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
@@ -393,26 +393,35 @@ class ClientesHasBrindesHabilitadosController extends AppController
          */
 
         // verifica se o cliente tem o brinde habilitado
-        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeId($brindes_id);
+        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeClienteId($brindesId, $clientesId);
 
-        $brinde = $this->Brindes->getBrindesById($clienteHasBrindeHabilitado["brindes_id"]);
-        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientes_id);
+        $brinde = $this->Brindes->getBrindesById($brindesId);
+
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientesId);
 
         if (empty($tiposBrindesCliente)) {
 
             $error = $status == 1 ? Configure::read("messageEnableError") : Configure::read("messageDisableError");
 
-            $this->Flash->error(__("{0} - {1}", $error, "Unidade não possui Tipo de Brinde configurado!"));
+            $this->Flash->error(__("{0} - {1}", $error, "Este Posto de Atendimento não possui este Tipo de Brinde configurado para o Brinde!"));
 
-            return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
+            return $this->redirect(['action' => 'configurar_brindes_unidade', $clientesId]);
         }
 
+        if (empty($clienteHasBrindeHabilitado)){
+            // TODO: continuar
+            $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
+            $clienteHasBrindeHabilitado["brindes_id"] = $brindesId;
+            $clienteHasBrindeHabilitado["clientes_id"] = $clientesId;
+            $clienteHasBrindeHabilitado["tipos_brindes_clientes_id"] = $brinde["tipos_brindes_redes_id"];
 
+            $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado);
+        }
 
         if (is_null($clienteHasBrindeHabilitado)) {
             $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
-            $clienteHasBrindeHabilitado->brindes_id = $brindes_id;
-            $clienteHasBrindeHabilitado->clientes_id = $clientes_id;
+            $clienteHasBrindeHabilitado->brindes_id = $brindesId;
+            $clienteHasBrindeHabilitado->clientes_id = $clientesId;
             $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesCliente["id"];
         } else if (empty($clienteHasBrindeHabilitado["tipos_brindes_clientes_id"])) {
             // Atualiza o vínculo se estiver nulo
@@ -459,7 +468,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     if (!isset($precos)) {
                         $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
                             $clienteHasBrindeHabilitado["id"],
-                            $clientes_id,
+                            $clientesId,
                             (int)Configure::read('giftApprovalStatus')['Allowed'],
                             $brinde["preco_padrao"],
                             $brinde["valor_moeda_venda"]
@@ -477,7 +486,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             return $this->redirect(['action' => 'configurar_tipo_emissao', $clienteHasBrindeHabilitado->id]);
         }
 
-        return $this->redirect(['action' => 'configurar_brindes_unidade', $clientes_id]);
+        return $this->redirect(['action' => 'configurar_brindes_unidade', $clientesId]);
     }
 
     /**

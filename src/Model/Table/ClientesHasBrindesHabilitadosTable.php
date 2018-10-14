@@ -343,13 +343,16 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      **/
-    public function getBrindeHabilitadoByBrindeId($id)
+    public function getBrindeHabilitadoByBrindeClienteId(int $brindesId, int $clientesId)
     {
         try {
             $brinde = $this->_getClientesHasBrindesHabilitadosTable()
                 ->find('all')
                 ->where(
-                    array("ClientesHasBrindesHabilitados.id" => $id)
+                    array(
+                        "ClientesHasBrindesHabilitados.brindes_id" => $brindesId,
+                        "ClientesHasBrindesHabilitados.clientes_id" => $clientesId
+                    )
                 )->contain(
                     array(
                         'Brindes',

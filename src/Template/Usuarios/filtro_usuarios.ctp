@@ -75,7 +75,7 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
                                     'nome',
                                     [
@@ -87,6 +87,17 @@ if (isset($filter_redes) && $filter_redes) {
                                 ) ?>
                             </div>
                             <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'email',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'email',
+                                        'label' => 'Email',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-2">
                                 <?= $this->Form->input(
                                     'cpf',
                                     [
@@ -113,7 +124,7 @@ if (isset($filter_redes) && $filter_redes) {
 
                                 <?php
 
-                                if (isset($unidades_ids) &&  sizeof($unidades_ids) > 0) {
+                                if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
 
                                     $this->Form->input(
                                         'filtrar_unidade',
@@ -209,3 +220,10 @@ if (isset($filter_redes) && $filter_redes) {
     </div>
 
 </div>
+
+<?php
+
+$extension = Configure::read("debug") ? "" : ".min";
+echo $this->Html->script("scripts/usuarios/filtro_usuarios" . $extension);
+echo $this->fetch('script');
+?>

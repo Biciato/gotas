@@ -611,13 +611,18 @@ class CuponsTable extends GenericTable
     public function getCuponsByClienteIds(array $clientes_ids = [])
     {
         try {
+
+
+
             $cupons = $this->_getCuponsTable()->find('all')
                 ->where(
                     [
                         'Cupons.clientes_id in ' => $clientes_ids
                     ]
                 )
-                ->contain(['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'ClientesHasBrindesHabilitados.Brindes']);
+                ->contain(
+                    ['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'ClientesHasBrindesHabilitados.Brindes']
+                );
 
             return $cupons;
         } catch (\Exception $e) {

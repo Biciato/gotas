@@ -2537,26 +2537,57 @@ class UsuariosController extends AppController
             // condições básicas do sistema
             // só pode gerenciar de administradores de redes à cliente-final
 
-            $conditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+            $nome = null;
+            $email = null;
+            $cpf = null;
+            $docEstrangeiro = null;
+            $tipoPerfil = null;
+            $clientesIds = array();
 
-            if ($this->request->is('post')) {
+            if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
-                if ($data['opcoes'] == 'cpf') {
-                    $value = $this->cleanNumber($data['parametro']);
-                } else {
-                    $value = $data['parametro'];
-                }
+                $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+                $nome = !empty($data["nome"]) ? $data["nome"] : "";
+                $email = !empty($data["email"]) ? $data["email"] : "";
+                $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
+                $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+                $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-                array_push(
-                    $conditions,
-                    [
-                        'usuarios.' . $data['opcoes'] . ' like' => '%' . $value . '%'
-                    ]
-                );
+                $unidadeClienteFiltrar = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
+                if (strlen($unidadeClienteFiltrar)) {
+                    $clientesIds = [];
+                    $clientesIds[] = (int)$unidadeClienteFiltrar;
+                }
+            }
+            // $conditions[] = ['Usuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+
+            if (strlen($tipoPerfil) > 0) {
+                $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+            } else {
+                $conditions[] = array(__(
+                    'Usuarios.tipo_perfil BETWEEN {0} AND {1} ',
+                    Configure::read('profileTypes')['AdminNetworkProfileType'],
+                    Configure::read('profileTypes')['UserProfileType']
+                ));
             }
 
-            $usuarios = $this->Usuarios->findAllUsuarios($conditions);
+            // $usuarios = $this->Usuarios->findAllUsuarios($conditions);
+            // TODO: Ajustar
+            $usuarios = $this->Usuarios->findAllUsuarios(
+                null,
+                $clientesIds,
+                $nome,
+                $email,
+                $tipoPerfil,
+                null,
+                $cpf,
+                $docEstrangeiro,
+                1,
+                1
+            );
+
+            // die($usuarios->sql());
 
             $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
 

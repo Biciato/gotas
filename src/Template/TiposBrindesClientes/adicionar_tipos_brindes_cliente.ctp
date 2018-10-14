@@ -53,7 +53,7 @@ echo $this->element("../TiposBrindesClientes/left_menu");
     <?= $this->Form->create($tiposBrindesCliente) ?>
     <fieldset>
         <legend><?= __($title) ?></legend>
-        <?= $this->element("../TiposBrindesClientes/form_tipos_brindes_cliente") ?>
+        <?= $this->element("../TiposBrindesClientes/form_tipos_brindes_cliente", array("selectTiposBrindesEnabled" => true)) ?>
     </fieldset>
     <?= $this->Form->end() ?>
 </div>

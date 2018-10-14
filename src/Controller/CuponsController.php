@@ -421,6 +421,7 @@ class CuponsController extends AppController
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
+            $user_logged = $user_managed;
         }
 
         // pega a rede e as unidades que o usuário tem acesso
@@ -428,34 +429,46 @@ class CuponsController extends AppController
         $rede = $this->request->session()->read('Network.Main');
 
         // Pega unidades que tem acesso
-        $clientes_ids = [];
+        $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
 
-        foreach ($unidades_ids as $key => $value) {
-            $clientes_ids[] = $key;
+        foreach ($unidadesAtendimento as $key => $value) {
+            $clientesIds[] = $key;
         }
+
+        $nome = null;
+        $unidade = null;
+        $nomeBrindes = null;
+        $valorMinimo = null;
+        $valorMaximo = null;
+        $dataFim = date('d/m/Y');
+        $dataInicio = date("d/m/Y", strtotime("-30 days", strtotime($dataFim)));
 
         if ($this->request->is('post')) {
 
             $data = $this->request->getData();
 
-            if ($data['filtrar_unidade'] != "") {
-                $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+            DebugUtil::print($data);
+
+            if ($data['filtrarUnidade'] != "") {
+                $clientesIds = [];
+                $clientesIds[] = (int)$data['filtrarUnidade'];
             }
         }
 
-        $cliente = $unidades_ids->toArray()[$clientes_ids[0]];
+        $cliente = $unidadesAtendimento->toArray()[$clientesIds[0]];
 
-        $cupons = $this->Cupons->getCuponsByClienteIds($clientes_ids, date('Y-m-d'));
+        $cupons = $this->Cupons->getCuponsByClienteIds($clientesIds, date('Y-m-d'));
 
-        // se não tiver filtros, ordena decrescente pela data
-        $this->paginate = ['order' => ['Cupons.data' => 'desc'], 'limit' => 10];
+        $brindes = $this->Brindes->getBrindesByClientes($clientesIds);
 
-        $this->paginate($cupons);
+        // Paginação
+        $cupons = $this->paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
-        $this->set(compact(['cupons', 'cliente', 'unidades_ids']));
+        $arraySet = array("cupons", "cliente", "unidadesAtendimento", "brindes", "dataFim", "dataInicio");
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

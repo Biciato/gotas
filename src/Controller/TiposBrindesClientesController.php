@@ -52,6 +52,8 @@ class TiposBrindesClientesController extends AppController
             }
 
             $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
+
+            // DebugUtil::print($tiposBrindesClientes);
         } catch (\Exception $e) {
 
             $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
@@ -89,8 +91,9 @@ class TiposBrindesClientesController extends AppController
 
         $tiposBrindesRedes = array();
         foreach ($tiposBrindesRedesQuery as $tipoBrinde) {
+
             $tipo = array(
-                "text" => $tipoBrinde["nome"],
+                "text" =>  $tipoBrinde["brinde_necessidades_especiais"] ?  __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
                 "value" => $tipoBrinde["id"],
                 "id" => "tipos_brindes_redes_id",
                 "data-tipo-principal" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
