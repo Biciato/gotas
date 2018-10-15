@@ -608,20 +608,31 @@ class CuponsTable extends GenericTable
      *
      * @return void
      */
-    public function getCuponsByClienteIds(array $clientes_ids = [])
+    public function getExtratoCuponsClientes(array $clientesIds = [], int $brindeSelecionado = null, string $nomeUsuarios = null, float $valorMinimo = null, float $valorMaximo = null, string $dataInicio = null, string $dataFim = null)
     {
         try {
 
+            $whereConditions = array();
 
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("Cupons.clientes_id IN" => $clientesIds);
+            }
+
+            if (!empty($brindeSelecionado)){
+                $whereConditions[] = array("Brindes.id" => $brindeSelecionado);
+            }
+
+            $whereConditions[] = array("Usuarios.nome LIKE '%{$nomeUsuarios}%'");
+            $whereConditions[] = array("Cupons.valor_pago BETWEEN '{$valorMinimo}' AND '{$valorMaximo}'");
+            $whereConditions[] = array("Cupons.data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
 
             $cupons = $this->_getCuponsTable()->find('all')
                 ->where(
-                    [
-                        'Cupons.clientes_id in ' => $clientes_ids
-                    ]
+                    $whereConditions
                 )
                 ->contain(
                     ['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'ClientesHasBrindesHabilitados.Brindes']
+                    // ['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'Brindes']
                 );
 
             return $cupons;

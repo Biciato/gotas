@@ -74,7 +74,7 @@ class BrindesTable extends GenericTable
         parent::initialize($config);
 
         $this->setTable('brindes');
-        $this->setDisplayField('id');
+        $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
         // relacionamento de brindes com matriz

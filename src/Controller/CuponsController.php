@@ -13,6 +13,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * Cupons Controller
@@ -437,36 +438,77 @@ class CuponsController extends AppController
             $clientesIds[] = $key;
         }
 
-        $nome = null;
-        $unidade = null;
+        $nomeUsuarios = null;
+        $unidadeSelecionado = null;
+        $brindeSelecionado = null;
         $nomeBrindes = null;
         $valorMinimo = null;
         $valorMaximo = null;
-        $dataFim = date('d/m/Y');
-        $dataInicio = date("d/m/Y", strtotime("-30 days", strtotime($dataFim)));
+        $date = 'd/m/Y';
+        $dataFim = date($date);
+        $dataInicio = date($date, strtotime("-30 day"));
+        $dataFimPesquisa = date($date);
+        $dataInicioPesquisa = date($date, strtotime("-30 day"));
+
+        $brindes = $this->Brindes->getBrindesByClientes($clientesIds)->find("list");
+
+        $data = array();
 
         if ($this->request->is('post')) {
-
             $data = $this->request->getData();
 
-            DebugUtil::print($data);
+            $this->request->session()->write("QueryConditions", $data);
 
-            if ($data['filtrarUnidade'] != "") {
-                $clientesIds = [];
-                $clientesIds[] = (int)$data['filtrarUnidade'];
+        } else {
+            $data = $this->request->session()->read("QueryConditions");
+        }
+
+        if (sizeof($data) > 0) {
+
+            $unidadeSelecionado = strlen($data["unidadeSelecionado"]) > 0 ? $data["unidadeSelecionado"] : null;
+            $brindeSelecionado = strlen($data["brindeSelecionado"]) > 0 ? $data["brindeSelecionado"] : null;
+            $nomeUsuarios = !empty($data["nomeUsuarios"]) ? $data["nomeUsuarios"] : null;
+            $valorMinimo = strlen($data["valorMinimo"]) > 0 ? str_replace(",", "", $data["valorMinimo"]) : null;
+            $valorMaximo = strlen($data["valorMaximo"]) > 0 ? str_replace(",", "", $data["valorMaximo"]) : null;
+            $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
+            $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
+
+            if (!empty($dataInicio)) {
+                $dataInicioPesquisa = date_format(date_create_from_format("d/m/Y", $dataInicio), "Y-m-d");
+            }
+
+            if (!empty($dataFim)) {
+                $dataFimPesquisa = date_format(date_create_from_format("d/m/Y", $dataFim), "Y-m-d");
             }
         }
 
-        $cliente = $unidadesAtendimento->toArray()[$clientesIds[0]];
+        if (empty($valorMinimo)) {
+            $valorMinimo = 0;
+        }
 
-        $cupons = $this->Cupons->getCuponsByClienteIds($clientesIds, date('Y-m-d'));
+        if (empty($valorMaximo)) {
+            $valorMaximo = 9999999999999999;
+        }
 
-        $brindes = $this->Brindes->getBrindesByClientes($clientesIds);
+        if ($valorMinimo > $valorMaximo) {
+            $this->Flash->error("Valor Mínimo não pode ser maior que Valor Máximo!");
+            return $this->redirect(array("controller" => "cupons", "action" => "historicoBrindes"));
+        }
+
+        if (!empty($unidadeSelecionado)) {
+            $clientesIds = [];
+            $clientesIds[] = (int)$unidadeSelecionado;
+        }
+
+        // $dataInicio = date("d/m/Y", strtotime($dataInicio));
+        // $dataFim = date("d/m/Y", strtotime($dataFim));
+        $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
 
         // Paginação
-        $cupons = $this->paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
+        $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
-        $arraySet = array("cupons", "cliente", "unidadesAtendimento", "brindes", "dataFim", "dataInicio");
+        // $arraySet = array("cupons", "cliente", "unidadesAtendimento", "brindes", "dataFim", "dataInicio");
+        $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }

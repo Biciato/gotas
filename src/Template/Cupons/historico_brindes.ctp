@@ -30,10 +30,10 @@ echo $this->Breadcrumbs->render(
         <div class="col-lg-4">
 
             <?= $this->Form->input(
-                'filtrarUnidade',
+                'unidadeSelecionado',
                 [
                     'type' => 'select',
-                    'id' => 'filtrarUnidade',
+                    'id' => 'unidadeSelecionado',
                     'label' => "Ponto de Atendimento",
                     'empty' => "<Todos>",
                     'options' => $unidadesAtendimento
@@ -43,12 +43,13 @@ echo $this->Breadcrumbs->render(
 
             <div class="col-lg-4">
                 <?= $this->Form->input(
-                    "brindes",
+                    "brindeSelecionado",
                     array(
                         "type" => "select",
-                        "id" => "brindes",
+                        "id" => "brindeSelecionado",
                         "label" => "Brindes",
                         'empty' => "<Todos>",
+                        "value" => $brindeSelecionado,
                         "options" => $brindes
                     )
                 );
@@ -67,10 +68,16 @@ echo $this->Breadcrumbs->render(
                 </div>
 
                 <div class="col-lg-2">
-                    <?= $this->Form->input("valorMinimo", array("id" => "valorMinimo", "type" => "text", "class" => "valores")) ?>
+                    <?= $this->Form->input("valorMinimo", array("id" => "valorMinimo", "type" => "text", "class" => "valores", "label" => "Valor Mínimo")) ?>
                 </div>
                 <div class="col-lg-2">
-                    <?= $this->Form->input("valorMinimo", array("id" => "valorMaximo", "type" => "text", "class" => "valores")) ?>
+                    <?= $this->Form->input("valorMaximo", array("id" => "valorMaximo", "type" => "text", "class" => "valores", "label" => "Valor Máximo")) ?>
+                </div>
+
+                <div class="hidden">
+                <!-- <div > -->
+                    <?= $this->Form->input("altdataInicio", array("id" => "altdataInicio"));?>
+                    <?= $this->Form->input("altdataFim", array("id" => "altdataFim"));?>
                 </div>
                 <div class="col-lg-3">
                     <?= $this->Form->input(
@@ -79,7 +86,8 @@ echo $this->Breadcrumbs->render(
                             'type' => 'text',
                             'id' => 'dataInicio',
                             'label' => 'Data de Início',
-                            'format' => 'd/m/Y',
+                            // 'format' => 'd/m/Y',
+                            'format' => 'Y-m-d',
                             'default' => $dataInicio,
                             'class' => 'datepicker-input',
                             'div' =>
@@ -148,51 +156,61 @@ echo $this->Breadcrumbs->render(
                     <?php foreach ($cupons as $cupom) : ?>
                     <tr>
 
-                        <td>                            <?= h($cupom->usuario->nome) ?></td>
-                        <td>                            <?= h($cupom->clientes_has_brindes_habilitado->brinde->nome) ?></td>
-                        <td>                            <?= h($this->Tickets->getTicketShowerType($cupom->tipo_banho)) ?></td>
-                        <td>                            <?= h($this->Number->precision($cupom->valor_pago, 2)); ?></td>
-                        <td>                            <?= h($cupom->data->format('d/m/Y H:i:s')) ?></td>
+                        <td>
+                            <?= h($cupom->usuario->nome) ?>
+                        </td>
+                        <td>
+                            <?= h($cupom->clientes_has_brindes_habilitado->brinde->nome) ?>
+                        </td>
+                        <td>
+                            <?= h($this->Tickets->getTicketShowerType($cupom->tipo_banho)) ?>
+                        </td>
+                        <td>
+                            <?= h($this->Number->precision($cupom->valor_pago, 2)); ?>
+                        </td>
+                        <td>
+                            <?= h($cupom->data->format('d/m/Y H:i:s')) ?>
+                        </td>
 
                         <td class="actions" style="white-space:nowrap">
                             <?= $this->Html->link(
-    __(
-        '{0}',
-        $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
-    ),
-    [
-        'action' => 'detalhes_ticket', $cupom->id
-    ],
-    [
-        'title' => 'Ver detalhes',
-        'class' => 'btn btn-default btn-xs',
-        'escape' => false
-    ]
-) ?>
+                                __(
+                                    '{0}',
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                                ),
+                                [
+                                    'action' => 'detalhes_ticket', $cupom->id
+                                ],
+                                [
+                                    'title' => 'Ver detalhes',
+                                    'class' => 'btn btn-default btn-xs',
+                                    'escape' => false
+                                ]
+                            ) ?>
 
                             <?php
                     // TODO: Deverá ser ajustado devido alteração do Tipo de brindes
-$this->Html->tag(
-    'div',
-    __(
-        "{0}",
-        $this->Html->tag('i', '', ['class' => 'fa fa-print'])
-    ),
-    [
-        'title' => 'Reemitir',
-        'data-toggle' => 'modal',
-        'data-target' => '#reemitir-shower-modal',
-        'type' => 'button', 'class' => 'btn btn-primary btn-xs print-ticket',
-        'value' => __(
-            "id={0},clientes_has_brindes_habilitados_id={1},clientes_id={2},usuarios_id={3},data={4}",
-            $cupom->id,
-            $cupom->clientes_has_brindes_habilitados_id,
-            $cupom->clientes_id,
-            $cupom->usuarios_id,
-            $cupom->data->format('Y-m-d H:i:s')
-        )
-    ]
-) ?>
+                            $this->Html->tag(
+                                'div',
+                                __(
+                                    "{0}",
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-print'])
+                                ),
+                                [
+                                    'title' => 'Reemitir',
+                                    'data-toggle' => 'modal',
+                                    'data-target' => '#reemitir-shower-modal',
+                                    'type' => 'button', 'class' => 'btn btn-primary btn-xs print-ticket',
+                                    'value' => __(
+                                        "id={0},clientes_has_brindes_habilitados_id={1},clientes_id={2},usuarios_id={3},data={4}",
+                                        $cupom->id,
+                                        $cupom->clientes_has_brindes_habilitados_id,
+                                        $cupom->clientes_id,
+                                        $cupom->usuarios_id,
+                                        $cupom->data->format('Y-m-d H:i:s')
+                                    )
+                                ]
+                            ) ?>
 
 
                         </td>
