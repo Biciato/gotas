@@ -1,4 +1,6 @@
 <?php
+
+use Cake\Core\Configure;
 /**
  * @description Ver detalhes de Usuário (view de administrador)
  * @author      Gustavo Souza Gonçalves

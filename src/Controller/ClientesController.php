@@ -612,9 +612,10 @@ class ClientesController extends AppController
 
                 if ($this->Clientes->updateClient($cliente)) {
 
-                    if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        unlink($imagemOriginal);
-                    }
+                    // Não posso dar unlink na imagem aqui, pois outras podem usar ainda
+                    // if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
+                    //     unlink($imagemOriginal);
+                    // }
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 

@@ -24,112 +24,128 @@ echo $this->Breadcrumbs->render(
 <div class="col-lg-9 col-md-10 columns">
     <legend>        <?= __("Histórico de Brindes") ?></legend>
 
-    <?= $this->Form->create('POST', array('url' => array('controller' => 'Cupons', 'action' => 'historico_brindes'))) ?>
+     <div class="panel-group">
+    <div class="panel panel-default">
+      <div class="panel-heading  panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
+          <div>
+          <span class="fa fa-search"></span>
+          Exibir / Ocultar Filtros
+          </div>
 
-    <div class="form-group row">
-        <div class="col-lg-4">
+      </div>
+      <div id="filter-coupons" class="panel-collapse collapse in">
+        <div class="panel-body">
+            <?= $this->Form->create('POST', array('url' => array('controller' => 'Cupons', 'action' => 'historico_brindes'))) ?>
 
-            <?= $this->Form->input(
-                'unidadeSelecionado',
-                [
-                    'type' => 'select',
-                    'id' => 'unidadeSelecionado',
-                    'label' => "Ponto de Atendimento",
-                    'empty' => "<Todos>",
-                    'options' => $unidadesAtendimento
-                ]
-            ) ?>
-            </div>
-
-            <div class="col-lg-4">
-                <?= $this->Form->input(
-                    "brindeSelecionado",
-                    array(
-                        "type" => "select",
-                        "id" => "brindeSelecionado",
-                        "label" => "Brindes",
-                        'empty' => "<Todos>",
-                        "value" => $brindeSelecionado,
-                        "options" => $brindes
-                    )
-                );
-                ?>
-                </div>
+            <div class="form-group row">
                 <div class="col-lg-4">
-                    <?= $this->Form->input(
-                        "nomeUsuarios",
-                        array(
-                            "type" => "text",
-                            "id" => "nomeUsuarios",
-                            "label" => "Clientes",
-                            "placeholder" => "Informe o nome..."
-                        )
-                    ); ?>
-                </div>
 
-                <div class="col-lg-2">
-                    <?= $this->Form->input("valorMinimo", array("id" => "valorMinimo", "type" => "text", "class" => "valores", "label" => "Valor Mínimo")) ?>
-                </div>
-                <div class="col-lg-2">
-                    <?= $this->Form->input("valorMaximo", array("id" => "valorMaximo", "type" => "text", "class" => "valores", "label" => "Valor Máximo")) ?>
-                </div>
-
-                <div class="hidden">
-                <!-- <div > -->
-                    <?= $this->Form->input("altdataInicio", array("id" => "altdataInicio"));?>
-                    <?= $this->Form->input("altdataFim", array("id" => "altdataFim"));?>
-                </div>
-                <div class="col-lg-3">
                     <?= $this->Form->input(
-                        'dataInicio',
+                        'unidadeSelecionado',
                         [
-                            'type' => 'text',
-                            'id' => 'dataInicio',
-                            'label' => 'Data de Início',
-                            // 'format' => 'd/m/Y',
-                            'format' => 'Y-m-d',
-                            'default' => $dataInicio,
-                            'class' => 'datepicker-input',
-                            'div' =>
+                            'type' => 'select',
+                            'id' => 'unidadeSelecionado',
+                            'label' => "Ponto de Atendimento",
+                            'empty' => "<Todos>",
+                            'options' => $unidadesAtendimento
+                        ]
+                    ) ?>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <?= $this->Form->input(
+                            "brindeSelecionado",
+                            array(
+                                "type" => "select",
+                                "id" => "brindeSelecionado",
+                                "label" => "Brindes",
+                                'empty' => "<Todos>",
+                                "value" => $brindeSelecionado,
+                                "options" => $brindes
+                            )
+                        );
+                        ?>
+                        </div>
+                        <div class="col-lg-4">
+                            <?= $this->Form->input(
+                                "nomeUsuarios",
+                                array(
+                                    "type" => "text",
+                                    "id" => "nomeUsuarios",
+                                    "label" => "Clientes",
+                                    "placeholder" => "Informe o nome..."
+                                )
+                            ); ?>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <?= $this->Form->input("valorMinimo", array("id" => "valorMinimo", "type" => "text", "class" => "valores", "label" => "Valor Mínimo")) ?>
+                        </div>
+                        <div class="col-lg-2">
+                            <?= $this->Form->input("valorMaximo", array("id" => "valorMaximo", "type" => "text", "class" => "valores", "label" => "Valor Máximo")) ?>
+                        </div>
+
+                        <div class="hidden">
+                        <!-- <div > -->
+                            <?= $this->Form->input("altdataInicio", array("id" => "altdataInicio"));?>
+                            <?= $this->Form->input("altdataFim", array("id" => "altdataFim"));?>
+                        </div>
+                        <div class="col-lg-3">
+                            <?= $this->Form->input(
+                                'dataInicio',
                                 [
-                                'class' => 'form-inline',
-                            ],
-                        ]
-                    ) ?>
-                </div>
-                <div class="col-lg-3">
-                    <?= $this->Form->input(
-                        'dataFim',
-                        [
-                            'type' => 'text',
-                            'id' => 'dataFim',
-                            'label' => 'Data de Fim',
-                            'format' => 'd/m/Y',
-                            'default' => $dataFim,
-                            'class' => 'datepicker-input',
-                            'div' =>
+                                    'type' => 'text',
+                                    'id' => 'dataInicio',
+                                    'label' => 'Data de Início',
+                                    // 'format' => 'd/m/Y',
+                                    'format' => 'Y-m-d',
+                                    'default' => $dataInicio,
+                                    'class' => 'datepicker-input',
+                                    'div' =>
+                                        [
+                                        'class' => 'form-inline',
+                                    ],
+                                ]
+                            ) ?>
+                        </div>
+                        <div class="col-lg-3">
+                            <?= $this->Form->input(
+                                'dataFim',
                                 [
-                                'class' => 'form-inline',
-                            ],
-                        ]
-                    ) ?>
-                </div>
+                                    'type' => 'text',
+                                    'id' => 'dataFim',
+                                    'label' => 'Data de Fim',
+                                    'format' => 'd/m/Y',
+                                    'default' => $dataFim,
+                                    'class' => 'datepicker-input',
+                                    'div' =>
+                                        [
+                                        'class' => 'form-inline',
+                                    ],
+                                ]
+                            ) ?>
+                        </div>
 
-                <div class="col-lg-2 vertical-align">
+                        <div class="col-lg-2 vertical-align">
 
-                    <?= $this->Form->button(
-                        "Pesquisar",
-                        [
-                            'class' => 'btn btn-primary btn-block',
-                            'id' => 'search_button'
-                        ]
-                    ) ?>
+                            <?= $this->Form->button(
+                                "Pesquisar",
+                                [
+                                    'class' => 'btn btn-primary btn-block',
+                                    'id' => 'search_button'
+                                ]
+                            ) ?>
+
+                        </div>
+
+                    </div>
+                    <?= $this->Form->end(); ?>
 
                 </div>
 
             </div>
-            <?= $this->Form->end(); ?>
-
+        </div>
+    </div>
             <table class="table table-striped table-hover table-condensed table-responsive">
                 <thead>
                     <tr>

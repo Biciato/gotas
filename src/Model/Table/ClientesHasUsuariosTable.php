@@ -102,14 +102,15 @@ class ClientesHasUsuariosTable extends Table
                 'joinType' => 'LEFT'
             ]
         );
-        $this->belongsTo(
-            'Clientes',
-            [
-                'className' => 'Clientes',
-                'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
-            ]
-        );
+
+        // $this->belongsTo(
+        //     'Clientes',
+        //     [
+        //         'className' => 'Clientes',
+        //         'foreignKey' => 'clientes_id',
+        //         'join' => 'INNER'
+        //     ]
+        // );
 
         $this->belongsTo(
             'Usuario',

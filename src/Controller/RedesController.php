@@ -484,7 +484,9 @@ class RedesController extends AppController
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        unlink($imagemOriginal);
+                        if (file_exists($imagemOriginal)){
+                            unlink($imagemOriginal);
+                        }
                     }
 
                     // atualiza todas as unidades de atendimento

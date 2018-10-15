@@ -9,7 +9,8 @@ use Cake\Core\Configure;
  */
 
 $show_filiais = isset($show_filiais) ? $show_filiais : true;
-
+$fixarTipoPerfil = isset($fixarTipoPerfil) ? $fixarTipoPerfil : false;
+$tipoPerfilFixo = isset($tipoPerfilFixo) ? $tipoPerfilFixo : null;
 $options = [
     'nome' => 'nome',
     'cpf' => 'cpf',
@@ -62,6 +63,23 @@ if (isset($filter_redes) && $filter_redes) {
                     ?>
 
                         <div class="inline-block">
+                            <?php if ($fixarTipoPerfil): ?>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'tipo_perfil',
+                                    [
+                                        'type' => 'select',
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "<Todos>",
+                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        "value" => $tipoPerfilFixo,
+                                        "disabled" => true,
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <?php else : ?>
                             <div class="col-lg-3">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
@@ -75,6 +93,7 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
+                            <?php endif; ?>
                             <div class="col-lg-4">
                                 <?= $this->Form->input(
                                     'nome',

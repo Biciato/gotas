@@ -1396,9 +1396,11 @@ class UsuariosTable extends GenericTable
      * @param integer $tipoPerfilMax Tipo Perfil Maximo
      *
      * @return entity\usuarios[] $usuarios
+     *
+     * TODO: renomear para getUsuarios (o antigo irá morrer, ver a funcionalidade do outro)
      */
     public function findFuncionariosRede(
-        int $redes_id,
+        int $redesId,
         array $clientesIds,
         string $nome = null,
         string $cpf = null,
@@ -1416,7 +1418,7 @@ class UsuariosTable extends GenericTable
             );
 
             if (!empty($tipoPerfilMin) && empty($tipoPerfilMax)) {
-                $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+                $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfilMin);
             } else if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
                 $conditions[] = array("Usuarios.tipo_perfil BETWEEN '{$tipoPerfilMin}' AND '{$tipoPerfilMax}'");
             }
@@ -1435,22 +1437,31 @@ class UsuariosTable extends GenericTable
 
             // ---------- condições de pesquisa ----------
 
-            /**
-             * Pega o usuário informado e vê qual é a permissão dele.
-             * Admin:
-             * RTI/de Rede -> lista tudo
-             * Admin regional -> lista os quais se encontra alocado
-             * Admin comum/Gerente -> lista somente da sua unidade
-             */
+             // Se não passar qual o id das unidades, pega todas
+             if (sizeof($clientesIds) == 0) {
+                /**
+                 * Pega o usuário informado e vê qual é a permissão dele.
+                 * Admin:
+                 * RTI/de Rede -> lista tudo
+                 * Admin regional -> lista os quais se encontra alocado
+                 * Admin comum/Gerente -> lista somente da sua unidade
+                 */
 
-            $redesTable = TableRegistry::get("Redes");
+                $redesTable = TableRegistry::get("Redes");
+                $rede = $redesTable->find('all')
+                    ->where(['Redes.id' => $redesId])
+                    ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
+                    ->first();
 
-            // $rede = $redesTable->find('all')
-            // ->where(['Redes.id' => $redes_id])
-            // ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
-            // ->first();
+                $clientesIds = array();
 
-            // DIE();
+                $redesHasClientes = $rede["redes_has_clientes"];
+
+                foreach ($redesHasClientes as $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
+            }
+
             // se a pesquisa é pela rede inteira, pega o id
             // de usuários de todas as unidades às quais o
             // usuário tem acesso (informado na chamada)

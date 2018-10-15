@@ -2310,6 +2310,7 @@ class UsuariosController extends AppController
             $this->user_logged = $user_managed;
         }
 
+        // $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->user_logged['id']);
         $clientesIds = array();
 
         $conditions = [];
@@ -2478,44 +2479,69 @@ class UsuariosController extends AppController
 
         $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
 
-        $clientes_ids = [];
+        $clientesIds = [];
+
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->user_logged['id']);
 
         foreach ($redes_has_clientes_query as $key => $value) {
-            $clientes_ids[] = $value['clientes_id'];
+            $clientesIds[] = $value['clientes_id'];
         }
         $conditions = [];
 
-        $conditions[] = ['clientes_id IN ' => $clientes_ids];
+        $conditions[] = ['clientes_id IN ' => $clientesIds];
 
-        $entire_network = false;
+        $nome = null;
+        $cpf = null;
+        $docEstrangeiro = null;
+        $tipoPerfil = Configure::read("profileTypes")["UserProfileType"];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cpf') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
+            $nome = !empty($data["nome"]) ? $data["nome"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-            if ($data['incluir_filiais']) {
-                $entire_network = true;
+            if ($filtrarUnidade != "") {
+                $clientesIds = [];
+                $clientesIds[] = (int)$data['filtrar_unidade'];
             }
-
-            array_push(
-                $conditions,
-                [
-                    $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
-            );
         }
 
-        $usuarios = $this->Usuarios->getUsuarios($conditions);
+        if (sizeof($clientesIds) == 0) {
+            $clientesIds[] = 0;
+        }
+
+        // echo "tipoPerfil '{$tipoPerfil}'";
+        // TODO: ajustado
+        // $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
+        $usuarios = $this->Usuarios->findFuncionariosRede($rede["id"], $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
+
+        // if ($this->request->is(['post', 'put'])) {
+        //     $data = $this->request->getData();
+
+        //     if ($data['opcoes'] == 'cpf') {
+        //         $value = $this->cleanNumber($data['parametro']);
+        //     } else {
+        //         $value = $data['parametro'];
+        //     }
+
+        //     array_push(
+        //         $conditions,
+        //         [
+        //             $data['opcoes'] . ' like' => '%' . $value . '%'
+        //         ]
+        //     );
+        // }
+
+        // $usuarios = $this->Usuarios->getUsuarios($conditions);
 
         $this->paginate($usuarios, ['limit' => 10]);
 
-        $this->set(compact('usuarios'));
-        $this->set('_serialize', ['usuarios']);
+        $arraySet = array("usuarios", "unidades_ids");
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**

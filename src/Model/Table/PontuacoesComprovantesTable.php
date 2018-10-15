@@ -774,8 +774,9 @@ class PontuacoesComprovantesTable extends GenericTable
                     ]
                 )->first();
 
-            $value['soma_pontuacoes'] = $value['soma_pontuacoes'][0]['soma_quantidade'];
-
+            if (sizeof($value["soma_pontuacoes"]) > 0) {
+                $value['soma_pontuacoes'] = $value['soma_pontuacoes'][0]['soma_quantidade'];
+            }
 
             return $value;
         } catch (\Exception $e) {

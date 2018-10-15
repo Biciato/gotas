@@ -15,9 +15,9 @@
           <span class="fa fa-search"></span>
           Exibir / Ocultar Filtros
           </div>
-          
+
       </div>
-      <div id="filter-coupons" class="panel-collapse collapse">
+      <div id="filter-coupons" class="panel-collapse collapse in">
         <div class="panel-body">
             <?= $this->Form->create('Post', [
             'url' =>
@@ -139,8 +139,8 @@
                     <div class="vertical-align">
 
                         <?= $this->Form->button(
-                            __('{0} Pesquisar Comprovante', 
-                            '<i class="fa fa-search" aria-hidden="true"></i>'  ), 
+                            __('{0} Pesquisar Comprovante',
+                            '<i class="fa fa-search" aria-hidden="true"></i>'  ),
                             [
                                 'id' => 'search_button',
                                 'class' => 'btn btn-primary btn-block'
@@ -151,19 +151,19 @@
                 </div>
 
                 <?= $this->Form->text('restrict_query', ['id' => 'restrict_query', 'value' => true, 'style' => 'display: none;']); ?>
-                
+
             </div>
         <?= $this->Form->end();?>
-        
+
         </div>
-        
+
       </div>
     </div>
   </div>
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons'); ?>
-<?php else: ?> 
+<?php else: ?>
     <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons.min'); ?>
 <?php endif; ?>
 
