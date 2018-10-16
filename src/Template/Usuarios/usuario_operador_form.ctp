@@ -139,7 +139,7 @@ use Cake\Routing\Router;
 
                 </div>
                     <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
-                        <div class="col-lg-12">
+                        <div class="col-lg-6">
                             <!-- Tipo Perfil -->
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
@@ -153,6 +153,18 @@ use Cake\Routing\Router;
 
                                 ]
                             ]) ?>
+                        </div>
+                        <div class="col-lg-6">
+                            <?= $this->Form->input(
+                            'clientes_id',
+                            [
+                                'type' => 'select',
+                                'id' => 'clientes_rede',
+                                'class' => 'clientes_rede',
+                                'label' => 'Unidade da Rede',
+                                "options" =>
+                            ]
+                        ); ?>
                         </div>
                     <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminLocalProfileType']) : ?>
                         <div class="col-lg-12">

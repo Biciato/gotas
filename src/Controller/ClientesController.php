@@ -310,10 +310,12 @@ class ClientesController extends AppController
      *
      * @param int $id Id do colaborador (Funcionário)
      *
+     * @deprecated 1.0 / Não é mais usado
      * @return void
      */
     public function gerenciarColaborador(int $id = null)
     {
+        // TODO: conferir se é usado
         try {
             $profileTypes = Configure::read('profileTypes');
 

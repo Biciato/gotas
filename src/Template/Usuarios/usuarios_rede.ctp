@@ -2,7 +2,7 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$redes_id = isset($redes_id) ? $redes_id : null;
+$redesId = isset($redesId) ? $redesId : null;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
@@ -10,7 +10,7 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
         'Detalhes da Rede',
-        ['controller' => 'Redes', 'action' => 'ver_detalhes', $redes_id],
+        ['controller' => 'Redes', 'action' => 'ver_detalhes', $redesId],
         ['class' => 'active']
     );
 }
@@ -33,7 +33,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
         'mode' => 'management',
         'controller' => 'pages',
         'action' => 'display',
-        "redes_id" => $redes_id
+        "redes_id" => $redesId
     ]
 ) ?>
 
@@ -43,9 +43,9 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
         </legend>
 
         <?php if ($userIsAdmin) : ?>
-            <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
+            <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redesId, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
         <?php else : ?>
-            <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redes_id, 'show_filiais' => false, 'filter_redes' => true]) ?>
+            <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redesId, 'show_filiais' => false, 'filter_redes' => true]) ?>
         <?php endif; ?>
             <table class="table table-striped table-hover table-condensed table-responsive">
                 <thead>
@@ -59,9 +59,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                         <th>
                             <?= $this->Paginator->sort('cpf', ['label' => 'CPF']) ?>
                         </th>
-                        <th>
-                            <?= $this->Paginator->sort('Clientes.razao_social', ['label' => 'Unidade']) ?>
-                        </th>
+
                         <th>
                             <?= $this->Paginator->sort('doc_estrangeiro', ['label' => 'Doc. Estrangeiro']) ?>
                         </th>
@@ -97,13 +95,6 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                         </td>
                         <td>
                             <?= h($this->NumberFormat->formatNumberToCpf($usuario->cpf)) ?>
-                        </td>
-                        <td>
-                            <?=
-                            isset($usuario->clientes_has_usuarios[0]) ?
-                                h($usuario->clientes_has_usuarios[0]->cliente->razao_social)
-                                : ""
-                            ?>
                         </td>
                         <td>
                             <?= h($usuario->doc_estrangeiro) ?>
@@ -179,7 +170,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                                                         'return_url' => Router::url(
                                                             [
                                                                 'controller' => 'usuarios',
-                                                                'action' => 'usuarios_rede', $redes_id
+                                                                'action' => 'usuarios_rede', $redesId
                                                             ]
                                                         )
                                                     ]]
@@ -207,7 +198,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                                                     'usuarios_id' => $usuario->id,
                                                     'return_url' => Router::url([
                                                         'controller' => 'usuarios',
-                                                        'action' => 'usuarios_rede', $redes_id
+                                                        'action' => 'usuarios_rede', $redesId
                                                     ])
                                                 ]]),
                                                 'escape' => false
@@ -239,7 +230,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                                                         'return_url' => Router::url(
                                                             [
                                                                 'controller' => 'usuarios',
-                                                                'action' => 'usuarios_rede', $redes_id
+                                                                'action' => 'usuarios_rede', $redesId
                                                             ]
                                                         )
                                                     ]

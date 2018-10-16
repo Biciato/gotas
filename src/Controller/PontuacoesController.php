@@ -244,6 +244,7 @@ class PontuacoesController extends AppController
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $user_logged = $user_managed;
             }
 
             $rede = $this->request->session()->read('Network.Main');
@@ -313,9 +314,10 @@ class PontuacoesController extends AppController
                 $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
             }
 
+            // TODO: Ajustar
             $funcionarios_array = $this->Usuarios->findFuncionariosRede($rede->id, $clientes_ids)->select(['id', 'nome']);
 
-            $funcionarios = [null => null];
+            $funcionarios = array();
 
             foreach ($funcionarios_array as $key => $value) {
                 array_push($funcionarios, ['value' => $value->id, 'text' => $value->nome]);

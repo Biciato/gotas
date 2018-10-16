@@ -649,7 +649,7 @@ class UsuariosTable extends GenericTable
         // probably skip this check if your system doesn't enforce unique email
         // per user.
 
-            debug($profile);
+            // debug($profile);
             $user = $this->find()
                 ->where(['email' => $profile->email])
                 ->first();
@@ -660,7 +660,7 @@ class UsuariosTable extends GenericTable
 
             // Create new user account
 
-            die();
+            // die();
 
             $user = array(
                 "email" => $profile["email"],
@@ -1259,13 +1259,13 @@ class UsuariosTable extends GenericTable
                 $whereConditions[] = array("Usuarios.conta_ativa" => $contaAtiva);
             }
 
-
             $usuarios = $this->_getUsuarioTable()
                 ->find('all')
                 ->where($whereConditions);
 
             if ($join) {
-                $usuarios = $usuarios->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
+                // $usuarios = $usuarios->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
+                $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
                 // $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
             }
             $usuarios = $usuarios->order(array("Usuarios.tipo_perfil" => "ASC"));
@@ -1302,7 +1302,9 @@ class UsuariosTable extends GenericTable
                     "Usuarios.tentativas_login",
                     "Usuarios.ultima_tentativa_login"
                 )
-            );
+            )
+            ->group("Usuarios.id")
+            ;
             // die($usuarios->sql());
             return $usuarios;
 
@@ -1500,7 +1502,45 @@ class UsuariosTable extends GenericTable
 
             $usuarios = $this->_getUsuarioTable()->find('all')
                 ->where($conditions)
-                ->contain('ClientesHasUsuarios.Cliente');
+                ->contain('ClienteHasUsuario.Cliente')
+                ->select(
+                    array(
+                        "Usuarios.id",
+                        "Usuarios.tipo_perfil",
+                        "Usuarios.nome",
+                        "Usuarios.data_nasc",
+                        "Usuarios.sexo",
+                        "Usuarios.necessidades_especiais",
+                        "Usuarios.cpf",
+                        "Usuarios.foto_documento",
+                        "Usuarios.foto_perfil",
+                        "Usuarios.doc_estrangeiro",
+                        "Usuarios.aguardando_aprovacao",
+                        "Usuarios.data_limite_aprovacao",
+                        "Usuarios.email",
+                        "Usuarios.senha",
+                        "Usuarios.telefone",
+                        "Usuarios.endereco",
+                        "Usuarios.endereco_numero",
+                        "Usuarios.endereco_complemento",
+                        "Usuarios.bairro",
+                        "Usuarios.municipio",
+                        "Usuarios.estado",
+                        "Usuarios.pais",
+                        "Usuarios.cep",
+                        "Usuarios.token_senha",
+                        "Usuarios.data_expiracao_token",
+                        "Usuarios.conta_ativa",
+                        "Usuarios.conta_bloqueada",
+                        "Usuarios.tentativas_login",
+                        "Usuarios.ultima_tentativa_login",
+                        "Usuarios.audit_insert",
+                        "Usuarios.audit_update"
+                    )
+                )
+                ->group("Usuarios.id")
+                // ->contain('ClientesHasUsuarios.Cliente')
+                ;
 
             // echo $usuarios->sql();
 
@@ -1570,60 +1610,6 @@ class UsuariosTable extends GenericTable
     }
 
     /**
-     * Undocumented function
-     *
-     * @param int $clientes_id
-     * @param array $where_conditions
-     *
-     * @return void
-     */
-    public function getPendingWorkersNetwork(int $clientes_id, array $where_conditions = array())
-    {
-        try {
-            $conditions = [];
-
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
-            }
-
-            array_push($conditions, ['chu.id is ' => null]);
-
-            $usuarios = $this->_getUsuarioTable()
-                ->find('all')
-                ->where($conditions)
-                ->join(
-                    [
-                        'ClientesHasUsuarios' =>
-                            [
-                            'table' => 'clientes_has_usuarios',
-                            'alias' => 'chu',
-                            'type' => 'left',
-                            'conditions' =>
-                                [
-                                'chu.usuarios_id = Usuarios.id'
-                            ],
-                            'where' =>
-                                [
-                                'chu.id' => null
-                            ]
-
-                        ]
-                    ]
-                );
-
-            return $usuarios;
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-
-
-    /**
      * Obtem usuários que estão associados à um 'cliente'
      *
      * @param Entity\Cliente $client           Objeto cliente
@@ -1631,6 +1617,7 @@ class UsuariosTable extends GenericTable
      * @param int            $maxProfileType   Máximo tipo de perfil
      * @param array          $where_conditions Condições extras
      *
+     * @deprecated 1.0
      * @return List<\Entity\Usuarios> $usuarios
      */
     public function getUsuariosAssociatedWithClient($client = null, $minProfileType = null, $maxProfileType = null, array $where_conditions = [])
