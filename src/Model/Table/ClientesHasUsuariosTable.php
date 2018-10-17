@@ -378,6 +378,26 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
+    public function getVinculoClienteUsuario(int $redesId, int $usuariosId)
+    {
+        $conditions = array(
+            "Redes.id" => $redesId,
+            "ClientesHasUsuarios.usuarios_id" => $usuariosId
+        );
+        $usuario = $this->find("all")
+            ->where($conditions)
+            ->contain("RedesHasClientes.Redes")
+            ->select(
+                array(
+                    "id",
+                    "clientes_id",
+                    "usuarios_id"
+                )
+            )->first();
+
+        return $usuario;
+    }
+
     /**
      * Obtêm todos os usuários de um cliente através do
      * Id de cliente e tipo de perfil

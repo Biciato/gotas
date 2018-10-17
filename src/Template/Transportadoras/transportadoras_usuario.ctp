@@ -23,9 +23,6 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
 }
 
 $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "view", $usuarios_id), ['class' =>'active']);
-// $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", ), ['class' =>'active']);
-
-
 $this->Breadcrumbs->add('Transportadoras de  Usuário', array(), ['class' =>'active']);
 
 echo $this->Breadcrumbs->render(

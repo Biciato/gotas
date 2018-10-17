@@ -1639,16 +1639,19 @@ class UsuariosController extends AppController
     public function adicionarOperador(int $redes_id = null)
     {
         $usuario = $this->Usuarios->newEntity();
+        $unidadesRede = array();
+        $unidadeRedeId = 0;
 
         $rede = $this->request->session()->read("Network.Main");
 
         if (empty($rede) && !empty($redes_id)) {
             $rede = $this->Redes->getRedeById($redes_id);
         }
-        $redes_id = $rede["id"];
 
+        $redes_id = $rede["id"];
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
+        $user_logged = $this->user_logged;
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
@@ -1656,20 +1659,12 @@ class UsuariosController extends AppController
         }
 
         $usuario_logado_tipo_perfil = $user_logged['tipo_perfil'];
-
-        $user_logged = $this->user_logged;
-
         $rede = $this->request->session()->read('Network.Main');
-
         $client_to_manage = $this->request->session()->read('ClientToManage');
 
-        $redes = [];
+        $redes = array();
 
-        $redes_conditions = [];
-
-        if (isset($redes_id)) {
-            $redes_conditions[] = ['id' => $redes_id];
-        }
+        $redes_conditions = array('id' => $redes_id);
 
         if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -1680,7 +1675,11 @@ class UsuariosController extends AppController
             if (isset($redes_id)) {
                 $rede = $this->Redes->getRedeById($redes_id);
             }
+        }
 
+        if ($user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $user_logged["id"]);
         }
 
         $redes = $this->Redes->getRedesList($redes_conditions);
@@ -1754,11 +1753,8 @@ class UsuariosController extends AppController
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
             $password_encrypt = $this->crypt_util->encrypt($usuarioData['senha']);
-
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
-
             $errors = $usuario->errors();
 
             if ($usuario = $this->Usuarios->save($usuario)) {
@@ -1828,6 +1824,8 @@ class UsuariosController extends AppController
             'redes',
             'redes_id',
             'usuario_logado_tipo_perfil',
+            "unidadesRede",
+            "unidadeRedeId",
             'user_logged'
         ];
 
@@ -1854,28 +1852,40 @@ class UsuariosController extends AppController
 
         $rede = $this->request->session()->read('Network.Main');
 
-        $cliente_has_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+        $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
                 'ClientesHasUsuarios.usuarios_id' => $usuarios_id,
                 'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
             ]
         )->first();
 
-        $clientes_id = $cliente_has_usuario->clientes_id;
+        $clientes_id = $clienteHasUsuario["clientes_id"];
 
         // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
 
         if (!isset($redes_id)) {
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente_has_usuario->clientes_id);
+            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
 
             $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
         }
 
         $client_to_manage = $this->request->session()->read('ClientToManage');
 
-        $redes_id = $rede->id;
+        $redes_id = $rede["id"];
 
-        $redes = $this->Redes->getRedesList(['id' => $rede->id]);
+        $redes = $this->Redes->getRedesList(array('id' => $rede->id));
+
+        $unidadesRede = array();
+        $unidadeRedeId = 0;
+        if ($user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $user_logged["id"]);
+
+        }
+        // Como estamos editando, o usuário já tem vinculo
+        $unidadeRede = $this->ClientesHasUsuarios->getVinculoClienteUsuario($redes_id, $usuario["id"]);
+
+        $unidadeRedeId = $unidadeRede["clientes_id"];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -1944,7 +1954,7 @@ class UsuariosController extends AppController
                      */
 
                     if ($usuario->tipo_perfil >= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($cliente_has_usuario->id, $clientes_id, $usuario->id, $usuario->tipo_perfil);
+                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, $clientes_id, $usuario["id"], $usuario["tipo_perfil"]);
                     }
                 }
 
@@ -1962,7 +1972,17 @@ class UsuariosController extends AppController
             }
         }
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'clientes_id', 'usuario_logado_tipo_perfil', "user_logged");
+        $arraySet = array(
+            'usuario',
+            'rede',
+            'redes',
+            'redes_id',
+            'clientes_id',
+            "unidadesRede",
+            "unidadeRedeId",
+            'usuario_logado_tipo_perfil',
+            "user_logged"
+        );
         $usuario_logado_tipo_perfil = $this->user_logged['tipo_perfil'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);

@@ -303,7 +303,6 @@ class GotasController extends AppController
                     $clientesId = $data["filtrar_unidade"];
                 }
             }
-            // DebugUtil::print($clientesId);
 
             $gotas = $this->Gotas->findGotasByClientesId(
                 $clientesIds

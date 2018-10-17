@@ -26,15 +26,14 @@ echo $this->Breadcrumbs->render(
 
         <legend>Cadastro de Gotas de Minha Rede</legend>
 
+        <h5><?php echo "" ?> </h5>
+
             <div class="col-lg-12">
                 <?= $this->Form->create(
                     'POST',
-                    [
-                        'url' =>
-                            [
-                            'controller' => 'Gotas', 'action' => 'gotas_minha_rede'
-                        ]
-                    ]
+                    array(
+                        'url' => array('controller' => 'Gotas', 'action' => 'gotas_minha_rede')
+                    )
                 ) ?>
 				<?= $this->Form->input(
         'filtrar_unidade',
@@ -70,6 +69,9 @@ echo $this->Breadcrumbs->render(
                                 <?= __('Valor multiplicador') ?>
                             </th>
                             <th>
+                                <?= __("Ponto de Atendimento") ?>
+                            </th>
+                            <th>
                                 <?= __('Status') ?>
                             </th>
                             <th class="actions">
@@ -84,8 +86,11 @@ echo $this->Breadcrumbs->render(
                                     <td>
                                         <?= h($gota->nome_parametro) ?>
                                     </td>
-                                   <td>
+                                    <td>
                                         <?= $this->Number->precision($gota->multiplicador_gota, 2) ?>
+                                    </td>
+                                    <td>
+                                        <?= $gota["cliente"]["nome_fantasia"] ?>
                                     </td>
                                     <td>
                                         <?= __($this->Boolean->convertEnabledToString($gota->habilitado)) ?>
@@ -184,7 +189,7 @@ echo $this->Breadcrumbs->render(
                                                         'class' => 'btn btn-info',
                                                         'escape' => false
                                                     ]
-                                                    );
+                                                );
                                             }
                                             ?>
 

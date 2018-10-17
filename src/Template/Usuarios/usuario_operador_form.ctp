@@ -162,7 +162,10 @@ use Cake\Routing\Router;
                                 'id' => 'clientes_rede',
                                 'class' => 'clientes_rede',
                                 'label' => 'Unidade da Rede',
-                                "options" =>
+                                "empty" => "<Selecionar>",
+                                "options" => $unidadesRede,
+                                "required" => true,
+                                "value" => $unidadeRedeId
                             ]
                         ); ?>
                         </div>

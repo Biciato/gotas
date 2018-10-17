@@ -19,7 +19,9 @@ if (!empty($user_managed)) {
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
 
 
-    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminDeveloperProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["AdminNetworkProfileType"]) : ?>
+    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminDeveloperProfileType"]
+        ||  $tipoPerfil == Configure::read("profileTypes")["AdminNetworkProfileType"]
+        ||  $tipoPerfil == Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
