@@ -2675,8 +2675,8 @@ class UsuariosController extends AppController
         // TODO: testar novamente
         $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($user_managed);
 
-        debug($cliente);
-        die();
+        // debug($cliente);
+        // die();
 
         // pega qual é a rede que o usuário está vinculado
 
