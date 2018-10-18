@@ -27,7 +27,8 @@ use Cake\Core\Configure;
             "label" => "Posto de Atendimento",
             "input" => "select",
             "empty" => "<Selecionar>",
-            "options" => $unidades
+            "options" => $unidades,
+            "required" => true
         )
     );
     echo  $this->Form->input(

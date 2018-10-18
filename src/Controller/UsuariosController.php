@@ -65,9 +65,12 @@ class UsuariosController extends AppController
                     $this->Usuarios->updateLoginRetry($user, true);
 
                     if ($user['tipo_perfil'] > Configure::read('profileTypes')['AdminDeveloperProfileType'] && $user['tipo_perfil'] < Configure::read('profileTypes')['UserProfileType']) {
+                        // TODO: testar novamente
                         $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($user);
 
                         if ($cliente) {
+                            // TODO: correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
+                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
                             $this->request->session()->write('Network.Unit', $cliente);
                         }
 
@@ -1438,6 +1441,7 @@ class UsuariosController extends AppController
 
                 if ($this->user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
                     && $this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['WorkerProfileType']) {
+                        // TODO: Testar este cenário
                     $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($this->user_logged);
                 }
 
@@ -1735,6 +1739,7 @@ class UsuariosController extends AppController
                 return;
             }
 
+            // TODO: testar novamente com este bloco comentado
             if (isset($this->user_logged)) {
                 // só vincula usuário à uma rede se for tipo de perfil entre
                 // AdminNetworkProfileType e WorkerProfileType
@@ -2667,7 +2672,11 @@ class UsuariosController extends AppController
 
         $user_managed = $this->Usuarios->getUsuarioById($query['usuarios_id']);
 
+        // TODO: testar novamente
         $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($user_managed);
+
+        debug($cliente);
+        die();
 
         // pega qual é a rede que o usuário está vinculado
 

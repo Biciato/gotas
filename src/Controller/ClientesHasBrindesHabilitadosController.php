@@ -209,10 +209,14 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         if ($user_admin) {
             $this->user_logged = $user_managed;
+            $user_logged = $user_managed;
         }
 
-        $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
+        // DebugUtil::print($clientes_id);
 
+        $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
+
+        // DebugUtil::print($temAcesso);
         if (!$temAcesso) {
             return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
         }

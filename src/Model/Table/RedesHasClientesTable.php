@@ -432,25 +432,25 @@ class RedesHasClientesTable extends GenericTable
     /**
      * Obtem todos os clientes e a rede pelo id da rede
      *
-     * @param int   $redes_id     Id de Redes
-     * @param array $clientes_ids Ids de clientes
+     * @param int   $redesId     Id de Redes
+     * @param array $clientesIds Ids de clientes
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getRedesHasClientesByRedesId(int $redes_id, array $clientes_ids = [])
+    public function getRedesHasClientesByRedesId(int $redesId, array $clientesIds = [])
     {
         try {
 
-            $where_condition = [];
+            // $whereCondition = [];
 
-            $where_condition[] = ['redes_id' => $redes_id];
+            $whereCondition = array('redes_id' => $redesId);
 
-            if (isset($clientes_ids) && sizeof($clientes_ids) > 0) {
-                $where_condition[] = ['clientes_id in ' => $clientes_ids];
+            if (isset($clientesIds) && sizeof($clientesIds) > 0) {
+                $whereCondition[] = array('clientes_id in ' => $clientesIds);
             }
 
-            return $this->_getRedesHasClientesTable()->find('all')
-                ->where($where_condition)
+            return $this->find('all')
+                ->where($whereCondition)
                 ->contain(['Redes', 'Clientes']);
 
         } catch (\Exception $e) {

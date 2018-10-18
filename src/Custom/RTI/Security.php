@@ -137,11 +137,15 @@ class Security
             && $user["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) {
 
             // Se usuário logado for Regional ou Funcionário, verificar através do ID passado
-            $cliente = $clienteTable->getClienteMatrizLinkedToUsuario($user);
-            $hasAccess = 0;
 
-            foreach ($clientesIds as $clienteId) {
-                if ($clienteId == $cliente["id"]) {
+            $clientes = $clienteHasUsuariosTable->getClientesFilterAllowedByUsuariosId($redesId, $user['id'], false);
+
+            $clientes = $clientes->toArray();
+            $clientesIdsEncontrados = array_keys($clientes);
+
+            $hasAccess = 0;
+            foreach ($clientesIdsEncontrados as $clienteEncontrado) {
+                if (in_array($clienteEncontrado, $clientesIds)){
                     $hasAccess = 1;
                     break;
                 }

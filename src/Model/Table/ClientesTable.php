@@ -101,7 +101,7 @@ class ClientesTable extends GenericTable
             ]
         );
 
-        $this->hasMany(
+        $this->hasOne(
             'ClientesHasUsuarios',
             [
                 'className' => 'ClientesHasUsuarios',
@@ -844,24 +844,51 @@ class ClientesTable extends GenericTable
      **/
     public function getClienteMatrizLinkedToUsuario($user_logged = null)
     {
-        $matriz = $this->_getClientesTable()->find('all')
-            ->join(
-                [
-                    'ClientesHasUsuarios' =>
-                        [
-                        'table' => 'clientes_has_usuarios',
-                        'alias' => 'chu',
-                        'type' => 'inner',
-                        'conditions' =>
-                            [
-                            'chu.clientes_id = Clientes.id',
-                            'chu.usuarios_id' => $user_logged['id']
-                        ]
+        /**
+         *  TODO: validar todos os serviços que usam este método
+         *
+         *  Primeiro problema...
+         * Se usuário não estiver na matriz, o registro retornará nulo.
+         * Segundo...
+         * Em casos como Adm Redes ou Regional, eles possuem mais de uma unidade.
+         *
+         * Solução:
+         * Criar um objeto de session que irá guardar a lista de clientes.
+         *
+         *
+         */
+        $matriz = $this->find('all')
+            ->where(
+                array(
+                    "Usuarios.id" => $user_logged["id"],
+                    "Cliente.matriz" => 1
+                )
+            )
+            ->contain(
+                array(
+                    "ClientesHasUsuarios.Cliente",
+                    "ClientesHasUsuarios.Usuarios",
+                )
+                )
+            // ->join(
+            //     [
+            //         'ClientesHasUsuarios' =>
+            //             [
+            //             'table' => 'clientes_has_usuarios',
+            //             'alias' => 'chu',
+            //             'type' => 'inner',
+            //             'conditions' =>
+            //                 [
+            //                 'chu.clientes_id = Clientes.id',
+            //                 'chu.usuarios_id' => $user_logged['id']
+            //             ]
 
-                    ]
-                ]
-            )->select([
+            //         ]
+            //     ]
+            // )
+            ->select([
                 'id',
+                "matriz",
                 'tipo_unidade',
                 'codigo_rti_shower',
                 'nome_fantasia',
@@ -879,9 +906,12 @@ class ClientesTable extends GenericTable
                 'cep',
                 'audit_insert',
                 'audit_update',
-                'chu.id',
-                'chu.clientes_id',
-                'chu.usuarios_id'
+                'ClientesHasUsuarios.id',
+                'ClientesHasUsuarios.clientes_id',
+                'ClientesHasUsuarios.usuarios_id'
+                // 'chu.id',
+                // 'chu.clientes_id',
+                // 'chu.usuarios_id'
             ]);
 
         if (sizeof($matriz->toArray()) > 0) {

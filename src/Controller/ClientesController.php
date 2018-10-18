@@ -125,6 +125,9 @@ class ClientesController extends AppController
 
     /**
      * Exibe o cadastro da rede
+     *
+     * TODO: CONFERIR se realmente não é usado
+     * @deprecated 1.0?
      */
     public function dadosMinhaRede()
     {

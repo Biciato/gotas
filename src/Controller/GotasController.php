@@ -399,7 +399,8 @@ class GotasController extends AppController
             if ($user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
                 $unidades = $this->Clientes->getClientesListByRedesId($rede["id"]);
             } else {
-                $unidades = $this->ClientesHasUsuarios->getAllClientesIdsAllowedFromRedesIdUsuariosId($rede["id"], $user_logged["id"], $user_logged["tipo_perfil"]);
+
+                $unidades = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
             }
             // Verifica permissão do usuário na rede / unidade da rede
 
@@ -409,6 +410,8 @@ class GotasController extends AppController
             // if (!$temAcesso) {
             //     return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
             // }
+
+            // DebugUtil::print($unidades);
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 

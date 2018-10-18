@@ -137,7 +137,7 @@ class ClientesHasUsuariosTable extends Table
             "Usuarios",
             array(
                 "className" => "Usuarios",
-                "foreignKey" => "1id",
+                "foreignKey" => "usuarios_id",
                 "joinType" => "INNER"
             )
         );
