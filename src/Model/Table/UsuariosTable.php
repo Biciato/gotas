@@ -1265,13 +1265,25 @@ class UsuariosTable extends GenericTable
 
             if ($join) {
                 // $usuarios = $usuarios->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
-                $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
+                $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedesHasClientes.Redes');
                 // $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
+
             }
-            $usuarios = $usuarios->order(array("Usuarios.tipo_perfil" => "ASC"));
+            // $usuarios = $usuarios->order(array("Usuarios.tipo_perfil" => "ASC"));
 
             $usuarios = $usuarios->select(
                 array(
+                    "Redes.nome_rede",
+                    "ClienteHasUsuario.tipo_perfil",
+                    "ClienteHasUsuario.clientes_id",
+                    "RedesHasClientes.id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.clientes_id",
+                    "Redes.id",
+                    "Redes.nome_rede",
+                    "Redes.nome_img",
+                    "Redes.propaganda_img",
+                    "Cliente.nome_fantasia",
                     "Usuarios.id",
                     "Usuarios.tipo_perfil",
                     "Usuarios.nome",
@@ -1303,7 +1315,8 @@ class UsuariosTable extends GenericTable
                     "Usuarios.ultima_tentativa_login"
                 )
             )
-            ->group("Usuarios.id")
+            // ->group(array("Usuarios.id", "ClienteHasUsuario.tipo_perfil"))
+            // ->group(array("Redes.id", "ClienteHasUsuario.tipo_perfil"))
             ;
             // die($usuarios->sql());
             return $usuarios;

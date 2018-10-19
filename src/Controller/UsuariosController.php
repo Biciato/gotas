@@ -65,8 +65,11 @@ class UsuariosController extends AppController
                     $this->Usuarios->updateLoginRetry($user, true);
 
                     if ($user['tipo_perfil'] > Configure::read('profileTypes')['AdminDeveloperProfileType'] && $user['tipo_perfil'] < Configure::read('profileTypes')['UserProfileType']) {
-                        // TODO: testar novamente
-                        $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($user);
+                        $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+
+                        if (!empty($vinculoCliente)) {
+                            $cliente = $vinculoCliente["cliente"];
+                        }
 
                         if ($cliente) {
                             // TODO: correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
@@ -75,12 +78,11 @@ class UsuariosController extends AppController
                         }
 
                         // verifica qual rede o usuário se encontra (somente funcionários)
-
-                        $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
+                        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
                             $cliente->id
                         );
 
-                        $rede = $rede_has_cliente->rede;
+                        $rede = $redeHasCliente["rede"];
 
                         $this->request->session()->write('Network.Main', $rede);
                     }
@@ -2623,8 +2625,6 @@ class UsuariosController extends AppController
                 ));
             }
 
-            // $usuarios = $this->Usuarios->findAllUsuarios($conditions);
-            // TODO: Ajustar
             $usuarios = $this->Usuarios->findAllUsuarios(
                 null,
                 $clientesIds,
@@ -2638,14 +2638,13 @@ class UsuariosController extends AppController
                 1
             );
 
-            // die($usuarios->sql());
-
             $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
 
             $this->set(compact(['usuarios']));
             $this->set('_serialize', ['usuarios']);
         } catch (\Exception $e) {
-            $stringError = __("Erro: {0} em: {1} ", $e->getMessage(), $trace[1]);
+
+            $stringError = __("Erro: {0} ", $e->getMessage());
 
             Log::write('error', $stringError);
 
@@ -2667,16 +2666,11 @@ class UsuariosController extends AppController
         }
 
         $query = $this->request->query;
+        $userAdmin = $this->getUserLogged();
+        $userManaged = $this->Usuarios->getUsuarioById($query['usuarios_id']);
 
-        $user_admin = $this->getUserLogged();
-
-        $user_managed = $this->Usuarios->getUsuarioById($query['usuarios_id']);
-
-        // TODO: testar novamente
-        $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($user_managed);
-
-        // debug($cliente);
-        // die();
+        // Pegar o Id do cliente que foi passado via query
+        $cliente = $this->Clientes->getClienteById($query["clientes_id"]);
 
         // pega qual é a rede que o usuário está vinculado
 
@@ -2688,30 +2682,28 @@ class UsuariosController extends AppController
 
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
-                'ClientesHasUsuarios.usuarios_id' => $user_managed->id,
-                'ClientesHasUsuarios.tipo_perfil' => $user_managed->tipo_perfil
+                'ClientesHasUsuarios.usuarios_id' => $userManaged["id"],
+                'ClientesHasUsuarios.clientes_id' => $cliente["id"]
             ]
         )->first();
 
-        // DebugUtil::print($clienteHasUsuario);
-
-        if (empty($clienteHasUsuario) && $user_managed["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
+        if (empty($clienteHasUsuario) && $userManaged["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
             $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");
 
             return $this->redirect(['controller' => 'usuarios', 'action' => 'administrarUsuario']);
         }
 
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
-            $clienteHasUsuario->clientes_id
+            $clienteHasUsuario["clientes_id"]
         );
 
-        $rede = $redeHasCliente->rede;
+        $rede = $redeHasCliente["rede"];
 
         $this->request->session()->write('Network.Main', $rede);
         $this->request->session()->write('Network.Unit', $cliente);
 
-        $this->request->session()->write("User.RootLogged", $user_admin);
-        $this->request->session()->write("User.ToManage", $user_managed);
+        $this->request->session()->write("User.RootLogged", $userAdmin);
+        $this->request->session()->write("User.ToManage", $userManaged);
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }

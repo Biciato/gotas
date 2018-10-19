@@ -87,11 +87,11 @@ class ClientesHasUsuariosTable extends Table
 
         $this->belongsTo(
             'Cliente',
-            [
+            array(
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
                 'joinType' => 'LEFT'
-            ]
+            )
         );
 
         $this->hasMany(
@@ -543,6 +543,48 @@ class ClientesHasUsuariosTable extends Table
             Log::write('error', $stringError);
 
             return $stringError;
+        }
+    }
+
+    /**
+     * Obtem o vínculo de clientes a um usuário
+     *
+     * @param integer $usuariosId Id de Usuário
+     * @param boolean $filtrarPrimeiro Se deve trazer somente o primeiro registro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 19/10/2018
+     *
+     * @return array $ids de clientes
+     */
+    public function getVinculoClientesUsuario(int $usuariosId, bool $filtrarPrimeiro = true)
+    {
+        try {
+            Log::write("debug", "wololo");
+            $whereConditions = array(
+                "usuarios_id" => $usuariosId
+            );
+            $clientesUsuarios = $this->find("all")
+                ->where($whereConditions)
+                ->contain("Cliente")
+                // ->select(array("clientes_id"))
+                ->order(array("tipo_perfil" => "ASC"));
+
+            $data = $clientesUsuarios->toArray();
+
+            if ($filtrarPrimeiro) {
+                $retorno = sizeof($data) > 0 ? $data[0] : null;
+                return $retorno;
+            } else {
+                return $data;
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter vínculo de clientes ao usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 

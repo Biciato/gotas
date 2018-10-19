@@ -83,12 +83,12 @@ class ClientesTable extends GenericTable
         $this->setDisplayField('razao_social');
         $this->setPrimaryKey('id');
 
-        $this->belongsto(
+        $this->belongsTo(
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'id',
-                'join' => 'left'
+                'joinType' => 'left'
             ]
         );
 
