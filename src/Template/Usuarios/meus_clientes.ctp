@@ -33,7 +33,17 @@ echo $this->Breadcrumbs->render(
     </legend>
 
 
-    <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'Usuarios', 'action' => 'meus_clientes', 'show_filiais' => false, "fixarTipoPerfil" => true, "tipoPerfilFixo" => Configure::read("profileTypes")["UserProfileType"]]) ?>
+    <?= $this->element(
+        '../Usuarios/filtro_usuarios',
+        array(
+            'controller' => 'Usuarios',
+            'action' => 'meus_clientes',
+            'show_filiais' => true,
+            "fixarTipoPerfil" => true,
+            "tipoPerfilFixo" => Configure::read("profileTypes")["UserProfileType"],
+            "unidades_ids" => isset($unidades_ids) ? $unidades_ids : array()
+        )
+    ) ?>
 
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>

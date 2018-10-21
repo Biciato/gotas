@@ -1233,13 +1233,13 @@ class UsuariosTable extends GenericTable
             }
 
             if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
-                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
             } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
-                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
             } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
                 $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
 
-                $whereConditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+                $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
             } else {
                 $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
                 $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];

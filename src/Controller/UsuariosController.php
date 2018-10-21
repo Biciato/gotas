@@ -2466,6 +2466,8 @@ class UsuariosController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->user_logged['id']);
 
+        $unidades_ids = $unidades_ids->toArray();
+
         foreach ($redes_has_clientes_query as $key => $value) {
             $clientesIds[] = $value['clientes_id'];
         }
@@ -2474,6 +2476,7 @@ class UsuariosController extends AppController
         $conditions[] = ['clientes_id IN ' => $clientesIds];
 
         $nome = null;
+        $email = null;
         $cpf = null;
         $docEstrangeiro = null;
         $tipoPerfil = Configure::read("profileTypes")["UserProfileType"];
@@ -2482,6 +2485,7 @@ class UsuariosController extends AppController
             $data = $this->request->getData();
 
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
+            $email = !empty($data["nome"]) ? $data["nome"] : "";
             $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
             $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
@@ -2499,11 +2503,12 @@ class UsuariosController extends AppController
         // echo "tipoPerfil '{$tipoPerfil}'";
         // TODO: Conferir
         // $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
-        $usuarios = $this->Usuarios->findFuncionariosRede($rede["id"], $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
+        $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
+        // $usuarios = $this->Usuarios->findFuncionariosRede($rede["id"], $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
 
-        $usuarios = $this->paginate($usuarios, ['limit' => 10]);
+        $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("Usuarios.nome" => "ASC")));
 
-        $arraySet = array("usuarios", "unidades_ids");
+        $arraySet = array("usuarios");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }

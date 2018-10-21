@@ -140,13 +140,13 @@ if (isset($filter_redes) && $filter_redes) {
                                 ) ?>
                             </div>
 
-                            <div class="col-lg-7 ">
+                            <div class="col-lg-7">
 
                                 <?php
 
                                 if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
 
-                                    $this->Form->input(
+                                    echo $this->Form->input(
                                         'filtrar_unidade',
                                         [
                                             'type' => 'select',
@@ -172,67 +172,7 @@ if (isset($filter_redes) && $filter_redes) {
                             </div>
 
                     </div>
-                    <!-- <div class="inline-block">
-                        <?php if ($show_filiais) : ?>
 
-                            <div class="col-lg-5">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6 parametro']) ?>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <?= $this->Form->input(
-                                    'opcoes',
-                                    [
-                                        'type' => 'select',
-                                        'id' => 'opcoes',
-                                        'class' => 'opcoes',
-                                        'label' => 'Opções',
-                                        'options' => $options,
-                                        'class' => 'form-control col-lg-2'
-                                    ]
-                                ) ?>
-                            </div>
-                            <div class="col-lg-2">
-                                <?= $this->Form->input(
-                                    'incluir_filiais',
-                                    [
-                                        'type' => 'select',
-                                        'id' => 'incluir_filiais',
-                                        'label' => "Incluir filiais?",
-                                        'options' =>
-                                            [
-                                            false => 'Não',
-                                            true => 'Sim'
-                                        ]
-                                    ]
-                                ) ?>
-                            </div>
-
-                            <div class="col-lg-2 vertical-align">
-
-                                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
-                            </div>
-                        <?php else : ?>
-                            <div class="col-lg-7">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6']) ?>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <?= $this->Form->input('opcoes', [
-                                    'type' => 'select',
-                                    'id' => 'opcoes',
-                                    'label' => 'Opções',
-                                    'options' => $options,
-                                    'class' => 'form-control col-lg-2'
-                                ]) ?>
-                            </div>
-
-                            <div class="col-lg-2 vertical-align">
-
-                                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
-                            </div>
-                        <?php endif; ?>
-                    </div> -->
                 <?= $this->Form->end() ?>
 
             </div>
