@@ -375,4 +375,29 @@ class ClientesHasUsuariosController extends AppController
         }
 
     }
+
+    public function alteraContaAtivaUsuario()
+    {
+        $query = $this->request->query;
+        $id = $query["id"];
+        $clientesId = $query["clientes_id"];
+        $usuariosId = $query["usuarios_id"];
+        $contaAtiva = $query["conta_ativa"];
+        $returnUrl = $query["return_url"];
+
+        $resultado = $this->ClientesHasUsuarios->updateContaAtivaUsuario($id, $clientesId, $usuariosId, $contaAtiva);
+
+        $msgSucesso = $contaAtiva ? Configure::read("messageEnableSuccess") : Configure::read("messageDisableSuccess");
+        $msgErro = $contaAtiva ? Configure::read("messageEnableError") : Configure::read("messageDisableError");
+
+        if ($resultado) {
+            $this->Flash->success($msgSucesso);
+
+            return $this->redirect($returnUrl);
+        }
+
+        $this->Flash->error($msgErro);
+        return $this->redirect($returnUrl);
+
+    }
 }

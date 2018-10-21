@@ -21,7 +21,12 @@ use App\Custom\RTI\DebugUtil;
         <?= __("Administrar usuário") ?>
     </legend>
 
-<?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'administrar_usuario']); ?>
+<?= $this->element(
+    '../Usuarios/filtro_usuarios',
+    array('controller' => 'usuarios', 'action' => 'administrar_usuario'),
+    array("perfisUsuariosList" => $perfisUsuariosList)
+
+); ?>
 
 <table class="table table-striped table-hover">
 

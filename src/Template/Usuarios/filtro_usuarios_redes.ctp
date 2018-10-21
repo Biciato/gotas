@@ -67,7 +67,7 @@ if (isset($filter_redes)) {
                                         'id' => 'tipo_perfil',
                                         'label' => 'Tipo de Perfil',
                                         "empty" => "<Todos>",
-                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        'options' => Configure::read("profileTypesWorkersTranslated"),
                                         'class' => 'form-control col-lg-2'
                                     ]
                                 ) ?>

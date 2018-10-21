@@ -45,9 +45,9 @@ $list_users_pending_approval = $user_is_admin;
                         <th>
                             <?= $this->Paginator->sort('cpf', ['label' => 'CPF']) ?>
                         </th>
-                        <th>
-                            <?= $this->Paginator->sort('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes.nome_rede', ['label' => 'Rede']) ?>
-                        </th>
+                        <!-- <th>
+                            <?= $this->Paginator->sort('ClienteHasUsuario.Cliente.RedesHasCliente.Rede.nome_rede', ['label' => 'Rede']) ?>
+                        </th> -->
                         <th>
                             <?= $this->Paginator->sort('doc_estrangeiro', ['label' => 'Doc. Estrangeiro']) ?>
                         </th>
@@ -84,13 +84,9 @@ $list_users_pending_approval = $user_is_admin;
                         <td>
                             <?= h($this->NumberFormat->formatNumberToCpf($usuario->cpf)) ?>
                         </td>
-                        <td>
-                            <?=
-                            isset($usuario->clientes_has_usuarios[0]) ?
-                                h($usuario->clientes_has_usuarios[0]->cliente->rede_has_cliente->rede->nome_rede)
-                                : ""
-                            ?>
-                        </td>
+                        <!-- <td>
+                            <?= h($usuario["cliente_has_usuario"]["cliente"]["redes_has_cliente"]["rede"]["nome_rede"]) ?>
+                        </td> -->
                         <td>
                             <?= h($usuario->doc_estrangeiro) ?>
                         </td>

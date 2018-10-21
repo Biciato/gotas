@@ -85,7 +85,7 @@ class RedesHasClientesTable extends GenericTable
             array(
                 "className" => "Redes",
                 'foreignKey' => 'redes_id',
-                'joinType' => 'INNER'
+                'joinType' => 'LEFT'
             )
         );
 
@@ -172,15 +172,16 @@ class RedesHasClientesTable extends GenericTable
         try {
             return $this->_getRedesHasClientesTable()->find('all')
                 ->where(
-                    [
+                    array(
                         'redes_has_clientes.redes_id' => $redes_id,
                         'clientes.matriz' => true
-                    ]
+                    )
                 )
-                ->contain(['Redes', 'Clientes'])
+                ->contain(array('Redes', 'Clientes'))
                 ->first();
 
         } catch (\Exception $e) {
+            // TODO: Corrigir catch
             $trace = $e->getTrace();
             $object = null;
 

@@ -88,7 +88,8 @@ if (isset($filter_redes) && $filter_redes) {
                                         'id' => 'tipo_perfil',
                                         'label' => 'Tipo de Perfil',
                                         "empty" => "<Todos>",
-                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        // 'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        'options' => $perfisUsuariosList,
                                         'class' => 'form-control col-lg-2'
                                     ]
                                 ) ?>

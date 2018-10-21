@@ -97,6 +97,16 @@ Configure::write(
             998 => 'Mobile API',
             999 => 'Usuário de Venda Avulsa',
         ],
+        'profileTypesTranslatedDevel' =>
+            [
+            0 => 'Admin. RTI / Desenvolvedor',
+            1 => 'Administrador de Rede',
+            2 => 'Administrador Regional',
+            3 => 'Administrador',
+            4 => 'Gerente',
+            5 => 'Funcionário',
+            6 => 'Usuário'
+        ],
         "profileTypesTranslatedAdminNetwork" =>
             array(
             1 => 'Administrador de Rede',
@@ -105,6 +115,14 @@ Configure::write(
             4 => 'Gerente',
             5 => 'Funcionário',
             6 => 'Usuário'
+        ),
+        "profileTypesWorkersTranslated" =>
+            array(
+            1 => 'Administrador de Rede',
+            2 => 'Administrador Regional',
+            3 => 'Administrador',
+            4 => 'Gerente',
+            5 => 'Funcionário'
         ),
         'stockOperationTypes' =>
             [

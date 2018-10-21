@@ -1215,10 +1215,7 @@ class UsuariosTable extends GenericTable
         int $contaAtiva = null,
         bool $join = true
     ) {
-
-        // $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $tipoPerfil, $cpf, $docEstrangeiro);
         try {
-
             $whereConditions = array();
 
             if (sizeof($clientesIds) > 0) {
@@ -1235,7 +1232,9 @@ class UsuariosTable extends GenericTable
                 $whereConditions[] = array("Usuarios.email like '%{$email}%'");
             }
 
-            if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
+            if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
+                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
             } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
                 $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
@@ -1257,25 +1256,59 @@ class UsuariosTable extends GenericTable
 
             if (!empty($contaAtiva)) {
                 $whereConditions[] = array("Usuarios.conta_ativa" => $contaAtiva);
+                $whereConditions[] = array("ClienteHasUsuario.conta_ativa" => $contaAtiva);
             }
 
-            $usuarios = $this->_getUsuarioTable()
-                ->find('all')
+            // $arrayContain = array("ClienteHasUsuario");
+            $arrayContain = array();
+
+            $usuarios = $this->find('all')
                 ->where($whereConditions);
 
             if ($join) {
-                // $usuarios = $usuarios->contain('ClientesHasUsuarios.Cliente.RedeHasCliente.Redes');
-                $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedesHasClientes.Redes');
-                // $usuarios = $usuarios->contain('ClienteHasUsuario.Cliente.RedeHasCliente.Redes');
-
+                $arrayContain[] = 'ClienteHasUsuario.Cliente.RedesHasClientes.Redes';
             }
-            // $usuarios = $usuarios->order(array("Usuarios.tipo_perfil" => "ASC"));
 
-            $usuarios = $usuarios->select(
-                array(
-                    "Redes.nome_rede",
+            $usuarios->contain($arrayContain);
+
+            $usuariosSelectFields = array(
+                "Usuarios.id",
+                "Usuarios.tipo_perfil",
+                "Usuarios.nome",
+                "Usuarios.data_nasc",
+                "Usuarios.sexo",
+                "Usuarios.necessidades_especiais",
+                "Usuarios.cpf",
+                "Usuarios.foto_documento",
+                "Usuarios.foto_perfil",
+                "Usuarios.doc_estrangeiro",
+                "Usuarios.aguardando_aprovacao",
+                "Usuarios.data_limite_aprovacao",
+                "Usuarios.email",
+                "Usuarios.senha",
+                "Usuarios.telefone",
+                "Usuarios.endereco",
+                "Usuarios.endereco_numero",
+                "Usuarios.endereco_complemento",
+                "Usuarios.bairro",
+                "Usuarios.municipio",
+                "Usuarios.estado",
+                "Usuarios.pais",
+                "Usuarios.cep",
+                "Usuarios.token_senha",
+                "Usuarios.data_expiracao_token",
+                "Usuarios.conta_ativa",
+                "Usuarios.conta_bloqueada",
+                "Usuarios.tentativas_login",
+                "Usuarios.ultima_tentativa_login"
+            );
+
+            if ($join) {
+
+                $arrayTemp = array(
                     "ClienteHasUsuario.tipo_perfil",
                     "ClienteHasUsuario.clientes_id",
+                    "ClienteHasUsuario.conta_ativa",
                     "RedesHasClientes.id",
                     "RedesHasClientes.redes_id",
                     "RedesHasClientes.clientes_id",
@@ -1284,41 +1317,14 @@ class UsuariosTable extends GenericTable
                     "Redes.nome_img",
                     "Redes.propaganda_img",
                     "Cliente.nome_fantasia",
-                    "Usuarios.id",
-                    "Usuarios.tipo_perfil",
-                    "Usuarios.nome",
-                    "Usuarios.data_nasc",
-                    "Usuarios.sexo",
-                    "Usuarios.necessidades_especiais",
-                    "Usuarios.cpf",
-                    "Usuarios.foto_documento",
-                    "Usuarios.foto_perfil",
-                    "Usuarios.doc_estrangeiro",
-                    "Usuarios.aguardando_aprovacao",
-                    "Usuarios.data_limite_aprovacao",
-                    "Usuarios.email",
-                    "Usuarios.senha",
-                    "Usuarios.telefone",
-                    "Usuarios.endereco",
-                    "Usuarios.endereco_numero",
-                    "Usuarios.endereco_complemento",
-                    "Usuarios.bairro",
-                    "Usuarios.municipio",
-                    "Usuarios.estado",
-                    "Usuarios.pais",
-                    "Usuarios.cep",
-                    "Usuarios.token_senha",
-                    "Usuarios.data_expiracao_token",
-                    "Usuarios.conta_ativa",
-                    "Usuarios.conta_bloqueada",
-                    "Usuarios.tentativas_login",
-                    "Usuarios.ultima_tentativa_login"
-                )
-            )
-            // ->group(array("Usuarios.id", "ClienteHasUsuario.tipo_perfil"))
-            // ->group(array("Redes.id", "ClienteHasUsuario.tipo_perfil"))
-            ;
-            // die($usuarios->sql());
+                );
+                $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
+            }
+
+            $usuarios = $usuarios->select(
+                $usuariosSelectFields
+            );
+
             return $usuarios;
 
         } catch (\Exception $e) {
@@ -1453,7 +1459,7 @@ class UsuariosTable extends GenericTable
             // ---------- condições de pesquisa ----------
 
              // Se não passar qual o id das unidades, pega todas
-             if (sizeof($clientesIds) == 0) {
+            if (sizeof($clientesIds) == 0) {
                 /**
                  * Pega o usuário informado e vê qual é a permissão dele.
                  * Admin:
@@ -1551,9 +1557,8 @@ class UsuariosTable extends GenericTable
                         "Usuarios.audit_update"
                     )
                 )
-                ->group("Usuarios.id")
-                // ->contain('ClientesHasUsuarios.Cliente')
-                ;
+                ->group("Usuarios.id");
+                // ->contain('ClientesHasUsuarios.Cliente');
 
             // echo $usuarios->sql();
 
@@ -1764,7 +1769,7 @@ class UsuariosTable extends GenericTable
 
             $usuario['conta_ativa'] = $conta_ativa;
 
-            return $this->_getUsuarioTable()->save($usuario);
+            return $this->save($usuario);
         } catch (\Exception $e) {
             $stringError = __("Erro ao reativar conta: " . $e->getMessage() . ", em: " . $trace[1]);
 
