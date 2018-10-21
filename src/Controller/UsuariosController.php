@@ -18,7 +18,6 @@ use App\Custom\RTI\EmailUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\DebugUtil;
 
-
 /**
  * Usuarios Controller
  *
