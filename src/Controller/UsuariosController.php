@@ -237,12 +237,9 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        // $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
-        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 0);
+        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
-        // DebugUtil::print($usuarios->toArray());
-
-        $usuarios = $this->paginate($usuarios, ['limit' => 10]);
+        $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
         $unidades_ids = $this->Clientes->find('list')->toArray();
 
@@ -1141,7 +1138,7 @@ class UsuariosController extends AppController
             }
 
             if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                $redes = $this->Redes->getRedesList($redesConditions);
+                $redes = $this->Redes->getRedesList($redes_id);
             } else if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // pega o Id de cliente que o usuário se encontra
                 // AdminLocalProfileType
@@ -1416,7 +1413,7 @@ class UsuariosController extends AppController
                 $rede = $this->Redes->getRedeById($redes_id);
             }
 
-            $redes = $this->Redes->getRedesList($redes_conditions);
+            $redes = $this->Redes->getRedesList($redes_id);
         }
 
         if ($this->request->is('post')) {
@@ -1631,6 +1628,7 @@ class UsuariosController extends AppController
         }
 
         $redes_id = $rede["id"];
+
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
         $user_logged = $this->user_logged;
@@ -1643,10 +1641,6 @@ class UsuariosController extends AppController
         $usuario_logado_tipo_perfil = $user_logged['tipo_perfil'];
         $rede = $this->request->session()->read('Network.Main');
         $client_to_manage = $this->request->session()->read('ClientToManage');
-
-        $redes = array();
-
-        $redes_conditions = array('id' => $redes_id);
 
         if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -1664,8 +1658,7 @@ class UsuariosController extends AppController
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $user_logged["id"]);
         }
 
-        // DebugUtil::print($unidadesRede->toArray());
-        $redes = $this->Redes->getRedesList($redes_conditions);
+        $redes = $this->Redes->getRedesList($redes_id);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -1784,7 +1777,8 @@ class UsuariosController extends AppController
             }
         }
 
-        $arraySet = [
+        // DebugUtil::print($redes->toArray());
+        $arraySet = array(
             'usuario',
             'rede',
             'redes',
@@ -1793,7 +1787,7 @@ class UsuariosController extends AppController
             "unidadesRede",
             "unidadeRedeId",
             'user_logged'
-        ];
+        );
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -1839,7 +1833,7 @@ class UsuariosController extends AppController
 
         $redes_id = $rede["id"];
 
-        $redes = $this->Redes->getRedesList(array('id' => $rede->id));
+        $redes = $this->Redes->getRedesList($redes_id);
 
         $unidadesRede = array();
         $unidadeRedeId = 0;

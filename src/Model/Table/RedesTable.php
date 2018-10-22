@@ -221,15 +221,45 @@ class RedesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/13
      *
-     * @return array ['id', 'nome']
+     * @return \App\Model\Entity\Redes ['id', 'nome']
      */
-    public function getRedesList(array $whereConditions = [])
+    public function getRedesList(int $id = null, string $nomeRede = null, int $ativado = null, bool $permiteConsumoGotasFuncionarios = null, int $tempoExpiracaoGotasUsuarios = null, int $quantidadePontuacoesUsuariosDia = null, int $mediaAssiduidadeClientes = null)
     {
         try {
 
+            $whereConditions = array();
+
+            if (strlen($id) > 0 && $id > 0) {
+                $whereConditions[] = array("Redes.id" => $id);
+            }
+
+            if (!empty($nomeRede)) {
+                $whereConditions[] = array("Redes.nome_rede like '%{$nomeRede}%'");
+            }
+
+            if (strlen($ativado) > 0){
+                $whereConditions[] = array("Redes.ativado" => $ativado);
+            }
+
+            if (strlen($permiteConsumoGotasFuncionarios) > 0){
+                $whereConditions[] = array("Redes.permite_consumo_gotas_funcionarios" => $permiteConsumoGotasFuncionarios);
+            }
+
+            if (strlen($tempoExpiracaoGotasUsuarios) > 0){
+                $whereConditions[] = array("Redes.tempo_expiracao_gotas_usuarios" => $tempoExpiracaoGotasUsuarios);
+            }
+            if (strlen($quantidadePontuacoesUsuariosDia) > 0){
+                $whereConditions[] = array("Redes.quantidade_pontuacoes_usuarios_dia" => $quantidadePontuacoesUsuariosDia);
+            }
+
+            if (strlen($mediaAssiduidadeClientes) > 0){
+                $whereConditions[] = array("Redes.media_assiduidade_clientes" => $mediaAssiduidadeClientes);
+            }
+
             return $this->_getRedesTable()->find('list')
                 ->where($whereConditions)
-                ->select(['id', 'nome_rede']);
+                ->select(['id', 'nome_rede'])
+                ->order(array("nome_rede" => "asc"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

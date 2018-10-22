@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/ClientesHasBrindesHabilitados/resgatar_brinde.ctp
@@ -21,9 +21,9 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-?> 
+?>
 
-<?= $this->element('../ClientesHasBrindesHabilitados/left_menu', []) ?> 
+<?= $this->element('../ClientesHasBrindesHabilitados/left_menu', []) ?>
 
 <div class="redes index col-lg-9 col-md-10 columns content">
     <legend>Confirmar Brinde e Quantidade para Resgate</legend>
@@ -47,7 +47,7 @@ echo $this->Breadcrumbs->render(
         'disabled' => true
 
     ]) ?>
-    
+
     <?= $this->Form->input('valor_unitario', [
         'type' => 'text',
         'label' => 'Valor Unitário:',
@@ -104,5 +104,5 @@ echo $this->Breadcrumbs->render(
 
     <?= $this->Form->end() ?>
 
-    
+
 </div>

@@ -1259,8 +1259,8 @@ class UsuariosTable extends GenericTable
                 $whereConditions[] = array("ClienteHasUsuario.conta_ativa" => $contaAtiva);
             }
 
-            // $arrayContain = array("ClienteHasUsuario");
-            $arrayContain = array();
+            $arrayContain = array("ClienteHasUsuario");
+            // $arrayContain = array();
 
             $usuarios = $this->find('all')
                 ->where($whereConditions);

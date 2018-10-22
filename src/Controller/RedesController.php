@@ -789,10 +789,10 @@ class RedesController extends AppController
                 }
 
 
-                $redes_ids = [];
+                $redesIds = [];
 
                 foreach ($redes_array as $key => $value) {
-                    $redes_ids[] = $value->redes_id;
+                    $redesIds[] = $value->redes_id;
                 }
 
                 /* agora tenho o id das redes que o usuário está vinculado.
@@ -802,14 +802,14 @@ class RedesController extends AppController
 
                 $redes = [];
 
-                if (count($redes_ids) == 0) {
+                if (count($redesIds) == 0) {
                     $status = 0;
                     $messageString = Configure::read("messageLoadDataWithError");
                     $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
                 } else {
 
                     $redesQueryResult = $this->Redes->getRedes(
-                        array("Redes.id in " => $redes_ids, "Redes.nome_rede like '%{$nomeRede}%'"),
+                        array("Redes.id in " => $redesIds, "Redes.nome_rede like '%{$nomeRede}%'"),
                         array(
                             "id",
                             "nome_rede",

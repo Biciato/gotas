@@ -182,7 +182,7 @@ class ClientesTable extends GenericTable
 
         $validator
             ->requirePresence('pais')
-            ->notEmpty('pais');
+            ->allowEmpty('pais');
 
         $validator
             ->allowEmpty('cep', 'Se o usuário não souber o CEP do local, utilize o CEP da cidade.');
