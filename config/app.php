@@ -256,7 +256,8 @@ return [
             // 'timezone' => 'America/Sao_Paulo',
             //  'timezone' => 'UTC',
             'flags' => [],
-            'cacheMetadata' => true,
+            // 'cacheMetadata' => true,
+            'cacheMetadata' => false,
             // true para guardar tudo no arquivo queries
             'log' => true,
             // 'log' => false,

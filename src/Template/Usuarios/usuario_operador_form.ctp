@@ -31,29 +31,27 @@ use Cake\Routing\Router;
                         'type' => 'select',
                         'id' => 'tipo_perfil',
                         'options' =>
-                            [
-                            '' => '',
-                            '1' => 'Administradores de uma Rede',
-                            '3' => 'Administrador',
-                            '4' => 'Gerente',
-                            '5' => 'Funcionário'
-
-                        ]
+                        array(
+                            1 => 'Administradores de uma Rede',
+                            3 => 'Administrador',
+                            4 => 'Gerente',
+                            5 => 'Funcionário'
+                        )
                     ]); ?>
                 <?php else : ?>
                     <div class="col-lg-12">
                         <?= $this->Form->input('tipo_perfil', [
                             'type' => 'select',
                             'id' => 'tipo_perfil',
+                            "empty" => "<Selecionar>",
                             'options' =>
-                                [
-                                '' => '',
-                                '0' => 'Administradores da RTI / Desenvolvedor',
-                                '1' => 'Administradores de uma Rede',
-                                '3' => 'Administrador',
-                                '4' => 'Gerente',
-                                '5' => 'Funcionário',
-                            ]
+                                array(
+                                0 => 'Administradores da RTI / Desenvolvedor',
+                                1 => 'Administradores de uma Rede',
+                                3 => 'Administrador',
+                                4 => 'Gerente',
+                                5 => 'Funcionário'
+                            )
                         ]); ?>
                     </div>
 
@@ -105,20 +103,20 @@ use Cake\Routing\Router;
                 ?>
             </div>
             <?php elseif (($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminNetworkProfileType'])
-            && ($user_logged["id"] !== $usuario["id"])) : ?>
+                && ($user_logged["id"] !== $usuario["id"])) : ?>
 
                 <div class='col-lg-6'>
                     <!-- Tipo Perfil -->
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
+                        "empty" => "<Selecionar>",
                         'options' =>
                             [
-                            '' => '',
-                            '1' => 'Administradores de uma Rede',
-                            '3' => 'Administrador',
-                            '4' => 'Gerente',
-                            '5' => 'Funcionário',
+                            1 => 'Administradores de uma Rede',
+                            3 => 'Administrador',
+                            4 => 'Gerente',
+                            5 => 'Funcionário',
 
                         ]
                     ]); ?>
@@ -144,30 +142,31 @@ use Cake\Routing\Router;
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
+                                "empty" => "<Selecionar>",
+                                "value" => $usuario["cliente_has_usuario"]["tipo_perfil"],
                                 'options' =>
                                     [
-                                    '' => '',
-                                    '2' => 'Administrador',
-                                    '3' => 'Gerente',
-                                    '4' => 'Funcionário',
+                                    3 => 'Administrador',
+                                    4 => 'Gerente',
+                                    5 => 'Funcionário',
 
                                 ]
                             ]) ?>
                         </div>
                         <div class="col-lg-6">
                             <?= $this->Form->input(
-                            'clientes_id',
-                            [
-                                'type' => 'select',
-                                'id' => 'clientes_rede',
-                                'class' => 'clientes_rede',
-                                'label' => 'Unidade da Rede',
-                                "empty" => "<Selecionar>",
-                                "options" => $unidadesRede,
-                                "required" => true,
-                                "value" => $unidadeRedeId
-                            ]
-                        ); ?>
+                                'clientes_id',
+                                [
+                                    'type' => 'select',
+                                    'id' => 'clientes_rede',
+                                    'class' => 'clientes_rede',
+                                    'label' => 'Unidade da Rede',
+                                    "empty" => "<Selecionar>",
+                                    "options" => $unidadesRede,
+                                    "required" => true,
+                                    "value" => $unidadeRedeId
+                                ]
+                            ); ?>
                         </div>
                     <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminLocalProfileType']) : ?>
                         <div class="col-lg-12">
@@ -175,13 +174,13 @@ use Cake\Routing\Router;
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
+                                "empty" => "<Selecionar>",
+                                "value" => $usuario["cliente_has_usuario"]["tipo_perfil"],
                                 'options' =>
-                                    [
-                                    '' => '',
-                                    '3' => 'Gerente',
-                                    '4' => 'Funcionário',
-
-                                ]
+                                    array(
+                                    4 => 'Gerente',
+                                    5 => 'Funcionário',
+                                )
                             ]) ?>
                         </div>
                     <?php elseif ($usuario_logado_tipo_perfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>

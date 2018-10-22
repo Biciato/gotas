@@ -1802,6 +1802,9 @@ class UsuariosController extends AppController
     {
         $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
+        $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
+
+        // DebugUtil::print($usuario);
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
 
@@ -1849,6 +1852,8 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
+
+            // DebugUtil::print($data);
 
             $usuarioData = $data;
 

@@ -573,7 +573,6 @@ class ClientesHasUsuariosTable extends Table
     public function getVinculoClientesUsuario(int $usuariosId, bool $filtrarPrimeiro = true)
     {
         try {
-            Log::write("debug", "wololo");
             $whereConditions = array(
                 "usuarios_id" => $usuariosId
             );
