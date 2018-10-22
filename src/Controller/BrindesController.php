@@ -309,7 +309,7 @@ class BrindesController extends AppController
 
             $brinde = $this->Brindes->newEntity();
 
-            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados($clientesId);
+            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
 
             // Obtem a matriz pois o Brinde é atribuído sempre para a matriz
             $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede["id"]);
@@ -327,6 +327,7 @@ class BrindesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
                 $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
@@ -490,7 +491,7 @@ class BrindesController extends AppController
             $rede["id"]
         );
 
-        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados(array($brinde["clientes_id"]));
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente(array($brinde["clientes_id"]));
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();

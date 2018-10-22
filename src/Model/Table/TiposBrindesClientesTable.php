@@ -266,7 +266,7 @@ class TiposBrindesClientesTable extends GenericTable
                 $whereConditions[] = array("tipos_brindes_redes_id" => $tipoBrindesId);
             }
 
-            $tipoBrindesClientes = $this->_getTiposBrindesClientesTable()
+            $tipoBrindesClientes = $this
                 ->find('all')
                 ->where($whereConditions)
                 ->select(array(
@@ -431,7 +431,7 @@ class TiposBrindesClientesTable extends GenericTable
     /**
      * TiposBrindesClientesTable::getTiposBrindesClientesDisponiveis
      *
-     * Obtem TiposBrindes Vinculados a um cliente
+     * Obtem TiposBrindes Habilitados a clientes
      *
      * @param integer $clientesId Id de Cliente
      *
@@ -440,7 +440,7 @@ class TiposBrindesClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\array[] $list
      */
-    public function getTiposBrindesClientesVinculados(array $clientesIds)
+    public function getTiposBrindesHabilitadosCliente(array $clientesIds)
     {
         try {
             $tipoBrindesIds = array();
@@ -450,14 +450,16 @@ class TiposBrindesClientesTable extends GenericTable
                 $tipoBrindesIds[] = $tiposBrindesCliente["tipos_brindes_redes_id"];
             }
 
-            $tipoBrindes = $this->TiposBrindesRedes->find('list');
+            $tipoBrindes = $this->TiposBrindesRedes->find('list')
+                ->contain("TipoBrindesCliente");
 
             if (sizeof($tipoBrindesIds) > 0) {
                 $tipoBrindes = $tipoBrindes->where(
-                    [
-                        "id in" => $tipoBrindesIds,
-                        "habilitado" => 1
-                    ]
+                    array(
+                        "TiposBrindesRedes.id in" => $tipoBrindesIds,
+                        "TipoBrindesCliente.habilitado" => 1,
+                        "TipoBrindesCliente.habilitado" => 1
+                    )
                 );
             }
 

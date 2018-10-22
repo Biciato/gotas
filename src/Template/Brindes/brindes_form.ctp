@@ -44,7 +44,7 @@ use Cake\Core\Configure;
                 'min' => 0,
                 'max' => 20,
                 'readonly' => false,
-                'required' => true
+                'required' => false
             ]
         ) ?>
     </div>

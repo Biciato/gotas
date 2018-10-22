@@ -85,6 +85,14 @@ class TiposBrindesRedesTable extends GenericTable
             "joinTable" => "Redes"
         ));
 
+        $this->hasOne(
+            "TipoBrindesCliente",
+            array(
+                "className" => "TiposBrindesClientes",
+                "foreignKey" => "tipos_brindes_redes_id",
+                "joinType" => "LEFT"
+            )
+        );
         $this->hasMany(
             "TiposBrindesClientes",
             array(
