@@ -29,7 +29,10 @@ class RedesHasCliente extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => true,
-        'id' => false
+        "id" => true,
+        "redes_id" => true,
+        "clientes_id" => true,
+        "audit_insert" => true,
+        "audit_update" => true,
     ];
 }

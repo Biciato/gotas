@@ -402,20 +402,12 @@ class GotasController extends AppController
 
                 $unidades = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
             }
+
             // Verifica permissão do usuário na rede / unidade da rede
-
-            // TODO: desabilitado por enquanto, isto será migrado para ambiente novo e será seguro
-            // $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
-
-            // if (!$temAcesso) {
-            //     return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
-            // }
-
-            // DebugUtil::print($unidades);
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
 
@@ -462,7 +454,14 @@ class GotasController extends AppController
                 }
             }
 
-            $arraySet = array('gota', "user_logged", "unidades");
+            $unidadesId = 0;
+            $unidades = $unidades->toArray();
+
+            if (sizeof($unidades) == 1) {
+                $unidadesId = array_keys($unidades)[0];
+            }
+
+            $arraySet = array('gota', "user_logged", "unidades", "unidadesId");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
@@ -503,7 +502,7 @@ class GotasController extends AppController
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
 

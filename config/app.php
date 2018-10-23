@@ -9,8 +9,8 @@ return [
  * Development Mode:
  * true: Errors and warnings shown.
  */
-    'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
-    // 'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
+    // 'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
+    'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
 
 
     /**
@@ -238,7 +238,8 @@ return [
         'default' => [
             'className' => 'Cake\Database\Connection',
             'driver' => 'Cake\Database\Driver\Mysql',
-            'persistent' => false,
+            // 'persistent' => false,
+            'persistent' => true,
             'host' => 'localhost',
             // 'host' => '40.71.26.138',
             /**
@@ -256,8 +257,8 @@ return [
             // 'timezone' => 'America/Sao_Paulo',
             //  'timezone' => 'UTC',
             'flags' => [],
-            // 'cacheMetadata' => true,
-            'cacheMetadata' => false,
+            'cacheMetadata' => true,
+            // 'cacheMetadata' => false,
             // true para guardar tudo no arquivo queries
             'log' => true,
             // 'log' => false,
@@ -428,6 +429,7 @@ return [
      */
     'Session' => [
         'defaults' => 'cake',
+        // 'defaults' => 'php',
         // 'timeout' => 30
         // 'timeout' => 1
         // uma semana

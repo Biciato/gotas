@@ -28,6 +28,7 @@ use Cake\Core\Configure;
             "input" => "select",
             "empty" => "<Selecionar>",
             "options" => $unidades,
+            "value" => $unidadesId,
             "required" => true
         )
     );
@@ -43,7 +44,9 @@ use Cake\Core\Configure;
     <?= $this->Form->input(
         'multiplicador_gota',
         [
-            'step' => '0.01',
+            // 'step' => '0.01',
+            "type" => "text",
+            "maxlength" => 4,
             'label' => 'Multiplicador de Gotas',
             'id' => 'multiplicador_gota',
             'class' => 'form-control',

@@ -259,17 +259,9 @@ class ClientesHasUsuariosTable extends Table
     public function getClientesFilterAllowedByUsuariosId(int $redes_id, int $usuarios_id, bool $descartar_matriz = false)
     {
         try {
-            $rede_table = TableRegistry::get('Redes');
 
-            $rede = $rede_table->find('all')->where(['id' => $redes_id])
-                ->contain(['RedesHasClientes'])
-                ->first();
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redes_id);
 
-            $clientesIds = [];
-
-            foreach ($rede->redes_has_clientes as $key => $value) {
-                $clientesIds[] = $value['clientes_id'];
-            }
             $usuario = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
                 ->where(['id' => $usuarios_id])->first();
 
@@ -277,7 +269,7 @@ class ClientesHasUsuariosTable extends Table
                 return null;
             }
 
-            if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            if ($usuario["tipo_perfil"] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // se for admin rti ou admin rede, pega o id de todas as unidades
 
                 if ($descartar_matriz) {
@@ -288,14 +280,13 @@ class ClientesHasUsuariosTable extends Table
                         ->where(['id in' => $clientesIds]);
                 }
 
-                return $clientes;
             } else if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminLocalProfileType']) {
 
                 // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
 
                 // pega os id's aos quais ele tem permissão de admin
 
-                $clientes_has_usuarios_list = $this->_getClienteHasUsuarioTable()
+                $clientesHasUsuariosList = $this
                     ->find('all')
                     ->where(
                         [
@@ -309,7 +300,7 @@ class ClientesHasUsuariosTable extends Table
                     );
 
                 $clientesIds = [];
-                foreach ($clientes_has_usuarios_list as $key => $value) {
+                foreach ($clientesHasUsuariosList as $key => $value) {
                     $clientesIds[] = $value['clientes_id'];
                 }
 
@@ -329,13 +320,11 @@ class ClientesHasUsuariosTable extends Table
                         ->where(['id IN ' => $clientesIds]);
                 }
 
-                return $clientes;
-
             } else {
 
                 // pega os id's aos quais ele tem permissão de admin
 
-                $clientes_has_usuarios_list = $this->_getClienteHasUsuarioTable()
+                $clientesHasUsuariosList = $this
                     ->find('all')
                     ->where(
                         [
@@ -343,10 +332,11 @@ class ClientesHasUsuariosTable extends Table
                             'usuarios_id' => $usuario->id,
                             'tipo_perfil' => $usuario->tipo_perfil
                         ]
-                    );
+                    )
+                    ->select(array("clientes_id"));
 
                 $clientesIds = [];
-                foreach ($clientes_has_usuarios_list as $key => $value) {
+                foreach ($clientesHasUsuariosList as $key => $value) {
                     $clientesIds[] = $value['clientes_id'];
                 }
 
@@ -366,8 +356,11 @@ class ClientesHasUsuariosTable extends Table
                         ->where(['id IN ' => $clientesIds]);
                 }
 
-                return $clientes;
             }
+
+            return $clientes->select(array("id", "razao_social"));
+            // return $clientes;
+
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

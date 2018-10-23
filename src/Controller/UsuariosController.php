@@ -2279,10 +2279,9 @@ class UsuariosController extends AppController
             $this->user_logged = $user_managed;
         }
 
-        // $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->user_logged['id']);
         $clientesIds = array();
 
-        $conditions = [];
+        $conditions = array();
 
         // se for developer / rti / rede, mostra todas as unidades da rede
 
