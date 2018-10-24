@@ -224,10 +224,13 @@ class ClientesHasBrindesHabilitadosController extends AppController
         // obtem os brindes habilitados (e não habilitados) da unidade
         $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
 
+        // DebugUtil::print($clientes_id, TRUE, FALSE);
+        // DebugUtil::print($brindesConfigurar);
+
         $brindesConfigurarArrayRetorno = array();
 
         foreach ($brindesConfigurar as $brinde) {
-            $brinde["pendente_configuracao"] = empty($brinde["brindeVinculado"]["tipo_codigo_barras"]);
+            $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
 
             $brindesConfigurarArrayRetorno[] = $brinde;
         }
@@ -403,6 +406,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientesId);
 
+        // die();
+        // die($tiposBrindesCliente);
+        // die($clienteHasBrindeHabilitado);
+
         if (empty($tiposBrindesCliente)) {
 
             $error = $status == 1 ? Configure::read("messageEnableError") : Configure::read("messageDisableError");
@@ -412,29 +419,21 @@ class ClientesHasBrindesHabilitadosController extends AppController
             return $this->redirect(['action' => 'configurar_brindes_unidade', $clientesId]);
         }
 
-        if (empty($clienteHasBrindeHabilitado)){
-            // TODO: continuar
+        if (empty($clienteHasBrindeHabilitado)) {
             $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
             $clienteHasBrindeHabilitado["brindes_id"] = $brindesId;
             $clienteHasBrindeHabilitado["clientes_id"] = $clientesId;
-            $clienteHasBrindeHabilitado["tipos_brindes_clientes_id"] = $brinde["tipos_brindes_redes_id"];
-
-            $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado);
-        }
-
-        if (is_null($clienteHasBrindeHabilitado)) {
-            $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->newEntity();
-            $clienteHasBrindeHabilitado->brindes_id = $brindesId;
-            $clienteHasBrindeHabilitado->clientes_id = $clientesId;
-            $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesCliente["id"];
+            $clienteHasBrindeHabilitado["tipos_brindes_clientes_id"] = $tiposBrindesCliente["id"];
         } else if (empty($clienteHasBrindeHabilitado["tipos_brindes_clientes_id"])) {
             // Atualiza o vínculo se estiver nulo
-            $clienteHasBrindeHabilitado->tipos_brindes_clientes_id = $tiposBrindesCliente["id"];
+            $clienteHasBrindeHabilitado["tipos_brindes_clientes_id"] = $tiposBrindesCliente["id"];
         }
 
         $clienteHasBrindeHabilitado->habilitado = $status;
+        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado);
 
-        if ($clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado)) {
+        // DebugUtil::print($clienteHasBrindeHabilitado);
+        if ($clienteHasBrindeHabilitado) {
             /* Se for true, verificar se é registro novo.
              * Se for, é necessário incluir novo preço, definir estoque
              */

@@ -229,11 +229,11 @@ class ClientesHasBrindesEstoqueController extends AppController
     /**
      * Action para vender um item de Brinde
      *
-     * @param int $brindes_id Id do Brinde
+     * @param int $brindesId Id do Brinde
      *
      * @return \Cake\Http\Response|void
      **/
-    public function vendaManualEstoque($brindes_id)
+    public function vendaManualEstoque($brindesId)
     {
         $user_admin = $this->request->session()->read('User.RootLogged');
         $user_managed = $this->request->session()->read('User.ToManage');
@@ -244,11 +244,11 @@ class ClientesHasBrindesEstoqueController extends AppController
             $user_logged = $user_managed;
         }
 
-        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
+        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
 
         $clientes_id = $brinde->clientes_id;
 
-        $brinde_estoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $brindeEstoque = $this->ClientesHasBrindesEstoque->newEntity();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -268,7 +268,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             $usuario = null;
             // Se usuário for nulo, define venda para o usuário avulso
-            if (empty($data["usuarios_id"])){
+            if (empty($data["usuarios_id"])) {
                 $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyUserProfileType"], 1);
             } else {
                 $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
@@ -278,14 +278,16 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             // verificar se tem estoque suficiente na loja em questão
 
-            $estoqueAtual = $this->ClientesHasBrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindes_id, $data['quantidade']);
+            $estoqueAtual = $this->ClientesHasBrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindesId, $data['quantidade']);
 
-            if ($estoqueAtual['enough'] == false) {
-                $qte = strlen($estoqueAtual['left']) > 0 ? $estoqueAtual['left'] : 0;
-                $this->Flash->error(__('Não há estoque suficiente para vender, solicitado {0}, restam {1}', $data['quantidade'], $qte));
+            $possuiEstoque = $estoqueAtual["enough"] == true || $brinde["brinde"]["ilimitado"];
+
+            if (!$possuiEstoque) {
+                $restante = strlen($estoqueAtual['left']) > 0 ? $estoqueAtual['left'] : 0;
+                $this->Flash->error(__('Não há estoque suficiente para vender, solicitado {0}, restam {1}', $data['quantidade'], $restante));
             }
 
-            if ($usuario && $estoqueAtual['enough']) {
+            if ($usuario && $possuiEstoque) {
                 // Pegar soma de pontuações do usuário para saber se ele tem saldo
                 $usuario->pontuacoes
                     = $this->Pontuacoes->getSumPontuacoesOfUsuario(
@@ -300,7 +302,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                     //usuário possui pontuação suficiente, cliente tem brinde suficiente, iniciar as transações
 
                     // Diminuir estoque do cliente
-                    $brinde_estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                    $brindeEstoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                         $brinde->id,
                         $usuario->id,
                         $data['quantidade'],
@@ -326,10 +328,10 @@ class ClientesHasBrindesEstoqueController extends AppController
                         true
                     );
 
-                    if ($brinde_estoque && $brindeUsuario && $pontos) {
+                    if ($brindeEstoque && $brindeUsuario && $pontos) {
                         $this->Flash->success('Venda realizada');
 
-                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
+                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindesId]);
                     }
                 }
             }
@@ -337,24 +339,14 @@ class ClientesHasBrindesEstoqueController extends AppController
 
         $array_set = [
             'brinde',
-            'brinde_estoque',
+            'brindeEstoque',
             'cliente',
             'clientes_id',
-            'brindes_id'
+            'brindesId'
         ];
 
-        $this->set(compact(
-            [
-                $array_set
-            ]
-        ));
-
-        $this->set(
-            '_serialize',
-            [
-                $array_set
-            ]
-        );
+        $this->set(compact($array_set));
+        $this->set('_serialize', $array_set);
     }
 
     /**

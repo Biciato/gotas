@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/ClientesHasBrindesEstoque/venda_manual_estoque.ctp
@@ -35,7 +35,7 @@ $this->Breadcrumbs->add(
     ]
 );
 
-$this->Breadcrumbs->add('Configurar Brinde', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
+$this->Breadcrumbs->add('Configurar Brinde', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindesId]);
 
 $this->Breadcrumbs->add(__($title, null), [], ['class' => 'active']);
 
@@ -55,18 +55,18 @@ echo $this->Breadcrumbs->render(
     ]
 ) ?>
 <div class="brindesEstoque form col-lg-9 col-md-10 columns content">
-        
-    <?= $this->Form->create($brinde_estoque) ?>
+
+    <?= $this->Form->create($brindeEstoque) ?>
     <legend><?= __($title, $brinde->brinde->nome) ?></legend>
     <fieldset>
-        
+
         <?= $this->Form->hidden('clientes_id', ['id' => 'clientes_id', 'value' => $clientes_id]); ?>
 
         <?= $this->element('../Usuarios/filtro_usuarios_ajax'); ?>
         <?= $this->element('../ClientesHasBrindesEstoque/brindes_estoque_form', ['required_tipo_operacao' => false, 'required_data' => false, 'show_users_filter' => true]) ?>
 
     </fieldset>
-    
+
     <div class="col-lg-12">
     <?= $this->Form->button(
         __(

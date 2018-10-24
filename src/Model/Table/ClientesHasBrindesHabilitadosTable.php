@@ -848,10 +848,19 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
              */
             $brindeTable = TableRegistry::get("Brindes");
             $brindesRede = $brindeTable->find('all')
-                ->where(array(
-                    "habilitado" => 1,
-                    "clientes_id in " => $clientesIds
-                ))->toArray();
+                ->where(
+                    array(
+                        "habilitado" => 1,
+                        "clientes_id in " => $clientesIds
+                    )
+                )
+                ->select(
+                    array(
+                        "id",
+                        "nome"
+                    )
+                )
+                ->toArray();
 
             // Obtem os ids dos brindes da rede
 
@@ -870,6 +879,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             // echo 'oi';
 
+            // DebugUtil::print($clientesIds);
             // DebugUtil::print($brindesRede);
             // DebugUtil::print($brindesRedeIds);
             // Obtem todos os brindes que estão configurados para aquela unidade.
@@ -912,9 +922,13 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $brindesVinculados = array();
 
-            foreach ($brindesRede as $key => $brinde) {
-                foreach ($brindesConfiguradosIds as $key => $brindeConfiguradoId) {
+            // DebugUtil::print($brindesRede);
+            // DebugUtil::print($brindesConfiguradosIds);
+
+            foreach ($brindesRede as $brinde) {
+                foreach ($brindesConfiguradosIds as $brindeConfiguradoId) {
                     if ($brinde["id"] == $brindeConfiguradoId) {
+
                         $clienteBrindeHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
                             ->where(
                                 array(
@@ -924,18 +938,20 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                             )->first();
 
                         $item = $brinde;
-                        $item["brindeVinculado"] = $clienteBrindeHabilitado;
+                        $item["brinde_vinculado"] = $clienteBrindeHabilitado;
                         $item["atribuido"] = 1;
                         $brindesVinculados[] = $item;
                     }
                 }
             }
 
+            // DebugUtil::print($brindesVinculados);
+            // DebugUtil::print($brindesNaoAtribuidos);
             foreach ($brindesNaoAtribuidos as $key => $brinde) {
                 foreach ($brindesNaoConfiguradosIds as $key => $brindeNaoConfiguradoId) {
                     if ($brinde["id"] == $brindeNaoConfiguradoId) {
                         $item = $brinde;
-                        $item["brindeVinculado"] = null;
+                        $item["brinde_vinculado"] = null;
                         $item["atribuido"] = 0;
                         $brindesNaoVinculados[] = $item;
                     }
@@ -944,8 +960,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             // echo __LINE__;
             // DebugUtil::printArray($brindesVinculados, true);
-            // DebugUtil::printArray($brindesVinculados, true);
-            return array_merge($brindesVinculados, $brindesNaoVinculados);
+            // DebugUtil::printArray($brindesNaoAtribuidos, true);
+            $arrayRetorno = array_merge($brindesVinculados, $brindesNaoVinculados);
+            // DebugUtil::print($arrayRetorno);
+            return $arrayRetorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);

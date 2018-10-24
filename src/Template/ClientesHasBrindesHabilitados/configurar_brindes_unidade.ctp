@@ -51,7 +51,7 @@ echo $this->Breadcrumbs->render(
                 <tr>
                     <td><?= h($brinde['nome']) ?></td>
                     <td><?= h($this->Boolean->convertBooleanToString($brinde['ilimitado'])) ?></td>
-                    <td><?= h($this->Boolean->convertEnabledToString(is_null($brinde["brindeVinculado"]) ? false : $brinde["brindeVinculado"]["habilitado"])) ?></td>
+                    <td><?= h($this->Boolean->convertEnabledToString(is_null($brinde["brinde_vinculado"]) ? false : $brinde["brinde_vinculado"]["habilitado"])) ?></td>
                     <!-- Campo calculado -->
                     <td><?= h($this->Boolean->convertBooleanToString($brinde['pendente_configuracao'])) ?></td>
                     <td><?= h($this->Boolean->convertBooleanToString($brinde["atribuido"])) ?></td>
@@ -86,7 +86,7 @@ echo $this->Breadcrumbs->render(
                             )
                             ?>
                         <?php else : ?>
-                            <?php if ($brinde["brindeVinculado"]["habilitado"] == 0) : ?>
+                            <?php if ($brinde["brinde_vinculado"]["habilitado"] == 0) : ?>
 
                                 <?=
                                 $this->Html->link(
@@ -151,7 +151,7 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                                     ),
                                     [
-                                        'action' => 'configurar_brinde', $brinde["brindeVinculado"]["id"]
+                                        'action' => 'configurar_brinde', $brinde["brinde_vinculado"]["id"]
                                     ],
                                     [
                                         'title' => 'Configurar',
