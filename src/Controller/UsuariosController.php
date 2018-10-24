@@ -2481,7 +2481,7 @@ class UsuariosController extends AppController
             $data = $this->request->getData();
 
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
-            $email = !empty($data["nome"]) ? $data["nome"] : "";
+            $email = !empty($data["email"]) ? $data["email"] : "";
             $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
             $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";

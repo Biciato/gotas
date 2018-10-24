@@ -41,7 +41,7 @@ echo $this->Breadcrumbs->render(
                     <th>
                         <?= $this->Paginator->sort('funcionario.nome', ['label' => 'Funcionário']) ?>
                     </th>
-                    
+
                     <th>
                         <?= $this->Paginator->sort('pontuacoes.soma_quantidade', ['label' => 'Total de Gotas']) ?>
                     </th>
@@ -50,15 +50,14 @@ echo $this->Breadcrumbs->render(
                         <?= $this->Paginator->sort('chave_nfe', ['label' => 'Chave da NFE']) ?>
                     </th>
                     <th >
-                        <?= $this->Paginator->sort('requer_auditoria', ['label' => 'Requer Auditoria']) ?>
+                        <?= $this->Paginator->sort('requer_auditoria', ['label' => 'Nec. Auditoria?']) ?>
                     </th>
                     <th>
-                        <?= $this->Paginator->sort('auditado', ['label' => 'Registro Auditado']) ?>
+                        <?= $this->Paginator->sort('auditado', ['label' => 'Auditado?']) ?>
                     </th>
                         <th>
-                        <?= $this->Paginator->sort('registro_invalido', ['label' => 'Registro Inválido']) ?>
+                        <?= $this->Paginator->sort('registro_invalido', ['label' => 'Inválido?']) ?>
                     </th>
-
 
                     <th>
                         <?= $this->Paginator->sort('data', ['label' => 'Data Impressão ']) ?>

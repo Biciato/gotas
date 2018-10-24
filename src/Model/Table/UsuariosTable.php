@@ -1492,17 +1492,6 @@ class UsuariosTable extends GenericTable
                 ->contain('ClienteHasUsuario')
                 ->select(['Usuarios.id']);
 
-            // echo $usuariosIdsArray->sql();
-
-            // $usuariosIdsArray = $this->find('all')
-            // ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientes_ids])
-            // ->contain('ClientesHasUsuarios')
-            //     ->select(['ClientesHasUsuarios.usuarios_id'])->toArray();
-
-            // DebugUtil::print($clientesIds);
-
-            // DebugUtil::print($usuariosIdsArray->toArray());
-
             $usuarios_ids = [];
 
             foreach ($usuariosIdsArray as $key => $value) {

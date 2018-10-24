@@ -253,8 +253,10 @@ class PontuacoesController extends AppController
 
             $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
 
+            $clientesIds = array();
+
             foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+                $clientesIds[] = $key;
             }
 
             // verifica se usuário é ao menos gerente
@@ -272,13 +274,13 @@ class PontuacoesController extends AppController
                 $start = \strtotime($date . ' -7 days');
                 array_push($array_options, ['data between "' . date('Y-m-d 00:00:00', $start) . '" and "' . date('Y-m-d 23:59:59', $end) . '"']);
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
+                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
             } else {
                 $data = $this->request->getData();
 
                 if ($data['filtrar_unidade'] != "") {
-                    $clientes_ids = [];
-                    $clientes_ids[] = (int)$data['filtrar_unidade'];
+                    $clientesIds = [];
+                    $clientesIds[] = (int)$data['filtrar_unidade'];
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
@@ -311,19 +313,19 @@ class PontuacoesController extends AppController
 
                 array_push($array_options, ['data between "' . $start . '" and "' . $end . '"']);
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
+                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
             }
 
             // TODO: Ajustar
-            $funcionarios_array = $this->Usuarios->findFuncionariosRede($rede->id, $clientes_ids)->select(['id', 'nome']);
-
+            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds)->select(['id', 'nome']);
             $funcionarios = array();
 
-            foreach ($funcionarios_array as $key => $value) {
+            foreach ($funcionariosQuery as $key => $value) {
                 array_push($funcionarios, ['value' => $value->id, 'text' => $value->nome]);
             }
 
-            $this->paginate($pontuacoes_cliente, ['limit' => 10]);
+            // debug($funcionarios);
+            $pontuacoes_cliente = $this->Paginate($pontuacoes_cliente, ['limit' => 10]);
 
             $pontuacoes_cliente_new_array = [];
 
@@ -336,8 +338,9 @@ class PontuacoesController extends AppController
             $pontuacoes_cliente = null;
             $pontuacoes_cliente = $pontuacoes_cliente_new_array;
 
-            $this->set(compact(['pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids']));
-            $this->set('_serialize', ['pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids']);
+            $arraySet = array('pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids');
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $stringError = __("Erro ao exibir página: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
