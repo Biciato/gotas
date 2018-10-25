@@ -19,9 +19,8 @@ if (!empty($user_managed)) {
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
 
 
-    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminDeveloperProfileType"]
-        ||  $tipoPerfil == Configure::read("profileTypes")["AdminNetworkProfileType"]
-        ||  $tipoPerfil == Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
+    <?php if ($tipoPerfil >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
+        || $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
@@ -34,14 +33,15 @@ if (!empty($user_managed)) {
                 <?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarios_id]) ?>
             </li>
         </ul>
-    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] ||  $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
+    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                 <?= __('Menu') ?>
             </li>
         </ul>
-    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+    <?php elseif ($tipoPerfil >= Configure::read("profileTypes")["ManagerProfileType"] &&
+        $tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                 <?= __('Menu') ?>

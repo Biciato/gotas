@@ -8,6 +8,8 @@ use Cake\Core\Configure;
  * @date     13/08/2017
  */
 
+$unidadesId = isset($unidadesId) ? $unidadesId : 0;
+
 $options = [
     'nome' => 'nome',
     'cpf' => 'cpf',
@@ -47,14 +49,14 @@ if (isset($filter_redes)) {
                     <?=
                     $this->Form->create(
                         'Post',
-                        [
+                        array(
                             'url' =>
                                 [
                                 'controller' => $controller,
                                 'action' => $action,
                                 isset($id) ? $id : null
                             ]
-                        ]
+                        )
                     )
                     ?>
 
@@ -114,7 +116,8 @@ if (isset($filter_redes)) {
                                         'id' => 'filtrar_unidade',
                                         'label' => "Filtrar por unidade?",
                                         'empty' => '<Todas>',
-                                        'options' => $unidades_ids
+                                        'options' => $unidades_ids,
+                                        "value" => $unidadesId
                                     ]
                                 ) ?>
                             </div>

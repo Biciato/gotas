@@ -2272,11 +2272,12 @@ class UsuariosController extends AppController
         $cliente = $this->request->session()->read('Network.Unit');
         $client_to_manage = $this->request->session()->read('ClientToManage');
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $userAdmin = $this->request->session()->read('User.RootLogged');
+        $userManaged = $this->request->session()->read('User.ToManage');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($userAdmin) {
+            $this->user_logged = $userManaged;
+            $userLogged = $this->user_logged;
         }
 
         $clientesIds = array();
@@ -2284,14 +2285,15 @@ class UsuariosController extends AppController
         $conditions = array();
 
         // se for developer / rti / rede, mostra todas as unidades da rede
+        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->user_logged['id']);
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->user_logged['id']);
-
-        if (!is_null($unidades_ids)) {
-            foreach ($unidades_ids as $key => $value) {
+        if (!is_null($unidadesIds)) {
+            foreach ($unidadesIds as $key => $value) {
                 $clientesIds[] = $key;
             }
         }
+
+        $unidadesId = sizeof($clientesIds) == 1 ? $clientesIds[0] : 0;
 
         $nome = null;
         $cpf = null;
@@ -2330,11 +2332,9 @@ class UsuariosController extends AppController
 
         $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
-        // DebugUtil::print($usuarios->toArray());
-        $user_logged = $this->user_logged;
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
 
-        $arraySet = array('usuarios', 'unidades_ids', 'redesId', 'user_logged');
+        $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'userLogged');
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -2493,11 +2493,7 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
-        // echo "tipoPerfil '{$tipoPerfil}'";
-        // TODO: Conferir
-        // $usuarios = $this->Usuarios->findFuncionariosRede($redes_id, $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
         $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
-        // $usuarios = $this->Usuarios->findFuncionariosRede($rede["id"], $clientesIds, $nome, $cpf, $docEstrangeiro, $tipoPerfil);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("Usuarios.nome" => "ASC")));
 

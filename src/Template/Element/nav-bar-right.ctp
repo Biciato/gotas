@@ -334,7 +334,7 @@ if (empty($user_logged)) {
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li>
-                            <?php echo $this->Html->link('Usuários', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
+                            <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
                         </li>
 
                         <li role="separator" class="divider"></li>
@@ -402,7 +402,7 @@ if (empty($user_logged)) {
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                         <li>
-                            <?php echo $this->Html->link('Usuários', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
+                            <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
                         </li>
 
                         <li role="separator" class="divider"></li>

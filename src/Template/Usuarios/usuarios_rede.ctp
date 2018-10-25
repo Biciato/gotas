@@ -1,12 +1,13 @@
 <?php
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use App\Custom\RTI\DebugUtil;
 
 $redesId = isset($redesId) ? $redesId : null;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($userLogged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
         'Detalhes da Rede',
@@ -15,13 +16,21 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
     );
 }
 
-$this->Breadcrumbs->add('Usuários da Rede', [], ['class' => 'active']);
+$title = "";
+
+if ($userLogged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+    $title = "Usuários da Rede";
+} else {
+    $title = "Usuários da Loja/Posto";
+}
+
+$this->Breadcrumbs->add($title, [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
+$userIsAdmin = $userLogged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
     || Configure::read('profileTypes')['AdminNetworkProfileType']
     || Configure::read('profileTypes')['AdminRegionalProfileType'];
 ?>
@@ -33,17 +42,21 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
         'mode' => 'management',
         'controller' => 'pages',
         'action' => 'display',
-        "redes_id" => $redesId
+        "redes_id" => $redesId,
+        "user_logged" => $userLogged
     ]
 ) ?>
 
     <div class="usuarios index col-lg-9 col-md-10 columns content">
         <legend>
-            <?= __("Usuários da Rede") ?>
+            <?= __($title) ?>
         </legend>
 
         <?php if ($userIsAdmin) : ?>
-            <?= $this->element('../Usuarios/filtro_usuarios_redes', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redesId, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidades_ids]) ?>
+            <?= $this->element(
+                '../Usuarios/filtro_usuarios_redes',
+                array('controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redesId, 'show_filiais' => false, 'filter_redes' => true, 'unidades_ids' => $unidadesIds, "unidadesId" => $unidadesId)
+            ) ?>
         <?php else : ?>
             <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'usuarios_rede', 'id' => $redesId, 'show_filiais' => false, 'filter_redes' => true]) ?>
         <?php endif; ?>
@@ -131,7 +144,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
                             <?php
 
                             // se é administrador da rede ou é regional e o tipo de perfil tem maior permissão
-                            if (($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) || ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType'] || $user_logged['tipo_perfil'] < $usuario->tipo_perfil)) {
+                            if (($userLogged['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) || ($userLogged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType'] || $userLogged['tipo_perfil'] < $usuario->tipo_perfil)) {
 
                                 echo $this->Html->link(
                                     __('{0}', $this->Html->tag('i', '', ['class' => 'fa fa-edit'])),
@@ -148,7 +161,7 @@ $userIsAdmin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['A
 
                                 // só permite remover e desabilitar se o id do usuário logado não é o mesmo da tabela
 
-                                if ($usuario['id'] != $user_logged['id']) {
+                                if ($usuario['id'] != $userLogged['id']) {
                                     if ($usuario["cliente_has_usuario"]["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]) {
 
                                         if ($usuario["cliente_has_usuario"]['conta_ativa'] == true) {

@@ -34,11 +34,12 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: "api/Veiculos/get_veiculo_by_placa",
+            url: "/api/veiculos/get_veiculo_by_placa",
             data: JSON.stringify(data),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", true);
             },
             error: function (response) {
                 console.log(response);

@@ -18,12 +18,12 @@ if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelop
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 
 } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
-&& $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+    && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
-$this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "view", $usuarios_id), ['class' =>'active']);
-$this->Breadcrumbs->add('Transportadoras de  Usuário', array(), ['class' =>'active']);
+$this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "view", $usuarios_id), ['class' => 'active']);
+$this->Breadcrumbs->add('Transportadoras de  Usuário', array(), ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
