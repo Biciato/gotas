@@ -20,7 +20,7 @@ if (!empty($user_managed)) {
 
 
     <?php if ($tipoPerfil >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
-        || $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
+        && $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
