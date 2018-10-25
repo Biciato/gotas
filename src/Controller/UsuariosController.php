@@ -2332,9 +2332,6 @@ class UsuariosController extends AppController
 
         // DebugUtil::print($usuarios->toArray());
         $user_logged = $this->user_logged;
-        // echo ($usuarios->sql());
-        // die();
-        // $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("cliente_has_usuario.tipo_perfil" => "ASC")));
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
 
         $arraySet = array('usuarios', 'unidades_ids', 'redesId', 'user_logged');
