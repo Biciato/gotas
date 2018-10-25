@@ -558,6 +558,7 @@ class ClientesController extends AppController
 
             if ($user_admin) {
                 $this->user_logged = $user_managed;
+                $user_logged = $user_managed;
             }
 
             // Se usuário não tem acesso, redireciona
@@ -632,11 +633,11 @@ class ClientesController extends AppController
                                 "controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'
                             )
                         );
-                    }
-                    else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
+                    } else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
                         return $this->redirect(
                             array(
-                                "controller" => "Pages", 'action' => 'display'
+                                // "controller" => "Pages", 'action' => 'display'
+                                "controller" => "Clientes", 'action' => 'configurarPropaganda'
                             )
                         );
                     }
@@ -644,10 +645,7 @@ class ClientesController extends AppController
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
 
-            $arraySet = array(
-                "cliente",
-                "imagem"
-            );
+            $arraySet = array("cliente", "imagem", "user_logged");
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);

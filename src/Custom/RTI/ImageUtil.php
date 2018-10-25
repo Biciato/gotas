@@ -63,6 +63,10 @@ class ImageUtil
         } else if (strpos($imageSource, ".png")) {
             $typeImage = ".png";
             $image = imagecreatefrompng($imageSource);
+
+        } else if (strpos($imageSource, ".bmp")) {
+            $typeImage = ".bmp";
+            $image = imagecreatefrombmp($imageSource);
         }
 
         imagecopyresampled($newImage, $image, 0, 0, $valueX, $valueY, $cropWidth, $cropHeight, $imageWidth, $imageHeight);
@@ -71,6 +75,8 @@ class ImageUtil
             return imagejpeg($newImage, $imageSource, 90) == true ? 1 : 0;
         } else if ($typeImage == ".png") {
             return imagepng($newImage, $imageSource, 9) == true ? 1 : 0;
+        } else if ($typeImage == ".bmp") {
+            return imagebmp($newImage, $imageSource, 9) == true ? 1 : 0;
         } else {
             return 0;
         }

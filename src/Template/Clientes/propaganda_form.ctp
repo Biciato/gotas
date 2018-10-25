@@ -24,7 +24,8 @@ use Cake\Routing\Router;
         [
             'type' => 'file',
             'label' => 'Propaganda para Exibição',
-            "id" => "propaganda_img"
+            "id" => "propaganda_img",
+            "accept" => ".png,.jpg"
         ]
     ) ?>
 </div>
@@ -34,7 +35,7 @@ use Cake\Routing\Router;
 
     <?php echo $this->Form->label("Imagem Atualmente Alocada") ?>
     <br />
-    <img src="<?php echo $imagem ?>" class="imagem-rede"/>
+    <img src="<?php echo $imagem ?>" class="imagem-rede" />
     </div>
     <?php endif; ?>
 

@@ -1048,10 +1048,10 @@ class ClientesTable extends GenericTable
     public function updateClient($cliente)
     {
         try {
-            $clienteTable = TableRegistry::get('Clientes');
-            $clienteToUpdate = $this->formatClient($cliente);
+            $clienteToUpdate = $cliente;
+            // $clienteToUpdate = $this->formatClient($cliente);
 
-            return $clienteTable->save($clienteToUpdate);
+            return $this->save($clienteToUpdate);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -1109,6 +1109,8 @@ class ClientesTable extends GenericTable
      */
     public function formatClient($cliente)
     {
+        $cliente["matriz"] = $cliente["matriz"];
+        $cliente["ativado"] = $cliente["ativado"];
         $cliente['tipo_unidade'] = $cliente['tipo_unidade'];
         $cliente['nome_fantasia'] = $cliente['nome_fantasia'];
         $cliente['razao_social'] = $cliente['razao_social'];
