@@ -18,7 +18,6 @@ if (!empty($user_managed)) {
 
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
 
-
     <?php if ($tipoPerfil >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
         && $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
 
