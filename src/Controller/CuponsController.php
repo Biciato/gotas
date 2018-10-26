@@ -793,6 +793,7 @@ class CuponsController extends AppController
                 $ticket = $retorno["ticket"];
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
+                // TODO: temp
                 $tempo = $retorno["tempo"];
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
@@ -1795,7 +1796,7 @@ class CuponsController extends AppController
 
         // pega id de todos os clientes que estão ligados à uma rede
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
-        $rede = $redesHasClientes->rede;
+        $rede = $redesHasClientes["rede"];
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
         $listaCamposClienteSelect = array(
@@ -1959,6 +1960,28 @@ class CuponsController extends AppController
 
             return $retorno;
         }
+        $mensagem = array(
+            "status" => false,
+            "message" => "",
+            "errors" => array(__(""))
+        );
+
+        // $arraySet = array("mensagem", "usuario", "brindeSelecionado");
+
+        // $retorno = array(
+        //     "arraySet" => $arraySet,
+        //     "mensagem" => $mensagem,
+        //     "ticket" => null,
+        //     "status" => null,
+        //     "cliente" => null,
+        //     "usuario" => $usuario,
+        //     "brindeSelecionado" => $brindeSelecionado,
+        //     "tempo" => null,
+        //     "tipo_emissao_codigo_barras" => null,
+        //     "is_brinde_smart_shower" => null,
+        // );
+
+        // return $retorno;
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
         if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {

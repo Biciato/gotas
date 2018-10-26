@@ -1213,10 +1213,15 @@ class UsuariosTable extends GenericTable
         string $cpf = null,
         string $docEstrangeiro = null,
         int $contaAtiva = null,
-        bool $join = true
+        bool $join = true,
+        array $usuariosIds = array()
     ) {
         try {
             $whereConditions = array();
+
+            if (sizeof($usuariosIds) > 0) {
+                $whereConditions[] = array("Usuarios.id in " => $usuariosIds);
+            }
 
             if (sizeof($clientesIds) > 0) {
                 $whereConditions[] = array("ClienteHasUsuario.clientes_id IN" => $clientesIds);
@@ -1233,18 +1238,23 @@ class UsuariosTable extends GenericTable
             }
 
             if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
-                $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-            } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
-                $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-            } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
-                $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
-
-                $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
-            } else {
+                // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
                 $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
+                $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            // } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
+            } else {
+                $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
+
+                $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
             }
+            // else {
+            //     $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
+            //     $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
+            //     $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            // }
 
             if (!empty($cpf)) {
                 $whereConditions[] = array("Usuarios.cpf like '%{$cpf}%'");
@@ -1259,8 +1269,8 @@ class UsuariosTable extends GenericTable
                 $whereConditions[] = array("ClienteHasUsuario.conta_ativa" => $contaAtiva);
             }
 
-            $arrayContain = array("ClienteHasUsuario");
-            // $arrayContain = array();
+            // $arrayContain = array("ClienteHasUsuario");
+            $arrayContain = array();
 
             $usuarios = $this->find('all')
                 ->where($whereConditions);
@@ -1321,9 +1331,7 @@ class UsuariosTable extends GenericTable
                 $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
             }
 
-            $usuarios = $usuarios->select(
-                $usuariosSelectFields
-            );
+            $usuarios = $usuarios->select($usuariosSelectFields);
 
             return $usuarios;
 

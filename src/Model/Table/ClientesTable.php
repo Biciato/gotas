@@ -812,19 +812,18 @@ class ClientesTable extends GenericTable
     public function getIdsMatrizFiliaisByClienteId($clientes_id)
     {
         try {
-            // $array_ids = $this->_getClientesTable()->getAllIdsCliente($clientes_id);
-            $array_ids = $this->_getClientesTable()->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
+            $arrayIds = $this->_getClientesTable()->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
 
             $array = [];
 
             // preciso somente dos ids
-            foreach ($array_ids as $key => $value) {
+            foreach ($arrayIds as $key => $value) {
                 array_push($array, $value['clientes_id']);
             }
 
-            $array_ids = $array;
+            $arrayIds = $array;
 
-            return $array_ids;
+            return $arrayIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);

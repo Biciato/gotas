@@ -496,7 +496,23 @@ class VeiculosTable extends GenericTable
                 // Obtem os usuários que atendem aos critérios
 
                 $usuariosTable = TableRegistry::get("Usuarios");
-                $usuarios = $usuariosTable->findAllUsuarios($whereConditionsUsuariosRetorno)->toArray();
+                // $usuarios = $usuariosTable->find("all")->where($whereConditionsUsuariosRetorno)->toArray();
+                $usuarios = $usuariosTable->findAllUsuarios(
+                    // $redesId,
+                    // $clientesIds,
+                    null,
+                    array(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    $usuariosClientesEncontradosIds
+                )->toArray();
+
             }
         }
 
