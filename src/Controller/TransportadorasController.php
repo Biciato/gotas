@@ -525,7 +525,6 @@ class TransportadorasController extends AppController
 
     }
 
-
     /**
      * ------------------------------------------------------------
      * AJAX Methods
