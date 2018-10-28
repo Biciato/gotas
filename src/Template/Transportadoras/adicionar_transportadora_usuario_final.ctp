@@ -11,19 +11,19 @@
 
 use Cake\Core\Configure;
 
-$userManaged = $this->request->session()->read("User.ToManage");
+$usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
 
-if (!empty($userManaged)){
-    $user_logged = $userManaged;
+if (!empty($usuarioAdministrar)){
+    $usuarioLogado = $usuarioAdministrar;
 }
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 
-} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
-&& $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
+&& $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 

@@ -27,13 +27,13 @@ class Security
     /**
      * Verifica se usuário está autorizado à acessar uma action
      *
-     * @param array $user_logged
+     * @param array $usuarioLogado
      * @param string $minimumProfileType
      * @param string $maximumProfileType
      * @return boolean
      * @author Gustavo Souza Gonçalves
      **/
-    public function checkUserIsAuthorized($user_logged, $minimumProfileType, $maximumProfileType = null)
+    public function checkUserIsAuthorized($usuarioLogado, $minimumProfileType, $maximumProfileType = null)
     {
         $profileTypes = Configure::read('profileTypes');
 
@@ -46,7 +46,7 @@ class Security
         }
 
         if ($maxValue != null) {
-            if (($user_logged['tipo_perfil'] <= $minValue) || ($user_logged['tipo_perfil'] >= $maxValue)) {
+            if (($usuarioLogado['tipo_perfil'] <= $minValue) || ($usuarioLogado['tipo_perfil'] >= $maxValue)) {
                 return true;
                 // return false;
             } else {
@@ -54,7 +54,7 @@ class Security
                 return false;
             }
         } else {
-            if ($user_logged['tipo_perfil'] >= $minValue) {
+            if ($usuarioLogado['tipo_perfil'] >= $minValue) {
                 return true;
             } else {
                 return false;
@@ -82,7 +82,7 @@ class Security
 
             // Pega qual é a rede que ele logou
 
-            $rede = $thisInstance->request->session()->read("Network.Main");
+            $rede = $thisInstance->request->session()->read("Rede.Principal");
 
             if ($rede["id"] != $redesId) {
                 $this->redirectUserNotAuthorized($thisInstance, $user);

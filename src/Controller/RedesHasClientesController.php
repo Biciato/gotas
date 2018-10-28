@@ -367,28 +367,28 @@ class RedesHasClientesController extends AppController
     public function propagandaEscolhaUnidades()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            $userLogged = null;
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $userLogged = $user_managed;
+            $usuarioLogado = null;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             // Se usuário não tem acesso, redireciona
-            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+            if (!$this->security_util->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
 
 
             $clientes = array();
 
-            $rede = $this->request->session()->read('Network.Main');
-            $cliente = $this->request->session()->read('Network.Unit');
-            // debug($this->user_logged);
+            $rede = $this->request->session()->read('Rede.Principal');
+            $cliente = $this->request->session()->read('Rede.PontoAtendimento');
+            // debug($this->usuarioLogado);
             // Se administrador de rede
-            if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
+            if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
 
                 $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede["id"]);
 
@@ -398,13 +398,13 @@ class RedesHasClientesController extends AppController
             }
 
             // se regional
-            else if ($this->user_logged["tipo_perfil"] == Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-                $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $this->user_logged["id"], $this->user_logged["tipo_perfil"]);
+            else if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+                $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $this->usuarioLogado["id"], $this->usuarioLogado["tipo_perfil"]);
             }
 
             $arraySet = array(
                 "clientes",
-                "userLogged"
+                "usuarioLogado"
             );
 
             $this->set(compact($arraySet));

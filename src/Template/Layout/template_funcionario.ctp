@@ -22,9 +22,9 @@
 use Cake\Core\Configure;
 
 header("Access-Control-Allow-Origin: *");
-$user_logged = $this->Auth->User();
+$usuarioLogado = $this->Auth->User();
 
-$titlePage = 'GOTAS - Funcionário ' . $user_logged['nome'];
+$titlePage = 'GOTAS - Funcionário ' . $usuarioLogado['nome'];
 
 ?>
 <!DOCTYPE html>

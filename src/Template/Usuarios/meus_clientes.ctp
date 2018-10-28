@@ -91,7 +91,7 @@ echo $this->Breadcrumbs->render(
                     )
                     ?>
 
-                    <?php if (($user_logged['tipo_perfil'] <= 1) || $user_logged['id'] == $usuario->id) : ?>
+                    <?php if (($usuarioLogado['tipo_perfil'] <= 1) || $usuarioLogado['id'] == $usuario->id) : ?>
                         <?=
                         $this->Html->link(
                             __(

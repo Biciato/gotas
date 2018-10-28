@@ -7,7 +7,7 @@ $redesId = isset($redesId) ? $redesId : null;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($userLogged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
         'Detalhes da Rede',
@@ -18,7 +18,7 @@ if ($userLogged['tipo_perfil'] == Configure::read('profileTypes')['AdminDevelope
 
 $title = "";
 
-if ($userLogged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
     $title = "Usuários da Rede";
 } else {
     $title = "Usuários da Loja/Posto";
@@ -30,7 +30,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$userIsAdmin = $userLogged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
+$userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
     || Configure::read('profileTypes')['AdminNetworkProfileType']
     || Configure::read('profileTypes')['AdminRegionalProfileType'];
 ?>
@@ -43,7 +43,7 @@ $userIsAdmin = $userLogged['tipo_perfil'] == Configure::read('profileTypes')['Ad
         'controller' => 'pages',
         'action' => 'display',
         "redes_id" => $redesId,
-        "user_logged" => $userLogged
+        "usuarioLogado" => $usuarioLogado
     ]
 ) ?>
 
@@ -144,7 +144,7 @@ $userIsAdmin = $userLogged['tipo_perfil'] == Configure::read('profileTypes')['Ad
                             <?php
 
                             // se é administrador da rede ou é regional e o tipo de perfil tem maior permissão
-                            if (($userLogged['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) || ($userLogged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType'] || $userLogged['tipo_perfil'] < $usuario->tipo_perfil)) {
+                            if (($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) || ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType'] || $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
 
                                 echo $this->Html->link(
                                     __('{0}', $this->Html->tag('i', '', ['class' => 'fa fa-edit'])),
@@ -161,7 +161,7 @@ $userIsAdmin = $userLogged['tipo_perfil'] == Configure::read('profileTypes')['Ad
 
                                 // só permite remover e desabilitar se o id do usuário logado não é o mesmo da tabela
 
-                                if ($usuario['id'] != $userLogged['id']) {
+                                if ($usuario['id'] != $usuarioLogado['id']) {
                                     if ($usuario["cliente_has_usuario"]["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]) {
 
                                         if ($usuario["cliente_has_usuario"]['conta_ativa'] == true) {

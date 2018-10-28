@@ -10,7 +10,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'];
+$user_is_admin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'];
 
 $list_users_pending_approval = $user_is_admin;
 ?>
@@ -23,7 +23,7 @@ $list_users_pending_approval = $user_is_admin;
         'add_user' => true,
         'list_users_pending_approval' => $user_is_admin,
         'mode' => 'management_admin',
-        'user_logged' => $user_logged
+        'usuarioLogado' => $usuarioLogado
     ]
 ) ?>
     <div class="usuarios index col-lg-9 col-md-10 columns content">
@@ -137,7 +137,7 @@ $list_users_pending_approval = $user_is_admin;
                                 )
                                 ?>
 
-                                    <?php if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
+                                    <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
                                         if ($usuario["cliente_has_usuario"]["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]) {
 
                                             if ($usuario["cliente_has_usuario"]['conta_ativa'] == true) {

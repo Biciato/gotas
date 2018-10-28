@@ -29,7 +29,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
 
     /**
@@ -160,16 +160,16 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function escolherUnidadeConfigBrinde()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
-        $clientesIdsArray = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $clientesIdsArray = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         if (!is_null($clientesIdsArray)) {
             foreach ($clientesIdsArray as $key => $value) {
@@ -203,22 +203,22 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function configurarBrindesUnidade(int $clientes_id)
     {
-        $rede = $this->request->session()->read("Network.Main");
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $rede = $this->request->session()->read("Rede.Principal");
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         // DebugUtil::print($clientes_id);
 
-        $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
+        $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
 
         // DebugUtil::print($temAcesso);
         if (!$temAcesso) {
-            return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
+            return $this->security_util->redirectUserNotAuthorized($this, $this->usuarioLogado);
         }
 
         // obtem os brindes habilitados (e não habilitados) da unidade
@@ -252,11 +252,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
      **/
     public function configurarBrinde(int $brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -285,16 +285,16 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function ativarBrindes()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
@@ -304,7 +304,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         // Pega unidades que tem acesso
 
-        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
         foreach ($unidadesIds as $key => $value) {
                 // $clientes_ids[] = $value['clientes_id'];
@@ -387,11 +387,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     private function _alteraEstadoBrinde(int $brindesId, int $clientesId, $status)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         /**
@@ -462,7 +462,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                         if (is_null($estoque)) {
                                 // Não tem estoque, criar novo registro vazio
-                            $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->user_logged['id'], 0, 0);
+                            $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
                         }
                     }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
@@ -502,11 +502,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function configurarTipoEmissao(int $clienteHasBrindeHabilitadoId)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clienteHasBrindeHabilitadoId);
@@ -556,14 +556,14 @@ class ClientesHasBrindesHabilitadosController extends AppController
      **/
     public function detalhesBrinde(int $brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
 
@@ -581,26 +581,26 @@ class ClientesHasBrindesHabilitadosController extends AppController
      **/
     public function meusBrindesAtivados()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        if (isset($client_to_manage)) {
-            $cliente = $client_to_manage;
+        if (isset($clienteAdministrar)) {
+            $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $clientes_ids = [];
 
         // pega todas as unidades que o usuário possui acesso
 
-        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
         foreach ($unidadesIds as $key => $value) {
             $clientes_ids[] = $key;
@@ -663,11 +663,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
     public function escolherBrindeUnidade(int $clientes_id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $clientes_ids = [];
@@ -687,7 +687,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $clientes_ids[] = $value->clientes_id;
             }
 
-            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->user_logged['id'], $clientes_ids);
+            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $clientes_ids);
 
             $this->set(compact('brindes_habilitados', 'saldo_atual', 'redes_id'));
             $this->set('_serialize', ['brindes_habilitados', 'saldo_atual', 'redes_id']);
@@ -711,11 +711,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
     public function resgatarBrinde(int $brindes_habilitados_id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_habilitados_id);
@@ -732,7 +732,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $clientes_ids[] = $value->clientes_id;
             }
 
-            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->user_logged['id'], $clientes_ids);
+            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $clientes_ids);
 
             if ($this->request->is(['post', 'put'])) {
                 // verifica se o usuário tem saldo suficiente
@@ -769,7 +769,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                             // Guarda os cupons. A retirada dos produtos (diminuição do estoque)
                             // será somente no momento do resgate físico
 
-                            if ($cupom = $this->Cupons->addCuponsBrindesForUsuario($brinde_habilitado, $this->user_logged['id'], $quantidade)) {
+                            if ($cupom = $this->Cupons->addCuponsBrindesForUsuario($brinde_habilitado, $this->usuarioLogado['id'], $quantidade)) {
                                 // Adiciona novo registro de brinde ao usuário
 
                                 $this->UsuariosHasBrindes->addUsuarioHasBrindes(

@@ -11,7 +11,7 @@ use Cake\Core\Configure;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
         'Detalhes da Rede',

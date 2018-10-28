@@ -14,7 +14,7 @@
         'razao_social' => 'Razão Social',
         'cnpj' => 'CNPJ'
   ];
-  if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+  if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
       $list_options = [
         'nome_fantasia' => 'Nome Fantasia',
         'razao_social' => 'Razão Social',

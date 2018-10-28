@@ -38,7 +38,7 @@ class PagesController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * Initialize function
@@ -48,8 +48,6 @@ class PagesController extends AppController
         parent::initialize();
 
         $this->Auth->allow(['display']);
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**
@@ -79,14 +77,14 @@ class PagesController extends AppController
             }
         }
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed->toArray();
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar->toArray();
         }
 
-        $this->setDashboard($this->user_logged);
+        $this->setDashboard($this->usuarioLogado);
 
         $count = count($path);
         if (!$count) {
@@ -118,20 +116,20 @@ class PagesController extends AppController
     /**
      * Configura a dashboard a ser usada pelo usuário logado
      *
-     * @param array $user_logged Usuário logado
+     * @param array $usuarioLogado Usuário logado
      *
      * @return void
      */
-    public function setDashboard(array $user_logged = null)
+    public function setDashboard(array $usuarioLogado = null)
     {
-        if (!empty($user_logged)) {
-            if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if (!empty($usuarioLogado)) {
+            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $this->dashboardDesenvolvedor();
-            } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->dashboardAdministrador();
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
                 $this->dashboardGestor();
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 $this->dashboardFuncionario();
             } else {
                 $this->dashboardCliente();
@@ -148,14 +146,14 @@ class PagesController extends AppController
      */
     public function dashboardDesenvolvedor()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        if ($this->user_logged['tipo_perfil'] > 0) {
+        if ($this->usuarioLogado['tipo_perfil'] > 0) {
             $this->flash->warning('Esta dashboard só pode ser visualizada por um desenvolvedor');
             $this->redirectUrl(['controller' => 'pages', ['action' => 'index']]);
         }
@@ -171,19 +169,19 @@ class PagesController extends AppController
         try {
             $brindes_aguardando_autorizacao = [];
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             // Pega unidades que tem acesso
             $clientes_ids = [];
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
@@ -217,11 +215,11 @@ class PagesController extends AppController
      */
     public function dashboardGestor()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
     }
 
@@ -232,26 +230,26 @@ class PagesController extends AppController
      */
     public function dashboardFuncionario()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -265,9 +263,9 @@ class PagesController extends AppController
         $estado_funcionario = $cliente->estado;
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        // $usuario_logado_tipo_perfil = $funcionario->tipo_perfil;
-        $usuario_logado_tipo_perfil = 6;
-        $this->set(compact(['usuario', 'cliente', 'funcionario', 'estado_funcionario', 'usuario_logado_tipo_perfil', 'user_logged']));
+        // $usuarioLogadoTipoPerfil = $funcionario->tipo_perfil;
+        $usuarioLogadoTipoPerfil = 6;
+        $this->set(compact(['usuario', 'cliente', 'funcionario', 'estado_funcionario', 'usuarioLogadoTipoPerfil', 'usuarioLogado']));
 
         $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
         $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
@@ -280,10 +278,10 @@ class PagesController extends AppController
      */
     public function dashboardCliente()
     {
-        if ($this->user_logged) {
+        if ($this->usuarioLogado) {
 
             // id do usuário
-            $usuarios_id = $this->user_logged['id'];
+            $usuarios_id = $this->usuarioLogado['id'];
 
             // localiza quais as unidades o usuário tem pontuacao
 

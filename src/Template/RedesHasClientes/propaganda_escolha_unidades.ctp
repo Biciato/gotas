@@ -25,7 +25,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <legend>Escolha uma opção</legend>
 
-    <?php if ($userLogged["tipo_perfil"] <= Configure::read("profileTypes")["AdminNetworkProfileType"]) : ?>
+    <?php if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminNetworkProfileType"]) : ?>
 
     <div class="form-group row">
             <h4>Cadastrar para toda a Rede de atendimento:</h4>

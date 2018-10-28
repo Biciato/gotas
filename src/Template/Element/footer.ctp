@@ -1,7 +1,7 @@
 <?php
 
 
-$filialAdministrar= $this->request->session()->read('ClientToManage');
+$filialAdministrar= $this->request->session()->read('ClienteAdministrar');
 ?>
 
 <!-- <div id="footer_common">

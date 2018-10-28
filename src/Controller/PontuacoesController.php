@@ -26,7 +26,7 @@ class PontuacoesController extends AppController
      * Campos
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -51,9 +51,6 @@ class PontuacoesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**
@@ -239,19 +236,19 @@ class PontuacoesController extends AppController
     {
         // se o usuário que estiver logado for
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             // Pega unidades que tem acesso
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             $clientesIds = array();
 
@@ -260,7 +257,7 @@ class PontuacoesController extends AppController
             }
 
             // verifica se usuário é ao menos gerente
-            $this->security_util->checkUserIsAuthorized($this->user_logged, 'ManagerProfileType');
+            $this->security_util->checkUserIsAuthorized($this->usuarioLogado, 'ManagerProfileType');
 
             $pontuacoes_cliente = null;
 
@@ -471,14 +468,14 @@ class PontuacoesController extends AppController
     {
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $pontuacao = $this->PontuacoesComprovantes->getDetalhesCupomByCouponId($id);
 
@@ -487,7 +484,7 @@ class PontuacoesController extends AppController
             $array_set = [
                 'pontuacao',
                 'usuarios_id',
-                'user_logged'
+                'usuarioLogado'
             ];
 
             $this->set(compact($array_set));

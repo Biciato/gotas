@@ -13,7 +13,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['UserProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['UserProfileType']) {
 
     $this->Breadcrumbs->add(
         'Meus Veículos',

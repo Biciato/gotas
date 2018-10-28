@@ -224,7 +224,7 @@ $(document).ready(function () {
 
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-        var tipo_perfil = $(".usuario_logado_tipo_perfil").val();
+        var tipo_perfil = $(".usuarioLogadoTipoPerfil").val();
 
         if (tipo_perfil !== undefined) {
             if (tipo_perfil >= 0 && tipo_perfil <= 2) {

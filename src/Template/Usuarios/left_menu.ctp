@@ -74,7 +74,7 @@ $redes_id = isset($redes_id) ? $redes_id : null;
                 <?= $this->Html->link(__('Novo Funcionário'), ['action' => 'adicionar_operador', $redes_id]) ?>
             </li>
 
-            <?php if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
+            <?php if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
                 <?php if (isset($redes_id)) : ?>
 
                 <li>
@@ -105,7 +105,7 @@ $redes_id = isset($redes_id) ? $redes_id : null;
             <li><?= $this->Html->link(__('Usuários Aguardando Aprovação'), ['action' => 'usuarios_aguardando_aprovacao']) ?></li>
         <?php endif; ?>
 
-        <?php if ($user_logged["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]): ?>
+        <?php if ($usuarioLogado["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]): ?>
             <li class="active">
                 <?= $this->Html->link(__('Relatórios'), []) ?>
             </li>

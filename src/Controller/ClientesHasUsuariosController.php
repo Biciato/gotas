@@ -137,12 +137,12 @@ class ClientesHasUsuariosController extends AppController
     public function editarAdministracao($id = null)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -176,7 +176,7 @@ class ClientesHasUsuariosController extends AppController
 
             $clientes = $this->Clientes->getAllClientes($where_conditions);
 
-            $arraySet = array('usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes', "user_logged");
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', 'rede', 'clientes', "usuarioLogado");
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);

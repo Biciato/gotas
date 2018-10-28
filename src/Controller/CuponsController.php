@@ -29,7 +29,7 @@ class CuponsController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
 
     /**
@@ -158,16 +158,16 @@ class CuponsController extends AppController
     public function emissaoBrindeSuperiores()
     {
         $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_superiores");
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $cliente = $this->request->session()->read("Network.Unit");
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
 
         $arraySet = array(
             "cliente",
@@ -192,26 +192,26 @@ class CuponsController extends AppController
     {
         $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_avulso");
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -232,7 +232,7 @@ class CuponsController extends AppController
 
         $arraySet = array(
             "urlRedirectConfirmacao",
-            "user_logged",
+            "usuarioLogado",
             "usuario",
             "cliente",
             "clientes_id",
@@ -255,14 +255,14 @@ class CuponsController extends AppController
      */
     public function escolherBrinde()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
     }
 
     /**
@@ -273,36 +273,36 @@ class CuponsController extends AppController
      **/
     public function brindeShower()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        if (!is_null($client_to_manage)) {
-            $cliente = $client_to_manage;
+        if (!is_null($clienteAdministrar)) {
+            $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $unidades_ids = [];
 
         $clientes_ids = [];
 
         // Se o perfil é até administrador regional, pode filtrar por todas as unidades / unidades que tem acesso
-        if ($this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        if ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
             }
         } else {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
@@ -342,36 +342,36 @@ class CuponsController extends AppController
      **/
     public function brindeComum()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        if (!is_null($client_to_manage)) {
-            $cliente = $client_to_manage;
+        if (!is_null($clienteAdministrar)) {
+            $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $unidades_ids = [];
 
         $clientes_ids = [];
 
         // Se o perfil é até administrador regional, pode filtrar por todas as unidades / unidades que tem acesso
-        if ($this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        if ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
             }
         } else {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
@@ -417,22 +417,22 @@ class CuponsController extends AppController
      */
     public function historicoBrindes()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         // pega a rede e as unidades que o usuário tem acesso
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         // Pega unidades que tem acesso
         $clientesIds = [];
 
-        $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidadesAtendimento as $key => $value) {
             $clientesIds[] = $key;
@@ -523,16 +523,16 @@ class CuponsController extends AppController
      */
     public function detalhesTicket(int $id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $cupom = $this->Cupons->getCuponsById($id);
 
@@ -554,14 +554,14 @@ class CuponsController extends AppController
     public function imprimeBrindeComum(string $cupom_emitido)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
 
@@ -586,7 +586,7 @@ class CuponsController extends AppController
                 'data_impressao',
                 'produtos',
                 'redes_id',
-                'user_logged',
+                'usuarioLogado',
             ];
 
             $this->set(compact($arraySet));
@@ -609,14 +609,14 @@ class CuponsController extends AppController
     public function reimprimeBrindeComum(string $cupom_emitido)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
 
@@ -640,7 +640,7 @@ class CuponsController extends AppController
                 'data_impressao',
                 'produtos',
                 'redes_id',
-                'user_logged',
+                'usuarioLogado',
             ];
 
             $this->set(compact($arraySet));
@@ -709,21 +709,21 @@ class CuponsController extends AppController
      */
     public function verDetalhes(int $cupons_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
-        $usuario = $this->Usuarios->getUsuarioById($user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($usuarioLogado['id']);
 
         $cupom = $this->Cupons->getCuponsById($cupons_id);
 
-        $this->set(compact('cupom', 'user_logged'));
-        $this->set('_serialize', ['cupom', 'user_logged']);
+        $this->set(compact('cupom', 'usuarioLogado'));
+        $this->set('_serialize', ['cupom', 'usuarioLogado']);
     }
 
     /**
@@ -864,7 +864,7 @@ class CuponsController extends AppController
 
             $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             // pega id de todos os clientes que estão ligados à uma rede
 
@@ -2357,14 +2357,14 @@ class CuponsController extends AppController
      */
     private function processarCupom($cupons)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $funcionario = $this->user_logged;
+        $funcionario = $this->usuarioLogado;
 
         // checagem de cupons
 

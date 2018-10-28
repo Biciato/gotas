@@ -133,16 +133,16 @@ class UsuariosHasBrindesController extends AppController
      */
     public function historicoBrindes(int $usuarios_id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
-        $usuario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
         $usuario_id = is_null($usuarios_id) ? $usuario->id : $usuarios_id;
 
@@ -150,8 +150,8 @@ class UsuariosHasBrindesController extends AppController
 
         $this->paginate($brindes, ['limit' => 10]);
 
-        $this->set(compact('brindes', 'user_logged'));
-        $this->set('_serialize', ['brindes', 'user_logged']);
+        $this->set(compact('brindes', 'usuarioLogado'));
+        $this->set('_serialize', ['brindes', 'usuarioLogado']);
     }
 
     /**
@@ -184,18 +184,18 @@ class UsuariosHasBrindesController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
             // pegar rede que usuário está logado e suas unidades
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             $clientes_ids = [];
 
@@ -234,7 +234,7 @@ class UsuariosHasBrindesController extends AppController
             $array_set = [
                 'usuarios_has_brindes',
                 'usuario',
-                'user_logged',
+                'usuarioLogado',
                 'usuarios_id'
             ];
 

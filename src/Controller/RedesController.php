@@ -422,18 +422,18 @@ class RedesController extends AppController
     public function configurarPropaganda()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             // Se usuário não tem acesso, redireciona
-            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+            if (!$this->security_util->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             $rede = $this->Redes->getRedeById($rede["id"]);
 
@@ -484,7 +484,7 @@ class RedesController extends AppController
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        if (file_exists($imagemOriginal)){
+                        if (file_exists($imagemOriginal)) {
                             unlink($imagemOriginal);
                         }
                     }
@@ -922,9 +922,6 @@ class RedesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**

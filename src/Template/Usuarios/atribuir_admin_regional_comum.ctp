@@ -4,13 +4,13 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminDeveloperProfileType"])
+if ($usuarioLogado["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminDeveloperProfileType"])
 {
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
 
     $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'redes', 'action' => 'ver_detalhes', $redes_id]);
 }
-else if ($user_logged["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminNetworkProfileType"])
+else if ($usuarioLogado["tipo_perfil"] == (int) Configure::read("profileTypes")["AdminNetworkProfileType"])
 {
     $this->Breadcrumbs->add('Usuarios Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']);
 }
@@ -21,7 +21,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$user_is_admin = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
+$user_is_admin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
     || Configure::read('profileTypes')['AdminNetworkProfileType']
     || Configure::read('profileTypes')['AdminRegionalProfileType'];
 

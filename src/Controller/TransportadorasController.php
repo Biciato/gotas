@@ -23,7 +23,7 @@ use App\Custom\RTI\DebugUtil;
 class TransportadorasController extends AppController
 {
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * Index method
@@ -32,14 +32,14 @@ class TransportadorasController extends AppController
      */
     public function index()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!$this->security_util->checkUserIsAuthorized($this->user_logged, 'AdminDeveloperProfileType')) {
+        if (!$this->security_util->checkUserIsAuthorized($this->usuarioLogado, 'AdminDeveloperProfileType')) {
             $this->Flash->error(Configure::read("messageNotAuthorized"));
         }
 
@@ -176,14 +176,14 @@ class TransportadorasController extends AppController
     public function transportadorasUsuario(int $usuarios_id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            $rede = $this->request->session()->read("Network.Main");
+            $rede = $this->request->session()->read("Rede.Principal");
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $user_logged = $this->user_logged;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $this->usuarioLogado;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
@@ -218,7 +218,7 @@ class TransportadorasController extends AppController
                 'transportadora_has_usuario',
                 'usuarios_id',
                 'usuario',
-                "user_logged",
+                "usuarioLogado",
                 "rede"
             ];
 
@@ -243,18 +243,18 @@ class TransportadorasController extends AppController
     public function adicionarTransportadoraUsuarioFinal(int $usuarios_id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
-            $rede = $this->request->session()->read('Network.Main');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $rede = $this->request->session()->read('Rede.Principal');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $transportadora = $this->Transportadoras->newEntity();
@@ -305,7 +305,7 @@ class TransportadorasController extends AppController
             $arraySet = [
                 'transportadora',
                 'usuario',
-                'user_logged',
+                'usuarioLogado',
                 'usuarios_id',
                 "rede"
             ];
@@ -522,9 +522,6 @@ class TransportadorasController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        // $this->user_logged = $this->getUserLogged();
-        // $this->set('user_logged', $this->getUserLogged());
 
     }
 

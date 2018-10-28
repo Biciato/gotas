@@ -8,7 +8,7 @@ use Cake\Core\Configure;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
     $this->Breadcrumbs->add('Escolher Unidade para Configurar Propagandas', array("controller" => "RedesHasClientes", "action" => "propaganda_escolha_unidades"));
 }
 $this->Breadcrumbs->add('Propaganda Para a Unidade', array(), array("class" => "active"));

@@ -9,7 +9,7 @@
  use Cake\Routing\Router;
 ?>
 
-<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => 'dados_minha_rede', 'user_logged' => $user_logged, 'showAdministratorsNetwork' => false]) ?>
+<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => 'dados_minha_rede', 'usuarioLogado' => $usuarioLogado, 'showAdministratorsNetwork' => false]) ?>
 
     <div class="clientes index col-lg-9 col-md-10 columns content">
 
@@ -65,7 +65,7 @@
 
                     <td class="actions" style="white-space:nowrap">
 
-                        <?php if ($user_logged['id'] != $usuario['usuarios']['id']): ?>
+                        <?php if ($usuarioLogado['id'] != $usuario['usuarios']['id']): ?>
                         <?php if (is_null($usuario['chu']['id'])){ ?>
 
                         <?= $this->Html->link(__('{0} Atribuir',
@@ -148,7 +148,7 @@
                             ); ?>
                                 <?php } else { ?>
                                 <?= __("Já alocado em outra unidade!") ?>
-                                    <?php if ((($user_logged['tipo_perfil'] <= 1) && ($user_logged['matriz_id'] != $cliente->matriz_id)) || ($user_logged['matriz_id'] == $cliente->matriz_id)){ 
+                                    <?php if ((($usuarioLogado['tipo_perfil'] <= 1) && ($usuarioLogado['matriz_id'] != $cliente->matriz_id)) || ($usuarioLogado['matriz_id'] == $cliente->matriz_id)){ 
                             echo "<br />";
                             ?>
 

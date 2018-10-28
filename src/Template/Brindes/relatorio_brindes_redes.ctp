@@ -28,8 +28,8 @@ echo $this->Breadcrumbs->render(
 <?= $this->element(
     '../Brindes/left_menu',
     [
-        'show_reports_admin_rti' => $user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType'],
-        'show_reports_admin' => $user_logged['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminLocalProfileType']
+        'show_reports_admin_rti' => $usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType'],
+        'show_reports_admin' => $usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminLocalProfileType']
 
     ]
 ) ?>

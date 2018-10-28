@@ -10,7 +10,7 @@ if (!isset($mode)) {
     $mode = 999;
 }
 
-$cliente_session = $this->request->session()->read('Network.Unit');
+$cliente_session = $this->request->session()->read('Rede.PontoAtendimento');
 
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
 $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;

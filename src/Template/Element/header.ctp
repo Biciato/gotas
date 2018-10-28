@@ -2,21 +2,21 @@
 
 use Cake\Routing\Router;
 
-$filial_administrar= $this->request->session()->read('ClientToManage');
+$filial_administrar= $this->request->session()->read('ClienteAdministrar');
 
-$user_admin = $this->request->session()->read('User.RootLogged');
-$user_managed = $this->request->session()->read('User.ToManage');
+$usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+$usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
 ?>
 
-<?php if (isset($filial_administrar) && isset($user_logged)): ?>
+<?php if (isset($filial_administrar) && isset($usuarioLogado)): ?>
 <div class="header">
 
 <div id="header-management">
 	<div class="branch-management">
 
 		
-		<?= $this->Html->tag('span', __("Usuário [{0}] administrando unidade [{1} / {2}]. Clique no botão para encerrar:", $user_logged['nome'], $filial_administrar['razao_social'], $filial_administrar['nome_fantasia'] ))?>
+		<?= $this->Html->tag('span', __("Usuário [{0}] administrando unidade [{1} / {2}]. Clique no botão para encerrar:", $usuarioLogado['nome'], $filial_administrar['razao_social'], $filial_administrar['nome_fantasia'] ))?>
 		
 		<?= $this->Html->link(
 			__('{0} Encerrar gerenciamento',
@@ -39,14 +39,14 @@ $user_managed = $this->request->session()->read('User.ToManage');
 <?php endif; ?>
 
 
-<?php if (isset($user_managed) && isset($user_admin)): ?>
+<?php if (isset($usuarioAdministrar) && isset($usuarioAdministrador)): ?>
 <div class="header">
 
 <div id="header-management">
 	<div class="user-management">
 
 		
-		<?= $this->Html->tag('span', __("Administrador [{0}] administrando usuário {1}. Clique no botão para encerrar:", $user_admin['nome'], $user_managed['nome']))?>
+		<?= $this->Html->tag('span', __("Administrador [{0}] administrando usuário {1}. Clique no botão para encerrar:", $usuarioAdministrador['nome'], $usuarioAdministrar['nome']))?>
 		
 		<?= $this->Html->link(
 			__('{0} Encerrar gerenciamento',
@@ -56,7 +56,7 @@ $user_managed = $this->request->session()->read('User.ToManage');
 				'class'=>'btn btn-primary btn-quit-manage-unit',
 				'data-toggle'=> 'modal',
 				'data-target' => '#modal-confirm-with-message',
-				'data-message' => __('Deseja encerrar o gerenciamento do usuário {0} ?', $user_managed['nome']),
+				'data-message' => __('Deseja encerrar o gerenciamento do usuário {0} ?', $usuarioAdministrar['nome']),
 				'data-action'=> Router::url(
 					['controller' => 'usuarios', 'action' => 'finalizar_administracao_usuario']
 				),

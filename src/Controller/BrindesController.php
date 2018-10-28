@@ -29,7 +29,7 @@ class BrindesController extends AppController
      * Campos
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -152,14 +152,14 @@ class BrindesController extends AppController
      */
     public function brindesMinhaRede($param = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $clientes_ids = [];
 
@@ -233,16 +233,16 @@ class BrindesController extends AppController
 
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
-            $rede = $this->request->session()->read('Network.Main');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $rede = $this->request->session()->read('Rede.Principal');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
-                $this->user_logged,
+                $this->usuarioLogado,
                 $this->Clientes,
                 $this->ClientesHasUsuarios,
                 array(),
@@ -283,28 +283,28 @@ class BrindesController extends AppController
         $editMode = 0;
 
         try {
-            $rede = $this->request->session()->read("Network.Main");
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $rede = $this->request->session()->read("Rede.Principal");
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $clientesId = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
             // verifica se usuário é pelo menos administrador.
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->security_util->redirectUserNotAuthorized($this);
             }
             // Verifica permissão do usuário na rede / unidade da rede
 
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
 
             // Se não tem acesso, redireciona
             if (!$temAcesso) {
-                return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
+                return $this->security_util->redirectUserNotAuthorized($this, $this->usuarioLogado);
             }
 
             $brinde = $this->Brindes->newEntity();
@@ -402,7 +402,7 @@ class BrindesController extends AppController
                                 $result
                                     = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                                     $clienteHasBrindeHabilitado->id,
-                                    $this->user_logged['id'],
+                                    $this->usuarioLogado['id'],
                                     0,
                                     0
                                 );
@@ -475,16 +475,16 @@ class BrindesController extends AppController
             $imagemOriginalDisco = __("{0}{1}{2}", WWW_ROOT, Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
         }
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-        $rede = $this->request->session()->read("Network.Main");
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read("Rede.Principal");
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
-            $this->user_logged,
+            $this->usuarioLogado,
             $this->Clientes,
             $this->ClientesHasUsuarios,
             array(),
@@ -607,27 +607,27 @@ class BrindesController extends AppController
     public function impressaoRapida()
     {
         $urlRedirectConfirmacao = array("controller" => "Brindes", "action" => "impressao_rapida");
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -647,7 +647,7 @@ class BrindesController extends AppController
         $veiculoPath = "UsuariosHasVeiculos.Veiculos.";
 
         $arraySet = array(
-            "user_logged",
+            "usuarioLogado",
             "usuario",
             "cliente",
             "clientes_id",
@@ -984,8 +984,5 @@ class BrindesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 }

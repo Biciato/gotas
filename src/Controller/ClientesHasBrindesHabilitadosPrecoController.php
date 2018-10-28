@@ -29,7 +29,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
 
     /**
@@ -153,16 +153,16 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      */
     public function novoPrecoBrinde($brindesId)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read("Network.Main");
+        $rede = $this->request->session()->read("Rede.Principal");
 
-        // $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        // $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
@@ -228,7 +228,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * maior que Administrador Local, não permite continuar
                  */
                 if ($ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
-                    if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                    if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
                         $this->Flash->error("Este brinde já possui um preço pendente de autorização. Não será possível cadastrar um novo até que o anterior seja autorizado ou negado!");
 
@@ -259,7 +259,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             // DebugUtil::printArray($clientesId);
 
-            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $requerAutorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
             }
 
@@ -327,14 +327,14 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
     public function brindesAguardandoAprovacao()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
@@ -344,7 +344,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
                     // Pega unidades que tem acesso
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                             // $clientes_ids[] = $value['clientes_id'];

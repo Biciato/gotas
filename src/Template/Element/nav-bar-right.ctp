@@ -6,21 +6,21 @@ use Cake\Routing\Router;
  * Controla o menu à direita
  *
  */
-$user_logged = $this->request->session()->read('Auth.User');
-$client_to_manage = $this->request->session()->read('ClientToManage');
-$clienteGerenciado = $this->request->session()->read('Network.Unit');
+$usuarioLogado = $this->request->session()->read('Auth.User');
+$clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+$clienteGerenciado = $this->request->session()->read('Rede.PontoAtendimento');
 
-$user_admin = $this->request->session()->read('User.RootLogged');
+$usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
 
-$rede = $this->request->session()->read('Network.Main');
+$rede = $this->request->session()->read('Rede.Principal');
 
-$user_managed = null;
-if (isset($user_admin)) {
-    $user_admin = $user_logged;
-    $user_logged = $this->request->session()->read('User.ToManage');
+$usuarioAdministrar = null;
+if (isset($usuarioAdministrador)) {
+    $usuarioAdministrador = $usuarioLogado;
+    $usuarioLogado = $this->request->session()->read('Usuario.Administrar');
 }
 
-if (empty($user_logged)) {
+if (empty($usuarioLogado)) {
     ?>
 
     <ul class="nav navbar-nav navbar-right">
@@ -37,7 +37,7 @@ if (empty($user_logged)) {
     <?php
 
 } else {
-    if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+    if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
         ?>
 
         <ul class="nav navbar-nav navbar-right">
@@ -235,7 +235,7 @@ if (empty($user_logged)) {
 
             // Administrador de Rede ou Regional
 
-            else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
                 ?>
             <ul class="nav navbar-nav navbar-right">
@@ -261,7 +261,7 @@ if (empty($user_logged)) {
 
                     <?php
                     //brinde só pode ser cadastrado por um Administrador da Rede
-                    if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
+                    if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                         ?>
 
                         <li>
@@ -278,7 +278,7 @@ if (empty($user_logged)) {
 
                     <?php
                     //Preço de brinde pendente só pode ser autorizado por um administrador que seja pelo menos regional
-                    if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                    if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
                         ?>
 
                         <li>
@@ -326,7 +326,7 @@ if (empty($user_logged)) {
 
             }
             // Administrador da loja
-            else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+            else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
 
                 ?>
             <ul class="nav navbar-nav navbar-right">
@@ -391,7 +391,7 @@ if (empty($user_logged)) {
 
             <?php
 
-        } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+        } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
 
             // Gerente
 
@@ -443,7 +443,7 @@ if (empty($user_logged)) {
 
                 <?php
 
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 // Funcionário
 
                 ?>

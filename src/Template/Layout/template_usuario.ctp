@@ -21,12 +21,12 @@
  */
 use Cake\Core\Configure;
 
-$user_logged = $this->Auth->user();
+$usuarioLogado = $this->Auth->user();
 
-if (empty($user_logged['nome'])) {
+if (empty($usuarioLogado['nome'])) {
     $cakeDescription = 'GOTAS';
 } else {
-    $cakeDescription = 'GOTAS - Cliente ' . $user_logged['nome'];
+    $cakeDescription = 'GOTAS - Cliente ' . $usuarioLogado['nome'];
 }
 
 ?>

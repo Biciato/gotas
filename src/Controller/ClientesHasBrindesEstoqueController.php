@@ -28,7 +28,7 @@ class ClientesHasBrindesEstoqueController extends AppController
      * ------------------------------------------------------------
      */
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -154,11 +154,11 @@ class ClientesHasBrindesEstoqueController extends AppController
      */
     public function gerenciarEstoque($brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -183,11 +183,11 @@ class ClientesHasBrindesEstoqueController extends AppController
      **/
     public function adicionarEstoque($brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -200,7 +200,7 @@ class ClientesHasBrindesEstoqueController extends AppController
             $data = $this->request->getData();
 
             $data['clientes_has_brindes_habilitados_id'] = $brinde->id;
-            $data['usuarios_id'] = $this->user_logged['id'];
+            $data['usuarios_id'] = $this->usuarioLogado['id'];
             $data['data'] = date('Y-m-d H:i:s');
             $data['tipo_operacao'] = Configure::read('stockOperationTypes')['addType'];
 
@@ -235,13 +235,13 @@ class ClientesHasBrindesEstoqueController extends AppController
      **/
     public function vendaManualEstoque($brindesId)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-        $rede = $this->request->session()->read('Network.Main');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read('Rede.Principal');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
@@ -324,7 +324,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                         $usuario->id,
                         $brinde->id,
                         $totalPontosAGastar,
-                        $this->user_logged["id"],
+                        $this->usuarioLogado["id"],
                         true
                     );
 
@@ -597,8 +597,5 @@ class ClientesHasBrindesEstoqueController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 }

@@ -33,7 +33,7 @@ echo $this->Breadcrumbs->render(
     <legend><?= h($rede->nome_rede) ?></legend>
     <?= $this->element('../Redes/tabela_info_redes') ?>
 
-    <?= $this->element('../Clientes/filtro_clientes', ['controller' => 'redes', 'action' => 'ver_detalhes', "id" => $rede->id, 'user_logged' => $user_logged]) ?>
+    <?= $this->element('../Clientes/filtro_clientes', ['controller' => 'redes', 'action' => 'ver_detalhes', "id" => $rede->id, 'usuarioLogado' => $usuarioLogado]) ?>
 
     <table class="table table-striped table-hover">
         <thead>

@@ -6,13 +6,13 @@ use Cake\Core\Configure;
 $item_selected = isset($item_selected) ? $item_selected : null;
 $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
-$tipoPerfil = isset($user_logged) ? $user_logged["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
+$tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
 
-$user_managed = $this->request->session()->read("User.ToManage");
+$usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
 
-if (!empty($user_managed)) {
-    $user_logged = $user_managed;
-    $tipoPerfil = $user_logged["tipo_perfil"];
+if (!empty($usuarioAdministrar)) {
+    $usuarioLogado = $usuarioAdministrar;
+    $tipoPerfil = $usuarioLogado["tipo_perfil"];
 }
 ?>
 

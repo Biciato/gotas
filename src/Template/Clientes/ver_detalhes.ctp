@@ -20,7 +20,7 @@ echo $this->Breadcrumbs->render(
 $controller_voltar = null;
 $action_voltar = null;
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $controller_voltar = 'redes';
     $action_voltar = 'ver_detalhes';
     $id_voltar = $cliente->rede_has_cliente->redes_id;

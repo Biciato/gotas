@@ -50,7 +50,7 @@ $show_actions = isset($show_actions) ? $show_actions : true;
         
         <td>
 
-            <?php if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) : ?> 
+            <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) : ?> 
             <?= $this->Html->link(
                 __(
                     "{0} Editar",

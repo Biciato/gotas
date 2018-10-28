@@ -20,11 +20,11 @@ use Cake\Routing\Router;
 
     <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
     <?= $this->Form->hidden('clientes_id', ['id' => 'clientes_id', 'value' => isset($clientes_id) ? $clientes_id : null]); ?>
-    <?= $this->Form->hidden('usuario_logado_tipo_perfil', ['value' => $usuario_logado_tipo_perfil, 'class' => 'usuario_logado_tipo_perfil']); ?>
+    <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
 
     <div class="form-group row">
 
-        <?php if ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
+        <?php if ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
             <div class='col-lg-4'>
                 <?php if (isset($redes_id)) : ?>
                     <?= $this->Form->input('tipo_perfil', [
@@ -102,8 +102,8 @@ use Cake\Routing\Router;
                 )
                 ?>
             </div>
-            <?php elseif (($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminNetworkProfileType'])
-                && ($user_logged["id"] !== $usuario["id"])) : ?>
+            <?php elseif (($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminNetworkProfileType'])
+                && ($usuarioLogado["id"] !== $usuario["id"])) : ?>
 
                 <div class='col-lg-6'>
                     <!-- Tipo Perfil -->
@@ -136,7 +136,7 @@ use Cake\Routing\Router;
                     ); ?>
 
                 </div>
-                    <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
+                    <?php elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
                         <div class="col-lg-6">
                             <!-- Tipo Perfil -->
                             <?= $this->Form->input('tipo_perfil', [
@@ -168,7 +168,7 @@ use Cake\Routing\Router;
                                 ]
                             ); ?>
                         </div>
-                    <?php elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminLocalProfileType']) : ?>
+                    <?php elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminLocalProfileType']) : ?>
                         <div class="col-lg-12">
                             <!-- Tipo Perfil -->
                             <?= $this->Form->input('tipo_perfil', [
@@ -183,7 +183,7 @@ use Cake\Routing\Router;
                                 )
                             ]) ?>
                         </div>
-                    <?php elseif ($usuario_logado_tipo_perfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>
+                    <?php elseif ($usuarioLogadoTipoPerfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>
                         <!-- Tipo Perfil -->
                         <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => '5']) ?>
                     <?php endif; ?>

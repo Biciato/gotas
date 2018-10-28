@@ -27,7 +27,7 @@ use App\Custom\RTI\DebugUtil;
  */
 class UsuariosController extends AppController
 {
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -72,7 +72,7 @@ class UsuariosController extends AppController
                         if ($cliente) {
                             // TODO: correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
                             // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                            $this->request->session()->write('Network.Unit', $cliente);
+                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
                         }
 
                         // verifica qual rede o usuário se encontra (somente funcionários)
@@ -82,7 +82,7 @@ class UsuariosController extends AppController
 
                         $rede = $redeHasCliente["rede"];
 
-                        $this->request->session()->write('Network.Main', $rede);
+                        $this->request->session()->write('Rede.Principal', $rede);
                     }
 
                     // return $this->redirect($this->Auth->redirectUrl());
@@ -121,15 +121,15 @@ class UsuariosController extends AppController
     public function logout()
     {
         // limpa as informações de session
-        $this->request->session()->delete('User.RootLogged');
+        $this->request->session()->delete('Usuario.AdministradorLogado');
         $this->request->session()->delete('Cliente');
-        $this->request->session()->delete('ClientToManage');
+        $this->request->session()->delete('ClienteAdministrar');
         $this->request->session()->delete('Auth.User');
 
-        $user_managed = null;
-        if (isset($user_admin)) {
-            $user_admin = $user_logged;
-            $user_logged = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrar = null;
+        if (isset($usuarioAdministrador)) {
+            $usuarioAdministrador = $usuarioLogado;
+            $usuarioLogado = $this->request->session()->read('Usuario.Administrar');
         }
 
         return $this->redirect($this->Auth->logout());
@@ -196,12 +196,6 @@ class UsuariosController extends AppController
      */
     public function index()
     {
-        $conditions = [];
-
-        $entire_network = false;
-
-        $search_by_rede = false;
-
         $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
         $tipoPerfil = null;
         $tipoPerfilMin = Configure::read("profileTypes")["AdminDeveloperProfileType"];
@@ -213,8 +207,6 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-
-            // DebugUtil::print($data);
 
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
 
@@ -259,14 +251,14 @@ class UsuariosController extends AppController
      */
     public function view($id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        $rede = $this->request->session()->read("Network.Main");
+        $rede = $this->request->session()->read("Rede.Principal");
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $this->user_logged;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $this->usuarioLogado;
         }
 
         $usuario = $this->Usuarios->get(
@@ -276,7 +268,7 @@ class UsuariosController extends AppController
             ]
         );
 
-        $arraySet = array("usuario", "user_logged", "rede");
+        $arraySet = array("usuario", "usuarioLogado", "rede");
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -317,14 +309,14 @@ class UsuariosController extends AppController
     {
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             $usuario = $this->Usuarios->get(
                 $id,
@@ -355,10 +347,10 @@ class UsuariosController extends AppController
                 }
             }
 
-            $usuario_logado_tipo_perfil = (int)Configure::read('profileTypes')['UserProfileType'];
+            $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
 
-            $this->set(compact(['usuario', 'usuario_logado_tipo_perfil']));
-            $this->set('_serialize', ['usuario', 'usuario_logado_tipo_perfil']);
+            $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
+            $this->set('_serialize', ['usuario', 'usuarioLogadoTipoPerfil']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -377,14 +369,14 @@ class UsuariosController extends AppController
      */
     public function meuPerfil()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $usuario = $this->Usuarios->get($this->user_logged['id']);
+        $usuario = $this->Usuarios->get($this->usuarioLogado['id']);
 
         $this->set('usuario', $usuario);
         $this->set('_serialize', ['usuario']);
@@ -638,11 +630,11 @@ class UsuariosController extends AppController
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         if ($this->request->is(['post', 'put'])) {
@@ -652,19 +644,19 @@ class UsuariosController extends AppController
 
             $cliente = null;
 
-            if (isset($this->user_logged)) {
+            if (isset($this->usuarioLogado)) {
 
                 $cliente_has_usuario =
                     $this->ClientesHasUsuarios->findClienteHasUsuario(
                     [
-                        'ClientesHasUsuarios.usuarios_id' => $this->user_logged['id'],
-                        'ClientesHasUsuarios.tipo_perfil' => $this->user_logged['tipo_perfil']
+                        'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'],
+                        'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
                     ]
                 )->first();
 
                 $cliente_id = isset($cliente_has_usuario) ? $cliente_has_usuario->clientes_id : null;
 
-                $client_to_manage = $this->request->session()->read('ClientToManage');
+                $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
                 $transportadoraData = $usuarioData['TransportadorasHasUsuarios']['Transportadoras'];
                 $veiculosData = $usuarioData['UsuariosHasVeiculos']['Veiculos'];
@@ -690,7 +682,7 @@ class UsuariosController extends AppController
                 $usuarioData['data_limite_aprovacao'] = date('Y-m-d H:i:s', strtotime('+7 days'));
             }
 
-            if (isset($this->user_logged)) {
+            if (isset($this->usuarioLogado)) {
                 if (strlen($veiculosData["placa"]) > 0) {
                     $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
 
@@ -750,7 +742,7 @@ class UsuariosController extends AppController
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
                 $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
 
-                if (isset($this->user_logged)) {
+                if (isset($this->usuarioLogado)) {
                     if ($transportadora) {
                         $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
                     }
@@ -766,11 +758,11 @@ class UsuariosController extends AppController
 
                 $this->Flash->success(__('O usuário foi criado com sucesso.'));
 
-                if (isset($this->user_logged)) {
+                if (isset($this->usuarioLogado)) {
 
-                    if ($this->user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                    if ($this->usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         return $this->redirect(['action' => 'index']);
-                    } else if ($this->user_logged['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['ManagerProfileType']) {
+                    } else if ($this->usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['ManagerProfileType']) {
                         return $this->redirect(['action' => 'meus_clientes']);
                     } else {
                         return $this->redirect(['controller' => 'pages', 'action' => 'index']);
@@ -792,13 +784,13 @@ class UsuariosController extends AppController
             }
         }
 
-        $usuario_logado_tipo_perfil = (int)Configure::read('profileTypes')['UserProfileType'];
+        $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
 
-        $this->set(compact(['usuario', 'usuario_logado_tipo_perfil']));
+        $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
         $this->set('_serialize', ['usuario', 'transportadora']);
         $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
         $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
-        $this->set('user_logged', $this->user_logged);
+        $this->set('usuarioLogado', $this->usuarioLogado);
     }
 
     /**
@@ -1099,11 +1091,11 @@ class UsuariosController extends AppController
     public function editar($id = null)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -1137,19 +1129,19 @@ class UsuariosController extends AppController
                 $redesConditions[] = ['id' => $redes_id];
             }
 
-            if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+            if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $redes = $this->Redes->getRedesList($redes_id);
-            } else if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            } else if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // pega o Id de cliente que o usuário se encontra
                 // AdminLocalProfileType
 
                 // TODO: terminar de ajustar
-                $clienteId = $this->RedesHasClientesAdministradores->getRedesHasClientesAdministradorByUsuariosId($this->user_logged['id']);
+                $clienteId = $this->RedesHasClientesAdministradores->getRedesHasClientesAdministradorByUsuariosId($this->usuarioLogado['id']);
             }
 
             if ($this->request->is(['post', 'put'])) {
 
-                if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     $this->Usuarios->validator('EditUsuarioInfo')->remove('cpf');
                 }
 
@@ -1174,7 +1166,7 @@ class UsuariosController extends AppController
                 if ($this->Usuarios->save($usuario)) {
                     $this->Flash->success(__('O usuário foi gravado com sucesso.'));
 
-                    if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                    if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         $url = Router::url(['controller' => 'Usuarios', 'action' => 'index']);
 
                         return $this->response = $this->response->withLocation($url);
@@ -1187,7 +1179,7 @@ class UsuariosController extends AppController
                     $this->Flash->error(__('O usuário não pode ser atualizado.'));
                 }
             }
-            $usuarioLogadoTipoPerfil = $this->user_logged['tipo_perfil'];
+            $usuarioLogadoTipoPerfil = $this->usuarioLogado['tipo_perfil'];
 
             $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', 'rede', 'redes', 'redesId', 'cliente');
             $this->set(compact($arraySet));
@@ -1369,15 +1361,15 @@ class UsuariosController extends AppController
      */
     public function adicionarConta(int $redes_id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $userManaged = $this->request->session()->read('User.ToManage');
-        $rede = $this->request->session()->read('Network.Main');
-        $client_to_manage = $this->request->session()->read('ClientToManage');
-        $cliente = $this->request->session()->read("Network.Unit");
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read('Rede.Principal');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
 
-        if ($user_admin) {
-            $this->user_logged = $userManaged;
-            $user_logged = $userManaged;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         $usuario = $this->Usuarios->newEntity();
@@ -1389,7 +1381,7 @@ class UsuariosController extends AppController
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -1403,7 +1395,7 @@ class UsuariosController extends AppController
             $redes_conditions[] = ['id' => $redes_id];
         }
 
-        if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
             if (is_null($redes_id) && isset($rede)) {
                 $redes_id = $rede->id;
@@ -1426,7 +1418,7 @@ class UsuariosController extends AppController
 
             $tipo_perfil = $data['tipo_perfil'];
 
-            if (isset($this->user_logged)) {
+            if (isset($this->usuarioLogado)) {
                 $transportadoraData = null;
                 $veiculosData = null;
 
@@ -1464,7 +1456,7 @@ class UsuariosController extends AppController
                 $usuarioData['data_limite_aprovacao'] = date('Y-m-d H:i:s', strtotime('+7 days'));
             }
 
-            if (isset($this->user_logged)) {
+            if (isset($this->usuarioLogado)) {
                 $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
                 $veiculoDataBase = $veiculoDataBase["veiculo"];
 
@@ -1564,8 +1556,8 @@ class UsuariosController extends AppController
 
 
                 // se quem está fazendo o cadastro é administrador da rede até gerente
-                if ($this->user_logged['tipo_perfil'] >= (Configure::read('profileTypes')['AdminNetworkProfileType'])
-                    && $this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+                if ($this->usuarioLogado['tipo_perfil'] >= (Configure::read('profileTypes')['AdminNetworkProfileType'])
+                    && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
 
                     // se cadastrou um usuário, retorna à meus clientes,
                     // caso contrário, retorna à usuários da rede
@@ -1576,7 +1568,7 @@ class UsuariosController extends AppController
                     }
                 } else {
                     // se é administrador rti
-                    if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                    if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         // se está mexendo em um cadastro de rede,
                         // redireciona para os usuários daquela rede
                         if (isset($redes_id)) {
@@ -1599,9 +1591,9 @@ class UsuariosController extends AppController
         }
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        $usuario_logado_tipo_perfil = 6;
+        $usuarioLogadoTipoPerfil = 6;
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuario_logado_tipo_perfil');
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil');
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -1621,7 +1613,7 @@ class UsuariosController extends AppController
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        $rede = $this->request->session()->read("Network.Main");
+        $rede = $this->request->session()->read("Rede.Principal");
 
         if (empty($rede) && !empty($redes_id)) {
             $rede = $this->Redes->getRedeById($redes_id);
@@ -1629,20 +1621,20 @@ class UsuariosController extends AppController
 
         $redes_id = $rede["id"];
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-        $user_logged = $this->user_logged;
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->usuarioLogado;
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        $usuario_logado_tipo_perfil = $user_logged['tipo_perfil'];
-        $rede = $this->request->session()->read('Network.Main');
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
+        $rede = $this->request->session()->read('Rede.Principal');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        if ($this->user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
             if (is_null($redes_id) && isset($rede)) {
                 $redes_id = $rede["id"];
@@ -1653,9 +1645,9 @@ class UsuariosController extends AppController
             }
         }
 
-        if ($user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $user_logged["id"]);
+        if ($usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $usuarioLogado["id"]);
         }
 
         $redes = $this->Redes->getRedesList($redes_id);
@@ -1679,10 +1671,10 @@ class UsuariosController extends AppController
 
             // Se quem está cadastrando é um  Administrador Comum >= Funcionário, pega o local onde o Funcionário está e vincula ao mesmo lugar.
 
-            if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminLocalProfileType']
-                && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['WorkerProfileType']) {
+            if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminLocalProfileType']
+                && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['WorkerProfileType']) {
 
-                $cliente = $this->request->session()->read('Network.Unit');
+                $cliente = $this->request->session()->read('Rede.PontoAtendimento');
 
                 $data['clientes_id'] = $cliente->id;
                 $clientes_id = $cliente->id;
@@ -1701,8 +1693,8 @@ class UsuariosController extends AppController
                     'rede',
                     'redes',
                     'redes_id',
-                    'usuario_logado_tipo_perfil',
-                    'user_logged'
+                    'usuarioLogadoTipoPerfil',
+                    'usuarioLogado'
                 ];
 
                 $this->set(compact($arraySet));
@@ -1783,10 +1775,10 @@ class UsuariosController extends AppController
             'rede',
             'redes',
             'redes_id',
-            'usuario_logado_tipo_perfil',
+            'usuarioLogadoTipoPerfil',
             "unidadesRede",
             "unidadeRedeId",
-            'user_logged'
+            'usuarioLogado'
         );
 
         $this->set(compact($arraySet));
@@ -1805,15 +1797,15 @@ class UsuariosController extends AppController
         $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
 
         // DebugUtil::print($usuario);
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
@@ -1832,7 +1824,7 @@ class UsuariosController extends AppController
             $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
         }
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
         $redes_id = $rede["id"];
 
@@ -1840,9 +1832,9 @@ class UsuariosController extends AppController
 
         $unidadesRede = array();
         $unidadeRedeId = 0;
-        if ($user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $user_logged["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $user_logged["id"]);
+        if ($usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $usuarioLogado["id"]);
 
         }
         // Como estamos editando, o usuário já tem vinculo
@@ -1928,10 +1920,10 @@ class UsuariosController extends AppController
             'clientes_id',
             "unidadesRede",
             "unidadeRedeId",
-            'usuario_logado_tipo_perfil',
-            "user_logged"
+            'usuarioLogadoTipoPerfil',
+            "usuarioLogado"
         );
-        $usuario_logado_tipo_perfil = $this->user_logged['tipo_perfil'];
+        $usuarioLogadoTipoPerfil = $this->usuarioLogado['tipo_perfil'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -2199,11 +2191,11 @@ class UsuariosController extends AppController
                 $usuario->senha = null;
             }
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $this->set('usuario', $usuario);
@@ -2227,9 +2219,9 @@ class UsuariosController extends AppController
                             // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
                             $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
 
-                            if ($this->user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                            if ($this->usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                                 return $this->redirect(array('action' => 'index'));
-                            } else if ($this->user_logged['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) {
+                            } else if ($this->usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) {
                                 return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                             } else {
                                 return $this->redirect(['controller' => 'usuarios', 'action' => 'meu_perfil']);
@@ -2263,21 +2255,21 @@ class UsuariosController extends AppController
      */
     public function usuariosRede(int $redesId = null)
     {
-        $rede = $this->request->session()->read("Network.Main");
+        $rede = $this->request->session()->read("Rede.Principal");
 
         if (!empty($rede)) {
             $redesId = $rede["id"];
         }
 
-        $cliente = $this->request->session()->read('Network.Unit');
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $cliente = $this->request->session()->read('Rede.PontoAtendimento');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        $userAdmin = $this->request->session()->read('User.RootLogged');
-        $userManaged = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($userAdmin) {
-            $this->user_logged = $userManaged;
-            $userLogged = $this->user_logged;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $this->usuarioLogado;
         }
 
         $clientesIds = array();
@@ -2285,7 +2277,7 @@ class UsuariosController extends AppController
         $conditions = array();
 
         // se for developer / rti / rede, mostra todas as unidades da rede
-        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->user_logged['id']);
+        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->usuarioLogado['id']);
 
         if (!is_null($unidadesIds)) {
             foreach ($unidadesIds as $key => $value) {
@@ -2334,7 +2326,8 @@ class UsuariosController extends AppController
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
 
-        $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'userLogged');
+        // $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'usuarioLogado');
+        $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId');
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -2349,22 +2342,22 @@ class UsuariosController extends AppController
      */
     public function atribuirAdminRegionalComum(int $redes_id = null)
     {
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         if (empty($rede)) {
             $rede = $this->Redes->getRedeById($redes_id);
         }
 
         $redes_id = $rede["id"];
-        $cliente = $this->request->session()->read('Network.Unit');
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $cliente = $this->request->session()->read('Rede.PontoAtendimento');
+        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
-            $user_logged = $this->user_logged;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $this->usuarioLogado;
         }
 
         $conditions = [];
@@ -2378,7 +2371,7 @@ class UsuariosController extends AppController
 
         $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->user_logged['id']);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $this->usuarioLogado['id']);
 
         if (!is_null($unidades_ids)) {
             foreach ($unidades_ids as $key => $value) {
@@ -2428,7 +2421,7 @@ class UsuariosController extends AppController
             'unidades_ids',
             'rede',
             'redes_id',
-            "user_logged"
+            "usuarioLogado"
 
         ];
         $this->set(compact($arraySet));
@@ -2442,14 +2435,14 @@ class UsuariosController extends AppController
      **/
     public function meusClientes()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Principal');
 
         // pega id de todos os clientes que estão ligados à uma rede
 
@@ -2457,7 +2450,7 @@ class UsuariosController extends AppController
 
         $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->user_logged['id']);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id']);
 
         $unidades_ids = $unidades_ids->toArray();
 
@@ -2590,8 +2583,8 @@ class UsuariosController extends AppController
         }
 
         $query = $this->request->query;
-        $userAdmin = $this->getUserLogged();
-        $userManaged = $this->Usuarios->getUsuarioById($query['usuarios_id']);
+        $usuarioAdministrador = $this->getUserLogged();
+        $usuarioAdministrar = $this->Usuarios->getUsuarioById($query['usuarios_id']);
 
         // Pegar o Id do cliente que foi passado via query
         $cliente = $this->Clientes->getClienteById($query["clientes_id"]);
@@ -2606,12 +2599,12 @@ class UsuariosController extends AppController
 
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
-                'ClientesHasUsuarios.usuarios_id' => $userManaged["id"],
+                'ClientesHasUsuarios.usuarios_id' => $usuarioAdministrar["id"],
                 'ClientesHasUsuarios.clientes_id' => $cliente["id"]
             ]
         )->first();
 
-        if (empty($clienteHasUsuario) && $userManaged["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
+        if (empty($clienteHasUsuario) && $usuarioAdministrar["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
             $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");
 
             return $this->redirect(['controller' => 'usuarios', 'action' => 'administrarUsuario']);
@@ -2623,11 +2616,11 @@ class UsuariosController extends AppController
 
         $rede = $redeHasCliente["rede"];
 
-        $this->request->session()->write('Network.Main', $rede);
-        $this->request->session()->write('Network.Unit', $cliente);
+        $this->request->session()->write('Rede.Principal', $rede);
+        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
 
-        $this->request->session()->write("User.RootLogged", $userAdmin);
-        $this->request->session()->write("User.ToManage", $userManaged);
+        $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
+        $this->request->session()->write("Usuario.Administrar", $usuarioAdministrar);
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
@@ -2639,10 +2632,10 @@ class UsuariosController extends AppController
      */
     public function finalizarAdministracaoUsuario()
     {
-        $this->request->session()->delete("User.RootLogged");
-        $this->request->session()->delete("User.ToManage");
-        $this->request->session()->delete('Network.Main');
-        $this->request->session()->delete('ClientToManage');
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->delete('Rede.Principal');
+        $this->request->session()->delete('ClienteAdministrar');
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
@@ -2736,14 +2729,14 @@ class UsuariosController extends AppController
     {
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Principal');
 
             $usuario = $this->Usuarios->get(
                 $id,
@@ -2774,10 +2767,10 @@ class UsuariosController extends AppController
                 }
             }
 
-            $usuario_logado_tipo_perfil = (int)Configure::read('profileTypes')['UserProfileType'];
+            $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
 
-            $this->set(compact(['usuario', 'usuario_logado_tipo_perfil']));
-            $this->set('_serialize', ['usuario', 'usuario_logado_tipo_perfil']);
+            $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
+            $this->set('_serialize', ['usuario', 'usuarioLogadoTipoPerfil']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -3373,7 +3366,7 @@ class UsuariosController extends AppController
 
                 if (strlen($data['parametro']) >= 3) {
 
-                    $rede = $this->request->session()->read('Network.Main');
+                    $rede = $this->request->session()->read('Rede.Principal');
 
                     $usuarios = array();
                     $funcionariosCliente = array();

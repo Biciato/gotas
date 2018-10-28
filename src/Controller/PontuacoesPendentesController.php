@@ -21,7 +21,7 @@ use App\Custom\RTI\Security;
  */
 class PontuacoesPendentesController extends AppController
 {
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -46,11 +46,8 @@ class PontuacoesPendentesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
-    
+
     /**
      * ------------------------------------------------------------
      * CRUD Methods
@@ -161,7 +158,7 @@ class PontuacoesPendentesController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
-    
+
     /**
      * ------------------------------------------------------------
      * AJAX Methods

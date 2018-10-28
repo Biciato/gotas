@@ -17,10 +17,10 @@ $show_tipo_perfil = isset($show_tipo_perfil) ? $show_tipo_perfil : true;
 
 $show_veiculos = isset($show_veiculos) ? $show_veiculos : false;
 
-$usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_logado_tipo_perfil : (int)Configure::read('profileTypes')['UserProfileType'];
+$usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoPerfil : (int)Configure::read('profileTypes')['UserProfileType'];
 ?>
 
-<?php if (isset($user_logged)) : ?>
+<?php if (isset($usuarioLogado)) : ?>
     <div class="usuarios form col-lg-12 col-md-8 columns content">
         
 <?php else : ?> 
@@ -33,15 +33,15 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
     
         <fieldset>
             <legend>
-                <?= isset($user_logged) ? __('Adicionar conta') : __("Criar Conta") ?>
+                <?= isset($usuarioLogado) ? __('Adicionar conta') : __("Criar Conta") ?>
             </legend>
 
             <?= $this->Form->hidden('id'); ?>
-            <?= $this->Form->hidden('usuario_logado_tipo_perfil', ['value' => $usuario_logado_tipo_perfil, 'class' => 'usuario_logado_tipo_perfil']); ?>
+            <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
             
-            <?php if (isset($usuario_logado_tipo_perfil)) {
+            <?php if (isset($usuarioLogadoTipoPerfil)) {
 
-                if ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                if ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
 
                     ?> 
@@ -125,7 +125,7 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
                     </div>
                 <?php
 
-            } elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 ?> 
 
             <div class='col-lg-6'>
@@ -160,7 +160,7 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
                         
                     </div>
                 <?php 
-            } elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminRegionalProfileType']) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
                     'options' =>
@@ -172,7 +172,7 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
                         '5' => 'Cliente Final',
                     ]
                 ]);
-            } elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['ManagerProfileType']) {
+            } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['ManagerProfileType']) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
                     'options' =>
@@ -182,7 +182,7 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
                         '5' => 'Cliente Final'
                     ]
                 ]);
-            } elseif ($usuario_logado_tipo_perfil == Configure::read('profileTypes')['WorkerProfileType']) {
+            } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['WorkerProfileType']) {
                 echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => Configure::read('profileTypes')['WorkerProfileType']]);
             } else {
                 echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => Configure::read('profileTypes')['UserProfileType']]);
@@ -366,13 +366,13 @@ $usuario_logado_tipo_perfil = isset($usuario_logado_tipo_perfil) ? $usuario_loga
                 <?= $this->Form->control('pais', ['class' => 'pais']); ?>
             </div>
 
-            <?php if ($usuario_logado_tipo_perfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?> 
+            <?php if ($usuarioLogadoTipoPerfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?> 
             <div class="fields-is-final-customer ">
             <?php else : ?>
             <div>
             <?php endif; ?>
                 
-                <?php if (!is_null($user_logged)) : ?>
+                <?php if (!is_null($usuarioLogado)) : ?>
                 <?= $this->Element('../Veiculos/veiculos_form'); ?>
 
                 <div class="col-lg-12">

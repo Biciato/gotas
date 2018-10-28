@@ -11,7 +11,7 @@ use Cake\Routing\Router;
 // Menu de navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
+if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
     $this->Breadcrumbs->add(
         'Escolher Unidade para Configurar os Brindes',

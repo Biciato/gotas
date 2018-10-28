@@ -22,7 +22,7 @@ use App\Custom\RTI\DateTimeUtil;
 class VeiculosController extends AppController
 {
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * Index method
@@ -164,18 +164,18 @@ class VeiculosController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $veiculo = $this->Veiculos->newEntity();
@@ -214,8 +214,8 @@ class VeiculosController extends AppController
                 }
                 $this->Flash->error(__('O veículo não pode ser gravado.'));
             }
-            $this->set(compact('veiculo', 'usuario', 'user_logged'));
-            $this->set('_serialize', ['veiculo', 'usuario', 'user_logged']);
+            $this->set(compact('veiculo', 'usuario', 'usuarioLogado'));
+            $this->set('_serialize', ['veiculo', 'usuario', 'usuarioLogado']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -234,14 +234,14 @@ class VeiculosController extends AppController
      **/
     public function meusVeiculos()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        $usuario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
         $usuariosHasVeiculos
             = $this->UsuariosHasVeiculos->getVeiculoByUsuarioId($usuario->id);
@@ -258,7 +258,7 @@ class VeiculosController extends AppController
 
         $arraySet = [
             'usuario',
-            'user_logged',
+            'usuarioLogado',
             'usuariosHasVeiculos'
         ];
 
@@ -275,12 +275,12 @@ class VeiculosController extends AppController
      */
     public function veiculosUsuario(int $usuarios_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-        $rede = $this->request->session()->read("Network.Main");
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read("Rede.Principal");
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
@@ -306,7 +306,7 @@ class VeiculosController extends AppController
             'usuariosHasVeiculos',
             'usuarios_id',
             'usuario',
-            'user_logged',
+            'usuarioLogado',
             "rede"
         );
 
@@ -376,17 +376,17 @@ class VeiculosController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $veiculo = $this->Veiculos->newEntity();
@@ -442,7 +442,7 @@ class VeiculosController extends AppController
             $array_set = [
                 'veiculo',
                 'usuario',
-                'user_logged',
+                'usuarioLogado',
                 'usuarios_id'
             ];
 

@@ -21,9 +21,9 @@
  */
 use Cake\Core\Configure;
 
-$user_logged = $this->Auth->User();
+$usuarioLogado = $this->Auth->User();
 
-$cakeDescription = 'GOTAS - Desenvolvedor ' . $user_logged['nome'];
+$cakeDescription = 'GOTAS - Desenvolvedor ' . $usuarioLogado['nome'];
 
 ?>
 <!DOCTYPE html>

@@ -838,10 +838,10 @@ class ClientesTable extends GenericTable
      * Retorna Entidade Cliente associado à usuário
      *
      * @return Entity\Cliente $cliente
-     * @param Cake\Auth\Storage $user_logged
+     * @param Cake\Auth\Storage $usuarioLogado
      * @author Gustavo Souza Gonçalves
      **/
-    public function getClienteMatrizLinkedToUsuario($user_logged = null)
+    public function getClienteMatrizLinkedToUsuario($usuarioLogado = null)
     {
         /**
          *  TODO: validar todos os serviços que usam este método
@@ -859,7 +859,7 @@ class ClientesTable extends GenericTable
         $matriz = $this->find('all')
             ->where(
                 array(
-                    "Usuarios.id" => $user_logged["id"],
+                    "Usuarios.id" => $usuarioLogado["id"],
                     "Cliente.matriz" => 1
                 )
             )
@@ -879,7 +879,7 @@ class ClientesTable extends GenericTable
             //             'conditions' =>
             //                 [
             //                 'chu.clientes_id = Clientes.id',
-            //                 'chu.usuarios_id' => $user_logged['id']
+            //                 'chu.usuarios_id' => $usuarioLogado['id']
             //             ]
 
             //         ]
@@ -983,13 +983,13 @@ class ClientesTable extends GenericTable
      * @return object|null $cliente
      * @author
      **/
-    public function getClienteMatrizLinkedToAdmin($user_logged)
+    public function getClienteMatrizLinkedToAdmin($usuarioLogado)
     {
         $cliente = $this->_getClientesTable()->find('all')
             ->matching(
                 'ClientesHasUsuarios',
-                function ($q) use ($user_logged) {
-                    return $q->where(['ClientesHasUsuarios.matriz_id' => $user_logged['matriz_id']]);
+                function ($q) use ($usuarioLogado) {
+                    return $q->where(['ClientesHasUsuarios.matriz_id' => $usuarioLogado['matriz_id']]);
                 }
             )
             ->first();

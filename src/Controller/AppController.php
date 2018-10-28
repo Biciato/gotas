@@ -137,8 +137,8 @@ class AppController extends Controller
 
         if ($this->getUserLogged()) {
 
-            $this->user_logged = $this->getUserLogged();
-            $this->set('user_logged', $this->getUserLogged());
+            $this->usuarioLogado = $this->getUserLogged();
+            $this->set('usuarioLogado', $this->getUserLogged());
         }
 
         // Seta encoding de JSON para não fazer escape
@@ -290,32 +290,30 @@ class AppController extends Controller
      */
     private function _setUserTemplatePath()
     {
-        if ($this->request->session()->read("Auth.User")) {
-            $user_logged = $this->Auth->user();
-        }
+        $usuarioLogado = $this->getUserLogged();
 
         // verifica se está sendo administrado algum usuário, caso contrário prossegue
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!empty($user_logged)) {
-            if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if (!empty($usuarioLogado)) {
+            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $this->viewBuilder()->setLayout('template_desenvolvedor');
 
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardDesenvolvedor']);
-            } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->viewBuilder()->setLayout('template_administrador');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardAdministrador']);
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
                 $this->viewBuilder()->setLayout('template_gerente');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'dashboard_gerente']);
 
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 $this->viewBuilder()->setLayout('template_funcionario');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardFuncionario']);
 
@@ -355,21 +353,21 @@ class AppController extends Controller
     /**
      * Converte string de base 64 para arquivo jpg
      *
-     * @param string $base64_string
-     * @param object $output_file
+     * @param string $base64String
+     * @param object $outputFile
      *
      * @return void
      */
-    public function generateImageFromBase64($base64_string, $output_file, $path_destination)
+    public function generateImageFromBase64($base64String, $outputFile, $pathDestination)
     {
         try {
-            $this->createPathIfNotExists($path_destination);
+            $this->createPathIfNotExists($pathDestination);
             // abre o arquivo destino para edição
-            $ifp = fopen($output_file, 'wb');
+            $ifp = fopen($outputFile, 'wb');
 
             // separa a string por virgulas, para criar os dados
 
-            $data = explode(',', $base64_string);
+            $data = explode(',', $base64String);
 
             // escreve os dados no arquivo destino
             fwrite($ifp, base64_decode($data[1]));
@@ -377,9 +375,9 @@ class AppController extends Controller
             // fecha o arquivo destino
             fclose($ifp);
 
-            chmod($output_file, 0766);
+            chmod($outputFile, 0766);
 
-            return $output_file;
+            return $outputFile;
         } catch (\Exception $e) {
             $this->log($e->getMessage());
         }
@@ -388,18 +386,18 @@ class AppController extends Controller
     /**
      * Rotates a Image
      *
-     * @param string $image_path
+     * @param string $imagePath
      * @param int $degrees
      * @return bool
      */
-    public function rotateImage(string $image_path, int $degrees)
+    public function rotateImage(string $imagePath, int $degrees)
     {
         try {
-            $source = imagecreatefromjpeg($image_path);
+            $source = imagecreatefromjpeg($imagePath);
 
             $rotate = \imagerotate($source, $degrees, 0);
 
-            $result = imagejpeg($rotate, $image_path);
+            $result = imagejpeg($rotate, $imagePath);
 
             return $result;
         } catch (\Exception $e) {

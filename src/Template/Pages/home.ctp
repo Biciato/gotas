@@ -63,24 +63,24 @@ $titlePage = 'GOTAS';
     <div class="columns col-sm-12">
 
         <?php
-        $user_logged = $this->request->session()->read('Auth.User');
+        $usuarioLogado = $this->request->session()->read('Auth.User');
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!empty($user_logged)) {
-            if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if (!empty($usuarioLogado)) {
+            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $this->extend('dashboard_desenvolvedor');
-            } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->extend('dashboard_administrador');
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
                 $this->extend('dashboard_gerente');
 
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 $this->extend('dashboard_funcionario');
 
             } else {

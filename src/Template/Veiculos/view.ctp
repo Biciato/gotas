@@ -12,12 +12,12 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages']);
 
 // $this->Breadcrumbs->add('Veículos do Usuário', array(), array('class' => 'active'));
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     // $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
     $this->Breadcrumbs->add('Veículos', ['controller' => 'veiculos', 'action' => 'index']);
 
-} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
-&& $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
+&& $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
