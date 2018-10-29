@@ -22,9 +22,8 @@ $(document).ready(function () {
             var brindeSelecionado = brindePesquisa[0];
 
             // Se for <=4 é SMART Shower
-            if (brindeSelecionado != undefined
-                && (brindeSelecionado.tipos_brindes_cliente != undefined
-                || brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4)) {
+            if ((brindeSelecionado != undefined && brindeSelecionado.tipos_brindes_cliente != undefined)
+                && brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4) {
                 $("#quantidade").attr('disabled', true);
             } else {
                 $("#quantidade").attr('disabled', false);
@@ -59,6 +58,11 @@ $(document).ready(function () {
         }
     };
 
+    /**
+     *
+     * @deprecated
+     * @param {object} data
+     */
     var setBrindesInfo = function (data) {
         if (data !== undefined) {
             $("#brindes_id").val(data.id);

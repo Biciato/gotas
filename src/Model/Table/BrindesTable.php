@@ -367,8 +367,20 @@ class BrindesTable extends GenericTable
     {
         try {
 
-            return $this->_getBrindeTable()->find('all')
-                ->where(['clientes_id in ' => $clientes_ids]);
+            return $this
+
+                ->find('all')
+                ->join(
+                    array(
+                        "ClientesHasBrindesHabilitados" =>
+                            array(
+                            "table" => "clientes_has_brindes_habilitados",
+                            "type" => "LEFT",
+                            "conditions" => "Brindes.id = ClientesHasBrindesHabilitados.brindes_id"
+                        )
+                    )
+                )
+                ->where(['ClientesHasBrindesHabilitados.clientes_id in ' => $clientes_ids]);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

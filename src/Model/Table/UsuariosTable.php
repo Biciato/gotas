@@ -1238,23 +1238,16 @@ class UsuariosTable extends GenericTable
             }
 
             if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
-                // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
                 $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
             } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
                 $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-            // } else if (strlen($tipoPerfilMin) > 0 || strlen($tipoPerfilMax) > 0) {
             } else {
                 $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
 
                 $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
             }
-            // else {
-            //     $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
-            //     $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
-            //     $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-            // }
 
             if (!empty($cpf)) {
                 $whereConditions[] = array("Usuarios.cpf like '%{$cpf}%'");

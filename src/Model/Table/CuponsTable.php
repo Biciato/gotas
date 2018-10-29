@@ -11,6 +11,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
+use Cake\I18n\Number;
 
 /**
  * Cupons Model
@@ -195,13 +196,13 @@ class CuponsTable extends GenericTable
      * @param int   $usuarios_id                         Id de Usuário
      * @param int   $tipo_banho                          Tipo do Banho
      * @param int   $tempo_banho                         Tempo de Banho
-     * @param float $valor_pago                          Valor Pago
+     * @param float $valorPago                          Valor Pago
      * @param int   $quantidade                          Quantidade Solicitada
      * @param int   $tipoVenda                           Tipo de Venda (0 = Gotas, 1 = Dinheiro)
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valor_pago, int $quantidade, int $tipoVenda = 0)
+    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valorPago, int $quantidade, int $tipoVenda = 0)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
@@ -275,7 +276,7 @@ class CuponsTable extends GenericTable
             $cupom->usuarios_id = $usuarios_id;
             $cupom->tipo_principal_codigo_brinde = $tipoPrincipalCodigoBrinde;
             $cupom->tipo_secundario_codigo_brinde = $tipoSecundarioCodigoBrinde;
-            $cupom->valor_pago = $valor_pago;
+            $cupom->valor_pago = $valorPago;
             $cupom->senha = $qteSenhas + 1;
             $cupom->data = $data;
             $cupom->quantidade = $quantidade;
@@ -324,7 +325,9 @@ class CuponsTable extends GenericTable
             );
 
             $cupom = $this->_getCuponsTable()->save($cupom);
-            return $this->find()->where(array("id" => $cupom["id"]))->first();
+            $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
+            $cupom["valor_pago"] = Number::precision($cupom["valor_pago"], 2);
+            return $cupom;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);

@@ -248,11 +248,11 @@ class PontuacoesController extends AppController
 
             // Pega unidades que tem acesso
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             $clientesIds = array();
 
-            foreach ($unidades_ids as $key => $value) {
+            foreach ($unidadesIds as $key => $value) {
                 $clientesIds[] = $key;
             }
 
@@ -288,8 +288,8 @@ class PontuacoesController extends AppController
                     array_push($array_options, ['requer_auditoria' => $data['requer_auditoria']]);
                 }
 
-                if (strlen($data['registro_auditado']) > 0) {
-                    array_push($array_options, ['registro_auditado' => $data['registro_auditado']]);
+                if (strlen($data['auditado']) > 0) {
+                    array_push($array_options, ['auditado' => $data['auditado']]);
                 }
 
                 if (strlen($data['registro_invalido']) > 0) {
@@ -335,7 +335,7 @@ class PontuacoesController extends AppController
             $pontuacoes_cliente = null;
             $pontuacoes_cliente = $pontuacoes_cliente_new_array;
 
-            $arraySet = array('pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids');
+            $arraySet = array('pontuacoes_cliente', 'funcionarios', 'cliente', 'unidadesIds');
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

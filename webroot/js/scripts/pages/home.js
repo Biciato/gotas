@@ -149,7 +149,7 @@ var callModalError = function (error, arrayContent) {
     if (arrayContent != undefined && arrayContent.length > 0) {
         $(".modal-error .modal-body-content-description").empty();
         $.each(arrayContent, function (index, value) {
-            $(".modal-error .modal-body-content-description").append("(" +( parseInt(index) + 1) + ")  " + value);
+            $(".modal-error .modal-body-content-description").append("(" + (parseInt(index) + 1) + ")  " + value);
         })
     }
     $(".modal-error").modal();
@@ -358,14 +358,10 @@ var popularDadosCupomResgate = function (data) {
             usuario = value.usuario;
             brinde_habilitado = value.clientes_has_brindes_habilitado;
 
-            var row =
-                "<tr><td>" +
-                value.quantidade +
-                "</td><td>" +
-                brinde_habilitado.brinde.nome +
-                "</td><td>" +
-                value.valor_pago +
-                "</td></tr>";
+            var valorPago = value.valor_pago;
+
+            valorPago = valorPago.toString().indexOf(",") < 0 ? "R$ " + valorPago + ",00" : "R$ " + valorPago;
+            var row = "<tr><td>" + value.quantidade + "</td><td>" + brinde_habilitado.brinde.nome + "</td><td>" + valorPago + "</td></tr>";
 
             rows.push(row);
         });

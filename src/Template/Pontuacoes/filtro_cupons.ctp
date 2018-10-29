@@ -80,10 +80,10 @@ use Cake\Core\Configure;
 
                     <div class="col-lg-3">
                         <?= $this->Form->input(
-                            'registro_auditado',
+                            'auditado',
                             [
                                 'type' => 'select',
-                                'id' => 'registro_auditado',
+                                'id' => 'auditado',
                                 'label' => 'Cupom Auditado?',
                                 'options' => [
                                     null => 'Todos',

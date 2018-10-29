@@ -27,7 +27,7 @@ echo $this->Breadcrumbs->render(
     </legend>
 
     <div class="col-lg-12">
-        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede', 'unidades_ids' => $unidadesIds]) ?>
     </div>
 
     <div class="col-lg-12">
@@ -112,7 +112,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Ver detalhes',
-                                'class' => 'btn btn-primary btn-xs',
+                                'class' => 'btn btn-default btn-xs',
                                 'escape' => false
                             ]
                         )

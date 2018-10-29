@@ -492,7 +492,10 @@ class CuponsController extends AppController
 
         if ($valorMinimo > $valorMaximo) {
             $this->Flash->error("Valor Mínimo não pode ser maior que Valor Máximo!");
-            return $this->redirect(array("controller" => "cupons", "action" => "historicoBrindes"));
+        }
+
+        if ($dataInicioPesquisa > $dataFimPesquisa) {
+            $this->Flash->error("Data de Início não pode ser maior que Data de Fim!");
         }
 
         if (!empty($unidadeSelecionado)) {
@@ -500,14 +503,11 @@ class CuponsController extends AppController
             $clientesIds[] = (int)$unidadeSelecionado;
         }
 
-        // $dataInicio = date("d/m/Y", strtotime($dataInicio));
-        // $dataFim = date("d/m/Y", strtotime($dataFim));
         $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
 
         // Paginação
         $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
-        // $arraySet = array("cupons", "cliente", "unidadesAtendimento", "brindes", "dataFim", "dataInicio");
         $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
@@ -1965,23 +1965,6 @@ class CuponsController extends AppController
             "message" => "",
             "errors" => array(__(""))
         );
-
-        // $arraySet = array("mensagem", "usuario", "brindeSelecionado");
-
-        // $retorno = array(
-        //     "arraySet" => $arraySet,
-        //     "mensagem" => $mensagem,
-        //     "ticket" => null,
-        //     "status" => null,
-        //     "cliente" => null,
-        //     "usuario" => $usuario,
-        //     "brindeSelecionado" => $brindeSelecionado,
-        //     "tempo" => null,
-        //     "tipo_emissao_codigo_barras" => null,
-        //     "is_brinde_smart_shower" => null,
-        // );
-
-        // return $retorno;
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
         if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
