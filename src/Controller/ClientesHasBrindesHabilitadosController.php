@@ -228,23 +228,18 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->Flash->error($brindesConfigurar["mensagem"]["message"]);
             $brindesConfigurar = array();
         } else {
-
             $brindesConfigurarArrayRetorno = array();
-
             $brindesConfigurar = $brindesConfigurar["data"];
 
             foreach ($brindesConfigurar as $brinde) {
                 $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
-
                 $brindesConfigurarArrayRetorno[] = $brinde;
             }
 
             $brindesConfigurar = $brindesConfigurarArrayRetorno;
         }
 
-
-        // debug($brindesConfigurar);
-        $arraySet = ['brindesConfigurar', 'clientes_id'];
+        $arraySet = array('brindesConfigurar', 'clientes_id');
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }

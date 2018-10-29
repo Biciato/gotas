@@ -215,19 +215,36 @@ class UsuariosHasBrindesController extends AppController
 
             $brindes_habilitados_ids = [];
 
-            // TODO: Conferir se isto está funcional
-            $brindes_habilitados_clientes = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId($clientes_ids);
+            // TODO: ARRUMAR PARA FUNCIONARIO!
+            $brindesHabilitadosClientes = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId($clientes_ids);
 
-            foreach ($brindes_habilitados_clientes as $key => $brinde_habilitado_cliente) {
-                $brindes_habilitados_ids[] = $brinde_habilitado_cliente['id'];
+            if (!$brindesHabilitadosClientes["mensagem"]["status"]) {
+                $this->Flash->error($brindesHabilitadosClientes["mensagem"]["message"]);
+                $brindesHabilitadosClientes = array();
+            } else {
+                $brindesConfigurarArrayRetorno = array();
+                $brindesHabilitadosClientes = $brindesHabilitadosClientes["data"];
+
+                foreach ($brindesHabilitadosClientes as $brinde) {
+                    $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
+                    $brindesConfigurarArrayRetorno[] = $brinde;
+                }
+
+                $brindesHabilitadosClientes = $brindesConfigurarArrayRetorno;
+
+                $usuarios_has_brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'clientes_has_brindes_habilitados_id in ' => $brindes_habilitados_ids
+                    ]
+                );
             }
 
-            $usuarios_has_brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(
-                [
-                    'usuarios_id' => $usuario->id,
-                    'clientes_has_brindes_habilitados_id in ' => $brindes_habilitados_ids
-                ]
-            );
+            // foreach ($brindesHabilitadosClientes as $brinde_habilitado_cliente) {
+            //     $brindes_habilitados_ids[] = $brinde_habilitado_cliente['id'];
+            // }
+
+
 
             $this->paginate($usuarios_has_brindes, ['limit' => 10, 'order' => ['data' => 'desc']]);
 
