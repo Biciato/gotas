@@ -224,18 +224,24 @@ class ClientesHasBrindesHabilitadosController extends AppController
         // obtem os brindes habilitados (e não habilitados) da unidade
         $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
 
-        // DebugUtil::print($clientes_id, TRUE, FALSE);
-        // DebugUtil::print($brindesConfigurar);
+        if (!$brindesConfigurar["mensagem"]["status"]) {
+            $this->Flash->error($brindesConfigurar["mensagem"]["message"]);
+            $brindesConfigurar = array();
+        } else {
 
-        $brindesConfigurarArrayRetorno = array();
+            $brindesConfigurarArrayRetorno = array();
 
-        foreach ($brindesConfigurar as $brinde) {
-            $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
+            $brindesConfigurar = $brindesConfigurar["data"];
 
-            $brindesConfigurarArrayRetorno[] = $brinde;
+            foreach ($brindesConfigurar as $brinde) {
+                $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
+
+                $brindesConfigurarArrayRetorno[] = $brinde;
+            }
+
+            $brindesConfigurar = $brindesConfigurarArrayRetorno;
         }
 
-        $brindesConfigurar = $brindesConfigurarArrayRetorno;
 
         // debug($brindesConfigurar);
         $arraySet = ['brindesConfigurar', 'clientes_id'];
