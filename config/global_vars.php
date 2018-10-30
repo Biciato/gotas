@@ -170,11 +170,13 @@ Configure::write(
 
         // MESSAGES
         'callSupport' => 'Entre em contato com o suporte.',
+        'callNetworkAdministrator' => 'Entre em contato com o seu Administrador de sua rede.',
         'messageApprovedSuccess' => 'O registro foi autorizado com sucesso.',
         'messageApprovedFailure' => 'Houve um erro ao autorizar o registro.',
         'messageQuestionAllowGiftPrice' => 'Autorizar o preço para o brinde {0} ?',
         'messageQuestionDenyGiftPrice' => 'Negar o preço para o brinde {0} ?',
         'messageAllowGiftPrice' => 'O preço foi autorizado.',
+        "messageNoGiftFoundNetwork" => "Não foi encontrado Brindes para a sua Rede!",
         "messageQueryNoDataToReturn" => "A consulta não retornou dados!",
         "messageQueryPaginationEnd" => "Fim de paginação!",
 

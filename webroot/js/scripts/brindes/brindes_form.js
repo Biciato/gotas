@@ -85,12 +85,8 @@ $(document).ready(function () {
             } else if (this.value < 0) {
                 this.value = 0;
             }
-
-
             var nome =
-                $("#tipos_brindes_redes_id option:selected").text() + " " + this.value + " minutos";
-
-
+                $("#tipos_brindes_redes_id option:selected").text() + this.value + " minutos";
 
             if (nome.indexOf("<Selecionar>") < 0) {
                 $("#nome").val(nome);

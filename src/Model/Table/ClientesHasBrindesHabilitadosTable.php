@@ -860,7 +860,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             if (sizeof($brindesRede) == 0) {
                 $error = true;
-                $message = "Não foi encontrado Brindes para a Rede em questão!";
+                $message = __("{0} {1}", Configure::read("messageNoGiftFoundNetwork"), Configure::read("callNetworkAdministrator"));
             }
 
             $arrayRetorno = array();

@@ -329,7 +329,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes $brinde
      * @author
      **/
-    public function findBrindesByName($nome, $id = null)
+    public function findBrindesByConditions($redesId = null, $clientesIds = array(), $id = null, $nome = null, int $tiposBrindesRedesId = null, int $tempoRtiShower = null, bool $ilimitado = null, bool $habilitado = null, float $precoPadrao = null, float $valorMoedaVendaPadrao = null, string $nomeImg = null)
     {
         try {
 
@@ -340,10 +340,54 @@ class BrindesTable extends GenericTable
             if (!empty($id)) {
                 $whereConditions[] = array("Brindes.id != " => $id);
             }
+            if (!empty($redesId)) {
+                $whereConditions[] = array("Redes.id" => $redesId);
+            }
 
-            return $this->_getBrindeTable()->find('all')
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("Clientes.id IN " => $redesId);
+            }
+
+            if ($tiposBrindesRedesId > 0) {
+                $whereConditions[] = array("Brindes.tipos_brindes_redes_id" => $tiposBrindesRedesId);
+            }
+
+            if ($tempoRtiShower > 0) {
+                $whereConditions[] = array("Brindes.tempoRtiShower" => $tempoRtiShower);
+            }
+
+            if (!is_null($ilimitado)) {
+                $whereConditions[] = array("Brindes.ilimitado" => $ilimitado);
+            }
+
+            if (!is_null($habilitado)){
+                $whereConditions[] = array("Brindes.habilitado" => $habilitado);
+            }
+
+            if (!is_null($precoPadrao)) {
+                $whereConditions[] = array("Brindes.precoPadrao" => $precoPadrao);
+            }
+            if (!is_null($valorMoedaVendaPadrao)) {
+                $whereConditions[] = array("Brindes.valorMoedaVendaPadrao" => $valorMoedaVendaPadrao);
+            }
+
+            return $this->find('all')
                 ->where($whereConditions)
-                ->contain('Clientes')
+                ->contain('Clientes.RedesHasClientes.Redes')
+                ->select(
+                    array(
+                        "id",
+                        "clientes_id",
+                        "tipos_brindes_redes_id",
+                        "nome",
+                        "tempo_rti_shower",
+                        "ilimitado",
+                        "habilitado",
+                        "preco_padrao",
+                        "valor_moeda_venda_padrao",
+                        "nome_img",
+                    )
+                )
                 ->first();
 
         } catch (\Exception $e) {

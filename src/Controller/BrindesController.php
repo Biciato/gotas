@@ -344,7 +344,7 @@ class BrindesController extends AppController
 
                 // DebugUtil::print($brinde);
 
-                if ($this->Brindes->findBrindesByName($brinde['nome'])) {
+                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
 
@@ -496,7 +496,7 @@ class BrindesController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($this->Brindes->findBrindesByName($data['nome'], $brinde["id"])) {
+            if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"])) {
                 $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
             } else {
                 $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
