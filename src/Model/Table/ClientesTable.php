@@ -101,7 +101,7 @@ class ClientesTable extends GenericTable
             ]
         );
 
-        $this->hasOne(
+        $this->hasMany(
             'ClientesHasUsuarios',
             [
                 'className' => 'ClientesHasUsuarios',
@@ -336,11 +336,11 @@ class ClientesTable extends GenericTable
                 array_push($conditions, $condition);
             }
 
-            return $this->_getClientesTable()->find('all')
+            return $this->find('all')
                 ->where($conditions)
                 ->order(
                     [
-                        'id' => 'asc'
+                        'Clientes.id' => 'asc'
                     ]
                 )
                 ->contain(['ClientesHasUsuarios']);

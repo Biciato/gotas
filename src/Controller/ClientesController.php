@@ -442,6 +442,7 @@ class ClientesController extends AppController
      *
      * @param int $cliente_id Id de cliente
      *
+     * @deprecated 1.0
      * @return \Cake\Http\Response|void
      */
     public function administrarUnidades(int $cliente_id = null)

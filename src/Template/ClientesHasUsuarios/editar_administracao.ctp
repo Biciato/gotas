@@ -102,8 +102,9 @@ if ($usuarioLogado['tipo_perfil'] == 0) {
                         $record_found = false;
                         $cliente_has_usuario_id = null;
 
+                        // debug($cliente);
                         // procura pelo registro
-                        foreach ($cliente->clientes_has_usuarios as $key => $cliente_has_usuario) {
+                        foreach ($cliente["clientes_has_usuarios"] as $cliente_has_usuario) {
                             // se o registro existe, a opção será desvincular
                             if ($usuario->id == $cliente_has_usuario->usuarios_id
                                 && $usuario->tipo_perfil == $cliente_has_usuario->tipo_perfil) {
