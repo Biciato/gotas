@@ -172,7 +172,7 @@ class ClientesHasUsuariosController extends AppController
 
             $where_conditions = [];
 
-            array_push($where_conditions, ['id IN' => $clientes_ids]);
+            array_push($where_conditions, ['Clientes.id IN' => $clientes_ids]);
 
             $clientes = $this->Clientes->getAllClientes($where_conditions);
 
