@@ -126,7 +126,7 @@ $(document).ready(function () {
                         brindeSemPreco = true;
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: <NÃO CONFIGURADO>"
+                            text: value.brinde.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
                         }));
                     }
                     else {
@@ -136,7 +136,7 @@ $(document).ready(function () {
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
+                            text: value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
                         }));
                     }
 

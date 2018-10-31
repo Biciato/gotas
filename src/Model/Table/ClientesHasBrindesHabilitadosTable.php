@@ -559,7 +559,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             if (sizeof($filterTiposBrindesClientesColumns)) {
                 $containArray["TiposBrindesClientes"] = array("fields" => $filterTiposBrindesClientesColumns);
             } else {
-                $containArray[] = "TiposBrindesClientes";
+                $containArray[] = "TiposBrindesClientes.TiposBrindesRedes";
             }
 
             $clientesBrindesHabilitados = array();

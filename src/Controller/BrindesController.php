@@ -332,7 +332,7 @@ class BrindesController extends AppController
 
                 $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
 
-                if (empty($tiposBrindesRedesId)){
+                if (empty($tiposBrindesRedesId)) {
                     $this->Flash->error("É necessário selecionar um tipo de brinde!");
 
                     return $this->redirect(array("controller" => "brindes", "action" => "adicionarBrindeRede"));
@@ -490,7 +490,7 @@ class BrindesController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            $brindeCheck =  ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_rti_shower"], $brinde["ilimitado"])) ;
+            $brindeCheck = ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_rti_shower"], $brinde["ilimitado"]));
 
 
             if ($brindeCheck["id"] != $id) {
@@ -913,7 +913,7 @@ class BrindesController extends AppController
 
             $brindesTemp = array();
 
-            foreach ($brindesHabilitadosCliente as $key => $brindeHabilitadoCliente) {
+            foreach ($brindesHabilitadosCliente as $brindeHabilitadoCliente) {
                 $brindeHabilitadoCliente["brinde"]["nome_img"] =
                     __(
                     "{0}{1}{2}",
@@ -921,6 +921,20 @@ class BrindesController extends AppController
                     Configure::read("imageGiftPathRead"),
                     $brindeHabilitadoCliente["brinde"]["nome_img"]
                 );
+
+                $nome = $brindeHabilitadoCliente["brinde"]["nome"];
+                $isBrindeShower = $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;
+
+                if ($isBrindeShower) {
+                    $nome = __("{0} ({1} minutos)", $nome, $brindeHabilitadoCliente["brinde"]["tempo_rti_shower"]);
+                }
+
+                if ($brindeHabilitadoCliente["tipos_brindes_cliente"]["tipos_brindes_rede"]["brinde_necessidades_especiais"]) {
+                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome . " (PNE)";
+                } else {
+                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome ;
+                }
+
                 $brindesTemp[] = $brindeHabilitadoCliente;
             }
 
