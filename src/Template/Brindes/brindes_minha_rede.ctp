@@ -35,6 +35,7 @@ echo $this->Breadcrumbs->render(
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('nome') ?></th>
+                <th><?= $this->Paginator->sort('tempo_rti_shower', array("label" => "Tempo de Banho")) ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
                 <th><?= $this->Paginator->sort('preco_padrao') ?></th>
                 <th><?= $this->Paginator->sort('valor_moeda_venda_padrao') ?></th>
@@ -50,6 +51,7 @@ echo $this->Breadcrumbs->render(
                 <tr>
 
                     <td><?= h($brinde->nome) ?></td>
+                    <td><?= h($brinde->tempo_rti_shower) ?></td>
                     <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
                     <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?></td>
                     <td><?= $this->Number->precision($brinde->valor_moeda_venda_padrao, 2) ?></td>

@@ -338,13 +338,9 @@ class BrindesController extends AppController
                     return $this->redirect(array("controller" => "brindes", "action" => "adicionarBrindeRede"));
                 }
 
-                // DebugUtil::print($data);
-                // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
                 $brinde->preco_padrao = (float)$data['preco_padrao'];
 
-                // DebugUtil::print($brinde);
-
-                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"])) {
+                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_rti_shower"])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
 
@@ -380,8 +376,6 @@ class BrindesController extends AppController
                             $brinde->id,
                             $tiposBrindesClienteSelecionadoId
                         );
-
-                        // DebugUtil::print($clienteHasBrindeHabilitado);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -496,7 +490,10 @@ class BrindesController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"])) {
+            $brindeCheck =  ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_rti_shower"], $brinde["ilimitado"])) ;
+
+
+            if ($brindeCheck["id"] != $id) {
                 $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
             } else {
                 $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;

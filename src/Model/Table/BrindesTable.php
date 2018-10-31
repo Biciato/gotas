@@ -335,10 +335,10 @@ class BrindesTable extends GenericTable
 
             $whereConditions = array();
 
-            $whereConditions[] = array('nome' => $nome);
+            $whereConditions[] = array('Brindes.nome' => $nome);
 
             if (!empty($id)) {
-                $whereConditions[] = array("Brindes.id != " => $id);
+                $whereConditions[] = array("Brindes.id " => $id);
             }
             if (!empty($redesId)) {
                 $whereConditions[] = array("Redes.id" => $redesId);
@@ -353,7 +353,7 @@ class BrindesTable extends GenericTable
             }
 
             if ($tempoRtiShower > 0) {
-                $whereConditions[] = array("Brindes.tempoRtiShower" => $tempoRtiShower);
+                $whereConditions[] = array("Brindes.tempo_rti_shower" => $tempoRtiShower);
             }
 
             if (!is_null($ilimitado)) {

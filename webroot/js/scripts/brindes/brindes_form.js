@@ -53,8 +53,7 @@ $(document).ready(function () {
     $("#tipos_brindes_redes_id").on("change", function (obj) {
         var nome =
             this.value != undefined && this.value.length > 0
-                ? $("#tipos_brindes_redes_id option:selected").text()
-                : "";
+                ? $("#tipos_brindes_redes_id option:selected").text().trim() : "";
 
         $("#nome").val(nome);
 
@@ -69,13 +68,16 @@ $(document).ready(function () {
 
             $("#nome").attr("readonly", true);
             $("#ilimitado").attr("checked", true);
-            $("#ilimitado").attr("disabled", true);
+            // $("#ilimitado").attr("disabled", true);
+            $("#ilimitado").attr("checked", true);
+            $("#ilimitado").on("click", function(){ return false; });
         } else {
             $("#nome").attr("readonly", false);
 
             $("#tempo_rti_shower").attr("readonly", true);
             $("#ilimitado").attr("checked", false);
-            $("#ilimitado").attr("disabled", false);
+            // $("#ilimitado").attr("disabled", false);
+            $("#ilimitado").on("click", function(){ return true; });
         }
     });
     $("#tempo_rti_shower").on("blur", function () {
@@ -86,11 +88,18 @@ $(document).ready(function () {
                 this.value = 0;
             }
             var nome =
-                $("#tipos_brindes_redes_id option:selected").text() + this.value + " minutos";
+                $("#tipos_brindes_redes_id option:selected").text().trim();
 
             if (nome.indexOf("<Selecionar>") < 0) {
                 $("#nome").val(nome);
             }
+
+            // var nome =
+            //     $("#tipos_brindes_redes_id option:selected").text() + this.value + " minutos";
+
+            // if (nome.indexOf("<Selecionar>") < 0) {
+            //     $("#nome").val(nome);
+            // }
         }
     });
 
