@@ -77,7 +77,7 @@ class WebTools
 
             $response = trim(preg_replace('/\s+/', ' ', $response));
 
-            $response = utf8_encode($response);
+            // $response = utf8_encode($response);
 
             Log::write('debug', $response);
 

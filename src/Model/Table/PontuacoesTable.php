@@ -284,10 +284,18 @@ class PontuacoesTable extends GenericTable
      *
      * @return object $pontuacao
      */
-    public function addPontuacaoCupom(int $clientes_id, int $usuarios_id, int $funcionarios_id, int $gotas_id, float $quantidade_multiplicador, float $quantidade_gotas, int $pontuacoes_comprovante_id, string $data)
-    {
+    public function addPontuacaoCupom(
+        int $clientes_id,
+        int $usuarios_id,
+        int $funcionarios_id,
+        int $gotas_id,
+        float $quantidade_multiplicador,
+        float $quantidade_gotas,
+        int $pontuacoes_comprovante_id,
+        string $data
+    ) {
         try {
-            $pontuacao = $this->_getPontuacoesTable()->newEntity();
+            $pontuacao = $this->newEntity();
 
             $pontuacao->clientes_id = $clientes_id;
             $pontuacao->usuarios_id = $usuarios_id;

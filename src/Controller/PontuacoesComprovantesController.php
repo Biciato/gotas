@@ -924,8 +924,11 @@ class PontuacoesComprovantesController extends AppController
                     $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
 
                 }
-                $web_content = $this->web_tools->getPageContent($url);
-                // $web_content = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
+                $webContent = $this->web_tools->getPageContent($url);
+
+                // die($webContent['response']);
+                // DebugUtil::print($webContent['response']);
+                // $webContent = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
 
                 $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
@@ -968,13 +971,13 @@ class PontuacoesComprovantesController extends AppController
                 $pontuacao['data'] = date('Y-m-d H:i:s');
 
                 // Status está ok, pode prosseguir com procedimento
-                if ($web_content['statusCode'] == 200) {
+                if ($webContent['statusCode'] == 200) {
 
                     $process_failed = false;
 
                     // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
 
-                    $cnpjPos = strpos($web_content['response'], $cliente->cnpj);
+                    $cnpjPos = strpos($webContent['response'], $cliente->cnpj);
 
                     if (!$cnpjPos) {
                         // formata o cnpj e procura novamente
@@ -982,7 +985,7 @@ class PontuacoesComprovantesController extends AppController
                         $cnpjFormatado = substr($cliente->cnpj, 0, 2) . "." . substr($cliente->cnpj, 2, 3) . "." . substr($cliente->cnpj, 5, 3)
                             . "/" . substr($cliente->cnpj, 8, 4) . "-" . substr($cliente->cnpj, 12, 2);
 
-                        $cnpjPos = strpos($web_content['response'], $cnpjFormatado);
+                        $cnpjPos = strpos($webContent['response'], $cnpjFormatado);
                     }
 
                     if (!$cnpjPos) {
@@ -991,10 +994,10 @@ class PontuacoesComprovantesController extends AppController
                     } else {
 
                         if ($is_goias) {
-                            $array_return = $this->sefaz_util->convertHtmlToCouponDataGO($web_content['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
+                            $array_return = $this->sefaz_util->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
                         } else {
 
-                            $array_return = $this->sefaz_util->convertHtmlToCouponData($web_content['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
+                            $array_return = $this->sefaz_util->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
                         }
 
                         $array_save = [];
@@ -1003,6 +1006,7 @@ class PontuacoesComprovantesController extends AppController
                             array_push($array_save, $value);
                         }
 
+                        // DebugUtil::print($array_save);
                         foreach ($array_save as $key => $value) {
                             /*
                              * verifica se tem pontuações à gravar
@@ -1013,6 +1017,7 @@ class PontuacoesComprovantesController extends AppController
 
                             $pontuacao_comprovante_id = null;
 
+                            // DebugUtil::print($array_pontuacao);
                             if (sizeof($array_pontuacao) > 0) {
                                 // item novo, gera entidade e grava
                                 $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
@@ -1039,7 +1044,9 @@ class PontuacoesComprovantesController extends AppController
                                             $item_pontuacao['usuarios_id'],
                                             $item_pontuacao['funcionarios_id'],
                                             $item_pontuacao['gotas_id'],
+
                                             $item_pontuacao['quantidade_multiplicador'],
+
                                             $item_pontuacao['quantidade_gotas'],
                                             $pontuacao_comprovante->id,
                                             $item_pontuacao['data']
@@ -1616,7 +1623,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $content = null;
 
-                // $web_content = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
+                // $webContent = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
 
                 /**
                  * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
