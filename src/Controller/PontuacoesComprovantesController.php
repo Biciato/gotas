@@ -1034,8 +1034,12 @@ class PontuacoesComprovantesController extends AppController
                             false
                         );
 
+                        Log::write("debug", $produtosLista);
+
+                        $somaPontuacoes = 0;
                         foreach ($produtosLista as $produto) {
 
+                            $gota = $produto["prod"]["gota"];
 
                             $pontuacao = array(
                                 "clientes_id" => $cliente->id,
@@ -1043,37 +1047,36 @@ class PontuacoesComprovantesController extends AppController
                                 "funcionarios_id" => $funcionario->id,
                                 "gotas_id" => $produto["prod"]["gota"]["id"],
                                 "quantidade_multiplicador" => $produto["prod"]["qCom"],
-                                "quantidade_gotas" => $gotaEncontrada["multiplicador_gota"] * $produto["prod"]["qCom"],
+                                "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
+                                "gota" => $gota,
                                 "data" => $dataProcessamento,
                                 "pontuacoes_comprovante_id" => $pontuacoesComprovante["id"],
                                 // "valor_produto" => $produto["prod"]["vUnCom"]
                             );
 
+                            $somaPontuacoes += $pontuacao["quantidade_gotas"];
+
                             $pontuacoes[] = $pontuacao;
                         }
 
-                        $pontuacoes = $this->Pontuacoes->newEntities($pontuacoes);
+                        $pontuacoesSave = $this->Pontuacoes->newEntities($pontuacoes);
 
                         // DebugUtil::print($pontuacoes);
                         // TODO: Fazer save many na table
-                        $retorno = $this->Pontuacoes->saveMany($pontuacoes);
+                        $retorno = $this->Pontuacoes->saveMany($pontuacoesSave);
 
-                        //  = $this->Pontuacoes->addPontuacaoCupom(
-                        //     $item_pontuacao['clientes_id'],
-                        //     $item_pontuacao['usuarios_id'],
-                        //     $item_pontuacao['funcionarios_id'],
-                        //     $item_pontuacao['gotas_id'],
+                        // Catadupas
+                        // Nova Suiça,
+                        // Desembargador Barcelos, 1014
+                        // Dafine
 
-                        //     $item_pontuacao['quantidade_multiplicador'],
-
-                        //     $item_pontuacao['quantidade_gotas'],
-                        //     $pontuacoesComprovante["id"],
-                        //     $item_pontuacao['data']
-                        // );
-
-
-                        $success = false;
-                        $message = Configure::read("O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!");
+                        $success = true;
+                        $message = Configure::read("messageCouponImportSuccess");
+                        $data = array(
+                            "pontuacoes" => $pontuacoes,
+                            "usuario" => $usuario,
+                            "soma_pontuacoes" => $somaPontuacoes
+                        );
 
                         $arraySet = array(
                             'success',
@@ -1161,9 +1164,7 @@ class PontuacoesComprovantesController extends AppController
                                                 $item_pontuacao['usuarios_id'],
                                                 $item_pontuacao['funcionarios_id'],
                                                 $item_pontuacao['gotas_id'],
-
                                                 $item_pontuacao['quantidade_multiplicador'],
-
                                                 $item_pontuacao['quantidade_gotas'],
                                                 $pontuacaoComprovanteId,
                                                 $item_pontuacao['data']

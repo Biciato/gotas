@@ -571,7 +571,7 @@ class PontuacoesTable extends GenericTable
                         'pontuacoes_comprovante_id' => $pontuacoes_comprovante_id
                     ]
                 )
-                ->select(['soma_quantidade' => $this->_getPontuacoesTable()
+                ->select(['soma_quantidade' => $this
                     ->find()
                     ->func()
                     ->sum('quantidade_gotas'), 'pontuacoes_comprovante_id'])

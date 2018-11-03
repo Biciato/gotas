@@ -180,6 +180,7 @@ Configure::write(
         "messageQueryNoDataToReturn" => "A consulta não retornou dados!",
         "messageQueryPaginationEnd" => "Fim de paginação!",
         "messagePointOfServiceCNPJNotEqual" => "CNPJ apresentado na nota não confere com o CNPJ do estabelecimento!",
+        "messageCouponImportSuccess" => "Dados do cupom importados com sucesso!",
         "messageNotPossibleToImportCoupon" => "Não foi possível importar o cupom!",
 
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
