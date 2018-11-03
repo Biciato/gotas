@@ -39,7 +39,7 @@ class TransportadorasController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!$this->security_util->checkUserIsAuthorized($this->usuarioLogado, 'AdminDeveloperProfileType')) {
+        if (!$this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, 'AdminDeveloperProfileType')) {
             $this->Flash->error(Configure::read("messageNotAuthorized"));
         }
 

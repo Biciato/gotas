@@ -236,7 +236,7 @@ class PontuacoesComprovantesTable extends GenericTable
     ) {
 
         try {
-            $pontuacoes_comprovantes = $this->_getPontuacoesComprovantesTable()->newEntity();
+            $pontuacoes_comprovantes = $this->newEntity();
             $pontuacoes_comprovantes['clientes_id'] = $clientes_id;
             $pontuacoes_comprovantes['usuarios_id'] = $usuarios_id;
             $pontuacoes_comprovantes['funcionarios_id'] = $funcionarios_id;
@@ -247,7 +247,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $pontuacoes_comprovantes['requer_auditoria'] = $requer_auditoria;
             $pontuacoes_comprovantes['auditado'] = $auditado;
 
-            return $this->_getPontuacoesComprovantesTable()->save($pontuacoes_comprovantes);
+            return $this->save($pontuacoes_comprovantes);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao criar registro: {0} em {1} ", $e->getMessage(), $trace[1]);

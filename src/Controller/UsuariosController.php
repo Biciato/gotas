@@ -710,7 +710,7 @@ class UsuariosController extends AppController
                 }
             }
 
-            $password_encrypt = $this->crypt_util->encrypt($usuarioData['senha']);
+            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
 
             if (strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, [
@@ -947,7 +947,7 @@ class UsuariosController extends AppController
                 } else {
                 // senão, grava no banco
 
-                    $password_encrypt = $this->crypt_util->encrypt($usuarioData['senha']);
+                    $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
 
                     foreach ($usuario->errors() as $key => $erro) {
@@ -1502,7 +1502,7 @@ class UsuariosController extends AppController
                 );
             }
 
-            $password_encrypt = $this->crypt_util->encrypt($usuarioData['senha']);
+            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
@@ -1704,7 +1704,7 @@ class UsuariosController extends AppController
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-            $password_encrypt = $this->crypt_util->encrypt($usuarioData['senha']);
+            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
@@ -2204,7 +2204,7 @@ class UsuariosController extends AppController
 
                 if ($usuario) {
                     if (!empty($this->request->getData())) {
-                        $password_encrypt = $this->crypt_util->encrypt($this->request->getData()['senha']);
+                        $password_encrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
 
                         // Limpa campos de requisição de token
                         $this->request->data['token_senha'] = null;
@@ -2505,8 +2505,8 @@ class UsuariosController extends AppController
         try {
             // verificar se quem está acessando é de fato um administrador RTI
 
-            if (!$this->security_util->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if (!$this->securityUtil->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             $conditions = [];
@@ -2578,8 +2578,8 @@ class UsuariosController extends AppController
     {
         // verifica se o usuário é um administrador RTI / developer
 
-        if (!$this->security_util->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
-            $this->security_util->redirectUserNotAuthorized($this);
+        if (!$this->securityUtil->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType', 'AdminDeveloperProfileType')) {
+            $this->securityUtil->redirectUserNotAuthorized($this);
         }
 
         $query = $this->request->query;

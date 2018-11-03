@@ -454,7 +454,7 @@ class ClientesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed(
             $this->usuarioLogado,
             $this->Clientes,
             $this->ClientesHasUsuarios
@@ -564,8 +564,8 @@ class ClientesController extends AppController
             }
 
             // Se usuário não tem acesso, redireciona
-            if (!$this->security_util->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if (!$this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             if (is_null($clientesId)) {

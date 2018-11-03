@@ -31,16 +31,17 @@ class WebTools
      * @param string $url endereço do site
      * @return array objeto contendo resposta
      */
-    public function getPageContent(string $url)
+    public static function getPageContent(string $url)
     {
         try {
 
             $curl = curl_init($url);
 
-            $user_agent = 'Mozilla/5.0 (Windows NT 6.1; rv:8.0) Gecko/20100101 Firefox/8.0';
+            $userAgent = 'Mozilla/5.0 (Windows NT 6.1; rv:8.0) Gecko/20100101 Firefox/8.0';
 
-            $header = [];
-            $header[] = "Accept: text/xml,text/csv,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
+            $header = array();
+            // $header[] = "Accept: text/xml,text/csv,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
+            $header[] = "Accept: application/xml;text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
             $header[] = "Connection: keep-alive";
             $header[] = "Keep-Alive: 300";
 
@@ -56,7 +57,7 @@ class WebTools
                     CURLOPT_CUSTOMREQUEST => "GET",        //set request type post or get
                     CURLOPT_POST => false,        //set to GET
                     // CURLOPT_POST           =>false,        //set to GET
-                    CURLOPT_USERAGENT => $user_agent, //set user agent
+                    CURLOPT_USERAGENT => $userAgent, //set user agent
                     CURLOPT_COOKIEFILE => "cookie.txt", //set cookie file
                     CURLOPT_COOKIEJAR => "cookie.txt", //set cookie jar
                     CURLOPT_RETURNTRANSFER => true,     // return web page
@@ -79,7 +80,9 @@ class WebTools
 
             // $response = utf8_encode($response);
 
-            Log::write('debug', $response);
+            // Log::write('debug', $response);
+
+            // die();
 
             $error = \curl_errno($curl);
 
@@ -111,36 +114,3 @@ class WebTools
         }
     }
 }
-
-// $response = curl_exec($curl);
-
-// curl_close($curl);
-
-// $error = \curl_errno($curl);
-
-// $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-
-// // while (strpos($response, "  ") !== false){
-// //     $response = str_replace("  ", " ", $response, $count);
-// // }
-
-// // $response = json_encode($response);
-// Log::write('debug', $response);
-// // curl_close($curl);
-
-// // só pode prosseguir se houve status= 200
-// $result = array();
-
-// if ($status == 200) {
-//     // ok
-//     // $response = trim($response);
-//     $result = (['response' => $response, 'url' => $url, 'status' => 'online', 'statusCode' => $status]);
-// } elseif ($status >= 400) {
-//     // em qualquer outro caso, gera erro
-//     $result = (['response' => $response, 'url' => $url, 'status' => 'offline', 'statusCode' => $status]);
-//     // $result = (['response' => null, 'url' => $url, 'status' => 'offline', 'statusCode' => $status]);
-// }
-
-
-// return $result;

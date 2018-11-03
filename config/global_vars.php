@@ -179,6 +179,8 @@ Configure::write(
         "messageNoGiftFoundNetwork" => "Não foi encontrado Brindes para a sua Rede!",
         "messageQueryNoDataToReturn" => "A consulta não retornou dados!",
         "messageQueryPaginationEnd" => "Fim de paginação!",
+        "messagePointOfServiceCNPJNotEqual" => "CNPJ apresentado na nota não confere com o CNPJ do estabelecimento!",
+        "messageNotPossibleToImportCoupon" => "Não foi possível importar o cupom!",
 
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
         'messageDateTodayHigherInvalid' => "A {0} não pode ser maior que a data de Hoje!",

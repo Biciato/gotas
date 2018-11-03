@@ -162,7 +162,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $rede = $this->request->session()->read("Rede.Principal");
 
-        // $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        // $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
 
@@ -300,7 +300,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         $content['full_url'] = $fullUrl;
                         $content['admin_name'] = $adminName;
 
-                        $this->email_util->sendMail('price_update_gift', $usuario, 'Preço de Brinde Aguardando Autorização', $content);
+                        $this->emailUtil->sendMail('price_update_gift', $usuario, 'Preço de Brinde Aguardando Autorização', $content);
                     }
                 }
 

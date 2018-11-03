@@ -241,7 +241,7 @@ class BrindesController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
+            $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed(
                 $this->usuarioLogado,
                 $this->Clientes,
                 $this->ClientesHasUsuarios,
@@ -296,15 +296,15 @@ class BrindesController extends AppController
             // verifica se usuário é pelo menos administrador.
 
             if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->security_util->redirectUserNotAuthorized($this);
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
             // Verifica permissão do usuário na rede / unidade da rede
 
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+            $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
 
             // Se não tem acesso, redireciona
             if (!$temAcesso) {
-                return $this->security_util->redirectUserNotAuthorized($this, $this->usuarioLogado);
+                return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
             }
 
             $brinde = $this->Brindes->newEntity();
@@ -477,7 +477,7 @@ class BrindesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed(
             $this->usuarioLogado,
             $this->Clientes,
             $this->ClientesHasUsuarios,

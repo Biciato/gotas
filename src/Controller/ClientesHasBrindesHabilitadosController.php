@@ -214,11 +214,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         // DebugUtil::print($clientes_id);
 
-        $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
+        $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
 
         // DebugUtil::print($temAcesso);
         if (!$temAcesso) {
-            return $this->security_util->redirectUserNotAuthorized($this, $this->usuarioLogado);
+            return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
         }
 
         // obtem os brindes habilitados (e não habilitados) da unidade
@@ -293,7 +293,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
         $rede = $this->request->session()->read('Rede.Principal');
 
@@ -564,7 +564,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $this->security_util->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
+        $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
 

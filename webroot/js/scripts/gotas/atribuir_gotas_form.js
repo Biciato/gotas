@@ -3,7 +3,7 @@
  * @author Gustavo Souza Gonçalves
  * @date 05/09/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -94,7 +94,7 @@ $(document).ready(function () {
     }
 
     /**
-     * Inicia gravação de câmera para captura de imagem 
+     * Inicia gravação de câmera para captura de imagem
      */
     var startScanCapture = function (regionCapture, videoElement, canvasElement) {
 
@@ -206,7 +206,7 @@ $(document).ready(function () {
 
     /**
      * Obtêm todos os modos de combustíveis disponíveis
-     * @param url 
+     * @param url
      */
     var populateFuelWords = function (url) {
 
@@ -287,8 +287,8 @@ $(document).ready(function () {
 
     /**
      * Chama um serviço REST de salvar comprovante
-     * @param {string} url 
-     * 
+     * @param {string} url
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      */
     var saveTaxCoupon = function (url) {
@@ -308,7 +308,7 @@ $(document).ready(function () {
             url: "/PontuacoesComprovantes/saveTaxCoupon",
             data: JSON.stringify({
                 url: urlToSave,
-                clientes_id: $("#clientes_id").val(),
+                clientesCNPJ: $("#clientesCNPJ").val(),
                 usuarios_id: $("#usuarios_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
                 chave_nfe: chave_nfe,
@@ -340,7 +340,7 @@ $(document).ready(function () {
 
     /**
      * Verifica consistência do URL conforme documento da SEFAZ
-     * @param {string} url 
+     * @param {string} url
      */
     var checkURLConsistency = function (url) {
 
@@ -439,7 +439,7 @@ $(document).ready(function () {
             var keyIndex = url.indexOf(key);
             value.index = keyIndex + key.length;
 
-            // registro é obrigatório? 
+            // registro é obrigatório?
             if (!value.isOptional) {
 
                 var errorType = "";
@@ -567,7 +567,7 @@ $(document).ready(function () {
 
     /**
      * Obtêm novo nome para imagem. Salva imagem se obter com sucesso do servidor
-     * @param {base64} imageData 
+     * @param {base64} imageData
      */
     var getNewNameForImage = function (imageData) {
 

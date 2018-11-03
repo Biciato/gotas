@@ -50,7 +50,7 @@ class PontuacoesPendentesTable extends GenericTable
 
     /**
      * Method get of pontuacoesPendentes table property
-     * 
+     *
      * @return Cake\ORM\Table Table object
      */
     private function _getPontuacoesPendentesTable()
@@ -63,7 +63,7 @@ class PontuacoesPendentesTable extends GenericTable
 
     /**
      * Method set of pontuacoesPendentes table property
-     * 
+     *
      * @return void
      */
     private function _setPontuacoesPendentesTable()
@@ -173,7 +173,7 @@ class PontuacoesPendentesTable extends GenericTable
      * @param string $conteudo        Conteúdo da url
      * @param string $chave_nfe       Chave do Cupom Fiscal Eletrônico
      * @param string $estado_nfe      Estado do Cupom Fiscal Eletrônico
-     * 
+     *
      * @return object $entidade
      */
     public function createPontuacaoPendenteAwaitingProcessing($clientes_id, $usuarios_id, $funcionarios_id, $conteudo, $chave_nfe, $estado_nfe)
@@ -191,7 +191,7 @@ class PontuacoesPendentesTable extends GenericTable
 
             $pontuacao_pendente['data'] = date('Y-m-d H:i:s');
 
-            $pontuacao_pendente = $this->_getPontuacoesPendentesTable()->save($pontuacao_pendente);
+            $pontuacao_pendente = $this->save($pontuacao_pendente);
 
             return $pontuacao_pendente;
         } catch (\Exception $e) {
@@ -209,8 +209,8 @@ class PontuacoesPendentesTable extends GenericTable
      * Obtem todas as pontuacoes Pendentes por Id de Cliente
      *
      * @param int $clientes_id Id de Cliente
-     * 
-     * @return \App\Model\Entity\PontuacoesPendentes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesPendentes $array[]
      *  lista de pontuacoes pendentes
      */
     public function getAllPontuacoesPendentesByClienteId(int $clientes_id)
@@ -262,7 +262,7 @@ class PontuacoesPendentesTable extends GenericTable
      *
      * @param string $chave_nfe  Chave da NFE
      * @param string $estado_nfe Estado de Processamento da NFE
-     * 
+     *
      * @return object $pontuacao_pendente
      */
     public function findPontuacaoPendenteAwaitingProcessing(string $chave_nfe, string $estado_nfe)
@@ -345,8 +345,8 @@ class PontuacoesPendentesTable extends GenericTable
      *
      * @param int $clientes_id Id de Cliente
      * @param int $matriz_id   Id da Matriz
-     * 
-     * @return \App\Model\Entity\PontuacoesPendentes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesPendentes $array[]
      *  lista de pontuacoes pendentes
      */
     public function setPontuacoesPendentesToMainCliente(int $clientes_id, int $matriz_id)
@@ -384,7 +384,7 @@ class PontuacoesPendentesTable extends GenericTable
      *
      * @param array $fields     Campos contendo atualização
      * @param array $conditions Condições
-     * 
+     *
      * @return bool
      */
     public function updateAllPontuacoesPendentes(array $fields, array $conditions)
@@ -416,8 +416,8 @@ class PontuacoesPendentesTable extends GenericTable
      * Remove todas as pontuacoes Pendentes por Id de Cliente
      *
      * @param array $clientes_id Ids de Clientes
-     * 
-     * @return \App\Model\Entity\PontuacoesPendentes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesPendentes $array[]
      *  lista de pontuacoes pendentes
      */
     public function deleteAllPontuacoesPendentesByClienteIds(array $clientes_ids)
@@ -447,8 +447,8 @@ class PontuacoesPendentesTable extends GenericTable
      * Remove todas as pontuacoes Pendentes por Id de usuário
      *
      * @param int $usuarios_id Id de Usuário
-     * 
-     * @return \App\Model\Entity\PontuacoesPendentes $array[] 
+     *
+     * @return \App\Model\Entity\PontuacoesPendentes $array[]
      *  lista de pontuacoes pendentes
      */
     public function deleteAllPontuacoesPendentesByUsuariosId(int $usuarios_id)

@@ -48,7 +48,7 @@ class StringUtil
      *
      * @return bool
      */
-    public static function nomeArquivoAleatorio(string $diretorio = null, string $extensao = null)
+    public static function gerarNomeArquivoAleatorio(string $diretorio = null, string $extensao = null)
     {
         $nome = bin2hex(openssl_random_pseudo_bytes(16));
 
@@ -64,5 +64,24 @@ class StringUtil
             "fullDir" => __("{0}{1}{2}", $diretorio, $nome, $extensao),
             "fileName" => __("{0}{1}", $nome, $extensao)
         );
+    }
+
+    /**
+     * StringUtil::validarConteudoXML
+     *
+     * Valida se o conteúdo é XML
+     *
+     * @param string $conteudo Conteudo XML em string
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 02/11/2018
+     *
+     * @return bool resultado
+     */
+    public static function validarConteudoXML(string $conteudo)
+    {
+        $resultado = strpos($conteudo, "?xml");
+
+        return $resultado > -1;
     }
 }

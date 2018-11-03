@@ -45,8 +45,8 @@ class PontuacoesComprovantesShell extends ExtendedShell
 {
     // Fields
     protected $datetime_util = null;
-    protected $email_util = null;
-    protected $sefaz_util = null;
+    protected $emailUtil = null;
+    protected $sefazUtil = null;
 
     /**
      * Método de inicialização
@@ -61,12 +61,12 @@ class PontuacoesComprovantesShell extends ExtendedShell
             $this->datetime_util = new DateTimeUtil();
         }
 
-        if (is_null($this->email_util)) {
-            $this->email_util = new EmailUtil();
+        if (is_null($this->emailUtil)) {
+            $this->emailUtil = new EmailUtil();
         }
 
-        if (is_null($this->sefaz_util)) {
-            $this->sefaz_util = new SefazUtil();
+        if (is_null($this->sefazUtil)) {
+            $this->sefazUtil = new SefazUtil();
         }
     }
 
@@ -182,7 +182,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
                         date('d/m/Y')
                     );
 
-                    $content_array['link_sefaz'] = $this->sefaz_util->getUrlSefazByState($cliente->estado);
+                    $content_array['link_sefaz'] = $this->sefazUtil->getUrlSefazByState($cliente->estado);
 
                     foreach ($destination_users_array as $key => $destination_user) {
 
@@ -199,7 +199,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
                         // debug($content_array);
 
-                        $this->email_util->sendMail(
+                        $this->emailUtil->sendMail(
                             'batch_email_report_day_coupons',
                             $destination_user->usuario,
                             $subject,

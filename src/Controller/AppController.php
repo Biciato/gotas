@@ -46,13 +46,13 @@ class AppController extends Controller
      * ------------------------------------------------------------
      */
     var $persistModel = true;
-    protected $security_util = null;
+    protected $securityUtil = null;
     protected $datetime_util = null;
-    protected $email_util = null;
-    protected $gotas_util = null;
-    protected $sefaz_util = null;
-    protected $web_tools = null;
-    protected $crypt_util = null;
+    protected $emailUtil = null;
+    protected $gotasUtil = null;
+    protected $sefazUtil = null;
+    protected $webTools = null;
+    protected $cryptUtil = null;
 
     /**
      * Initialization hook method.
@@ -253,32 +253,32 @@ class AppController extends Controller
      */
     private function _initializeUtils()
     {
-        if (is_null($this->crypt_util)) {
-            $this->crypt_util = new CryptUtil();
+        if (is_null($this->cryptUtil)) {
+            $this->cryptUtil = new CryptUtil();
         }
 
-        if (is_null($this->email_util)) {
-            $this->email_util = new EmailUtil();
+        if (is_null($this->emailUtil)) {
+            $this->emailUtil = new EmailUtil();
         }
 
-        if (is_null($this->security_util)) {
-            $this->security_util = new Security();
+        if (is_null($this->securityUtil)) {
+            $this->securityUtil = new Security();
         }
 
         if (is_null($this->datetime_util)) {
             $this->datetime_util = new DateTimeUtil();
         }
 
-        if (is_null($this->gotas_util)) {
-            $this->gotas_util = new GotasUtil();
+        if (is_null($this->gotasUtil)) {
+            $this->gotasUtil = new GotasUtil();
         }
 
-        if (is_null($this->sefaz_util)) {
-            $this->sefaz_util = new SefazUtil();
+        if (is_null($this->sefazUtil)) {
+            $this->sefazUtil = new SefazUtil();
         }
 
-        if (is_null($this->web_tools)) {
-            $this->web_tools = new WebTools();
+        if (is_null($this->webTools)) {
+            $this->webTools = new WebTools();
         }
     }
 

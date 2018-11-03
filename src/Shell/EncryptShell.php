@@ -31,7 +31,7 @@ use App\Custom\RTI\CryptUtil;
 class EncryptShell extends ExtendedShell
 {
 
-    protected $crypt_util = null;
+    protected $cryptUtil = null;
 
     /**
      * Método de inicialização
@@ -42,8 +42,8 @@ class EncryptShell extends ExtendedShell
     {
         parent::initialize();
 
-        if (is_null($this->crypt_util)) {
-            $this->crypt_util = new CryptUtil();
+        if (is_null($this->cryptUtil)) {
+            $this->cryptUtil = new CryptUtil();
         }
     }
 
@@ -63,7 +63,7 @@ class EncryptShell extends ExtendedShell
      * @return void
      */
     public function encrypt(string $word){
-        $this->out($this->crypt_util->encrypt($word));
+        $this->out($this->cryptUtil->encrypt($word));
     }
 
     /**
@@ -73,6 +73,6 @@ class EncryptShell extends ExtendedShell
      * @return void
      */
     public function decrypt(string $word){
-        $this->out($this->crypt_util->decrypt($word));
+        $this->out($this->cryptUtil->decrypt($word));
     }
 }

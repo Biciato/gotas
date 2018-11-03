@@ -257,7 +257,7 @@ class PontuacoesController extends AppController
             }
 
             // verifica se usuário é ao menos gerente
-            $this->security_util->checkUserIsAuthorized($this->usuarioLogado, 'ManagerProfileType');
+            $this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, 'ManagerProfileType');
 
             $pontuacoes_cliente = null;
 

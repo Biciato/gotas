@@ -189,8 +189,7 @@ class GotasTable extends GenericTable
                 $conditionsSql[] = $value;
             }
 
-            return $this->_getGotasTable()
-                ->find('all')
+            return $this->find('all')
                 ->where($conditionsSql)
                 ->contain(['Clientes']);
 

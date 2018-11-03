@@ -24,6 +24,14 @@ use Cake\Core\Configure;
                 'value' => $clientes_id,
                 'label' => false
             ]) ?>
+            <?= $this->Form->input('clientesCNPJ', [
+                'type' => 'text',
+                'class' => 'hidden',
+                'id' => 'clientesCNPJ',
+                'value' => $clientesCNPJ,
+                'label' => false
+            ]) ?>
+
            <?php endif; ?>
 
            <?= $this->Form->input(

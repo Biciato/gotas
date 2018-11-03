@@ -163,7 +163,7 @@ class PontuacoesTable extends GenericTable
 
         $validator
             ->decimal('valor_moeda_venda')
-            ->requirePresence('valor_moeda_venda', 'create')
+            // ->requirePresence('valor_moeda_venda', 'create')
             ->allowEmpty('valor_moeda_venda');
 
         $validator
@@ -307,7 +307,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao->data = $data;
             $pontuacao->expirado = false;
 
-            return $this->_getPontuacoesTable()->save($pontuacao);
+            return $this->save($pontuacao);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);

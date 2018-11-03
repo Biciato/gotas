@@ -20,8 +20,8 @@ use Cake\Validation\Validator;
 class PontuacoesPendentesShell extends ExtendedShell
 {
     // Fields
-    protected $web_tools = null;
-    protected $sefaz_util = null;
+    protected $webTools = null;
+    protected $sefazUtil = null;
 
     /**
      * Undocumented function
@@ -32,12 +32,12 @@ class PontuacoesPendentesShell extends ExtendedShell
     {
         parent::initialize();
 
-        if (is_null($this->web_tools)) {
-            $this->web_tools = new WebTools();
+        if (is_null($this->webTools)) {
+            $this->webTools = new WebTools();
         }
 
-        if (is_null($this->sefaz_util)) {
-            $this->sefaz_util = new SefazUtil();
+        if (is_null($this->sefazUtil)) {
+            $this->sefazUtil = new SefazUtil();
         }
     }
 
@@ -86,9 +86,9 @@ class PontuacoesPendentesShell extends ExtendedShell
                     $gotas = $gotas->toArray();
                 }
 
-                $html_content = $this->web_tools->getPageContent($pontuacao_pendente->conteudo);
+                $html_content = $this->webTools->getPageContent($pontuacao_pendente->conteudo);
 
-                // $html_content = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
+                // $html_content = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
 
                 $pontuacoes_comprovante['clientes_id'] = $cliente->id;
                 $pontuacoes_comprovante['usuarios_id'] = $pontuacao_pendente->usuarios_id;
@@ -107,7 +107,7 @@ class PontuacoesPendentesShell extends ExtendedShell
                 $pontuacao['data'] = $pontuacao_pendente->data->format('Y-m-d H:i:s');
 
                 $array_return 
-                    = $this->sefaz_util->convertHtmlToCouponData(
+                    = $this->sefazUtil->convertHtmlToCouponData(
                         $html_content['response'],
                         $gotas,
                         $pontuacoes_comprovante,

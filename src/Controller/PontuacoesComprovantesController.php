@@ -14,6 +14,8 @@ use \DateTime;
 use App\View\Helper\AddressHelper;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\StringUtil;
+use App\Custom\RTI\WebTools;
 
 /**
  * PontuacoesComprovantes Controller
@@ -281,7 +283,7 @@ class PontuacoesComprovantesController extends AppController
      */
     public function removerPontuacoes()
     {
-        if (!$this->security_util->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType')) {
+        if (!$this->securityUtil->checkUserIsAuthorized($this->getUserLogged(), 'AdminDeveloperProfileType')) {
             $this->redirectUserNotAuthorized($this);
         }
     }
@@ -911,239 +913,362 @@ class PontuacoesComprovantesController extends AppController
 
                 $url = $data['url'];
 
-                $is_goias = false;
-                if (strpos($url, "nfe.sefaz.go.gov.br") != 0) {
+                $startSearch = "chNFe=";
+                $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
+                $chave = substr($url, $startSearchIndex, 44);
 
-                    $is_goias = true;
-
-                    $start_search = "chNFe=";
-                    $start_search_index = strpos($url, $start_search) + strlen($start_search);
-
-                    $chave = substr($url, $start_search_index, 44);
-
-                    $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
-
-                }
-                $webContent = $this->web_tools->getPageContent($url);
-
-                // die($webContent['response']);
-                // DebugUtil::print($webContent['response']);
-                // $webContent = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
-
-                $cliente = $this->Clientes->getClienteById($data['clientes_id']);
-
-                $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
-                $funcionario = $this->Usuarios->getUsuarioById($data['funcionarios_id']);
-                $clientes_id = is_null($cliente->matriz_id) ? $cliente->id : $cliente->matriz_id;
-
-                /*
-                 * Como é automático, preciso verificar se a loja
-                 * possui gotas configuradas, se não tiver, preciso verificar a
-                 * matriz. Neste ponto ao menos a matriz deve ter a configuração
-                 */
-
+                $cliente = $this->Clientes->getClienteByCNPJ($data["clientesCNPJ"]);
                 $clientes_ids = [];
 
-                $clientes_ids[] = $cliente->id;
-                // obtem todos os multiplicadores (gotas)
-                $gotas = $this->Gotas->findGotasByClientesId($clientes_ids);
+                $clientes_ids[] = $cliente["id"];
 
-                $gotas = $gotas->toArray();
+                $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+                // TODO: Mudar
+                $funcionario = $this->Usuarios->getUsuarioById($data['funcionarios_id']);
 
-                $pontuacoes_comprovante['clientes_id'] = $cliente->id;
-                $pontuacoes_comprovante['usuarios_id'] = $usuario->id;
-                $pontuacoes_comprovante['funcionarios_id'] = $funcionario->id;
+                $dataProcessamento = date("Y-m-d H:i:s");
 
-                $conteudo = $url;
-
-                $pontuacoes_comprovante['conteudo'] = $conteudo;
-                $pontuacoes_comprovante['chave_nfe'] = $data['chave_nfe'];
-                $pontuacoes_comprovante['estado_nfe'] = $data['estado_nfe'];
-
-                $pontuacoes_comprovante['data'] = date('Y-m-d H:i:s');
-                $pontuacoes_comprovante['requer_auditoria'] = false;
-                $pontuacoes_comprovante['auditado'] = false;
+                $pontuacoesComprovante['clientes_id'] = $cliente->id;
+                $pontuacoesComprovante['usuarios_id'] = $usuario->id;
+                $pontuacoesComprovante['funcionarios_id'] = $funcionario->id;
+                $pontuacoesComprovante['conteudo'] = $url;
+                $pontuacoesComprovante['chave_nfe'] = $data['chave_nfe'];
+                $pontuacoesComprovante['estado_nfe'] = $data['estado_nfe'];
+                $pontuacoesComprovante['data'] = $dataProcessamento;
+                $pontuacoesComprovante['requer_auditoria'] = false;
+                $pontuacoesComprovante['auditado'] = false;
 
                 $pontuacao['clientes_id'] = $cliente->id;
                 $pontuacao['usuarios_id'] = $usuario->id;
                 $pontuacao['funcionarios_id'] = $funcionario->id;
 
-                $pontuacao['data'] = date('Y-m-d H:i:s');
+                $pontuacao['data'] = $dataProcessamento;
 
-                // Status está ok, pode prosseguir com procedimento
+                $gotas = $this->Gotas->findGotasByClientesId($clientes_ids);
+                $gotas = $gotas->toArray();
+
+                $isEstadoGoias = false;
+
+                if (strpos($url, "nfe.sefaz.go.gov.br") != 0) {
+                    $isEstadoGoias = true;
+                    $startSearch = "chNFe=";
+                    $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
+                    $chave = substr($url, $startSearchIndex, 44);
+                    $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
+                }
+
+                $webContent = WebTools::getPageContent($url);
+
                 if ($webContent['statusCode'] == 200) {
+                    // Status está ok, pode prosseguir com procedimento
 
-                    $process_failed = false;
+                    $isXML = StringUtil::validarConteudoXML($webContent["response"]);
 
-                    // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
+                    if ($isXML) {
+                        $xmlDataReturn = simplexml_load_string($webContent["response"]);
+                        $xmlData = json_decode(json_encode((array)$xmlDataReturn), true);
 
-                    $cnpjPos = strpos($webContent['response'], $cliente->cnpj);
+                        $emitente = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["emit"];
+                        $produtosListaXml = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["det"];
+                        $cnpjNotaFiscalXML = $emitente["CNPJ"];
 
-                    if (!$cnpjPos) {
-                        // formata o cnpj e procura novamente
+                        // Confere CNPJ
+                        if ($cliente["cnpj"] != $cnpjNotaFiscalXML) {
 
-                        $cnpjFormatado = substr($cliente->cnpj, 0, 2) . "." . substr($cliente->cnpj, 2, 3) . "." . substr($cliente->cnpj, 5, 3)
-                            . "/" . substr($cliente->cnpj, 8, 4) . "-" . substr($cliente->cnpj, 12, 2);
+                            // Se CNPJ não bate, informa e encerra
+                            $success = false;
+                            $message = __("{0} {1}", Configure::read("messagePointOfServiceCNPJNotEqual"), Configure::read("messageNotPossibleToImportCoupon"));
+                            $data = array();
+                            $arraySet = array('success', 'message', 'pontuacao_pendente', 'data');
 
-                        $cnpjPos = strpos($webContent['response'], $cnpjFormatado);
-                    }
-
-                    if (!$cnpjPos) {
-                        $process_failed = true;
-
-                    } else {
-
-                        if ($is_goias) {
-                            $array_return = $this->sefaz_util->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
-                        } else {
-
-                            $array_return = $this->sefaz_util->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
+                            $this->set(compact($arraySet));
+                            $this->set("_serialize", $arraySet);
+                            return;
                         }
 
-                        $array_save = [];
+                        $pontuacoes = array();
+                        $produtosLista = array();
 
-                        foreach ($array_return as $key => $value) {
-                            array_push($array_save, $value);
-                        }
+                        foreach ($produtosListaXml as $produto) {
+                            $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
+                                return $item["nome_parametro"] == $produto["prod"]["xProd"];
+                            });
 
-                        // DebugUtil::print($array_save);
-                        foreach ($array_save as $key => $value) {
-                            /*
-                             * verifica se tem pontuações à gravar
-                             * se não tem, somente configura o registro
-                             * pendente como processado
-                             */
-                            $array_pontuacao = $value['array_pontuacoes_item'];
+                            $gotaEncontrada = reset($gotaEncontrada);
 
-                            $pontuacao_comprovante_id = null;
-
-                            // DebugUtil::print($array_pontuacao);
-                            if (sizeof($array_pontuacao) > 0) {
-                                // item novo, gera entidade e grava
-                                $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
-
-                                $pontuacao_comprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
-                                    $pontuacao_comprovante['clientes_id'],
-                                    $pontuacao_comprovante['usuarios_id'],
-                                    $pontuacao_comprovante['funcionarios_id'],
-                                    $pontuacao_comprovante['conteudo'],
-                                    $pontuacao_comprovante['chave_nfe'],
-                                    $pontuacao_comprovante['estado_nfe'],
-                                    $pontuacao_comprovante['data'],
-                                    false,
-                                    false
-                                );
-
-                                // item novo. usa id de pontuacao_comprovante e grava
-                                if ($pontuacao_comprovante) {
-                                    $pontuacao_comprovante_id = $pontuacao_comprovante->id;
-
-                                    foreach ($array_pontuacao as $key => $item_pontuacao) {
-                                        $item_pontuacao = $this->Pontuacoes->addPontuacaoCupom(
-                                            $item_pontuacao['clientes_id'],
-                                            $item_pontuacao['usuarios_id'],
-                                            $item_pontuacao['funcionarios_id'],
-                                            $item_pontuacao['gotas_id'],
-
-                                            $item_pontuacao['quantidade_multiplicador'],
-
-                                            $item_pontuacao['quantidade_gotas'],
-                                            $pontuacao_comprovante->id,
-                                            $item_pontuacao['data']
-                                        );
-
-                                        if (!$item_pontuacao) {
-                                            $process_failed = true;
-                                        }
-                                    }
-                                } else {
-                                    $process_failed = true;
-                                }
-                            } else {
-                                $process_failed = true;
-                                $message =
-                                    __(
-                                    'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...',
-                                    $data["chave_nfe"],
-                                    $data["estado_nfe"]
-                                );
+                            if ($gotaEncontrada) {
+                                // Encontrou alguma gota
+                                $produto["prod"]["gota"] = $gotaEncontrada;
+                                $produtosLista[] = $produto;
                             }
                         }
-                    }
 
-                    Log::write('info', 'Finalizado processamento de cupom...');
+                        if (sizeof($produtosLista) == 0) {
+                            // TODO: mensagem de erro informando que não foi encontrado gotas
 
-                    if ($process_failed) {
+                            $success = false;
+                            $message = Configure::read("O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!");
+
+                            $arraySet = array(
+                                'success',
+                                'message',
+                                'pontuacao_pendente',
+                                'data'
+                            );
+
+                            $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente["id"], $usuario["id"], $funcionario["id"], $url, $chave, $cliente["estado"]);
+
+                            return;
+
+                        }
+
+                        $pontuacoesComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+                            $cliente["id"],
+                            $usuario["id"],
+                            $funcionario["id"],
+                            $url,
+                            $chave,
+                            $cliente["estado"],
+                            $dataProcessamento,
+                            false,
+                            false
+                        );
+
+                        foreach ($produtosLista as $produto) {
+
+
+                            $pontuacao = array(
+                                "clientes_id" => $cliente->id,
+                                "usuarios_id" => $usuario->id,
+                                "funcionarios_id" => $funcionario->id,
+                                "gotas_id" => $produto["prod"]["gota"]["id"],
+                                "quantidade_multiplicador" => $produto["prod"]["qCom"],
+                                "quantidade_gotas" => $gotaEncontrada["multiplicador_gota"] * $produto["prod"]["qCom"],
+                                "data" => $dataProcessamento,
+                                "pontuacoes_comprovante_id" => $pontuacoesComprovante["id"],
+                                // "valor_produto" => $produto["prod"]["vUnCom"]
+                            );
+
+                            $pontuacoes[] = $pontuacao;
+                        }
+
+                        $pontuacoes = $this->Pontuacoes->newEntities($pontuacoes);
+
+                        // DebugUtil::print($pontuacoes);
+                        // TODO: Fazer save many na table
+                        $retorno = $this->Pontuacoes->saveMany($pontuacoes);
+
+                        //  = $this->Pontuacoes->addPontuacaoCupom(
+                        //     $item_pontuacao['clientes_id'],
+                        //     $item_pontuacao['usuarios_id'],
+                        //     $item_pontuacao['funcionarios_id'],
+                        //     $item_pontuacao['gotas_id'],
+
+                        //     $item_pontuacao['quantidade_multiplicador'],
+
+                        //     $item_pontuacao['quantidade_gotas'],
+                        //     $pontuacoesComprovante["id"],
+                        //     $item_pontuacao['data']
+                        // );
+
+
+                        $success = false;
+                        $message = Configure::read("O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!");
+
+                        $arraySet = array(
+                            'success',
+                            'message',
+                            'pontuacao_pendente',
+                            'data'
+                        );
+
+                        // $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente["id"], $usuario["id"], $funcionario["id"], $url, $chave, $cliente["estado"]);
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+                        return;
+
+                    } else {
+                        // É HTML
+
+                        $processFailed = false;
+
+                        // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
+
+                        $cnpjPos = strpos($webContent['response'], $cliente["cnpj"]);
 
                         if (!$cnpjPos) {
-                            $message = "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...";
+                        // formata o cnpj e procura novamente
+
+                            $cnpjFormatado = substr($cliente->cnpj, 0, 2) . "." . substr($cliente->cnpj, 2, 3) . "." . substr($cliente->cnpj, 5, 3)
+                                . "/" . substr($cliente->cnpj, 8, 4) . "-" . substr($cliente->cnpj, 12, 2);
+
+                            $cnpjPos = strpos($webContent['response'], $cnpjFormatado);
                         }
-                        Log::write('error', $message);
 
-                        $success = false;
+                        if (!$cnpjPos) {
+                            $processFailed = true;
 
-                    } elseif (sizeof($array_pontuacao) == 0) {
-                        $estado = $this->address_helper->getStatesBrazil($data['estado_nfe']);
-                        $success = false;
-                        $message =
-                            __(
-                            'No Cupom Fiscal {0} da SEFAZ do estado da {1} não há gotas à processar conforme configurações definidas!...',
-                            $data['chave_nfe'],
-                            $estado
-                        );
-                    } else {
-                        $pontuacao_comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacao_comprovante->id);
-                        $success = true;
-                        $data = $pontuacao_comprovante;
+                        } else {
+
+                            if ($isEstadoGoias) {
+                                $arrayReturn = $this->sefazUtil->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacao, null);
+                            } else {
+                                $arrayReturn = $this->sefazUtil->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacao, null);
+                            }
+
+                            $arraySave = [];
+
+                            foreach ($arrayReturn as $key => $value) {
+                                array_push($arraySave, $value);
+                            }
+
+                        // DebugUtil::print($arraySave);
+                            foreach ($arraySave as $key => $value) {
+                            /*
+                                 * verifica se tem pontuações à gravar
+                                 * se não tem, somente configura o registro
+                                 * pendente como processado
+                                 */
+                                $arrayPontuacao = $value['array_pontuacoes_item'];
+
+                                $pontuacaoComprovanteId = null;
+
+                            // DebugUtil::print($arrayPontuacao);
+                                if (sizeof($arrayPontuacao) > 0) {
+                                // item novo, gera entidade e grava
+
+
+                                    $pontuacoesComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+                                        $pontuacoesComprovante['clientes_id'],
+                                        $pontuacoesComprovante['usuarios_id'],
+                                        $pontuacoesComprovante['funcionarios_id'],
+                                        $pontuacoesComprovante['conteudo'],
+                                        $pontuacoesComprovante['chave_nfe'],
+                                        $pontuacoesComprovante['estado_nfe'],
+                                        $pontuacoesComprovante['data'],
+                                        false,
+                                        false
+                                    );
+
+                                // item novo. usa id de pontuacao_comprovante e grava
+                                    if ($pontuacoesComprovante) {
+                                        $pontuacaoComprovanteId = $pontuacoesComprovante["id"];
+
+                                        foreach ($arrayPontuacao as $key => $item_pontuacao) {
+                                            $item_pontuacao = $this->Pontuacoes->addPontuacaoCupom(
+                                                $item_pontuacao['clientes_id'],
+                                                $item_pontuacao['usuarios_id'],
+                                                $item_pontuacao['funcionarios_id'],
+                                                $item_pontuacao['gotas_id'],
+
+                                                $item_pontuacao['quantidade_multiplicador'],
+
+                                                $item_pontuacao['quantidade_gotas'],
+                                                $pontuacaoComprovanteId,
+                                                $item_pontuacao['data']
+                                            );
+
+                                            if (!$item_pontuacao) {
+                                                $processFailed = true;
+                                            }
+                                        }
+                                    } else {
+                                        $processFailed = true;
+                                    }
+                                } else {
+                                    $processFailed = true;
+                                    $message =
+                                        __(
+                                        'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...',
+                                        $data["chave_nfe"],
+                                        $data["estado_nfe"]
+                                    );
+                                }
+                            }
+                        }
+
+                        Log::write('info', 'Finalizado processamento de cupom...');
+
+                        if ($processFailed) {
+
+                            if (!$cnpjPos) {
+                                $message = "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...";
+                            }
+                            Log::write('error', $message);
+
+                            $success = false;
+
+                        } elseif (sizeof($arrayPontuacao) == 0) {
+                            $estado = $this->address_helper->getStatesBrazil($data['estado_nfe']);
+                            $success = false;
+                            $message =
+                                __(
+                                'No Cupom Fiscal {0} da SEFAZ do estado da {1} não há gotas à processar conforme configurações definidas!...',
+                                $data['chave_nfe'],
+                                $estado
+                            );
+                        } else {
+                            $pontuacoesComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteId);
+                            $success = true;
+                            $data = $pontuacoesComprovante;
+                        }
                     }
                 } else {
                     // Status está anormal, grava para posterior processamento
 
-                    echo __LINE__;
-                    echo "<br />";
+                        // echo __LINE__;
+                        // echo "<br />";
                     $pontuacao_pendente = $this
                         ->PontuacoesPendentes
                         ->createPontuacaoPendenteAwaitingProcessing(
                             $cliente->id,
                             $usuario->id,
                             $funcionario->id,
-                            $conteudo,
+                            $url,
                             $pontuacoes_comprovante['chave_nfe'],
                             $pontuacoes_comprovante['estado_nfe']
                         );
 
                     if ($pontuacao_pendente) {
                         $success = true;
+                        $message = "";
+                        $data = $pontuacoesComprovante;
+
+                        $arraySet = [
+                            'success',
+                            'message',
+                            'pontuacao_pendente',
+                            'data'
+                        ];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
                     } else {
                         $success = false;
-                        $message = __('O registro não pode ser criado. Tente novamente.');
+                        $message = __('A Importação de dados não pode ser concluída no momento, pois há uma falha de comunicação. Mas não se preocupe, assim que tudo estiver certo os dados irão aparecer em seu cadastro!');
+
+                        $arraySet = array(
+                            'success',
+                            'message',
+                            'pontuacao_pendente',
+                            'data'
+                        );
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
                     }
                 }
+
             }
-
-            // DebugUtil::printArray($pontuacao_pendente, false);
-
-            if ($success) {
-                $data = $pontuacao_comprovante;
-            } else {
-                $data = array();
-            }
-            $arraySet = [
-                'success',
-                'message',
-                'pontuacao_pendente',
-                'data'
-            ];
-
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $stringError = __("Erro ao obter conteúdo html de cupom fiscal: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
         }
     }
 
@@ -1247,7 +1372,7 @@ class PontuacoesComprovantesController extends AppController
                         $chave_nfe = $data['chave_nfe'];
 
                         // monta string para conteudo url
-                        $conteudo = $this->sefaz_util->getUrlSefazByState($estado_nfe) . $chave_nfe;
+                        $conteudo = $this->sefazUtil->getUrlSefazByState($estado_nfe) . $chave_nfe;
                     }
 
                     // na forma manual, eu ja tenho o id de gotas que preciso
@@ -1563,26 +1688,22 @@ class PontuacoesComprovantesController extends AppController
                     return;
                 }
 
-                $is_goias = false;
+                $isEstadoGoias = false;
                 if (strpos($url, "nfe.sefaz.go.gov.br") != 0) {
 
-                    $is_goias = true;
+                    $isEstadoGoias = true;
 
-                    $start_search = "chNFe=";
-                    $start_search_index = strpos($url, $start_search) + strlen($start_search);
+                    $startSearch = "chNFe=";
+                    $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
 
-                    $chave = substr($url, $start_search_index, 44);
+                    $chave = substr($url, $startSearchIndex, 44);
 
                     $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
 
                 }
-                // echo $url;
-                // die();
-                // DebugUtil::print($url);
-                // die();
-                // Log::write("debug", $url);
 
-                $webContent = $this->web_tools->getPageContent($url);
+
+                $webContent = $this->webTools->getPageContent($url);
 
                 // DebugUtil::printArray($webContent);
 
@@ -1623,7 +1744,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $content = null;
 
-                // $webContent = $this->web_tools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
+                // $webContent = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
 
                 /**
                  * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
@@ -1700,25 +1821,23 @@ class PontuacoesComprovantesController extends AppController
                 $clientes_ids = [];
 
                 $clientes_ids[] = $cliente->id;
+
+                $conteudo = $url;
+
                 // obtem todos os multiplicadores (gotas)
                 $gotas = $this->Gotas->findGotasByClientesId($clientes_ids);
 
                 $gotas = $gotas->toArray();
 
-                $pontuacoes_comprovante['clientes_id'] = $cliente->id;
-                $pontuacoes_comprovante['usuarios_id'] = $usuario->id;
-                $pontuacoes_comprovante['funcionarios_id'] = $funcionario->id;
-
-                $conteudo = $url;
-
-                $pontuacoes_comprovante['conteudo'] = $conteudo;
-                $pontuacoes_comprovante['chave_nfe'] = $chaveNFE;
-
-                $pontuacoes_comprovante['estado_nfe'] = $estado;
-
-                $pontuacoes_comprovante['data'] = date('Y-m-d H:i:s');
-                $pontuacoes_comprovante['requer_auditoria'] = false;
-                $pontuacoes_comprovante['auditado'] = false;
+                $pontuacoesComprovante['clientes_id'] = $cliente->id;
+                $pontuacoesComprovante['usuarios_id'] = $usuario->id;
+                $pontuacoesComprovante['funcionarios_id'] = $funcionario->id;
+                $pontuacoesComprovante['conteudo'] = $conteudo;
+                $pontuacoesComprovante['chave_nfe'] = $chaveNFE;
+                $pontuacoesComprovante['estado_nfe'] = $estado;
+                $pontuacoesComprovante['data'] = date('Y-m-d H:i:s');
+                $pontuacoesComprovante['requer_auditoria'] = false;
+                $pontuacoesComprovante['auditado'] = false;
 
                 $pontuacao['clientes_id'] = $cliente->id;
                 $pontuacao['usuarios_id'] = $usuario->id;
@@ -1729,7 +1848,7 @@ class PontuacoesComprovantesController extends AppController
                 // Status está ok, pode prosseguir com procedimento
                 if ($webContent['statusCode'] == 200) {
 
-                    $process_failed = false;
+                    $processFailed = false;
 
                     // verifica se nota possui o CNPJ. se o CNPJ for diferente, não autoriza a importação
 
@@ -1746,25 +1865,25 @@ class PontuacoesComprovantesController extends AppController
                     }
 
                     if (!$cnpjPos) {
-                        $process_failed = true;
+                        $processFailed = true;
 
                     } else {
 
-                        if ($is_goias) {
-                            $array_return = $this->sefaz_util->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
+                        if ($isEstadoGoias) {
+                            $arrayReturn = $this->sefazUtil->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacao, null);
                         } else {
 
-                            $array_return = $this->sefaz_util->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacoes_comprovante, $pontuacao, null);
+                            $arrayReturn = $this->sefazUtil->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacao, null);
                         }
 
-                        $array_save = [];
+                        $arraySave = [];
 
-                        foreach ($array_return as $key => $value) {
-                            array_push($array_save, $value);
+                        foreach ($arrayReturn as $key => $value) {
+                            array_push($arraySave, $value);
                         }
 
-                        // DebugUtil::printArray($array_save);
-                        if (sizeof($array_save[0]["array_pontuacoes_item"]) == 0) {
+                        // DebugUtil::printArray($arraySave);
+                        if (sizeof($arraySave[0]["array_pontuacoes_item"]) == 0) {
                             $mensagem = array(
                                 "status" => 0,
                                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -1781,7 +1900,7 @@ class PontuacoesComprovantesController extends AppController
                             return;
                         }
 
-                        foreach ($array_save as $key => $value) {
+                        foreach ($arraySave as $key => $value) {
                             /*
                              * verifica se tem pontuações à gravar
                              * se não tem, somente configura o registro
@@ -1828,11 +1947,11 @@ class PontuacoesComprovantesController extends AppController
                                         );
 
                                         if (!$item_pontuacao) {
-                                            $process_failed = true;
+                                            $processFailed = true;
                                         }
                                     }
                                 } else {
-                                    $process_failed = true;
+                                    $processFailed = true;
                                 }
                             } else {
                                 $mensagem = array(
@@ -1855,7 +1974,7 @@ class PontuacoesComprovantesController extends AppController
 
                     Log::write('info', 'Finalizado processamento de cupom...');
 
-                    if ($process_failed) {
+                    if ($processFailed) {
 
                         if (!$cnpjPos) {
                             $message = "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...";
@@ -1897,8 +2016,8 @@ class PontuacoesComprovantesController extends AppController
                             $usuario->id,
                             $funcionario->id,
                             $conteudo,
-                            $pontuacoes_comprovante['chave_nfe'],
-                            $pontuacoes_comprovante['estado_nfe']
+                            $pontuacoesComprovante['chave_nfe'],
+                            $pontuacoesComprovante['estado_nfe']
                         );
 
                     if ($pontuacao_pendente) {
@@ -1912,11 +2031,11 @@ class PontuacoesComprovantesController extends AppController
                 }
             }
 
-            if (empty($pontuacao_comprovante)) {
-                $pontuacao_comprovante = array();
+            if (empty($pontuacoesComprovante)) {
+                $pontuacoesComprovante = array();
             }
 
-            $pontuacoes_comprovantes = $pontuacao_comprovante;
+            $pontuacoesComprovantes = $pontuacoesComprovante;
 
             $funcionarioOperacao = array(
                 "id" => $funcionario->id,
@@ -1931,12 +2050,12 @@ class PontuacoesComprovantesController extends AppController
 
             $comprovanteResumo = array();
 
-            $comprovanteResumo["chave_nfe"] = $pontuacoes_comprovantes["chave_nfe"];
-            $comprovanteResumo["estado_nfe"] = $pontuacoes_comprovantes["estado_nfe"];
-            $comprovanteResumo["data"] = $pontuacoes_comprovantes["data"];
-            $comprovanteResumo["soma_pontuacoes"] = $pontuacoes_comprovantes["soma_pontuacoes"];
+            $comprovanteResumo["chave_nfe"] = $pontuacoesComprovantes["chave_nfe"];
+            $comprovanteResumo["estado_nfe"] = $pontuacoesComprovantes["estado_nfe"];
+            $comprovanteResumo["data"] = $pontuacoesComprovantes["data"];
+            $comprovanteResumo["soma_pontuacoes"] = $pontuacoesComprovantes["soma_pontuacoes"];
 
-            foreach ($pontuacoes_comprovantes["pontuacoes"] as $key => $pontuacao) {
+            foreach ($pontuacoesComprovantes["pontuacoes"] as $key => $pontuacao) {
 
                 $item = array(
                     "nome_gota" => $pontuacao["gota"]["nome_parametro"],
@@ -1964,6 +2083,8 @@ class PontuacoesComprovantesController extends AppController
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
+
+        $pontuacoes_comprovantes = $pontuacoesComprovantes;
 
         $arraySet = [
             'mensagem',
