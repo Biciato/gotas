@@ -80,7 +80,7 @@ class WebTools
 
             // $response = utf8_encode($response);
 
-            // Log::write('debug', $response);
+            Log::write('debug', $response);
 
             // die();
 

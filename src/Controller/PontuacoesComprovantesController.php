@@ -16,6 +16,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\StringUtil;
 use App\Custom\RTI\WebTools;
+use App\Custom\RTI\SefazUtil;
 
 /**
  * PontuacoesComprovantes Controller
@@ -918,19 +919,25 @@ class PontuacoesComprovantesController extends AppController
                 $chave = substr($url, $startSearchIndex, 44);
 
                 $cliente = $this->Clientes->getClienteByCNPJ($data["clientesCNPJ"]);
-                $clientes_ids = [];
-
+                $clientes_ids = array();
                 $clientes_ids[] = $cliente["id"];
 
                 $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
                 // TODO: Mudar
-                $funcionario = $this->Usuarios->getUsuarioById($data['funcionarios_id']);
+                // $funcionario = $this->Usuarios->getUsuarioById($data['funcionarios_id']);
+                $funcionario = $this->Auth->user();
+
+                $usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
+
+                if (!empty($usuarioAdministrar)) {
+                    $funcionario = $usuarioAdministrar;
+                }
 
                 $dataProcessamento = date("Y-m-d H:i:s");
 
                 $pontuacoesComprovante['clientes_id'] = $cliente->id;
-                $pontuacoesComprovante['usuarios_id'] = $usuario->id;
-                $pontuacoesComprovante['funcionarios_id'] = $funcionario->id;
+                $pontuacoesComprovante['usuarios_id'] = $usuario["id"];
+                $pontuacoesComprovante['funcionarios_id'] = $funcionario["id"];
                 $pontuacoesComprovante['conteudo'] = $url;
                 $pontuacoesComprovante['chave_nfe'] = $data['chave_nfe'];
                 $pontuacoesComprovante['estado_nfe'] = $data['estado_nfe'];
@@ -940,12 +947,28 @@ class PontuacoesComprovantesController extends AppController
 
                 $pontuacao['clientes_id'] = $cliente->id;
                 $pontuacao['usuarios_id'] = $usuario->id;
-                $pontuacao['funcionarios_id'] = $funcionario->id;
+                $pontuacao['funcionarios_id'] = $funcionario["id"];
 
                 $pontuacao['data'] = $dataProcessamento;
 
                 $gotas = $this->Gotas->findGotasByClientesId($clientes_ids);
                 $gotas = $gotas->toArray();
+
+
+                if (sizeof($gotas) == 0) {
+                    $success = false;
+                    $message = Configure::read("messageGotasPointOfServiceNotConfigured");
+
+                    $pontuacao_pendente = $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente["id"], $usuario["id"], $funcionario["id"], $url, $chave, $cliente["estado"]);
+                    $arraySet = array(
+                        'success',
+                        'message',
+                        'pontuacao_pendente',
+                        'data'
+                    );
+
+                    return;
+                }
 
                 $isEstadoGoias = false;
 
@@ -965,131 +988,140 @@ class PontuacoesComprovantesController extends AppController
                     $isXML = StringUtil::validarConteudoXML($webContent["response"]);
 
                     if ($isXML) {
-                        $xmlDataReturn = simplexml_load_string($webContent["response"]);
-                        $xmlData = json_decode(json_encode((array)$xmlDataReturn), true);
 
-                        $emitente = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["emit"];
-                        $produtosListaXml = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["det"];
-                        $cnpjNotaFiscalXML = $emitente["CNPJ"];
+                        $xml = SefazUtil::getSefazXMLDataToArray($webContent["response"]);
 
-                        // Confere CNPJ
-                        if ($cliente["cnpj"] != $cnpjNotaFiscalXML) {
+                        Log::write("debug", $xml);
 
-                            // Se CNPJ não bate, informa e encerra
-                            $success = false;
-                            $message = __("{0} {1}", Configure::read("messagePointOfServiceCNPJNotEqual"), Configure::read("messageNotPossibleToImportCoupon"));
-                            $data = array();
-                            $arraySet = array('success', 'message', 'pontuacao_pendente', 'data');
+                        $emitente = $xml["emitente"];
+                        $produtosListaXml = $xml["produtos"];
+                        $cnpjNotaFiscalXML = $xml["cnpj"];
 
-                            $this->set(compact($arraySet));
-                            $this->set("_serialize", $arraySet);
-                            return;
-                        }
 
-                        $pontuacoes = array();
-                        $produtosLista = array();
-
-                        foreach ($produtosListaXml as $produto) {
-                            $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
-                                return $item["nome_parametro"] == $produto["prod"]["xProd"];
-                            });
-
-                            $gotaEncontrada = reset($gotaEncontrada);
-
-                            if ($gotaEncontrada) {
-                                // Encontrou alguma gota
-                                $produto["prod"]["gota"] = $gotaEncontrada;
-                                $produtosLista[] = $produto;
-                            }
-                        }
-
-                        if (sizeof($produtosLista) == 0) {
-                            // TODO: mensagem de erro informando que não foi encontrado gotas
-
-                            $success = false;
-                            $message = Configure::read("O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!");
-
-                            $arraySet = array(
-                                'success',
-                                'message',
-                                'pontuacao_pendente',
-                                'data'
-                            );
-
-                            $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente["id"], $usuario["id"], $funcionario["id"], $url, $chave, $cliente["estado"]);
-
-                            return;
-
-                        }
-
-                        $pontuacoesComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
-                            $cliente["id"],
-                            $usuario["id"],
-                            $funcionario["id"],
-                            $url,
-                            $chave,
-                            $cliente["estado"],
-                            $dataProcessamento,
-                            false,
-                            false
-                        );
-
-                        Log::write("debug", $produtosLista);
-
-                        $somaPontuacoes = 0;
-                        foreach ($produtosLista as $produto) {
-
-                            $gota = $produto["prod"]["gota"];
-
-                            $pontuacao = array(
-                                "clientes_id" => $cliente->id,
-                                "usuarios_id" => $usuario->id,
-                                "funcionarios_id" => $funcionario->id,
-                                "gotas_id" => $produto["prod"]["gota"]["id"],
-                                "quantidade_multiplicador" => $produto["prod"]["qCom"],
-                                "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
-                                "gota" => $gota,
-                                "data" => $dataProcessamento,
-                                "pontuacoes_comprovante_id" => $pontuacoesComprovante["id"],
-                                // "valor_produto" => $produto["prod"]["vUnCom"]
-                            );
-
-                            $somaPontuacoes += $pontuacao["quantidade_gotas"];
-
-                            $pontuacoes[] = $pontuacao;
-                        }
-
-                        $pontuacoesSave = $this->Pontuacoes->newEntities($pontuacoes);
-
-                        // DebugUtil::print($pontuacoes);
-                        // TODO: Fazer save many na table
-                        $retorno = $this->Pontuacoes->saveMany($pontuacoesSave);
-
-                        // Catadupas
-                        // Nova Suiça,
-                        // Desembargador Barcelos, 1014
-                        // Dafine
-
-                        $success = true;
-                        $message = Configure::read("messageCouponImportSuccess");
-                        $data = array(
-                            "pontuacoes" => $pontuacoes,
-                            "usuario" => $usuario,
-                            "soma_pontuacoes" => $somaPontuacoes
-                        );
-
-                        $arraySet = array(
-                            'success',
-                            'message',
-                            'pontuacao_pendente',
-                            'data'
-                        );
+                        $retorno = $this->_processaDadosCupomSefaz($cliente, $usuario, $funcionario, $url, $chave, $cnpjNotaFiscalXML, $produtosListaXml, $gotas);
 
                         // $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente["id"], $usuario["id"], $funcionario["id"], $url, $chave, $cliente["estado"]);
+
+                        // TODO: mudar este resultado no futuro.
+                        $arraySet = array("mensagem", "message", "success", "errors", "pontuacoes", "usuario", "pontuacoes_comprovante", "soma_pontuacoes", "data");
+
+                        if (!empty($retorno["mensagem"])) {
+                            $success = $retorno["mensagem"]["status"];
+                            $message = $retorno["mensagem"]["message"];
+                            $errors = $retorno["mensagem"]["errors"];
+                            $data = $retorno["data"];
+
+                            if (!empty($data)) {
+                                $pontuacoes_comprovante = $data["pontuacoes_comprovante"];
+                                $pontuacoes = $data["pontuacoes"];
+                                $usuario = $data["usuario"];
+                            }
+                            $soma_pontuacoes = $retorno["soma_pontuacoes"];
+                        }
 
                         $this->set(compact($arraySet));
                         $this->set("_serialize", $arraySet);
                         return;
+                        // if ($cliente["cnpj"] != $cnpjNotaFiscalXML) {
+
+                        //     // Se CNPJ não bate, informa e encerra
+                        //     $success = false;
+                        //     $message = __("{0} {1}", Configure::read("messagePointOfServiceCNPJNotEqual"), Configure::read("messageNotPossibleToImportCoupon"));
+                        //     $data = array();
+                        //     $arraySet = array('success', 'message', 'pontuacao_pendente', 'data');
+
+                        //     $this->set(compact($arraySet));
+                        //     $this->set("_serialize", $arraySet);
+                        //     return;
+                        // }
+
+                        // $pontuacoes = array();
+                        // $produtosLista = array();
+
+                        // foreach ($produtosListaXml as $produto) {
+                        //     $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
+                        //         return $item["nome_parametro"] == $produto["prod"]["xProd"];
+                        //     });
+
+                        //     $gotaEncontrada = reset($gotaEncontrada);
+
+                        //     if ($gotaEncontrada) {
+                        //         // Encontrou alguma gota
+                        //         $produto["prod"]["gota"] = $gotaEncontrada;
+                        //         $produtosLista[] = $produto;
+                        //     }
+                        // }
+
+                        // if (sizeof($produtosLista) == 0) {
+                        //     // TODO: mensagem de erro informando que não foi encontrado gotas
+
+                        //     $success = false;
+                        //     $message = __("{0} {1}", Configure::read("messageOperationFailureDuringProcessing"), Configure::read("messageGotasPointOfServiceNotConfigured"));
+
+                        //     $arraySet = array(
+                        //         'success',
+                        //         'message',
+                        //         'pontuacao_pendente',
+                        //         'data'
+                        //     );
+
+                        //     return;
+                        // }
+
+                        // $pontuacoesComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+                        //     $cliente["id"],
+                        //     $usuario["id"],
+                        //     $funcionario["id"],
+                        //     $url,
+                        //     $chave,
+                        //     $cliente["estado"],
+                        //     $dataProcessamento,
+                        //     false,
+                        //     false
+                        // );
+
+                        // Log::write("debug", $produtosLista);
+
+                        // $somaPontuacoes = 0;
+                        // foreach ($produtosLista as $produto) {
+
+                        //     $gota = $produto["prod"]["gota"];
+
+                        //     $pontuacao = array(
+                        //         "clientes_id" => $cliente->id,
+                        //         "usuarios_id" => $usuario->id,
+                        //         "funcionarios_id" => $funcionario["id"],
+                        //         "gotas_id" => $produto["prod"]["gota"]["id"],
+                        //         "quantidade_multiplicador" => $produto["prod"]["qCom"],
+                        //         "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
+                        //         "gota" => $gota,
+                        //         "data" => $dataProcessamento,
+                        //         "pontuacoes_comprovante_id" => $pontuacoesComprovante["id"],
+                        //         // "valor_produto" => $produto["prod"]["vUnCom"]
+                        //     );
+
+                        //     $somaPontuacoes += $pontuacao["quantidade_gotas"];
+
+                        //     $pontuacoes[] = $pontuacao;
+
+                        // }
+
+                        // $retorno = $this->Pontuacoes->insertPontuacoesCupons($pontuacoes);
+
+                        // $success = true;
+                        // $message = Configure::read("messageCouponImportSuccess");
+                        // $data = array(
+                        //     "pontuacoes" => $pontuacoes,
+                        //     "usuario" => $usuario,
+                        //     "soma_pontuacoes" => $somaPontuacoes
+                        // );
+
+                        // $arraySet = array(
+                        //     'success',
+                        //     'message',
+                        //     'pontuacao_pendente',
+                        //     'data'
+                        // );
 
                     } else {
                         // É HTML
@@ -1223,12 +1255,12 @@ class PontuacoesComprovantesController extends AppController
                     $pontuacao_pendente = $this
                         ->PontuacoesPendentes
                         ->createPontuacaoPendenteAwaitingProcessing(
-                            $cliente->id,
-                            $usuario->id,
-                            $funcionario->id,
+                            $cliente["id"],
+                            $usuario["id"],
+                            $funcionario["id"],
                             $url,
-                            $pontuacoes_comprovante['chave_nfe'],
-                            $pontuacoes_comprovante['estado_nfe']
+                            $data['chave_nfe'],
+                            $data['estado_nfe']
                         );
 
                     if ($pontuacao_pendente) {
@@ -2262,7 +2294,7 @@ class PontuacoesComprovantesController extends AppController
      * Verifica por um cupom previamente importado
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date   2018/05/09
+     * @since  2018-05-09
      *
      * @param string $chaveNFE Chave da Nota Fiscal
      * @param string $estado   Estado da Nota Fiscal
@@ -2351,6 +2383,153 @@ class PontuacoesComprovantesController extends AppController
             Log::write('error', $stringError);
             Log::write("error", $trace);
         }
+    }
+
+
+    /**
+     * PontuacoesComprovantesController::_processaDadosCupomSefaz
+     *
+     * Processa dados de Cupom da Sefaz
+     *
+     * @param \App\Model\Entity\Cliente $cliente Objeto Cliente
+     * @param \App\Model\Entity\Usuario  $usuarioId Id de Usuário
+     * @param \App\Model\Entity\Usuario  $funcionarioId Id de Funcionário
+     * @param string $url URL da Chave
+     * @param string $chave Chave da URL
+     * @param string $cnpjNotaFiscalXML CNPJ contido na nota fiscal
+     * @param array $produtosListaXml Array de Produtos do XML
+     * @param array $gotas As gotas do cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-11-05
+     *
+     * @return array Resultado
+     */
+    private function _processaDadosCupomSefaz(\App\Model\Entity\Cliente $cliente, \App\Model\Entity\Usuario $usuario, \App\Model\Entity\Usuario $funcionario, string $url, string $chave, string $cnpjNotaFiscalXML, array $produtosListaXml, array $gotas)
+    {
+
+
+        $dataProcessamento = date("Y-m-d H:i:s");
+        // Confere CNPJ
+        if ($cliente["cnpj"] != $cnpjNotaFiscalXML) {
+
+            // Se CNPJ não bate, informa e encerra
+            $success = false;
+            $message = __(Configure::read("messageOperationFailureDuringProcessing"));
+            $data = array();
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => $success,
+                    "message" => $message,
+                    "errors" => array(
+                        Configure::read("messagePointOfServiceCNPJNotEqual"),
+                        Configure::read("messageNotPossibleToImportCoupon")
+                    )
+                ),
+                "data" => $data
+            );
+
+            return $retorno;
+        }
+
+        $pontuacoes = array();
+        $produtosLista = array();
+
+        foreach ($produtosListaXml as $produto) {
+            $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
+                return $item["nome_parametro"] == $produto["prod"]["xProd"];
+            });
+
+            $gotaEncontrada = reset($gotaEncontrada);
+
+            if ($gotaEncontrada) {
+                // Encontrou alguma gota
+                $produto["prod"]["gota"] = $gotaEncontrada;
+                $produtosLista[] = $produto;
+            }
+        }
+
+        if (sizeof($produtosLista) == 0) {
+            // TODO: mensagem de erro informando que não foi encontrado gotas
+
+            $success = false;
+            $message = __(Configure::read("messageOperationFailureDuringProcessing"));
+            $data = array();
+
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => $success,
+                    "message" => $message,
+                    "errors" => array(
+                        Configure::read("messageOperationFailureDuringProcessing"),
+                        Configure::read("messageGotasPointOfServiceNotConfigured")
+                    )
+                ),
+                "data" => $data
+            );
+
+            return $retorno;
+        }
+
+        $pontuacoesComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+            $cliente["id"],
+            $usuario["id"],
+            $funcionario["id"],
+            $url,
+            $chave,
+            $cliente["estado"],
+            $dataProcessamento,
+            false,
+            false
+        );
+
+        Log::write("debug", $produtosLista);
+
+        $somaPontuacoes = 0;
+        foreach ($produtosLista as $produto) {
+
+            $gota = $produto["prod"]["gota"];
+
+            $pontuacao = array(
+                "clientes_id" => $cliente["id"],
+                "usuarios_id" => $usuario["id"],
+                "funcionarios_id" => $funcionario["id"],
+                "gotas_id" => $produto["prod"]["gota"]["id"],
+                "quantidade_multiplicador" => $produto["prod"]["qCom"],
+                "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
+                "gota" => $gota,
+                "data" => $dataProcessamento,
+                "pontuacoes_comprovante_id" => $pontuacoesComprovante["id"],
+                // "valor_produto" => $produto["prod"]["vUnCom"]
+            );
+
+            $somaPontuacoes += $pontuacao["quantidade_gotas"];
+
+            $pontuacoes[] = $pontuacao;
+
+        }
+
+        $retorno = $this->Pontuacoes->insertPontuacoesCupons($pontuacoes);
+
+        $success = true;
+        $message = __(Configure::read("messageProcessingCompleted"));
+        $data = $pontuacoes;
+
+        $retorno = array(
+            "mensagem" => array(
+                "status" => $success,
+                "message" => $message,
+                "errors" => array()
+            ),
+            "data" => array(
+                "pontuacoes_comprovante" => $pontuacoesComprovante,
+                "pontuacoes" => $pontuacoes,
+                "usuario" => $usuario,
+                "soma_pontuacoes" => $somaPontuacoes
+            ),
+        );
+
+        return $retorno;
     }
 
     /**

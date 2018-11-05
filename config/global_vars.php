@@ -250,7 +250,8 @@ Configure::write(
 
         // Gotas
 
-        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou a(s) Gota(s). As Gotas serão creditadas quando o estabelecimento efetuar a configuração!",
+        "messageGotasCouponDoesNotContainPointOfService" => "O cupom informado não possui as Gotas que o cliente oferece como pontos de milhagem.",
+        "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou a(s) Gota(s). As Gotas de seu Cupom serão creditadas quando o estabelecimento efetuar a configuração!",
 
         // Mensagens de Pontuações
         "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",

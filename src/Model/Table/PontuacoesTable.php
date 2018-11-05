@@ -259,7 +259,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao->data = date('Y-m-d H:i:s');
             $pontuacao->funcionarios_id = $funcionariosId;
 
-            return $this->_getPontuacoesTable()->save($pontuacao);
+            return $this->save($pontuacao);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -315,6 +315,25 @@ class PontuacoesTable extends GenericTable
             Log::write('error', $stringError);
             Log::write("error", $trace);
         }
+    }
+
+    /**
+     * Insere vários registros
+     *
+     * @param array $pontuacoes Pontuacoes de cupom
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 04/11/2018
+     *
+     * @return void
+     */
+    public function insertPontuacoesCupons(array $pontuacoes)
+    {
+        // Prepara os registros
+        $pontuacoesSave = $this->newEntities($pontuacoes);
+
+        // retona os registros salvos
+        return $this->saveMany($pontuacoesSave);
     }
 
     /* ------------------------ Read ------------------------ */

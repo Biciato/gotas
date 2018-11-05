@@ -337,4 +337,32 @@ class SefazUtil
 
         return $string;
     }
+
+    /**
+     * SefazUtil::getSefazXMLDataToArray
+     *
+     * Obtem dados da SEFAZ e converte para Array
+     *
+     * @param string $xml String XML à ser convertida
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 04/11/2018
+     *
+     * @return Array("cnpjNotaFiscal", "produtos", "emitente")
+     */
+    public static function getSefazXMLDataToArray(string $xml)
+    {
+        $xmlDataReturn = simplexml_load_string($xml);
+        $xmlData = json_decode(json_encode((array)$xmlDataReturn), true);
+
+        $emitente = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["emit"];
+        $produtosListaXml = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["det"];
+        $cnpjNotaFiscalXML = $emitente["CNPJ"];
+
+        return array(
+            "cnpj" => $emitente["CNPJ"],
+            "produtos" => $produtosListaXml,
+            "emitente" => $emitente
+        );
+    }
 }
