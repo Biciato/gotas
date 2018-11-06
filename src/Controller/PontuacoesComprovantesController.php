@@ -1015,8 +1015,8 @@ class PontuacoesComprovantesController extends AppController
                                 $pontuacoes_comprovante = $data["pontuacoes_comprovante"];
                                 $pontuacoes = $data["pontuacoes"];
                                 $usuario = $data["usuario"];
+                                $soma_pontuacoes = $data["soma_pontuacoes"];
                             }
-                            $soma_pontuacoes = $retorno["soma_pontuacoes"];
                         }
 
                         $this->set(compact($arraySet));

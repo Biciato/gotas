@@ -141,6 +141,7 @@ class ClientesTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
+            ->integer('matriz')
             ->notEmpty('matriz');
 
         $validator
@@ -226,13 +227,6 @@ class ClientesTable extends GenericTable
         return $rules;
     }
 
-    public function beforeMarshal(Event $event, ArrayObject $data)
-    {
-        $data = $this->formatClient($data);
-
-        return $data;
-    }
-
     /* ------------------------ Create -------------------------- */
 
 
@@ -248,7 +242,7 @@ class ClientesTable extends GenericTable
     {
         try {
 
-            $redes_has_clientes = $this->_getClientesTable()
+            $redesHasClientes = $this
                 ->RedeHasCliente->find('all')
                 ->where(
                     [
@@ -258,18 +252,35 @@ class ClientesTable extends GenericTable
 
             // verifica se tem alguma empresa cadastrada.
             // Se não tiver, esta fica sendo a matriz
-            $cliente->matriz = sizeof($redes_has_clientes) == 0;
+            $cliente["matriz"] = sizeof($redesHasClientes) == 0;
 
-            $cliente = $this->_getClientesTable()->save($cliente);
+            // $cliente["matriz"] = $cliente["matriz"];
+            // $cliente["ativado"] = $cliente["ativado"];
+            // $cliente['tipo_unidade'] = $cliente['tipo_unidade'];
+            // $cliente['nome_fantasia'] = $cliente['nome_fantasia'];
+            // $cliente['razao_social'] = $cliente['razao_social'];
+            // $cliente['endereco'] = $cliente['endereco'];
+            // $cliente['endereco_numero'] = $cliente['endereco_numero'];
+            // $cliente['endereco_complemento'] = $cliente['endereco_complemento'];
+            // $cliente['bairro'] = $cliente['bairro'];
+            // $cliente['municipio'] = $cliente['municipio'];
+            // $cliente['estado'] = $cliente['estado'];
+            $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
+            $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
+            $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
+            $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
+            $cliente['cep'] = $this->cleanNumber($cliente['cep']);
+
+            $cliente = $this->save($cliente);
 
             // salvou o cliente
             if ($cliente) {
-                $redes_has_cliente = $this->_getClientesTable()->RedeHasCliente->newEntity();
+                $redesHasCliente = $this->RedeHasCliente->newEntity();
 
-                $redes_has_cliente->redes_id = $redes_id;
-                $redes_has_cliente->clientes_id = $cliente->id;
+                $redesHasCliente["redes_id"] = $redes_id;
+                $redesHasCliente["clientes_id"] = $cliente->id;
 
-                $result = $this->_getClientesTable()->RedeHasCliente->save($redes_has_cliente);
+                $result = $this->RedeHasCliente->save($redesHasCliente);
 
                 // Atribui os Tipos de Brindes que são de atribuição automática
 
@@ -868,7 +879,7 @@ class ClientesTable extends GenericTable
                     "ClientesHasUsuarios.Cliente",
                     "ClientesHasUsuarios.Usuarios",
                 )
-                )
+            )
             // ->join(
             //     [
             //         'ClientesHasUsuarios' =>
@@ -1015,7 +1026,7 @@ class ClientesTable extends GenericTable
                 ->where(['id' => $id])
                 ->first();
 
-            $cliente->ativado = $ativado;
+            $cliente["ativado"] = $ativado;
 
             return $this->_getClientesTable()->save($cliente);
 
@@ -1047,6 +1058,11 @@ class ClientesTable extends GenericTable
     public function updateClient($cliente)
     {
         try {
+            $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
+            $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
+            $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
+            $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
+            $cliente['cep'] = $this->cleanNumber($cliente['cep']);
             $clienteToUpdate = $cliente;
             // $clienteToUpdate = $this->formatClient($cliente);
 
@@ -1108,6 +1124,8 @@ class ClientesTable extends GenericTable
      */
     public function formatClient($cliente)
     {
+        echo __LINE__;
+        DebugUtil::print($cliente);
         $cliente["matriz"] = $cliente["matriz"];
         $cliente["ativado"] = $cliente["ativado"];
         $cliente['tipo_unidade'] = $cliente['tipo_unidade'];
@@ -1125,9 +1143,9 @@ class ClientesTable extends GenericTable
         $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
         $cliente['cep'] = $this->cleanNumber($cliente['cep']);
 
-        if (isset($cliente['matriz_id'])) {
-            $cliente['matriz_id'] = $cliente['matriz_id'];
-        }
+        // if (isset($cliente['matriz_id'])) {
+        //     $cliente['matriz_id'] = $cliente['matriz_id'];
+        // }
 
         return $cliente;
     }
