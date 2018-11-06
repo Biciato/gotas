@@ -152,6 +152,7 @@ class BrindesController extends AppController
      */
     public function brindesMinhaRede($param = null)
     {
+        $rede = $this->request->session()->read('Rede.Principal');
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -159,7 +160,12 @@ class BrindesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+
+        // Se não tem acesso, redireciona
+        if (!$temAcesso) {
+            return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
+        }
 
         $clientes_ids = [];
 
