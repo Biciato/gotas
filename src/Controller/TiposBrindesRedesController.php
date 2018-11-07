@@ -234,7 +234,7 @@ class TiposBrindesRedesController extends AppController
                 if ($brindeSave) {
                     $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                    return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'configurarTiposBrindesRede', $redesId]);
                 }
                 $this->Flash->error(__(Configure::read("messageSavedError")));
 

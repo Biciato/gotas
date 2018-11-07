@@ -180,6 +180,8 @@ $(document).ready(function () {
 
     $(".qr_code_reader").on('keydown', function (event) {
 
+        // console.log(event);
+        // return;
         if (event.keyCode == 13) {
             populateFuelWords(this.value.trim());
         }

@@ -104,11 +104,13 @@ use Cake\Core\Configure;
                 <?= $this->Form->input(
                     'qr_code',
                     [
-                        'type' => 'text',
+                        // 'type' => 'text',
+                        'type' => 'password',
                         'label' => 'QR Code',
                         'id' => 'qr_code_reader',
                         'class' => 'qr_code_reader',
-                        'autocomplete' => 'off'
+                        // 'autocomplete' => 'off'
+                        'autocomplete' => 'new-password'
                     ]
                 ) ?>
 

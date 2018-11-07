@@ -113,12 +113,12 @@ class SefazUtil
 
             if (is_null($pontuacao_pendente_item)) {
                 $array = [
-                    'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
+                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
                     'array_pontuacoes_item' => $array_pontuacoes_item
                 ];
             } else {
                 $array = [
-                    'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
+                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
                     'array_pontuacoes_item' => $array_pontuacoes_item,
                     'pontuacao_pendente_item' => $pontuacao_pendente_item
                 ];
@@ -145,7 +145,8 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    public function convertHtmlToCouponDataGO(string $content, $gotas, $pontuacao_comprovante, $pontuacao, $pontuacao_pendente = null)
+    // public function convertHtmlToCouponDataGO(string $content, $gotas, $pontuacao_comprovante, $pontuacao, $pontuacao_pendente = null)
+    public function convertHtmlToCouponDataGO(string $content, $gotas, $pontuacao, $pontuacao_pendente = null)
     {
         try {
             $return_content = $content;
@@ -156,13 +157,13 @@ class SefazUtil
             $arrayReturn = [];
 
             // itens do registro que são únicos:
-            $pontuacao_comprovante_item['clientes_id'] = $pontuacao_comprovante['clientes_id'];
-            $pontuacao_comprovante_item['usuarios_id'] = $pontuacao_comprovante['usuarios_id'];
-            $pontuacao_comprovante_item['funcionarios_id'] = $pontuacao_comprovante['funcionarios_id'];
-            $pontuacao_comprovante_item['conteudo'] = $pontuacao_comprovante['conteudo'];
-            $pontuacao_comprovante_item['chave_nfe'] = $pontuacao_comprovante['chave_nfe'];
-            $pontuacao_comprovante_item['estado_nfe'] = $pontuacao_comprovante['estado_nfe'];
-            $pontuacao_comprovante_item['data'] = $pontuacao_comprovante['data'];
+            // $pontuacao_comprovante_item['clientes_id'] = $pontuacao_comprovante['clientes_id'];
+            // $pontuacao_comprovante_item['usuarios_id'] = $pontuacao_comprovante['usuarios_id'];
+            // $pontuacao_comprovante_item['funcionarios_id'] = $pontuacao_comprovante['funcionarios_id'];
+            // $pontuacao_comprovante_item['conteudo'] = $pontuacao_comprovante['conteudo'];
+            // $pontuacao_comprovante_item['chave_nfe'] = $pontuacao_comprovante['chave_nfe'];
+            // $pontuacao_comprovante_item['estado_nfe'] = $pontuacao_comprovante['estado_nfe'];
+            // $pontuacao_comprovante_item['data'] = $pontuacao_comprovante['data'];
 
             $pontuacao_pendente_item = $pontuacao_pendente;
 
@@ -231,12 +232,12 @@ class SefazUtil
 
             if (is_null($pontuacao_pendente_item)) {
                 $array = [
-                    'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
+                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
                     'array_pontuacoes_item' => $array_pontuacoes_item
                 ];
             } else {
                 $array = [
-                    'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
+                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
                     'array_pontuacoes_item' => $array_pontuacoes_item,
                     'pontuacao_pendente_item' => $pontuacao_pendente_item
                 ];
