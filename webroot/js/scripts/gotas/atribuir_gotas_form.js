@@ -333,7 +333,7 @@ $(document).ready(function () {
                 callModalSave(content);
                 resetLayout();
             } else {
-                callModalError(result.message);
+                callModalError(result.message, result.errors);
             }
 
             closeLoaderAnimation();

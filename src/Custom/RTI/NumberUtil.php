@@ -76,4 +76,23 @@ class NumberUtil
         }
         return ["status" => 1, "message" => null];
     }
+
+    /**
+     * NumberUtil::limparFormatacaoNumeros
+     *
+     * Limpa formatação de números
+     *
+     * @param string $data Numero formatado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 08/11/2018
+     *
+     * @return string $data Numero sem formato
+     */
+    public static function limparFormatacaoNumeros(string $data)
+    {
+        return preg_replace('/[^0-9]/', "", $data);
+    }
+
+
 }

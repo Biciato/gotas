@@ -149,7 +149,7 @@ var callModalError = function (error, arrayContent) {
     if (arrayContent != undefined && arrayContent.length > 0) {
         $(".modal-error .modal-body-content-description").empty();
         $.each(arrayContent, function (index, value) {
-            $(".modal-error .modal-body-content-description").append("(" + (parseInt(index) + 1) + ")  " + value);
+            $(".modal-error .modal-body-content-description").append("(" + (parseInt(index) + 1) + ")  " + value + "<br />");
         })
     }
     $(".modal-error").modal();

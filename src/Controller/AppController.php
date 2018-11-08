@@ -501,6 +501,7 @@ class AppController extends Controller
      *
      * @param string $value CNPJ
      *
+     * @deprecated 1.0 Mudar para NumberUtil::limparFormatacaoNumeros
      * @return string
      */
     public function cleanNumber($value)
