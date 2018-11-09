@@ -1510,6 +1510,12 @@ class PontuacoesComprovantesController extends AppController
 
                 $webContent = $this->webTools->getPageContent($url);
 
+                if ($webContent["status"] == 200) {
+
+                } else {
+                    // Trata pontuação para ser processada posteriormente
+                }
+
                 // Caso Mobile: Cliente não é informado
                 if (empty($cliente)) {
                     /**
