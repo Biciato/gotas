@@ -841,14 +841,14 @@ class UsuariosTable extends GenericTable
      *
      * @param int $id Id do usuário
      *
-     * @return entity\usuario $usuario
+     * @return \App\Model\Entity\Usuario $usuario
      *
      * @author Gustavo Souza Gonçalves
      */
-    public function getUsuarioById($id = null)
+    public function getUsuarioById($id)
     {
         try {
-            return $this->_getUsuarioTable()->get($id);
+            return $this->get($id);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

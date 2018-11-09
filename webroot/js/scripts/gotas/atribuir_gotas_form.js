@@ -294,8 +294,6 @@ $(document).ready(function () {
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      */
     var saveTaxCoupon = function (url) {
-        var urlToSave = url;
-
         // chave de autenticação
         var chave_nfe_start = 'chNFe=';
         var chave_nfe_start_index = url.indexOf(chave_nfe_start) + chave_nfe_start.length;
@@ -305,20 +303,55 @@ $(document).ready(function () {
         // estado
         var estado_nfe = url.substr(url.indexOf('sefaz.') + 'sefaz.'.length, 2).toUpperCase();
 
+        // Backup
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/PontuacoesComprovantes/saveTaxCoupon",
+        //     data: JSON.stringify({
+        //         url: qrCode,
+        //         clientesCNPJ: $("#clientesCNPJ").val(),
+        //         usuarios_id: $("#usuarios_id").val(),
+        //         funcionarios_id: $("#funcionarios_id").val(),
+        //         chave_nfe: chave_nfe,
+        //         estado_nfe: estado_nfe
+        //     }),
+        //     beforeSend: function (xhr) {
+        //         xhr.setRequestHeader("Accept", "application/json");
+        //         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        //     },
+        //     error: function (response) {
+        //         console.log(response);
+
+        //         closeLoaderAnimation();
+        //         callModalError(response.responseText);
+        //     }
+        // }).done(function (result) {
+        //     if (result.mensagem.status) {
+        //         var content = prepareContentPontuacoesDisplay(result.data);
+
+        //         callModalSave(content);
+        //         resetLayout();
+        //     } else {
+        //         callModalError(result.message, result.errors);
+        //     }
+
+        //     closeLoaderAnimation();
+        // });
         $.ajax({
             type: "POST",
-            url: "/PontuacoesComprovantes/saveTaxCoupon",
+            url: "/api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario",
             data: JSON.stringify({
-                url: urlToSave,
-                clientesCNPJ: $("#clientesCNPJ").val(),
+                qr_code: url,
+                clientes_cnpj: $("#clientesCNPJ").val(),
                 usuarios_id: $("#usuarios_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
-                chave_nfe: chave_nfe,
-                estado_nfe: estado_nfe
+                // chave_nfe: chave_nfe,
+                // estado_nfe: estado_nfe
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", true);
             },
             error: function (response) {
                 console.log(response);
@@ -327,7 +360,7 @@ $(document).ready(function () {
                 callModalError(response.responseText);
             }
         }).done(function (result) {
-            if (result.success) {
+            if (result.mensagem.status) {
                 var content = prepareContentPontuacoesDisplay(result.data);
 
                 callModalSave(content);
