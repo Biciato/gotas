@@ -22,6 +22,18 @@ class SefazUtil
     {
     }
 
+    public static function getHTMLCouponData(string $content, $gotas, $pontuacao, $estado, $pontuacao_pendente = null)
+    {
+
+        if ($estado == "GO") {
+            $arrayReturn = $this->sefazUtil->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacao, null);
+        } else {
+            $arrayReturn = $this->sefazUtil->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacao, null);
+        }
+
+        return $arrayReturn;
+    }
+
     /**
      * Obtêm conteúdo de página Sefaz
      *

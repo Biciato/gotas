@@ -182,6 +182,7 @@ Configure::write(
         "messagePointOfServiceCNPJNotEqual" => "CNPJ apresentado na nota não confere com o CNPJ do estabelecimento!",
         "messageCouponImportSuccess" => "Dados do cupom importados com sucesso!",
         "messageNotPossibleToImportCoupon" => "Não foi possível importar o cupom!",
+        "messageNotPossibleToImportCouponAwaitingProcessing" => "A Importação de dados não pode ser concluída no momento, pois há uma falha de comunicação. Mas não se preocupe, assim que tudo estiver certo os dados irão aparecer em seu cadastro!",
 
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
         'messageDateTodayHigherInvalid' => "A {0} não pode ser maior que a data de Hoje!",
