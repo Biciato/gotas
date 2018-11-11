@@ -1,17 +1,14 @@
 <?php
+/**
+ * @author Gustavo Souza Gonçalves
+ * @since 25/09/2017
+ * @path vendor\rti\SefazUtilClass.php
+ */
 
 namespace App\Custom\RTI;
 
 use App\Controller\AppController;
-
 use Cake\Core\Configure;
-
-/**
- * @author Gustavo Souza Gonçalves
- * @date 25/09/2017
- * @path vendor\rti\SefazUtilClass.php
- */
-
 
 /**
  * Classe para operações de conteúdo da SEFAZ
@@ -22,16 +19,27 @@ class SefazUtil
     {
     }
 
-    public static function getHTMLCouponData(string $content, $gotas, $pontuacao, $estado, $pontuacao_pendente = null)
+    /**
+     * SefazUtil::obtemDadosHTMLCupomSefaz
+     *
+     * Realiza tomada de decisão de qual método de conversão dos dados da SEFAZ será utilizado e retorna os objetos prontos
+     *
+     * @param string $content Conteudo HTML
+     * @param array $gotas Array de Gotas do cliente
+     * @param string $estado Estado em formato 2 letras Uppercase
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 10/11/2018
+     *
+     * @return array
+     */
+    public static function obtemDadosHTMLCupomSefaz(string $content, array $gotas, string $estado)
     {
-
-        if ($estado == "GO") {
-            $arrayReturn = $this->sefazUtil->convertHtmlToCouponDataGO($webContent['response'], $gotas, $pontuacao, null);
-        } else {
-            $arrayReturn = $this->sefazUtil->convertHtmlToCouponData($webContent['response'], $gotas, $pontuacao, null);
+        if (strtoupper($estado) == "GO") {
+            return self::converteHTMLParaPontuacoesArrayGoias($content, $gotas);
         }
 
-        return $arrayReturn;
+        return self::converteHTMLParaPontuacoesArray($content, $gotas);
     }
 
     /**
@@ -45,76 +53,63 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    public function convertHtmlToCouponData(string $content, $gotas, $pontuacao, $pontuacao_pendente = null)
+    // public static function converteHTMLParaPontuacoesArray(string $content, $gotas, $clientesId, $usuariosId, $funcionariosId, $data)
+    public static function converteHTMLParaPontuacoesArray(string $content, $gotas)
     {
         try {
-            $return_content = $content;
-            $return_content = trim($return_content);
-
-            $position_content_start = strpos($return_content, "tabResult");
-            $position_content_end = strpos($return_content, "table", $position_content_start);
-
-            $return_content = strtoupper($return_content);
-
-            // $return_content = substr($return_content, $position_content_start, $position_content_end - $position_content_start);
-
-            $arrayReturn = [];
-
-            $pontuacao_pendente_item = $pontuacao_pendente;
+            $returnContent = $content;
+            $returnContent = trim($returnContent);
+            $position_content_start = strpos($returnContent, "tabResult");
+            $position_content_end = strpos($returnContent, "table", $position_content_start);
+            $returnContent = strtoupper($returnContent);
 
             // array que ira gravar todas as pontuacoes
-            $array_pontuacoes_item = [];
+            $pontuacoes = array();
 
             foreach ($gotas as $key => $gota) {
-                $content = $return_content;
+                $content = $returnContent;
 
                 // obtêm nome do parâmetro e o trata
-                $parametro = $gota->nome_parametro;
+                $parametro = $gota["nome_parametro"];
                 $parametro = \strtoupper($parametro);
 
                 // enquanto texto tiver conteúdo a tratar
                 while (strlen($content) != 0 && strpos($content, $parametro) != 0) {
                     // procura índice do conteúdo à ser tratado
-                    $parameter_index = strpos($content, $parametro);
+                    $parameterIndex = strpos($content, $parametro);
 
                     // pega o local onde está o parâmetro - 1 posição,
                     // para comparar se bate o parâmetro por inteiro
-                    $content = substr($content, $parameter_index - 1);
+                    $content = substr($content, $parameterIndex - 1);
 
                     // verifica se a posição anterior ao
                     // parâmetro é igual ao caractere >
                     if ($content[0] == ">") {
                         $content = substr($content, strlen($parametro) + 1);
-                        // agora verifica se a posição posterior
-                        // ao parâmetro é igual a caractere <
+                        // agora verifica se a posição posterior ao parâmetro é igual a caractere <
                         if ($content[0] == "<") {
                              // palavra à procurar
-                            $quantity_seek_string = "QTDE.:</STRONG>";
+                            $quantitySeekString = "QTDE.:</STRONG>";
 
                             // índice inicial da quantidade à procurar
-                            $quantity_index_start = strpos($content, $quantity_seek_string) + strlen($quantity_seek_string);
+                            $quantityIndexStart = strpos($content, $quantitySeekString) + strlen($quantitySeekString);
 
                             // índice final da quantidade à procurar
-                            $quantity_index_end = strpos($content, "</SPAN", $quantity_index_start);
+                            $quantityIndexEnd = strpos($content, "</SPAN", $quantityIndexStart);
 
                             // valor encontrado
-                            $quantity = substr($content, $quantity_index_start, $quantity_index_end - $quantity_index_start);
+                            $quantity = substr($content, $quantityIndexStart, $quantityIndexEnd - $quantityIndexStart);
 
                             // corrige valor encontrado para float
 
                             $quantity = \str_replace(",", ".", $quantity);
+                            $content = substr($content, $quantityIndexEnd);
 
-                            $content = substr($content, $quantity_index_end);
+                            $pontuacaoItem['gotas_id'] = $gota['id'];
+                            $pontuacaoItem['quantidade_multiplicador'] = $quantity;
+                            $pontuacaoItem['quantidade_gotas'] = $gota['multiplicador_gota'] * $quantity;
 
-                            $pontuacao_item['clientes_id'] = $pontuacao['clientes_id'];
-                            $pontuacao_item['usuarios_id'] = $pontuacao['usuarios_id'];
-                            $pontuacao_item['funcionarios_id'] = $pontuacao['funcionarios_id'];
-                            $pontuacao_item['gotas_id'] = $gota['id'];
-                            $pontuacao_item['quantidade_multiplicador'] = $quantity;
-                            $pontuacao_item['quantidade_gotas'] = $gota['multiplicador_gota'] * $quantity;
-                            $pontuacao_item['data'] = $pontuacao['data'];
-
-                            array_push($array_pontuacoes_item, $pontuacao_item);
+                            $pontuacoes[] = $pontuacaoItem;
                         } else {
                             // margem de segurança para próxima pesquisa
                             $content = substr($content, 30);
@@ -123,24 +118,9 @@ class SefazUtil
                 }
             }
 
-            if (is_null($pontuacao_pendente_item)) {
-                $array = [
-                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
-                    'array_pontuacoes_item' => $array_pontuacoes_item
-                ];
-            } else {
-                $array = [
-                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
-                    'array_pontuacoes_item' => $array_pontuacoes_item,
-                    'pontuacao_pendente_item' => $pontuacao_pendente_item
-                ];
-            }
-
-            array_push($arrayReturn, $array);
-
-            return $arrayReturn;
+            return $pontuacoes;
         } catch (\Exception $e) {
-            $stringError = __("Erro ao preparar conteúdo html: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao preparar conteúdo html: {0} ", $e->getMessage());
 
             Log::write('error', $stringError);
         }
@@ -157,47 +137,33 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    // public function convertHtmlToCouponDataGO(string $content, $gotas, $pontuacao_comprovante, $pontuacao, $pontuacao_pendente = null)
-    public function convertHtmlToCouponDataGO(string $content, $gotas, $pontuacao, $pontuacao_pendente = null)
+    // public function converteHTMLParaPontuacoesArrayGoias(string $content, $gotas, $pontuacao_comprovante, $pontuacao, $pontuacao_pendente = null)
+    public static function converteHTMLParaPontuacoesArrayGoias(string $content, $gotas)
     {
         try {
-            $return_content = $content;
-            $return_content = trim($return_content);
-
-            $return_content = strtoupper($return_content);
-
-            $arrayReturn = [];
-
-            // itens do registro que são únicos:
-            // $pontuacao_comprovante_item['clientes_id'] = $pontuacao_comprovante['clientes_id'];
-            // $pontuacao_comprovante_item['usuarios_id'] = $pontuacao_comprovante['usuarios_id'];
-            // $pontuacao_comprovante_item['funcionarios_id'] = $pontuacao_comprovante['funcionarios_id'];
-            // $pontuacao_comprovante_item['conteudo'] = $pontuacao_comprovante['conteudo'];
-            // $pontuacao_comprovante_item['chave_nfe'] = $pontuacao_comprovante['chave_nfe'];
-            // $pontuacao_comprovante_item['estado_nfe'] = $pontuacao_comprovante['estado_nfe'];
-            // $pontuacao_comprovante_item['data'] = $pontuacao_comprovante['data'];
-
-            $pontuacao_pendente_item = $pontuacao_pendente;
+            $returnContent = $content;
+            $returnContent = trim($returnContent);
+            $returnContent = strtoupper($returnContent);
 
             // array que ira gravar todas as pontuacoes
-            $array_pontuacoes_item = [];
+            $pontuacoes = array();
 
             foreach ($gotas as $key => $gota) {
-                $content = $return_content;
+                $content = $returnContent;
 
                 // obtêm nome do parâmetro e o trata
-                $parametro = $gota->nome_parametro;
+                $parametro = $gota["nome_parametro"];
                 $parametro = \strtoupper($parametro);
 
                 // enquanto texto tiver conteúdo a tratar
 
                 while (strlen($content) != 0 && strpos($content, $parametro) != 0) {
                     // procura índice do conteúdo à ser tratado
-                    $parameter_index = strpos($content, $parametro);
+                    $parameterIndex = strpos($content, $parametro);
 
                     // pega o local onde está o parâmetro - 1 posição,
                     // para comparar se bate o parâmetro por inteiro
-                    $content = substr($content, $parameter_index - 1);
+                    $content = substr($content, $parameterIndex - 1);
 
                     // verifica se a posição anterior ao
                     // parâmetro é igual ao caractere >
@@ -208,32 +174,28 @@ class SefazUtil
                         // ao parâmetro é igual a caractere <
                         if ($content[0] == "<") {
                              // palavra à procurar
-                            $quantity_seek_string = "LINHA\">";
+                            $quantitySeekString = "LINHA\">";
 
                             // índice inicial da quantidade à procurar
-                            $quantity_index_start = strpos($content, $quantity_seek_string) + strlen($quantity_seek_string);
+                            $quantityIndexStart = strpos($content, $quantitySeekString) + strlen($quantitySeekString);
 
                             // índice final da quantidade à procurar
-                            $quantity_index_end = strpos($content, "</SPAN", $quantity_index_start);
+                            $quantityIndexEnd = strpos($content, "</SPAN", $quantityIndexStart);
 
                             // valor encontrado
-                            $quantity = substr($content, $quantity_index_start, $quantity_index_end - $quantity_index_start);
+                            $quantity = substr($content, $quantityIndexStart, $quantityIndexEnd - $quantityIndexStart);
 
                             // corrige valor encontrado para float
 
                             $quantity = \str_replace(",", ".", $quantity);
 
-                            $content = substr($content, $quantity_index_end);
+                            $content = substr($content, $quantityIndexEnd);
 
-                            $pontuacao_item['clientes_id'] = $pontuacao['clientes_id'];
-                            $pontuacao_item['usuarios_id'] = $pontuacao['usuarios_id'];
-                            $pontuacao_item['funcionarios_id'] = $pontuacao['funcionarios_id'];
-                            $pontuacao_item['gotas_id'] = $gota['id'];
-                            $pontuacao_item['quantidade_multiplicador'] = $quantity;
-                            $pontuacao_item['quantidade_gotas'] = $gota['multiplicador_gota'] * $quantity;
-                            $pontuacao_item['data'] = $pontuacao['data'];
+                            $pontuacaoItem['gotas_id'] = $gota['id'];
+                            $pontuacaoItem['quantidade_multiplicador'] = $quantity;
+                            $pontuacaoItem['quantidade_gotas'] = $gota['multiplicador_gota'] * $quantity;
 
-                            array_push($array_pontuacoes_item, $pontuacao_item);
+                            $pontuacoes[] = $pontuacaoItem;
                         } else {
                             // margem de segurança para próxima pesquisa
                             $content = substr($content, 30);
@@ -242,24 +204,9 @@ class SefazUtil
                 }
             }
 
-            if (is_null($pontuacao_pendente_item)) {
-                $array = [
-                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
-                    'array_pontuacoes_item' => $array_pontuacoes_item
-                ];
-            } else {
-                $array = [
-                    // 'pontuacao_comprovante_item' => $pontuacao_comprovante_item,
-                    'array_pontuacoes_item' => $array_pontuacoes_item,
-                    'pontuacao_pendente_item' => $pontuacao_pendente_item
-                ];
-            }
-
-            array_push($arrayReturn, $array);
-            return $arrayReturn;
-            // return $array ;
+            return $pontuacoes;
         } catch (\Exception $e) {
-            $stringError = __("Erro ao preparar conteúdo html: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao preparar conteúdo html: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
         }
@@ -352,7 +299,7 @@ class SefazUtil
     }
 
     /**
-     * SefazUtil::getSefazXMLDataToArray
+     * SefazUtil::obtemDadosXMLCupomSefaz
      *
      * Obtem dados da SEFAZ e converte para Array
      *
@@ -363,7 +310,7 @@ class SefazUtil
      *
      * @return Array("cnpjNotaFiscal", "produtos", "emitente")
      */
-    public static function getSefazXMLDataToArray(string $xml)
+    public static function obtemDadosXMLCupomSefaz(string $xml)
     {
         $xmlDataReturn = simplexml_load_string($xml);
         $xmlData = json_decode(json_encode((array)$xmlDataReturn), true);

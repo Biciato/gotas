@@ -235,27 +235,31 @@ class PontuacoesComprovantesTable extends GenericTable
         bool $auditado
     ) {
 
-        // try {
-            $pontuacoes_comprovantes = $this->newEntity();
-            $pontuacoes_comprovantes['clientes_id'] = $clientes_id;
-            $pontuacoes_comprovantes['usuarios_id'] = $usuarios_id;
-            $pontuacoes_comprovantes['funcionarios_id'] = $funcionarios_id;
-            $pontuacoes_comprovantes['conteudo'] = $conteudo;
-            $pontuacoes_comprovantes['chave_nfe'] = $chave_nfe;
-            $pontuacoes_comprovantes['estado_nfe'] = $estado_nfe;
-            $pontuacoes_comprovantes['data'] = $data;
-            $pontuacoes_comprovantes['requer_auditoria'] = $requer_auditoria;
-            $pontuacoes_comprovantes['auditado'] = $auditado;
+        try {
+            $pontuacoesComprovante = $this->newEntity();
+            $pontuacoesComprovante['clientes_id'] = $clientes_id;
+            $pontuacoesComprovante['usuarios_id'] = $usuarios_id;
+            $pontuacoesComprovante['funcionarios_id'] = $funcionarios_id;
+            $pontuacoesComprovante['conteudo'] = $conteudo;
+            $pontuacoesComprovante['chave_nfe'] = $chave_nfe;
+            $pontuacoesComprovante['estado_nfe'] = $estado_nfe;
+            $pontuacoesComprovante['data'] = $data;
+            $pontuacoesComprovante['requer_auditoria'] = $requer_auditoria;
+            $pontuacoesComprovante['auditado'] = $auditado;
 
-            return $this->save($pontuacoes_comprovantes);
-        // } catch (\Exception $e) {
-        //     $trace = $e->getTrace();
-        //     $stringError = __("Erro ao criar registro: {0} em {1} ", $e->getMessage(), $trace[1]);
+            return $this->save($pontuacoesComprovante);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao criar registro: {0}", $e->getMessage());
 
-        //     Log::write('error', $stringError);
+            $trace = $e->getTrace();
+            Log::write('error', $stringError);
 
-        //     return $stringError;
-        // }
+            if (Configure::read("debug")){
+                Log::write('error', $trace);
+            }
+
+            return $stringError;
+        }
     }
 
     /* ------------------------ Read ------------------------ */
