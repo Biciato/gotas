@@ -66,7 +66,8 @@ class WebTools
                     CURLOPT_ENCODING => "",       // handle all encodings
                     CURLOPT_AUTOREFERER => true,     // set referer on redirect
                     CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
-                    CURLOPT_TIMEOUT => 120,      // timeout on response
+                    // CURLOPT_TIMEOUT => 120,      // timeout on response
+                    CURLOPT_TIMEOUT => 10,      // timeout on response
                     CURLOPT_MAXREDIRS => 30,       // stop after 10 redirects
                     CURLOPT_SSL_VERIFYPEER => false,
                     CURLOPT_BUFFERSIZE, 1024 * 1024 * 1024 // curl buffer size in bytes

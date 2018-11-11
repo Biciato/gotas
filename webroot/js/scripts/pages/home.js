@@ -145,6 +145,7 @@ var callModalSave = function (content) {
 var callModalError = function (error, arrayContent) {
     closeLoaderAnimation();
     $(".modal-error .modal-body-content").html(error);
+    $(".modal-error .modal-body-content-description").empty();
 
     if (arrayContent != undefined && arrayContent.length > 0) {
         $(".modal-error .modal-body-content-description").empty();
@@ -271,10 +272,14 @@ var getGeolocalizationGoogle = function (cep) {
 var prepareContentPontuacoesDisplay = function (data) {
     var content = $("<div></div>");
 
+    var usuario = data.pontuacoes_comprovantes.usuario;
+    var pontuacoes = data.pontuacoes_comprovantes.pontuacoes;
+    var somaPontuacoes = data.pontuacoes_comprovantes.soma_pontuacoes;
+
     var title = $(
         "<legend>" +
         "Dados gravados para o usuário " +
-        data.usuario.nome +
+        usuario.nome +
         "</legend>"
     );
 
@@ -287,7 +292,7 @@ var prepareContentPontuacoesDisplay = function (data) {
     table.append(header);
 
     var rows = [];
-    $.each(data.pontuacoes, function (index, pontuacao) {
+    $.each(pontuacoes, function (index, pontuacao) {
         var row =
             "<tr><td>" +
             pontuacao.gota.nome_parametro +
@@ -299,7 +304,7 @@ var prepareContentPontuacoesDisplay = function (data) {
 
     var total = $(
         "<table class='table table-responsive'><th>Total:</th><td> " +
-        data.soma_pontuacoes +
+        somaPontuacoes +
         "</td></table>"
     );
 

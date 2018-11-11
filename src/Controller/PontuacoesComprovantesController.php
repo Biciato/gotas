@@ -1706,15 +1706,17 @@ class PontuacoesComprovantesController extends AppController
 
                     // Status está anormal, grava para posterior processamento
 
+                    $clientesId = empty($cliente) ? null : $cliente["id"];
+
                     $pontuacao_pendente = $this
                         ->PontuacoesPendentes
                         ->createPontuacaoPendenteAwaitingProcessing(
-                            $cliente->id,
+                            $clientesId,
                             $usuario->id,
                             $funcionario->id,
-                            $conteudo,
-                            $pontuacoesComprovante['chave_nfe'],
-                            $pontuacoesComprovante['estado_nfe']
+                            $url,
+                            $chaveNfe,
+                            $estado
                         );
 
                     $success = false;
@@ -1722,7 +1724,7 @@ class PontuacoesComprovantesController extends AppController
                     $errors = array(
                         Configure::read("messageNotPossibleToImportCouponAwaitingProcessing")
                     );
-                    $data = $pontuacoesComprovante;
+                    $data = array();
 
                     $arraySet = [
                         'success',
@@ -1922,7 +1924,7 @@ class PontuacoesComprovantesController extends AppController
                         $success = false;
                         $message =
                             __(
-                            'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...',
+                            'No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas conforme definições do Ponto de Atendimento!',
                             $chaveNfe,
                             $estado
                         );
@@ -2392,12 +2394,13 @@ class PontuacoesComprovantesController extends AppController
         // Confere CNPJ
         if ($clienteCNPJ != $cnpjNotaFiscalXML) {
 
+            // Este erro só pode acontecer, via Web, pois o cliente Mobile não vai passar o estabeleciemnto
+            // O Método que chama deverá informar o Estabelecimento em questão.
             // Se CNPJ não bate, informa e encerra
             $success = false;
-            $message = __(Configure::read("messageOperationFailureDuringProcessing"));
+            $message = __(Configure::read("messageNotPossibleToImportCoupon"));
             $errors = array(
-                Configure::read("messagePointOfServiceCNPJNotEqual"),
-                Configure::read("messageNotPossibleToImportCoupon")
+                Configure::read("messagePointOfServiceCNPJNotEqual")
             );
             $data = array();
             $retorno = array(
