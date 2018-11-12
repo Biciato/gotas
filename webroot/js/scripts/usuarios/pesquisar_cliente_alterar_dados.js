@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\usuarios\pesquisar_cliente_alterar_dados.js
  * @date 17/02/2018
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -29,7 +29,7 @@ $(document).ready(function () {
             });
             $(".open-cadastro-transportadoras-usuario").removeClass('disabled');
             $(".open-cadastro-transportadoras-usuario").on('click', function (e) {
-                location.href = "/transportadoras/transportadoras_usuario_final/" + $("#usuarios_id").val();
+                location.href = "/transportadoras/transportadorasUsuario/" + $("#usuarios_id").val();
 
             });
 

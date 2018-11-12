@@ -428,6 +428,8 @@ $(document).ready(function () {
 
                 if (result.mensagem.status == true) {
 
+                    // console.log(result);
+
                     if (result.is_brinde_smart_shower) {
                         // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
 
@@ -443,6 +445,12 @@ $(document).ready(function () {
                         var cupom_emitido = result.ticket.cupom_emitido;
 
                         $("#rti_shower_minutos").text(result.tempo);
+
+                        if (result.usuario.sexo !== undefined){
+
+                            var sexo = result.usuario.sexo ? "Masculino" : "Feminino";
+                            $("#tipos_brinde_box").text(sexo);
+                        }
 
                         var tipoEmissaoCodigoBarras = result.tipo_emissao_codigo_barras;
 

@@ -125,14 +125,9 @@ if (!empty($usuarioAdministrar)) {
                     </ul>
                 </nav>
 
-                <nav class="columns" id="actions-sidebar">
-                    <ul class="nav nav-pills nav-stacked list-group">
-                        <li><?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_cliente_final']) ?></li>
-                    </ul>
-                </nav>
             <?php endif; ?>
 
-            <?php if ($item_selected == 'consulta_pontuacoes') : ?>
+            <!-- <?php if ($item_selected == 'consulta_pontuacoes') : ?>
                 <li class="list-group-item-success">
             <?php else : ?>
                 <li>
@@ -164,7 +159,7 @@ if (!empty($usuarioAdministrar)) {
 
                     </ul>
                 </nav>
-            <?php endif; ?>
+            <?php endif; ?> -->
 
         </ul>
 

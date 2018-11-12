@@ -76,7 +76,7 @@ echo $this->Breadcrumbs->render(
                                             'action' => 'habilitar_brinde',
                                             "?" => [
                                                 'brindes_id' => $brinde["id"],
-                                                'clientes_id' => $clientes_id,
+                                                'clientes_id' => $clientesId,
                                             ]
                                         ]
                                     ),
@@ -106,7 +106,7 @@ echo $this->Breadcrumbs->render(
                                                 'action' => 'habilitar_brinde',
                                                 "?" => [
                                                     'brindes_id' => $brinde["id"],
-                                                    'clientes_id' => $clientes_id,
+                                                    'clientes_id' => $clientesId,
                                                 ]
                                             ]
                                         ),
@@ -135,7 +135,7 @@ echo $this->Breadcrumbs->render(
                                                 'action' => 'desabilitar_brinde',
                                                 "?" => [
                                                     'brindes_id' => $brinde["id"],
-                                                    'clientes_id' => $clientes_id,
+                                                    'clientes_id' => $clientesId,
                                                 ]
                                             ]
                                         ),

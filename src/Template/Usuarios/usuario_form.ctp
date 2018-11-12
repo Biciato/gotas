@@ -22,15 +22,15 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
 <?php if (isset($usuarioLogado)) : ?>
     <div class="usuarios form col-lg-12 col-md-8 columns content">
-        
-<?php else : ?> 
-        
+
+<?php else : ?>
+
     <div class="col-lg-1"></div>
     <div class="container col-lg-10">
 
 <?php endif; ?>
 
-    
+
         <fieldset>
             <legend>
                 <?= isset($usuarioLogado) ? __('Adicionar conta') : __("Criar Conta") ?>
@@ -38,15 +38,15 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
             <?= $this->Form->hidden('id'); ?>
             <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
-            
+
             <?php if (isset($usuarioLogadoTipoPerfil)) {
 
                 if ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
 
-                    ?> 
+                    ?>
                 <div class='col-lg-4'>
-                    <?php 
+                    <?php
                     if (isset($redes_id)) {
                         echo $this->Form->input('tipo_perfil', [
                             'type' => 'select',
@@ -77,9 +77,9 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                             ]
                         ]);
                     }
-                    
 
-                    ?> 
+
+                    ?>
                     </div>
                     <div class='col-lg-4 redes_input'>
                     <?php
@@ -108,9 +108,9 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                         );
 
                     }
-                    ?> 
+                    ?>
                     </div>
-                    
+
                     <div class='col-lg-4 redes_input'>
                     <?= $this->Form->input(
                         'clientes_id',
@@ -121,12 +121,12 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                             'label' => 'Unidade da Rede'
                         ]
                     )
-                    ?> 
+                    ?>
                     </div>
                 <?php
 
             } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                ?> 
+                ?>
 
             <div class='col-lg-6'>
             <?= $this->Form->input('tipo_perfil', [
@@ -142,11 +142,11 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                 ]
             ]); ?>
             </div>
-            
+
             <div class='col-lg-6 redes_input'>
-                
+
                 <?= $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']); ?>
-                
+
                 <?= $this->Form->input(
                     'clientes_id',
                     [
@@ -157,9 +157,9 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                     ]
                 );
                 ?>
-                        
+
                     </div>
-                <?php 
+                <?php
             } elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminRegionalProfileType']) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
@@ -202,7 +202,7 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                 <div id="doc_estrangeiro_box">
 
                     <?= $this->Form->input('doc_estrangeiro', ['id' => 'doc_estrangeiro', 'label' => 'Documento de Identificação Estrangeira']) ?>
-                    
+
                     <span id="doc_estrangeiro_validation" class="text-danger validation-message"></span>
 
                 </div>
@@ -214,9 +214,9 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
             </div>
             <div class="form-group col-lg-6" id="cpf_box">
                 <?php
-                echo $this->Form->input('cpf', ['label' => 'CPF']);
+                echo $this->Form->input('cpf', ['label' => 'CPF', "id" => "cpf"]);
                 ?>
-                
+
             </div>
 
             <div class="form-group col-lg-6">
@@ -272,7 +272,7 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                 ]); ?>
             </div>
 
-                
+
 
             <div class="col-lg-4">
                     <?= $this->Form->input(
@@ -294,14 +294,14 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
             </div>
 
             <div class="col-lg-3">
-                
+
                 <?= $this->Form->input('necessidades_especiais', ['label' => 'Portador de Nec. Especiais? ', 'options' => [
                     '' => '',
                     1 => 'Sim',
                     0 => 'Não',
                 ]]) ?>
             </div>
-            
+
             <div class="col-lg-3">
                 <?= $this->Form->control('telefone'); ?>
             </div>
@@ -338,7 +338,7 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
             <div class="col-lg-2">
                 <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
             </div>
-            
+
             <div class="col-lg-3">
 
                 <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
@@ -366,12 +366,12 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                 <?= $this->Form->control('pais', ['class' => 'pais']); ?>
             </div>
 
-            <?php if ($usuarioLogadoTipoPerfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?> 
+            <?php if ($usuarioLogadoTipoPerfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
             <div class="fields-is-final-customer ">
             <?php else : ?>
             <div>
             <?php endif; ?>
-                
+
                 <?php if (!is_null($usuarioLogado)) : ?>
                 <?= $this->Element('../Veiculos/veiculos_form'); ?>
 
@@ -403,16 +403,16 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                         ]
                     ) ?>
             </div>
-            
+
         </div>
         </div>
     </div>
-        
+
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/usuarios/add'); ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/usuarios/add.min'); ?>
 <?php endif; ?>
 

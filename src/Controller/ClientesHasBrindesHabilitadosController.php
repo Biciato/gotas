@@ -201,7 +201,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
      * @param integer $clientes_id
      * @return void
      */
-    public function configurarBrindesUnidade(int $clientes_id)
+    public function configurarBrindesUnidade(int $clientesId)
     {
         $rede = $this->request->session()->read("Rede.Principal");
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
@@ -212,9 +212,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        // DebugUtil::print($clientes_id);
+        // DebugUtil::print($clientesId);
 
-        $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientes_id], $rede["id"]);
+        $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientesId], $rede["id"]);
 
         // DebugUtil::print($temAcesso);
         if (!$temAcesso) {
@@ -222,7 +222,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         }
 
         // obtem os brindes habilitados (e não habilitados) da unidade
-        $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientes_id]);
+        $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientesId]);
 
         if (!$brindesConfigurar["mensagem"]["status"]) {
             $this->Flash->error($brindesConfigurar["mensagem"]["message"]);
@@ -239,7 +239,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $brindesConfigurar = $brindesConfigurarArrayRetorno;
         }
 
-        $arraySet = array('brindesConfigurar', 'clientes_id');
+        $arraySet = array('brindesConfigurar', 'clientesId');
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }

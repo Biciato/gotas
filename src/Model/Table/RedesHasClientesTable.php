@@ -247,8 +247,10 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesById(int $id)
     {
         try {
-            return $this->_getRedesHasClientesTable()->find('all')
-                ->where(['redes_has_clientes.id' => $id])
+            // return $this->_getRedesHasClientesTable()->find('all')
+            //     ->where(['redes_has_clientes.id' => $id])
+            return $this->find('all')
+                ->where(['RedesHasClientes.id' => $id])
                 ->contain(['Redes', 'Clientes'])
                 ->first();
 

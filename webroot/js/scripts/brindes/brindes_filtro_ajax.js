@@ -111,10 +111,10 @@ $(document).ready(function () {
         }).done(function (result) {
 
             closeLoaderAnimation();
+
             if (result.brindes !== null && result.brindes.length > 0) {
 
                 arrayBrindes.set(result.brindes);
-                $(".list-gifts").append($('<option>'));
 
                 var brindeSemPreco = false;
 
@@ -145,6 +145,8 @@ $(document).ready(function () {
                 if (brindeSemPreco) {
                     callModalError("Há brindes sem configuração de preço! Avise seu gerente!");
                 }
+            } else {
+                callModalError("Não há brindes cadastrados para este Ponto de Atendimento! Não será possível emitir Brindes pelo sistema!");
             }
 
         }).fail(function (e) {

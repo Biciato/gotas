@@ -929,7 +929,7 @@ class BrindesController extends AppController
                 );
 
                 $nome = $brindeHabilitadoCliente["brinde"]["nome"];
-                $isBrindeShower = $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;
+                $isBrindeShower =  $brindeHabilitadoCliente["tipos_brindes_redes_id"] >= 1 && $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;
 
                 if ($isBrindeShower) {
                     $nome = __("{0} ({1} minutos)", $nome, $brindeHabilitadoCliente["brinde"]["tempo_rti_shower"]);

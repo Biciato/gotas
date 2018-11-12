@@ -624,10 +624,10 @@ class ClientesHasUsuariosTable extends Table
                 $clientesHasUsuario = $this->newEntity();
             }
 
-            $clientesHasUsuario->clientes_id = (int)$clientesId;
-            $clientesHasUsuario->usuarios_id = (int)$usuariosId;
-            $clientesHasUsuario->tipo_perfil = (int)$tipoPerfil;
-            $clientesHasUsuario->conta_ativa = (int)$contaAtiva;
+            $clientesHasUsuario["clientes_id"] = (int)$clientesId;
+            $clientesHasUsuario["usuarios_id"] = (int)$usuariosId;
+            $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
+            $clientesHasUsuario["conta_ativa"] = (int)$contaAtiva;
 
             return $this->save($clientesHasUsuario);
         } catch (\Exception $e) {

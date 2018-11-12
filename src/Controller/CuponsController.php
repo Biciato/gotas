@@ -910,7 +910,11 @@ class CuponsController extends AppController
             }
 
             if ($senhaValida == false) {
-                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                if (strlen($data["current_password"]) == 0) {
+                    $message = 'Informe a senha do usuário.';
+                } else {
+                    $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                }
             } else {
 
                 // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
@@ -1136,7 +1140,11 @@ class CuponsController extends AppController
             }
 
             if ($senhaValida == false) {
-                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                if (strlen($data["current_password"]) == 0) {
+                    $message = 'Informe a senha do usuário.';
+                } else {
+                    $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                }
             } else {
                 $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
@@ -1849,10 +1857,17 @@ class CuponsController extends AppController
         }
 
         if (!$senhaValida) {
+
+            if (strlen($senhaAtualUsuario) == 0) {
+                $message = 'Informe a senha do usuário.';
+            } else {
+                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+            }
+
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array("Senha incorreta para usuário. Nâo foi possível resgatar o brinde!"),
+                "errors" => array($message),
             );
 
             $arraySet = array(

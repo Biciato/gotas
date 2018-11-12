@@ -1641,6 +1641,11 @@ class PontuacoesComprovantesController extends AppController
 
                         $pontuacoesSave = $this->Pontuacoes->insertPontuacoesCupons($pontuacoesSave);
 
+                        if ($pontuacoesSave) {
+                            // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
+                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"], true);
+                        }
+
                         $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);
 
                         $funcionarioOperacao = array(
@@ -1707,6 +1712,8 @@ class PontuacoesComprovantesController extends AppController
                     // Status está anormal, grava para posterior processamento
 
                     $clientesId = empty($cliente) ? null : $cliente["id"];
+
+                    // TODO: quando a pontuação pendente for processada, o usuário deve ser adicionado ao vínculo com aquele Ponto de Atendimento
 
                     $pontuacao_pendente = $this
                         ->PontuacoesPendentes

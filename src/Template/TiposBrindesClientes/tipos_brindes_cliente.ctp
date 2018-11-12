@@ -23,6 +23,7 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use App\Custom\RTI\DebugUtil;
 
 // Navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
@@ -78,7 +79,9 @@ echo $this->Breadcrumbs->render(
 
                     <?php
                     $vinculado = count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0;
-                    $banhoSmart = $tipoBrindeItem->tipo_brinde["id"] <= 4;
+                    $banhoSmart = is_numeric($tipoBrindeItem["tipo_principal_codigo_brinde"]) && ($tipoBrindeItem["tipo_principal_codigo_brinde"] >= 1 && $tipoBrindeItem["tipo_principal_codigo_brinde"] <= 4);
+
+                    echo sprintf("Vinculado: %s Banho Smart: %s", $vinculado, $banhoSmart);
                     ?>
                     <tr>
                         <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipos_brindes_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
@@ -106,7 +109,7 @@ echo $this->Breadcrumbs->render(
                             ) ?>
                             <!-- Editar -->
 
-                            <?php if (!$vinculado && !$banhoSmart) : ?>
+                            <?php if (!$banhoSmart) : ?>
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',

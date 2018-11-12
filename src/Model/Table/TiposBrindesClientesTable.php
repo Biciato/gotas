@@ -402,7 +402,11 @@ class TiposBrindesClientesTable extends GenericTable
             $tipoBrindesIds = array();
             $tipoBrindesJaUsadosQuery = $this->findTiposBrindesClientes(["clientes_id in " => [$clientesId]]);
 
-            foreach ($tipoBrindesJaUsadosQuery->toArray() as $key => $tipoBrindesClienteJaUsado) {
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+            $redeCliente = $redesHasClientesTable->getRedesHasClientesById($clientesId);
+
+            foreach ($tipoBrindesJaUsadosQuery->toArray() as $tipoBrindesClienteJaUsado) {
                 $tipoBrindesIds[] = $tipoBrindesClienteJaUsado["tipos_brindes_redes_id"];
             }
 
@@ -412,6 +416,7 @@ class TiposBrindesClientesTable extends GenericTable
                 $tipoBrindes = $tipoBrindes->where(
                     [
                         "id not in" => $tipoBrindesIds,
+                        "redes_id" => $redeCliente["redes_id"],
                         "habilitado" => 1
                     ]
                 );
@@ -429,7 +434,7 @@ class TiposBrindesClientesTable extends GenericTable
     }
 
     /**
-     * TiposBrindesClientesTable::getTiposBrindesClientesDisponiveis
+     * TiposBrindesClientesTable::getTiposBrindesHabilitadosCliente
      *
      * Obtem TiposBrindes Habilitados a clientes
      *

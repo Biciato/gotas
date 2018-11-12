@@ -47,9 +47,10 @@ class TiposBrindesClientesController extends AppController
         }
 
         try {
-            if ($cliente) {
-                $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
-            }
+
+            $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
+
+            // DebugUtil::print($tiposBrindesClientes->toArray());
 
             $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
 
@@ -93,7 +94,7 @@ class TiposBrindesClientesController extends AppController
         foreach ($tiposBrindesRedesQuery as $tipoBrinde) {
 
             $tipo = array(
-                "text" =>  $tipoBrinde["brinde_necessidades_especiais"] ?  __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
+                "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
                 "value" => $tipoBrinde["id"],
                 "id" => "tipos_brindes_redes_id",
                 "data-tipo-principal" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
@@ -102,6 +103,7 @@ class TiposBrindesClientesController extends AppController
             $tiposBrindesRedes[] = $tipo;
         }
 
+        // DebugUtil::print($tiposBrindesRedes);
         try {
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->newEntity();

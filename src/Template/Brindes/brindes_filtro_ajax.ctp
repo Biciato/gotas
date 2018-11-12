@@ -29,6 +29,7 @@ $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
                     'id' => 'lista_brindes',
                     'class' => 'form-control list-gifts',
                     'label' => 'Brinde',
+                    "empty" => "<Selecionar>",
                     'required' => true
                 )
             ) ?>

@@ -2,10 +2,12 @@
  * @author Gustavo Souza Gonçalves
  * @date 12/07/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function () {
+
+    $("#cpf").focus();
 
     var imageStored = false;
 
@@ -112,7 +114,7 @@ $(document).ready(function () {
                         // atribui como true a imagem enviada
                         imageStored = true;
 
-                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem. 
+                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem.
                         $("#cpf").attr('disabled', true);
                     }
                 });
@@ -162,7 +164,7 @@ $(document).ready(function () {
 
     /**
      * Carrega unidades de uma rede
-     * @param {object} data 
+     * @param {object} data
      */
     var loadUnidadesRede = function (data) {
 
@@ -215,8 +217,8 @@ $(document).ready(function () {
 
     /**
      * Atualiza dados de Perfil selecionado
-     * 
-     * @param {object} data 
+     *
+     * @param {object} data
      */
     var changeProfileType = function (data) {
         $("#senha").val(null);
@@ -300,7 +302,7 @@ $(document).ready(function () {
 
     /**
      * Limpa o formulário de cadastro
-     * TODO: melhorar 
+     * TODO: melhorar
      */
     $(".clearForm").on('click', function () {
 
@@ -346,7 +348,7 @@ $(document).ready(function () {
 
     /**
      * Remove qualquer caracter especial
-     * @param {object} documentUser 
+     * @param {object} documentUser
      */
     var cleanIdentity = function (parameter) {
         var returnValue = parameter.replace(/\./g, '');
@@ -356,7 +358,7 @@ $(document).ready(function () {
 
     /**
      * Verifica se CPF é válido
-     * @param {*} strCPF 
+     * @param {*} strCPF
      */
     var checkCPFIsValid = function (strCPF) {
         var sum;

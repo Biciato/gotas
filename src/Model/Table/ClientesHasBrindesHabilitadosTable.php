@@ -429,6 +429,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesPrecosOrdenacao = array();
             $prefix = "brinde_habilitado_preco_atual_";
 
+            $paginaAtual = 1;
+            $limite = 999;
+
+            if (sizeof($paginationConditionsBrindes) > 0) {
+                $paginaAtual = !empty($paginationConditionsBrindes["page"]) ? $paginationConditionsBrindes["page"] : $paginaAtual;
+                $limite = !empty($paginationConditionsBrindes["limit"]) ? $paginationConditionsBrindes["limit"] : $limite;
+            }
+
             $orderConditionsBrindesNew = array();
             foreach ($orderConditionsBrindes as $key => $value) {
                 $pos = stripos($key, $prefix);
@@ -474,11 +482,11 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $count = $brindes->count();
 
-            if (sizeof($paginationConditionsBrindes) > 0) {
-                $brindes = $brindes
-                    ->limit($paginationConditionsBrindes["limit"])
-                    ->page($paginationConditionsBrindes["page"]);
-            }
+            // if (sizeof($paginationConditionsBrindes) > 0) {
+            $brindes = $brindes
+                ->limit($limite)
+                ->page($paginaAtual);
+            // }
 
             // $brindesIdsQuery = $brindes->select(['id', 'nome_img'])->toArray();
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
@@ -498,7 +506,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ),
                     "data" => array(),
                 );
-                if ($paginationConditionsBrindes["page"] == 1) {
+                if ($paginaAtual == 1) {
                     $retorno = array(
                         "brindes" => array(
                             "count" => 0,
@@ -578,20 +586,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->contain($containArray)
                     ->first();
 
-                    // die();
-
-                // DebugUtil::print($clientesBrindesHabilitado);
-                // DebugUtil::print($clientesBrindesHabilitado, true, false);
-
-                $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-
+                $brindeHabilitadoPrecoTable = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
                 $brinde = $brindesTable->getBrindesById($brindeId);
 
                 if (!empty($clientesBrindesHabilitado) && ($clientesBrindesHabilitado["tipos_brindes_clientes_id"] != 0)) {
 
                     $clientesBrindesHabilitado["brinde"] = $brinde;
 
-                    $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table
+                    $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brindeHabilitadoPrecoTable
                         ->find('all')
                         ->where(
                             array(
@@ -610,8 +612,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             }
 
             $clientesBrindesHabilitadosReturn = array();
-
-            // DebugUtil::print($clientesBrindesHabilitados);
 
             if ($precoMin == 0 && $precoMax == 0) {
                 $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;
@@ -967,7 +967,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $retorno = array(
                 "mensagem" => array(
-                    "status" => false,
+                    "status" => true,
                     "message" => $message,
                     "errors" => array()
                 ),
