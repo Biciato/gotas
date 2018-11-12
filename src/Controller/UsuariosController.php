@@ -813,6 +813,22 @@ class UsuariosController extends AppController
 
             $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
+            // validação de cpf
+            if (isset($data["cpf"])) {
+                $result = NumberUtil::validarCPF($data["cpf"]);
+
+                if (!$result["status"]) {
+                    $mensagem["status"] = false;
+                    $mensagem["message"] = __($result["message"], $data["cpf"]);
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+            }
+
             if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
@@ -852,7 +868,8 @@ class UsuariosController extends AppController
                 unset($data["ultima_tentativa_login"]);
             }
 
-            if (!isset($data["email"])) {
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            if (empty($email)) {
                 $errors[] = array("email" => "Email deve ser informado!");
                 $canContinue = false;
             } else {
@@ -931,10 +948,11 @@ class UsuariosController extends AppController
             }
 
             $usuarioData = $data;
+            $email = !empty($usuarioData["email"]) ? $usuarioData["email"] : null;
 
             // verifica se o usuário já está registrado
 
-            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($usuarioData['email']);
+            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($email);
 
             if ($canContinue) {
 
@@ -945,9 +963,14 @@ class UsuariosController extends AppController
                         'message' => "Usuário " . $usuarioData['email'] . " já existe no sistema!"
                     ];
                 } else {
-                // senão, grava no banco
+                    // senão, grava no banco
 
-                    $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                    $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
+
+                    if (!empty($senha)) {
+                        $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                    }
+
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
 
                     foreach ($usuario->errors() as $key => $erro) {
@@ -1008,6 +1031,8 @@ class UsuariosController extends AppController
     public function loginAPI()
     {
         $usuario = $this->Auth->identify();
+
+        // DebugUtil::print($usuario);
 
         if (!$usuario) {
             throw new UnauthorizedException('Usuário ou senha inválidos');

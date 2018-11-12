@@ -132,12 +132,9 @@ class UsuariosTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->allowEmpty('matriz_id');
-
-        $validator
             ->integer('tipo_perfil')
             ->requirePresence('tipo_perfil', 'create')
-            ->notEmpty('tipo_perfil', 'Tipo de perfil é necessário informar')
+            ->notEmpty('tipo_perfil', 'É necessário informar o Tipo de perfil!')
             ->add(
                 'tipo_perfil',
                 'inList',
@@ -149,7 +146,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('nome', 'create')
+            ->requirePresence('nome', 'create', "O campo Nome precisa ser informado!")
             ->notEmpty('nome', "É necessário informar o nome");
 
         $validator
@@ -166,7 +163,7 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->integer('sexo')
-            ->requirePresence('sexo', 'create')
+            ->requirePresence('sexo', 'create', "O campo Sexo precisa ser informado!")
             ->notEmpty('sexo', 'Por favor informe o sexo')
             ->add(
                 'sexo',
@@ -178,12 +175,12 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create')
+            ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
             ->notEmpty('data_nasc');
 
         $validator
             ->email('email')
-            ->requirePresence('email', 'create')
+            ->requirePresence('email', 'create', "O campo E-mail precisa ser informado!")
             ->add(
                 'email',
                 'unique',
@@ -196,7 +193,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('email', 'Você deve informar um e-mail', 'create');
 
         $validator
-            ->requirePresence('senha', 'create')
+            ->requirePresence('senha', 'create', "O campo Senha precisa ser informado!")
             ->notEmpty('senha', 'Você deve inserir uma senha', 'create')
             ->add(
                 'senha',
@@ -217,7 +214,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('confirm_senha', 'create')
+            ->requirePresence('confirm_senha', 'create', "O Campo de Confirmar Senha precisa ser informado!")
             ->notEmpty('confirm_senha', 'Você deve redigir a senha', 'create')
             ->allowEmpty('confirm_senha', 'update')
             ->add('confirm_senha', 'compareWith', [
