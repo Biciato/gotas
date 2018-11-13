@@ -213,13 +213,13 @@ Configure::write(
         'messageGenericCheckFields' => "Verifique se todos os campos estão preenchidos!",
 
         'messageLoadDataWithSuccess' => "Dados carregados com sucesso!",
-        'messageLoadDataWithError' => "Erro durante carregamento dos dados!",
+        'messageLoadDataWithError' => "Erro ao obter dados!",
 
         'messageInvalidateSuccess' => 'O registro foi invalidado com sucesso',
         'messageInvalidateError' => 'Não foi possível invalidar o registro!',
         'messageValidateSuccess' => 'O registro foi validado com sucesso',
         'messageValidateError' => 'Não foi possível validar o registro!',
-        'messageNotAuthorized' => 'Você não possui autorização para acessar tal operação',
+        'messageNotAuthorized' => 'Você não possui autorização para acessar tal operação!',
         "messageRedeemCouponCNPJNotFound" => "Não foi localizado o CNPJ da unidade na Nota Fiscal Eletrônica, logo, não é possível importar os dados...",
         'messageRedeemCouponError' => 'Não foi possível resgatar o cupom.',
         'messageRedeemCouponNotFound' => 'Cupom não encontrado!',
@@ -233,6 +233,8 @@ Configure::write(
         'messageTransporterAlreadyLinked' => 'Transportadora já vinculada, não é possível adicionar novo registro ao usuário!',
         'messageUnlinkQuestion' => 'Deseja realmente desvincular o registro {0} ?',
         'messageUnlinkSuccess' => 'O registro foi desvincunlado com sucesso.',
+
+        "messageUserDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao sistema!",
 
 
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",

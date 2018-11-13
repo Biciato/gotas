@@ -13,6 +13,8 @@ use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
+use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Clientes Controller
@@ -198,6 +200,8 @@ class ClientesController extends AppController
      */
     public function adicionar(int $redes_id = null)
     {
+        $arraySet = array('cliente', 'clientes', 'rede', 'usuarioLogado');
+
         $cliente = $this->Clientes->newEntity();
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
@@ -206,11 +210,30 @@ class ClientesController extends AppController
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
+        $usuarioLogado = $this->usuarioLogado;
 
         $rede = $this->Redes->getRedeById($redes_id);
 
         if ($this->request->is('post')) {
             $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
+
+            // Verifica se ja tem um registro antes
+
+            $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
+
+            if ($cnpj) {
+                $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
+
+                if ($clienteJaExistente) {
+
+                    $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
+                    $this->Flash->error($message);
+
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
+                    return;
+                }
+            }
 
             if ($this->Clientes->addClient($redes_id, $cliente)) {
                 $this->Flash->success(__("Registro gravado com sucesso."));
@@ -228,9 +251,9 @@ class ClientesController extends AppController
         }
         $clientes = $this->Clientes->find('list', ['limit' => 200]);
 
-        $this->set('usuarioLogado', $this->usuarioLogado);
-        $this->set(compact('cliente', 'clientes', 'rede'));
-        $this->set('_serialize', ['cliente', 'rede']);
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+
     }
 
     /**
@@ -243,6 +266,8 @@ class ClientesController extends AppController
     public function editar($id = null)
     {
         try {
+            $arraySet = array('cliente');
+
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -254,6 +279,23 @@ class ClientesController extends AppController
 
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
+
+                $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
+
+                if ($cnpj) {
+                    $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
+
+                    if ($clienteJaExistente && $clienteJaExistente["id"] != $cliente["id"]) {
+
+                        $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
+                        $this->Flash->error($message);
+
+                        $this->set(compact($arraySet));
+                        $this->set('_serialize', $arraySet);
+                        return;
+                    }
+                }
+
 
                 if ($this->Clientes->updateClient($cliente)) {
                     $this->Flash->success(__('O registro foi atualizado com sucesso.'));
@@ -272,8 +314,8 @@ class ClientesController extends AppController
                 $this->Flash->error($result['message']);
             }
 
-            $this->set(compact('cliente', 'cliente'));
-            $this->set('_serialize', ['cliente']);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter cupom fiscal para consulta: {0} em: {1} ", $e->getMessage(), $trace[1]);

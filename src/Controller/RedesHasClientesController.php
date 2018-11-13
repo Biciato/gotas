@@ -608,7 +608,7 @@ class RedesHasClientesController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array("Id da Unidade de Atendimento deve ser informado!"),
+                        "errors" => array("O campo Id da Unidade de Atendimento deve ser informado!"),
                     );
                     $cliente = array(
                         "data" => array()
@@ -1014,7 +1014,7 @@ class RedesHasClientesController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array("Id da rede deve ser informado!"),
+                        "errors" => array("O campo Id da Rede deve ser informado!"),
                     );
                     $clientes = array(
                         "count" => 0,

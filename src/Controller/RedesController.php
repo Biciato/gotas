@@ -765,7 +765,9 @@ class RedesController extends AppController
                 if (count($unidadesIds) == 0) {
                     $status = 0;
                     $messageString = Configure::read("messageLoadDataWithError");
-                    $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
+
+
+                    $errors = array(Configure::read("messageUserDoesNotAcquiredPoints"));
 
                     $mensagem = array(
                         "status" => $status,
