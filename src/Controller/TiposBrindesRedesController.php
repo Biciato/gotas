@@ -524,7 +524,7 @@ class TiposBrindesRedesController extends AppController
                     }
                 }
 
-                if (($redesId == null) && ($clientesId == null)) {
+                if (empty($redesId) && empty($clientesId)) {
 
                     $messageString = __("É necessário informar uma rede ou um posto de atendimento para continuar!");
 

@@ -480,61 +480,33 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             // DebugUtil::print($brindes->toArray());
 
-            $count = $brindes->count();
+            // $count = $brindes->count();
 
             // if (sizeof($paginationConditionsBrindes) > 0) {
-            $brindes = $brindes
-                ->limit($limite)
-                ->page($paginaAtual);
+            // $brindes = $brindes;
+                // ->limit($limite)
+                // ->page($paginaAtual);
             // }
 
             // $brindesIdsQuery = $brindes->select(['id', 'nome_img'])->toArray();
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
 
-            // DebugUtil::print($brindesIdsQuery);
-
             // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
             if (sizeof($brindesIdsQuery) == 0) {
 
                 $retorno = array(
-                    "count" => 0,
-                    "page_count" => 0,
                     "mensagem" => array(
                         "status" => false,
-                        "message" => __(""),
-                        "errors" => array()
+                        "message" => Configure::read("messageLoadDataWithError"),
+                        "errors" => array(Configure::read("messageQueryNoDataToReturn"))
                     ),
-                    "data" => array(),
-                );
-                if ($paginaAtual == 1) {
-                    $retorno = array(
-                        "brindes" => array(
-                            "count" => 0,
-                            "page_count" => 0,
-                            "data" => array()
-                        ),
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryNoDataToReturn"),
-                            "errors" => array()
-                        )
-                    );
-                } else {
-                    $retorno = array(
+                    "brindes" => array(
+                        "count" => 0,
                         "page_count" => 0,
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryPaginationEnd"),
-                            "errors" => array()
-                        ),
-                        "brindes" => array(
-                            "count" => 0,
-                            "page_count" => 0,
-                            "data" => array()
-                        )
+                        "data" => array()
+                    ),
+                );
 
-                    );
-                }
                 return $retorno;
             }
 
@@ -574,6 +546,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
+            $count = 0;
+
             foreach ($brindesIds as $key => $brindeId) {
 
                 $whereConditions = $clientesBrindesHabilitadosWhereConditions;
@@ -605,10 +579,12 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         ->order(['id' => 'DESC'])
                         ->first();
 
+                    $count = $count + 1;
                     $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
-                } else {
-                    $count -= 1;
                 }
+                // else {
+                // $count -= 1;
+                // }
             }
 
             $clientesBrindesHabilitadosReturn = array();
@@ -661,6 +637,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
                 $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
+
+                $limiteInicial = ($limite * $paginaAtual) - $limite;
+                $limiteFinal = ($limite * $paginaAtual);
+                $clientesBrindesHabilitados = array_slice($clientesBrindesHabilitados, $limiteInicial, $limiteFinal);
             }
 
             $retorno = array(
@@ -672,8 +652,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 ),
                 "mensagem" => array(
                     "status" => sizeof($clientesBrindesHabilitados) > 0,
-                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
-                    "errors" => array()
+                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageLoadDataWithError"),
+                    "errors" => sizeof($clientesBrindesHabilitados) > 0 ? array() : array(Configure::read("messageQueryNoDataToReturn"))
                 ),
             );
 
