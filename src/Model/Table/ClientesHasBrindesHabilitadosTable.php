@@ -276,10 +276,49 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         'Clientes',
                         'Brindes',
                         'BrindeHabilitadoPrecoAtual',
-                        "TiposBrindesClientes"
+                        "TiposBrindesClientes.TipoBrindeRede"
+                    )
+                )
+                ->select(
+                    array(
+                        "Brindes.id",
+                        "Brindes.clientes_id",
+                        "Brindes.tipos_brindes_redes_id",
+                        "Brindes.nome",
+                        "Brindes.tempo_rti_shower",
+                        "Brindes.ilimitado",
+                        "Brindes.habilitado",
+                        "Brindes.preco_padrao",
+                        "Brindes.valor_moeda_venda_padrao",
+                        "Brindes.nome_img",
+                        "Brindes.audit_insert",
+                        "Brindes.audit_update",
+                        "ClientesHasBrindesHabilitados.id",
+                        "ClientesHasBrindesHabilitados.brindes_id",
+                        "ClientesHasBrindesHabilitados.clientes_id",
+                        "ClientesHasBrindesHabilitados.tipo_codigo_barras",
+                        "ClientesHasBrindesHabilitados.tipos_brindes_clientes_id",
+                        "ClientesHasBrindesHabilitados.habilitado",
+                        "ClientesHasBrindesHabilitados.audit_insert",
+                        "ClientesHasBrindesHabilitados.audit_update",
+                        "TiposBrindesClientes.id",
+                        "TiposBrindesClientes.tipos_brindes_redes_id",
+                        "TiposBrindesClientes.clientes_id",
+                        "TiposBrindesClientes.tipo_principal_codigo_brinde",
+                        "TiposBrindesClientes.tipo_secundario_codigo_brinde",
+                        "TiposBrindesClientes.habilitado",
+                        "TipoBrindeRede.id",
+                        "TipoBrindeRede.nome",
+                        "TipoBrindeRede.equipamento_rti",
+                        "TipoBrindeRede.brinde_necessidades_especiais",
+                        "TipoBrindeRede.habilitado",
+                        "TipoBrindeRede.atribuir_automatico",
+                        "TipoBrindeRede.tipo_principal_codigo_brinde_default",
+                        "TipoBrindeRede.tipo_secundario_codigo_brinde_default",
                     )
                 )
                 ->first();
+
 
             // Cálculo de estoque do item
             $queryEntrada = $this->_getClientesHasBrindesHabilitadosTable()->BrindesEstoqueAtual->find();
@@ -539,7 +578,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             if (sizeof($filterTiposBrindesClientesColumns)) {
                 $containArray["TiposBrindesClientes"] = array("fields" => $filterTiposBrindesClientesColumns);
             } else {
-                $containArray[] = "TiposBrindesClientes.TiposBrindesRedes";
+                $containArray[] = "TiposBrindesClientes.TipoBrindeRede";
             }
 
             $clientesBrindesHabilitados = array();

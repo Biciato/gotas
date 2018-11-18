@@ -212,7 +212,7 @@ class AppController extends Controller
 
         //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
         //     if ($urlAtual != $urlDestino) {
-        //         $this->Flash->error(Configure::read("messageUserProfileDocumentNotFoundError"));
+        //         $this->Flash->error(Configure::read("messageUsuarioProfileDocumentNotFoundError"));
         //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
         //     }
         // }

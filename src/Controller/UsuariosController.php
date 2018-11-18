@@ -1040,7 +1040,7 @@ class UsuariosController extends AppController
 
         $mensagem = [
             'status' => true,
-            'message' => Configure::read('messageUserLoggedInSuccessfully')
+            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
         ];
 
 
@@ -1080,7 +1080,7 @@ class UsuariosController extends AppController
 
         $mensagem = [
             'status' => true,
-            'message' => Configure::read('messageUserLoggedOutSuccessfully')
+            'message' => Configure::read('messageUsuarioLoggedOutSuccessfully')
         ];
 
 
@@ -1711,7 +1711,7 @@ class UsuariosController extends AppController
 
             if ($usuarioData['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']
                 && strlen($data['clientes_id']) == 0) {
-                $this->Flash->error(Configure::read('messageUserRegistrationClientNotNull'));
+                $this->Flash->error(Configure::read('messageUsuarioRegistrationClienteNotNull'));
 
                 $arraySet = [
                     'usuario',

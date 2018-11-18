@@ -1374,15 +1374,6 @@ class PontuacoesComprovantesController extends AppController
      *
      * @return json object
      *
-     * ----------------------------------------------------------------------
-     * Aviso!
-     *
-     * Este método e o método saveTaxCoupon fazem a mesma coisa de finalidade,
-     * mas suas execuções são diferentes!
-     * Por isto, este método não se deve ser genérico!
-     * Caso um dos dois tenha modificações, deve ser analisado o que será
-     * impactado!
-     * ----------------------------------------------------------------------
      *
      */
     public function setComprovanteFiscalUsuarioAPI()

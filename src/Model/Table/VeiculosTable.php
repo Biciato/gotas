@@ -222,9 +222,9 @@ class VeiculosTable extends GenericTable
     public function getVeiculoById($id)
     {
         try {
-            return $this->_getVeiculosTable()
+            return $this
                 ->find('all')
-                ->where(['id' => $id])
+                ->where(array('id' => $id))
                 ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -255,7 +255,7 @@ class VeiculosTable extends GenericTable
                     "status" => 0,
                     "message" => Configure::read("messageQueryNoDataToReturn"),
                     "errors" => array(
-                        "Valor Placa deve ter 7 dígitos para realizar a pesquisa!"
+                        Configure::read("messageVeiculoPlateLength")
                     )
                 );
 
@@ -282,7 +282,7 @@ class VeiculosTable extends GenericTable
                     "message" => empty($veiculo) ?
                         Configure::read("messageQueryNoDataToReturn") :
                         Configure::read("messageLoadDataWithSuccess"),
-                    "errors" => array()
+                    "errors" => empty($veiculo) ? array(Configure::read("messageQueryNoDataToReturn")) : array()
                 ),
                 "veiculo" => $veiculo
             );

@@ -731,7 +731,7 @@ class PontuacoesTable extends GenericTable
                 $mensagem = array(
                     "status" => 0,
                     "message" => Configure::read("messageLoadDataWithError"),
-                    "errors" => array(Configure::read("messageUserNoPointsInNetwork"))
+                    "errors" => array(Configure::read("messageUsuarioNoPointsInNetwork"))
                 );
             }
 

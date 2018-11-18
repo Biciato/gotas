@@ -234,13 +234,16 @@ Configure::write(
         'messageUnlinkQuestion' => 'Deseja realmente desvincular o registro {0} ?',
         'messageUnlinkSuccess' => 'O registro foi desvincunlado com sucesso.',
 
-        "messageUserDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao sistema!",
+        "messageUsuarioDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao sistema!",
 
 
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",
         "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
 
         "messageWarningDefault" => "Atenção!",
+
+        "messageFieldEmptyDefault" => "O Campo {0} deve ser informado!",
+        "messageFieldDigitsMinimum" => "O Campo {0} deve ter {1} dígitos!",
 
         /**
          * ------------------------------------------ ENTIDADES ------------------------------------------
@@ -258,25 +261,33 @@ Configure::write(
         "messageGotasPointOfServiceNotConfigured" => "O estabelecimento ainda não configurou a(s) Gota(s). As Gotas de seu Cupom serão creditadas quando o estabelecimento efetuar a configuração!",
 
         // Mensagens de Pontuações
-        "messageUserNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
+        "messageUsuarioNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
 
         // Mensagens de Usuários
-        'messageUserRegistrationClientNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
+        'messageUsuarioRegistrationClienteNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
 
-        "messageUserCPFNotValidInvalidSize" => "Tamanho do CPF errado, esperado 11 dígitos! {0}",
+        "messageUsuarioCPFNotValidInvalidSize" => "Tamanho do CPF errado, esperado 11 dígitos! {0}",
 
-        "messageUserCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
-        "messageUserProfileDocumentNotFoundError" => "Atenção! Para usar o sistema, é necessário ter um CPF ou Documento Estrangeiro cadastrado! Complete seu perfil.",
+        "messageUsuarioCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
+        "messageUsuarioProfileDocumentNotFoundError" => "Atenção! Para usar o sistema, é necessário ter um CPF ou Documento Estrangeiro cadastrado! Complete seu perfil.",
 
-        'messageUserLoggedInSuccessfully' => "Usuário logado com sucesso!",
-        'messageUserLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
+        'messageUsuarioLoggedInSuccessfully' => "Usuário logado com sucesso!",
+        'messageUsuarioLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
 
         "userNotAllowedToExecuteFunction" => "Usuário logado não possui permissão para acessar esta funcionalidade!",
 
         // Mensagens de Veículos
-        'messageVehicleAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
+        'messageVeiculoAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
+        "messageVeiculoIdEmpty" => "O campo ID do Veículo deve ser informado!",
+        "messageVeiculoPlateLength" => "Campo Placa deve ter 7 dígitos para realizar a pesquisa!",
+        
+        
+        // Mensagens de Usuários Has Veículos
+        "messageVeiculoDoesntBelongToUserOnUpdate" => "Não é possível atualizar o cadastro, usuário não possui este veículo em seu cadastro!",
 
+        // Mensagem de Transportadoras
 
+        "messageTransportadoraNotFound" => "Transportadora não encontrada conforme parâmetros informados!",
         'yesNoArray' => [
             1 => "Sim",
             0 => "Não"

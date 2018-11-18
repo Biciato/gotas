@@ -436,11 +436,11 @@ class PontuacoesComprovantesTable extends GenericTable
 
             // condições para datas
             if (!is_null($dataInicio) && !is_null($dataFim)) {
-                $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') BETWEEN '{$dataInicio}' AND '{$dataFim}'");
             } else if (!is_null($dataInicio)) {
-                $whereConditions[] = array("data >=" => $dataInicio);
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') >=" => $dataInicio);
             } else if (!is_null($dataFim)) {
-                $whereConditions[] = array("data <=" => $dataFim);
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') <=" => $dataFim);
             } else {
                 // Data não está setada, procura pelos últimos 30 dias
                 $dataFim = date("Y-m-d");

@@ -767,7 +767,7 @@ class RedesController extends AppController
                     $messageString = Configure::read("messageLoadDataWithError");
 
 
-                    $errors = array(Configure::read("messageUserDoesNotAcquiredPoints"));
+                    $errors = array(Configure::read("messageUsuarioDoesNotAcquiredPoints"));
 
                     $mensagem = array(
                         "status" => $status,

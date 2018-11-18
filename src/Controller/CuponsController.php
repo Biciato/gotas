@@ -1387,10 +1387,10 @@ class CuponsController extends AppController
 
                 if ($cupomEmitido == "" || strlen($cupomEmitido) < 14) {
 
-                    $errors = array("É preciso informar o código do cupom para continuar!");
+                    $errors = array(__(Configure::read("messageFieldEmptyDefault"), "CUPOM EMITIDO"));
 
                     if (strlen($cupomEmitido) <= 14) {
-                        $errors[] = "O código do cupom deve ter 14 dígitos!";
+                        $errors[] = __(Configure::read("messageFieldDigitsMinimum"), "CUPOM EMITIDO", 14);
                     }
 
                     $mensagem = array(
@@ -1408,14 +1408,16 @@ class CuponsController extends AppController
                 }
 
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
+                $cupons = $cupons->toArray();
 
+                // DebugUtil::print($cupons);
                 // Verifica se este cupom já foi usado
                 $somaTotal = 0;
                 $dadosCupons = array();
 
                 $verificado = false;
                 $usado = false;
-                foreach ($cupons->toArray() as $cupom) {
+                foreach ($cupons as $cupom) {
 
                     $dadoCupom = array();
 
@@ -1475,7 +1477,7 @@ class CuponsController extends AppController
 
                 }
 
-                if (!$cupons) {
+                if (sizeof($cupons) == 0) {
                     // Avisa erro se não for encontrado. Motivos podem ser:
                     // Cupom já foi resgatado
                     // Cupom pertence a outra rede
@@ -1491,43 +1493,43 @@ class CuponsController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
+                } 
+                // else {
+                foreach ($cupons as $cupom) {
 
-                } else {
-                    foreach ($cupons->toArray() as $key => $cupom) {
+                    $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
-                        $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                    $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                        $cupom->clientes_has_brindes_habilitados_id,
+                        $cupom->usuarios_id,
+                        $cupom->quantidade,
+                        (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                    );
 
-                        $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
-                            $cupom->clientes_has_brindes_habilitados_id,
-                            $cupom->usuarios_id,
-                            $cupom->quantidade,
-                            (int)Configure::read('stockOperationTypes')['sellTypeGift']
-                        );
+                    // diminuiu estoque, considera o item do cupom como resgatado
+                    if ($estoque) {
+                        $cupomSave = null;
 
-                        // diminuiu estoque, considera o item do cupom como resgatado
-                        if ($estoque) {
-                            $cupomSave = null;
-
-                            // Brinde Smart Shower ( <= 4 )
-                            if ($cupom["tipo_principal_codigo_brinde"] <= 4) {
-                                $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
-                            } else {
-                                $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
-                            }
-
-                            // adiciona novo registro de pontuação
-
-                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                                $cupom->clientes_id,
-                                $cupom->usuarios_id,
-                                $cupom->clientes_has_brindes_habilitados_id,
-                                $cupom->valor_pago,
-                                $this->Auth->user()["id"],
-                                true
-                            );
+                        // Equipamento RTI?
+                        if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                        } else {
+                            $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
                         }
+
+                        // adiciona novo registro de pontuação
+
+                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                            $cupom->clientes_id,
+                            $cupom->usuarios_id,
+                            $cupom->clientes_has_brindes_habilitados_id,
+                            $cupom->valor_pago,
+                            $this->Auth->user()["id"],
+                            true
+                        );
                     }
                 }
+                // }
 
                 $mensagem = array(
                     "status" => 1,
@@ -1654,6 +1656,11 @@ class CuponsController extends AppController
                 $tiposBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();
+                $redesId = 0;
+                $clientesIds = array();
+
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (isset($data["order_by"])) {
                     $orderConditions = $data["order_by"];
@@ -1668,10 +1675,8 @@ class CuponsController extends AppController
                 }
 
                 // Pesquisa por Redes
-                if (isset($data['redes_id'])) {
-                    $rede = $this->Redes->getRedeById($data['redes_id']);
-
-                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+                if (!empty($redesId)) {
+                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
                     if (sizeof($clientesIds) == 0) {
                         $mensagem = array(
@@ -1690,14 +1695,13 @@ class CuponsController extends AppController
                     $whereConditions[] = array('Cupons.clientes_id in' => $clientesIds);
                 }
                 // Pesquisa por uma Unidade da Rede
-                else if (isset($data['clientes_id'])) {
-
-                    $whereConditions[] = ['clientes_id' => (int)($data['clientes_id'])];
+                else if (!empty($clientesId)) {
+                    $whereConditions[] = array('Cupons.clientes_id' => $clientesId);
                 }
 
                 // se tipos_brindes_redes_id estiver setado, pesquisa por um tipo de brinde
 
-                if (isset($data["tipos_brindes_redes_id"])) {
+                if (isset($data["tipos_brindes_redes_id"]) && sizeof($clientesIds) > 0) {
                     $tiposBrindesClientesConditions[] = array(
                         "tipos_brindes_redes_id" => $data['tipos_brindes_redes_id'],
                         "clientes_id in " => $clientesIds
@@ -1848,7 +1852,10 @@ class CuponsController extends AppController
 
         $senhaValida = false;
 
-        if (($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType'] && !$usoViaMobile) || !$vendaAvulsa) {
+        if ($usoViaMobile) {
+            $senhaValida = true;
+        } else if (($usuario["tipo_perfil"] < Configure::read('profileTypes')['DummyUserProfileType']) || !$vendaAvulsa) {
+            die('wtf?');
             if ((new DefaultPasswordHasher)->check($senhaAtualUsuario, $usuario->senha)) {
                 $senhaValida = true;
             }

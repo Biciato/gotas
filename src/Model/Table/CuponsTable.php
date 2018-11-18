@@ -191,18 +191,16 @@ class CuponsTable extends GenericTable
     /**
      * Adiciona cupom de Smart Shower
      *
-     * @param int   $clientes_has_brindes_habilitados_id Id de Brinde Habilitado
-     * @param int   $clientes_id                         Id de Cliente
-     * @param int   $usuarios_id                         Id de Usuário
-     * @param int   $tipo_banho                          Tipo do Banho
-     * @param int   $tempo_banho                         Tempo de Banho
-     * @param float $valorPago                          Valor Pago
-     * @param int   $quantidade                          Quantidade Solicitada
-     * @param int   $tipoVenda                           Tipo de Venda (0 = Gotas, 1 = Dinheiro)
+     * @param int $clientesHasBrindesHabilitadosId Id de Brinde Habilitado
+     * @param int $clientesId Id de Cliente
+     * @param int $usuariosId Id de Usuário
+     * @param float $valorPago Valor Pago
+     * @param int $quantidade Quantidade Solicitada
+     * @param int $tipoVenda Tipo de Venda (0 = Gotas, 1 = Dinheiro)
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, float $valorPago, int $quantidade, int $tipoVenda = 0)
+    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $usuariosId, float $valorPago, int $quantidade, int $tipoVenda = 0)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
@@ -219,7 +217,9 @@ class CuponsTable extends GenericTable
 
             $clienteHasBrindeHabilitadoTable = TableRegistry::get("ClientesHasBrindesHabilitados");
 
-            $brindeHabilitado = $clienteHasBrindeHabilitadoTable->getBrindeHabilitadoById($clientes_has_brindes_habilitados_id);
+            $brindeHabilitado = $clienteHasBrindeHabilitadoTable->getBrindeHabilitadoById($clientesHasBrindesHabilitadosId);
+
+            // DebugUtil::print($brindeHabilitado);
 
             /**
              * Para saber se o brinde é banho ou não (e como será 'calculado' os códigos primários e secundários),
@@ -263,35 +263,36 @@ class CuponsTable extends GenericTable
 
             // Obtem cliente
 
-            $cliente = $this->_getCuponsTable()->Clientes->getClienteById($clientes_id);
+            $cliente = $this->_getCuponsTable()->Clientes->getClienteById($clientesId);
 
             // Pega todas as senhas emitidas no dia para saber qual é a próxima
             $qteSenhas = $this->_getCuponsTable()->find('all')
                 ->order(['senha' => 'desc'])
-                ->where(['clientes_id' => $clientes_id, 'data like' => '%' . date('Y-m-d') . '%'])->first()['senha'];
+                ->where(['clientes_id' => $clientesId, 'data like' => '%' . date('Y-m-d') . '%'])->first()['senha'];
 
             // Processo de Gravação
-            $cupom->clientes_has_brindes_habilitados_id = $clientes_has_brindes_habilitados_id;
-            $cupom->clientes_id = $clientes_id;
-            $cupom->usuarios_id = $usuarios_id;
-            $cupom->tipo_principal_codigo_brinde = $tipoPrincipalCodigoBrinde;
-            $cupom->tipo_secundario_codigo_brinde = $tipoSecundarioCodigoBrinde;
-            $cupom->valor_pago = $valorPago;
-            $cupom->senha = $qteSenhas + 1;
-            $cupom->data = $data;
-            $cupom->quantidade = $quantidade;
-            $cupom->tipo_venda = $tipoVenda;
+            $cupom["clientes_has_brindes_habilitados_id"] = $clientesHasBrindesHabilitadosId;
+            $cupom["clientes_id"] = $clientesId;
+            $cupom["usuarios_id"] = $usuariosId;
+            $cupom["tipo_principal_codigo_brinde"] = $tipoPrincipalCodigoBrinde;
+            $cupom["tipo_secundario_codigo_brinde"] = $tipoSecundarioCodigoBrinde;
+            $cupom["valor_pago"] = $valorPago;
+            $cupom["senha"] = $qteSenhas + 1;
+            $cupom["data"] = $data;
+            $cupom["quantidade"] = $quantidade;
+            $cupom["tipo_venda"] = $tipoVenda;
 
             /**
-             * Se Smart Shower, já considera resgatado
-             * pois o smart shower é impresso na hora.
+             * Se é um Equipamento RTI, já considera resgatado pois o smart shower é impresso na hora.
              * Senão, false.
              */
-            $cupom->resgatado = $tipoPrincipalCodigoBrinde <= 4;
+            // $cupom->resgatado = $tipoPrincipalCodigoBrinde <= 4;
+            $cupom->resgatado = $brindeHabilitado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"];
 
-            // Usado é automatico após 24 horas se for brinde de banho.
-            // Se não for, é atribuido quando faz o resgate
-            $cupom->usado = $tipoPrincipalCodigoBrinde <= 4;
+            // Usado é automatico após 24 horas se for Equipamento RTI
+            // Se não for, é definido como usado, quando é feito a baixa.
+            // Por isso, o default deverá ser 0
+            $cupom->usado = 0;
 
             // Antes do save, calcular cupom emitido
 
@@ -301,9 +302,9 @@ class CuponsTable extends GenericTable
                 $identificador_cliente = '0' . $identificador_cliente;
             }
 
-            $ano_cupom = substr($year, 2, 2) + 10;
-            $mes_cupom = $month + 10;
-            $dia_cupom = $day + 10;
+            $anoCupom = substr($year, 2, 2) + 10;
+            $mesCupom = $month + 10;
+            $diaCupom = $day + 10;
 
             $senha = $qteSenhas == null ? 1 : $qteSenhas + 1;
 
@@ -316,9 +317,9 @@ class CuponsTable extends GenericTable
             $cupom->cupom_emitido = __(
                 "{0}{1}{2}{3}{4}{5}{6}",
                 $identificador_cliente,
-                $ano_cupom,
-                $mes_cupom,
-                $dia_cupom,
+                $anoCupom,
+                $mesCupom,
+                $diaCupom,
                 $tipoPrincipalCodigoBrinde,
                 $tipoSecundarioCodigoBrinde,
                 $senha
@@ -330,7 +331,7 @@ class CuponsTable extends GenericTable
             return $cupom;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao editar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 
@@ -433,12 +434,12 @@ class CuponsTable extends GenericTable
             return $this->_getCuponsTable()->find('all')
                 ->where($whereConditions)
                 ->contain(
-                    [
-                        "ClientesHasBrindesHabilitados",
+                    array(
+                        "ClientesHasBrindesHabilitados.TiposBrindesClientes.TipoBrindeRede",
                         "Clientes.RedeHasCliente",
                         "ClientesHasBrindesHabilitados.Brindes",
-                        "Usuarios",
-                    ]
+                        "Usuarios"
+                    )
                 );
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -467,6 +468,8 @@ class CuponsTable extends GenericTable
     {
         try {
 
+            // DebugUtil::print($tiposBrindesClienteConditions);
+
             /**
              * Nesta pesquisa, se o usuário informar Condições de Tipo Brindes Clientes,
              * a pesquisa será particularmente pelo tipo principal de código de brinde.
@@ -485,12 +488,16 @@ class CuponsTable extends GenericTable
 
                 $tiposBrindesClientesIds = $tiposBrindesClientesTable->getTiposBrindesClientesIdsFromConditions($tiposBrindesClienteConditions);
 
-                $clientesHasBrindesHabilitadosConditions = array(
-                    "tipos_brindes_clientes_id in " => $tiposBrindesClientesIds
-                );
+                // DebugUtil::print($tiposBrindesClientesIds);
 
-                $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
-                $clientesHasBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIdsFromConditions($clientesHasBrindesHabilitadosConditions);
+                if (sizeof($tiposBrindesClientesIds) > 0) {
+                    $clientesHasBrindesHabilitadosConditions = array(
+                        "tipos_brindes_clientes_id in " => $tiposBrindesClientesIds
+                    );
+
+                    $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
+                    $clientesHasBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIdsFromConditions($clientesHasBrindesHabilitadosConditions);
+                }
             }
 
             if (sizeof($clientesHasBrindesHabilitadosIds) > 0) {
@@ -538,20 +545,20 @@ class CuponsTable extends GenericTable
      * Reprint a ticket
      *
      * @param int $id
-     * @param int $clientes_has_brindes_habilitados_id
+     * @param int $clientesHasBrindesHabilitadosId
      * @param int $clientes_id
      * @param int $usuarios_id
      * @param string $data
      * @return object $cupons[]
      */
-    public function getCupomToReprint(int $id, int $clientes_has_brindes_habilitados_id, int $clientes_id, int $usuarios_id, string $data)
+    public function getCupomToReprint(int $id, int $clientesHasBrindesHabilitadosId, int $clientes_id, int $usuarios_id, string $data)
     {
         try {
             $cupons = $this->_getCuponsTable()->find('all')
                 ->where(
                     [
                         'id' => $id,
-                        'clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id,
+                        'clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId,
                         'clientes_id' => $clientes_id,
                         'usuarios_id' => $usuarios_id,
                         'data' => $data
@@ -621,7 +628,7 @@ class CuponsTable extends GenericTable
                 $whereConditions[] = array("Cupons.clientes_id IN" => $clientesIds);
             }
 
-            if (!empty($brindeSelecionado)){
+            if (!empty($brindeSelecionado)) {
                 $whereConditions[] = array("Brindes.id" => $brindeSelecionado);
             }
 
@@ -701,8 +708,7 @@ class CuponsTable extends GenericTable
         try {
             return $this->updateAll(
                 [
-                    'resgatado' => 1,
-                    'usado' => 1
+                    'resgatado' => 1
                 ],
                 [
                     'id' => $id

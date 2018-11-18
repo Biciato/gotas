@@ -532,7 +532,7 @@ class TransportadorasController extends AppController
      */
 
     /**
-     * TransportadorasController::getTransportadoraByCNPJ
+     * TransportadorasController::getTransportadoraByCNPJAPI
      *
      * Busca transportadora por CNPJ
      *
@@ -543,7 +543,7 @@ class TransportadorasController extends AppController
      *
      * @return (json_encode) $result
      **/
-    public function getTransportadoraByCNPJ()
+    public function getTransportadoraByCNPJAPI()
     {
         // Dados de mensagem
         $mensagem = array();
@@ -554,6 +554,40 @@ class TransportadorasController extends AppController
         try {
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+
+                if (empty($cnpj)){
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageLoadDataWithError")),
+                        "errors" => array(__(Configure::read("messageFieldEmptyDefault"), "CNPJ")),
+                    );
+    
+                    $arraySet = array("transportadora", "mensagem");
+    
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+    
+                    return;
+                }
+
+                if (strlen($cnpj) < 14)
+                {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageLoadDataWithError")),
+                        "errors" => array(__(Configure::read("messageFieldDigitsMinimum"), "CNPJ", 14)),
+                    );
+    
+                    $arraySet = array("transportadora", "mensagem");
+    
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+    
+                    return;
+                }
+
                 $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($data['cnpj']);
 
                 $mensagem = array(
@@ -566,7 +600,7 @@ class TransportadorasController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageLoadDataWithError")),
-                        "errors" => array("Não foi encontrado Transportadora conforme CNPJ informado!"),
+                        "errors" => array(Configure::read("messageTransportadoraNotFound")),
                     );
                 }
 

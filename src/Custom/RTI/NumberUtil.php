@@ -55,12 +55,12 @@ class NumberUtil
 
         // Verifica se foi informado todos os digitos corretamente
         if (strlen($cpf) != 11) {
-            return ["status" => 0, "message" => Configure::read("messageUserCPFNotValidInvalidSize")];
+            return ["status" => 0, "message" => Configure::read("messageUsuarioCPFNotValidInvalidSize")];
         }
 
         // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
         if (preg_match('/(\d)\1{10}/', $cpf)) {
-            return ["status" => 0, "message" => Configure::read("messageUserCPFNotValidInvalidNumber")];
+            return ["status" => 0, "message" => Configure::read("messageUsuarioCPFNotValidInvalidNumber")];
         }
         // Faz o calculo para validar o CPF
         for ($t = 9; $t < 11; $t++) {
@@ -71,7 +71,7 @@ class NumberUtil
             $d = ((10 * $d) % 11) % 10;
             if ($cpf {
                 $c} != $d) {
-                return ["status" => 0, "message" => Configure::read("messageUserCPFNotValidInvalidNumber")];
+                return ["status" => 0, "message" => Configure::read("messageUsuarioCPFNotValidInvalidNumber")];
             }
         }
         return ["status" => 1, "message" => null];

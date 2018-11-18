@@ -47,7 +47,7 @@ class VeiculosController extends AppController
                 "fabricante like '%{$fabricante}%'"
             );
 
-            if (!empty($ano)){
+            if (!empty($ano)) {
                 $whereConditions[] = array("ano" => $ano);
             }
         }
@@ -421,7 +421,7 @@ class VeiculosController extends AppController
                     // se cliente ja tem o veículo vinculado, dá mensagem de erro
                     // pois ele não pode ter dois registros do mesmo item
                     if ($usuario_has_veiculo) {
-                        $this->Flash->error(__(Configure::read('messageVehicleAlreadyLinked')));
+                        $this->Flash->error(__(Configure::read('messageVeiculoAlreadyLinked')));
 
                         $url = Router::url(['controller' => 'Veiculos', 'action' => 'adicionarVeiculoUsuarioFinal', $usuarios_id]);
                         return $this->response = $this->response->withLocation($url);
@@ -649,7 +649,7 @@ class VeiculosController extends AppController
      **/
     public function getVeiculoByIdAPI()
     {
-        $mensagem = [];
+        $mensagem = array();
 
         try {
             if ($this->request->is(['post', 'put'])) {
@@ -662,7 +662,7 @@ class VeiculosController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageLoadDataWithError"),
-                        "errors" => array("Id não pode ser vazio!")
+                        "errors" => array(Configure::read("messageVeiculoIdEmpty"))
                     );
                     $veiculo = array(
                         "data" => null
@@ -680,8 +680,8 @@ class VeiculosController extends AppController
                 if (empty($veiculo)) {
                     $mensagem = array(
                         "status" => 0,
-                        "message" => Configure::read("messageRecordNotFound"),
-                        "errors" => array()
+                        "message" => Configure::read("messageLoadDataWithError"),
+                        "errors" => array(Configure::read("messageRecordNotFound"))
                     );
                 } else {
                     $mensagem = array(

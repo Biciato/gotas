@@ -11,10 +11,11 @@
             "name": "Listen for XDebug Ubuntu VM",
             "type": "php",
             "request": "launch",
-            "port": 9000,
             "pathMappings": {
-                "/media/sf_gotas/": "${workspaceFolder}",
+                // "/media/sf_gotas/": "E:/Projects/git/app_gotas/"
+                "/media/sf_gotas/": "${workspaceFolder}"
             },
+            "port": 9000,
             "log": true,
         },
         {

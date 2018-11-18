@@ -226,12 +226,12 @@ class UsuariosHasVeiculosTable extends GenericTable
      *
      * @return array $veiculos
      */
-    public function getUsuariosHasVeiculosById(int $usuario_has_veiculo_id)
+    public function getUsuariosHasVeiculosById(int $id)
     {
         try {
             $vehicles = $this->getUsuarioHasVeiculosQuery()
                 ->find('all')
-                ->where(['id' => $usuario_has_veiculo_id])
+                ->where(['id' => $id])
                 ->first();
 
             return $vehicles;

@@ -78,7 +78,8 @@ class TiposBrindesClientesTable extends GenericTable
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('TiposBrindesRedes', [
+        $this->belongsTo('TipoBrindeRede', [
+            "className" => "TiposBrindesRedes",
             'foreignKey' => 'tipos_brindes_redes_id',
             'joinType' => 'INNER'
         ]);
@@ -313,7 +314,7 @@ class TiposBrindesClientesTable extends GenericTable
                     [
                         "TiposBrindesClientes.id" => $id
                     ]
-                )->contain(["TiposBrindesRedes.Rede"])
+                )->contain(["TipoBrindeRede.Rede"])
                 ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -342,7 +343,7 @@ class TiposBrindesClientesTable extends GenericTable
             return $this->_getTiposBrindesClientesTable()->find('all')
                 ->where([
                     "clientes_id" => $clientesId
-                ])->contain(["TiposBrindesRedes", "ClientesHasBrindesHabilitados"]);
+                ])->contain(["TipoBrindeRede", "ClientesHasBrindesHabilitados"]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
