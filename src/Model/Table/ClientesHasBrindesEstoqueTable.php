@@ -165,31 +165,31 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     /**
      * Add Estoque for Brinde Id
      *
-     * @param int $clientes_has_brindes_habilitados_id
-     * @param int $usuarios_id
+     * @param int $clientesHasBrindesHabilitadosId
+     * @param int $usuariosId
      * @param int $quantidade
-     * @param int $tipo_operacao (0: Entrada estoque, 1: Saída tipo Brinde, 2: Saída tipo Venda, 3: Devolução)
+     * @param int $tipoOperacao (0: Entrada estoque, 1: Saída tipo Brinde, 2: Saída tipo Venda, 3: Devolução)
      * @param int $id clientesHasBrindesEstoqueId
      *
      * @return void
      **/
-    public function addEstoqueForBrindeId($clientes_has_brindes_habilitados_id, $usuarios_id, $quantidade, $tipo_operacao, $id = null)
+    public function addEstoqueForBrindeId($clientesHasBrindesHabilitadosId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
     {
         try {
             $estoque = null;
 
             if (is_null($id)) {
-                $estoque = $this->_getClientesHasBrindesEstoqueTable()->newEntity();
+                $estoque = $this->newEntity();
             } else {
-                $estoque = $this->_getClientesHasBrindesEstoqueTable()->get($id);
+                $estoque = $this->get($id);
             }
 
-            $estoque->clientes_has_brindes_habilitados_id = $clientes_has_brindes_habilitados_id;
-            $estoque->usuarios_id = $usuarios_id;
+            $estoque->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
+            $estoque->usuarios_id = $usuariosId;
             $estoque->quantidade = $quantidade;
-            $estoque->tipo_operacao = $tipo_operacao;
+            $estoque->tipo_operacao = $tipoOperacao;
 
-            return $this->_getClientesHasBrindesEstoqueTable()->save($estoque);
+            return $this->save($estoque);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

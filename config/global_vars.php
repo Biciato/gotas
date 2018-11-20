@@ -173,6 +173,7 @@ Configure::write(
         'callNetworkAdministrator' => 'Entre em contato com o seu Administrador de sua rede.',
         'messageApprovedSuccess' => 'O registro foi autorizado com sucesso.',
         'messageApprovedFailure' => 'Houve um erro ao autorizar o registro.',
+        "messageCNPJInvalid" => "CNPJ Inválido!",
         'messageQuestionAllowGiftPrice' => 'Autorizar o preço para o brinde {0} ?',
         'messageQuestionDenyGiftPrice' => 'Negar o preço para o brinde {0} ?',
         'messageAllowGiftPrice' => 'O preço foi autorizado.',
@@ -228,8 +229,8 @@ Configure::write(
         'messageRecordExists' => 'Registro já existente!',
         'messageRecordExistsSameCharacteristics' => 'Registro já existente com as mesmas características! Não é permitido gravar com estas condições!',
         'messageRecordNotFound' => 'Registro não encontrado!',
-        'messageSavedError' => 'Não foi possível gravar o registro.',
-        'messageSavedSuccess' => 'O registro foi gravado com sucesso.',
+        'messageSavedError' => 'Não foi possível gravar o registro!',
+        'messageSavedSuccess' => 'O registro foi gravado com sucesso!',
         'messageTransporterAlreadyLinked' => 'Transportadora já vinculada, não é possível adicionar novo registro ao usuário!',
         'messageUnlinkQuestion' => 'Deseja realmente desvincular o registro {0} ?',
         'messageUnlinkSuccess' => 'O registro foi desvincunlado com sucesso.',
@@ -288,6 +289,11 @@ Configure::write(
         // Mensagem de Transportadoras
 
         "messageTransportadoraNotFound" => "Transportadora não encontrada conforme parâmetros informados!",
+
+        // Mensagem de TransportadorasHasUsuarios
+        "messageUsuarioAlreadyHaveTransportadora" => "Você já possui esta Transportadora em seu cadastro!",
+
+
         'yesNoArray' => [
             1 => "Sim",
             0 => "Não"

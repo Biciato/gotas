@@ -176,7 +176,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     public function addBrindeHabilitadoPreco(int $clientesHasBrindesHabilitadosId, int $clientesId, int $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
     {
         try {
-            $brindeHabilitadoPreco = $this->_getClientesHasBrindesHabilitadosPrecoTable()->newEntity();
+            $brindeHabilitadoPreco = $this->newEntity();
 
             $brindeHabilitadoPreco->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
             $brindeHabilitadoPreco->clientes_id = $clientesId;

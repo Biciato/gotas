@@ -11,6 +11,7 @@ use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\NumberUtil;
 /**
  * TransportadorasHasUsuarios Controller
  *
@@ -433,7 +434,7 @@ class TransportadorasHasUsuariosController extends AppController
                             $mensagem = array(
                                 "status" => 0,
                                 "message" => __(Configure::read("messageSavedError")),
-                                "errors" => array("Transportadora já se encontra em seu perfil, não é necessário realizar novo cadastro!")
+                                "errors" => array(Configure::read("messageUsuarioAlreadyHaveTransportadora"))
                             );
                         }
                     }
@@ -511,6 +512,24 @@ class TransportadorasHasUsuariosController extends AppController
                 $transportadorasId = isset($data["id"]) && strlen($data["id"]) > 0 ? $data["id"] : null;
                 $cnpj = isset($data["cnpj"]) && strlen($data["cnpj"]) > 0 ? $data["cnpj"] : null;
 
+                // if (!empty($cnpj)){
+                //     $cnpjValido = NumberUtil::validarCNPJ($cnpj);
+
+                //     if (!$cnpjValido){
+                //         $mensagem = array(
+                //             "status" => 0,
+                //             "message" => __(Configure::read("messageOperationFailureDuringProcessing")),
+                //             "errors" => array(Configure::read("messageCNPJInvalid"))
+                //         );
+    
+                //         $arraySet = array("mensagem");
+    
+                //         $this->set(compact($arraySet));
+                //         $this->set("_serialize", $arraySet);
+                //         return;
+                //     }
+                // }
+
                 $transportadora = null;
 
                 // Localiza pelo Id se fornecido
@@ -523,37 +542,42 @@ class TransportadorasHasUsuariosController extends AppController
                 }
 
                 // Registro não encontrado, retorna mensagem de erro
-                if (is_null($transportadora)) {
+                if (empty($transportadora)) {
 
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageOperationFailureDuringProcessing")),
                         "errors" => array(Configure::read("messageRecordNotFound"))
                     );
+
+                    $arraySet = array("mensagem");
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+                    return;
                 }
                 // Realiza update dos dados
-                else {
-                    $data["cnpj"] = $transportadora["cnpj"];
+                $data["cnpj"] = $transportadora["cnpj"];
+                $data["id"] = $transportadora["id"];
 
-                    $transportadora = $this->Transportadoras->patchEntity($transportadora, $data);
+                $transportadora = $this->Transportadoras->patchEntity($transportadora, $data);
 
-                    $errors = $transportadora->errors();
+                $errors = $transportadora->errors();
 
-                    if (!$errors) {
-                        $transportadora = $this->Transportadoras->createUpdateTransportadora($data);
+                if (!$errors) {
+                    $transportadora = $this->Transportadoras->createUpdateTransportadora($data);
 
-                        $mensagem = array(
-                            "status" => 1,
-                            "message" => __(Configure::read("messageSavedSuccess")),
-                            "errors" => array()
-                        );
-                    } else {
-                        $mensagem = array(
-                            "status" => 0,
-                            "message" => __(Configure::read("messageSavedError")),
-                            "errors" => $errors
-                        );
-                    }
+                    $mensagem = array(
+                        "status" => 1,
+                        "message" => __(Configure::read("messageSavedSuccess")),
+                        "errors" => array()
+                    );
+                } else {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageSavedError")),
+                        "errors" => $errors
+                    );
                 }
 
                 $arraySet = array(
