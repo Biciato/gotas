@@ -505,24 +505,20 @@ class RedesHasClientesController extends AppController
                 $clientesIds[] = $cliente->clientes_id;
             }
 
-            $arrayWhereConditions[] = ['Clientes.id in ' => $clientesIds];
+            if (sizeof($clientesIds) > 0) {
+                $arrayWhereConditions[] = ['Clientes.id in ' => $clientesIds];
+                $clientes = $this->Clientes->getAllClientes($arrayWhereConditions)->toArray();
+                $rede['clientes'] = $clientes;
 
-            $clientes = $this->Clientes->getAllClientes($arrayWhereConditions)->toArray();
-
-            $rede['clientes'] = $clientes;
-
-
-            unset($arrayWhereConditions[sizeof($arrayWhereConditions) - 1]);
-
-            array_push($redes, $rede);
+                unset($arrayWhereConditions[sizeof($arrayWhereConditions) - 1]);
+                array_push($redes, $rede);
+            }
         }
 
-        $arraySet = [
-            'redesList',
-            'redes'
-        ];
+        $arraySet = array('redesList', 'redes');
 
         $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

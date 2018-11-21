@@ -50,8 +50,6 @@ class TiposBrindesClientesController extends AppController
 
             $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
 
-            // DebugUtil::print($tiposBrindesClientes->toArray());
-
             $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
 
             // DebugUtil::print($tiposBrindesClientes);

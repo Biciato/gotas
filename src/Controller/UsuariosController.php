@@ -231,7 +231,7 @@ class UsuariosController extends AppController
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
-        $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
+        $usuarios = $this->Paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
         $unidades_ids = $this->Clientes->find('list')->toArray();
 
@@ -1857,8 +1857,8 @@ class UsuariosController extends AppController
 
         $unidadesRede = array();
         $unidadeRedeId = 0;
-        if ($usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+        if ($this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $usuarioLogado["id"]);
 
         }

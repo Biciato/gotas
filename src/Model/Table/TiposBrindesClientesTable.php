@@ -137,7 +137,7 @@ class TiposBrindesClientesTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['tipos_brindes_redes_id'], 'TiposBrindesRedes'));
+        $rules->add($rules->existsIn(['tipos_brindes_redes_id'], 'TipoBrindeRede'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
 
         return $rules;

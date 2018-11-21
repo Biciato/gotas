@@ -81,10 +81,10 @@ echo $this->Breadcrumbs->render(
                     $vinculado = count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0;
                     $banhoSmart = is_numeric($tipoBrindeItem["tipo_principal_codigo_brinde"]) && ($tipoBrindeItem["tipo_principal_codigo_brinde"] >= 1 && $tipoBrindeItem["tipo_principal_codigo_brinde"] <= 4);
 
-                    echo sprintf("Vinculado: %s Banho Smart: %s", $vinculado, $banhoSmart);
+                    // echo sprintf("Vinculado: %s Banho Smart: %s", $vinculado, $banhoSmart);
                     ?>
                     <tr>
-                        <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipos_brindes_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
+                        <td><?= $tipoBrindeItem["tipo_brinde_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
                         <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
                         <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
                         <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
@@ -141,7 +141,7 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Desativar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageEnableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-message' => __(Configure::read('messageEnableQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             array(
                                                 'action' => 'alteraEstadoTiposBrindesCliente',
@@ -174,7 +174,7 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Ativar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageDisableQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-message' => __(Configure::read('messageDisableQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             array(
                                                 'action' => 'alteraEstadoTiposBrindesCliente',
@@ -209,7 +209,7 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Deletar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'delete', $tipoBrindeItem->id,

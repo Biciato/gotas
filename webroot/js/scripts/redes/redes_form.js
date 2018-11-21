@@ -20,6 +20,13 @@ $(document).ready(function () {
 
         var formData = new FormData();
 
+        var file = image.target.files[0];
+
+        if (file.size >= (2 * (1024 * 1024))) {
+            callModalError("É permitido apenas o envio de imagens menores que 2MB!");
+            return;
+        }
+
         formData.append("file", image.target.files[0]);
 
         $.ajax({
