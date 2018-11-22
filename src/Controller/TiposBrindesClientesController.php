@@ -96,7 +96,8 @@ class TiposBrindesClientesController extends AppController
                 "value" => $tipoBrinde["id"],
                 "id" => "tipos_brindes_redes_id",
                 "data-tipo-principal" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
-                "data-tipo-secundario" => $tipoBrinde["tipo_secundario_codigo_brinde_default"]
+                "data-tipo-secundario" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                "equipamento_rti" => $tipoBrinde["equipamento_rti"]
             );
             $tiposBrindesRedes[] = $tipo;
         }
@@ -110,24 +111,31 @@ class TiposBrindesClientesController extends AppController
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
+                $equipamentoRTI = false;
+                foreach ($tiposBrindesRedes as $tipoBrindeRede) {
+                    if ($tipoBrindeRede["value"] == $data["tipos_brindes_redes_id"]){
+                        $equipamentoRTI = $tipoBrindeRede["equipamento_rti"] ? true : false;
+                    }
+                }
+                // $
 
                 $data["clientes_id"] = $cliente->id;
 
                 // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
-                if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                    $this->Flash->error("O brinde selecionado não deve ter um tipo principal menor ou igual à 4, pois estes valores são para SMART Shower!");
-                } else {
+                // if ($equipamentoRTI && (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4)) {
+                //     $this->Flash->error("O brinde selecionado não deve ter um tipo principal menor ou igual à 4, pois estes valores são para SMART Shower!");
+                // } else {
                     // Verifica se este cliente não tem um cadastro com a mesma configuração, não pode ter repetido
 
-                    $whereConditions = array(["clientes_id" => $clientesId, "tipos_brindes_redes_id" => $data["tipos_brindes_redes_id"]]);
+                    // $whereConditions = array(["clientes_id" => $clientesId, "tipos_brindes_redes_id" => $data["tipos_brindes_redes_id"]]);
 
-                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                    // $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
-                    if (!empty($tiposBrindesCheck)) {
-                        $this->Flash->error(__("Já existe um tipo de brinde configurado para este cliente, conforme informações passadas!"));
+                    // if (!empty($tiposBrindesCheck)) {
+                    //     $this->Flash->error(__("Já existe um tipo de brinde configurado para este cliente, conforme informações passadas!"));
 
-                    } else {
+                    // } else {
 
                         /**
                          * Agora verifica se o mesmo código primário / secundário já não existe
@@ -140,16 +148,16 @@ class TiposBrindesClientesController extends AppController
                             ]
                         );
 
-                        if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                            $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
-                        }
+                        // if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                        //     $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
+                        // }
 
-                        $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                        // $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
-                        if (!empty($tiposBrindesCheck)) {
-                            $this->Flash->error(__("Já existe um tipo de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
+                        // if (!empty($tiposBrindesCheck)) {
+                        //     $this->Flash->error(__("Já existe um tipo de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
 
-                        } else {
+                        // } else {
                         // Verifica se o brinde que está sendo cadastrado é um banho.
                         // Brindes de banho tem id de 1 a 4. então o campo tipo_secundario_codigo_brinde deve ser 00
                         // Pois esses campos são calculados conforme o tempo do brinde
@@ -173,9 +181,9 @@ class TiposBrindesClientesController extends AppController
                                 return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
                             }
                             $this->Flash->error(__(Configure::read("messageSavedError")));
-                        }
-                    }
-                }
+                    //     }
+                    // }
+                // }
             }
 
         } catch (\Exception $e) {
