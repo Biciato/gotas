@@ -287,7 +287,7 @@ class ClientesTable extends GenericTable
                 $tiposBrindesRedesTable = TableRegistry::get("TiposBrindesRedes");
                 $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente();
+                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente($redes_id);
                 $tiposBrindesClientesArray = array();
 
                 foreach ($tiposBrindesRedes as $key => $tiposBrindesRede) {

@@ -159,11 +159,11 @@ class TiposBrindesRedesController extends AppController
                 $data["redes_id"] = $redesId;
                 // DebugUtil::print($data);
                 // Verifica se é automático ou não. Se não for automático, não precisa guardar o tipo
-
-                if (!$data["atribuir_automatico"]) {
-                    $data["tipo_principal_codigo_brinde_default"] = null;
-                    $data["tipo_secundario_codigo_brinde_default"] = null;
-                }
+                // TODO: gustavo verificar  
+                // if (!$data["atribuir_automatico"]) {
+                //     $data["tipo_principal_codigo_brinde_default"] = null;
+                //     $data["tipo_secundario_codigo_brinde_default"] = null;
+                // }
 
                 // Mas se for Produto / Serviço, terá um código diferente
 
@@ -282,11 +282,11 @@ class TiposBrindesRedesController extends AppController
                 $data = $this->request->getData();
 
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-
-                if (!$data["atribuir_automatico"]) {
-                    $data["tipo_principal_codigo_brinde_default"] = null;
-                    $data["tipo_secundario_codigo_brinde_default"] = null;
-                }
+                // TODO: gustavo verificar
+                // if (!$data["atribuir_automatico"]) {
+                //     $data["tipo_principal_codigo_brinde_default"] = null;
+                //     $data["tipo_secundario_codigo_brinde_default"] = null;
+                // }
 
                 // Mas se for Produto / Serviço, terá um código diferente
 

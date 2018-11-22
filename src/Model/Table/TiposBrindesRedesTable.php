@@ -358,13 +358,14 @@ class TiposBrindesRedesTable extends GenericTable
      *
      * @return \App\Model\Entity\TiposBrindesRede[] $array de tipos
      */
-    public function findTiposBrindesRedesAtribuirAutomaticamente()
+    public function findTiposBrindesRedesAtribuirAutomaticamente(int $redesId)
     {
         try {
             $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()
                 ->find('all')
                 ->where(
                     array(
+                        "redes_id" => $redesId,
                         "habilitado" => 1,
                         "atribuir_automatico" => 1,
                         "tipo_principal_codigo_brinde_default IS NOT NULL",
