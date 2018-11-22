@@ -115,9 +115,8 @@ class TiposBrindesClientesController extends AppController
 
                 // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
-                if ($data["tipos_brindes_redes_id"] > 4
-                    && (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4)) {
-                    $this->Flash->error("O brinde selecionado não deve ter um tipo menor ou igual à 4, pois estes valores são para SMART Shower!");
+                if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                    $this->Flash->error("O brinde selecionado não deve ter um tipo principal menor ou igual à 4, pois estes valores são para SMART Shower!");
                 } else {
                     // Verifica se este cliente não tem um cadastro com a mesma configuração, não pode ter repetido
 
