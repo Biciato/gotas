@@ -1,3 +1,6 @@
+.modal-loader{
+    z-index: 100000000;
+}
 .loader-container {
     margin: 1%;
     position: initial;

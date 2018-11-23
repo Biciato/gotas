@@ -21,6 +21,7 @@
 <?= $this->element('modal_quit_manage_unit') ?>
 <?= $this->element('modal_confirm_with_message') ?>
 <?= $this->element('modal_delete_with_message') ?>
+<?= $this->element('modal_delete_with_message_confirmation') ?>
 <?= $this->element('modal_legend_icons_save') ?>
 <?= $this->element('modal_buscar_results') ?>
 <?= $this->element('modal_confirm_purchase_with_message') ?>

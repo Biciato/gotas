@@ -62,7 +62,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     <?= $this->Html->link(
                         __(
                             "{0}",
-                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                            $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                         ),
                         [
                             'controller' => 'redes',
@@ -70,8 +70,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         ],
                         [
-                            'class' => 'btn btn-xs btn-default',
-                            'title' => 'Informações',
+                            'class' => 'btn btn-xs btn-primary',
+                            'title' => 'Configurar Parâmetros de Rede e Postos',
                             'escape' => false
                         ]
                     )
@@ -174,8 +174,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             'class' => 'btn btn-xs  btn-danger btn-confirm',
                             'title' => 'Remover',
                             'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede->nome_rede),
+                            'data-target' => '#modal-delete-with-message-confirmation',
+                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede["nome_rede"]),
                             'data-action' => Router::url(
                                 [
                                     'action' => 'delete', $rede->id,

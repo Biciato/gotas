@@ -3,7 +3,7 @@
 use Cake\Core\Configure;
 
 ?>
-<div class="modal modal-loader" data-backdrop="static" data-keyboard="false">
+<div class="modal modal-loader" data-backdrop="static" data-keyboard="false" >
 <div class="loader-container">
     <div class="loader-panel center-block">
 

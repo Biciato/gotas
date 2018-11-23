@@ -273,6 +273,10 @@ class RedesController extends AppController
 
             $rede_id = $query['rede_id'];
 
+            $data = $this->request->getData();
+            DebugUtil::print($data);
+            DebugUtil::print($query);
+            die($query);
             $rede = $this->Redes->getRedeById($rede_id);
 
             $clientes_ids = [];

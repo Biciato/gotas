@@ -64,6 +64,11 @@ $(document).ready(function () {
         addModalBootstrapPopup(element);
     }, this);
 
+    /**
+     * Adiciona informações no corpo do modal
+     * 
+     * @param {*} parameter 
+     */
     var addModalBootstrapPopupWithMessage = function (parameter) {
         $("#" + parameter).on("show.bs.modal", function (e) {
             $(this)
@@ -79,12 +84,16 @@ $(document).ready(function () {
             $("#" + parameter)
                 .find("form")
                 .submit();
+            callLoaderAnimation();
         });
     };
 
+    
     var parametersWithMessage = [
         "modal-confirm-with-message",
-        "modal-delete-with-message"
+        "modal-delete-with-message",
+        "modal-delete-with-message-confirmation"
+
     ];
 
     parametersWithMessage.forEach(function (element) {
