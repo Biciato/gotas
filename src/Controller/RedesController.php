@@ -292,7 +292,7 @@ class RedesController extends AppController
 
             // Testa a senha do usuário
             if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
-                $this->Flash->error("Senha inválida!");
+                $this->Flash->error(Configure::read("messageUsuarioSenhaDoesntMatch"));
 
                 return $this->redirect(array("controller" => "redes", "action" => "index"));
             }

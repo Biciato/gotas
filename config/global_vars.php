@@ -275,6 +275,8 @@ Configure::write(
 
         "messageUsuarioCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
         "messageUsuarioProfileDocumentNotFoundError" => "Atenção! Para usar o sistema, é necessário ter um CPF ou Documento Estrangeiro cadastrado! Complete seu perfil.",
+        "messageUsuarioSenhaDoesntMatch" => "Senha não confere!",
+        "messageUsuarioSenhaInvalid" => "Senha inválida!",
 
         'messageUsuarioLoggedInSuccessfully' => "Usuário logado com sucesso!",
         'messageUsuarioLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
