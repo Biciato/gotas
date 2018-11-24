@@ -57,11 +57,12 @@
                     </div>
                     <div class="modal-body">
                         <p class="modal-body-content"></p>
+                        <span class="hidden" id="modal-body-content-append"></span>
                         <?php echo $this->Form->input(
                             'senha_usuario',
                             array(
                                 "type" => "password",
-                                "required",
+                                "required" => true,
                                 "name" => "senha_usuario",
                                 "id" => "senha_usuario",
                                 "label" => "Informe a senha para continuar"
@@ -71,16 +72,11 @@
                     <div class="modal-footer">
                         <!-- Form para alterar a url de destino -->
 
-                        <?= $this->Html->tag(
-                            'div',
+                        <?= $this->Form->button(
                             'Confirmar',
-                            [
-                                'class' => 'btn btn-primary', 'id' => 'submit_button'
-                            ]
+                            array('class' => 'btn btn-primary', 'id' => 'submit_button')
                         ) ?>
-                        <?= $this->Form->submit("Enviar", array(
-                            'id' => 'submit_button'
-                        )) ?> 
+                        
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                     </div>
                 </div>

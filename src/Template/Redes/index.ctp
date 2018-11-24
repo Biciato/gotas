@@ -181,11 +181,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     'action' => 'delete', $rede->id,
                                     '?' =>
                                         [
-                                        'rede_id' => $rede->id,
-                                        'return_url' => [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
+                                        'redes_id' => $rede["id"]
+                                        
                                     ]
                                 ]
                             ),

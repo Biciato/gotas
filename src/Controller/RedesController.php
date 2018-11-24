@@ -15,6 +15,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
+use Cake\Auth\DefaultPasswordHasher;
 
 /**
  * Redes Controller
@@ -266,47 +267,66 @@ class RedesController extends AppController
      */
     public function delete()
     {
-        $query = $this->request->query;
-
         try {
             $this->request->allowMethod(['post', 'delete']);
 
-            $rede_id = $query['rede_id'];
-
             $data = $this->request->getData();
-            DebugUtil::print($data);
-            DebugUtil::print($query);
-            die($query);
-            $rede = $this->Redes->getRedeById($rede_id);
 
-            $clientes_ids = [];
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+            $senhaUsuario = !empty($data["senha_usuario"]) ? $data["senha_usuario"] : null;
+
+            $usuario = $this->Auth->user();
+            $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
+
+            if (empty($redesId)){
+                $this->Flash->error("Para remover uma rede, é necessário selecioná-la!");
+
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
+            }
+
+            if (empty($senhaUsuario)){
+                $this->Flash->error("Para continuar, informe sua senha!");
+
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
+            }
+
+            // Testa a senha do usuário
+            if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
+                $this->Flash->error("Senha inválida!");
+
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
+            }
+     
+            $rede = $this->Redes->getRedeById($redesId);
+
+            $clientesIds = [];
             $redes_has_clientes_ids = [];
 
             foreach ($rede->redes_has_clientes as $key => $rede_has_cliente) {
                 $redes_has_clientes_ids[] = $rede_has_cliente->id;
-                $clientes_ids[] = $rede_has_cliente->clientes_id;
+                $clientesIds[] = $rede_has_cliente->clientes_id;
             }
 
-            if (sizeof($clientes_ids) > 0) {
+            if (sizeof($clientesIds) > 0) {
 
                 $this->PontuacoesPendentes
-                    ->deleteAllPontuacoesPendentesByClienteIds($clientes_ids);
-                $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientes_ids);
-                $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientes_ids);
+                    ->deleteAllPontuacoesPendentesByClienteIds($clientesIds);
+                $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientesIds);
+                $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientesIds);
 
 
             // gotas
 
-                $this->Gotas->deleteAllGotasByClientesIds($clientes_ids);
-                $this->Cupons->deleteAllCuponsByClientesIds($clientes_ids);
+                $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
+                $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
 
             // brindes
 
-                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientes_ids);
-                $this->Brindes->deleteAllBrindesByClientesIds($clientes_ids);
+                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientesIds);
+                $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
+                $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
+                $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
 
             // apagar os usuários que são da rede (Administradores da Rede até funcionários)
 
@@ -316,13 +336,13 @@ class RedesController extends AppController
                 $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
 
                 $this->Usuarios->deleteAllUsuariosByClienteIds(
-                    $clientes_ids,
+                    $clientesIds,
                     $whereConditions
                 );
 
                 // Não apaga os usuários que estão vinculados, mas remove o vínculo
 
-                $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientes_ids);
+                $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);
             }
 
             if (sizeof($redes_has_clientes_ids) > 0) {
@@ -330,18 +350,18 @@ class RedesController extends AppController
                 $this->RedesHasClientesAdministradores->deleteAllRedesHasClientesAdministradoresByClientesIds($redes_has_clientes_ids);
             }
 
-            if (sizeof($clientes_ids) > 0) {
+            if (sizeof($clientesIds) > 0) {
 
                 // Remove a unidade de rede
-                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientes_ids);
+                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
 
-                $this->Clientes->deleteClientesByIds($clientes_ids);
+                $this->Clientes->deleteClientesByIds($clientesIds);
             }
 
             // remove a rede
             $this->Redes->deleteRedesById($rede->id);
 
-            return $this->redirect($query['return_url']);
+            return $this->redirect(array("controller" => "redes", "action" => "index"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao remover rede: {0} em: {1} ", $e->getMessage(), $trace[1]);

@@ -88,16 +88,75 @@ $(document).ready(function () {
         });
     };
 
-    
+
     var parametersWithMessage = [
         "modal-confirm-with-message",
-        "modal-delete-with-message",
-        "modal-delete-with-message-confirmation"
+        "modal-delete-with-message"
 
     ];
 
     parametersWithMessage.forEach(function (element) {
         addModalBootstrapPopupWithMessage(element);
+    });
+
+    /**
+     * Adiciona informações no corpo do modal
+     * 
+     * @param {*} parameter 
+     */
+    var addModalBootstrapPopupWithMessageConfirmation = function (parameter) {
+        $("#" + parameter).on("show.bs.modal", function (e) {
+
+            $(this).find("#modal-body-content-append").empty();
+
+            var action = $(e.relatedTarget).data("action");
+
+            action = action.substr(action.indexOf("?") + 1);
+
+            var actionArray = action.split("&");
+            var arrayElements = [];
+            actionArray.forEach(element => {
+                console.log(element);
+
+                var posicaoIgual = element.indexOf("=");
+                var id = element.substr(0, posicaoIgual);
+                var valor = element.substr(posicaoIgual + 1);
+
+                arrayElements.push({ id: id, value: valor });
+
+                $(this)
+                    .find("#modal-body-content-append")
+                    .append("<input type='text' class='hidden' name='" + id + "' id='" + id + "' value='" + valor + "' />");
+            });
+            console.log(action);
+
+            $(this)
+            .find("form")
+            .attr("action", $(e.relatedTarget).data("action"));
+
+            $("#" + parameter)
+                .find("p.modal-body-content")
+                .text($(e.relatedTarget).attr("data-message"));
+        });
+
+        $("#" + parameter + " #submit_button").on("click", function (e) {
+            if ($(this.form).find("#senha_usuario").val().length > 0) { 
+                callLoaderAnimation();
+                $("#" + parameter)
+                    .find("form")
+                    .submit();
+            }
+        });
+    };
+
+
+    var parametersWithMessageConfirmation = [
+        "modal-delete-with-message-confirmation"
+
+    ];
+
+    parametersWithMessageConfirmation.forEach(function (element) {
+        addModalBootstrapPopupWithMessageConfirmation(element);
     });
 
     /**

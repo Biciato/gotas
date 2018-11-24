@@ -264,6 +264,10 @@ Configure::write(
         // Mensagens de Pontuações
         "messageUsuarioNoPointsInNetwork" => "Usuário não possui pontuações na Rede informada!",
 
+        // Mensagens de Redes"
+
+        "messageRedesIdNotFound" => "O Campo Redes Id deve ser informado",
+
         // Mensagens de Usuários
         'messageUsuarioRegistrationClienteNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
 
@@ -279,8 +283,8 @@ Configure::write(
 
         // Mensagens de Veículos
         'messageVeiculoAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
-        "messageVeiculoIdEmpty" => "O campo ID do Veículo deve ser informado!",
-        "messageVeiculoPlateLength" => "Campo Placa deve ter 7 dígitos para realizar a pesquisa!",
+        "messageVeiculoIdEmpty" => "O Campo ID do Veículo deve ser informado!",
+        "messageVeiculoPlateLength" => "O Campo Placa deve ter 7 dígitos para realizar a pesquisa!",
         
         
         // Mensagens de Usuários Has Veículos
