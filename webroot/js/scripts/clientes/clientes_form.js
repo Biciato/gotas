@@ -7,7 +7,7 @@
 
 $(document).ready(function(){
 	
-	$("#codigo_rti_shower").on('blur', function(){
+	$("#codigo_equipamento_rti").on('blur', function(){
 		if (this.value.toString().length == 1)
 		{
 			this.value = '0' + this.value;

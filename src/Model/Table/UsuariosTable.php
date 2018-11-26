@@ -1950,6 +1950,15 @@ class UsuariosTable extends GenericTable
 
     /* ------------------------ Delete ------------------------ */
 
+    public function deleteAllFuncionariosByRedesId(int $redesId)
+    {
+        $redesTable = TableRegistry::get("Redes");
+
+        $rede = $redesTable->getRedeById($redesId);
+        
+        die();
+    }
+
     /**
      * Undocumented function
      *
@@ -1964,7 +1973,7 @@ class UsuariosTable extends GenericTable
 
             // pegar id de brindes que estão vinculados em um cliente
 
-            $usuarios_clientes_id = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+            $usuarios_clientes_id = $this->ClientesHasUsuarios->find('all')
                 ->where(['clientes_id in' => $clientes_ids])
                 ->select(['usuarios_id']);
 
@@ -1984,7 +1993,7 @@ class UsuariosTable extends GenericTable
 
                 $conditions[] = ['id in' => $usuarios_clientes_ids];
 
-                return $this->_getUsuarioTable()
+                return $this
                     ->deleteAll($conditions);
             } else {
                 return true;

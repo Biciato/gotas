@@ -71,7 +71,6 @@ echo $this->Breadcrumbs->render(
                     <th><?= 'Data de Cadastro' ?> </th>
                     <!-- <th><?= $this->Paginator->sort('nome_rede', ['label' => 'Nome da Rede']) ?> </th>
                     <th><?= $this->Paginator->sort('ativado', ['label' => 'Rede Ativa no Sistema']) ?> </th>
-                    <th><?= $this->Paginator->sort('permite_consumo_gotas_funcionarios', ['label' => 'Permite Consumo de Gotas para Funcionarios']) ?> </th>
                     <th><?= $this->Paginator->sort('audit_insert', ['label' => 'Data de Cadastro']) ?> </th> -->
                 </tr>
             </thead>
@@ -80,7 +79,6 @@ echo $this->Breadcrumbs->render(
                     <tr>
                         <td><?= h($rede->nome_rede) ?></td>
                         <td><?= h($this->Boolean->convertBooleanToString($rede->ativado)) ?></td>
-                        <td><?= h($this->Boolean->convertBooleanToString($rede->permite_consumo_gotas_funcionarios)) ?></td>
                         <td><?= h($rede->audit_insert->format('d/m/Y H:i:s')) ?></td>
                     </tr>
 

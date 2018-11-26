@@ -111,9 +111,9 @@ class RedesTable extends GenericTable
             ->allowEmpty('ativado');
 
         $validator
-            ->decimal("valor_referencia_gotas")
-            // ->requirePresence('valor_referencia_gotas', 'create')
-            ->notEmpty("valor_referencia_gotas");
+            ->decimal("custo_referencia_gotas")
+            // ->requirePresence('custo_referencia_gotas', 'create')
+            ->notEmpty("custo_referencia_gotas");
 
         $validator
             ->integer("media_assiduidade_clientes")
@@ -239,10 +239,6 @@ class RedesTable extends GenericTable
 
             if (strlen($ativado) > 0){
                 $whereConditions[] = array("Redes.ativado" => $ativado);
-            }
-
-            if (strlen($permiteConsumoGotasFuncionarios) > 0){
-                $whereConditions[] = array("Redes.permite_consumo_gotas_funcionarios" => $permiteConsumoGotasFuncionarios);
             }
 
             if (strlen($tempoExpiracaoGotasUsuarios) > 0){
@@ -489,7 +485,7 @@ class RedesTable extends GenericTable
     public function getRedeById(int $id)
     {
         try {
-            return $this->_getRedesTable()->find('all')
+            return $this->find('all')
                 ->where(array('id' => $id))
                 ->contain(
                     array(

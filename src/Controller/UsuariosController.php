@@ -3388,45 +3388,13 @@ class UsuariosController extends AppController
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+                $usuarios = array();
 
                 if (strlen($data['parametro']) >= 3) {
 
                     $rede = $this->request->session()->read('Rede.Principal');
-
-                    $usuarios = array();
-                    $funcionariosCliente = array();
-
                     $restringirUsuariosRede = isset($data["restrict_query"]) ? $data["restrict_query"] : false;
-
                     $veiculoEncontrado = null;
-
-                    if ($rede->permite_consumo_gotas_funcionarios) {
-
-                        if ($data['opcao'] == 'nome') {
-                            // Pesquisa por Nome
-                            $funcionariosCliente = $this->Usuarios->getUsuariosByName($data['parametro'], $rede['id'], array(), true, array())->toArray();
-
-                            // DebugUtil::printArray($funcionariosCliente, false);
-                        } elseif ($data['opcao'] == 'doc_estrangeiro') {
-                            // Pesquisa por Documento Estrangeiro
-                            $funcionariosCliente = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], $rede['id'], array(), true, array())->toArray();
-
-                        } elseif ($data['opcao'] == 'cpf') {
-                            // Pesquisa por CPF
-
-                            $funcionariosCliente[] = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), true, array());
-                        } else {
-                            // Pesquisa por Placa
-                            $retorno = $this->Veiculos->getUsuariosClienteByVeiculo($data['parametro'], $rede["id"], array(), true);
-
-                            $veiculoEncontrado = $retorno["veiculo"];
-                            $funcionariosCliente = $retorno["usuarios"];
-                        }
-
-                        // aqui não preciso fazer merge de funcionariosCliente com Usuários, pois ainda não teve a pesquisa dos usuários em si
-                    }
-
-                    // ---------- Daqui pra baixo não filtra por funcionários ----------
 
                     if ($data['opcao'] == 'nome') {
                         // Pesquisa por Nome
@@ -3449,7 +3417,6 @@ class UsuariosController extends AppController
 
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         // Pesquisa por CPF
-
                         if ($restringirUsuariosRede) {
                             $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), false, array());
                         } else {
@@ -3458,7 +3425,6 @@ class UsuariosController extends AppController
 
                         $usuarios[] = $usuario;
                     } else {
-
                         // Pesquisa por Placas
 
                         if ($restringirUsuariosRede) {
@@ -3477,15 +3443,13 @@ class UsuariosController extends AppController
                         // print_r($retorno);
                     }
 
-                    $usuarios = array_merge($funcionariosCliente, $usuarios);
-
                     $usuariosTemp = array();
 
                     foreach ($usuarios as $key => $value) {
                         if (!empty($value)) {
                             $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], array());
 
-                            $value->pontuacoes = $pontuacoes["resumo_gotas"]["saldo"];
+                            $value["pontuacoes"] = $pontuacoes["resumo_gotas"]["saldo"];
                             $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;
 
                             $usuariosTemp[] = $value;

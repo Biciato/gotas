@@ -402,13 +402,9 @@ class UsuariosHasBrindesController extends AppController
                          * pegue somente os usuários
                          */
 
-                        $usuariosWhereConditions = [];
-
+                        $usuariosWhereConditions = array();
                         $usuariosWhereConditions[] = ['id in ' => $usuariosIds];
-
-                        if (!$rede->permite_consumo_gotas_funcionarios) {
-                            $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
-                        }
+                        $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
 
                         $usuariosList = $this->Usuarios->find('all')->where(
                             $usuariosWhereConditions

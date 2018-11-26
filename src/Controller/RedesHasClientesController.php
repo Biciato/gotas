@@ -169,7 +169,6 @@ class RedesHasClientesController extends AppController
      */
     public function delete()
     {
-
         /**
          * Basicamente, os registros aos quais pertencem esta unidade serão apagados.
          * Entretanto, há o problema das redes e pontuações.
@@ -191,21 +190,21 @@ class RedesHasClientesController extends AppController
         try {
             $this->request->allowMethod(['post', 'delete']);
 
-            $redes_has_clientes_id = $query['redes_has_clientes_id'];
+            $redesHasClientesId = $query['redes_has_clientes_id'];
 
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesById($redes_has_clientes_id);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesById($redesHasClientesId);
 
             // se rede é matriz
-            if ($rede_has_cliente->cliente->matriz) {
+            if ($redeHasCliente["cliente"]["matriz"]) {
                 /**
                  * Verifica se tem outras unidades cadastradas. não deve apagar
                  * uma matriz existindo uma filial, os dados devem ser 'migrados'
                  */
 
-                $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
+                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente["redes_id"]);
 
                 // Verificar se é maior que 1, pois se tiver 2 ou mais, significa que tem uma filial além da matriz.
-                if (sizeof($redes_has_clientes->toArray()) > 1) {
+                if (sizeof($redesHasClientes->toArray()) > 1) {
 
                     $this->Flash->error(Configure::read('messageDeleteMainCompanyDeny'));
 
@@ -220,92 +219,44 @@ class RedesHasClientesController extends AppController
 
                     // pontuações do cliente
 
-                    $redes_has_clientes_ids = [];
-                    $redes_has_clientes_ids[] = $rede_has_cliente->id;
+                    $redesHasClientesIds = [];
+                    $redesHasClientesIds[] = $redeHasCliente["id"];
 
-                    $clientes_ids = [];
-                    $clientes_ids[] = $rede_has_cliente->clientes_id;
+                    $clientesIds = [];
+                    $clientesIds[] = $redeHasCliente["clientes_id"];
 
-                    $this->PontuacoesPendentes
-                        ->deleteAllPontuacoesPendentesByClienteIds($clientes_ids);
+                    $deleteConditionsUsuarios = [];
 
-                    $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientes_ids);
+                    $deleteConditionsUsuarios[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+                    $deleteConditionsUsuarios[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
 
-                    $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientes_ids);
+                    $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                    $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
+                    $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByClientesIds($clientesIds);
+                    $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientesIds);
+                    $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientesIds);
+                    $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
+                    $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
+                    $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                    $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientesIds);
+                    $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
+                    $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
+                    $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
 
-
-                    // gotas
-
-                    $this->Gotas->deleteAllGotasByClientesIds($clientes_ids);
-
-                    $this->Cupons->deleteAllCuponsByClientesIds($clientes_ids);
-
-                    // brindes
-
-                    $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientes_ids);
-
-                    $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientes_ids);
-
-                    $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientes_ids);
-
-                    $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientes_ids);
-
-                    $this->Brindes->deleteAllBrindesByClientesIds($clientes_ids);
-
-                    // apagar os usuários que são da rede (Administradores da Rede até funcionários)
-
-                    $where_conditions = [];
-
-                    $where_conditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
-                    $where_conditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
-
-                    $this->Usuarios->deleteAllUsuariosByClienteIds(
-                        $clientes_ids,
-                        $where_conditions
-                    );
+                    $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds,$deleteConditionsUsuarios);
 
                     // Não apaga os usuários que estão vinculados, mas remove o vínculo
-
-                    $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientes_ids);
+                    $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);
 
                     // Remove a unidade de rede
-                    $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientes_ids);
-
-                    $this->Clientes->deleteClientesByIds($clientes_ids);
-
+                    $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
+                    $this->Clientes->deleteClientesByIds($clientesIds);
                 }
             } else {
                 /**
                  * Migra os dados de uma unidade filial para matriz
                  * (alguns dados são apagados)
                  */
-
-                // pega a matriz, os dados serão migrados para ela.
-                $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede_has_cliente->redes_id);
-
-                // pontuações do cliente
-
-                $this->PontuacoesPendentes
-                    ->setPontuacoesPendentesToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                $this->Pontuacoes->setPontuacoesToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                $this->PontuacoesComprovantes->setPontuacoesComprovantesToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                // gotas
-
-                // no caso de gotas, elas devem ser transferidas para a matriz, mas serem desativadas
-                $this->Gotas->setGotasToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                $this->Cupons->setCuponsToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                // brindes
-
-                $this->ClientesHasBrindesHabilitadosPreco->setClientesHasBrindesHabilitadosPrecoToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                $this->ClientesHasBrindesHabilitados->setClientesHasBrindesHabilitadosToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
-
-                $this->Brindes->setBrindesToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
 
                 /**
                  * Não se pode apagar os usuários que são da rede (Administradores
@@ -314,27 +265,46 @@ class RedesHasClientesController extends AppController
                  * mas alocados na matriz
                  */
 
-                $where_conditions = [];
+                $deleteConditionsUsuarios = array();
+                $deleteConditionsUsuarios[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
+                $deleteConditionsUsuarios[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
 
-                $where_conditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
-                $where_conditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
+                // pega a matriz, os dados serão migrados para ela.
+                $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($redeHasCliente->redes_id);
 
-                $this->Usuarios->disableUsuariosOfCliente(
-                    $rede_has_cliente->clientes_id,
-                    $where_conditions
-                );
+                // pontuações do cliente
+                $this->PontuacoesPendentes->setPontuacoesPendentesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->Pontuacoes->setPontuacoesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->PontuacoesComprovantes->setPontuacoesComprovantesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+
+                // gotas
+
+                // no caso de gotas, elas devem ser transferidas para a matriz, mas serem desativadas
+                $this->Gotas->setGotasToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->Cupons->setCuponsToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+
+                // brindes
+
+                $this->ClientesHasBrindesHabilitadosPreco->setClientesHasBrindesHabilitadosPrecoToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->ClientesHasBrindesHabilitados->setClientesHasBrindesHabilitadosToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->Brindes->setBrindesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+
+                // Migrar os tipos de brindes para a matriz
+                $this->TiposBrindesClientes->setTiposBrindesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+
+                $this->Usuarios->disableUsuariosOfCliente($redeHasCliente["clientes_id"], $deleteConditionsUsuarios);
 
                 // Atualiza o vínculo dos usuários
 
-                $this->ClientesHasUsuarios->setClientesHasUsuariosToMainCliente($rede_has_cliente->clientes_id, $matriz->clientes_id);
+                $this->ClientesHasUsuarios->setClientesHasUsuariosToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
 
                 // Remove a unidade de rede
 
-                $clientes_ids = [];
-                $clientes_ids[] = $rede_has_cliente->clientes_id;
+                $clientesIds = array();
+                $clientesIds[] = $redeHasCliente["clientes_id"];
 
-                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientes_ids);
-                $this->Clientes->deleteClientesByIds($clientes_ids);
+                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
+                $this->Clientes->deleteClientesByIds($clientesIds);
             }
 
             $this->Flash->success(Configure::read("messageDeleteSuccess"));
@@ -624,7 +594,7 @@ class RedesHasClientesController extends AppController
                     "Clientes.matriz",
                     "Clientes.ativado",
                     "Clientes.tipo_unidade",
-                    "Clientes.codigo_rti_shower",
+                    "Clientes.codigo_equipamento_rti",
                     "Clientes.nome_fantasia",
                     "Clientes.razao_social",
                     "Clientes.cnpj",
@@ -650,7 +620,6 @@ class RedesHasClientesController extends AppController
                     "Redes.nome_rede",
                     "Redes.nome_img",
                     "Redes.ativado",
-                    "Redes.permite_consumo_gotas_funcionarios",
                     "Redes.tempo_expiracao_gotas_usuarios",
                     "Redes.propaganda_img",
                     "Redes.propaganda_link"
@@ -873,7 +842,7 @@ class RedesHasClientesController extends AppController
                     $clientesIds = array();
 
                     foreach ($redesHasClientesQuery as $key => $redeHasCliente) {
-                        $clientesIds[] = $redeHasCliente->clientes_id;
+                        $clientesIds[] = $redeHasCliente["clientes_id"];
                     }
 
                     $whereConditions[] = array("Clientes.id in " => $clientesIds);
@@ -899,7 +868,7 @@ class RedesHasClientesController extends AppController
                     "matriz",
                     "ativado",
                     "tipo_unidade",
-                    "codigo_rti_shower",
+                    "codigo_equipamento_rti",
                     "nome_fantasia",
                     "razao_social",
                     "cnpj",
@@ -1048,7 +1017,7 @@ class RedesHasClientesController extends AppController
                     $clientesIds = array();
 
                     foreach ($redesHasClientesQuery as $key => $redeHasCliente) {
-                        $clientesIds[] = $redeHasCliente->clientes_id;
+                        $clientesIds[] = $redeHasCliente["clientes_id"];
                     }
 
                     if (sizeof($clientesIds) == 0) {

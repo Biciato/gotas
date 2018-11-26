@@ -34,29 +34,23 @@ class RedesController extends AppController
      */
     public function index()
     {
-        try {
-            $conditions = [];
+        $conditions = [];
 
-            if ($this->request->is(['post', 'put'])) {
-                $data = $this->request->getData();
+        if ($this->request->is(['post', 'put'])) {
+            $data = $this->request->getData();
 
-                array_push(
-                    $conditions,
-                    [
-                        $data['opcoes'] . ' like' => '%' . $data['parametro'] . '%'
-                    ]
-                );
-            }
-
-            $redes = $this->Redes->getAllRedes('all', $conditions);
-
-            $this->paginate($redes, ['limit' => 10]);
-
-            $this->set(compact('redes'));
-            $this->set('_serialize', ['redes']);
-        } catch (\Exception $e) {
-
+            $conditions[] = array($data['opcoes'] . ' like' => '%' . $data['parametro'] . '%');
         }
+
+        $redes = $this->Redes->getAllRedes('all', $conditions);
+        $redes = $this->Paginate($redes, ['limit' => 10]);
+
+        // DebugUtil::print($redes);
+
+        $arraySet = array("redes");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -278,13 +272,13 @@ class RedesController extends AppController
             $usuario = $this->Auth->user();
             $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-            if (empty($redesId)){
+            if (empty($redesId)) {
                 $this->Flash->error("Para remover uma rede, é necessário selecioná-la!");
 
                 return $this->redirect(array("controller" => "redes", "action" => "index"));
             }
 
-            if (empty($senhaUsuario)){
+            if (empty($senhaUsuario)) {
                 $this->Flash->error("Para continuar, informe sua senha!");
 
                 return $this->redirect(array("controller" => "redes", "action" => "index"));
@@ -296,58 +290,54 @@ class RedesController extends AppController
 
                 return $this->redirect(array("controller" => "redes", "action" => "index"));
             }
-     
+
             $rede = $this->Redes->getRedeById($redesId);
 
             $clientesIds = [];
-            $redes_has_clientes_ids = [];
+            $redesHasClientesIds = [];
 
-            foreach ($rede->redes_has_clientes as $key => $rede_has_cliente) {
-                $redes_has_clientes_ids[] = $rede_has_cliente->id;
-                $clientesIds[] = $rede_has_cliente->clientes_id;
+            foreach ($rede["redes_has_clientes"] as $redeHasCliente) {
+                $redesHasClientesIds[] = $redeHasCliente->id;
+                $clientesIds[] = $redeHasCliente->clientes_id;
             }
 
             if (sizeof($clientesIds) > 0) {
 
-                $this->PontuacoesPendentes
-                    ->deleteAllPontuacoesPendentesByClienteIds($clientesIds);
+                // Usuários Has Brindes
+                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                // Remoção de Cupons
+                $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
+
+                $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByClientesIds($clientesIds);
                 $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientesIds);
                 $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientesIds);
 
+                // Tipos Brindes
+                $this->TiposBrindesClientes->deleteAllTiposBrindesClientesByRedesId($redesId);
+                $this->TiposBrindesRedes->deleteAllTiposBrindesRedesByRedesId($redesId);
 
-            // gotas
-
-                $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
-                $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
-
-            // brindes
-
-                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                // brindes
                 $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientesIds);
                 $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
                 $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
                 $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
+                
+                // gotas
+                $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
 
-            // apagar os usuários que são da rede (Administradores da Rede até funcionários)
-
-                $whereConditions = [];
-
+                // apagar os usuários que são da rede (Administradores da Rede até funcionários)
+                $whereConditions = array();
                 $whereConditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
                 $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
-
-                $this->Usuarios->deleteAllUsuariosByClienteIds(
-                    $clientesIds,
-                    $whereConditions
-                );
-
-                // Não apaga os usuários que estão vinculados, mas remove o vínculo
-
+                
+                // Apaga os funcionários
+                $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds, $whereConditions);
                 $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);
             }
 
-            if (sizeof($redes_has_clientes_ids) > 0) {
+            if (sizeof($redesHasClientesIds) > 0) {
                 // Remove os Administradores da Rede
-                $this->RedesHasClientesAdministradores->deleteAllRedesHasClientesAdministradoresByClientesIds($redes_has_clientes_ids);
+                $this->RedesHasClientesAdministradores->deleteAllRedesHasClientesAdministradoresByClientesIds($redesHasClientesIds);
             }
 
             if (sizeof($clientesIds) > 0) {
@@ -610,11 +600,6 @@ class RedesController extends AppController
             // Registros Ativados no Sistema?
             if (strlen($data['ativado']) > 0) {
                 $whereConditions[] = ['ativado' => $data['ativado']];
-            }
-
-            // Consumo Gotas de Funcionários?
-            if (strlen($data['permite_consumo_gotas_funcionarios']) > 0) {
-                $whereConditions[] = ['permite_consumo_gotas_funcionarios' => $data['permite_consumo_gotas_funcionarios']];
             }
 
             // Qte. de Registros

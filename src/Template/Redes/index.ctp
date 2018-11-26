@@ -64,16 +64,15 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             "{0}",
                             $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                         ),
-                        [
+                        array(
                             'controller' => 'redes',
                             'action' => 'ver_detalhes', $rede->id
-
-                        ],
-                        [
+                        ),
+                        array(
                             'class' => 'btn btn-xs btn-primary',
                             'title' => 'Configurar Parâmetros de Rede e Postos',
                             'escape' => false
-                        ]
+                        )
                     )
                     ?>
 
@@ -182,7 +181,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     '?' =>
                                         [
                                         'redes_id' => $rede["id"]
-                                        
+
                                     ]
                                 ]
                             ),

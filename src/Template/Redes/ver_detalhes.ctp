@@ -66,8 +66,8 @@ echo $this->Breadcrumbs->render(
                     <?=
                     $this->Html->link(
                         __(
-                            '{0}',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                            "{0}",
+                            $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                         ),
                         [
                             'controller' => 'clientes',
@@ -75,9 +75,9 @@ echo $this->Breadcrumbs->render(
                             $rede_has_cliente->cliente->id
                         ],
                         [
-                            'title' => 'Ver detalhes',
-                            'class' => 'btn btn-default btn-xs',
-                            'escape' => false
+                            'class' => 'btn btn-primary btn-xs',
+                            'escape' => false,
+                            'title' => 'Configurar Parâmetros de Loja/Postos',
                         ]
                     )
                     ?>

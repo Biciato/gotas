@@ -927,12 +927,7 @@ class CuponsController extends AppController
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
 
-                    if ($rede->permite_consumo_gotas_funcionarios) {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
-                    } else {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
-                    }
+                    array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
 
                     $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
@@ -1997,12 +1992,7 @@ class CuponsController extends AppController
             array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
             array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.clientes_id IN' => $clientesIds]);
 
-            if ($rede->permite_consumo_gotas_funcionarios) {
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
-            } else {
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
-            }
+            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
 
             $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 

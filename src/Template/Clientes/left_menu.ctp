@@ -132,7 +132,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                                 'Remover Unidade ',
                                 $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
                             ),
-                            '#',
+                            '#',    
                             [
                                 'title' => 'Deletar',
                                 'class' => 'text-danger bg-danger',

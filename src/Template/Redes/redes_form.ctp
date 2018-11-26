@@ -78,9 +78,9 @@ use Cake\Core\Configure;
 </div>
 
 <div class="col-lg-4">
-    <?= $this->Form->input("valor_referencia_gotas", array(
-        "label" => "Valor Referencia Gotas",
-        "id" => "valor_referencia_gotas",
+    <?= $this->Form->input("custo_referencia_gotas", array(
+        "label" => "Custo Referência Gotas",
+        "id" => "custo_referencia_gotas",
         "type" => "text"
     )); ?>
 </div>
@@ -89,7 +89,7 @@ use Cake\Core\Configure;
     <?= $this->Form->control(
         "media_assiduidade_clientes",
         array(
-            "label" => "Media de Assiduidade dos Clientes",
+            "label" => "Media de Assiduidade dos Clientes (Mês)",
             "type" => "number",
             "min" => 1,
             "max" => 30
@@ -102,19 +102,8 @@ use Cake\Core\Configure;
 <div class="col-lg-12">
     <?= $this->Form->control('ativado', ['label' => 'Rede Ativada']); ?>
 </div>
-<div class="col-lg-12">
-    <?= $this->Form->input(
-        'permite_consumo_gotas_funcionarios',
-        [
-            'type' => 'checkbox',
-            'class' => 'form-check-input',
-            'label' => 'Permite o Consumo de Brindes e Gotas por funcionários da Rede?'
 
-        ]
-    ); ?>
-</div>
-
-<div class="col-lg-12">
+<div class="col-lg-2">
     <?= $this->Form->button(
         __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
         [
@@ -122,8 +111,13 @@ use Cake\Core\Configure;
             'escape' => false
         ]
     ) ?>
-</div>
+</div> 
+<div class="col-lg-2">
+    
+    <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block", "escape" => false));?>
+    
 
+</div>
 
 <?php if (Configure::read('debug')) : ?>
     <?= $this->Html->script('scripts/redes/redes_form'); ?>

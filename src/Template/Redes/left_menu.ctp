@@ -44,45 +44,6 @@ $show_reports = isset($show_reports) ? $show_reports : false;
             <?php elseif ($mode == 'details') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Editar Rede"), ['controller' => 'redes', 'action' => 'editar', $redes_id]) ?>
-                </li>
-
-                <li>
-                    <?= $this->Html->link(
-                        __(
-                            'Remover Rede',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
-                        ),
-                        '#',
-                        [
-                            'title' => 'Deletar',
-                            'class' => 'text-danger bg-danger',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede->nome_rede),
-                            'data-action' => Router::url(
-                                [
-                                    'controller' => 'redes',
-                                    'action' => 'delete',
-                                    '?' =>
-                                        [
-                                        'rede_id' => $rede->id,
-                                        'return_url' =>
-                                            [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
-                                    ]
-                                ]
-                            ),
-                            'escape' => false
-                        ],
-                        false
-                    );
-                    ?>
-                </li>
-
-                <li>
                     <?= $this->Html->link(__("Nova Unidade de Rede"), ['controller' => 'clientes', 'action' => 'adicionar', $redes_id]) ?>
                 </li>
 

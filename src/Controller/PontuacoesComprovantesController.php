@@ -737,10 +737,7 @@ class PontuacoesComprovantesController extends AppController
                         $usuariosWhereConditions = [];
 
                         $usuariosWhereConditions[] = ['id in ' => $usuariosIds];
-
-                        if (!$rede->permite_consumo_gotas_funcionarios) {
-                            $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
-                        }
+                        $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
 
                         $usuariosList = $this->Usuarios->find('list')->where(
                             $usuariosWhereConditions

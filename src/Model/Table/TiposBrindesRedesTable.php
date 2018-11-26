@@ -418,4 +418,32 @@ class TiposBrindesRedesTable extends GenericTable
         }
     }
 
+
+    #region Delete 
+
+    /**
+     * TiposBrindesRedesTable::deleteAllTiposBrindesRedesByRedesId
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-11-25
+     * 
+     * Remove todos os tipos brindes redes por um redes id
+     *
+     * @param integer $redesId Id da rede 
+     * @return boolean registro removido
+     */
+    public function deleteAllTiposBrindesRedesByRedesId(int $redesId)
+    {
+        try {
+            return $this->deleteAll(array("redes_id" => $redesId));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = sprintf("Erro ao remover registros: %s. [Função: %s / Arquivo: %s / Linha: %s]. ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            Log::write("error", $stringError);
+            Log::write("error", $trace);
+        }
+    }
+
+    #endregion
 }

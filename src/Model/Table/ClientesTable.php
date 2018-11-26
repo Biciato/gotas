@@ -150,7 +150,7 @@ class ClientesTable extends GenericTable
             ->notEmpty('tipo_unidade');
 
         $validator
-            ->allowEmpty('codigo_rti_shower');
+            ->allowEmpty('codigo_equipamento_rti');
 
         $validator
             ->allowEmpty('nome_fantasia');
@@ -900,7 +900,7 @@ class ClientesTable extends GenericTable
                 'id',
                 "matriz",
                 'tipo_unidade',
-                'codigo_rti_shower',
+                'codigo_equipamento_rti',
                 'nome_fantasia',
                 'razao_social',
                 'cnpj',

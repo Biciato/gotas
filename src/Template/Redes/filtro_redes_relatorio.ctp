@@ -72,17 +72,7 @@ $qteRegistros = [
                             ]
                         ) ?>
                     </div>
-                    <div class='col-lg-4'>
-                        <?= $this->Form->input(
-                            'permite_consumo_gotas_funcionarios',
-                            [
-                                'id' => 'permite_consumo_gotas_funcionarios',
-                                'label' => 'Consumo Gotas de Funcionários?',
-                                'type' => 'select',
-                                'options' => $listaBooleanGenerica
-                            ]
-                        ) ?>
-                    </div>
+                    <!-- @todo gustavosg: Conferir layout -->
                 </div>
 
 

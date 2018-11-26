@@ -65,7 +65,8 @@
                                 "required" => true,
                                 "name" => "senha_usuario",
                                 "id" => "senha_usuario",
-                                "label" => "Informe a senha para continuar"
+                                "label" => "Informe a senha para continuar",
+                                "value" => "segacd85"
                             )
                         ); ?>
                     </div>
@@ -73,11 +74,15 @@
                         <!-- Form para alterar a url de destino -->
 
                         <?= $this->Form->button(
-                            'Confirmar',
-                            array('class' => 'btn btn-primary', 'id' => 'submit_button')
+                            __('{0} Confirmar', "<i class='fa fa-check-circle-o'></i>"),
+                            array(
+                                'class' => 'btn btn-primary',
+                                'id' => 'submit_button',
+                                "escape" => false
+                            )
                         ) ?>
                         
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><span class="fa fa-window-close"></span> Cancelar</button>
                     </div>
                 </div>
             </form>

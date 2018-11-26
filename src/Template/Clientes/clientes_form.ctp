@@ -10,6 +10,8 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 
+$redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_has_cliente"] ["redes_id"] : null;
+
 ?>
 
 
@@ -20,10 +22,10 @@ use Cake\Routing\Router;
 
                 <div class="col-lg-4">
                     <?= $this->Form->input(
-                        'codigo_rti_shower',
+                        'codigo_equipamento_rti',
                         [
-                            'id' => 'codigo_rti_shower',
-                            'label' => 'Cód. Equip. para Smart Shower',
+                            'id' => 'codigo_equipamento_rti',
+                            'label' => 'Código Equipamento RTI',
                             'title' => 'Código que será utilizado para impressão de senhas'
                         ]
                     ); ?>
@@ -125,9 +127,8 @@ use Cake\Routing\Router;
                     'label' => 'Latitude',
                     'placeHolder' => 'Latitude',
                     'id' => 'latitude',
-                    'readonly' => true,
                     'title' => 'Valor de latitude adquirido pelo CEP'
-                    ]); ?>
+                ]); ?>
             </div>
             <div class="col-lg-6">
         
@@ -135,7 +136,6 @@ use Cake\Routing\Router;
                     'label' => 'Longitude',
                     'placeHolder' => 'Longitude',
                     'id' => 'longitude',
-                    'readonly' => true,
                     'title' => 'Valor de longitutde adquirido pelo CEP'
                 ]); ?>
             </div>
@@ -158,15 +158,13 @@ use Cake\Routing\Router;
     <div class="col-lg-2">
         <?=
         $this->Form->button(
-            __(
-                '{0} Salvar',
-                $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-            ),
-            [
-                'class' => 'btn-block', 'escape' => false
-            ]
+            __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
+            array('class' => 'btn-block', 'escape' => false)
         )
         ?>
+    </div>
+    <div class="col-lg-2">
+        <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger btn-block"><i class="fa fa-window-close"></i> Cancelar</a>
     </div>
     <?= $this->Form->end() ?>
 

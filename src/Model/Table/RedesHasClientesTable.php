@@ -214,9 +214,9 @@ class RedesHasClientesTable extends GenericTable
     {
         try {
             // pega o id da rede que pertence a unidade
-            $clientesIdsQuery = $this->_getRedesHasClientesTable()->find('all')
-                ->where(['redes_id' => $redesId])
-                ->select(['clientes_id']);
+            $clientesIdsQuery = $this->find('all')
+                ->where(array('redes_id' => $redesId))
+                ->select(array('clientes_id'));
 
             $clientesIds = array();
 

@@ -420,22 +420,46 @@ class PontuacoesPendentesTable extends GenericTable
      * @return \App\Model\Entity\PontuacoesPendentes $array[]
      *  lista de pontuacoes pendentes
      */
-    public function deleteAllPontuacoesPendentesByClienteIds(array $clientes_ids)
+    public function deleteAllPontuacoesPendentesByRedesId(array $redesId)
     {
         try {
-            return $this->deleteAll(['clientes_id in' => $clientes_ids]);
+            $redesClientesTable = TableRegistry::get("RedesHasClientes");
+            $clientesIds = $redesClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+
+            if (sizeof($clientesIds) > 0) {
+                return $this->deleteAll(array('clientes_id in' => $clientesIds));
+            } else {
+                return null;
+            }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
+            $stringError = __("Erro ao remover registro: {0}", $e->getMessage());
 
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            Log::write('error', $stringError);
+
+            return ['success' => false, 'message' => $stringError];
+        }
+    }
+
+    /**
+     * Remove todas as pontuacoes Pendentes por Id de Cliente
+     *
+     * @param array $clientes_id Ids de Clientes
+     *
+     * @return \App\Model\Entity\PontuacoesPendentes $array[]
+     *  lista de pontuacoes pendentes
+     */
+    public function deleteAllPontuacoesPendentesByClientesIds(array $clientesIds)
+    {
+        try {
+            return $this->deleteAll(array('clientes_id in' => $clientesIds));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            $stringError = __("Erro ao remover registro: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
 

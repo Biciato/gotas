@@ -296,7 +296,7 @@ class CuponsTable extends GenericTable
 
             // Antes do save, calcular cupom emitido
 
-            $identificador_cliente = $cliente->codigo_rti_shower;
+            $identificador_cliente = $cliente->codigo_equipamento_rti;
 
             if (strlen($identificador_cliente) == 1) {
                 $identificador_cliente = '0' . $identificador_cliente;

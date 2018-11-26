@@ -65,7 +65,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </td>
             <th>Código Equipamento Smart Shower</th>
             <td>
-                <?= h($cliente->codigo_rti_shower) ?>
+                <?= h($cliente->codigo_equipamento_rti) ?>
             </td>
         </tr>
 

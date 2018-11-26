@@ -14,7 +14,7 @@ $(document).ready(function () {
 
     var cropper = image.data("cropper");
 
-    $("#valor_referencia_gotas").maskMoney();
+    $("#custo_referencia_gotas").maskMoney();
 
     $("#nome-img").on("change", function (image) {
 

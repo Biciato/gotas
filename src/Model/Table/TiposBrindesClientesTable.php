@@ -516,7 +516,7 @@ class TiposBrindesClientesTable extends GenericTable
         }
     }
 
-    /* -------------------------- Create/Update ----------------------------- */
+    #region Create/Update
 
     /**
      * TipoBrindesTable::saveTiposBrindeCliente()
@@ -571,6 +571,33 @@ class TiposBrindesClientesTable extends GenericTable
     }
 
     /**
+     * TiposBrindesClientes::setTiposBrindesToMainCliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-11-25
+     * 
+     * Altera todos os Tipos de Brindes de Cliente de cliente 
+     * 
+     * @param integer $clienteAntigoId Id do cliente antigo
+     * @param integer $clienteNovoId Id do cliente novo
+     * 
+     * @return bool
+     */
+    public function setTiposBrindesToMainCliente(int $clienteAntigoId, int $clienteNovoId)
+    {
+        try {
+            $this->updateAll(array("clientes_id" => $clienteAntigoId), array("clientes_id" => $clienteAntigoId));
+        } catch (\Throwable $th) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao atualizar tipos de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('debug', $trace);
+        }
+    }
+
+    /**
      * TiposBrindesClientesTable::updateHabilitadoTiposBrindesCliente
      *
      * Undocumented function
@@ -586,11 +613,11 @@ class TiposBrindesClientesTable extends GenericTable
             if (empty($id) || $id == 0) {
                 throw new \Exception("Id não informado!");
             }
-            $itemSave = $this->_getTiposBrindesClientesTable()->get($id);
+            $itemSave = $this->get($id);
 
             $itemSave["habilitado"] = $habilitado;
 
-            return $this->_getTiposBrindesClientesTable()->save($itemSave);
+            return $this->save($itemSave);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -600,7 +627,9 @@ class TiposBrindesClientesTable extends GenericTable
         }
     }
 
-    /* -------------------------- Delete ----------------------------- */
+    #endregion
+
+    #region Delete
 
     /**
      * TiposBrindesClientesTable::deleteTiposBrindesClientesById
@@ -617,16 +646,49 @@ class TiposBrindesClientesTable extends GenericTable
     public function deleteTiposBrindesClientesById(int $tipoBrindesClientesId)
     {
         try {
-            $tipoBrindesCliente = $this->_getTiposBrindesClientesTable()->get($tipoBrindesClientesId);
+            $tipoBrindesCliente = $this->get($tipoBrindesClientesId);
 
-            return $this->_getTiposBrindesClientesTable->delete($tipoBrindesCliente);
+            return $this->delete($tipoBrindesCliente);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao remover tipo de brindes do cliente: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao remover tipo de brindes do cliente: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
     }
+
+    /**
+     * TiposBrindesClientesTable::deleteAllTiposBrindesClientesByRedesId
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/11/25
+     * 
+     * Remove todos os tipos de brindes de clientes pelo id de rede
+     *
+     * @param integer $redesId Id da Rede
+     * 
+     * @return bool status remoção
+     */
+    public function deleteAllTiposBrindesClientesByRedesId(int $redesId)
+    {
+        try {
+
+            $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
+
+            $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);
+
+            return $this->deleteAll(array("clientes_id IN " => $clientesIds));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = sprintf("Erro ao remover tipo de brindes do cliente: %s. [Função: %s / Arquivo: %s / Linha: %s]", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('debug', $trace);
+        }
+    }
+
+    #endregion
 }
