@@ -193,71 +193,39 @@ use Cake\Routing\Router;
 
     <div class="form-group row">
         <!-- Email -->
-        <div class="col-lg-6">
+        <div class="col-lg-4">
             <?= $this->Form->input('email'); ?>
                 <span id="email_validation" class="text-danger validation-message">
         </div>
+        <!-- nome -->
+        <div class="col-lg-4">
+
+            <?= $this->Form->control('nome'); ?>
+        </div>
+        <!-- telefone -->
+        <div class="col-lg-4">
+            <?= $this->Form->control('telefone'); ?>
+        </div>
         <!-- Senha -->
-        <div class="col-lg-3">
+        <div class="col-lg-6">
             <?= $this->Form->input('senha', ['type' => 'password', 'required' => true, 'autofocus' => true]); ?>
         </div>
         <!-- Confirmar Senha -->
-        <div class="col-lg-3">
+        <div class="col-lg-6">
             <?= $this->Form->input('confirm_senha', ['type' => 'password', 'required' => true, 'label' => 'Confirmar Senha']); ?>
         </div>
     </div>
 
     <?php else : ?>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <!-- Email -->
-            <?= $this->Form->input('email'); ?>
-                <span id="email_validation" class="text-danger validation-message">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Email -->
+                <?= $this->Form->input('email'); ?>
+                    <span id="email_validation" class="text-danger validation-message">
+            </div>
         </div>
-    </div>
     <?php endif; ?>
-
-    <div class="form-group row">
-        <div class="col-lg-4">
-
-            <?= $this->Form->control('nome'); ?>
-        </div>
-
-        <div class="col-lg-2">
-            <?= $this->Form->input('sexo', [
-                'options' =>
-                    [
-                    '' => '',
-                    '1' => 'Masculino',
-                    '0' => 'Feminino'
-                ]
-            ]); ?>
-        </div>
-
-        <div class="col-lg-3">
-                <?= $this->Form->input(
-                    'data_nasc',
-                    [
-                        'class' => 'datepicker-input',
-                        'div' =>
-                            [
-                            'class' => 'form-inline',
-                        ],
-                        'type' => 'text',
-                        'id' => 'data_nasc',
-                        'format' => 'd/m/Y',
-                        'default' => date('d/m/Y'),
-                        'value' => date('d/m/Y'),
-                        'label' => 'Data de Nascimento'
-                    ]
-                ); ?>
-        </div>
-
-        <div class="col-lg-3">
-            <?= $this->Form->control('telefone'); ?>
-        </div>
-    </div>
 
 
 </fieldset>

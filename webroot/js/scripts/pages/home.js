@@ -131,8 +131,8 @@ $(document).ready(function () {
             console.log(action);
 
             $(this)
-            .find("form")
-            .attr("action", $(e.relatedTarget).data("action"));
+                .find("form")
+                .attr("action", $(e.relatedTarget).data("action"));
 
             $("#" + parameter)
                 .find("p.modal-body-content")
@@ -140,7 +140,7 @@ $(document).ready(function () {
         });
 
         $("#" + parameter + " #submit_button").on("click", function (e) {
-            if ($(this.form).find("#senha_usuario").val().length > 0) { 
+            if ($(this.form).find("#senha_usuario").val().length > 0) {
                 callLoaderAnimation();
                 $("#" + parameter)
                     .find("form")
@@ -283,28 +283,52 @@ var getCEP = function (parameter) {
             getGeolocalizationGoogle(cep);
 
             //Consulta o webservice viacep.com.br/
-            $.getJSON(
-                "//viacep.com.br/ws/" + cep + "/json/?callback=?",
-                function (dados) {
-                    if (!("erro" in dados)) {
-                        //Atualiza os campos com os valores da consulta.
-                        $(".endereco").val(dados.logradouro);
-                        $(".bairro").val(dados.bairro);
-                        $(".municipio").val(dados.localidade);
-                        $(".estado").val(dados.uf);
-                        $(".pais").val("Brasil");
+            $.ajax({
+                type: "GET",
+                "url": "https://viacep.com.br/ws/" + cep + "/json/",
+                complete: function (success) {
+                    console.log(success);
+                    var dados = success.responseJSON;
+                    $(".endereco").val(dados.logradouro);
+                    $(".bairro").val(dados.bairro);
+                    $(".municipio").val(dados.localidade);
+                    $(".estado").val(dados.uf);
+                    $(".pais").val("Brasil");
 
-                        closeLoaderAnimation();
-                    } else {
-                        //end if.
-                        //CEP pesquisado não foi encontrado.
-                        //limpa_formulário_cep();
-                        closeLoaderAnimation();
-
-                        callModalError("CEP não encontrado.");
-                    }
+                },
+                error: function (err) {
+                    //end if.
+                    //CEP pesquisado não foi encontrado.
+                    //limpa_formulário_cep();
+                    callModalError("CEP não encontrado.");
+                    console.log(err);
                 }
-            );
+            });
+
+            closeLoaderAnimation();
+
+            // $.getJSON(
+            //     "https://viacep.com.br/ws/" + cep + "/json/?callback=?",
+            //     function (dados) {
+            //         if (!("erro" in dados)) {
+            //             //Atualiza os campos com os valores da consulta.
+            //             $(".endereco").val(dados.logradouro);
+            //             $(".bairro").val(dados.bairro);
+            //             $(".municipio").val(dados.localidade);
+            //             $(".estado").val(dados.uf);
+            //             $(".pais").val("Brasil");
+
+            //             closeLoaderAnimation();
+            //         } else {
+            //             //end if.
+            //             //CEP pesquisado não foi encontrado.
+            //             //limpa_formulário_cep();
+            //             closeLoaderAnimation();
+
+            //             callModalError("CEP não encontrado.");
+            //         }
+            //     }
+            // );
         } else {
 
             callModalError("Formato de CEP inválido.");
@@ -328,7 +352,7 @@ var getGeolocalizationGoogle = function (cep) {
                 $("#longitude").val(results[0].geometry.location.lng());
             }
         } else {
-            callModalError("Não foi possivel obter localização: " + status);
+            callModalError("Google não encontrou Latitude/Longitude pelo CEP informado! Informe Latitude/Longitude manualmente!");
         }
     });
 }
