@@ -38,10 +38,10 @@ class NumberFormatHelper extends Helper
      */
     public function formatNumberToCPF($number = null)
     {
-        if (is_null($number)) {
+        if (empty($number)) {
             return null;
         }
-
-        return substr($number, 0, 3) . "." . substr($number, 3, 3) . "." . substr($number, 6, 3) . "-" . substr($number, 9, 2);
+        
+        return preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $number);
     }
 }

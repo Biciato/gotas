@@ -15,7 +15,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
     $this->Breadcrumbs->add(
         'Detalhes da Rede',
-        ['controller' => 'Redes', 'action' => 'ver_detalhes', $redes_id],
+        ['controller' => 'Redes', 'action' => 'ver_detalhes', $redesId],
         ['class' => 'active']
     );
 }

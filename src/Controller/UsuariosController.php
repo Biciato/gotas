@@ -1632,7 +1632,7 @@ class UsuariosController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function adicionarOperador(int $redes_id = null)
+    public function adicionarOperador(int $redesId = null)
     {
         $usuario = $this->Usuarios->newEntity();
         $unidadesRede = array();
@@ -1640,11 +1640,11 @@ class UsuariosController extends AppController
 
         $rede = $this->request->session()->read("Rede.Principal");
 
-        if (empty($rede) && !empty($redes_id)) {
-            $rede = $this->Redes->getRedeById($redes_id);
+        if (empty($rede) && !empty($redesId)) {
+            $rede = $this->Redes->getRedeById($redesId);
         }
 
-        $redes_id = $rede["id"];
+        $redesId = $rede["id"];
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
@@ -1661,48 +1661,43 @@ class UsuariosController extends AppController
 
         if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
-            if (is_null($redes_id) && isset($rede)) {
-                $redes_id = $rede["id"];
+            if (is_null($redesId) && isset($rede)) {
+                $redesId = $rede["id"];
             }
 
-            if (isset($redes_id)) {
-                $rede = $this->Redes->getRedeById($redes_id);
+            if (isset($redesId)) {
+                $rede = $this->Redes->getRedeById($redesId);
             }
         }
 
         if ($usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
             && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $usuarioLogado["id"]);
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
         }
 
-        $redes = $this->Redes->getRedesList($redes_id);
+        $redes = $this->Redes->getRedesList($redesId);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-
-            if (empty($redes_id)) {
-                $redes_id = $data["redes_id"];
-                $rede = $this->Redes->getRedeById($redes_id);
-            }
-
-            $usuarioData = $data;
-
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = (int)$data['clientes_id'];
 
-            $tipoPerfil = $data['tipo_perfil'];
+            if (empty($redesId)) {
+                $redesId = $data["redes_id"];
+                $rede = $this->Redes->getRedeById($redesId);
+            }
 
+            $usuarioData = $data;
+            $tipoPerfil = $data['tipo_perfil'];
             $cliente = null;
 
             // Se quem está cadastrando é um  Administrador Comum >= Funcionário, pega o local onde o Funcionário está e vincula ao mesmo lugar.
 
             if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminLocalProfileType']
                 && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['WorkerProfileType']) {
-
                 $cliente = $this->request->session()->read('Rede.PontoAtendimento');
-
-                $data['clientes_id'] = $cliente->id;
-                $clientes_id = $cliente->id;
+                $data['clientes_id'] = $cliente["id"];
+                $clientes_id = $cliente["id"];
 
             }
 
@@ -1730,7 +1725,7 @@ class UsuariosController extends AppController
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
             $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
-            $usuario = $this->Usuarios->formatUsuario(0, $usuario);
+            // $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
             if ($usuario = $this->Usuarios->save($usuario)) {
@@ -1777,8 +1772,8 @@ class UsuariosController extends AppController
                 } else if ($usuario['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     return $this->redirect(['action' => 'index']);
                 } else {
-                    if (isset($redes_id)) {
-                        return $this->redirect(['action' => 'usuarios_rede', $redes_id]);
+                    if (isset($redesId)) {
+                        return $this->redirect(['action' => 'usuarios_rede', $redesId]);
                     }
                     return $this->redirect(['action' => 'index']);
                 }
@@ -1799,7 +1794,7 @@ class UsuariosController extends AppController
             'usuario',
             'rede',
             'redes',
-            'redes_id',
+            'redesId',
             'usuarioLogadoTipoPerfil',
             "unidadesRede",
             "unidadeRedeId",
@@ -1839,11 +1834,11 @@ class UsuariosController extends AppController
             ]
         )->first();
 
-        $clientes_id = $clienteHasUsuario["clientes_id"];
+        $clientesId = $clienteHasUsuario["clientes_id"];
 
         // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
 
-        if (!isset($redes_id)) {
+        if (!isset($redesId)) {
             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
 
             $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
@@ -1851,38 +1846,37 @@ class UsuariosController extends AppController
 
         $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
 
-        $redes_id = $rede["id"];
+        $redesId = $rede["id"];
 
-        $redes = $this->Redes->getRedesList($redes_id);
+        $redes = $this->Redes->getRedesList($redesId);
 
         $unidadesRede = array();
         $unidadeRedeId = 0;
         if ($this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
             && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redes_id, $usuarioLogado["id"]);
-
+            $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
+        } else {
+            // $unidadesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+            // $unidadesQuery = $unidadesQuery->toArray();
+            // foreach ($unidadesQuery as $unidade) {
+            //     $unidadesRede[] = $unidade["cliente"];
+            // }
+            $unidadesRede = $this->Clientes->getClientesListByRedesId($redesId);
         }
         // Como estamos editando, o usuário já tem vinculo
-        $unidadeRede = $this->ClientesHasUsuarios->getVinculoClienteUsuario($redes_id, $usuario["id"]);
+        $unidadeRede = $this->ClientesHasUsuarios->getVinculoClienteUsuario($redesId, $usuario["id"]);
 
         $unidadeRedeId = $unidadeRede["clientes_id"];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-
-            // DebugUtil::print($data);
-
             $usuarioData = $data;
 
             // guarda qual é a unidade que está sendo cadastrada
-            $clientes_id = (int)$data['clientes_id'];
-
+            $clientesId = (int)$data['clientes_id'];
             $tipo_perfil = empty($data["tipo_perfil"]) ? $usuario["tipo_perfil"] : $data['tipo_perfil'];
-
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
-            $usuario = $this->Usuarios->formatUsuario($usuario['id'], $usuario);
-
+            // $usuario = $this->Usuarios->formatUsuario($usuario['id'], $usuario);
             $errors = $usuario->errors();
 
             if ($usuario = $this->Usuarios->save($usuario)) {
@@ -1894,12 +1888,12 @@ class UsuariosController extends AppController
                         // Se usuário for administrador geral da rede, guarda na tabela de redes_has_clientes_administradores
 
                         // ele ficará alocado na matriz
-                        if ($clientes_id == "") {
+                        if ($clientesId == "") {
                             $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            $clientesId = $rede_has_cliente->clientes_id;
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
                         }
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
@@ -1919,13 +1913,13 @@ class UsuariosController extends AppController
                      */
 
                     if ($usuario["tipo_perfil"] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, $clientes_id, $usuario["id"], $usuario["tipo_perfil"]);
+                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, $clientesId, $usuario["id"], $usuario["tipo_perfil"]);
                     }
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
 
-                return $this->redirect(['action' => 'usuarios_rede', $redes_id]);
+                return $this->redirect(['action' => 'usuarios_rede', $redesId]);
             }
 
             $this->Flash->error(__('O usuário não pode ser registrado. '));
@@ -1941,8 +1935,8 @@ class UsuariosController extends AppController
             'usuario',
             'rede',
             'redes',
-            'redes_id',
-            'clientes_id',
+            'redesId',
+            'clientesId',
             "unidadesRede",
             "unidadeRedeId",
             'usuarioLogadoTipoPerfil',

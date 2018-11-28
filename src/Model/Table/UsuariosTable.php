@@ -164,7 +164,7 @@ class UsuariosTable extends GenericTable
         $validator
             ->integer('sexo')
             ->requirePresence('sexo', 'create', "O campo Sexo precisa ser informado!")
-            ->notEmpty('sexo', 'Por favor informe o sexo')
+            ->allowEmpty('sexo', 'Por favor informe o sexo')
             ->add(
                 'sexo',
                 'inList',
@@ -176,7 +176,7 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
-            ->notEmpty('data_nasc');
+            ->allowEmpty('data_nasc');
 
         $validator
             ->email('email')
@@ -545,8 +545,8 @@ class UsuariosTable extends GenericTable
                 $data['cpf'] = $this->cleanNumber($data['cpf']);
             }
 
-            $data['sexo'] = $data['sexo'];
-            $data['data_nasc'] = date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d');
+            $data['sexo'] = isset($data["sexo"]) && strlen($data['sexo']) > 0 ? $data["sexo"] : null;
+            $data['data_nasc'] = !empty($data["data_nasc"])? date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d') : null;;
 
             if (isset($data["email"])) {
                 $data['email'] = $data['email'];

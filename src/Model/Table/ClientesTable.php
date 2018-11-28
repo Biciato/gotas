@@ -765,7 +765,7 @@ class ClientesTable extends GenericTable
 
             $clientesIds = sizeof($clientesIds) > 0 ? $clientesIds : array(0);
 
-            return $this->_getClientesTable()->find('list')
+            return $this->find('list')
                 ->where(["id in " => $clientesIds]);
 
         } catch (\Exception $e) {

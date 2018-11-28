@@ -26,10 +26,11 @@ use Cake\Routing\Router;
 
         <?php if ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
             <div class='col-lg-4'>
-                <?php if (isset($redes_id)) : ?>
+                <?php if (isset($redesId)) : ?>
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
+                        "empty" => "<Selecionar>",
                         'options' =>
                         array(
                             1 => 'Administradores de uma Rede',
@@ -61,8 +62,8 @@ use Cake\Routing\Router;
                 <!-- ?> -->
             </div>
             <div class='col-lg-4 redes_input'>
-                <?php if (isset($redes_id)) {
-                    echo $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']);
+                <?php if (isset($redesId)) {
+                    echo $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']);
                     echo $this->Form->input(
                         'redes_id',
                         [
@@ -97,7 +98,9 @@ use Cake\Routing\Router;
                         'type' => 'select',
                         'id' => 'clientes_rede',
                         'class' => 'clientes_rede',
-                        'label' => 'Unidade da Rede'
+                        'label' => 'Unidade da Rede',
+                        "options" => $unidadesRede,
+                        'value' => $unidadeRedeId
                     ]
                 )
                 ?>
@@ -123,7 +126,7 @@ use Cake\Routing\Router;
                 </div>
                 <div class='col-lg-6 '>
 
-                    <?= $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']); ?>
+                    <?= $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']); ?>
 
                     <?= $this->Form->input(
                         'clientes_id',
@@ -131,7 +134,9 @@ use Cake\Routing\Router;
                             'type' => 'select',
                             'id' => 'clientes_rede',
                             'class' => 'clientes_rede',
-                            'label' => 'Unidade da Rede'
+                            'label' => 'Unidade da Rede',
+                            "options" => $unidadesRede,
+                            'value' => $unidadeRedeId
                         ]
                     ); ?>
 
@@ -194,25 +199,26 @@ use Cake\Routing\Router;
     <div class="form-group row">
         <!-- Email -->
         <div class="col-lg-4">
-            <?= $this->Form->input('email'); ?>
+            <?= $this->Form->input('email', array("label" => "Email*")); ?>
                 <span id="email_validation" class="text-danger validation-message">
         </div>
         <!-- nome -->
         <div class="col-lg-4">
 
-            <?= $this->Form->control('nome'); ?>
+            <?= $this->Form->control('nome', array("label" => "Nome*")); ?>
         </div>
         <!-- telefone -->
         <div class="col-lg-4">
-            <?= $this->Form->control('telefone'); ?>
+            <label for="telefone" id="label-telefone">Telefone*</label>
+            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required",)); ?>
         </div>
         <!-- Senha -->
         <div class="col-lg-6">
-            <?= $this->Form->input('senha', ['type' => 'password', 'required' => true, 'autofocus' => true]); ?>
+            <?= $this->Form->input('senha', array("label" => "Senha*", 'type' => 'password', 'required' => true, 'autofocus' => true)); ?>
         </div>
         <!-- Confirmar Senha -->
         <div class="col-lg-6">
-            <?= $this->Form->input('confirm_senha', ['type' => 'password', 'required' => true, 'label' => 'Confirmar Senha']); ?>
+            <?= $this->Form->input('confirm_senha', array("label" => "Confirmar Senha*", 'type' => 'password', 'required' => true)); ?>
         </div>
     </div>
 
@@ -229,23 +235,15 @@ use Cake\Routing\Router;
 
 
 </fieldset>
-    <div class="col-lg-12 form-group row">
+<div class="form-group row">
+    <div class="col-lg-2">
+        <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"> </i> Salvar</button>
+    </div>
 
-        <div style="display: inline-flex;" class="form-add-buttons">
-            <div class="sendDiv">
-                <?= $this->Form->button(
-                    __(
-                        '{0} Salvar',
-                        $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-                    ),
-                    [
-                        'id' => 'user_submit',
-                        'escape' => false
-                    ]
-                ) ?>
+        <div class="col-lg-2">
+            <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> " class="btn btn-danger btn-block"> <i class="fa fa-window-close"></i> Cancelar</a>
         </div>
 
-    </div>
 </div>
 <?= $this->Form->end() ?>
 
