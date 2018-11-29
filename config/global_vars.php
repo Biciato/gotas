@@ -268,6 +268,9 @@ Configure::write(
 
         "messageRedesIdNotFound" => "O Campo Redes Id deve ser informado",
 
+        // Mensagens de Tipos de Brindes de Redes
+
+
         // Mensagens de Usuários
         'messageUsuarioRegistrationClienteNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
 

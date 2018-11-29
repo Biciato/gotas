@@ -237,7 +237,7 @@ use Cake\Routing\Router;
 </fieldset>
 <div class="form-group row">
     <div class="col-lg-2">
-        <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"> </i> Salvar</button>
+        <button type="submit" class="btn btn-primary btn-block botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
     </div>
 
         <div class="col-lg-2">

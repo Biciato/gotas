@@ -12,7 +12,7 @@ use Cake\Core\Configure;
 
     </div>
 
-    <p >Carregando...</p>
+    <p >Processando...</p>
     <p>
         <span class="loader-message"></span>
     </p>

@@ -9,21 +9,15 @@
 use Cake\Core\Configure;
 ?>
 
-<div class="col-lg-12">
-    <?= $this->Form->control('nome_rede', ['label' => 'Nome da Rede']); ?>
-</div>
-<div class="col-lg-12">
-    <?= $this->Form->input(
-        'nome_img',
-        [
-            'type' => 'file',
-            'label' => 'Logo da Rede'
-        ]
-    ) ?>
-</div>
+<div class="form-group row">
+    <div class="col-lg-12">
+        <?= $this->Form->control('nome_rede', ['label' => 'Nome da Rede']); ?>
+    </div>
+    <div class="col-lg-12">
+        <?= $this->Form->input('nome_img', ['type' => 'file', 'label' => 'Logo da Rede']) ?>
+    </div>
 
-<div class="col-lg-12 img-crop-container">
-    <div class="form-group row">
+    <div class="img-crop-container">
         <div class="col-lg-6">
             <h5 style="font-weight: bold;">Imagem da Rede para Exibição:</h5>
             <img src="" id="img-crop" class="img-crop" name="img_crop"/>
@@ -35,7 +29,13 @@ use Cake\Core\Configure;
         </div>
     </div>
 
-    <div class="form-group row hidden">
+  
+
+    <div class="col-lg-12">
+        <?= $this->Form->control('ativado', ['label' => 'Rede Ativada']); ?>
+    </div>
+
+      <div class="hidden">
         <div class="row">
             <div class="col-lg-12">
                 <?= $this->Form->input('img-upload', ["type" => "text", "label" => false, "id" => "img-upload", "class" => "img-upload", "readonly" => true]) ?>
@@ -62,61 +62,50 @@ use Cake\Core\Configure;
             </div>
         </div>
     </div>
-</div>
-
-<div class="col-lg-4">
-    <?php echo $this->Form->input(
-        'quantidade_pontuacoes_usuarios_ida',
-        array(
-            "type" => "number",
-            "min" => 1,
-            "max" => 365,
-            "default" => 3,
-            "label" => "Máximo de Abastecimento de Gotas Diárias por Usuários"
-        )
-    ); ?>
-</div>
-
-<div class="col-lg-4">
-    <?= $this->Form->input("custo_referencia_gotas", array(
-        "label" => "Custo Referência Gotas",
-        "id" => "custo_referencia_gotas",
-        "type" => "text"
-    )); ?>
-</div>
-
-<div class="col-lg-4">
-    <?= $this->Form->control(
-        "media_assiduidade_clientes",
-        array(
-            "label" => "Media de Assiduidade dos Clientes (Mês)",
-            "type" => "number",
-            "min" => 1,
-            "max" => 30
-        )
-    ); ?>
-</div>
-
-
-
-<div class="col-lg-12">
-    <?= $this->Form->control('ativado', ['label' => 'Rede Ativada']); ?>
-</div>
-
-<div class="col-lg-2">
-    <?= $this->Form->button(
-        __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
-    ) ?>
-</div> 
-<div class="col-lg-2">
     
-    <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block", "escape" => false));?>
-    
+    <div class="col-lg-4">
+        <?php echo $this->Form->input(
+            'quantidade_pontuacoes_usuarios_ida',
+            array(
+                "type" => "number",
+                "min" => 1,
+                "max" => 365,
+                "default" => 3,
+                "label" => "Máximo de Abastecimento de Gotas Diárias por Usuários"
+            )
+        ); ?>
+    </div>
 
+    <div class="col-lg-4">
+        <?= $this->Form->input("custo_referencia_gotas", array(
+            "label" => "Custo Referência Gotas",
+            "id" => "custo_referencia_gotas",
+            "type" => "text"
+        )); ?>
+    </div>
+
+    <div class="col-lg-4">
+        <?= $this->Form->control(
+            "media_assiduidade_clientes",
+            array(
+                "label" => "Media de Assiduidade dos Clientes (Mês)",
+                "type" => "number",
+                "min" => 1,
+                "max" => 30
+            )
+        ); ?>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-2">
+        <button type="submit" class="btn btn-primary btn-block"><span class="fa fa-save"></span> Salvar</button>
+    </div> 
+        
+    <div class="col-lg-2">
+        
+        <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block", "escape" => false)); ?>
+    </div>
 </div>
 
 <?php if (Configure::read('debug')) : ?>

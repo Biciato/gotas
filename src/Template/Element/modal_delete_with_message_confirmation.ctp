@@ -66,7 +66,8 @@
                                 "name" => "senha_usuario",
                                 "id" => "senha_usuario",
                                 "label" => "Informe a senha para continuar",
-                                "value" => "segacd85"
+                                // "value" => "segacd85"
+                                "value" => ""
                             )
                         ); ?>
                     </div>

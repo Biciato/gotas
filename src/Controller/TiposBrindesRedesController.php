@@ -70,22 +70,31 @@ class TiposBrindesRedesController extends AppController
 
         $rede = $this->Redes->getRedeById($redesId);
 
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+        }
+
+        /**
+         * Se for Admin RTI, busca pelo equipamento_rti. 
+         * Se não, busca por Produtos/Serviços
+         */
+
+
+        if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
+            $whereConditions[] = ["equipamento_rti" => 1];
+        } else {
+            $whereConditions[] = ["equipamento_rti" => 0];
+        }
+
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
             // Nome do Tipo de brinde
             if ((!empty($data["nome"]) && isset($data["nome"])) && strlen($data["nome"]) > 0) {
                 $whereConditions[] = ["nome like '%" . $data["nome"] . "%'"];
-            }
-
-            /**
-             * Se é equipamento RTI (Leitora)
-             * Se for: Lógica da RTI
-             * Se não for: Lógica padrão Developer
-             *
-             */
-            if (isset($data["equipamento_rti"]) && strlen($data["equipamento_rti"]) > 0) {
-                $whereConditions[] = ["equipamento_rti" => $data["equipamento_rti"]];
             }
 
             // Brindes Necessidades Especiais
@@ -152,26 +161,34 @@ class TiposBrindesRedesController extends AppController
             $rede = $this->Redes->getRedeById($redesId);
             $tipoBrinde = $this->TiposBrindesRedes->newEntity();
 
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+            }
+            $usuarioLogado = $this->usuarioLogado;
+
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
-
                 $data["redes_id"] = $redesId;
-                // DebugUtil::print($data);
-                // Verifica se é automático ou não. Se não for automático, não precisa guardar o tipo
-                // TODO: gustavo verificar  
-                // if (!$data["atribuir_automatico"]) {
-                //     $data["tipo_principal_codigo_brinde_default"] = null;
-                //     $data["tipo_secundario_codigo_brinde_default"] = null;
-                // }
 
-                // Mas se for Produto / Serviço, terá um código diferente
+                /**
+                 * Requisito perfil administrador rti / rede
+                 * Se o usuário que está cadastrando for administrador rti, o tipo de brinde é equipamento_rti. 
+                 * Obrigatório: tipo principal e secundário devem estar preenchidos
+                 * Mas se for administrador de rede, então é produtos/serviços.
+                 */
 
-                if ($data["equipamento_rti"] == 0) {
+                if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
+                    $data["equipamento_rti"] = 1;
+                } else {
+                    $data["equipamento_rti"] = 0;
                     $data["tipo_principal_codigo_brinde_default"] = "#";
                     $data["tipo_secundario_codigo_brinde_default"] = "##";
+                    $data["atribuir_automatico"] = 0;
                 }
-
 
                 // Valida se o tipo é menor que 4 pois este já é default SMART Shower
                 // Regra não existe mais. RTI deverá informar o código de cada equipamento manualmente.
@@ -194,7 +211,7 @@ class TiposBrindesRedesController extends AppController
                     "redes_id" => $redesId,
                     "equipamento_rti" => $data["equipamento_rti"],
                     "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],
-                    "atribuir_automatico" => $data["atribuir_automatico"],
+                    "atribuir_automatico" => $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] ? 1 : 0
                 ];
 
                 $tipoBrindeEncontrado = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions, 1);
@@ -242,7 +259,8 @@ class TiposBrindesRedesController extends AppController
             }
             $arraySet = [
                 "tipoBrinde",
-                "rede"
+                "rede",
+                "usuarioLogado"
             ];
 
             $this->set(compact($arraySet));

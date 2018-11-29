@@ -53,7 +53,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <thead>
             <tr>
                 <th scope="col" style="min-width: 200px";><?= $this->Paginator->sort('nome', ["label" => "Nome"]) ?></th>
-                <th scope="col"><?= $this->Paginator->sort('equipamento_rti', ["label" => "Equip. RTI?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('brinde_necessidades_especiais', ["label" => "Brinde Nec. Especiais?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('habilitado', ["label" => "Habilitado?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('atribuir_automatico', ["label" => "Atribuir Auto.?"]) ?></th>
@@ -82,7 +81,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <?php foreach ($tiposBrindes as $tipo) : ?>
             <tr>
                 <td><?= h($tipo->nome . ($tipo->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($tipo->equipamento_rti)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
                 <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>

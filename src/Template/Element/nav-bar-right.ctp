@@ -30,8 +30,6 @@ if (empty($usuarioLogado)) {
         <li>
             <?php echo $this->Html->link('Logar', ['controller' => 'Usuarios', 'action' => 'login']) ?>
         </li>
-        </li>
-
     </ul>
 
     <?php
@@ -229,35 +227,44 @@ if (empty($usuarioLogado)) {
                 <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
             </li>
         </ul>
-                <?php
+<?php
+    // Administrador de Rede ou Regional
 
-            }
+    } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
-            // Administrador de Rede ou Regional
-
-            else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-
-                ?>
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
+        ?>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                <ul class="dropdown-menu">
 
 
-                        <!-- se o administrador não selecionou uma unidade para gerenciar
-                        só permite ver os items de Cadastro de Usuários e Relatórios -->
+                    <!-- se o administrador não selecionou uma unidade para gerenciar
+                    só permite ver os items de Cadastro de Usuários e Relatórios -->
+
+                    <li>
+                        <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
+                    </li>
+
+                    <li role="separator" class="divider" />
+
+                    <li>
+                        <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
+                    </li>
+
+                    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]): ?>
+                        <li role="separator" class="divider"></li>
 
                         <li>
-                            <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
+                            <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede['id']?>">Tipos de Brindes na sua Rede</a>
                         </li>
-
-                        <li role="separator" class="divider" />
 
                         <li>
-                            <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
+                            <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede['id']?>">Configurar Tipos de Brindes nos Pontos de Atendimento</a>
                         </li>
 
-                        <li role="separator" class="divider" />
+                    <?php endif;?>
+                    <li role="separator" class="divider" />
 
                     <?php
                     //brinde só pode ser cadastrado por um Administrador da Rede
@@ -289,227 +296,227 @@ if (empty($usuarioLogado)) {
 
                     } ?>
 
-                        <li>
-                            <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
-                        </li>
+                    <li>
+                        <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
+                    </li>
 
-                        <li role="separator" class="divider" />
+                    <li role="separator" class="divider" />
 
-                        <li>
-                            <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
-                        </li>
+                    <li>
+                        <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                    </li>
 
-                        <li role="separator" class="divider" />
-                        <li>
-                            <?php
-                            echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes'])
-                            ?>
-                        </li>
-                        <li role="separator" class="divider" />
-                        <li>
-                            <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'redes_has_clientes', 'action' => 'propaganda_escolha_unidades']) ?>
-                        </li>
+                    <li role="separator" class="divider" />
+                    <li>
+                        <?php
+                        echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes'])
+                        ?>
+                    </li>
+                    <li role="separator" class="divider" />
+                    <li>
+                        <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'redes_has_clientes', 'action' => 'propaganda_escolha_unidades']) ?>
+                    </li>
 
-                    </ul>
-                </li>
+                </ul>
+            </li>
 
-                <li>
-                    <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
-                </li>
-                <li>
-                    <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
-                </li>
-            </ul>
+            <li>
+                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+            </li>
+            <li>
+                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+            </li>
+        </ul>
 
 
-                <?php
+<?php
 
-            }
-            // Administrador da loja
-            else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
-
-                ?>
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
-                        </li>
-
-                        <li role="separator" class="divider"></li>
-
-                        <li>
-                            <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
-                        </li>
-                        <li role="separator" class="divider"></li>
-
-                        <!-- <li>
-                            <?php echo $this->Html->link('Brindes Habilitados da Loja', ['controller' => 'clientesHasBrindesHabilitados', 'action' => 'meus_brindes_ativados']) ?>
-                        </li> -->
-                        <li>
-                            <?php echo $this->Html->link('Configurar Brindes no Ponto de Atendimento', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar-brindes-unidade', $clienteGerenciado->id]) ?>
-                        </li>
-
-                        <li>
-                            <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
-                        </li>
-
-                        <li>
-                            <?php echo $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
-                        </li>
-
-                        <li>
-                            <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
-                        </li>
-
-                        <li role="separator" class="divider" />
-
-                        <li>
-                            <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
-                        </li>
-
-                        <li role="separator" class="divider" />
-                        <li>
-                            <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
-                        </li>
-
-                        <li role="separator" class="divider" />
-                        <li>
-                            <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'clientes', 'action' => 'configurar_propaganda']) ?>
-                        </li>
-                    </ul>
-                </li>
-
-                <li>
-                    <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
-                </li>
-                <li>
-                    <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
-                </li>
-            </ul>
-
-            <?php
-
-        } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
-
-            // Gerente
+    }
+        // Administrador da loja
+        else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
 
             ?>
-                <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
+                    </li>
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                        <li>
-                            <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
-                        </li>
+                    <li role="separator" class="divider"></li>
 
-                        <li role="separator" class="divider"></li>
+                    <li>
+                        <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
+                    </li>
+                    <li role="separator" class="divider"></li>
 
-                        <li>
-                            <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
-                        </li>
-
-                        <li>
-                            <?php echo $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
-                        </li>
-
-                        <li>
-                            <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
-                        </li>
-
-                        <li role="separator" class="divider" />
-
-                        <li>
-                            <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
-                        </li>
-
-                        <li role="separator" class="divider" />
-                        <li>
-                            <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
-                        </li>
-
-                    </ul>
+                    <!-- <li>
+                        <?php echo $this->Html->link('Brindes Habilitados da Loja', ['controller' => 'clientesHasBrindesHabilitados', 'action' => 'meus_brindes_ativados']) ?>
+                    </li> -->
+                    <li>
+                        <?php echo $this->Html->link('Configurar Brindes no Ponto de Atendimento', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar-brindes-unidade', $clienteGerenciado->id]) ?>
                     </li>
 
                     <li>
-                        <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
                     </li>
+
                     <li>
-                        <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
+                    </li>
+
+                    <li>
+                        <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
+                    </li>
+
+                    <li role="separator" class="divider" />
+
+                    <li>
+                        <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                    </li>
+
+                    <li role="separator" class="divider" />
+                    <li>
+                        <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
+                    </li>
+
+                    <li role="separator" class="divider" />
+                    <li>
+                        <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'clientes', 'action' => 'configurar_propaganda']) ?>
                     </li>
                 </ul>
+            </li>
 
-                <?php
+            <li>
+                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+            </li>
+            <li>
+                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+            </li>
+        </ul>
 
-            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
-                // Funcionário
+<?php
 
-                ?>
-                    <ul class="nav navbar-nav navbar-right">
+    } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+
+        // Gerente
+
+?>
+        <ul class="nav navbar-nav navbar-right">
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                <li>
+                    <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
+                </li>
+
+                <li role="separator" class="divider"></li>
+
+                <li>
+                    <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
+                </li>
+
+                <li>
+                    <?php echo $this->Html->link('Emissão de Cupom de Brindes - Venda Avulsa', ['controller' => 'cupons', 'action' => 'emissao_brinde_avulso']) ?>
+                </li>
+
+                <li>
+                    <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
+                </li>
+
+                <li role="separator" class="divider" />
+
+                <li>
+                    <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                </li>
+
+                <li role="separator" class="divider" />
+                <li>
+                    <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
+                </li>
+
+            </ul>
+            </li>
+
+            <li>
+                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+            </li>
+            <li>
+                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+            </li>
+        </ul>
+
+<?php
+
+    } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+    // Funcionário
+
+?>
+        <ul class="nav navbar-nav navbar-right">
 
 
-                        <!-- <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                            <ul class="dropdown-menu">
+            <!-- <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                <ul class="dropdown-menu">
 
 
-                                <li>
-                                    <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
-                                </li>
+                    <li>
+                        <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
+                    </li>
 
 
 
-                            </ul>
-                        </li> -->
+                </ul>
+            </li> -->
 
-                        <li>
-                            <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
-                        </li>
-                        <li>
-                            <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
-                        </li>
-                    </ul>
+            <li>
+                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+            </li>
+            <li>
+                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+            </li>
+        </ul>
 
-                    <?php
+<?php
 
-                } else {
-                    // Cliente
+    } else {
+        // Cliente
 
-                    ?>
-                        <ul class="nav navbar-nav navbar-right">
+?>
+        <ul class="nav navbar-nav navbar-right">
 
 
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Acesso Rápido<span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <?php echo $this->Html->link('Meu Histórico de Cupons de Brindes', ['controller' => 'usuarios_has_brindes', 'action' => 'historico_brindes']) ?>
-                                    </li>
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <?php echo $this->Html->link('Meu Histórico de Gotas', ['controller' => 'PontuacoesComprovantes', 'action' => 'historico_pontuacoes']) ?>
-                                    </li>
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <?php echo $this->Html->link(__("Meus Veículos"), ['controller' => 'Veiculos', 'action' => 'meus_veiculos']) ?>
-                                    </li>
-                                </ul>
-                            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Acesso Rápido<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <?php echo $this->Html->link('Meu Histórico de Cupons de Brindes', ['controller' => 'usuarios_has_brindes', 'action' => 'historico_brindes']) ?>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <?php echo $this->Html->link('Meu Histórico de Gotas', ['controller' => 'PontuacoesComprovantes', 'action' => 'historico_pontuacoes']) ?>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <?php echo $this->Html->link(__("Meus Veículos"), ['controller' => 'Veiculos', 'action' => 'meus_veiculos']) ?>
+                    </li>
+                </ul>
+            </li>
 
-                            <li>
-                                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
-                            </li>
-                            <li>
-                                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
-                            </li>
-                        </ul>
+            <li>
+                <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
+            </li>
+            <li>
+                <?php echo $this->Html->link('Sair', ['controller' => 'Usuarios', 'action' => 'logout']) ?>
+            </li>
+        </ul>
 
-                        <?php
+<?php
 
-                    }
+    }
 
-                }
+}
 
-                ?>
+?>

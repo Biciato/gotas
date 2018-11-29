@@ -3,6 +3,16 @@
  */
 $(document).ready(function () {
 
+    $(".botao-confirmar").on("click", function(e){
+        var form = e.target.form;
+
+        var isValid = form.checkValidity();
+
+        if (isValid){
+            callLoaderAnimation();
+        }
+    } );
+
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
      */
