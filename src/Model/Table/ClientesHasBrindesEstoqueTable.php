@@ -160,7 +160,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Add Estoque for Brinde Id
@@ -201,7 +201,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Get one Brinde Habilitado For Cliente using Brindes Id
@@ -296,9 +296,9 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
 
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todas as gotas de clientes

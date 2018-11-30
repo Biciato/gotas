@@ -25,12 +25,21 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 use App\Custom\RTI\DebugUtil;
 
+$title = __("Tipos de Brindes Habilitados para Ponto de Atendimento: [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia);
 // Navegação
-$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
-$this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
-$this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
+
+if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]){
+    $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+    $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
+    $this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
+} else {
+    $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+    $this->Breadcrumbs->add('Selecionar Loja para Configurar Tipo de Brinde', ['controller' => 'tiposBrindesClientes', 'action' => 'selecionarClienteTipoBrinde']);
+    $this->Breadcrumbs->add("Tipos de Brindes Habilitados para Ponto de Atendimento", array(), array("class" => "active"));
+}
+
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -40,7 +49,7 @@ echo $this->Breadcrumbs->render(
 <?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "add", "clientesId" => $cliente->id]) ?>
 <div class="tiposBrindesClientes view col-lg-9 col-mg-8 columns content">
 
-    <legend><?= __("Tipos de Brindes Habilitados para Cliente: [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
+    <legend><?= $title ?> </legend>
 
     <?php if (sizeof($tiposBrindesClientes->toArray()) == 0) : ?>
         <?= __("Dados não encontrados para o cliente {0} ! ", $cliente->nome_fantasia) ?>

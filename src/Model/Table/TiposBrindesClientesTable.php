@@ -331,19 +331,25 @@ class TiposBrindesClientesTable extends GenericTable
      * Obtem os tipo de brindes de um cliente através do ClientesId
      *
      * @param integer $clientesId Id de Cliente
+     * @param bool $equipamentoRTI 1 =>Equipamento RTI / 0 => Produtos/Serviços
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/06/2018
      *
      * @return \App\Model\Entity\TipoBrindesCliente[] $dados
      */
-    public function getTiposBrindesClientesByClientesId(int $clientesId)
+    public function getTiposBrindesClientesByClientesId(int $clientesId, bool $equipamentoRTI = null)
     {
         try {
-            return $this->_getTiposBrindesClientesTable()->find('all')
-                ->where([
-                    "clientes_id" => $clientesId
-                ])->contain(["TipoBrindeRede", "ClientesHasBrindesHabilitados"]);
+            $whereConditions = array("clientes_id" => $clientesId);
+
+            if (isset($equipamentoRTI)) {
+                $whereConditions["equipamento_rti"] = $equipamentoRTI;
+            }
+
+            return $this->find('all')
+                ->where($whereConditions)
+                ->contain(["TipoBrindeRede", "ClientesHasBrindesHabilitados"]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 

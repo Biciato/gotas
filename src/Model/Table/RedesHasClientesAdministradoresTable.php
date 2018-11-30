@@ -127,7 +127,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
         return $rules;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Grava novo administrador de uma rede
@@ -165,7 +165,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem o vínculo de ligação de um usuário com a rede pelo id de usuário
@@ -200,11 +200,11 @@ class RedesHasClientesAdministradoresTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
 
     /**

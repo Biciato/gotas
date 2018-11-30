@@ -169,9 +169,9 @@ class BrindesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
 
     /**
@@ -494,7 +494,7 @@ class BrindesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todos os preços de brindes habilitados de um cliente para a matriz
@@ -537,7 +537,7 @@ class BrindesTable extends GenericTable
     }
 
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todos os brindes de um cliente

@@ -1043,7 +1043,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
     #endregion
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todos os preços de brindes habilitados de um cliente para a matriz
@@ -1085,7 +1085,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todos os preços para brindes habilitados de um cliente

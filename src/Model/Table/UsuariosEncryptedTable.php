@@ -123,7 +123,7 @@ class UsuariosEncryptedTable extends Table
     }
 
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Insere novo registro de senha criptografada do usuário
@@ -152,7 +152,7 @@ class UsuariosEncryptedTable extends Table
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtêm registro de usuário criptografado pelo Id
@@ -176,7 +176,7 @@ class UsuariosEncryptedTable extends Table
             $this->Flash->error($stringError);
         }
     }
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Atualiza senha criptografada do usuário
@@ -230,7 +230,7 @@ class UsuariosEncryptedTable extends Table
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Deleta todos os registros por um Usuário Id

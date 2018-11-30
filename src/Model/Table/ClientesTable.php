@@ -227,8 +227,7 @@ class ClientesTable extends GenericTable
         return $rules;
     }
 
-    /* ------------------------ Create -------------------------- */
-
+    #region Create 
 
     /**
      * Adiciona nova unidade para uma rede
@@ -329,7 +328,9 @@ class ClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read -------------------------- */
+    #endregion
+
+    #region Read
 
     /**
      * Obtem todos os clientes
@@ -375,7 +376,7 @@ class ClientesTable extends GenericTable
      * @param array $paginationConditions Condições de Paginação
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 2018/05/13
+     * @date 2018-05-13
      *
      * @return array ("count", "data")
      */
@@ -511,7 +512,7 @@ class ClientesTable extends GenericTable
                     "conditions" => array("CHU.usuarios_id = U.id", "U.id" => $usuariosId)
                 )
             );
-            $clientes = $this->_getClientesTable()->find("all")
+            $clientes = $this->find("all")
                 ->join($options)
                 ->where(
                     array(
@@ -1008,7 +1009,9 @@ class ClientesTable extends GenericTable
         return $cliente;
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
+
+    #region Update
 
     /**
      * Troca estado de unidade
@@ -1079,7 +1082,9 @@ class ClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #endregion 
+    
+    #region Delete 
 
     /**
      * Remove todos os clientes
@@ -1115,6 +1120,9 @@ class ClientesTable extends GenericTable
         }
     }
 
+    #endregion 
+
+
     /* ------------------------ Others ------------------------ */
 
     /**
@@ -1146,21 +1154,6 @@ class ClientesTable extends GenericTable
         // if (isset($cliente['matriz_id'])) {
         //     $cliente['matriz_id'] = $cliente['matriz_id'];
         // }
-
-        return $cliente;
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param [type] $cliente
-     * @param [type] $matrizId
-     *
-     * @return void
-     */
-    public function setMatrizId($cliente, $matrizId)
-    {
-        $cliente->matriz_id = $matrizId;
 
         return $cliente;
     }

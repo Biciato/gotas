@@ -260,7 +260,7 @@ if (empty($usuarioLogado)) {
                         </li>
 
                         <li>
-                            <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede['id']?>">Configurar Tipos de Brindes nos Pontos de Atendimento</a>
+                            <a href="/tipos-brindes-clientes/selecionar-cliente-tipo-brinde/">Configurar Tipos de Brindes nos Pontos de Atendimento</a>
                         </li>
 
                     <?php endif;?>

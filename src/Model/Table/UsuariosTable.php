@@ -1743,7 +1743,7 @@ class UsuariosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Altera estado de conta ativa do usuário informado
@@ -1948,7 +1948,7 @@ class UsuariosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     public function deleteAllFuncionariosByRedesId(int $redesId)
     {

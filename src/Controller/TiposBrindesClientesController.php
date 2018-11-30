@@ -42,17 +42,25 @@ class TiposBrindesClientesController extends AppController
         $tiposBrindesClientes = array();
         $cliente = $this->Clientes->getClienteById($clientesId);
 
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->getUserLogged();
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
         if (empty($cliente)) {
             throw new \Exception(__(Configure::read("messageRecordClienteNotFound")));
         }
 
         try {
 
-            $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
+            $equipamentoRTI = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] ? 1 : 0;
+            $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId, $equipamentoRTI);
+            $tiposBrindesClientes = $this->Paginate($tiposBrindesClientes, ["limit" => 10]);
 
-            $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
-
-            // DebugUtil::print($tiposBrindesClientes);
         } catch (\Exception $e) {
 
             $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
@@ -65,8 +73,11 @@ class TiposBrindesClientesController extends AppController
             Log::write("error", $trace);
         }
 
-        // DebugUtil::print($tiposBrindesClientes);
-        $arraySet = ["cliente", "tiposBrindesClientes"];
+        $arraySet = array(
+            "cliente", 
+            "tiposBrindesClientes",
+            "usuarioLogado"
+        );
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
 
@@ -113,7 +124,7 @@ class TiposBrindesClientesController extends AppController
                 $data = $this->request->getData();
                 $equipamentoRTI = false;
                 foreach ($tiposBrindesRedes as $tipoBrindeRede) {
-                    if ($tipoBrindeRede["value"] == $data["tipos_brindes_redes_id"]){
+                    if ($tipoBrindeRede["value"] == $data["tipos_brindes_redes_id"]) {
                         $equipamentoRTI = $tipoBrindeRede["equipamento_rti"] ? true : false;
                     }
                 }
@@ -137,16 +148,16 @@ class TiposBrindesClientesController extends AppController
 
                     // } else {
 
-                        /**
-                         * Agora verifica se o mesmo código primário / secundário já não existe
-                         * Cada Tipo de Brinde deve pertencer a uma combinação única
-                         */
-                        $whereConditions = array(
-                            [
-                                "clientes_id" => $clientesId,
-                                "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
-                            ]
-                        );
+                /**
+                 * Agora verifica se o mesmo código primário / secundário já não existe
+                 * Cada Tipo de Brinde deve pertencer a uma combinação única
+                 */
+                $whereConditions = array(
+                    [
+                        "clientes_id" => $clientesId,
+                        "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                    ]
+                );
 
                         // if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
                         //     $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
@@ -162,25 +173,25 @@ class TiposBrindesClientesController extends AppController
                         // Brindes de banho tem id de 1 a 4. então o campo tipo_secundario_codigo_brinde deve ser 00
                         // Pois esses campos são calculados conforme o tempo do brinde
 
-                            if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                                $data["tipo_secundario_codigo_brinde"] = "00";
-                            }
+                if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                    $data["tipo_secundario_codigo_brinde"] = "00";
+                }
 
-                            $tiposBrindesClienteSave = $this->TiposBrindesClientes->saveTiposBrindeCliente(
-                                $data["tipos_brindes_redes_id"],
-                                $data["clientes_id"],
-                                $data["tipo_principal_codigo_brinde"],
-                                $data["tipo_secundario_codigo_brinde"],
-                                $data["habilitado"],
-                                0
-                            );
+                $tiposBrindesClienteSave = $this->TiposBrindesClientes->saveTiposBrindeCliente(
+                    $data["tipos_brindes_redes_id"],
+                    $data["clientes_id"],
+                    $data["tipo_principal_codigo_brinde"],
+                    $data["tipo_secundario_codigo_brinde"],
+                    $data["habilitado"],
+                    0
+                );
 
-                            if ($tiposBrindesClienteSave) {
-                                $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+                if ($tiposBrindesClienteSave) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                                return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
-                            }
-                            $this->Flash->error(__(Configure::read("messageSavedError")));
+                    return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
                     //     }
                     // }
                 // }
@@ -316,6 +327,36 @@ class TiposBrindesClientesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
+    }
+
+    // selecionar_cliente_tipo_brinde
+
+    /**
+     * Action para selecionar um posto de atendimento para configurar seus tipos de brindes
+     *
+     * @return \Cake\Http\Response|null Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function selecionarClienteTipoBrinde()
+    {
+        $rede = $this->request->session()->read("Rede.Principal");
+
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->getUserLogged();
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        // $clientes = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+        $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $usuarioLogado["id"], $usuarioLogado["tipo_perfil"]);
+
+        $arraySet = array("rede", "usuarioLogado", "clientes");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

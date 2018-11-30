@@ -221,7 +221,7 @@ class PontuacoesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Adiciona pontuação de brinde para usuário
@@ -336,7 +336,7 @@ class PontuacoesTable extends GenericTable
         return $this->saveMany($pontuacoesSave);
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtêm pontuação por Id
@@ -1343,7 +1343,7 @@ class PontuacoesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Atualiza todos os comprovantes de pontuações conforme objeto de condições
@@ -1500,7 +1500,7 @@ class PontuacoesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Remove todas as pontuacoes por Id de Cliente

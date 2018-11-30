@@ -156,7 +156,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * ClientesHasBrindesHabilitadosPrecoTable::addBrindeHabilitadoPreco
@@ -196,7 +196,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * undocumented function
@@ -363,7 +363,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todos os preços de brindes habilitados de um cliente para a matriz
@@ -404,7 +404,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todos os preços para brindes habilitados de um cliente

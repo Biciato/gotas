@@ -123,7 +123,7 @@ class VeiculosTable extends GenericTable
         return $validator;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Cria um novo veículo
@@ -184,7 +184,7 @@ class VeiculosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem veículos conforme condições
@@ -521,6 +521,6 @@ class VeiculosTable extends GenericTable
         return $data;
     }
 
-    /* ------------------------ Update ------------------------ */
-    /* ------------------------ Delete ------------------------ */
+    #region Update
+    #region Delete
 }

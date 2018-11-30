@@ -162,7 +162,7 @@ class PontuacoesPendentesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Cria registro de pontuacao pendente
@@ -203,7 +203,7 @@ class PontuacoesPendentesTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem todas as pontuacoes Pendentes por Id de Cliente
@@ -312,7 +312,7 @@ class PontuacoesPendentesTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Atualiza pontuacao pendente para 'processado'
@@ -410,7 +410,7 @@ class PontuacoesPendentesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Remove todas as pontuacoes Pendentes por Id de Cliente

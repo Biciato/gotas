@@ -186,7 +186,7 @@ class CuponsTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Adiciona cupom de Smart Shower
@@ -386,7 +386,7 @@ class CuponsTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Retorna cupons pelo valor de cupom emitido
@@ -656,7 +656,7 @@ class CuponsTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todas as gotas de um cliente para a matriz
@@ -772,7 +772,7 @@ class CuponsTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Deleta todos os cupons por um Clientes Id

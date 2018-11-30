@@ -156,9 +156,11 @@ class RedesHasClientesTable extends GenericTable
         return $rules;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create 
+    
+    #endregion 
 
-    /* ------------------------ Read ------------------------ */
+    #region Read 
 
     /**
      * Localiza a matriz de uma rede
@@ -510,11 +512,13 @@ class RedesHasClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
 
+    #region Update 
 
+    #endregion
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Remove uma unidade da rede
@@ -549,5 +553,7 @@ class RedesHasClientesTable extends GenericTable
             return $error;
         }
     }
+
+    #endregion
 
 }

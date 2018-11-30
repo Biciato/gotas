@@ -63,12 +63,16 @@ class TiposBrindesRedesController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function configurarTiposBrindesRede(int $redesId)
+    public function configurarTiposBrindesRede(int $redesId = null)
     {
         $qteRegistros = 999;
         $whereConditions = array();
 
-        $rede = $this->Redes->getRedeById($redesId);
+        if (!empty($redesId)) {
+            $rede = $this->Redes->getRedeById($redesId);
+        } else {
+            $rede = $this->request->session()->read("Rede.Principal");
+        }
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
@@ -116,7 +120,7 @@ class TiposBrindesRedesController extends AppController
             $qteRegistros = $data['qteRegistros'];
         }
 
-        $whereConditions[] = array("redes_id" => $redesId);
+        $whereConditions[] = array("redes_id" => $rede["id"]);
 
         $tiposBrindes = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions);
 

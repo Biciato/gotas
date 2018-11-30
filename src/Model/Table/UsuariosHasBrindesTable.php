@@ -134,7 +134,7 @@ class UsuariosHasBrindesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Add a new Brinde for a Usuario
@@ -172,7 +172,7 @@ class UsuariosHasBrindesTable extends GenericTable
             $this->Flash->error($stringError);
         }
     }
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem detalhes de brinde de usuário pelo Id
@@ -228,9 +228,9 @@ class UsuariosHasBrindesTable extends GenericTable
         }
     }
     
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todas as gotas de um cliente

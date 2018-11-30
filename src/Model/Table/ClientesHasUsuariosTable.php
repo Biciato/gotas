@@ -203,7 +203,7 @@ class ClientesHasUsuariosTable extends Table
     public function findClienteHasUsuario(array $where_conditions)
     {
         try {
-            return $this->_getClienteHasUsuarioTable()->find('all')
+            return $this->find('all')
                 ->where($where_conditions)
                 ->contain(['Cliente', 'Usuario']);
         } catch (\Exception $e) {
@@ -217,19 +217,19 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Procura por um usuário dentro de uma rede de lojas
      *
-     * @param int   $usuarios_id       Id do usuário
+     * @param int   $usuariosId       Id do usuário
      * @param array $array_clientes_id Array de Id de clientes
      *
      * @return void
      */
-    public function findClienteHasUsuarioInsideNetwork(int $usuarios_id, array $array_clientes_id)
+    public function findClienteHasUsuarioInsideNetwork(int $usuariosId, array $array_clientes_id)
     {
         try {
             $data = $this->_getClienteHasUsuarioTable()->find('all')
                 ->where(
                     [
                         'ClientesHasUsuarios.clientes_id in' => $array_clientes_id,
-                        'ClientesHasUsuarios.usuarios_id' => $usuarios_id
+                        'ClientesHasUsuarios.usuarios_id' => $usuariosId
                     ]
                 )
                 ->join(['Usuarios'])
@@ -250,20 +250,20 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Pega id de unidades que usuário pode filtrar
      *
-     * @param int  $redes_id         Id da Rede
-     * @param int  $usuarios_id      Id de Usuário
-     * @param bool $descartar_matriz Retira ou Inclui matriz
+     * @param int  $redesId         Id da Rede
+     * @param int  $usuariosId      Id de Usuário
+     * @param bool $descartarMatriz Retira ou Inclui matriz
      *
      * @return void
      */
-    public function getClientesFilterAllowedByUsuariosId(int $redes_id, int $usuarios_id, bool $descartar_matriz = false)
+    public function getClientesFilterAllowedByUsuariosId(int $redesId, int $usuariosId, bool $descartarMatriz = false)
     {
         try {
 
-            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redes_id);
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
-            $usuario = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
-                ->where(['id' => $usuarios_id])->first();
+            $usuario = $this->Usuarios->find('all')
+                ->where(['id' => $usuariosId])->first();
 
             if (sizeof($clientesIds) == 0) {
                 return null;
@@ -272,7 +272,7 @@ class ClientesHasUsuariosTable extends Table
             if ($usuario["tipo_perfil"] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // se for admin rti ou admin rede, pega o id de todas as unidades
 
-                if ($descartar_matriz) {
+                if ($descartarMatriz) {
                     $clientes = $this->Clientes->find('list')
                         ->where(['id in' => $clientesIds, 'matriz' => false]);
                 } else {
@@ -304,7 +304,7 @@ class ClientesHasUsuariosTable extends Table
                     $clientesIds[] = $value['clientes_id'];
                 }
 
-                if ($descartar_matriz) {
+                if ($descartarMatriz) {
 
                     $clientes = $this->_getClienteHasUsuarioTable()->Clientes
                         ->find('list')
@@ -329,41 +329,32 @@ class ClientesHasUsuariosTable extends Table
                     ->where(
                         [
                             'clientes_id in ' => $clientesIds,
-                            'usuarios_id' => $usuario->id,
-                            'tipo_perfil' => $usuario->tipo_perfil
+                            'usuarios_id' => $usuario["id"],
+                            'tipo_perfil' => $usuario["tipo_perfil"]
                         ]
                     )
                     ->select(array("clientes_id"));
 
                 $clientesIds = [];
-                foreach ($clientesHasUsuariosList as $key => $value) {
+                foreach ($clientesHasUsuariosList as $value) {
                     $clientesIds[] = $value['clientes_id'];
                 }
 
-                if ($descartar_matriz) {
+                $whereConditions = array("id IN " => $clientesIds);
 
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
-                        ->find('list')
-                        ->where(
-                            [
-                                'id IN ' => $clientesIds,
-                                'matriz' => false
-                            ]
-                        );
-                } else {
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
-                        ->find('list')
-                        ->where(['id IN ' => $clientesIds]);
+                if ($descartarMatriz) {
+                    $whereConditions[] = array("matriz" => false);
                 }
 
+                $clientes = $this->Clientes
+                    ->find('list')
+                    ->where($whereConditions);
             }
 
             return $clientes->select(array("id", "razao_social"));
-            // return $clientes;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
 
             Log::write('error', $stringError);
 
@@ -430,19 +421,19 @@ class ClientesHasUsuariosTable extends Table
             $clientes_has_usuarios = $this->_getClienteHasUsuarioTable()->find('all')
                 ->where($whereConditions);
 
-            $usuarios_ids = [];
+            $usuariosIds = [];
 
             foreach ($clientes_has_usuarios as $key => $value) {
-                $usuarios_ids[] = $value['usuarios_id'];
+                $usuariosIds[] = $value['usuarios_id'];
             }
 
             $result = null;
 
-            if (sizeof($usuarios_ids) > 0) {
+            if (sizeof($usuariosIds) > 0) {
                 $result = $this->_getClienteHasUsuarioTable()
                     ->Usuarios
                     ->find('all')
-                    ->where(['id IN ' => $usuarios_ids]);
+                    ->where(['id IN ' => $usuariosIds]);
             }
 
             return $result;
@@ -513,19 +504,19 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Obtêm todos os clientes através de um usuário e tipo de perfil
      *
-     * @param int $usuarios_id Id de usuário
+     * @param int $usuariosId Id de usuário
      * @param int $tipo_perfil Tipo de perfil procurado
      *
      * @return object ClientesHasUsuarios
      */
-    public function getAllClientesIdsByUsuariosId(int $usuarios_id, int $tipo_perfil = null)
+    public function getAllClientesIdsByUsuariosId(int $usuariosId, int $tipo_perfil = null)
     {
         try {
 
             $whereConditions = array();
 
             $whereConditions[] = [
-                'ClientesHasUsuarios.usuarios_id' => $usuarios_id
+                'ClientesHasUsuarios.usuarios_id' => $usuariosId
             ];
 
             if (!is_null($tipo_perfil)) {
@@ -659,19 +650,19 @@ class ClientesHasUsuariosTable extends Table
      *
      * @param int $id          Id do registro
      * @param int $clientesId Id do cliente
-     * @param int $usuarios_id Id do Usuário
+     * @param int $usuariosId Id do Usuário
      * @param int $tipo_perfil Tipo de Perfil
      *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
-    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuarios_id, int $tipo_perfil)
+    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId, int $tipo_perfil)
     {
         try {
 
             return $this->updateAll(
                 [
                     'clientes_id' => $clientesId,
-                    'usuarios_id' => $usuarios_id,
+                    'usuarios_id' => $usuariosId,
                     'tipo_perfil' => $tipo_perfil
                 ],
                 [
@@ -795,7 +786,6 @@ class ClientesHasUsuariosTable extends Table
 
     }
 
-
     #endregion
 
     #region  Delete
@@ -835,16 +825,16 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Apaga todos os vínculos de um usuário à um cliente
      *
-     * @param int $usuarios_id Id de usuário
+     * @param int $usuariosId Id de usuário
      *
      * @return boolean
      */
-    public function deleteAllClientesHasUsuariosByUsuariosId(int $usuarios_id)
+    public function deleteAllClientesHasUsuariosByUsuariosId(int $usuariosId)
     {
         try {
 
             return $this->_getClienteHasUsuarioTable()
-                ->deleteAll(['usuarios_id' => $usuarios_id]);
+                ->deleteAll(['usuarios_id' => $usuariosId]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -869,11 +859,11 @@ class ClientesHasUsuariosTable extends Table
      *
      * @param int $matrizId    Id da matriz
      * @param int $clientesId Id do cliente
-     * @param int $usuarios_id Id do usuário
+     * @param int $usuariosId Id do usuário
      *
      * @return boolean
      */
-    public function removeAdministratorOfClienteHasUsuario($clientesId, $usuarios_id)
+    public function removeAdministratorOfClienteHasUsuario($clientesId, $usuariosId)
     {
         try {
             $clientesHasUsuario = $this->_getClienteHasUsuarioTable()
@@ -881,7 +871,7 @@ class ClientesHasUsuariosTable extends Table
                 ->where(
                     [
                         'clientes_id' => $clientesId,
-                        'usuarios_id' => $usuarios_id
+                        'usuarios_id' => $usuariosId
                     ]
                 )
                 ->first();
@@ -893,7 +883,7 @@ class ClientesHasUsuariosTable extends Table
 
                 $usuario
                     = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
-                    ->where(['id' => $usuarios_id])
+                    ->where(['id' => $usuariosId])
                     ->first();
 
                 $usuario->matriz_id = null;
@@ -956,4 +946,6 @@ class ClientesHasUsuariosTable extends Table
             return $stringError;
         }
     }
+
+    #endregion
 }

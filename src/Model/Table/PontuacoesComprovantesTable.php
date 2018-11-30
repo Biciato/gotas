@@ -207,7 +207,7 @@ class PontuacoesComprovantesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Guarda registro de Pontuacao Comprovante
@@ -262,7 +262,7 @@ class PontuacoesComprovantesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Procura por cupom previamente inserido
@@ -793,7 +793,7 @@ class PontuacoesComprovantesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Configura comprovante de pontuação como aprovado
@@ -943,7 +943,7 @@ class PontuacoesComprovantesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Limpa todos os comprovantes de pontuações
