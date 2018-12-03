@@ -31,6 +31,40 @@ use App\Model\Entity\Usuario;
  */
 class ImageUtil
 {
+
+    /**
+     * Converte string de base 64 para arquivo jpg
+     *
+     * @param string $base64String
+     * @param object $outputFile
+     *
+     * @return void
+     */
+    public static function generateImageFromBase64($base64String, $outputFile, $pathDestination)
+    {
+        try {
+            FilesUtil::createPathIfNotExists($pathDestination);
+            // abre o arquivo destino para edição
+            $ifp = fopen($outputFile, 'wb');
+
+            // separa a string por virgulas, para criar os dados
+
+            $data = explode(',', $base64String);
+
+            // escreve os dados no arquivo destino
+            fwrite($ifp, base64_decode($data[1]));
+
+            // fecha o arquivo destino
+            fclose($ifp);
+
+            chmod($outputFile, 0766);
+
+            return $outputFile;
+        } catch (\Exception $e) {
+            $this->log($e->getMessage());
+        }
+    }
+
     /**
      * ImageUtil::resizeImage
      *
@@ -81,5 +115,30 @@ class ImageUtil
             return 0;
         }
     }
+
+
+
+    /**
+     * Rotates a Image
+     *
+     * @param string $imagePath
+     * @param int $degrees
+     * @return bool
+     */
+    public static function rotateImage(string $imagePath, int $degrees)
+    {
+        try {
+            $source = imagecreatefromjpeg($imagePath);
+
+            $rotate = \imagerotate($source, $degrees, 0);
+
+            $result = imagejpeg($rotate, $imagePath);
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::write('error', $e->getMessage());
+        }
+    }
+
 
 }

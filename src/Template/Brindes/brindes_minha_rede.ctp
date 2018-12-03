@@ -22,20 +22,17 @@ echo $this->Breadcrumbs->render(
 
 ?>
 
-<?= $this->element('../Brindes/left_menu', ['mode' => 'add']) ?>
+<?= $this->element('../Brindes/left_menu', ['mode' => 'add', "clientesId" => $cliente["id"]]) ?>
 <div class="brindes index col-lg-9 col-md-10 columns content">
     <legend><?= __("Cadastro de Brindes da Rede") ?></legend>
 
-    <?php
-    //  $this->element('../Brindes/brindes_filtro_pesquisa_comum', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']) ;
-    ?>
     <?= $this->element('../Brindes/brindes_filtro', ['controller' => 'brindes', 'action' => 'brindes_minha_rede', 'unidadesIds' => $unidadesIds]) ?>
 
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('nome') ?></th>
-                <th><?= $this->Paginator->sort('tempo_rti_shower', array("label" => "Tempo de Banho")) ?></th>
+                <th><?= $this->Paginator->sort('tempo_uso_brinde', array("label" => "Tempo de Banho")) ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
                 <th><?= $this->Paginator->sort('preco_padrao') ?></th>
                 <th><?= $this->Paginator->sort('valor_moeda_venda_padrao') ?></th>
@@ -51,7 +48,7 @@ echo $this->Breadcrumbs->render(
                 <tr>
 
                     <td><?= h($brinde->nome) ?></td>
-                    <td><?= h($brinde->tempo_rti_shower) ?></td>
+                    <td><?= h($brinde->tempo_uso_brinde) ?></td>
                     <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
                     <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?></td>
                     <td><?= $this->Number->precision($brinde->valor_moeda_venda_padrao, 2) ?></td>

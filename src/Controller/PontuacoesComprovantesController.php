@@ -21,6 +21,7 @@ use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\ImageUtil;
 
 /**
  * PontuacoesComprovantes Controller
@@ -383,7 +384,7 @@ class PontuacoesComprovantesController extends AppController
 
             // pegar rede que usuário está logado e suas unidades
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $clientes_ids = [];
 
@@ -1060,18 +1061,18 @@ class PontuacoesComprovantesController extends AppController
                 $data = $this->request->getData();
 
                 // cria uma imagem temporária até o usuário terminar o cadastro
-                $this->generateImageFromBase64(
+                ImageUtil::generateImageFromBase64(
                     $data['image'],
                     Configure::read('imageReceiptPathTemporary') . $data['image_name'] . '.jpg',
                     Configure::read('imageReceiptPathTemporary')
                 );
 
                 // rotaciona a imagem guardada temporariamente
-                $this->rotateImage(Configure::read('imageReceiptPathTemporary') . $data['image_name'] . '.jpg', 90);
+                ImageUtil::rotateImage(Configure::read('imageReceiptPathTemporary') . $data['image_name'] . '.jpg', 90);
                 $success = true;
             }
 
-            $arraySet = ['success'];
+            $arraySet = array('success');
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);

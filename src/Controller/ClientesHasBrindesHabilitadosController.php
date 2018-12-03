@@ -167,7 +167,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $clientesIdsArray = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
@@ -203,7 +203,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function configurarBrindesUnidade(int $clientesId)
     {
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -295,7 +295,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
@@ -589,13 +589,13 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if (isset($clienteAdministrar)) {
             $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $clientes_ids = [];
 

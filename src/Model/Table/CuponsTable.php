@@ -251,7 +251,7 @@ class CuponsTable extends GenericTable
                 $tipoSecundarioCodigoBrinde = strlen($tipoSecundarioCodigoBrinde) == 1 ? '0' . $tipoSecundarioCodigoBrinde : $tipoSecundarioCodigoBrinde;
             }
 
-            $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_rti_shower"] + 10 : $tiposBrindesCliente["tipo_secundario_codigo_brinde"];
+            $tipoSecundarioCodigoBrinde = $tipoPrincipalCodigoBrinde <= 4 ? $brindeHabilitado["brinde"]["tempo_uso_brinde"] + 10 : $tiposBrindesCliente["tipo_secundario_codigo_brinde"];
 
             /**
              * Se o brinde não for banho, pode acontecer do código secundário ter tamanho 1.

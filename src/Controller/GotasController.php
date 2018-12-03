@@ -273,7 +273,7 @@ class GotasController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // pega a matriz da rede
 
@@ -337,7 +337,7 @@ class GotasController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $unidades_ids = [];
 
@@ -376,7 +376,7 @@ class GotasController extends AppController
     {
         try {
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -495,7 +495,7 @@ class GotasController extends AppController
                 $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
@@ -576,7 +576,7 @@ class GotasController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $result = $this->_alteraEstadoGota($id, true);
             if ($result[0]) {
@@ -632,7 +632,7 @@ class GotasController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             if ($this->_alteraEstadoGota($id, false)) {
                 $this->Flash->success(Configure::read('messageDisableSuccess'));
@@ -709,7 +709,7 @@ class GotasController extends AppController
 
         $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientesIds = [];

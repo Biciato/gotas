@@ -244,7 +244,7 @@ class PontuacoesController extends AppController
                 $usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // Pega unidades que tem acesso
 

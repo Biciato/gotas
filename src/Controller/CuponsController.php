@@ -206,7 +206,7 @@ class CuponsController extends AppController
 
         $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
@@ -282,13 +282,13 @@ class CuponsController extends AppController
 
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if (!is_null($clienteAdministrar)) {
             $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $unidades_ids = [];
 
@@ -351,13 +351,13 @@ class CuponsController extends AppController
 
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if (!is_null($clienteAdministrar)) {
             $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $unidades_ids = [];
 
@@ -427,7 +427,7 @@ class CuponsController extends AppController
 
         // pega a rede e as unidades que o usuário tem acesso
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientesIds = [];
@@ -530,7 +530,7 @@ class CuponsController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
@@ -864,7 +864,7 @@ class CuponsController extends AppController
 
             $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // pega id de todos os clientes que estão ligados à uma rede
 
@@ -1093,7 +1093,7 @@ class CuponsController extends AppController
             $status = $status;
             $cliente = $cliente;
             $usuario = $usuario;
-            $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
+            $tempo = $brinde_habilitado->brinde->tempo_uso_brinde;
         }
 
         $arraySet = [
@@ -2069,7 +2069,7 @@ class CuponsController extends AppController
                         "status" => $mensagem["status"],
                         "cliente" => $cliente,
                         "usuario" => $usuario,
-                        "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                        "tempo" => $brindeSelecionado["brinde"]["tempo_uso_brinde"],
                         "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
                         "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                     );
@@ -2314,7 +2314,7 @@ class CuponsController extends AppController
                     "status" => $status,
                     "cliente" => $cliente,
                     "usuario" => $usuario,
-                    "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                    "tempo" => $brindeSelecionado["brinde"]["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
                     "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                 );

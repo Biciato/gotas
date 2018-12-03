@@ -90,7 +90,7 @@ echo $this->Breadcrumbs->render(
                         <tr>
                             <td><?= $brinde->nome ?> </td>
                             <td><?= h($this->Boolean->convertBooleanToString($brinde->equipamento_rti_shower)) ?> </td>
-                            <td><?= $brinde->tempo_rti_shower ?> </td>
+                            <td><?= $brinde->tempo_uso_brinde ?> </td>
                             <td><?= h($this->Boolean->convertBooleanToString($brinde->ilimitado)) ?> </td>
                             <td><?= h($this->Boolean->convertEnabledToString($brinde->habilitado)) ?> </td>
                             <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?> </td>

@@ -350,61 +350,45 @@ class AppController extends Controller
         }
     }
 
-    /**
-     * Converte string de base 64 para arquivo jpg
-     *
-     * @param string $base64String
-     * @param object $outputFile
-     *
-     * @return void
-     */
-    public function generateImageFromBase64($base64String, $outputFile, $pathDestination)
+    public function getSessionUserVariables()
     {
-        try {
-            $this->createPathIfNotExists($pathDestination);
-            // abre o arquivo destino para edição
-            $ifp = fopen($outputFile, 'wb');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->getUserLogged();
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
-            // separa a string por virgulas, para criar os dados
-
-            $data = explode(',', $base64String);
-
-            // escreve os dados no arquivo destino
-            fwrite($ifp, base64_decode($data[1]));
-
-            // fecha o arquivo destino
-            fclose($ifp);
-
-            chmod($outputFile, 0766);
-
-            return $outputFile;
-        } catch (\Exception $e) {
-            $this->log($e->getMessage());
+        // Certifica que o usuário em questão está vinculado a uma rede 
+        if (empty($rede)) {
+            // verifica qual rede o usuário se encontra (somente funcionários)
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+            $rede = $redeHasCliente["rede"];
         }
-    }
 
-    /**
-     * Rotates a Image
-     *
-     * @param string $imagePath
-     * @param int $degrees
-     * @return bool
-     */
-    public function rotateImage(string $imagePath, int $degrees)
-    {
-        try {
-            $source = imagecreatefromjpeg($imagePath);
-
-            $rotate = \imagerotate($source, $degrees, 0);
-
-            $result = imagejpeg($rotate, $imagePath);
-
-            return $result;
-        } catch (\Exception $e) {
-            Log::write('error', $e->getMessage());
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
-    }
 
+        $arraySet = array(
+            "usuarioAdministrador",
+            "usuarioAdministrar",
+            "usuarioLogado",
+            "rede",
+            "cliente"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+        return array(
+            "usuarioAdministrador" => $usuarioAdministrador,
+            "usuarioAdministrar" => $usuarioAdministrar,
+            "usuarioLogado" => $usuarioLogado,
+            "rede" => $rede,
+            "cliente" => $cliente
+        );
+    }
     /**
      * Verifica se caminho existe. Se não existir, cria novo caminho
      *

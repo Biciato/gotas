@@ -10,6 +10,9 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use Aura\Intl\Exception;
+use Cake\Core\Configure;
+use App\Model\Entity\Brinde;
 
 /**
  * Brindes Model
@@ -171,8 +174,53 @@ class BrindesTable extends GenericTable
 
     #region Create
 
-    #region Read
+    /**
+     * BrindesTable::saveBrinde
+     * 
+     * Insere/Atualiza um registro
+     *
+     * @param array $brinde Informações de Brinde 
+     * 
+     * @return \App\Model\Entity\Brinde Brinde 
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-12-02
+     */
+    public function saveBrinde(\App\Model\Entity\Brinde $brinde)
+    {
+        try {
+            $brindeSave = null;
 
+            if (isset($brinde["id"]) && $brinde["id"] > 0) {
+                $brindeSave = $this->getBrindesById($brinde["id"]);
+            } else {
+                $brinde = gettype($brinde) == "object" ? $brinde->toArray() : $brinde;
+                $brindeSave = new Brinde($brinde);
+            }
+
+            $brindeSave["clientes_id"] = $brinde["clientes_id"];
+            $brindeSave["tipos_brindes_redes_id"] = $brinde["tipos_brindes_redes_id"];
+            $brindeSave["nome"] = $brinde["nome"];
+            $brindeSave["tempo_uso_brinde"] = $brinde["tempo_uso_brinde"];
+            $brindeSave["ilimitado"] = $brinde["ilimitado"];
+            $brindeSave["habilitado"] = empty($brinde["habilitado"]) ? true : $brinde["habilitado"];
+            $brindeSave["preco_padrao"] = $brinde["preco_padrao"];
+            $brindeSave["valor_moeda_venda_padrao"] = $brinde["valor_moeda_venda_padrao"];
+            $brindeSave["nome_img"] = $brinde["nome_img"];
+
+            return $this->save($brindeSave);
+        } catch (\Exception $e) {
+            $stringError = __(Configure::read("messageSavedError") . $e->getMessage());
+
+            Log::write('error', $stringError);
+            throw new Exception($stringError);
+        }
+
+    }
+
+    #endregion 
+    
+    #region Read
 
     /**
      * Procura brindes conforme filtros
@@ -229,7 +277,7 @@ class BrindesTable extends GenericTable
      * @param integer $clientesIds
      * @param integer $tiposBrindesRedesId
      * @param string $nome
-     * @param integer $tempoRtiShower
+     * @param integer $tempoUsoBrinde
      * @param boolean $ilimitado
      * @param boolean $habilitado
      * @param float $precoPadrao
@@ -244,7 +292,7 @@ class BrindesTable extends GenericTable
         array $clientesIds = array(),
         int $tiposBrindesRedesId = null,
         string $nome = "",
-        int $tempoRtiShower = null,
+        int $tempoUsoBrinde = null,
         bool $ilimitado = null,
         bool $habilitado = null,
         float $precoPadrao = null
@@ -265,8 +313,8 @@ class BrindesTable extends GenericTable
             if (!empty($nome)) {
                 $whereConditions[] = array("nome like '%{$nome}%'");
             }
-            if (!empty($tempoRtiShower)) {
-                $whereConditions[] = array("tempo_rti_shower" => $tempoRtiShower);
+            if (!empty($tempoUsoBrinde)) {
+                $whereConditions[] = array("tempo_uso_brinde" => $tempoUsoBrinde);
             }
             if (!empty($ilimitado)) {
                 $whereConditions[] = array("ilimitado" => $ilimitado);
@@ -329,7 +377,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes $brinde
      * @author
      **/
-    public function findBrindesByConditions($redesId = null, $clientesIds = array(), $id = null, $nome = null, int $tiposBrindesRedesId = null, int $tempoRtiShower = null, bool $ilimitado = null, bool $habilitado = null, float $precoPadrao = null, float $valorMoedaVendaPadrao = null, string $nomeImg = null)
+    public function findBrindesByConditions($redesId = null, $clientesIds = array(), $id = null, $nome = null, int $tiposBrindesRedesId = null, int $tempoUsoBrinde = null, bool $ilimitado = null, bool $habilitado = null, float $precoPadrao = null, float $valorMoedaVendaPadrao = null, string $nomeImg = null)
     {
         try {
 
@@ -352,15 +400,15 @@ class BrindesTable extends GenericTable
                 $whereConditions[] = array("Brindes.tipos_brindes_redes_id" => $tiposBrindesRedesId);
             }
 
-            if ($tempoRtiShower > 0) {
-                $whereConditions[] = array("Brindes.tempo_rti_shower" => $tempoRtiShower);
+            if ($tempoUsoBrinde > 0) {
+                $whereConditions[] = array("Brindes.tempo_uso_brinde" => $tempoUsoBrinde);
             }
 
             if (!is_null($ilimitado)) {
                 $whereConditions[] = array("Brindes.ilimitado" => $ilimitado);
             }
 
-            if (!is_null($habilitado)){
+            if (!is_null($habilitado)) {
                 $whereConditions[] = array("Brindes.habilitado" => $habilitado);
             }
 
@@ -380,7 +428,7 @@ class BrindesTable extends GenericTable
                         "clientes_id",
                         "tipos_brindes_redes_id",
                         "nome",
-                        "tempo_rti_shower",
+                        "tempo_uso_brinde",
                         "ilimitado",
                         "habilitado",
                         "preco_padrao",
@@ -494,6 +542,8 @@ class BrindesTable extends GenericTable
         }
     }
 
+    #endregion
+
     #region Update
 
     /**
@@ -535,7 +585,8 @@ class BrindesTable extends GenericTable
             return $error;
         }
     }
-
+    
+    #endregion
 
     #region Delete
 
@@ -572,4 +623,5 @@ class BrindesTable extends GenericTable
         }
     }
 
+    #endregion
 }

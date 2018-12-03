@@ -179,7 +179,7 @@ class TransportadorasController extends AppController
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            $rede = $this->request->session()->read("Rede.Principal");
+            $rede = $this->request->session()->read("Rede.Grupo");
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
@@ -245,7 +245,7 @@ class TransportadorasController extends AppController
         try {
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;

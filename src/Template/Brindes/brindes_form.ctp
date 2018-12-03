@@ -13,34 +13,35 @@ use Cake\Core\Configure;
 <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
 <?= $this->Form->hidden("edit-mode", ["id" => "edit_mode", "value" => $editMode]) ?>
 <div class="form-group row">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
                 "type" => "select",
                 "id" => "tipos_brindes_redes_id",
-                "label" => "Tipo de Brinde ",
+                "label" => "Tipo de Brinde*",
                 "empty" => "<Selecionar>",
                 "options" => $tiposBrindesCliente
             ]
         ) ?>
     </div>
 
-    <div class="col-lg-6">
-        <?= $this->Form->input('nome', ['id' => 'nome']); ?>
+    <div class="col-lg-4">
+        <?= $this->Form->input('nome', array(
+            'id' => 'nome',
+            "label" => "Nome do Brinde*"
+        )); ?>
     </div>
 
-</div>
-
-<div class="form-group row">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
 
         <?= $this->Form->input(
-            'tempo_rti_shower',
+            'tempo_uso_brinde',
             [
                 'type' => 'number',
-                'id' => 'tempo_rti_shower',
-                'label' => 'Se for Smart Shower, informe o Tempo de Banho',
+                'id' => 'tempo_uso_brinde',
+                'label' => 'Tempo de Uso (minutos)*',
+                'title' => "Para Brindes que funcionam por tempo, informe valor em minutos",
                 'min' => 0,
                 'max' => 20,
                 'readonly' => false,
@@ -49,30 +50,30 @@ use Cake\Core\Configure;
         ) ?>
     </div>
 
-    <div class="col-lg-3">
+    <div class="col-lg-6">
         <?= $this->Form->input(
             'preco_padrao',
             [
                 'type' => 'text',
                 'id' => 'preco_padrao',
-                'label' => 'Preço Padrão em Gotas'
+                'label' => 'Preço Padrão em Gotas*'
             ]
         ); ?>
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-6">
         <?= $this->Form->input(
             'valor_moeda_venda_padrao',
             [
                 'type' => 'text',
                 'id' => 'valor_moeda_venda_padrao',
-                'label' => 'Preço Padrão de Venda Avulsa (R$)',
+                'label' => 'Preço Padrão de Venda Avulsa (R$)*',
             ]
         ); ?>
     </div>
 </div>
 
 <!-- Conferir o por que o botão está ficando desalinhado -->
-<div class="form-group row">
+<div class="form-group">
     <div class="col-lg-12">
         <?= $this->Form->input(
             'ilimitado',
@@ -105,14 +106,16 @@ if ($exibirImagemAtual) :
 
 <?php endif; ?>
 
-<div class="col-lg-12">
-    <?= $this->Form->input(
-        'nome_img',
-        [
-            'type' => 'file',
-            'label' => 'Imagem do Brinde'
-        ]
-    ) ?>
+<div class="form-group row">
+    <div class="col-lg-12">
+        <?= $this->Form->input(
+            'nome_img',
+            [
+                'type' => 'file',
+                'label' => 'Imagem do Brinde'
+            ]
+        ) ?>
+    </div>
 </div>
 
 <div class="col-lg-12 img-crop-container">
@@ -155,7 +158,26 @@ if ($exibirImagemAtual) :
             </div>
         </div>
     </div>
+</div>
 
+<div class="form-group row">
+    <div class="col-lg-2">
+        <button type="submit" 
+            class="btn btn-primary btn-block botao-confirmar"
+            >
+            <span class="fa fa-save"></span>
+            Salvar
+        </button>
+    </div>
+    <div class="col-lg-2">
+        <a href="/brindes/brindes-minha-rede/" 
+            class="btn btn-danger btn-block botao-cancelar"
+            >
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
+    </div>
+    </div>
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
@@ -165,7 +187,5 @@ if ($exibirImagemAtual) :
     <?= $this->Html->script('scripts/brindes/brindes_form.min') ?>
     <?= $this->Html->css("styles/brindes/brindes_form.min") ?>
 <?php endif; ?>
-
-
 
 <?= $this->fetch('script');

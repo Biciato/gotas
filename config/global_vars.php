@@ -211,6 +211,7 @@ Configure::write(
 
         'messageGenericCompletedSuccess' => "A operação foi concluída com sucesso!",
         'messageGenericCompletedError' => "Não foi possível realizar a operação!",
+        'messageGenericError' => "Houve um erro!",
         'messageGenericCheckFields' => "Verifique se todos os campos estão preenchidos!",
 
         'messageLoadDataWithSuccess' => "Dados carregados com sucesso!",

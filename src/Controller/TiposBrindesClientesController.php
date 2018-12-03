@@ -63,7 +63,7 @@ class TiposBrindesClientesController extends AppController
 
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
+            $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Razão Social: {1} !", $cliente["id"], $cliente["razao_social"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -74,7 +74,7 @@ class TiposBrindesClientesController extends AppController
         }
 
         $arraySet = array(
-            "cliente", 
+            "cliente",
             "tiposBrindesClientes",
             "usuarioLogado"
         );
@@ -90,47 +90,65 @@ class TiposBrindesClientesController extends AppController
      */
     public function adicionarTiposBrindesCliente(int $clientesId)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
         $cliente = null;
         $cliente = $this->Clientes->getClienteById($clientesId);
+
+        if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] && empty($cliente["codigo_equipamento_rti"])) {
+            $this->Flash->warning("Atenção! O Código de Equipamento RTI não foi configurado, não será possível ativar brindes de equipamento RTI ao Cliente!");
+        }
+
+        $equipamentoRTI = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] ? true : false;
+        $tiposBrindesRedes = array();
 
         if (empty($cliente)) {
             throw new \Exception(__("{0}{1}"), Configure::read("messageLoadDataWithError"), __(Configure::read("messageRecordClienteNotFound")));
         }
 
-        $tiposBrindesRedesQuery = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"]);
+        $tiposBrindesRedesQuery = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"], $equipamentoRTI);
 
-        $tiposBrindesRedes = array();
         foreach ($tiposBrindesRedesQuery as $tipoBrinde) {
-
             $tipo = array(
                 "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
                 "value" => $tipoBrinde["id"],
                 "id" => "tipos_brindes_redes_id",
-                "data-tipo-principal" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
-                "data-tipo-secundario" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                "data-tipo-principal" => !empty($tipoBrinde["tipo_principal_codigo_brinde_default"]) ? $tipoBrinde["tipo_principal_codigo_brinde_default"] : null,
+                "data-tipo-secundario" => !empty($tipoBrinde["tipo_secundario_codigo_brinde_default"]) ? $tipoBrinde["tipo_secundario_codigo_brinde_default"] : null,
                 "equipamento_rti" => $tipoBrinde["equipamento_rti"]
             );
             $tiposBrindesRedes[] = $tipo;
         }
 
-        // DebugUtil::print($tiposBrindesRedes);
         try {
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->newEntity();
 
-            // DebugUtil::print($tiposBrindesRedes);
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
-                $equipamentoRTI = false;
-                foreach ($tiposBrindesRedes as $tipoBrindeRede) {
-                    if ($tipoBrindeRede["value"] == $data["tipos_brindes_redes_id"]) {
-                        $equipamentoRTI = $tipoBrindeRede["equipamento_rti"] ? true : false;
-                    }
-                }
-                // $
 
-                $data["clientes_id"] = $cliente->id;
+                $data["equipamento_rti"] = $equipamentoRTI;
+                $data["clientes_id"] = $cliente["id"];
+
+                if ($equipamentoRTI) {
+                    // Verifica se já existe um tipo gravado anteriormente 
+
+                    $condicoes = array(
+                        "clientes_id" => $clientesId,
+                        "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                        "tipo_secundario_codigo_brinde" => (int)$data["tipo_secundario_codigo_brinde"],
+                    );
+
+                    // @todo gustavosg tentar parametrizar este método
+                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+
+                    DebugUtil::print($tiposBrindesCheck);
+
 
                 // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
@@ -148,16 +166,16 @@ class TiposBrindesClientesController extends AppController
 
                     // } else {
 
-                /**
-                 * Agora verifica se o mesmo código primário / secundário já não existe
-                 * Cada Tipo de Brinde deve pertencer a uma combinação única
-                 */
-                $whereConditions = array(
-                    [
-                        "clientes_id" => $clientesId,
-                        "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
-                    ]
-                );
+                    /**
+                     * Agora verifica se o mesmo código primário / secundário já não existe
+                     * Cada Tipo de Brinde deve pertencer a uma combinação única
+                     */
+                    $whereConditions = array(
+                        [
+                            "clientes_id" => $clientesId,
+                            "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                        ]
+                    );
 
                         // if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
                         //     $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
@@ -173,8 +191,12 @@ class TiposBrindesClientesController extends AppController
                         // Brindes de banho tem id de 1 a 4. então o campo tipo_secundario_codigo_brinde deve ser 00
                         // Pois esses campos são calculados conforme o tempo do brinde
 
-                if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                    $data["tipo_secundario_codigo_brinde"] = "00";
+                    if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                        $data["tipo_secundario_codigo_brinde"] = "00";
+                    }
+                } else {
+                    $data["tipo_principal_codigo_brinde"] = "A";
+                    $data["tipo_secundario_codigo_brinde"] = "AA";
                 }
 
                 $tiposBrindesClienteSave = $this->TiposBrindesClientes->saveTiposBrindeCliente(
@@ -192,9 +214,7 @@ class TiposBrindesClientesController extends AppController
                     return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
                 }
                 $this->Flash->error(__(Configure::read("messageSavedError")));
-                    //     }
-                    // }
-                // }
+
             }
 
         } catch (\Exception $e) {
@@ -273,14 +293,14 @@ class TiposBrindesClientesController extends AppController
 
             $tiposBrindesRedes = array();
 
-            $arraySet = [
+            $arraySet = array(
                 "cliente",
                 "tiposBrindesRedes",
                 "tiposBrindesCliente"
-            ];
+            );
 
             $this->set(compact($arraySet));
-            $this->set('_serialize', [$arraySet]);
+            $this->set('_serialize', $arraySet);
 
         } catch (\Exception $e) {
 
@@ -339,24 +359,28 @@ class TiposBrindesClientesController extends AppController
      */
     public function selecionarClienteTipoBrinde()
     {
-        $rede = $this->request->session()->read("Rede.Principal");
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $cliente = $sessaoUsuario["cliente"];
+            $rede = $sessaoUsuario["rede"];
 
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $usuarioLogado = $this->getUserLogged();
+            $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $usuarioLogado["id"], $usuarioLogado["tipo_perfil"]);
 
-        if ($usuarioAdministrar) {
-            $this->usuarioLogado = $usuarioAdministrar;
-            $usuarioLogado = $usuarioAdministrar;
+            $arraySet = array("rede", "usuarioLogado", "clientes");
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+        } catch (\Exception $e) {
+
+            $stringMessage = sprintf("%s: %s [Método: %s / Arquivo: %s / Linha: %s].", Configure::read("messageGenericError"), $e->getMessage(),  __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $stringMessage);
+
+            $this->Flash->error($stringMessage);
+            throw new \Exception($stringMessage);
         }
-
-        // $clientes = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
-        $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $usuarioLogado["id"], $usuarioLogado["tipo_perfil"]);
-
-        $arraySet = array("rede", "usuarioLogado", "clientes");
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**

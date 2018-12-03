@@ -160,7 +160,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
         // $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
@@ -334,7 +334,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 

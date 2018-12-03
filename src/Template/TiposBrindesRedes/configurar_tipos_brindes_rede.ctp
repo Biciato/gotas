@@ -23,6 +23,8 @@
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 
+$isUsuarioAdministrador = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"];
+
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
 $this->Breadcrumbs->add('Tipos de Brindes da Rede', array(), array('class' => 'active'));
@@ -56,9 +58,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <th scope="col"><?= $this->Paginator->sort('brinde_necessidades_especiais', ["label" => "Brinde Nec. Especiais?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('habilitado', ["label" => "Habilitado?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('atribuir_automatico', ["label" => "Atribuir Auto.?"]) ?></th>
-                <th scope="col"><?= $this->Paginator->sort('tipo_principal_codigo_brinde_default', ["label" => "Cód. Principal"]) ?></th>
-                <th scope="col"><?= $this->Paginator->sort('tipo_secundario_codigo_brinde_default', ["label" => "Cód. Secundário"]) ?></th>
-
+                
+                <?php if ($isUsuarioAdministrador) : ?> 
+                    <th scope="col"><?= $this->Paginator->sort('tipo_principal_codigo_brinde_default', ["label" => "Cód. Principal"]) ?></th>
+                    <th scope="col"><?= $this->Paginator->sort('tipo_secundario_codigo_brinde_default', ["label" => "Cód. Secundário"]) ?></th>
+                <?php endif; ?> 
                 <th scope="col" class="actions">
                     <?= __('Ações') ?>
                     <?= $this->Html->tag(
@@ -84,8 +88,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
                 <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>
-                <td><?= h($tipo->tipo_principal_codigo_brinde_default) ?> </td>
-                <td><?= h($tipo->tipo_secundario_codigo_brinde_default) ?> </td>
+
+                <?php if ($isUsuarioAdministrador) : ?> 
+                    <td><?= h($tipo->tipo_principal_codigo_brinde_default) ?> </td>
+                    <td><?= h($tipo->tipo_secundario_codigo_brinde_default) ?> </td>
+                <?php endif; ?> 
+                
                 <td class="actions" style="white-space:nowrap">
                     <!-- Info -->
 
@@ -158,7 +166,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             false
                         );
                         ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <!-- Ativar -->
                         <?= $this->Html->link(
                             __(

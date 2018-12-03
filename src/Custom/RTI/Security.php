@@ -82,7 +82,7 @@ class Security
 
             // Pega qual é a rede que ele logou
 
-            $rede = $thisInstance->request->session()->read("Rede.Principal");
+            $rede = $thisInstance->request->session()->read("Rede.Grupo");
 
             if ($rede["id"] != $redesId) {
                 $this->redirectUserNotAuthorized($thisInstance, $user);

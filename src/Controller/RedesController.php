@@ -447,7 +447,7 @@ class RedesController extends AppController
             if (!$this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
                 $this->securityUtil->redirectUserNotAuthorized($this);
             }
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $rede = $this->Redes->getRedeById($rede["id"]);
 

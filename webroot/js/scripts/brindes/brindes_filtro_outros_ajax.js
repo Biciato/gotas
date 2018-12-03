@@ -55,7 +55,7 @@ $(document).ready(function () {
         if (data !== undefined) {
             $("#brindes_id").val(data.id);
             $("#brindes_nome").val(data.brinde.nome);
-            $("#tempo_rti_shower").val(data.brinde.tempo_rti_shower);
+            $("#tempo_uso_brinde").val(data.brinde.tempo_uso_brinde);
             $("#preco_banho").val(data.brinde_habilitado_preco_atual.preco);
 
             $(".gifts-result").show();
@@ -65,7 +65,7 @@ $(document).ready(function () {
         } else {
             $("#brindes_id").val(null);
             $("#brindes_nome").val(null);
-            $("#tempo_rti_shower").val(null);
+            $("#tempo_uso_brinde").val(null);
             $("#preco_banho").val(null);
         }
 
@@ -113,7 +113,7 @@ $(document).ready(function () {
                     else {
 
                         var html = "<tr><td>" + value.brinde.nome +
-                            "</td><td>" + value.brinde.tempo_rti_shower +
+                            "</td><td>" + value.brinde.tempo_uso_brinde +
                             "</td><td>" + value.brinde_habilitado_preco_atual.preco +
                             "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
 

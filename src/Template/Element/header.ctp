@@ -2,14 +2,14 @@
 
 use Cake\Routing\Router;
 
-$filial_administrar= $this->request->session()->read('ClienteAdministrar');
-
+// $filial_administrar= $this->request->session()->read('Rede.PontoAtendimento');
+$filial_administrar = false;
 $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
 $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
 ?>
 
-<?php if (isset($filial_administrar) && isset($usuarioLogado)): ?>
+<?php if ($filial_administrar && isset($usuarioLogado)): ?>
 <div class="header">
 
 <div id="header-management">

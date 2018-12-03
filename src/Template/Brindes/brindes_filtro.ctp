@@ -56,46 +56,49 @@ use Cake\Core\Configure;
                     </div>
 
                     <div class="col-lg-2">
-                    <?= $this->Form->input("preco_padrao",
-                    array(
-                        "id" => "preco_padrao",
-                        "type" => "text",
-                        "class" => "input-control"
-                    )
+                    <?= $this->Form->input(
+                        "preco_padrao",
+                        array(
+                            "id" => "preco_padrao",
+                            "type" => "text",
+                            "class" => "input-control"
+                        )
                     ); ?>
                     </div>
                     <div class="col-lg-2">
-                    <?= $this->Form->input("valor_moeda_venda_padrao",
-                    array(
-                        "id" => "valor_moeda_venda_padrao",
-                        "type" => "text",
-                        "class" => "input-control"
-                    )
+                    <?= $this->Form->input(
+                        "valor_moeda_venda_padrao",
+                        array(
+                            "id" => "valor_moeda_venda_padrao",
+                            "type" => "text",
+                            "class" => "input-control"
+                        )
                     ); ?>
                     </div>
                     <div class="col-lg-2">
-                    <?= $this->Form->input("habilitado",
-                    array(
-                        "id" => "habilitado",
-                        "type" => "select",
-                        "label" => "Status",
-                        "class" => "input-control",
-                        "empty" => "<Todos>",
-                        "options" => Configure::read("yesNoArray")
-                    )
+                    <?= $this->Form->input(
+                        "habilitado",
+                        array(
+                            "id" => "habilitado",
+                            "type" => "select",
+                            "label" => "Status",
+                            "class" => "input-control",
+                            "empty" => "<Todos>",
+                            "options" => Configure::read("yesNoArray")
+                        )
                     ); ?>
                     </div>
 
 
 					<div class="col-lg-2 vertical-align">
-
-						<?= $this->Form->button(
-            "Pesquisar",
-            [
-                'class' => 'btn btn-primary btn-block',
-                'id' => 'search_button'
-            ]
-        ) ?>
+                    
+                        <button id="search_button" 
+                            type="submit" 
+                            class="btn btn-primary btn-block botao-pesquisar">
+                            <span class="fa fa-search"></span>
+                            Pesquisar
+                        </button>
+						
 						</div>
 
 				</div>

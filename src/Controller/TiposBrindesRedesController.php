@@ -67,18 +67,19 @@ class TiposBrindesRedesController extends AppController
     {
         $qteRegistros = 999;
         $whereConditions = array();
+        // if ($usuarioAdministrador) {
+        //     $this->usuarioLogado = $usuarioAdministrar;
+        // }
+
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
 
         if (!empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
-        } else {
-            $rede = $this->request->session()->read("Rede.Principal");
-        }
-
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         /**
@@ -87,7 +88,7 @@ class TiposBrindesRedesController extends AppController
          */
 
 
-        if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
+        if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
             $whereConditions[] = ["equipamento_rti" => 1];
         } else {
             $whereConditions[] = ["equipamento_rti" => 0];
@@ -187,26 +188,20 @@ class TiposBrindesRedesController extends AppController
 
                 if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
                     $data["equipamento_rti"] = 1;
+
+                    if (strlen($data["tipo_secundario_codigo_brinde_default"]) == 1) {
+                        $data["tipo_secundario_codigo_brinde_default"] = "0" . $data["tipo_secundario_codigo_brinde_default"];
+                    }
                 } else {
                     $data["equipamento_rti"] = 0;
                     $data["tipo_principal_codigo_brinde_default"] = "#";
                     $data["tipo_secundario_codigo_brinde_default"] = "##";
                     $data["atribuir_automatico"] = 0;
                 }
-
-                // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-                // Regra não existe mais. RTI deverá informar o código de cada equipamento manualmente.
-                // O máximo que irá fazer é verificar se o código não conflita.
-                // if ($data["atribuir_automatico"] && $data["tipo_principal_codigo_brinde_default"] <= 4) {
-                //     $this->Flash->error(__("O Tipo Principal de Código Brinde é reservado de 1 a 4 para SMART Shower, selecione outro valor para continuar!"));
-
-                //     return $this->redirect(array("action" => "editarTiposBrindesRede", $id));
-                // }
-
-
+            
                 /**
-                 * Valida se há outro tipo de brinde com mesmo nome
-                 * e se também é brinde de Nec. Especiais
+                 * Valida se há outro tipo de brinde com mesmo nome e 
+                 * se também é brinde de Necessidades Especiais
                  */
                 $whereConditions = array();
 
@@ -297,18 +292,27 @@ class TiposBrindesRedesController extends AppController
      */
     public function editarTiposBrindesRede($id = null)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+
         try {
             $tiposBrindesRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($id);
 
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $data = $this->request->getData();
 
-                // Valida se o tipo é menor que 4 pois este já é default SMART Shower
-                // TODO: gustavo verificar
-                // if (!$data["atribuir_automatico"]) {
-                //     $data["tipo_principal_codigo_brinde_default"] = null;
-                //     $data["tipo_secundario_codigo_brinde_default"] = null;
-                // }
+                if ($this->usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
+                    $data["equipamento_rti"] = 1;
+                } else {
+                    $data["equipamento_rti"] = 0;
+                    $data["tipo_principal_codigo_brinde_default"] = "#";
+                    $data["tipo_secundario_codigo_brinde_default"] = "##";
+                    $data["atribuir_automatico"] = 0;
+                }
 
                 // Mas se for Produto / Serviço, terá um código diferente
 
@@ -338,7 +342,7 @@ class TiposBrindesRedesController extends AppController
 
                 $whereConditions[] = [
                     "id != " => $id,
-                    "redes_id" => $id,
+                    "redes_id" => $rede["id"],
                     "nome" => $data["nome"],
                     "equipamento_rti" => $data["equipamento_rti"],
                     "brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"],

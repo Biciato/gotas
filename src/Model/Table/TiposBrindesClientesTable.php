@@ -403,7 +403,7 @@ class TiposBrindesClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\array[] $list
      */
-    public function getTiposBrindesClientesDisponiveis(int $clientesId)
+    public function getTiposBrindesClientesDisponiveis(int $clientesId, bool $equipamentoRTI = null)
     {
         try {
             $tipoBrindesIds = array();
@@ -419,14 +419,18 @@ class TiposBrindesClientesTable extends GenericTable
 
             $tipoBrindes = $this->TipoBrindeRede->find('all');
 
+            $condicoes = array(
+                "id not in" => $tipoBrindesIds,
+                "redes_id" => $redeCliente["redes_id"],
+                "habilitado" => 1
+            );
+
+            if (isset($equipamentoRTI)) {
+                $condicoes["equipamento_rti"] = $equipamentoRTI;
+            }
+
             if (sizeof($tipoBrindesIds) > 0) {
-                $tipoBrindes = $tipoBrindes->where(
-                    [
-                        "id not in" => $tipoBrindesIds,
-                        "redes_id" => $redeCliente["redes_id"],
-                        "habilitado" => 1
-                    ]
-                );
+                $tipoBrindes = $tipoBrindes->where($condicoes);
             }
 
             return $tipoBrindes;
@@ -456,23 +460,36 @@ class TiposBrindesClientesTable extends GenericTable
     {
         try {
             $tipoBrindesIds = array();
-            $tipoBrindesJaUsadosQuery = $this->findTiposBrindesClientes(["clientes_id in " => $clientesIds]);
+            $tipoBrindesDisponiveis = $this->findTiposBrindesClientes(["clientes_id in " => $clientesIds])->select(array("tipos_brindes_redes_id"));
 
-            foreach ($tipoBrindesJaUsadosQuery->toArray() as $key => $tiposBrindesCliente) {
+            $tipoBrindesDisponiveis = $tipoBrindesDisponiveis->toArray();
+
+            foreach ($tipoBrindesDisponiveis as $key => $tiposBrindesCliente) {
                 $tipoBrindesIds[] = $tiposBrindesCliente["tipos_brindes_redes_id"];
             }
 
-            $tipoBrindes = $this->TiposBrindesRedes->find('list')
-                ->contain("TipoBrindesCliente");
+            $selectArray = array(
+                "id",
+                "nome",
+                "obrigatorio" => "IF(tipo_principal_codigo_brinde_default BETWEEN 1 AND 4, 1, 0)",
+                "brinde_necessidades_especiais",
+                "tipo_principal_codigo_brinde_default",
+                "tipo_secundario_codigo_brinde_default",
+            );
+            $whereArray = array(
+
+                "TipoBrindeRede.id in" => $tipoBrindesIds,
+                "TipoBrindesCliente.habilitado" => 1
+            );
+
+            $tipoBrindes = null;
 
             if (sizeof($tipoBrindesIds) > 0) {
-                $tipoBrindes = $tipoBrindes->where(
-                    array(
-                        "TiposBrindesRedes.id in" => $tipoBrindesIds,
-                        "TipoBrindesCliente.habilitado" => 1,
-                        "TipoBrindesCliente.habilitado" => 1
-                    )
-                );
+
+                $tipoBrindes = $this->TipoBrindeRede->find('all')
+                    ->contain("TipoBrindesCliente")
+                    ->where($whereArray)
+                    ->select($selectArray);
             }
 
             return $tipoBrindes;

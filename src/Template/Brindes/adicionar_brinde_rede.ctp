@@ -22,23 +22,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     </ul>
 </nav>
 <div class="brindes form col-lg-9 col-md-10 columns content">
+    <legend><?= 'Cadastrar Brinde' ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
-
-
-        <legend><?= 'Cadastrar Brinde' ?></legend>
-           <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, 'clientesId' => $clientesId]); ?>
+        <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, 'clientesId' => $clientesId]); ?>
     </fieldset>
-    <?= $this->Form->button(
-        __(
-            '{0} Salvar',
-            $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-        ),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
-
-    ) ?>
+    
     <?= $this->Form->end() ?>
 </div>

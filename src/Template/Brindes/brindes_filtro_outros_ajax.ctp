@@ -77,7 +77,7 @@ use Cake\Core\Configure;
             </div>
             <div class="col-lg-1 col-md-2">
 
-                <?= $this->Form->input('tempo_rti_shower', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'tempo_rti_shower']) ?>
+                <?= $this->Form->input('tempo_uso_brinde', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'tempo_uso_brinde']) ?>
             </div>
 
             <div class="col-lg-2 col-md-1">

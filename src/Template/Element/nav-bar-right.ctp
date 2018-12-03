@@ -7,12 +7,12 @@ use Cake\Routing\Router;
  *
  */
 $usuarioLogado = $this->request->session()->read('Auth.User');
-$clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+$clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 $clienteGerenciado = $this->request->session()->read('Rede.PontoAtendimento');
 
 $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
 
-$rede = $this->request->session()->read('Rede.Principal');
+$rede = $this->request->session()->read('Rede.Grupo');
 
 $usuarioAdministrar = null;
 if (isset($usuarioAdministrador)) {

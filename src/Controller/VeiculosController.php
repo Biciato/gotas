@@ -277,7 +277,7 @@ class VeiculosController extends AppController
     {
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
         if ($usuarioAdministrador) {
             $usuarioLogado = $usuarioAdministrar;

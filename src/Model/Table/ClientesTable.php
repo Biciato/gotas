@@ -606,7 +606,7 @@ class ClientesTable extends GenericTable
     {
         try {
 
-            $cliente = $this->_getClientesTable()
+            $cliente = $this
                 ->find('all')
                 ->where(
                     [

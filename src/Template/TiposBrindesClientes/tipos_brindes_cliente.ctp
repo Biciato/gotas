@@ -60,9 +60,11 @@ echo $this->Breadcrumbs->render(
             <thead>
                 <tr>
                     <th scope="col"><?= $this->Paginator->sort("tipo_brindes_id") ?> </th>
-                    <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
-                    <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
-                    <th scope="col"><?= __("Vinculado?") ?> </th>
+                    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                        <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
+                        <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
+                    <?php endif; ?> 
+                    <th scope="col"><?= __("Em uso?") ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("habilitado", ["label" => "Estado"]) ?> </th>
                     <th scope="col" class="actions">
                         <?= __('Ações') ?>
@@ -87,15 +89,16 @@ echo $this->Breadcrumbs->render(
                 <?php foreach ($tiposBrindesClientes as $key => $tipoBrindeItem) : ?>
 
                     <?php
-                    $vinculado = count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0;
-                    $banhoSmart = is_numeric($tipoBrindeItem["tipo_principal_codigo_brinde"]) && ($tipoBrindeItem["tipo_principal_codigo_brinde"] >= 1 && $tipoBrindeItem["tipo_principal_codigo_brinde"] <= 4);
+                    $emUso = count($tipoBrindeItem["clientes_has_brindes_habilitados"]) > 0;
 
-                    // echo sprintf("Vinculado: %s Banho Smart: %s", $vinculado, $banhoSmart);
+                    // echo sprintf("Vinculado: %s Banho Smart: %s", $emUso, $banhoSmart);
                     ?>
                     <tr>
                         <td><?= $tipoBrindeItem["tipo_brinde_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
-                        <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
-                        <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
+                        <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                            <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
+                            <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
+                        <?php endif; ?> 
                         <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
                         <td><?= $this->Boolean->convertEnabledToString($tipoBrindeItem->habilitado) ?> </td>
                         <td class="actions" style="white-space:nowrap">
@@ -118,7 +121,7 @@ echo $this->Breadcrumbs->render(
                             ) ?>
                             <!-- Editar -->
 
-                            <?php if (!$banhoSmart) : ?>
+                            <?php if ($tipoBrindeItem["tipo_brinde_rede"]["equipamento_rti"]) : ?>
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
@@ -136,7 +139,7 @@ echo $this->Breadcrumbs->render(
                                 ) ?>
 
                             <?php endif; ?>
-                            <?php if ($tipoBrindeItem->habilitado) : ?>
+                            <?php if ($tipoBrindeItem["habilitado"]) : ?>
                                 <!-- Desativar -->
                                 <?= $this->Html->link(
                                     __(
@@ -205,7 +208,7 @@ echo $this->Breadcrumbs->render(
 
                             <?php endif; ?>
                             <!-- Delete -->
-                            <?php if (!$vinculado && !$banhoSmart) : ?>
+                            <?php if (!$emUso) : ?>
 
                                 <?= $this->Html->link(
                                     __(

@@ -354,7 +354,7 @@ class RedesHasClientesController extends AppController
 
             $clientes = array();
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
             $cliente = $this->request->session()->read('Rede.PontoAtendimento');
             // debug($this->usuarioLogado);
             // Se administrador de rede

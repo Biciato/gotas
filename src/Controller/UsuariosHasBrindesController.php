@@ -195,7 +195,7 @@ class UsuariosHasBrindesController extends AppController
 
             // pegar rede que usuário está logado e suas unidades
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $clientes_ids = [];
 

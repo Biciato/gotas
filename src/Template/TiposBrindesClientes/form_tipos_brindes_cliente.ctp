@@ -30,45 +30,66 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBrindesEnabled : false;
-
+$divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
 ?>
 
 <div class="form-group row">
-    <?php if ($selectTiposBrindesEnabled) : ?>
-    <div class="col-lg-4">
+
+    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+
+        <?php if ($selectTiposBrindesEnabled) : ?>
+            <div class="<?= $divisor ?>">
+                <?= $this->Form->input(
+                    'tipos_brindes_redes_id',
+                    [
+                        "id" => "tipos_brindes_redes_id",
+                        "class" => "tipos_brindes_redes_id",
+                        "type" => "select",
+                        "label" => "Tipos de Brindes da Rede",
+                        "empty" => "<Selecionar>",
+                        "options" => $tiposBrindesRedes,
+                        // "disabled" => $selectTiposBrindesEnabled
+                    ]
+                ); ?>
+            </div>
+        <?php endif; ?>
+        <div class="<?= $divisor ?>">
+            <?= $this->Form->control(
+                'tipo_principal_codigo_brinde',
+                [
+                    "id" => 'tipo_principal_codigo_brinde',
+                    "type" => "text",
+                    "maxLength" => 1
+                ]
+            ); ?>
+        </div>
+        <div class="<?= $divisor ?>">
+            <?= $this->Form->control(
+                'tipo_secundario_codigo_brinde',
+                [
+                    "id" => 'tipo_secundario_codigo_brinde',
+                    "type" => "text",
+                    "maxLength" => 2
+                ]
+            ); ?>
+        </div>
+    <?php else : ?> 
+        
         <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
                 "id" => "tipos_brindes_redes_id",
                 "class" => "tipos_brindes_redes_id",
                 "type" => "select",
+                "label" => "Tipos de Brindes da Rede",
                 "empty" => "<Selecionar>",
                 "options" => $tiposBrindesRedes,
                 // "disabled" => $selectTiposBrindesEnabled
             ]
         ); ?>
-    </div>
-    <?php endif;?>
-    <div class="col-lg-4">
-        <?= $this->Form->control(
-            'tipo_principal_codigo_brinde',
-            [
-                "id" => 'tipo_principal_codigo_brinde',
-                "type" => "text",
-                "maxLength" => 1
-            ]
-        ); ?>
-    </div>
-    <div class="col-lg-4">
-        <?= $this->Form->control(
-            'tipo_secundario_codigo_brinde',
-            [
-                "id" => 'tipo_secundario_codigo_brinde',
-                "type" => "text",
-                "maxLength" => 2
-            ]
-        ); ?>
-    </div>
+        
+
+    <?php endif; ?> 
 </div>
 
 <div class="form-group row">
@@ -77,7 +98,26 @@ $selectTiposBrindesEnabled = isset($selectTiposBrindesEnabled) ? $selectTiposBri
     </div>
 </div>
 
-<?= $this->element("../Element/Buttons/confirm", ["titleButton" => "Salvar"]); ?>
+<div class="form-group row">
+    <div class="col-lg-2">
+        <?= $this->Form->button(
+            __('{0} {1}', $this->Html->tag('i', '', ['class' => 'fa fa-save']), "Salvar"),
+            [
+                'class' => 'btn btn-primary btn-block',
+                'escape' => false
+                ]
+        ) ?>
+    </div>
+    <div class="col-lg-2">
+        <a href="<?= sprintf("/tipos-brindes-clientes/tipos-brindes-cliente/%s", $cliente["id"] ); ?>"
+            class="btn btn-danger btn-block botao-cancelar" > 
+            <span class="fa fa-window-close"></span> Cancelar
+        </a>
+    </div>
+
+</div>
+
+
 
 
 <?php if (Configure::read("debug")) {

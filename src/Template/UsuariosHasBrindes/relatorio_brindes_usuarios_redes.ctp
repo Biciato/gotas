@@ -92,7 +92,7 @@ echo $this->Breadcrumbs->render(
                                 <td><?= $this->Gift->getGiftType($usuarioHasBrinde->clientes_has_brindes_habilitado->brinde->equipamento_rti_shower) ?> </td>
                                 <td><?=
                                     $usuarioHasBrinde->clientes_has_brindes_habilitado->brinde->equipamento_rti_shower ?
-                                        __("{0} minutos", $usuarioHasBrinde->clientes_has_brindes_habilitado->brinde->tempo_rti_shower)
+                                        __("{0} minutos", $usuarioHasBrinde->clientes_has_brindes_habilitado->brinde->tempo_uso_brinde)
                                         : null ?> </td>
                                 <td><?= h($this->Number->precision($usuarioHasBrinde->quantidade, 2)) ?> </td>
                                 <td><?= h($this->Number->precision($usuarioHasBrinde->preco, 2)) ?> </td>

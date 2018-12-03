@@ -104,7 +104,7 @@ use Cake\Core\Configure;
         
     <div class="col-lg-2">
         
-        <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block", "escape" => false)); ?>
+        <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block bota-cancelar", "escape" => false)); ?>
     </div>
 </div>
 

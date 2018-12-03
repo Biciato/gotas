@@ -137,13 +137,11 @@ class RedesTable extends GenericTable
     #region Create
 
     /**
-     * Undocumented function
+     * Adiciona uma rede 
      *
-     * @param string $nome_rede
-     * @param string $nome_fantasia
-     * @param bool   $ativado
+     * @param \App\Model\Entity\Rede $rede Objeto Rede 
      *
-     * @return void
+     * @return bool 
      */
     public function addRede(\App\Model\Entity\Rede $rede)
     {

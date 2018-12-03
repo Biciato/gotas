@@ -3,15 +3,23 @@
  */
 $(document).ready(function () {
 
-    $(".botao-confirmar").on("click", function(e){
+    $(".botao-confirmar").on("click", function (e) {
         var form = e.target.form;
 
         var isValid = form.checkValidity();
 
-        if (isValid){
+        if (isValid) {
             callLoaderAnimation();
         }
-    } );
+    });
+
+    $(".botao-pesquisar").on("click", function () {
+        callLoaderAnimation();
+    });
+    
+    $(".botao-cancelar").on("click", function () {
+        callLoaderAnimation();
+    })
 
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)

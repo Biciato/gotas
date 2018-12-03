@@ -82,7 +82,7 @@ class UsuariosController extends AppController
 
                         $rede = $redeHasCliente["rede"];
 
-                        $this->request->session()->write('Rede.Principal', $rede);
+                        $this->request->session()->write('Rede.Grupo', $rede);
                     }
 
                     // return $this->redirect($this->Auth->redirectUrl());
@@ -123,7 +123,7 @@ class UsuariosController extends AppController
         // limpa as informações de session
         $this->request->session()->delete('Usuario.AdministradorLogado');
         $this->request->session()->delete('Cliente');
-        $this->request->session()->delete('ClienteAdministrar');
+        $this->request->session()->delete('Rede.PontoAtendimento');
         $this->request->session()->delete('Auth.User');
 
         $usuarioAdministrar = null;
@@ -254,7 +254,7 @@ class UsuariosController extends AppController
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -316,7 +316,7 @@ class UsuariosController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $usuario = $this->Usuarios->get(
                 $id,
@@ -525,7 +525,7 @@ class UsuariosController extends AppController
                     $base64Imagem = $foto["value"];
                     $extensao = $foto["extension"];
 
-                    $resultado = $this->generateImageFromBase64(
+                    $resultado = ImageUtil::generateImageFromBase64(
                         $base64Imagem,
                         Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
                         Configure::read("temporaryDocumentUserPath")
@@ -656,7 +656,7 @@ class UsuariosController extends AppController
 
                 $cliente_id = isset($cliente_has_usuario) ? $cliente_has_usuario->clientes_id : null;
 
-                $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+                $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
                 $transportadoraData = $usuarioData['TransportadorasHasUsuarios']['Transportadoras'];
                 $veiculosData = $usuarioData['UsuariosHasVeiculos']['Veiculos'];
@@ -927,7 +927,7 @@ class UsuariosController extends AppController
                 $base64Imagem = $foto["value"];
                 $extensao = $foto["extension"];
 
-                $resultado = $this->generateImageFromBase64(
+                $resultado = ImageUtil::generateImageFromBase64(
                     $base64Imagem,
                     Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
                     Configure::read("temporaryDocumentUserPath")
@@ -1388,8 +1388,8 @@ class UsuariosController extends AppController
     {
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $rede = $this->request->session()->read('Rede.Principal');
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $rede = $this->request->session()->read('Rede.Grupo');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
 
         if ($usuarioAdministrador) {
@@ -1638,7 +1638,7 @@ class UsuariosController extends AppController
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
         if (empty($rede) && !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
@@ -1656,8 +1656,8 @@ class UsuariosController extends AppController
         }
 
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
-        $rede = $this->request->session()->read('Rede.Principal');
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $rede = $this->request->session()->read('Rede.Grupo');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -1825,7 +1825,7 @@ class UsuariosController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
@@ -1844,7 +1844,7 @@ class UsuariosController extends AppController
             $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
         }
 
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         $redesId = $rede["id"];
 
@@ -2274,14 +2274,14 @@ class UsuariosController extends AppController
      */
     public function usuariosRede(int $redesId = null)
     {
-        $rede = $this->request->session()->read("Rede.Principal");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
         if (!empty($rede)) {
             $redesId = $rede["id"];
         }
 
         $cliente = $this->request->session()->read('Rede.PontoAtendimento');
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
@@ -2361,7 +2361,7 @@ class UsuariosController extends AppController
      */
     public function atribuirAdminRegionalComum(int $redes_id = null)
     {
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         if (empty($rede)) {
             $rede = $this->Redes->getRedeById($redes_id);
@@ -2369,7 +2369,7 @@ class UsuariosController extends AppController
 
         $redes_id = $rede["id"];
         $cliente = $this->request->session()->read('Rede.PontoAtendimento');
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
@@ -2461,7 +2461,7 @@ class UsuariosController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // pega id de todos os clientes que estão ligados à uma rede
 
@@ -2635,7 +2635,7 @@ class UsuariosController extends AppController
 
         $rede = $redeHasCliente["rede"];
 
-        $this->request->session()->write('Rede.Principal', $rede);
+        $this->request->session()->write('Rede.Grupo', $rede);
         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
 
         $this->request->session()->write("Usuario.AdministradorLogado", $usuarioAdministrador);
@@ -2653,8 +2653,8 @@ class UsuariosController extends AppController
     {
         $this->request->session()->delete("Usuario.AdministradorLogado");
         $this->request->session()->delete("Usuario.Administrar");
-        $this->request->session()->delete('Rede.Principal');
-        $this->request->session()->delete('ClienteAdministrar');
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete('Rede.PontoAtendimento');
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
@@ -2755,7 +2755,7 @@ class UsuariosController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $usuario = $this->Usuarios->get(
                 $id,
@@ -3279,7 +3279,7 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $this->generateImageFromBase64(
+            ImageUtil::generateImageFromBase64(
                 $data['image'],
                 Configure::read('temporaryDocumentUserPath') . $data['imageName'] . '.jpg',
                 Configure::read('temporaryDocumentUserPath')
@@ -3386,7 +3386,7 @@ class UsuariosController extends AppController
 
                 if (strlen($data['parametro']) >= 3) {
 
-                    $rede = $this->request->session()->read('Rede.Principal');
+                    $rede = $this->request->session()->read('Rede.Grupo');
                     $restringirUsuariosRede = isset($data["restrict_query"]) ? $data["restrict_query"] : false;
                     $veiculoEncontrado = null;
 

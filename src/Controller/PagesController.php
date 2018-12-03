@@ -176,7 +176,7 @@ class PagesController extends AppController
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Principal');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // Pega unidades que tem acesso
             $clientes_ids = [];
@@ -244,7 +244,7 @@ class PagesController extends AppController
 
         $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Rede.Principal');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];

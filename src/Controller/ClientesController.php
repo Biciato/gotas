@@ -143,7 +143,7 @@ class ClientesController extends AppController
 
         $cliente = $this->Clientes->getClienteMatrizLinkedToUsuario($this->usuarioLogado);
 
-        $clienteAdministrar = $this->request->session()->read('ClienteAdministrar');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if (!is_null($clienteAdministrar)) {
             $cliente = $clienteAdministrar;
@@ -524,7 +524,7 @@ class ClientesController extends AppController
 
             if (!is_null($cliente_id)) {
                 $cliente = $this->Clientes->getClienteById($cliente_id);
-                $this->request->session()->write('ClienteAdministrar', $cliente);
+                $this->request->session()->write('Rede.PontoAtendimento', $cliente);
 
                 $usuario = $this->usuarioLogado;
 
@@ -550,12 +550,13 @@ class ClientesController extends AppController
     /**
      * Encerra a administração de uma unidade (Modo Admin RTI)
      *
+     * @deprecated 1.0
      * @return void
      */
     public function encerrarAdministracaoUnidades()
     {
         $this->viewBuilder()->setLayout('none');
-        $this->request->session()->delete('ClienteAdministrar');
+        $this->request->session()->delete('Rede.PontoAtendimento');
 
         return $this->redirect('/');
     }
