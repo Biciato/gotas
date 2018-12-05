@@ -257,7 +257,7 @@ class TiposBrindesRedesTable extends GenericTable
     public function findTiposBrindesRedes(array $whereConditions = array(), int $limit = null)
     {
         try {
-            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()->find("all")
+            $tipoBrindesRedes = $this->find("all")
                 ->where($whereConditions)
                 ->contain("TiposBrindesClientes");
 

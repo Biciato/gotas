@@ -18,110 +18,119 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
    <?= $this->Form->create($cliente) ?>
     <fieldset>
         <legend><?= $title ?></legend>
-            <div class="col-lg-12 row">
+        <div class="form-group row">
 
-                <div class="col-lg-4">
-                    <?= $this->Form->input(
-                        'codigo_equipamento_rti',
-                        [
-                            'id' => 'codigo_equipamento_rti',
-                            'label' => 'Código Equipamento RTI',
-                            'title' => 'Código que será utilizado para impressão de senhas'
-                        ]
-                    ); ?>
-                </div>
-
-                <div class="col-lg-4">
-                    <?= $this->Form->input(
-                        'tipo_unidade',
-                        [
-                            'type' => 'select',
-                            'options' =>
-                                [
-                                '' => '',
-                                '0' => 'Loja',
-                                '1' => 'Posto'
-                            ]
-                        ]
-                    ); ?>
-                </div>
-           
+            <div class="col-lg-6">
+                <?= $this->Form->input(
+                    'codigo_equipamento_rti',
+                    [
+                        'id' => 'codigo_equipamento_rti',
+                        'label' => 'Código Equipamento RTI',
+                        'title' => 'Código que será utilizado para impressão de senhas'
+                    ]
+                ); ?>
             </div>
-        <div class="col-lg-5">
-            <?= $this->Form->input('nome_fantasia'); ?>
+
+            <div class="col-lg-6">
+                <?= $this->Form->input(
+                    'tipo_unidade',
+                    [
+                        'type' => 'select',
+                        'options' =>
+                            [
+                            '' => '',
+                            '0' => 'Loja',
+                            '1' => 'Posto'
+                        ]
+                    ]
+                ); ?>
+            </div>
+        
         </div>
-        <div class="col-lg-4">
-            <?= $this->Form->input('razao_social', ['label' => 'Razão Social*']); ?>
+
+        <div class="form-group row">
+            <div class="col-lg-4">
+                <?= $this->Form->input('nome_fantasia'); ?>
+            </div>
+            <div class="col-lg-4">
+                <?= $this->Form->input('razao_social', ['label' => 'Razão Social*']); ?>
+            </div>
+            <div class="col-lg-4">
+                <?= $this->Form->input('cnpj', ['class' => 'form-control', 'id' => 'cnpj', 'label' => 'CNPJ*']); ?>
+            </div>
         </div>
-            <div class="col-lg-3">
-            <?= $this->Form->input('cnpj', ['class' => 'form-control', 'id' => 'cnpj', 'label' => 'CNPJ*']); ?>
-        </div>
+
+        <div class="form-group row">
+            <div class='col-lg-2'>
+                <?= $this->Form->input(
+                    'cep',
+                    [
+                        'label' => 'CEP*',
+                        'id' => 'cep',
+                        'class' => 'cep',
+                        'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
+                    ]
+                ); ?>
+            </div>
+
+            <div class="col-lg-5" >
+                <?= $this->Form->input('endereco', ['label' => 'Endereço*', 'class' => 'endereco']); ?>
+            </div>
             
-        <div class='col-lg-2'>
-            <?= $this->Form->input(
-                'cep',
-                [
-                    'label' => 'CEP*',
-                    'id' => 'cep',
-                    'class' => 'cep',
-                    'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
-                ]
-            ); ?>
+            <div class="col-lg-2">
+                <?= $this->Form->input('endereco_numero', ['class' => 'form-control endereco_numero', 'type' => 'text', 'label' => 'Número']); ?>
+            </div>
+            
+            <div class="col-lg-3">
+                <?= $this->Form->input('endereco_complemento', ['class' => 'form-control', 'label' => 'Complemento']); ?>
+            </div>
         </div>
 
-        <div class="col-lg-5" >
-            <?= $this->Form->input('endereco', ['label' => 'Endereço*', 'class' => 'endereco']); ?>
-        </div>
-        
-        <div class="col-lg-2">
-            <?= $this->Form->input('endereco_numero', ['class' => 'form-control endereco_numero', 'type' => 'text', 'label' => 'Número']); ?>
-        </div>
-        
-        <div class="col-lg-3">
-            <?= $this->Form->input('endereco_complemento', ['class' => 'form-control', 'label' => 'Complemento']); ?>
+        <div class="form-group row">
+
+            <div class="col-lg-3">
+                <?= $this->Form->input('bairro', ['label' => 'Bairro', 'class' => 'bairro']); ?>
+            
+            </div>
+            <div class="col-lg-3">
+                <?= $this->Form->input(
+                    'municipio',
+                    [
+                        'class' => 'municipio'
+                    ]
+                ); ?>
+            
+            </div>
+            <div class="col-lg-3">
+                <?= $this->Form->input(
+                    'estado',
+                    [
+                        'type' => 'select',
+                        'empty' => true,
+                        'label' => 'Estado*',
+                        'class' => 'estado',
+                        'title' => 'Informe o estado para configurar a importação de dados da SEFAZ',
+
+                        'options' => $this->Address->getStatesBrazil()
+                    ]
+                ); ?>
+            
+            </div>
+            <div class="col-lg-3">
+                <?= $this->Form->input(
+                    'pais',
+                    [
+                        'label' => 'País',
+                        'id' => 'pais',
+                        'class' => 'pais'
+                    ]
+                ); ?>
+            
+            </div>
         </div>
 
-        <div class="col-lg-3">
-            <?= $this->Form->input('bairro', ['label' => 'Bairro', 'class' => 'bairro']); ?>
-        
-        </div>
-        <div class="col-lg-3">
-            <?= $this->Form->input(
-                'municipio',
-                [
-                    'class' => 'municipio'
-                ]
-            ); ?>
-        
-        </div>
-        <div class="col-lg-3">
-            <?= $this->Form->input(
-                'estado',
-                [
-                    'type' => 'select',
-                    'empty' => true,
-                    'label' => 'Estado*',
-                    'class' => 'estado',
-                    'title' => 'Informe o estado para configurar a importação de dados da SEFAZ',
 
-                    'options' => $this->Address->getStatesBrazil()
-                ]
-            ); ?>
-        
-        </div>
-        <div class="col-lg-3">
-            <?= $this->Form->input(
-                'pais',
-                [
-                    'label' => 'País',
-                    'id' => 'pais',
-                    'class' => 'pais'
-                ]
-            ); ?>
-        
-        </div>
-
-        <div class="form-group">
+        <div class="form-group row">
             <div class="col-lg-6">
                 <?= $this->Form->input('latitude', [
                     'label' => 'Latitude',
@@ -141,31 +150,35 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
             </div>
         
         </div>
-
-        <div class="col-lg-4">
+        <div class="form-group row">
+            <div class="col-lg-4">
             <?= $this->Form->input('tel_fixo'); ?>
-        </div>
-        
-        <div class="col-lg-4">
+            </div>
+
+            <div class="col-lg-4">
             <?= $this->Form->input('tel_fax'); ?>
-        </div>
-        
-        <div class="col-lg-4">
+            </div>
+
+            <div class="col-lg-4">
             <?= $this->Form->input('tel_celular'); ?>
+            </div>
         </div>
-        
     </fieldset>
-    <div class="col-lg-2">
-        <?=
-        $this->Form->button(
-            __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
-            array('class' => 'btn-block', 'escape' => false)
-        )
-        ?>
+    <div class="form-group row">
+        <div class="col-lg-2">
+            <button type="submit" 
+                class="btn btn-primary btn-block botao-confirmar">
+                <span class="fa fa-save"></span>
+                Salvar
+            </button>
+            
+        </div>
+        <div class="col-lg-2">
+            <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger btn-block"><i class="fa fa-window-close"></i> Cancelar</a>
+        </div>
+
     </div>
-    <div class="col-lg-2">
-        <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger btn-block"><i class="fa fa-window-close"></i> Cancelar</a>
-    </div>
+
     <?= $this->Form->end() ?>
 
 

@@ -16,10 +16,12 @@ $(document).ready(function () {
     $(".botao-pesquisar").on("click", function () {
         callLoaderAnimation();
     });
-    
+
     $(".botao-cancelar").on("click", function () {
         callLoaderAnimation();
-    })
+    });
+
+    $(".botao-navegacao-tabela").on("click", function () { callLoaderAnimation(); });
 
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
@@ -364,10 +366,26 @@ var getGeolocalizationGoogle = function (cep) {
         if (status == google.maps.GeocoderStatus.OK) {
 
             if ($("#latitude").length == 1) {
-                $("#latitude").val(results[0].geometry.location.lat());
+                var latitude = results[0].geometry.location.lat().toString();
+
+                var virgulaLatPos = latitude.indexOf(".");
+
+                if (virgulaLatPos > 0) {
+                    latitude = latitude.substr(0, virgulaLatPos + 7);
+                }
+
+                $("#latitude").val(latitude);
             }
             if ($("#longitude").length == 1) {
-                $("#longitude").val(results[0].geometry.location.lng());
+                var longitude = results[0].geometry.location.lng().toString();
+
+                var virgulaLongPos = longitude.indexOf(".");
+
+                if (virgulaLongPos > 0) {
+                    longitude = longitude.substr(0, virgulaLongPos + 7);
+                }
+
+                $("#longitude").val(longitude);
             }
         } else {
             callModalError("Google não encontrou Latitude/Longitude pelo CEP informado! Informe Latitude/Longitude manualmente!");

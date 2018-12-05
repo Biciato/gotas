@@ -65,72 +65,74 @@ class TiposBrindesRedesController extends AppController
      */
     public function configurarTiposBrindesRede(int $redesId = null)
     {
-        $qteRegistros = 999;
-        $whereConditions = array();
-        // if ($usuarioAdministrador) {
-        //     $this->usuarioLogado = $usuarioAdministrar;
-        // }
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $qteRegistros = 999;
+            $whereConditions = array();
 
-        $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $rede = $sessaoUsuario["rede"];
 
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $rede = $sessaoUsuario["rede"];
+            if (!empty($redesId)) {
+                $rede = $this->Redes->getRedeById($redesId);
+            }
 
-        if (!empty($redesId)) {
-            $rede = $this->Redes->getRedeById($redesId);
-        }
+            /**
+             * Se for Admin RTI, busca pelo equipamento_rti. 
+             * Se não, busca por Produtos/Serviços
+             */
 
-        /**
-         * Se for Admin RTI, busca pelo equipamento_rti. 
-         * Se não, busca por Produtos/Serviços
-         */
+            if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
+                $whereConditions[] = ["equipamento_rti" => 1];
+            } else {
+                $whereConditions[] = ["equipamento_rti" => 0];
+            }
 
-
-        if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
-            $whereConditions[] = ["equipamento_rti" => 1];
-        } else {
-            $whereConditions[] = ["equipamento_rti" => 0];
-        }
-
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
 
             // Nome do Tipo de brinde
-            if ((!empty($data["nome"]) && isset($data["nome"])) && strlen($data["nome"]) > 0) {
-                $whereConditions[] = ["nome like '%" . $data["nome"] . "%'"];
-            }
+                if ((!empty($data["nome"]) && isset($data["nome"])) && strlen($data["nome"]) > 0) {
+                    $whereConditions[] = ["nome like '%" . $data["nome"] . "%'"];
+                }
 
             // Brindes Necessidades Especiais
-            if (!empty($data["brinde_necessidades_especiais"]) && isset($data["brinde_necessidades_especiais"])) {
-                $whereConditions[] = ["brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"]];
-            }
+                if (!empty($data["brinde_necessidades_especiais"]) && isset($data["brinde_necessidades_especiais"])) {
+                    $whereConditions[] = ["brinde_necessidades_especiais" => $data["brinde_necessidades_especiais"]];
+                }
 
             // Habilitado
-            if (isset($data["habilitado"]) && strlen($data["habilitado"]) > 0) {
-                $whereConditions[] = ["habilitado" => $data["habilitado"]];
-            }
+                if (isset($data["habilitado"]) && strlen($data["habilitado"]) > 0) {
+                    $whereConditions[] = ["habilitado" => $data["habilitado"]];
+                }
 
             // Atribuir automaticamente
-            if (isset($data["atribuir_automatico"]) && strlen($data["atribuir_automatico"]) > 0) {
-                $whereConditions[] = ["atribuir_automatico" => $data["atribuir_automatico"]];
-            }
+                if (isset($data["atribuir_automatico"]) && strlen($data["atribuir_automatico"]) > 0) {
+                    $whereConditions[] = ["atribuir_automatico" => $data["atribuir_automatico"]];
+                }
 
              // Qte. de Registros
-            $qteRegistros = $data['qteRegistros'];
+                $qteRegistros = $data['qteRegistros'];
+            }
+
+            $whereConditions[] = array("redes_id" => $rede["id"]);
+            $tiposBrindes = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions);
+            $tiposBrindes = $this->paginate($tiposBrindes, ["limit" => $qteRegistros]);
+
+            $arraySet = array("tiposBrindes", "rede");
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
+        } catch (\Exception $e) {
+
+            $stringMessage = sprintf("%s: %s [Método: %s / Arquivo: %s / Linha: %s].", Configure::read("messageGenericError"), $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $stringMessage);
+
+            $this->Flash->error($stringMessage);
+            throw new \Exception($stringMessage);
         }
-
-        $whereConditions[] = array("redes_id" => $rede["id"]);
-
-        $tiposBrindes = $this->TiposBrindesRedes->findTiposBrindesRedes($whereConditions);
-
-        $tiposBrindes = $this->paginate($tiposBrindes, ["limit" => $qteRegistros]);
-
-        $arraySet = array("tiposBrindes", "rede");
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -198,7 +200,7 @@ class TiposBrindesRedesController extends AppController
                     $data["tipo_secundario_codigo_brinde_default"] = "##";
                     $data["atribuir_automatico"] = 0;
                 }
-            
+
                 /**
                  * Valida se há outro tipo de brinde com mesmo nome e 
                  * se também é brinde de Necessidades Especiais

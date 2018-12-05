@@ -99,12 +99,15 @@ use Cake\Core\Configure;
 
 <div class="row">
     <div class="col-lg-2">
-        <button type="submit" class="btn btn-primary btn-block"><span class="fa fa-save"></span> Salvar</button>
+        <button type="submit" class="btn btn-primary btn-block botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
     </div> 
         
     <div class="col-lg-2">
-        
-        <?php echo $this->Html->link(__("{0} Cancelar", $this->Html->tag('i', '', array("class" => "fa fa-window-close"))), array("controller" => "redes", "action" => "index"), array("class" => "btn btn-danger btn-block bota-cancelar", "escape" => false)); ?>
+        <a href="/redes/index" 
+            class="btn btn-danger btn-block botao-cancelar">
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
     </div>
 </div>
 

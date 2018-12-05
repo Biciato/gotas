@@ -83,7 +83,7 @@ $qteRegistros = [
                             ]
                         ) ?>
                     </div>
-                    <div class="col-lg-5">
+                    <div class="col-lg-6">
                         <?= $this->Form->input(
                             'habilitado',
                             [
@@ -97,7 +97,7 @@ $qteRegistros = [
                             ]
                         ) ?>
                     </div>
-                    <div class="col-lg-5">
+                    <div class="col-lg-6">
                         <?= $this->Form->input(
                             'qteRegistros',
                             [
@@ -112,7 +112,10 @@ $qteRegistros = [
                         ) ?>
                     </div>
 
-                    <div class="col-lg-2 vertical-align">
+                </div>
+                <div class="form-group row">
+                
+                    <div class="col-lg-2 pull-right">
                         <button type="submit" 
                                 class="btn btn-primary btn-block botao-confirmar">
                                 <span class="fa fa-search"></span> 

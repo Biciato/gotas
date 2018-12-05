@@ -75,7 +75,7 @@ echo $this->Breadcrumbs->render(
                             $rede_has_cliente->cliente->id
                         ],
                         [
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                             'escape' => false,
                             'title' => 'Configurar Parâmetros de Loja/Postos',
                         ]
@@ -94,7 +94,7 @@ echo $this->Breadcrumbs->render(
                         ],
                         [
                             'title' => 'Editar',
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                             'escape' => false
                         ]
                     )

@@ -69,7 +69,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             'action' => 'ver_detalhes', $rede->id
                         ),
                         array(
-                            'class' => 'btn btn-xs btn-primary',
+                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
                             'title' => 'Configurar Parâmetros de Rede e Postos',
                             'escape' => false
                         )
@@ -87,7 +87,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         ],
                         [
-                            'class' => 'btn btn-xs btn-primary',
+                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
                             'title' => 'Editar',
                             'escape' => false
                         ]

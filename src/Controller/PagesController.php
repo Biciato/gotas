@@ -167,32 +167,34 @@ class PagesController extends AppController
     public function dashboardAdministrador()
     {
         try {
-            $sessaoUsuario = $this->getSessionUserVariables();
-            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-            $cliente = $sessaoUsuario["cliente"];
-            $rede = $sessaoUsuario["rede"];
-
             $brindes_aguardando_autorizacao = [];
 
-            // Pega unidades que tem acesso
-            $clientesIds = [];
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $usuarioLogado['id'], false);
-
-            foreach ($unidades_ids as $key => $value) {
-                $clientesIds[] = $key;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            if (sizeof($clientesIds) > 0) {
-                $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientesIds);
+            $rede = $this->request->session()->read('Rede.Grupo');
+
+            // Pega unidades que tem acesso
+            $clientes_ids = [];
+
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+
+            foreach ($unidades_ids as $key => $value) {
+                $clientes_ids[] = $key;
+            }
+
+            if (sizeof($clientes_ids) > 0) {
+                $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientes_ids);
             }
 
             $clientes_id = null;
 
-            if (sizeof($clientesIds) == 1) {
-                $clientes_id = $clientesIds[0];
+            if (sizeof($clientes_ids) == 1) {
+                $clientes_id = $clientes_ids[0];
             }
 
             $this->set(compact(['brindes_aguardando_autorizacao', 'cliente_admin', 'clientes_id']));

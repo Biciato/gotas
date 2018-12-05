@@ -86,7 +86,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         ],
                         [
-                            'class' => 'btn btn-xs btn-primary',
+                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
                             'title' => 'Configurar',
                             'escape' => false
                         ]
