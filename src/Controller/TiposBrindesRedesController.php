@@ -196,8 +196,8 @@ class TiposBrindesRedesController extends AppController
                     }
                 } else {
                     $data["equipamento_rti"] = 0;
-                    $data["tipo_principal_codigo_brinde_default"] = "#";
-                    $data["tipo_secundario_codigo_brinde_default"] = "##";
+                    $data["tipo_principal_codigo_brinde_default"] = "A";
+                    $data["tipo_secundario_codigo_brinde_default"] = "AA";
                     $data["atribuir_automatico"] = 0;
                 }
 
@@ -311,16 +311,16 @@ class TiposBrindesRedesController extends AppController
                     $data["equipamento_rti"] = 1;
                 } else {
                     $data["equipamento_rti"] = 0;
-                    $data["tipo_principal_codigo_brinde_default"] = "#";
-                    $data["tipo_secundario_codigo_brinde_default"] = "##";
+                    $data["tipo_principal_codigo_brinde_default"] = "A";
+                    $data["tipo_secundario_codigo_brinde_default"] = "AA";
                     $data["atribuir_automatico"] = 0;
                 }
 
                 // Mas se for Produto / Serviço, terá um código diferente
 
                 if ($data["equipamento_rti"] == 0) {
-                    $data["tipo_principal_codigo_brinde_default"] = "#";
-                    $data["tipo_secundario_codigo_brinde_default"] = "##";
+                    $data["tipo_principal_codigo_brinde_default"] = "A";
+                    $data["tipo_secundario_codigo_brinde_default"] = "AA";
                 }
 
                 // debug($data);

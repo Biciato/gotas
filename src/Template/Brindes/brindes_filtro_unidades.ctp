@@ -68,7 +68,7 @@ use Cake\Core\Configure;
 
            <div class="col-lg-2 vertical-align">
 
-				<?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
+				<?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block botao-pesquisar']) ?>
 			</div>
 
        </div>

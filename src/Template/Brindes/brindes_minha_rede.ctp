@@ -65,7 +65,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Ver detalhes',
-                                'class' => 'btn btn-default btn-xs',
+                                'class' => 'btn btn-default btn-xs botao-navegacao-tabela',
                                 'escape' => false
                             ]
                         ) ?>
@@ -79,7 +79,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Editar',
-                                'class' => 'btn btn-primary btn-xs',
+                                'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                                 'escape' => false
                             ]
                         )
