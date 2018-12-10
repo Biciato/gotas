@@ -145,7 +145,7 @@ class TiposBrindesClientesController extends AppController
                     );
 
                     // @todo gustavosg tentar parametrizar este método
-                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($condicoes, 1);
 
                     DebugUtil::print($tiposBrindesCheck);
 
