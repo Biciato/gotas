@@ -165,7 +165,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 <?= $this->Form->button(
                                     __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
                                     [
-                                        'class' => 'btn btn-primary btn-block',
+                                        'class' => 'btn btn-primary btn-block botao-pesquisar',
                                         'type' => 'submit'
                                     ]
                                 ) ?>

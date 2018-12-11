@@ -3,6 +3,7 @@
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Clientes/administrar_unidades.ctp
  * @date     27/08/2017
+ * @deprecated 1.0
  */
 
 use Cake\Core\Configure;

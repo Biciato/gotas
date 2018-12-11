@@ -18,11 +18,7 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 
-echo $this->Breadcrumbs->render(
-    [
-        'class' => 'breadcrumb'
-    ]
-);
+echo $this->Breadcrumbs->render(array('class' => 'breadcrumb'));
 ?>
 
 <?= $this->element(
