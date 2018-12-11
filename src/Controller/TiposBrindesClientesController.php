@@ -147,9 +147,6 @@ class TiposBrindesClientesController extends AppController
                     // @todo gustavosg tentar parametrizar este método
                     $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($condicoes, 1);
 
-                    DebugUtil::print($tiposBrindesCheck);
-
-
                 // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
                 // if ($equipamentoRTI && (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4)) {
