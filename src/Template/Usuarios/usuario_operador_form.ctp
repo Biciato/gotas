@@ -32,7 +32,7 @@ use Cake\Routing\Router;
                         'id' => 'tipo_perfil',
                         "empty" => "<Selecionar>",
                         'options' =>
-                        array(
+                            array(
                             1 => 'Administradores de uma Rede',
                             3 => 'Administrador',
                             4 => 'Gerente',
@@ -210,7 +210,7 @@ use Cake\Routing\Router;
         <!-- telefone -->
         <div class="col-lg-4">
             <label for="telefone" id="label-telefone">Telefone*</label>
-            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required",)); ?>
+            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required", )); ?>
         </div>
         <!-- Senha -->
         <div class="col-lg-6">
@@ -225,12 +225,29 @@ use Cake\Routing\Router;
     <?php else : ?>
 
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-4">
                 <!-- Email -->
                 <?= $this->Form->input('email'); ?>
                     <span id="email_validation" class="text-danger validation-message">
             </div>
-        </div>
+               <!-- nome -->
+            <div class="col-lg-4">
+                <label for="nome">Nome*</label>
+                <input type="text" placeholder="Nome" name="nome" id="nome" value="<?= $usuario['nome'] ?>" class="form-control" required/>
+            </div>
+                <!-- telefone -->
+            <div class="col-lg-4">
+                <label for="telefone" id="label-telefone">Telefone*</label>
+                <input type="text" 
+                    placeholder="Telefone" 
+                    name="telefone" 
+                    id="telefone" 
+                    value="<?= $usuario['telefone'] ?>" 
+                    class="form-control" 
+                    required/>
+                
+            </div>
+            </div>
     <?php endif; ?>
 
 
