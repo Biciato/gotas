@@ -105,7 +105,7 @@ $listUsersPendingApproval = $userIsAdmin;
                                     $usuario->id
                                 ],
                                 [
-                                    'class' => 'btn btn-xs btn-default ',
+                                    'class' => 'btn btn-xs btn-default botao-navegacao-tabela',
                                     'escape' => false,
                                     'title' => 'Ver detalhes'
 
@@ -123,7 +123,7 @@ $listUsersPendingApproval = $userIsAdmin;
                                         $usuario->id
                                     ],
                                     [
-                                        'class' => 'btn btn-xs btn-primary ',
+                                        'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
                                         'escape' => false,
                                         'title' => 'Editar'
                                     ]

@@ -1125,11 +1125,10 @@ class UsuariosController extends AppController
 
             $usuario = $this->Usuarios->getUsuarioById($id);
 
-            $redes = [];
-
-            $redesConditions = [];
-
-            $clientesHasUsuariosWhere = [];
+            $rede = null;
+            $redes = array();
+            $redesConditions = array();
+            $clientesHasUsuariosWhere = array();
 
             if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -1150,12 +1149,12 @@ class UsuariosController extends AppController
 
             }
             // pegar a rede a qual se encontra o usuário
-            if (isset($redes_id)) {
-                $redesConditions[] = ['id' => $redes_id];
+            if (isset($rede)) {
+                $redesConditions[] = ['id' => $rede["id"]];
             }
 
             if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                $redes = $this->Redes->getRedesList($redes_id);
+                $redes = $this->Redes->getRedesList($rede["id"]);
             } else if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // pega o Id de cliente que o usuário se encontra
                 // AdminLocalProfileType
