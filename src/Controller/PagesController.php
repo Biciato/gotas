@@ -179,22 +179,22 @@ class PagesController extends AppController
             $rede = $this->request->session()->read('Rede.Grupo');
 
             // Pega unidades que tem acesso
-            $clientes_ids = [];
+            $clientesIds = [];
 
             $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
             foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+                $clientesIds[] = $key;
             }
 
-            if (sizeof($clientes_ids) > 0) {
-                $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientes_ids);
+            if (sizeof($clientesIds) > 0) {
+                $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientesIds);
             }
 
             $clientes_id = null;
 
-            if (sizeof($clientes_ids) == 1) {
-                $clientes_id = $clientes_ids[0];
+            if (sizeof($clientesIds) == 1) {
+                $clientes_id = $clientesIds[0];
             }
 
             $this->set(compact(['brindes_aguardando_autorizacao', 'cliente_admin', 'clientes_id']));

@@ -12,6 +12,12 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 use App\Custom\RTI\DebugUtil;
 
+
+$this->Breadcrumbs->add('Início', array('controller' => 'pages', 'action' => 'display'));
+$this->Breadcrumbs->add('Adicionar Conta', array(), array('class' => 'active'));
+
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+
 ?>
 
 <?= $this->element('../Usuarios/left_menu', ['controller' => 'pages', 'action' => 'display', 'mode' => 'view']) ?>
@@ -21,12 +27,78 @@ use App\Custom\RTI\DebugUtil;
         <?= __("Administrar usuário") ?>
     </legend>
 
-<?= $this->element(
-    '../Usuarios/filtro_usuarios',
-    array('controller' => 'usuarios', 'action' => 'administrar_usuario'),
-    array("perfisUsuariosList" => $perfisUsuariosList)
+<div class="form-group row">
 
-); ?>
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-heading-sm text-center"
+                data-toggle="collapse"
+                href="#collapse1"
+                data-target="#filter-coupons">
+                <!-- <h4 class="panel-title"> -->
+                    <div>
+                        <span class="fa fa-search"></span>
+                            Exibir / Ocultar Filtros
+                    </div>
+
+                <!-- </h4> -->
+            </div>
+            <div id="filter-coupons" class="panel-collapse collapse in">
+                <div class="panel-body">
+
+                    <form action="/usuarios/administrarUsuario" method="post">
+                        <div class="form-group row">
+                            <div class="col-lg-3">
+                                <!-- <label for="tipo_perfil">Tipo de Perfil</label>
+                                <select name="tipo_perfil" id="tipo_perfil" class="form-control">
+                                    <option value><?= "Todos" ?> </option>    
+                                    <?php foreach ($perfisUsuariosList as $key => $value) : ?> 
+                                        <option value="<?php echo $key ?>" ><?php echo $value ?></option>    
+                                    <?php endforeach; ?> 
+                                </select> -->
+                                <?= $this->Form->input(
+                                    'tipo_perfil',
+                                    array(
+                                        'type' => 'select',
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "Todos",
+                                        'options' => $perfisUsuariosList,
+                                        'class' => 'form-control col-lg-2'
+                                    )
+                                ) ?>
+                                
+                            </div>
+                            <div class="col-lg-5">
+                                <label for="nome">Nome</label>
+                                <input type="text" 
+                                    id="nome" 
+                                    class="form-control" 
+                                    placeholder="Nome" />
+                            </div>
+                            <div class="col-lg-4">
+                                <label for="email">E-mail</label>
+                                <input type="text" 
+                                    class="form-control" 
+                                    placeholder="Email" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-lg-12 text-right">
+
+                            <button type="submit" 
+                                class="btn btn-primary botao-pesquisar">
+                                <span class="fa fa-search"></span>
+                                Pesquisar
+                            </button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <table class="table table-striped table-hover">
 
@@ -35,13 +107,17 @@ use App\Custom\RTI\DebugUtil;
         <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.nome_fantasia', ['label' => 'Loja/Posto']) ?></th>
         <th><?= $this->Paginator->sort('ClienteHasUsuario.tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
         <th><?= $this->Paginator->sort('nome') ?></th>
-        <th><?= $this->Paginator->sort('cpf', ['label' => 'CPF']) ?></th>
-        <th><?= $this->Paginator->sort('sexo') ?></th>
-        <th><?= $this->Paginator->sort('data_nasc', ['label' => 'Data de Nascimento']) ?></th>
         <th><?= $this->Paginator->sort('email') ?></th>
         <th class="actions">
             <?= __('Ações') ?>
-            <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
+            <div class="btn btn-xs btn-default right-align call-modal-how-it-works" 
+                data-toggle="modal" 
+                data-target="#modalLegendIconsSave" 
+                target-id="#legenda-icones-acoes">
+                    <span class="fa fa-book"> 
+                    </span>
+                    Legendas
+            </div>
         </th>
     </thead>
 
@@ -55,16 +131,10 @@ use App\Custom\RTI\DebugUtil;
                 <td><?= h($usuario["cliente_has_usuario"]["cliente"]["nome_fantasia"]) ?></td>
                 <td><?= h($this->UserUtil->getProfileType($usuario["cliente_has_usuario"]["tipo_perfil"])) ?></td>
                 <td><?= h($usuario->nome) ?></td>
-                <td><?= h($this->NumberFormat->formatNumberToCPF($usuario->cpf)) ?></td>
-                <td><?= h($this->UserUtil->getGenderType($usuario->sexo)) ?></td>
-                <td><?= h(isset($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "") ?></td>
                 <td><?= h($usuario->email) ?></td>
                 <td class="actions" style="white-space:nowrap">
                     <?= $this->Html->link(
-                        __(
-                            '{0} Gerenciar',
-                            $this->Html->tag('i', '', array('class' => 'fa fa-gears'))
-                        ),
+                        __('{0} Gerenciar', $this->Html->tag('i', '', array('class' => 'fa fa-gears'))),
                         '#',
                         array(
                             'class' => 'btn btn-xs btn-danger btn-confirm',
@@ -77,9 +147,8 @@ use App\Custom\RTI\DebugUtil;
                                     'action' => 'iniciar_administracao_usuario',
                                     "?" =>
                                         array(
-                                        // "clientes_id" => $usuario["cliente_has_usuario"]["cliente"]["id"],
-                                        "clientes_id" => $usuario["cliente_has_usuario"]["clientes_id"],
-                                        'usuarios_id' => $usuario["id"],
+                                        "clientesId" => $usuario["cliente_has_usuario"]["clientes_id"],
+                                        'usuariosId' => $usuario["id"],
                                     )
                                 )
                             ),

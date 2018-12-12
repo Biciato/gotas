@@ -13,7 +13,7 @@ use Cake\Routing\Router;
 $cadastrar_veiculos = isset($cadastrar_veiculos) ? $cadastrar_veiculos : false;
 $update_password = isset($update_password) ? $update_password : false;
 $mode = isset($mode) ? $mode : false;
-$list_users_pending_approval = isset($list_users_pending_approval) ? $list_users_pending_approval : false;
+$listUsersPendingApproval = isset($listUsersPendingApproval) ? $listUsersPendingApproval : false;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
 $redes_id = isset($redes_id) ? $redes_id : null;
 
@@ -101,7 +101,7 @@ $redes_id = isset($redes_id) ? $redes_id : null;
 
         <?php endif; ?>
 
-        <?php if ($list_users_pending_approval) : ?>
+        <?php if ($listUsersPendingApproval) : ?>
             <li><?= $this->Html->link(__('Usuários Aguardando Aprovação'), ['action' => 'usuarios_aguardando_aprovacao']) ?></li>
         <?php endif; ?>
 

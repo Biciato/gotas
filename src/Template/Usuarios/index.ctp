@@ -3,28 +3,21 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Usuários', array(), array("class" => "active"));
+echo $this->Breadcrumbs->render(array('class' => 'breadcrumb'));
 
-//$this->Breadcrumbs->add('Usuários', ['controller' => 'pages' , 'action' => 'display']);
-
-echo $this->Breadcrumbs->render(
-    ['class' => 'breadcrumb']
-);
-
-$user_is_admin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'];
-
-$list_users_pending_approval = $user_is_admin;
+$userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'];
+$listUsersPendingApproval = $userIsAdmin;
 ?>
-
-
 
 <?= $this->element(
     '../Usuarios/left_menu',
-    [
+    array(
         'add_user' => true,
-        'list_users_pending_approval' => $user_is_admin,
+        'listUsersPendingApproval' => $userIsAdmin,
         'mode' => 'management_admin',
         'usuarioLogado' => $usuarioLogado
-    ]
+    )
 ) ?>
     <div class="usuarios index col-lg-9 col-md-10 columns content">
         <legend>

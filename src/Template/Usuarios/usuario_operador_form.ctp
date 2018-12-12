@@ -236,13 +236,11 @@ use Cake\Routing\Router;
 
 </fieldset>
 <div class="form-group row">
-    <div class="col-lg-2">
-        <button type="submit" class="btn btn-primary btn-block botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
-    </div>
+    <div class="col-lg-12 text-right">
+        <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
 
-        <div class="col-lg-2">
-            <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> " class="btn btn-danger btn-block"> <i class="fa fa-window-close"></i> Cancelar</a>
-        </div>
+        <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> " class="btn btn-danger "> <i class="fa fa-window-close"></i> Cancelar</a>
+    </div>
 
 </div>
 <?= $this->Form->end() ?>

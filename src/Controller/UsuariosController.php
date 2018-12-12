@@ -2603,10 +2603,10 @@ class UsuariosController extends AppController
 
         $query = $this->request->query;
         $usuarioAdministrador = $this->getUserLogged();
-        $usuarioAdministrar = $this->Usuarios->getUsuarioById($query['usuarios_id']);
+        $usuarioAdministrar = $this->Usuarios->getUsuarioById($query['usuariosId']);
 
         // Pegar o Id do cliente que foi passado via query
-        $cliente = $this->Clientes->getClienteById($query["clientes_id"]);
+        $cliente = $this->Clientes->getClienteById($query["clientesId"]);
 
         // pega qual é a rede que o usuário está vinculado
 
