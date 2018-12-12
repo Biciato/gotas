@@ -119,7 +119,7 @@ $listUsersPendingApproval = $userIsAdmin;
                                         $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                                     ),
                                     [
-                                        'action' => 'editar',
+                                        'action' => $usuario["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"] ? "editarOperador" : "editar",
                                         $usuario->id
                                     ],
                                     [
