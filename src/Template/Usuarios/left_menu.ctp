@@ -38,7 +38,7 @@ $redes_id = isset($redes_id) ? $redes_id : null;
             <?= $this->Html->link(__('Ações'), []) ?>
         </li>
 
-        <?php if ($| == 'updatePasswordOnly') : ?>
+        <?php if ($mode == 'updatePasswordOnly') : ?>
             <li>
                 <?= $this->Html->link(
                     __("Alterar senha"),

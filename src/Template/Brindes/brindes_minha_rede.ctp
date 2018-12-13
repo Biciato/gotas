@@ -32,7 +32,7 @@ echo $this->Breadcrumbs->render(
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('nome') ?></th>
-                <th><?= $this->Paginator->sort('tempo_uso_brinde', array("label" => "Tempo de Banho")) ?></th>
+                <th><?= $this->Paginator->sort('tempo_uso_brinde', array("label" => "Tempo de Uso")) ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
                 <th><?= $this->Paginator->sort('preco_padrao') ?></th>
                 <th><?= $this->Paginator->sort('valor_moeda_venda_padrao') ?></th>
