@@ -71,14 +71,14 @@ use Cake\Core\Configure;
                 "min" => 1,
                 "max" => 365,
                 "default" => 3,
-                "label" => "Máximo de Abastecimento de Gotas Diárias por Usuários"
+                "label" => "Máx. Abastecimento Gotas Diárias p/ Usuário"
             )
         ); ?>
     </div>
 
     <div class="col-lg-4">
         <?= $this->Form->input("custo_referencia_gotas", array(
-            "label" => "Custo Referência Gotas",
+            "label" => "Custo Referência Gotas (R$)",
             "id" => "custo_referencia_gotas",
             "type" => "text"
         )); ?>
@@ -88,7 +88,8 @@ use Cake\Core\Configure;
         <?= $this->Form->control(
             "media_assiduidade_clientes",
             array(
-                "label" => "Media de Assiduidade dos Clientes (Mês)",
+                "label" => "Media de Assiduidade Clientes (Mês)",
+                "title" => "Utilizado para fins de relatório",
                 "type" => "number",
                 "min" => 1,
                 "max" => 30
@@ -97,18 +98,13 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-2">
-        <button type="submit" class="btn btn-primary btn-block botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
-    </div> 
-        
-    <div class="col-lg-2">
+<div class="col-lg-12 text-right">
+        <button type="submit" class="btn btn-primary  botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
         <a href="/redes/index" 
-            class="btn btn-danger btn-block botao-cancelar">
+            class="btn btn-danger botao-cancelar">
             <span class="fa fa-window-close"></span>
             Cancelar
         </a>
-    </div>
 </div>
 
 <?php if (Configure::read('debug')) : ?>

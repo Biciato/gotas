@@ -1633,30 +1633,30 @@ class UsuariosController extends AppController
      */
     public function adicionarOperador(int $redesId = null)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+
         $usuario = $this->Usuarios->newEntity();
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        $rede = $this->request->session()->read("Rede.Grupo");
-
         if (empty($rede) && !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
+            $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+
+            $unidades = array();
+            foreach ($unidadesList as $key => $value) {
+                $unidades[$value["clientes_id"]] = $value["cliente"]["razao_social"];
+            }
+            $unidadesRede = $unidades;
         }
 
         $redesId = $rede["id"];
-
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $usuarioLogado = $this->usuarioLogado;
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-            $usuarioLogado = $usuarioAdministrar;
-        }
-
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
-        $rede = $this->request->session()->read('Rede.Grupo');
-        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
         if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -1664,7 +1664,7 @@ class UsuariosController extends AppController
                 $redesId = $rede["id"];
             }
 
-            if (isset($redesId)) {
+            if (isset($redesId) && empty($rede)) {
                 $rede = $this->Redes->getRedeById($redesId);
             }
         }
@@ -1707,19 +1707,25 @@ class UsuariosController extends AppController
                 && strlen($data['clientes_id']) == 0) {
                 $this->Flash->error(Configure::read('messageUsuarioRegistrationClienteNotNull'));
 
-                $arraySet = [
+                $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
+
+                $arraySet = array(
                     'usuario',
                     'rede',
                     'redes',
-                    'redes_id',
+                    'redesId',
                     'usuarioLogadoTipoPerfil',
-                    'usuarioLogado'
-                ];
+                    'usuarioLogado',
+                    "unidadesRede",
+                    "unidadeRede",
+                    "unidadeRedeId",
+                );
 
                 $this->set(compact($arraySet));
                 $this->set('_serialize', $arraySet);
 
-                return;
+                // return $this->redirect(array("controller" => "usuarios", "action" => "adicionarOperador", $redesId));
+                return ;
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);

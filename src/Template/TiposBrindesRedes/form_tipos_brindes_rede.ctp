@@ -110,13 +110,9 @@ $arrayTiposBrindes = array($valorTipoBrinde => $arrayTiposBrindes[$valorTipoBrin
     <?php endif; ?> 
 
 </fieldset>
-<div class="form-group row">
-    <div class="col-lg-2">
-        <button type="submit" class="btn btn-primary btn-block botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
-    </div>
-    <div class="col-lg-2">
-        <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede["id"] ?>" class="btn btn-danger btn-block botao-cancelar"><span class="fa fa-window-close"></span> Cancelar</a>
-    </div>
+<div class="col-lg-12 text-right">
+        <button type="submit" class="btn btn-primary botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
+        <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede["id"] ?>" class="btn btn-danger botao-cancelar"><span class="fa fa-window-close"></span> Cancelar</a>
         
 </div>
 <?= $this->Form->end() ?>

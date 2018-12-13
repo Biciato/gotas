@@ -56,5 +56,4 @@ echo $this->Breadcrumbs->render(
     <legend><?= h($usuario->nome) ?></legend>
 
     <?= $this->element('../Usuarios/tabela_info_usuarios', ['usuario' => $usuario]); ?>
-
 </div>

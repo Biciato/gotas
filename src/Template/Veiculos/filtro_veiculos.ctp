@@ -50,9 +50,9 @@ $options = [
                     )
                     ?>
 
-                    <div class="inline-block">
+                    <div class="form-group row">
 
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <?= $this->Form->input('placa', [
                                 'type' => 'text',
                                 'id' => 'placa',
@@ -76,7 +76,7 @@ $options = [
                                 'class' => 'form-control col-lg-2'
                             ]) ?>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <?= $this->Form->input('ano', [
                                 'type' => 'text',
                                 'id' => 'ano',
@@ -85,10 +85,15 @@ $options = [
                                 'class' => 'form-control col-lg-2'
                             ]) ?>
                         </div>
+                    </div>
 
-                        <div class="col-lg-2 vertical-align">
-
-                            <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
+                    <div class="form-group row">
+                        <div class="col-lg-12 text-right">
+                            <button type="submit" 
+                                class="btn btn-primary save-button botao-pesquisar">
+                                <i class="fa fa-search"></i>
+                                Pesquisar
+                            </button>
                         </div>
                     </div>
                 <?= $this->Form->end() ?>

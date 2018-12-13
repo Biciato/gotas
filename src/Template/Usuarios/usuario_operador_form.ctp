@@ -37,7 +37,8 @@ use Cake\Routing\Router;
                             3 => 'Administrador',
                             4 => 'Gerente',
                             5 => 'Funcionário'
-                        )
+                            ),
+                        'attributes' => array("autofocus")
                     ]); ?>
                 <?php else : ?>
                     <div class="col-lg-12">
@@ -52,7 +53,8 @@ use Cake\Routing\Router;
                                 3 => 'Administrador',
                                 4 => 'Gerente',
                                 5 => 'Funcionário'
-                            )
+                            ),
+                            'attributes' => array("autofocus")
                         ]); ?>
                     </div>
 

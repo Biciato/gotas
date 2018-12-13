@@ -26,9 +26,9 @@ class UserUtilHelper extends Helper
     {
         $profileTypes = Configure::read('profileTypesTranslated');
 
-        return $profileTypes[(int) $param];
+        return $profileTypes[(int)$param];
     }
-    
+
     /**
      * Return gender of User
      *
@@ -37,6 +37,10 @@ class UserUtilHelper extends Helper
      **/
     public function getGenderType($param)
     {
+        if (strlen($param) == 0) {
+            return "";
+        }
+
         if ($param == 1) {
             return "Masculino";
         } else {

@@ -35,24 +35,10 @@ $options = [
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
 
-                    <?=
-                    $this->Form->create(
-                        'Post',
-                        [
-                            'url' =>
-                                [
-                                'controller' => $controller,
-                                'action' => $action,
-                                isset($id) ? $id : null
-                            ]
-                        ]
-                    )
-                    ?>
+                    <?= $this->Form->create('Post', array('url' => array('controller' => $controller, 'action' => $action, isset($id) ? $id : null))) ?>
 
                     <div class="inline-block">
-
-
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <?= $this->Form->input('nome_fantasia', [
                                 'type' => 'text',
                                 'id' => 'nome_fantasia',
@@ -60,7 +46,7 @@ $options = [
                                 'class' => 'form-control'
                             ]) ?>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <?= $this->Form->input('razao_social', [
                                 'type' => 'text',
                                 'id' => 'razao_social',
@@ -68,7 +54,7 @@ $options = [
                                 'class' => 'form-control'
                             ]) ?>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <?= $this->Form->input('cnpj', [
                                 'type' => 'text',
                                 'id' => 'cnpj',
@@ -77,8 +63,12 @@ $options = [
                             ]) ?>
                         </div>
 
-                        <div class="col-lg-2 vertical-align pull-right">
-                            <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block pull-right']) ?>
+                        <div class="col-lg-12 text-right">
+                            <button type="submit" 
+                                class="btn btn-primary botao-pesquisar">
+                                    <i class="fa fa-search"></i>
+                                    Pesquisar
+                            </button>
                         </div>
 
                     </div>

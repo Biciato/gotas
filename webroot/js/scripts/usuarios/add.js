@@ -196,11 +196,11 @@ $(document).ready(function () {
         });
     }
 
-    // carrega todas as unidades da rede caso já esteja definido redes_id
+    // carrega todas as unidades da rede caso já esteja definido redesId
 
-    if ($("#redes_id").val() != undefined && $("#redes_id").val().length > 0) {
+    if ($("#redesId").val() != undefined && $("#redesId").val().length > 0) {
         var data = {
-            redes_id: $("#redes_id").val()
+            redes_id: $("#redesId").val()
         };
 
         loadUnidadesRede(data);
