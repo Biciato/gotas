@@ -201,7 +201,7 @@ class BrindesTable extends GenericTable
             $brindeSave["clientes_id"] = $brinde["clientes_id"];
             $brindeSave["tipos_brindes_redes_id"] = $brinde["tipos_brindes_redes_id"];
             $brindeSave["nome"] = $brinde["nome"];
-            $brindeSave["tempo_uso_brinde"] = $brinde["tempo_uso_brinde"];
+            $brindeSave["tempo_uso_brinde"] = !empty($brinde["tempo_uso_brinde"]) ? $brinde["tempo_uso_brinde"] : null;
             $brindeSave["ilimitado"] = $brinde["ilimitado"];
             $brindeSave["habilitado"] = empty($brinde["habilitado"]) ? true : $brinde["habilitado"];
             $brindeSave["preco_padrao"] = $brinde["preco_padrao"];
