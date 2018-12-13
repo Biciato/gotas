@@ -48,7 +48,10 @@ $(document).ready(function () {
         }).done(function (result) {
             closeLoaderAnimation();
             if (result.mensagem.status == 0) {
-                callModalError(result.mensagem.message, result.mensagem.errors);
+
+                if (result.veiculo != undefined){
+                    callModalError(result.mensagem.message, result.mensagem.errors);
+                }
             }
             populateVeiculosForm(result.veiculo);
         });
@@ -57,6 +60,8 @@ $(document).ready(function () {
     var populateVeiculosForm = function (data) {
         if (data == null) {
             $(".validation-message").text(null);
+            $(".validation-message").text("Veículo não encontrado, será cadastrado novo veículo!");
+
             $(".frozen-input-data").attr('disabled', false);
 
             $("#modelo").focus();
@@ -64,7 +69,7 @@ $(document).ready(function () {
             $("#fabricante").val(null);
             $("#ano").val(null);
         } else {
-            $(".validation-message").text("Veículo existente, será vinculado à este usuário");
+            $(".validation-message").text("Veículo existente, será vinculado à este usuário.");
 
             $(".frozen-input-data").attr('disabled', true);
             $("#placa").val(data.placa);

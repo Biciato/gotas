@@ -60,7 +60,7 @@ use Cake\Core\Configure;
 					'type' => 'select',
 					'id' => 'filtrar_unidade',
 					'label' => "Filtrar por unidade?",
-					'empty' => isset($todas_unidades) ? $todas_unidades: "<Todas>",
+					'empty' => isset($todas_unidades) ? $todas_unidades: "Todas",
 					'options' => $unidadesIds
 				]
 			) ?>

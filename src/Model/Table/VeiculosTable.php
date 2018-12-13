@@ -280,7 +280,7 @@ class VeiculosTable extends GenericTable
                 "mensagem" => array(
                     "status" => empty($veiculo) ? 0 : 1,
                     "message" => empty($veiculo) ?
-                        Configure::read("messageQueryNoDataToReturn") :
+                        Configure::read("messageRecordNotFound") :
                         Configure::read("messageLoadDataWithSuccess"),
                     "errors" => empty($veiculo) ? array(Configure::read("messageQueryNoDataToReturn")) : array()
                 ),

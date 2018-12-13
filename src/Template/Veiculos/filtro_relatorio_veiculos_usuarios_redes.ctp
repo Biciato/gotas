@@ -66,7 +66,7 @@ $qteRegistros = [
                                         'label' => 'Selecione uma Rede para Filtar',
                                         'type' => 'select',
                                         'options' => $redesList,
-                                        'empty' => '<Todas>',
+                                        'empty' => 'Todas',
                                         'class' => 'form-control col-lg-8'
                                     ]
                                 ) ?>

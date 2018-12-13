@@ -124,7 +124,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                             'type' => 'select',
                                             'id' => 'filtrar_unidade',
                                             'label' => " Filtrar por unidade ? ",
-                                            'empty' => '<Todas>',
+                                            'empty' => 'Todas',
                                             'options' => $unidades_ids
                                         ]
                                     );

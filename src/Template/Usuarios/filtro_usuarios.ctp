@@ -64,9 +64,9 @@ if (isset($filter_redes) && $filter_redes) {
                     )
                     ?>
 
-                        <div class="inline-block">
+                        <div class="form-group row">
                             <?php if ($fixarTipoPerfil): ?>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -82,7 +82,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 ) ?>
                             </div>
                             <?php else : ?>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -108,7 +108,7 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
                                     'email',
                                     [
@@ -119,6 +119,8 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
+                        </div>
+                        <div class="form-group row">
                             <div class="col-lg-2">
                                 <?= $this->Form->input(
                                     'cpf',
@@ -136,8 +138,9 @@ if (isset($filter_redes) && $filter_redes) {
                                     [
                                         'type' => 'text',
                                         'id' => 'doc_estrangeiro',
-                                        'label' => 'Doc Estrangeiro',
-                                        'class' => 'form-control col-lg-2'
+                                        'label' => 'Documento Estrangeiro',
+                                        'class' => 'form-control col-lg-2',
+                                        'placeHolder' => "Documento Estrangeiro"
                                     ]
                                 ) ?>
                             </div>
@@ -154,23 +157,24 @@ if (isset($filter_redes) && $filter_redes) {
                                             'type' => 'select',
                                             'id' => 'filtrar_unidade',
                                             'label' => "Filtrar por unidade?",
-                                            'empty' => '<Todas>',
+                                            'empty' => 'Todas',
                                             'options' => $unidades_ids
                                         ]
                                     );
                                 }
                                 ?>
                             </div>
+                        </div>
 
-                            <div class="form-group row">
-                                <div class="col-lg-12 text-right">
-                                    <button type="submit" 
-                                        class="btn btn-primary save-button botao-pesquisar">
-                                        <i class="fa fa-search"></i>
-                                        Pesquisar
-                                    </button>
-                                </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 text-right">
+                                <button type="submit" 
+                                    class="btn btn-primary save-button botao-pesquisar">
+                                    <i class="fa fa-search"></i>
+                                    Pesquisar
+                                </button>
                             </div>
+                        </div>
 
                     </div>
 

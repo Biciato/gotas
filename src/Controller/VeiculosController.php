@@ -717,7 +717,7 @@ class VeiculosController extends AppController
      **/
     public function getVeiculoByPlacaAPI()
     {
-        $mensagem = [];
+        $mensagem = array();
 
         try {
             if ($this->request->is(['post', 'put'])) {

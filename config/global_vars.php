@@ -236,8 +236,7 @@ Configure::write(
         'messageUnlinkQuestion' => 'Deseja realmente desvincular o registro {0} ?',
         'messageUnlinkSuccess' => 'O registro foi desvincunlado com sucesso.',
 
-        "messageUsuarioDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao sistema!",
-
+        "messageUsuarioDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao Sistema!",
 
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",
         "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
