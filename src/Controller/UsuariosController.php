@@ -1725,7 +1725,7 @@ class UsuariosController extends AppController
                 $this->set('_serialize', $arraySet);
 
                 // return $this->redirect(array("controller" => "usuarios", "action" => "adicionarOperador", $redesId));
-                return ;
+                return;
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
@@ -1971,24 +1971,24 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cpf') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
+            if (!empty($data["nome"])) {
+                $conditions[] = array("nome like '%$nome%'");
             }
-
-            array_push(
-                $conditions,
-                [
-                    'usuarios.' . $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
-            );
+            if (!empty($data["email"])) {
+                $conditions[] = array("email like '%$email%'");
+            }
+            if (!empty($data['cpf'])) {
+                $cpf = $this->cleanNumber($data['parametro']);
+                $conditions[] = array("cpf" => $cpf);
+            }
+            if (!empty($data['doc_estrangeiro'])) {
+                $docEstrangeiro = $data["doc_estrangeiro"];
+                $conditions[] = array("doc_estrangeiro" => $docEstrangeiro);
+            }
         }
 
         $usuarios = $this->Usuarios->findUsuariosAwaitingApproval();
-
         $usuarios = $usuarios->where($conditions);
-
         $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['tipo_perfil' => 'ASC']]);
 
         $this->set('usuarios', $usuarios);

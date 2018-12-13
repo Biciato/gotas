@@ -18,6 +18,8 @@ $options = [
     'email' => 'e-mail'
 ];
 
+$perfisUsuariosList = Configure::read("profileTypesTranslatedAdminNetwork");
+
 if (isset($filter_redes) && $filter_redes) {
     $options = [
         'nome' => 'nome',
@@ -160,15 +162,14 @@ if (isset($filter_redes) && $filter_redes) {
                                 ?>
                             </div>
 
-                            <div class="col-lg-2 vertical-align">
-
-                                <?= $this->Form->button(
-                                    __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
-                                    [
-                                        'class' => 'btn btn-primary btn-block botao-pesquisar',
-                                        'type' => 'submit'
-                                    ]
-                                ) ?>
+                            <div class="form-group row">
+                                <div class="col-lg-12 text-right">
+                                    <button type="submit" 
+                                        class="btn btn-primary save-button botao-pesquisar">
+                                        <i class="fa fa-search"></i>
+                                        Pesquisar
+                                    </button>
+                                </div>
                             </div>
 
                     </div>
