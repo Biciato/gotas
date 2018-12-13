@@ -393,20 +393,20 @@ if ($usuarioLogado['tipo_perfil'] == 0) {
             <?= $this->Form->control('pais', ['class' => 'pais']); ?>
         </div>
     </fieldset>
-    <div class="col-lg-12">
+    <div class="col-lg-12 text-right">
 
-        <?= $this->Form->button(
-            __(
-                '{0} Salvar',
-                $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-            ),
-            [
-                'id' => 'user_submit',
-                'escape' => false
-            ]
-        ) ?>
-        <?= $this->Form->end() ?>
+        <button type="submit" 
+            class="btn btn-primary botao-confirmar">
+            <span class="fa fa-save"></span> 
+            Salvar
+        </button>
+        <a href="/usuarios/index" 
+            class="btn btn-danger botao-cancelar">
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
     </div>
+    <?= $this->Form->end() ?>
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
