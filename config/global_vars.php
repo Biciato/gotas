@@ -122,8 +122,7 @@ Configure::write(
             2 => 'Administrador Regional',
             3 => 'Administrador',
             4 => 'Gerente',
-            5 => 'Funcionário',
-            6 => 'Usuário'
+            5 => 'Funcionário'
         ),
         "profileTypesWorkersTranslated" =>
             array(
