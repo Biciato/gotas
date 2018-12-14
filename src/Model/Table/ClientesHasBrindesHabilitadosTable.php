@@ -868,7 +868,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 ->select(
                     array(
                         "id",
-                        "nome"
+                        "nome",
+                        "ilimitado"
                     )
                 )
                 ->toArray();
