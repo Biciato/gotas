@@ -495,7 +495,11 @@ class BrindesController extends AppController
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
 
                 $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
-                $brinde["ilimitado"] = $tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4;
+                if ($tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4) {
+                    $brinde["ilimitado"] = 1;
+                } else {
+                    $brinde["ilimitado"] = $data["ilimitado"];
+                }
 
                 $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
