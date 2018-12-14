@@ -224,7 +224,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         // obtem os brindes habilitados (e não habilitados) da unidade
         $brindesConfigurar = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId([$clientesId]);
 
-        DebugUtil::print($brindesConfigurar);
+        // DebugUtil::print($brindesConfigurar);
 
         if (!$brindesConfigurar["mensagem"]["status"]) {
             $this->Flash->error($brindesConfigurar["mensagem"]["message"]);
