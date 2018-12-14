@@ -1966,13 +1966,7 @@ class UsuariosController extends AppController
 
         $entire_network = false;
 
-        array_push($conditions, array(
-            'tipo_perfil BETWEEN ? AND ? ' =>
-                array(
-                Configure::read('profileTypes')['AdminDeveloperProfileType'],
-                Configure::read('profileTypes')['WorkerProfileType']
-            )
-        ));
+        array_push($conditions, array('tipo_perfil > ' => Configure::read('profileTypes')['AdminDeveloperProfileType']));
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -2575,7 +2569,7 @@ class UsuariosController extends AppController
             }
             if (strlen($tipoPerfil) == 0) {
                 $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
-                $tipoPerfilMax = Configure::read('profileTypes')['UserProfileType'];
+                $tipoPerfilMax = Configure::read('profileTypes')['WorkerProfileType'];
             } else {
                 $tipoPerfilMin = $tipoPerfil;
                 $tipoPerfilMax = $tipoPerfil;
