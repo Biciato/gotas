@@ -1966,7 +1966,13 @@ class UsuariosController extends AppController
 
         $entire_network = false;
 
-        array_push($conditions, ['tipo_perfil > ' => Configure::read('profileTypes')['AdminDeveloperProfileType']]);
+        array_push($conditions, array(
+            'tipo_perfil BETWEEN ? AND ? ' =>
+                array(
+                Configure::read('profileTypes')['AdminDeveloperProfileType'],
+                Configure::read('profileTypes')['WorkerProfileType']
+            )
+        ));
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
