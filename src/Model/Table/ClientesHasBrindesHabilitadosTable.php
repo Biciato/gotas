@@ -166,6 +166,9 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
         $validator
             ->notEmpty('habilitado', 'create');
+        
+        $validator
+            ->notEmpty('ilimitado', 'create');
 
         $validator
             ->notEmpty('tipo_codigo_barras', 'create');
@@ -948,7 +951,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     foreach ($brindesConfiguradosIds as $brindeConfiguradoId) {
                         if ($brinde["id"] == $brindeConfiguradoId) {
 
-                            $clienteBrindeHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
+                            $clienteBrindeHabilitado = $this->find('all')
                                 ->where(
                                     array(
                                         "brindes_id" => $brinde["id"],
