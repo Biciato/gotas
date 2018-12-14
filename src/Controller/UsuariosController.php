@@ -2547,7 +2547,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = null;
             $clientesIds = array();
 
-            $perfisUsuariosList = Configure::read("profileTypesTranslatedAdminNetwork");
+            $perfisUsuariosList = Configure::read("profileTypesTranslatedAdminToWorker");
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();

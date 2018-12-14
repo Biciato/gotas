@@ -116,6 +116,15 @@ Configure::write(
             5 => 'Funcionário',
             6 => 'Usuário'
         ),
+        "profileTypesTranslatedAdminToWorker" =>
+            array(
+            1 => 'Administrador de Rede',
+            2 => 'Administrador Regional',
+            3 => 'Administrador',
+            4 => 'Gerente',
+            5 => 'Funcionário',
+            6 => 'Usuário'
+        ),
         "profileTypesWorkersTranslated" =>
             array(
             1 => 'Administrador de Rede',
