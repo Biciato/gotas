@@ -606,6 +606,7 @@ $(document).ready(function () {
         clearBtn: true,
         format: 'dd/mm/yyyy',
     }).on('changeDate', function (ev) {
+
         $("#data_nasc").val(ev.target.value);
 
     });

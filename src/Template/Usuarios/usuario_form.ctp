@@ -275,22 +275,23 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
 
         <div class="col-lg-4">
-                <?= $this->Form->input(
-                    'data_nasc',
-                    [
-                        'class' => 'datepicker-input',
-                        'div' =>
-                            [
-                            'class' => 'form-inline',
-                        ],
-                        'type' => 'text',
-                        'id' => 'data_nasc',
-                        'format' => 'd/m/Y',
-                        'default' => date('d/m/Y'),
-                        'value' => date('d/m/Y'),
-                        'label' => 'Data de Nascimento'
-                    ]
-                ); ?>
+            <?= $this->Form->input(
+                'data_nasc',
+                [
+                    'class' => 'datepicker-input',
+                    'div' =>
+                        [
+                        'class' => 'form-inline',
+                    ],
+                    'type' => 'text',
+                    'id' => 'data_nasc',
+                    'format' => 'd/m/Y',
+                    'default' => date('d/m/Y'),
+                    // 'value' => date('d/m/Y'),
+                    'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
+                    'label' => 'Data de Nascimento'
+                ]
+            ); ?>
         </div>
 
         <div class="col-lg-3">

@@ -103,7 +103,7 @@ use Cake\Routing\Router;
                             'id' => 'data_nasc',
                             'format' => 'd/m/Y',
                             'default' => date('d/m/Y'),
-                            'value' => date('d/m/Y'),
+                            'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
                             'label' => 'Data de Nascimento'
                         ]
                     ); ?>

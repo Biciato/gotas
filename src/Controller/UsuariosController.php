@@ -235,6 +235,8 @@ class UsuariosController extends AppController
 
         $unidades_ids = $this->Clientes->find('list')->toArray();
 
+        // DebugUtil::print($usuarios);
+
         $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -641,6 +643,8 @@ class UsuariosController extends AppController
             $data = $this->request->getData();
 
             $usuarioData = $data;
+
+            // DebugUtil::print($usuarioData, 1, 1);
 
             $cliente = null;
 
@@ -2716,11 +2720,7 @@ class UsuariosController extends AppController
      */
     private function _alteraContaAtivaUsuario(int $usuarios_id, bool $status)
     {
-        return
-            $this->Usuarios->changeAccountEnabledByUsuarioId(
-            $usuarios_id,
-            $status
-        );
+        return $this->Usuarios->changeAccountEnabledByUsuarioId($usuarios_id, $status);
     }
 
     /**
