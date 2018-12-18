@@ -2414,6 +2414,8 @@ class PontuacoesComprovantesController extends AppController
         $pontuacoes = array();
         $produtosLista = array();
 
+        $produtosListaXml = empty($produtosListaXml[0]) ? array($produtosListaXml) : $produtosListaXml;
+
         foreach ($produtosListaXml as $produto) {
             $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
                 return $item["nome_parametro"] == $produto["prod"]["xProd"];
