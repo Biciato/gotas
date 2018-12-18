@@ -407,6 +407,18 @@ class BrindesController extends AppController
                         if ($brindesHabilitadosPreco) {
                             $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
+                            if (empty($clienteHasBrindeHabilitado["tipo_codigo_barras"])) {
+
+                                $this->Flash->error(Configure::read("messageBrindeBarcodeNotConfigured"));
+                                return $this->redirect(
+                                    array(
+                                        "controller" => "clientesHasBrindesHabilitados",
+                                        "action" => 'configurarBrinde',
+                                        $clienteHasBrindeHabilitado["id"]
+                                    )
+                                );
+                            }
+
                             return $this->redirect(['action' => 'brindes_minha_rede']);
                         }
                     }

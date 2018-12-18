@@ -258,6 +258,10 @@ Configure::write(
          * ------------------------------------------ ENTIDADES ------------------------------------------
          */
 
+        // ClientesHasBrindesHabilitados
+
+        "messageBrindeBarcodeNotConfigured" => "Para que o Brinde seja utilizado em seu posto, é necessário definir o Código de Barras!",
+
         // Clientes
 
         'messageRecordClienteNotFound' => 'Cliente não encontrado!',
