@@ -546,7 +546,9 @@ class GotasController extends AppController
                 }
             }
 
-            $arraySet = array("gota", "unidades");
+            $unidadesId = $gota["clientes_id"];
+
+            $arraySet = array("gota", "unidades", "unidadesId");
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);

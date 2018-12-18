@@ -13,58 +13,69 @@ use Cake\Core\Configure;
 
 <?= $this->Form->create($gota) ?>
 <fieldset>
-    <legend>
-        <?= __('Configurar Métrica de Gotas') ?>
-    </legend>
 
     <div class="btn btn-default right-align pull-right call-modal-how-it-works" target-id="#explicacao-gotas">
         <span class=" fa fa-question-circle-o"> Ajuda</span>
     </div>
-    <?php
-    echo $this->Form->input(
-        "clientes_id",
-        array(
-            "label" => "Posto de Atendimento",
-            "input" => "select",
-            "empty" => "<Selecionar>",
-            "options" => $unidades,
-            "value" => $unidadesId,
-            "required" => true
-        )
-    );
-    echo  $this->Form->input(
-        'nome_parametro',
-        [
-            'label' => 'Nome do Parâmetro',
-            'id' => 'nome_parametro',
-            'class' => 'form-control',
-            'title' => 'Nome do Parâmetro'
-        ]
-        ); ?>
-    <?= $this->Form->input(
-        'multiplicador_gota',
-        [
-            // 'step' => '0.01',
-            "type" => "text",
-            "maxlength" => 4,
-            'label' => 'Multiplicador de Gotas',
-            'id' => 'multiplicador_gota',
-            'class' => 'form-control',
-            'title' => 'Multiplicador de Gota'
-        ]
-    ); ?>
-</fieldset>
-<?= $this->Form->button(
-    __(
-        '{0} Salvar',
-        $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-    ),
-    [
-        'class' => 'btn btn-primary',
-        'escape' => false
-    ]
+    <div class="form-group row">
+        <legend>
+            <?= __('Configurar Métrica de Gotas') ?>
+        </legend>
+    </div>
 
-) ?>
+    <div class="form-group row">
+    
+        <div class="col-lg-4">
+            <?= $this->Form->input(
+                "clientes_id",
+                array(
+                    "label" => "Posto de Atendimento*",
+                    "input" => "select",
+                    "empty" => "<Selecionar>",
+                    "options" => $unidades,
+                    "value" => $unidadesId,
+                    "required" => true
+                )
+            ); ?> 
+        </div>
+        <div class="col-lg-4">
+            <label for="nome_parametro">Nome do Parâmetro*</label>
+            <input value="<?= $gota['nome_parametro'] ?>"
+                type="text" 
+                class="form-control"
+                name="nome_parametro" 
+                id="nome_parametro" 
+                required  
+                />
+        </div>
+        <div class="col-lg-4">
+            <label for="multiplicador_gota">Multiplicador de Gotas*</label>
+            <input value="<?= $gota['multiplicador_gota'] ?>"
+                type="text" 
+                class="form-control"
+                name="multiplicador_gota" 
+                id="multiplicador_gota" 
+                maxlength="4"
+                required  
+                />
+        </div>
+    </div>
+    <div class="col-lg-12 text-right">
+        <button type="submit" 
+            class="btn btn-primary botao-confirmar">
+            <i class="fa fa-save"></i>
+            Salvar
+        </button>
+
+        <a href="/gotas/gotas-minha-rede/" 
+            class="btn btn-danger botao-cancelar">
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
+    </div>
+
+</fieldset>
+
 <?= $this->Form->end() ?>
 
 
