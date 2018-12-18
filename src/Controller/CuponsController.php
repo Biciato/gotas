@@ -1850,7 +1850,7 @@ class CuponsController extends AppController
         if ($usoViaMobile) {
             $senhaValida = true;
         } else if (($usuario["tipo_perfil"] < Configure::read('profileTypes')['DummyUserProfileType']) || !$vendaAvulsa) {
-            die('wtf?');
+            
             if ((new DefaultPasswordHasher)->check($senhaAtualUsuario, $usuario->senha)) {
                 $senhaValida = true;
             }
