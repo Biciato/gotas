@@ -469,33 +469,24 @@ var popularDadosCupomResgate = function (data) {
     if (data !== undefined && data !== null) {
         var usuario = null;
         var brinde_habilitado = {};
-
         var unidade_funcionario_id = 0;
-        var quantidade = 0;
-        var nome = "";
-        var valor_pago = 0.0;
-
         var cupom_emitido = null;
-
         var data_hora = null;
-
         var rows = [];
 
         $.each(data, function (index, value) {
+            var valorPago = value.valor_pago;
+            var tipoMoeda = value.tipo_venda == 0 ? "Gotas:" : "R$";
+
             data_hora = value.data;
-
             unidade_funcionario_id = value.unidade_funcionario_id;
-
             cupom_emitido = value.cupom_emitido;
-
             usuario = value.usuario;
             brinde_habilitado = value.clientes_has_brindes_habilitado;
 
-            var valorPago = value.valor_pago;
+            valorPago = valorPago.toString().indexOf(",") < 0 ? tipoMoeda + valorPago + ",00" : tipoMoeda + valorPago;
 
-            valorPago = valorPago.toString().indexOf(",") < 0 ? "R$ " + valorPago + ",00" : "R$ " + valorPago;
             var row = "<tr><td>" + value.quantidade + "</td><td>" + brinde_habilitado.brinde.nome + "</td><td>" + valorPago + "</td></tr>";
-
             rows.push(row);
         });
 
