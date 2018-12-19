@@ -1909,7 +1909,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__("A unidade de atendimento informada não possui o brinde desejado!"))
+                "errors" => array(__(Configure::read("messageClienteDoesNotHaveBrinde")))
             );
 
             $arraySet = array("mensagem");

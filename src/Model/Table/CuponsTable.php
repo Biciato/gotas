@@ -243,7 +243,9 @@ class CuponsTable extends GenericTable
             $tipoPrincipalCodigoBrinde = $tiposBrindesCliente["tipo_principal_codigo_brinde"];
             $tipoSecundarioCodigoBrinde = $tiposBrindesCliente["tipo_secundario_codigo_brinde"];
 
-            if ($tipoPrincipalCodigoBrinde <= 4) {
+            Log::write("debug", sprintf("%s: %s", "Tipo Secundário código brinde ",  $tipoSecundarioCodigoBrinde));
+
+            if (is_numeric($tipoSecundarioCodigoBrinde) && $tipoPrincipalCodigoBrinde <= 4) {
                 // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
                 $tipoSecundarioCodigoBrinde = $tipoSecundarioCodigoBrinde + 10;
             } else {

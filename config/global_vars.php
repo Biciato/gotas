@@ -262,11 +262,15 @@ Configure::write(
 
         "messageBrindeBarcodeNotConfigured" => "Para que o Brinde seja utilizado em seu posto, é necessário definir o Código de Barras!",
 
+        "messageClienteDoesNotHaveBrinde" => "O posto/loja selecionado(a) não possui o brinde desejado!",
+
         // Clientes
 
         'messageRecordClienteNotFound' => 'Cliente não encontrado!',
 
         'messageClienteNotFoundByCNPJ' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. CNPJ Informado: {0}",
+
+        
 
         // Gotas
 
