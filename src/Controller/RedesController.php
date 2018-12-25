@@ -116,6 +116,9 @@ class RedesController extends AppController
     {
         try {
             $rede = $this->Redes->newEntity();
+
+            $rede["quantidade_pontuacoes_usuarios_ida"] = 3;
+            $rede["quantidade_consumo_usuarios_dia"] = 10;
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
@@ -179,19 +182,15 @@ class RedesController extends AppController
     public function editar($id = null)
     {
         try {
-
-            $rede = $this->Redes->getRedeById($id);
-
             $imagemOriginal = null;
+            $rede = $this->Redes->getRedeById($id);
 
             if (strlen($rede->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageNetworkPath"), $rede->nome_img);
             }
 
             if ($this->request->is(['post', 'put'])) {
-
                 $data = $this->request->getData();
-
                 $trocaImagem = 0;
 
                 if (strlen($data['crop-height']) > 0) {
@@ -199,32 +198,27 @@ class RedesController extends AppController
                     // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
 
                     // obtem dados de redimensionamento
-
                     $height = $data["crop-height"];
                     $width = $data["crop-width"];
                     $valueX = $data["crop-x1"];
                     $valueY = $data["crop-y1"];
 
                     $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
-
                     $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $data["img-upload"]);
-                    // $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
-                    // Se imagem foi redimensionada, move e atribui o nome para gravação
+                    // Se imagem foi redimensionada, move e
+                    // atribui o nome para gravação
+
                     if ($resizeSucesso == 1) {
-
                         rename($imagemOrigem, $imagemDestino);
-
                         $data["nome_img"] = $data["img-upload"];
-
                         $trocaImagem = 1;
                     }
                 }
 
                 $rede = $this->Redes->patchEntity($rede, $data);
 
-                // debug($rede->errors());
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
@@ -232,15 +226,12 @@ class RedesController extends AppController
                     }
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
                     return $this->redirect(['action' => 'index']);
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
-
             $this->set(compact('rede', 'imagem'));
             $this->set('_serialize', ['rede', 'imagem']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -321,7 +312,7 @@ class RedesController extends AppController
                 $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
                 $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
                 $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
-                
+
                 // gotas
                 $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
 
@@ -329,7 +320,7 @@ class RedesController extends AppController
                 $whereConditions = array();
                 $whereConditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
                 $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
-                
+
                 // Apaga os funcionários
                 $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds, $whereConditions);
                 $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);

@@ -45,7 +45,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <?php echo $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
         <div class="form-group">
-            <?php echo $this->element('../Brindes/brindes_filtro_ajax', array("usuarioVendaAvulsa" => true)) ?>
+            <?php echo $this->element('../Brindes/brindes_filtro_ajax', array("usuarioVendaAvulsa" => true, "compraGotas" => false)) ?>
         </div>
 
         <div class="gifts-query-region">
@@ -54,7 +54,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <?= $this->Form->button(
                     __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
                     [
-                        'type' => 'button',
+                        // 'type' => 'button',
+                        'type' => 'submit',
                         'id' => 'print_gift',
                         'escape' => false,
                         'class' => 'print-gift-shower'

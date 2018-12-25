@@ -80,7 +80,7 @@ echo $this->Breadcrumbs->render(
                         <?= h($pontuacao->funcionario->nome) ?>
                     </td>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 2)) ?>
+                        <?= h(floor($pontuacao->soma_pontuacoes)) ?>
                     </td>
                     <td>
                         <?= h($pontuacao->chave_nfe) ?>

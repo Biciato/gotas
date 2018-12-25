@@ -166,7 +166,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
         $validator
             ->notEmpty('habilitado', 'create');
-        
+
         $validator
             ->notEmpty('ilimitado', 'create');
 
@@ -429,7 +429,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     array(
                         "Brindes",
                         "BrindeHabilitadoPrecoAtual",
-                        "TiposBrindesClientes"
+                        "TiposBrindesClientes.TipoBrindeRede"
                     )
                 )->first();
 

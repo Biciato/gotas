@@ -118,6 +118,14 @@ class RedesTable extends GenericTable
             ->notEmpty("media_assiduidade_clientes");
 
         $validator
+            ->integer("quantidade_pontuacoes_usuarios_dia")
+            ->notEmpty("quantidade_pontuacoes_usuarios_dia");
+
+        $validator
+            ->integer("quantidade_consumo_usuarios_dia")
+            ->notEmpty("quantidade_consumo_usuarios_dia");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
@@ -137,11 +145,11 @@ class RedesTable extends GenericTable
     #region Create
 
     /**
-     * Adiciona uma rede 
+     * Adiciona uma rede
      *
-     * @param \App\Model\Entity\Rede $rede Objeto Rede 
+     * @param \App\Model\Entity\Rede $rede Objeto Rede
      *
-     * @return bool 
+     * @return bool
      */
     public function addRede(\App\Model\Entity\Rede $rede)
     {

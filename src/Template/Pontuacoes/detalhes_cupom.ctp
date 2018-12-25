@@ -134,7 +134,7 @@ echo $this->Breadcrumbs->render(
                         <?= __('Total de Gotas') ?>
                     </th>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 2)) ?>
+                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 0)) ?>
                     </td>
                 </tr>
                 <tr>

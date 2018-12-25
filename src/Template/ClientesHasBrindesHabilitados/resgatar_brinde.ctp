@@ -11,7 +11,7 @@ use Cake\I18n\Number;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Unidades da Rede', ['controller' => 'redes', 'action' => 'escolher_unidade_rede', $redes_id]);
+$this->Breadcrumbs->add('Unidades da Rede', ['controller' => 'redes', 'action' => 'escolher_unidade_rede', $redesId]);
 
 $this->Breadcrumbs->add('Escolha um Brinde para Resgatar', ['controller' => 'ClientesHasBrindesHabilitados', 'action' => 'escolher_brinde_unidade', $brinde_habilitado->clientes_id]);
 

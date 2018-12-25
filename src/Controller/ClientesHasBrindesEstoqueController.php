@@ -260,7 +260,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
                 $data['preco'] = str_replace('.', '', $data['preco']);
                 $data['preco'] = str_replace(',', '.', $data['preco']);
-            } else if (strpos($data['preco'], ',')) {
+            } elseif (strpos($data['preco'], ',')) {
                 $data['preco'] = str_replace(',', '.', $data['preco']);
             }
 
@@ -312,10 +312,13 @@ class ClientesHasBrindesEstoqueController extends AppController
                     // adicionar brinde resgatado no cadastro do usuário
                     $brindeUsuario
                         = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                        $usuario->id,
+                        $rede["id"],
+                        $clientes_id,
+                        $usuario["id"],
                         $brinde->id,
                         $data['quantidade'],
-                        $totalPontosAGastar
+                        $totalPontosAGastar,
+                        TYPE_PAYMENT_POINTS
                     );
 
                     // salvar pontuação do usuário

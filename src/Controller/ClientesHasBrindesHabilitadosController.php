@@ -680,9 +680,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
             // para pegar o saldo atual, preciso pegar o id de todas as unidades de uma rede e informar
 
-            $redes_id = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id)->redes_id;
+            $redesId = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id)["redes_id"];
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redes_id);
+            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
 
             $clientes_ids = [];
 
@@ -690,10 +690,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $clientes_ids[] = $value->clientes_id;
             }
 
-            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $clientes_ids);
+            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $redesId, $clientes_ids);
 
-            $this->set(compact('brindes_habilitados', 'saldo_atual', 'redes_id'));
-            $this->set('_serialize', ['brindes_habilitados', 'saldo_atual', 'redes_id']);
+            $this->set(compact('brindes_habilitados', 'saldo_atual', 'redesId'));
+            $this->set('_serialize', ['brindes_habilitados', 'saldo_atual', 'redesId']);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -725,9 +725,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
             // para pegar o saldo atual, preciso pegar o id de todas as unidades de uma rede e informar
 
-            $redes_id = $this->RedesHasClientes->getRedesHasClientesByClientesId($brinde_habilitado->clientes_id)->redes_id;
+            $redesId = $this->RedesHasClientes->getRedesHasClientesByClientesId($brinde_habilitado->clientes_id)["redes_id"];
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redes_id);
+            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
 
             $clientes_ids = [];
 
@@ -735,7 +735,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $clientes_ids[] = $value->clientes_id;
             }
 
-            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $clientes_ids);
+            $saldo_atual = $this->Pontuacoes->getSumPontuacoesOfUsuario($this->usuarioLogado['id'], $redesId, $clientes_ids);
 
             if ($this->request->is(['post', 'put'])) {
                 // verifica se o usuário tem saldo suficiente
@@ -776,10 +776,13 @@ class ClientesHasBrindesHabilitadosController extends AppController
                                 // Adiciona novo registro de brinde ao usuário
 
                                 $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                                    $cupom->usuarios_id,
+                                    $redesId,
+                                    $clientes_ids[0],
+                                    $cupom["usuarios_id"],
                                     $cupom->clientes_has_brindes_habilitados_id,
                                     $cupom->quantidade,
                                     $cupom->valor_pago,
+                                    TYPE_PAYMENT_POINTS,
                                     $cupom->id
                                 );
 
@@ -800,8 +803,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 }
             }
 
-            $this->set(compact('brinde_habilitado', 'redes_id', 'saldo_atual'));
-            $this->set('_serialize', ['brinde_habilitado', 'redes_id', 'saldo_atual']);
+            $this->set(compact('brinde_habilitado', 'redesId', 'saldo_atual'));
+            $this->set('_serialize', ['brinde_habilitado', 'redesId', 'saldo_atual']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter novo nome para comprovante: {0} em: {1} ", $e->getMessage(), $trace[1]);

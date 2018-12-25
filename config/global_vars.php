@@ -132,6 +132,10 @@ Configure::write(
             4 => 'Gerente',
             5 => 'Funcionário'
         ),
+        "serviceTypes" => array(
+            "productServiceNetwork" => 0,
+            "rti" => 1
+        ),
         'stockOperationTypes' =>
             [
             'addType' => 0,
@@ -270,7 +274,7 @@ Configure::write(
 
         'messageClienteNotFoundByCNPJ' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. CNPJ Informado: {0}",
 
-        
+
 
         // Gotas
 
@@ -306,8 +310,8 @@ Configure::write(
         'messageVeiculoAlreadyLinked' => 'Veículo já vinculado, não é possível adicionar novo registro ao usuário!',
         "messageVeiculoIdEmpty" => "O Campo ID do Veículo deve ser informado!",
         "messageVeiculoPlateLength" => "O Campo Placa deve ter 7 dígitos para realizar a pesquisa!",
-        
-        
+
+
         // Mensagens de Usuários Has Veículos
         "messageVeiculoDoesntBelongToUserOnUpdate" => "Não é possível atualizar o cadastro, usuário não possui este veículo em seu cadastro!",
 

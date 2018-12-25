@@ -41,16 +41,16 @@ $show_actions = isset($show_actions) ? $show_actions : true;
             <?= h($value->gota->nome_parametro) ?>
         </td>
         <td>
-            <?= h($this->Number->precision($value->quantidade_multiplicador, 2)) ?>
+            <?= h(floor($value->quantidade_multiplicador)) ?>
         </td>
         <td>
-            <?= h($this->Number->precision($value->quantidade_gotas, 2)) ?>
+            <?= h(floor($value->quantidade_gotas)) ?>
         </td>
         <?php if ($show_actions) : ?>
-        
+
         <td>
 
-            <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) : ?> 
+            <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) : ?>
             <?= $this->Html->link(
                 __(
                     "{0} Editar",
@@ -65,7 +65,7 @@ $show_actions = isset($show_actions) ? $show_actions : true;
                     'escape' => false,
                 ]
             ) ?>
-            
+
             <?= $this->Html->link(
                 __(
                     "{0} Remover",
@@ -85,10 +85,10 @@ $show_actions = isset($show_actions) ? $show_actions : true;
                 ],
                 false
             ) ?>
-            <?php endif; ?> 
+            <?php endif; ?>
         </td>
         <?php endif; ?>
-        
+
     </tr>
 
     <?php endforeach; ?>

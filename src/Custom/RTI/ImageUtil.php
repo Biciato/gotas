@@ -61,7 +61,7 @@ class ImageUtil
 
             return $outputFile;
         } catch (\Exception $e) {
-            $this->log($e->getMessage());
+            Log::write("error", $e->getMessage());
         }
     }
 

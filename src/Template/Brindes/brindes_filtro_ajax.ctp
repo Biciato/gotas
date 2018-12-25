@@ -9,9 +9,12 @@
 use Cake\Core\Configure;
 
 $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
+$compraGotas = isset($compraGotas) ? $compraGotas : true;
+
 ?>
 <div class="gifts-query-region">
     <h4>Selecione um brinde</h4>
+    <form>
     <div class="row">
         <div class="col-lg-6">
             <?= $this->Form->text(
@@ -52,7 +55,7 @@ $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
             ) ?>
         </div>
 
-        <div class="col-lg-6" >
+        <div class="col-lg-6">
             <label for="gift-image">Imagem do Brinde</label>
             <br />
             <?= $this->Html->image(
@@ -66,43 +69,52 @@ $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
         </div>
     </div>
     <div class="row">
-
+        <?php if ($compraGotas) : ?>
         <div class="col-lg-4">
-            <?= $this->Form->input('quantidade', [
-                'type' => 'number',
-                'readonly' => false,
-                'required' => true,
-                'label' => 'Quantidade (Se Não é SMART Shower)',
-                'min' => 1,
-                'id' => 'quantidade',
-                'class' => 'quantidade-brindes',
-                'step' => 1.0,
-                'default' => 0,
-                'min' => 0
-            ]) ?>
+            <label for="quantidade">Quantidade (Se Não é SMART Shower)</label>
+            <input type="number"
+                min="1"
+                step="1.0"
+                default="0"
+                name="quantidade"
+                id="quantidade"
+                class="quantidade-brindes form-control"
+                required=true />
         </div>
 
         <div class="col-lg-2">
-            <?= $this->Form->input(
-                'current_password',
-                [
-                    'type' => 'password',
-                    'id' => 'current_password',
-                    'class' => 'current_password',
-                    'label' => 'Senha do usuário'
-                ]
-            ) ?>
+            <label for="current_password">Senha do usuário:*</label>
+            <input type="password"
+                class="current_password form-control"
+                required id="current_password"
+                />
 
         </div>
+        <?php else : ?>
+        <div class="col-lg-6">
+            <label for="quantidade">Quantidade (Se Não é SMART Shower)</label>
+            <input type="number"
+                min="1"
+                step="1.0"
+                default="0"
+                name="quantidade"
+                id="quantidade"
+                class="quantidade-brindes form-control"
+                required=true />
+        </div>
+
+        <?php endif; ?>
     </div>
+    </form>
+
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_filtro_ajax') ?>
-    <?= $this->Html->css('styles/brindes/brindes_filtro_ajax') ?>
+<?= $this->Html->script('scripts/brindes/brindes_filtro_ajax') ?>
+<?= $this->Html->css('styles/brindes/brindes_filtro_ajax') ?>
 <?php else : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_filtro_ajax.min') ?>
-    <?= $this->Html->css('styles/brindes/brindes_filtro_ajax.min') ?>
+<?= $this->Html->script('scripts/brindes/brindes_filtro_ajax.min') ?>
+<?= $this->Html->css('styles/brindes/brindes_filtro_ajax.min') ?>
 <?php endif; ?>
 
 <?= $this->fetch('script') ?>

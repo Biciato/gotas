@@ -9,7 +9,7 @@ $(document).ready(function () {
         var isValid = form.checkValidity();
 
         if (isValid) {
-            callLoaderAnimation();
+            callLoaderAnimation("");
         }
     });
 
@@ -253,6 +253,7 @@ var callModalError = function (error, arrayContent) {
 var callLoaderAnimation = function (text_info) {
     $(".modal-loader").modal();
 
+    $(".loader-message").text("");
     if (text_info !== undefined && text_info.length > 0) {
         $(".loader-message").text(text_info);
     }

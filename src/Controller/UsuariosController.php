@@ -648,6 +648,7 @@ class UsuariosController extends AppController
 
             $cliente = null;
 
+            // return;
             if (isset($this->usuarioLogado)) {
 
                 $cliente_has_usuario =
@@ -3448,7 +3449,13 @@ class UsuariosController extends AppController
                         if (!empty($value)) {
                             $pontuacoes = $this->Pontuacoes->getSumPontuacoesOfUsuario($value['id'], $rede["id"], array());
 
-                            $value["pontuacoes"] = $pontuacoes["resumo_gotas"]["saldo"];
+                            $saldo = $pontuacoes["resumo_gotas"]["saldo"];
+
+                            if (!empty($saldo) && $saldo > 0) {
+                                $saldo = floor($saldo);
+                            }
+
+                            $value["pontuacoes"] = $saldo;
                             $value['data_nasc'] = !empty($value['data_nasc']) ? $value["data_nasc"]->format('d/m/Y') : null;
 
                             $usuariosTemp[] = $value;
@@ -3521,15 +3528,27 @@ class UsuariosController extends AppController
 
                         $cliente_has_usuario->usuario['data_nasc'] = $cliente_has_usuario->usuario['data_nasc']->format('d/m/Y');
 
-                        $cliente_has_usuario->usuario['pontuacoes']
+
+                        $pontuacoes
                             = Number::precision(
                             $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                $data['usuarios_id'],
+                                $usuariosId,
                                 null,
                                 $clientes_ids
                             ),
                             2
                         );
+                        $saldo = $pontuacoes["resumo_gotas"]["saldo"];
+
+                        if (!empty($saldo) && $saldo > 0) {
+                            $saldo = floor($saldo);
+                        }
+
+                        $value["pontuacoes"] = $saldo;
+
+
+                        $cliente_has_usuario->usuario['pontuacoes']
+                            = $pontuacoes;
 
                         // $result = json_encode(['user' => $cliente_has_usuario->usuario, 'count' => 1]);
                         $user = $cliente_has_usuario->usuario;
