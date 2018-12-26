@@ -86,8 +86,8 @@ $(document).ready(function () {
 
     /**
      * Adiciona informações no corpo do modal
-     * 
-     * @param {*} parameter 
+     *
+     * @param {*} parameter
      */
     var addModalBootstrapPopupWithMessage = function (parameter) {
         $("#" + parameter).on("show.bs.modal", function (e) {
@@ -121,8 +121,8 @@ $(document).ready(function () {
 
     /**
      * Adiciona informações no corpo do modal
-     * 
-     * @param {*} parameter 
+     *
+     * @param {*} parameter
      */
     var addModalBootstrapPopupWithMessageConfirmation = function (parameter) {
         $("#" + parameter).on("show.bs.modal", function (e) {
@@ -462,6 +462,85 @@ var formatDateTimeToDate = function (data) {
 
     return day + "/" + month + "/" + year;
 };
+
+/**
+ * Comportamento padrão em campo de Date Picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {*} ev
+ * @param {*} value
+ */
+var defaultKeyUpDatePickerAction = function (ev, value) {
+    var value = value.replace(/(\d{2})(\d{2})(\d{4})/g, "$1/$2/$3");
+    if (value.length == 10 && ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105))) {
+        updateDatePicker("data_nasc", value);
+    }
+};
+
+/**
+ * Prevê Enter de ser informado em campo de date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {event} ev Evento
+ */
+var preventEnterActionInput = function (ev) {
+    if (ev.keyCode === 13) {
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        return false;
+    }
+};
+
+
+/**
+ * home::initializeDatePicker
+ *
+ * Inicializa um campo como date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} field Campo a ser inicializado
+ *
+ * @return void
+ */
+var initializeDatePicker = function(field) {
+    $("#" + field).datepicker({
+        minView: 2,
+        maxView: 2,
+        clearBtn: true,
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        forceParse: false,
+        language: "pt-BR",
+        format: "dd/mm/yyyy",
+        initialDate: new Date()
+    });
+};
+
+/**
+ * home::updateDatePicker
+ *
+ * Atualiza o valor do campo de data do tipo date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} field Campo
+ * @param {string} date Valor
+ *
+ * @return void
+ */
+var updateDatePicker = function(field, date) {
+    $("#" + field).datepicker("update", date);
+};
+
 
 /**
  * Popula dados de cupom para resgate

@@ -6,72 +6,82 @@
  */
 
 $(document).ready(function () {
-    $("#cpf").mask('###.###.###-##');
+    $("#cpf").mask("###.###.###-##");
 
     var imageStored = false;
 
     var startScanDocument = function () {
-
         $(".group-video-capture").show();
 
         var video = document.querySelector("#video");
         var photo = document.querySelector("#photoTaken");
 
         var canvas = $("#canvas")[0];
-        var canvasContext = canvas.getContext('2d');
+        var canvasContext = canvas.getContext("2d");
 
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+        navigator.getUserMedia =
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia ||
+            navigator.oGetUserMedia;
 
         if (navigator.getUserMedia) {
-            navigator.getUserMedia({
-                video: true,
-                audio: false
-            }, handleVideo, videoError);
+            navigator.getUserMedia(
+                {
+                    video: true,
+                    audio: false
+                },
+                handleVideo,
+                videoError
+            );
         }
 
         function handleVideo(stream) {
             window.localStream = stream;
             video.src = window.URL.createObjectURL(stream);
-
         }
 
-        function videoError(e) { // do something
+        function videoError(e) {
+            // do something
         }
 
         $("#takeSnapshot").click(function () {
-
             canvasContext.drawImage(video, 0, 0, 400, 300);
-
         });
 
         $("#storeImage").click(function () {
-
-            var message = '';
-            var messageValidation = '';
+            var message = "";
+            var messageValidation = "";
 
             if ($("#alternarEstrangeiro")[0].checked) {
                 if ($("#doc_estrangeiro").val().length == 0) {
-                    messageValidation = 'Documento de Identificação Estrangeira';
+                    messageValidation =
+                        "Documento de Identificação Estrangeira";
                 }
             } else {
                 if ($("#cpf").val().length < 14) {
-                    messageValidation = 'CPF';
+                    messageValidation = "CPF";
                 }
             }
 
             if (messageValidation.length > 0) {
-                message = "Campo precisa estar preenchido para continuar: " + messageValidation;
+                message =
+                    "Campo precisa estar preenchido para continuar: " +
+                    messageValidation;
                 callModalError(message);
             } else {
-
                 var resizedCanvas = document.createElement("canvas");
-                var resizedContext = resizedCanvas.getContext('2d');
+                var resizedContext = resizedCanvas.getContext("2d");
 
-                resizedCanvas.height = '768';
-                resizedCanvas.width = '1024';
+                resizedCanvas.height = "768";
+                resizedCanvas.width = "1024";
                 resizedContext.drawImage(canvas, 0, 0, 1024, 768);
 
-                var nameImage = $("#cpf").val().length == 0 ? $("#doc_estrangeiro").val() : $("#cpf").val();
+                var nameImage =
+                    $("#cpf").val().length == 0
+                        ? $("#doc_estrangeiro").val()
+                        : $("#cpf").val();
 
                 if (!$("#doc_invalido").val().length > 0) {
                     nameImage = cleanIdentity(nameImage);
@@ -79,32 +89,43 @@ $(document).ready(function () {
 
                 callLoaderAnimation();
                 $.ajax({
-                    url: '/Usuarios/uploadDocumentTemporary',
-                    type: 'post',
+                    url: "/Usuarios/uploadDocumentTemporary",
+                    type: "post",
                     data: JSON.stringify({
                         image: resizedCanvas.toDataURL("image/jpeg"),
                         imageName: nameImage
                     }),
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Accept", "application/json");
-                        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                        xhr.setRequestHeader(
+                            "Content-Type",
+                            "application/json; charset=UTF-8"
+                        );
                     },
                     success: function (e) {
-                        $("#cpf_validation").val("Imagem de Documento enviado com sucesso.");
+                        $("#cpf_validation").val(
+                            "Imagem de Documento enviado com sucesso."
+                        );
                         $(".group-video-capture").hide();
                         $("#doc_invalido").val(true);
                     },
                     error: function (e) {
-                        window.alert("Houve um erro, por favor tente novamente.");
+                        window.alert(
+                            "Houve um erro, por favor tente novamente."
+                        );
                         console.log(e);
 
                         closeLoaderAnimation();
                     },
                     complete: function (e) {
-                        $("#cpf_validation").text("Imagem armazenada no servidor.");
-                        $("#doc_estrangeiro_validation").text("Imagem armazenada no servidor.");
+                        $("#cpf_validation").text(
+                            "Imagem armazenada no servidor."
+                        );
+                        $("#doc_estrangeiro_validation").text(
+                            "Imagem armazenada no servidor."
+                        );
                         stopScanDocument();
-                        $("#user_submit").attr('disabled', false);
+                        $("#user_submit").attr("disabled", false);
 
                         closeLoaderAnimation();
 
@@ -112,7 +133,7 @@ $(document).ready(function () {
                         imageStored = true;
 
                         // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem.
-                        $("#cpf").attr('disabled', true);
+                        $("#cpf").attr("disabled", true);
                     }
                 });
             }
@@ -120,13 +141,12 @@ $(document).ready(function () {
     };
 
     var stopScanDocument = function () {
-
         if (window.localStream !== undefined) {
             window.localStream.getVideoTracks()[0].stop();
         }
 
         $(".group-video-capture").hide();
-    }
+    };
 
     $("#alternarEstrangeiro").click(function () {
         $("#cpf_box").toggle();
@@ -137,18 +157,21 @@ $(document).ready(function () {
         } else {
             stopScanDocument();
         }
-
     });
 
     if ($("#alternarEstrangeiro").checked == true) {
         $("#cpf_box").hide();
         $("#doc_estrangeiro_box").show();
-        $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
+        $("#doc_estrangeiro_validation").text(
+            "É necessário capturar uma cópia do documento para posterior aprovação."
+        );
         startScanDocument();
     } else {
         $("#cpf_box").show();
         $("#doc_estrangeiro_box").hide();
-        $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
+        $("#doc_estrangeiro_validation").text(
+            "É necessário capturar uma cópia do documento para posterior aprovação."
+        );
         stopScanDocument();
     }
 
@@ -160,10 +183,10 @@ $(document).ready(function () {
      * @param {object} documentUser
      */
     var cleanIdentity = function (parameter) {
-        var returnValue = parameter.replace(/\./g, '');
-        returnValue = returnValue.replace(/\-/g, '');
+        var returnValue = parameter.replace(/\./g, "");
+        returnValue = returnValue.replace(/\-/g, "");
         return returnValue;
-    }
+    };
 
     /**
      * Verifica se CPF é válido
@@ -183,7 +206,7 @@ $(document).ready(function () {
 
         rest = (sum * 10) % 11;
 
-        if ((rest == 10) || (rest == 11)) {
+        if (rest == 10 || rest == 11) {
             rest = 0;
         }
 
@@ -198,7 +221,7 @@ $(document).ready(function () {
 
         rest = (sum * 10) % 11;
 
-        if ((rest == 10) || (rest == 11)) {
+        if (rest == 10 || rest == 11) {
             rest = 0;
         }
         if (rest != parseInt(strCPF.substring(10, 11))) {
@@ -206,18 +229,17 @@ $(document).ready(function () {
         }
 
         return true;
-    }
+    };
 
     /**
      * Verifica se há CPF repetido no servidor
      */
     var checkCPFRepeated = function () {
-
         callLoaderAnimation("Verificando CPF...");
 
         $.ajax({
             url: "/Usuarios/getUsuarioByCPF",
-            type: 'POST',
+            type: "POST",
             data: {
                 id: $("#usuarios_id").val(),
                 cpf: cpf.value
@@ -229,23 +251,24 @@ $(document).ready(function () {
         }).done(function (result) {
             closeLoaderAnimation();
             if (result !== undefined && result.user !== null) {
-
                 $("#cpf_validation").text("Este CPF já está em uso.");
-                $("#user_submit").attr('disabled', true);
-
+                $("#user_submit").attr("disabled", true);
             } else {
-
                 var isValid = checkCPFIsValid(cleanIdentity(cpf.value));
 
                 $("#cpf_validation").text("");
                 if (!isValid) {
-                    $("#user_submit").attr('disabled', true);
+                    $("#user_submit").attr("disabled", true);
                     $("#cpf_validation").text("CPF não é válido!");
                     $("#cpf_validation").show();
 
-
-                    if (occurrencesInvalidCpf >= 1 && (previousCPF == cpf.value)) {
-                        $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
+                    if (
+                        occurrencesInvalidCpf >= 1 &&
+                        previousCPF == cpf.value
+                    ) {
+                        $("#cpf_validation").text(
+                            "Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior."
+                        );
 
                         startScanDocument();
                     } else {
@@ -253,13 +276,12 @@ $(document).ready(function () {
                         previousCPF = cpf.value;
                         $("#cpf").val("");
                     }
-
                 } else {
                     $("#cpf_validation").text("");
                     $("#cpf_validation").hide();
 
                     previousCPF = "";
-                    $("#user_submit").attr('disabled', false);
+                    $("#user_submit").attr("disabled", false);
                 }
             }
         });
@@ -268,35 +290,32 @@ $(document).ready(function () {
     /**
      * Limpa campo de CPF ao cadastrar documento estrangeiro
      */
-    $("#doc_estrangeiro").on('keyup', function () {
+    $("#doc_estrangeiro").on("keyup", function () {
         $("#cpf").val(null);
     });
 
     /**
      * Função que ativa as verificações de cpf repetido e se é válido
      */
-    $("#cpf").on('keyup', function (data) {
+    $("#cpf").on("keyup", function (data) {
         $("#doc_estrangeiro").val(null);
 
         if (this.value.length == 14) {
-
             var result = checkCPFRepeated();
 
             if (result) {
                 var cpf = cleanIdentity(this.value);
                 checkCPFIsValid(cpf);
             }
-
-        };
+        }
     });
 
     /**
      * Função que ativa as verificações de cpf repetido e se é válido
      */
-    $("#cpf").on('blur', function () {
+    $("#cpf").on("blur", function () {
         if (!imageStored) {
             if (this.value.length == 14) {
-
                 var result = checkCPFRepeated();
 
                 if (result) {
@@ -310,9 +329,8 @@ $(document).ready(function () {
     /**
      * Verifica se há e-mail em uso
      */
-    $("#email").on('blur', function () {
+    $("#email").on("blur", function () {
         if (this.value.length > 0) {
-
             // verifica se o e-mail é válido
 
             var email = this.value;
@@ -325,7 +343,8 @@ $(document).ready(function () {
 
             // se tem arroba e tem um ponto no e-mail
 
-            var email_invalid = "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
+            var email_invalid =
+                "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
 
             if (contains_at == -1 || contains_dot.length == 0) {
                 callModalError(email_invalid);
@@ -345,25 +364,30 @@ $(document).ready(function () {
                 } else {
                     $.ajax({
                         url: "/Usuarios/getUsuarioByEmail",
-                        type: 'post',
+                        type: "post",
                         data: JSON.stringify({
                             id: $("#usuarios_id").val(),
                             email: this.value
                         }),
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("Accept", "application/json");
-                            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                            xhr.setRequestHeader(
+                                "Content-Type",
+                                "application/json; charset=UTF-8"
+                            );
                         },
                         success: function (data) {
-                            if (data['user'] !== null) {
-                                callModalError('Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"');
+                            if (data["user"] !== null) {
+                                callModalError(
+                                    'Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"'
+                                );
                                 $("#email_validation").show();
-                                $("#user_submit").attr('disabled', true);
+                                $("#user_submit").attr("disabled", true);
                                 $("#email").focus();
                             } else {
                                 $("#email_validation").text("");
                                 $("#email_validation").hide();
-                                $("#user_submit").attr('disabled', false);
+                                $("#user_submit").attr("disabled", false);
                             }
                         },
                         error: function (data) {
@@ -375,7 +399,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#telefone").on('focus', function () {
+    $("#telefone").on("focus", function () {
         $("#telefone").unmask("(99)99999-9999");
         $("#telefone").unmask("(99)9999-9999");
     });
@@ -386,9 +410,9 @@ $(document).ready(function () {
         } else {
             $("#telefone").mask("(99)99999-9999");
         }
-    }
+    };
 
-    $("#telefone").on('blur', function () {
+    $("#telefone").on("blur", function () {
         updateTelefoneFormat(this.value);
     });
 
@@ -396,24 +420,43 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    $("#data_nasc").datetimepicker({
-        minView: 2,
-        maxView: 2,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    }).on('changeDate', function (ev) {
-        $("#data_nasc").val(ev.target.value);
+    // $("#data_nasc").datetimepicker({
+    //     minView: 2,
+    //     maxView: 2,
+    //     clearBtn: true,
+    //     autoclose: true,
+    //     todayBtn: true,
+    //     language: 'br',
+    //     format: 'dd/mm/yyyy',
+    // }).on('changeDate', function (ev) {
+    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
 
+    //     $("#data_nasc").val(value);
+
+    // }).on('blur', function(ev){
+    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
+    //     $("#data_nasc").val(value);
+    // }).on('hide', function(ev){
+    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
+    //     $("#data_nasc").val(value);
+    // });
+
+    initializeDatePicker("data_nasc", new Date());
+
+    $("#data_nasc").on("keyup", function (ev) {
+        preventEnterActionInput(ev);
+        defaultKeyUpDatePickerAction(ev, this.value);
+    }).on("keydown", function (ev) {
+        preventEnterActionInput(ev);
     });
+
 
     /**
      * Esconde e reseta as informações de Redes
      */
     var hide_redes_input = function () {
         $(".redes_input").hide();
-
-
-    }
+    };
 
     hide_redes_input();
 
@@ -422,12 +465,12 @@ $(document).ready(function () {
      */
     var showRedesInput = function () {
         $(".redes_input").show();
-    }
+    };
 
     /**
      * Atualiza o select de unidade da rede
      */
-    $(".redes_list").on('change', function () {
+    $(".redes_list").on("change", function () {
         var data = {
             redes_id: $(this).val()
         };
@@ -440,7 +483,6 @@ $(document).ready(function () {
      * @param {object} data
      */
     var loadUnidadesRede = function (data) {
-
         callLoaderAnimation("Carregando unidades");
 
         $.ajax({
@@ -449,7 +491,10 @@ $(document).ready(function () {
             data: JSON.stringify(data),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
-                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader(
+                    "Content-Type",
+                    "application/json; charset=UTF-8"
+                );
             },
             error: function (response) {
                 console.log(response);
@@ -462,14 +507,21 @@ $(document).ready(function () {
             options.append($("<option />"));
 
             $.each(result.redes, function () {
-                options.append($("<option />").val(this.clientes_id).text(this.cliente.razao_social));
+                options.append(
+                    $("<option />")
+                        .val(this.clientes_id)
+                        .text(this.cliente.razao_social)
+                );
             });
 
             closeLoaderAnimation();
             var interval;
 
             interval = setInterval(function () {
-                if ($("#clientes_rede").val() != "" && $("#clientes_rede").val() != null) {
+                if (
+                    $("#clientes_rede").val() != "" &&
+                    $("#clientes_rede").val() != null
+                ) {
                     clearInterval(interval);
                 } else {
                     var cliente_id = parseInt($("#clientes_id").val());
@@ -477,7 +529,7 @@ $(document).ready(function () {
                 }
             }, 100);
         });
-    }
+    };
 
     // carrega todas as unidades da rede caso já esteja definido redes_id
 
@@ -489,7 +541,7 @@ $(document).ready(function () {
         loadUnidadesRede(data);
     }
 
-    $("#tipo-perfil").on('change', function () {
+    $("#tipo-perfil").on("change", function () {
         changeProfileType(this);
     });
 
@@ -519,13 +571,12 @@ $(document).ready(function () {
             $("#senha").mask("AAAAAAAA");
             $("#confirm-senha").mask("AAAAAAAA");
             $(".fields-is-final-customer").hide();
-
         } else {
             $("#senha").mask("####");
             $("#confirm-senha").mask("####");
             $(".fields-is-final-customer").show();
         }
-    }
+    };
 
     changeProfileType($("#tipo-perfil"));
 });

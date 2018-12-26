@@ -305,15 +305,15 @@ if ($usuarioLogado['tipo_perfil'] == 0) {
                 <?= $this->Form->input(
                     'data_nasc',
                     [
-                        'class' => 'datepicker-input',
+                        // 'class' => 'datepicker-input',
                         'div' =>
                             [
                             'class' => 'form-inline',
                         ],
                         'type' => 'text',
                         'id' => 'data_nasc',
-                        'format' => 'd/m/Y',
-                        'default' => date('d/m/Y'),
+                        // 'format' => 'd/m/Y',
+                        // 'default' => date('d/m/Y'),
                         'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
                         'label' => 'Data de Nascimento'
                     ]
@@ -395,12 +395,12 @@ if ($usuarioLogado['tipo_perfil'] == 0) {
     </fieldset>
     <div class="col-lg-12 text-right">
 
-        <button type="submit" 
+        <button type="submit"
             class="btn btn-primary botao-confirmar">
-            <span class="fa fa-save"></span> 
+            <span class="fa fa-save"></span>
             Salvar
         </button>
-        <a href="/usuarios/index" 
+        <a href="/usuarios/index"
             class="btn btn-danger botao-cancelar">
             <span class="fa fa-window-close"></span>
             Cancelar
