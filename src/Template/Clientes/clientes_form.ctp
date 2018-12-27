@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * @author   Gustavo Souza Gonçalves
@@ -10,7 +10,7 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 
-$redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_has_cliente"] ["redes_id"] : null;
+$redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has_cliente"]["redes_id"] : null;
 
 ?>
 
@@ -45,7 +45,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                     ]
                 ); ?>
             </div>
-        
+
         </div>
 
         <div class="form-group row">
@@ -76,11 +76,11 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
             <div class="col-lg-5" >
                 <?= $this->Form->input('endereco', ['label' => 'Endereço*', 'class' => 'endereco']); ?>
             </div>
-            
+
             <div class="col-lg-2">
                 <?= $this->Form->input('endereco_numero', ['class' => 'form-control endereco_numero', 'type' => 'text', 'label' => 'Número']); ?>
             </div>
-            
+
             <div class="col-lg-3">
                 <?= $this->Form->input('endereco_complemento', ['class' => 'form-control', 'label' => 'Complemento']); ?>
             </div>
@@ -90,7 +90,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
 
             <div class="col-lg-3">
                 <?= $this->Form->input('bairro', ['label' => 'Bairro', 'class' => 'bairro']); ?>
-            
+
             </div>
             <div class="col-lg-3">
                 <?= $this->Form->input(
@@ -99,7 +99,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                         'class' => 'municipio'
                     ]
                 ); ?>
-            
+
             </div>
             <div class="col-lg-3">
                 <?= $this->Form->input(
@@ -114,7 +114,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                         'options' => $this->Address->getStatesBrazil()
                     ]
                 ); ?>
-            
+
             </div>
             <div class="col-lg-3">
                 <?= $this->Form->input(
@@ -125,7 +125,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                         'class' => 'pais'
                     ]
                 ); ?>
-            
+
             </div>
         </div>
 
@@ -140,7 +140,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                 ]); ?>
             </div>
             <div class="col-lg-6">
-        
+
                 <?= $this->Form->input('longitude', [
                     'label' => 'Longitude',
                     'placeHolder' => 'Longitude',
@@ -148,7 +148,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
                     'title' => 'Valor de longitutde adquirido pelo CEP'
                 ]); ?>
             </div>
-        
+
         </div>
         <div class="form-group row">
             <div class="col-lg-4">
@@ -163,18 +163,53 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
             <?= $this->Form->input('tel_celular'); ?>
             </div>
         </div>
+
+    <!-- <legend>Quadro de Horários da Unidade</legend>
+
+    <div class="form-group row">
+        <div class="col-lg-6">
+            <label for="quantidade_turnos">Quantidade de Turnos</label>
+            <input type="number"
+                min="2"
+                max="4"
+                step="1"
+                value="<?= $cliente["quantidade_turnos"] ?> "
+                class="form-control"
+                name="quantidade_turnos"
+                id="quantidade_turnos" />
+        </div>
+        <div class="col-lg-6">
+        <label for="inicio_turno">Primeiro Turno do Dia</label>
+            <input type="time"
+                min="2"
+                max="4"
+                value="<?= $cliente["horario"] ?> "
+                class="form-control"
+                name="horario"
+                id="horario" />
+        </div>
+
+    </div>
+
+    <h4>Detalhamento Quadro de Horários</h4>
+
+    <h5>Os horários serão cadastrados da seguinte forma:</h5>
+
+    <div class="form-group row">
+        <div class="col-lg-12">
+            <span class="horariosContent"></span>
+        </div>
+    </div> -->
     </fieldset>
     <div class="form-group row">
-        <div class="col-lg-2">
-            <button type="submit" 
-                class="btn btn-primary btn-block botao-confirmar">
+        <div class="col-lg-12 text-right">
+            <button type="submit"
+                class="btn btn-primary botao-confirmar">
                 <span class="fa fa-save"></span>
                 Salvar
             </button>
-            
-        </div>
-        <div class="col-lg-2">
-            <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger btn-block"><i class="fa fa-window-close"></i> Cancelar</a>
+
+            <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger"><i class="fa fa-window-close"></i> Cancelar</a>
         </div>
 
     </div>
@@ -184,7 +219,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente ["rede_ha
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/clientes/clientes_form'); ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/clientes/clientes_form.min'); ?>
 <?php endif; ?>
 

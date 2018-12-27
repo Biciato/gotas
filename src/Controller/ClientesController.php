@@ -215,7 +215,11 @@ class ClientesController extends AppController
         $rede = $this->Redes->getRedeById($redes_id);
 
         if ($this->request->is('post')) {
-            $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
+
+            $data = $this->request->getData();
+
+            // DebugUtil::print($data);
+            $cliente = $this->Clientes->patchEntity($cliente, $data);
 
             // Verifica se ja tem um registro antes
 
@@ -278,7 +282,12 @@ class ClientesController extends AppController
             $cliente = $this->Clientes->getClienteById($id);
 
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
+                $data = $this->request->getData();
+
+                // DebugUtil::print($data);
+                $cliente = $this->Clientes->patchEntity($cliente, $data);
+
+                // $cliente = $this->Clientes->patchEntity($cliente, $this->request->getData());
 
                 $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
 
