@@ -43,13 +43,6 @@ if (Configure::read('debug')) {
     echo $this->Html->css('home-rti');
     echo $this->Html->css(['bootstrap/css/bootstrap', 'bootstrap/css/bootstrap-theme']);
     echo $this->Html->css(['font-awesome/css/font-awesome']);
-    // echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker']);
-    echo $this->Html->css(
-        array(
-            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker",
-            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3",
-        )
-    );
     echo $this->Html->script('jquery/jquery');
     echo $this->Html->script('jquery-Mask/jquery.mask');
     echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode');
@@ -57,7 +50,12 @@ if (Configure::read('debug')) {
 
     echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney');
     echo $this->Html->script('bootstrap/js/bootstrap');
-    // echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
+    echo $this->Html->css(
+        array(
+            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker",
+            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3",
+            )
+        );
     echo $this->Html->script(
         array(
             "bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker",
@@ -77,14 +75,27 @@ if (Configure::read('debug')) {
     echo $this->Html->css('home-rti');
     echo $this->Html->css(['bootstrap/css/bootstrap.min', 'bootstrap/css/bootstrap-theme.min']);
     echo $this->Html->css(['font-awesome/css/font-awesome.min']);
-    echo $this->Html->css(['bootstrap-datetimepicker/css/bootstrap-datetimepicker.min']);
+
     echo $this->Html->script('jquery/jquery.min');
     echo $this->Html->script('jquery-Mask/jquery.mask.min');
     echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode.min');
     echo $this->Html->script('printThis-master/printThis');
     echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
     echo $this->Html->script('bootstrap/js/bootstrap.min');
-    echo $this->Html->script(['bootstrap-datetimepicker/js/bootstrap-datetimepicker.min', 'bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.pt-br']);
+    echo $this->Html->css(
+        array(
+            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min",
+            "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.min",
+            )
+        );
+    echo $this->Html->script(
+        array(
+            "bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker.min",
+            "bootstrap-datepicker-1.6.4-dist/locales/bootstrap-datepicker.pt-BR.min"
+
+        )
+    );
+
     echo $this->Html->script('scripts/pages/home');
     echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0.min');
     echo $this->Html->script('pdf417-gh-pages/pdf417');

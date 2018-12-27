@@ -600,54 +600,7 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    $("#data_nasc").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    }).on('changeDate', function (ev) {
-
-        // var formato = /(d{2})(d{2})(d{4})/gm;
-
-        // var texto = ev.target.value;
-
-        // var texto1  = texto.replace(formato, texto);
-        // console.log(texto1);
-
-        // $("#data_nasc").val(texto1);
-        $("#data_nasc").val(ev.target.value);
-
-    });
-
-    $("#data_nasc").on("blur", function (ev) {
-        // var formato = /(d{2})(d{2})(d{4})/gm;
-
-        // var texto = ev.target.value;
-
-        // var texto1  = texto.replace(formato, texto);
-        // console.log(texto1);
-
-        // $("#data_nasc").datetimepicker({
-        //     minView: 2,
-        //     maxView: 4,
-        //     clearBtn: true,
-        //     format: 'dd/mm/yyyy',
-        // }).on('changeDate', function (ev) {
-
-        //     var formato = /(d{2})(d{2})(d{4})/gm;
-
-        //     var texto = ev.target.value;
-
-        //     var texto1  = texto.replace(formato, texto);
-        //     console.log(texto1);
-
-        //     $("#data_nasc").val(texto1);
-        //     // $("#data_nasc").val(ev.target.value);
-
-        // });
-        
-    })
-
+    initializeDatePicker("data_nasc");
     /**
      * Configurações de ação para botão confirmar
      */

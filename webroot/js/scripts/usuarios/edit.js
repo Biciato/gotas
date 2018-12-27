@@ -420,36 +420,7 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    // $("#data_nasc").datetimepicker({
-    //     minView: 2,
-    //     maxView: 2,
-    //     clearBtn: true,
-    //     autoclose: true,
-    //     todayBtn: true,
-    //     language: 'br',
-    //     format: 'dd/mm/yyyy',
-    // }).on('changeDate', function (ev) {
-    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
-
-    //     $("#data_nasc").val(value);
-
-    // }).on('blur', function(ev){
-    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
-    //     $("#data_nasc").val(value);
-    // }).on('hide', function(ev){
-    //     var value = this.value.replace(/(\d{2})(\d{2})(\d{4})/g,'$1/$2/$3');
-    //     $("#data_nasc").val(value);
-    // });
-
     initializeDatePicker("data_nasc", new Date());
-
-    $("#data_nasc").on("keyup", function (ev) {
-        preventEnterActionInput(ev);
-        defaultKeyUpDatePickerAction(ev, this.value);
-    }).on("keydown", function (ev) {
-        preventEnterActionInput(ev);
-    });
-
 
     /**
      * Esconde e reseta as informações de Redes

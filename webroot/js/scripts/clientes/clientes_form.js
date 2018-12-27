@@ -2,11 +2,11 @@
  * @author Gustavo Souza Gonçalves
  * @date 12/07/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function(){
-	
+
 	$("#codigo_equipamento_rti").on('blur', function(){
 		if (this.value.toString().length == 1)
 		{
@@ -20,11 +20,5 @@ $(document).ready(function(){
 	$("#tel-fax").mask("(99)9999-9999");
 	$("#cep").mask("99.999-999");
 
-	$("#data_nasc").datetimepicker({
-		minView: 2,
-		maxView: 4,
-		clearBtn: true,
-		format: 'dd/mm/yyyy',
-	});
-	
+    initializeDatePicker("data_nasc");
 });

@@ -472,10 +472,10 @@ var formatDateTimeToDate = function (data) {
  * @param {*} ev
  * @param {*} value
  */
-var defaultKeyUpDatePickerAction = function (ev, value) {
+var defaultKeyUpDatePickerAction = function (field, ev, value) {
     var value = value.replace(/(\d{2})(\d{2})(\d{4})/g, "$1/$2/$3");
     if (value.length == 10 && ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105))) {
-        updateDatePicker("data_nasc", value);
+        updateDatePicker(field, value);
     }
 };
 
@@ -509,7 +509,7 @@ var preventEnterActionInput = function (ev) {
  *
  * @return void
  */
-var initializeDatePicker = function(field) {
+var initializeDatePicker = function (field) {
     $("#" + field).datepicker({
         minView: 2,
         maxView: 2,
@@ -521,6 +521,13 @@ var initializeDatePicker = function(field) {
         language: "pt-BR",
         format: "dd/mm/yyyy",
         initialDate: new Date()
+    });
+
+    $("#" + field).on("keyup", function (ev) {
+        preventEnterActionInput(ev);
+        defaultKeyUpDatePickerAction(field, ev, this.value);
+    }).on("keydown", function (ev) {
+        preventEnterActionInput(ev);
     });
 };
 
@@ -537,7 +544,7 @@ var initializeDatePicker = function(field) {
  *
  * @return void
  */
-var updateDatePicker = function(field, date) {
+var updateDatePicker = function (field, date) {
     $("#" + field).datepicker("update", date);
 };
 

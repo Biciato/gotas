@@ -2,7 +2,7 @@
  * @author Gustavo Souza Gonçalves
  * @file webroot\js\scripts\usuarios\filtro_relatorio_usuarios_cadastrados.js
  * @date 17/03/2018
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -37,31 +37,10 @@ $(document).ready(function () {
         }
     });
 
-    $("#dataNascimentoInicio").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
-    $("#dataNascimentoFim").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
-
-    $("#auditInsertInicio").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
-    $("#auditInsertFim").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
+    initializeDatePicker("dataNascimentoInicio");
+    initializeDatePicker("dataNascimentoFim");
+    initializeDatePicker("auditInsertInicio");
+    initializeDatePicker("auditInsertFim");
 
 
 
