@@ -132,7 +132,7 @@ class VeiculosTable extends GenericTable
         return $validator;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Cria um novo veículo
@@ -193,7 +193,7 @@ class VeiculosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem veículos conforme condições
@@ -231,9 +231,9 @@ class VeiculosTable extends GenericTable
     public function getVeiculoById($id)
     {
         try {
-            return $this->_getVeiculosTable()
+            return $this
                 ->find('all')
-                ->where(['id' => $id])
+                ->where(array('id' => $id))
                 ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -264,7 +264,7 @@ class VeiculosTable extends GenericTable
                     "status" => 0,
                     "message" => Configure::read("messageQueryNoDataToReturn"),
                     "errors" => array(
-                        "Valor Placa deve ter 7 dígitos para realizar a pesquisa!"
+                        Configure::read("messageVeiculoPlateLength")
                     )
                 );
 
@@ -289,9 +289,9 @@ class VeiculosTable extends GenericTable
                 "mensagem" => array(
                     "status" => empty($veiculo) ? 0 : 1,
                     "message" => empty($veiculo) ?
-                        Configure::read("messageQueryNoDataToReturn") :
+                        Configure::read("messageRecordNotFound") :
                         Configure::read("messageLoadDataWithSuccess"),
-                    "errors" => array()
+                    "errors" => empty($veiculo) ? array(Configure::read("messageQueryNoDataToReturn")) : array()
                 ),
                 "veiculo" => $veiculo
             );
@@ -577,7 +577,23 @@ class VeiculosTable extends GenericTable
                 // Obtem os usuários que atendem aos critérios
 
                 $usuariosTable = TableRegistry::get("Usuarios");
-                $usuarios = $usuariosTable->findAllUsuarios($whereConditionsUsuariosRetorno)->toArray();
+                // $usuarios = $usuariosTable->find("all")->where($whereConditionsUsuariosRetorno)->toArray();
+                $usuarios = $usuariosTable->findAllUsuarios(
+                    // $redesId,
+                    // $clientesIds,
+                    null,
+                    array(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    $usuariosClientesEncontradosIds
+                )->toArray();
+
             }
         }
 
@@ -586,6 +602,6 @@ class VeiculosTable extends GenericTable
         return $data;
     }
 
-    /* ------------------------ Update ------------------------ */
-    /* ------------------------ Delete ------------------------ */
+    #region Update
+    #region Delete
 }

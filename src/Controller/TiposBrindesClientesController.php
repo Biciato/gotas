@@ -42,19 +42,28 @@ class TiposBrindesClientesController extends AppController
         $tiposBrindesClientes = array();
         $cliente = $this->Clientes->getClienteById($clientesId);
 
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->getUserLogged();
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
         if (empty($cliente)) {
             throw new \Exception(__(Configure::read("messageRecordClienteNotFound")));
         }
 
         try {
-            if ($cliente) {
-                $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId);
-            }
 
-            $tiposBrindesClientes = $this->paginate($tiposBrindesClientes, ["limit" => 10]);
+            $equipamentoRTI = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] ? 1 : 0;
+            $tiposBrindesClientes = $this->TiposBrindesClientes->getTiposBrindesClientesByClientesId($clientesId, $equipamentoRTI);
+            $tiposBrindesClientes = $this->Paginate($tiposBrindesClientes, ["limit" => 10]);
+
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível exibir os dados de Gênero de Brindes do Cliente [{0}] Nome Fantasia: {1} / Razão Social:  {2} !", $cliente["id"], $cliente["nome_fantasia"], $cliente["razao_social"]);
+            $messageString = __("Não foi possível exibir os dados de Tipos de Brindes do Cliente [{0}] Razão Social: {1} !", $cliente["id"], $cliente["razao_social"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -64,8 +73,11 @@ class TiposBrindesClientesController extends AppController
             Log::write("error", $trace);
         }
 
-        // DebugUtil::print($tiposBrindesClientes);
-        $arraySet = ["cliente", "tiposBrindesClientes"];
+        $arraySet = array(
+            "cliente",
+            "tiposBrindesClientes",
+            "usuarioLogado"
+        );
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
 
@@ -78,95 +90,133 @@ class TiposBrindesClientesController extends AppController
      */
     public function adicionarTiposBrindesCliente(int $clientesId)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
         $cliente = null;
         $cliente = $this->Clientes->getClienteById($clientesId);
+
+        if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] && empty($cliente["codigo_equipamento_rti"])) {
+            $this->Flash->warning("Atenção! O Código de Equipamento RTI não foi configurado, não será possível ativar brindes de equipamento RTI ao Cliente!");
+        }
+
+        $equipamentoRTI = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"] ? true : false;
+        $tiposBrindesRedes = array();
 
         if (empty($cliente)) {
             throw new \Exception(__("{0}{1}"), Configure::read("messageLoadDataWithError"), __(Configure::read("messageRecordClienteNotFound")));
         }
 
-        $tiposBrindesRedes = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"]);
+        $tiposBrindesRedesQuery = $this->TiposBrindesClientes->getTiposBrindesClientesDisponiveis($cliente["id"], $equipamentoRTI);
+
+        foreach ($tiposBrindesRedesQuery as $tipoBrinde) {
+            $tipo = array(
+                "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
+                "value" => $tipoBrinde["id"],
+                "id" => "tipos_brindes_redes_id",
+                "data-tipo-principal" => !empty($tipoBrinde["tipo_principal_codigo_brinde_default"]) ? $tipoBrinde["tipo_principal_codigo_brinde_default"] : null,
+                "data-tipo-secundario" => !empty($tipoBrinde["tipo_secundario_codigo_brinde_default"]) ? $tipoBrinde["tipo_secundario_codigo_brinde_default"] : null,
+                "equipamento_rti" => $tipoBrinde["equipamento_rti"]
+            );
+            $tiposBrindesRedes[] = $tipo;
+        }
 
         try {
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->newEntity();
 
-            // DebugUtil::print($tiposBrindesRedes);
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
 
-                $data["clientes_id"] = $cliente->id;
+                $data["equipamento_rti"] = $equipamentoRTI;
+                $data["clientes_id"] = $cliente["id"];
+
+                if ($equipamentoRTI) {
+                    // Verifica se já existe um tipo gravado anteriormente 
+
+                    $condicoes = array(
+                        "clientes_id" => $clientesId,
+                        "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                        "tipo_secundario_codigo_brinde" => (int)$data["tipo_secundario_codigo_brinde"],
+                    );
+
+                    // @todo gustavosg tentar parametrizar este método
+                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($condicoes, 1);
 
                 // Verifica se o brinde sendo gravado é um SMART shower e o id está diferente do definido pela regra de negócio
 
-                if ($data["tipos_brindes_redes_id"] > 4
-                    && (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4)) {
-                    $this->Flash->error("O brinde selecionado não deve ter um tipo menor ou igual à 4, pois estes valores são para SMART Shower!");
-                } else {
+                // if ($equipamentoRTI && (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4)) {
+                //     $this->Flash->error("O brinde selecionado não deve ter um tipo principal menor ou igual à 4, pois estes valores são para SMART Shower!");
+                // } else {
                     // Verifica se este cliente não tem um cadastro com a mesma configuração, não pode ter repetido
 
-                    $whereConditions = array(["clientes_id" => $clientesId, "tipos_brindes_redes_id" => $data["tipos_brindes_redes_id"]]);
+                    // $whereConditions = array(["clientes_id" => $clientesId, "tipos_brindes_redes_id" => $data["tipos_brindes_redes_id"]]);
 
-                    $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                    // $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
-                    if (!empty($tiposBrindesCheck)) {
-                        $this->Flash->error(__("Já existe um gênero de brinde configurado para este cliente, conforme informações passadas!"));
+                    // if (!empty($tiposBrindesCheck)) {
+                    //     $this->Flash->error(__("Já existe um tipo de brinde configurado para este cliente, conforme informações passadas!"));
 
-                    } else {
+                    // } else {
 
-                        /**
-                         * Agora verifica se o mesmo código primário / secundário já não existe
-                         * Cada Gênero deve pertencer a uma combinação única
-                         */
-                        $whereConditions = array(
-                            [
-                                "clientes_id" => $clientesId,
-                                "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
-                            ]
-                        );
+                    /**
+                     * Agora verifica se o mesmo código primário / secundário já não existe
+                     * Cada Tipo de Brinde deve pertencer a uma combinação única
+                     */
+                    $whereConditions = array(
+                        [
+                            "clientes_id" => $clientesId,
+                            "tipo_principal_codigo_brinde" => (int)$data["tipo_principal_codigo_brinde"],
+                        ]
+                    );
 
-                        if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                            $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
-                        }
+                        // if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                        //     $whereConditions[] = ["tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]];
+                        // }
 
-                        $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
+                        // $tiposBrindesCheck = $this->TiposBrindesClientes->findTiposBrindesClientes($whereConditions, 1);
 
-                        if (!empty($tiposBrindesCheck)) {
-                            $this->Flash->error(__("Já existe um tipo de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
+                        // if (!empty($tiposBrindesCheck)) {
+                        //     $this->Flash->error(__("Já existe um tipo de brinde com este código de equipamento para este cliente, conforme informações passadas!"));
 
-                        } else {
+                        // } else {
                         // Verifica se o brinde que está sendo cadastrado é um banho.
                         // Brindes de banho tem id de 1 a 4. então o campo tipo_secundario_codigo_brinde deve ser 00
                         // Pois esses campos são calculados conforme o tempo do brinde
 
-                            if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
-                                $data["tipo_secundario_codigo_brinde"] = "00";
-                            }
-
-                            $tiposBrindesClienteSave = $this->TiposBrindesClientes->saveTiposBrindeCliente(
-                                $data["tipos_brindes_redes_id"],
-                                $data["clientes_id"],
-                                $data["tipo_principal_codigo_brinde"],
-                                $data["tipo_secundario_codigo_brinde"],
-                                $data["habilitado"],
-                                0
-                            );
-
-                            if ($tiposBrindesClienteSave) {
-                                $this->Flash->success(__(Configure::read("messageSavedSuccess")));
-
-                                return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
-                            }
-                            $this->Flash->error(__(Configure::read("messageSavedError")));
-                        }
+                    if (is_numeric($data["tipo_principal_codigo_brinde"]) && $data["tipo_principal_codigo_brinde"] <= 4) {
+                        $data["tipo_secundario_codigo_brinde"] = "00";
                     }
+                } else {
+                    $data["tipo_principal_codigo_brinde"] = "A";
+                    $data["tipo_secundario_codigo_brinde"] = "AA";
                 }
+
+                $tiposBrindesClienteSave = $this->TiposBrindesClientes->saveTiposBrindeCliente(
+                    $data["tipos_brindes_redes_id"],
+                    $data["clientes_id"],
+                    $data["tipo_principal_codigo_brinde"],
+                    $data["tipo_secundario_codigo_brinde"],
+                    $data["habilitado"],
+                    0
+                );
+
+                if ($tiposBrindesClienteSave) {
+                    $this->Flash->success(__(Configure::read("messageSavedSuccess")));
+
+                    return $this->redirect(['action' => 'tipos_brindes_cliente', $clientesId]);
+                }
+                $this->Flash->error(__(Configure::read("messageSavedError")));
+
             }
 
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível gravar um novo Gênero de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
+            $messageString = __("Não foi possível gravar um novo Tipo de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -189,7 +239,7 @@ class TiposBrindesClientesController extends AppController
     /**
      * TiposBrindesClientesController::editarTiposBrindesCliente
      *
-     * Método de edição de um gênero de brindes
+     * Método de edição de um tipos de brindes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 06/06/2018
@@ -206,19 +256,18 @@ class TiposBrindesClientesController extends AppController
 
             $cliente = $this->Clientes->getClienteById($tiposBrindesCliente["clientes_id"]);
 
-            $tiposBrindes = $this->TiposBrindes->find('list');
-
             if ($this->request->is(['patch', 'post', 'put'])) {
 
                 $data = $this->request->getData();
                 /**
-                 * Verifica se há algum outro gênero de brinde cadastrado para este usuário,
+                 * Verifica se há algum outro tipo de brinde cadastrado para este usuário,
                  * onde o tipo principal e secundário batem com outro mas o id é diferente do que
                  * está sendo modificado.
                  */
 
                 $whereConditions = array(
                     "id != " => $id,
+                    "clientes_id != " => $tiposBrindesCliente["clientes_id"],
                     "tipo_principal_codigo_brinde" => $data["tipo_principal_codigo_brinde"],
                     "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
                 );
@@ -233,24 +282,26 @@ class TiposBrindesClientesController extends AppController
                     if ($this->TiposBrindesClientes->save($tiposBrindesCliente)) {
                         $this->Flash->success(__(Configure::read("messageSavedSuccess")));
 
-                        return $this->redirect(['action' => 'tiposs_brindes_cliente', $cliente["id"]]);
+                        return $this->redirect(['action' => 'tipos_brindes_cliente', $cliente["id"]]);
                     }
                     $this->Flash->error(__(Configure::read("messageSavedSuccess")));
                 }
             }
 
-            $arraySet = [
+            $tiposBrindesRedes = array();
+
+            $arraySet = array(
                 "cliente",
-                "tiposBrindes",
+                "tiposBrindesRedes",
                 "tiposBrindesCliente"
-            ];
+            );
 
             $this->set(compact($arraySet));
-            $this->set('_serialize', [$arraySet]);
+            $this->set('_serialize', $arraySet);
 
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível gravar um novo Gênero de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
+            $messageString = __("Não foi possível gravar um novo Tipo de Brindes para o Cliente [{0}] Nome Fantasia: {1}!", $cliente["id"], $cliente["nome_fantasia"]);
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
@@ -270,11 +321,9 @@ class TiposBrindesClientesController extends AppController
     public function delete($id = null)
     {
         try {
-            $query = $this->request->query;
             $this->request->allowMethod(['post', 'delete']);
-
+            $query = $this->request->query;
             $tiposBrindesClienteId = $query["tipos_brindes_cliente_id"];
-
             $returnUrl = $query["return_url"];
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->get($tiposBrindesClienteId);
@@ -287,13 +336,47 @@ class TiposBrindesClientesController extends AppController
             return $this->redirect($returnUrl);
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível remover um Gênero de Brindes!");
+            $messageString = __("Não foi possível remover um Tipo de Brindes!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
             $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+        }
+    }
+
+    // selecionar_cliente_tipo_brinde
+
+    /**
+     * Action para selecionar um posto de atendimento para configurar seus tipos de brindes
+     *
+     * @return \Cake\Http\Response|null Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function selecionarClienteTipoBrinde()
+    {
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $cliente = $sessaoUsuario["cliente"];
+            $rede = $sessaoUsuario["rede"];
+
+            $clientes = $this->Clientes->getClientesFromRelationshipRedesUsuarios($rede["id"], $usuarioLogado["id"], $usuarioLogado["tipo_perfil"]);
+
+            $arraySet = array("rede", "usuarioLogado", "clientes");
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+        } catch (\Exception $e) {
+
+            $stringMessage = sprintf("%s: %s [Método: %s / Arquivo: %s / Linha: %s].", Configure::read("messageGenericError"), $e->getMessage(),  __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $stringMessage);
+
+            $this->Flash->error($stringMessage);
+            throw new \Exception($stringMessage);
         }
     }
 
@@ -327,7 +410,7 @@ class TiposBrindesClientesController extends AppController
     }
 
     /**
-     * Altera o estado de um Gênero de Brinde de Cliente
+     * Altera o estado de um Tipo de Brinde de Cliente
      *
      * @param  $query["tipos_brindes_cliente_id"]
      * @param  $query["clientes_id"]
@@ -364,7 +447,7 @@ class TiposBrindesClientesController extends AppController
             return $this->redirect(array("controller" => "tipos_brindes_clientes", "action" => "tipos_brindes_cliente", $clientesId));
         } catch (\Exception $e) {
 
-            $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Gênero de Brindes de Cliente!");
+            $messageString = __("Não foi possível alterar o estado de habilitado/desabilitado um Tipo de Brindes de Cliente!");
 
             $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);

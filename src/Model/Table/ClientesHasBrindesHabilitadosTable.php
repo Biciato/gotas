@@ -110,17 +110,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             ]
         );
 
-
-
-
-                    //    $this->hasOne('BrindeHabilitadoPrecoAtual', [
-                    //    'className' => 'ClientesHasBrindesHabilitadosPreco',
-                    //    'foreignKey' => 'clientes_has_brindes_habilitados_id',
-                    //    'strategy' => 'select',
-                    //    'sort' => ['data_preco' => 'desc'],
-                    //    'conditions' => ['status_autorizacao' => 1]
-                    //    ]);
-
         $this->hasMany(
             'BrindesHabilitadosUltimosPrecos',
             [
@@ -177,6 +166,9 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
         $validator
             ->notEmpty('habilitado', 'create');
+
+        $validator
+            ->notEmpty('ilimitado', 'create');
 
         $validator
             ->notEmpty('tipo_codigo_barras', 'create');
@@ -287,10 +279,49 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         'Clientes',
                         'Brindes',
                         'BrindeHabilitadoPrecoAtual',
-                        "TiposBrindesClientes"
+                        "TiposBrindesClientes.TipoBrindeRede"
+                    )
+                )
+                ->select(
+                    array(
+                        "Brindes.id",
+                        "Brindes.clientes_id",
+                        "Brindes.tipos_brindes_redes_id",
+                        "Brindes.nome",
+                        "Brindes.tempo_uso_brinde",
+                        "Brindes.ilimitado",
+                        "Brindes.habilitado",
+                        "Brindes.preco_padrao",
+                        "Brindes.valor_moeda_venda_padrao",
+                        "Brindes.nome_img",
+                        "Brindes.audit_insert",
+                        "Brindes.audit_update",
+                        "ClientesHasBrindesHabilitados.id",
+                        "ClientesHasBrindesHabilitados.brindes_id",
+                        "ClientesHasBrindesHabilitados.clientes_id",
+                        "ClientesHasBrindesHabilitados.tipo_codigo_barras",
+                        "ClientesHasBrindesHabilitados.tipos_brindes_clientes_id",
+                        "ClientesHasBrindesHabilitados.habilitado",
+                        "ClientesHasBrindesHabilitados.audit_insert",
+                        "ClientesHasBrindesHabilitados.audit_update",
+                        "TiposBrindesClientes.id",
+                        "TiposBrindesClientes.tipos_brindes_redes_id",
+                        "TiposBrindesClientes.clientes_id",
+                        "TiposBrindesClientes.tipo_principal_codigo_brinde",
+                        "TiposBrindesClientes.tipo_secundario_codigo_brinde",
+                        "TiposBrindesClientes.habilitado",
+                        "TipoBrindeRede.id",
+                        "TipoBrindeRede.nome",
+                        "TipoBrindeRede.equipamento_rti",
+                        "TipoBrindeRede.brinde_necessidades_especiais",
+                        "TipoBrindeRede.habilitado",
+                        "TipoBrindeRede.atribuir_automatico",
+                        "TipoBrindeRede.tipo_principal_codigo_brinde_default",
+                        "TipoBrindeRede.tipo_secundario_codigo_brinde_default",
                     )
                 )
                 ->first();
+
 
             // Cálculo de estoque do item
             $queryEntrada = $this->_getClientesHasBrindesHabilitadosTable()->BrindesEstoqueAtual->find();
@@ -343,13 +374,16 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      **/
-    public function getBrindeHabilitadoByBrindeId($id)
+    public function getBrindeHabilitadoByBrindeClienteId(int $brindesId, int $clientesId)
     {
         try {
             $brinde = $this->_getClientesHasBrindesHabilitadosTable()
                 ->find('all')
                 ->where(
-                    array("ClientesHasBrindesHabilitados.id" => $id)
+                    array(
+                        "ClientesHasBrindesHabilitados.brindes_id" => $brindesId,
+                        "ClientesHasBrindesHabilitados.clientes_id" => $clientesId
+                    )
                 )->contain(
                     array(
                         'Brindes',
@@ -395,7 +429,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     array(
                         "Brindes",
                         "BrindeHabilitadoPrecoAtual",
-                        "TiposBrindesClientes"
+                        "TiposBrindesClientes.TipoBrindeRede"
                     )
                 )->first();
 
@@ -416,7 +450,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * Obtêm todos os brindes de um cliente conforme tipo
      *
      * @param int  $clientes_id Id de CLiente
-     * @param int $tiposBrindesClientesIds Ids de Gênero
+     * @param int $tiposBrindesClientesIds Ids de Tipo
      *
      * @return App\Model\Entity\ClientesHasBrindesHabilitado
      */
@@ -436,6 +470,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $brindesPrecosOrdenacao = array();
             $prefix = "brinde_habilitado_preco_atual_";
+
+            $paginaAtual = 1;
+            $limite = 999;
+
+            if (sizeof($paginationConditionsBrindes) > 0) {
+                $paginaAtual = !empty($paginationConditionsBrindes["page"]) ? $paginationConditionsBrindes["page"] : $paginaAtual;
+                $limite = !empty($paginationConditionsBrindes["limit"]) ? $paginationConditionsBrindes["limit"] : $limite;
+            }
 
             $orderConditionsBrindesNew = array();
             foreach ($orderConditionsBrindes as $key => $value) {
@@ -480,61 +522,33 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             // DebugUtil::print($brindes->toArray());
 
-            $count = $brindes->count();
+            // $count = $brindes->count();
 
-            if (sizeof($paginationConditionsBrindes) > 0) {
-                $brindes = $brindes
-                    ->limit($paginationConditionsBrindes["limit"])
-                    ->page($paginationConditionsBrindes["page"]);
-            }
+            // if (sizeof($paginationConditionsBrindes) > 0) {
+            // $brindes = $brindes;
+                // ->limit($limite)
+                // ->page($paginaAtual);
+            // }
 
             // $brindesIdsQuery = $brindes->select(['id', 'nome_img'])->toArray();
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
-
-            // DebugUtil::print($brindesIdsQuery);
 
             // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
             if (sizeof($brindesIdsQuery) == 0) {
 
                 $retorno = array(
-                    "count" => 0,
-                    "page_count" => 0,
                     "mensagem" => array(
                         "status" => false,
-                        "message" => __(""),
-                        "errors" => array()
+                        "message" => Configure::read("messageLoadDataWithError"),
+                        "errors" => array(Configure::read("messageQueryNoDataToReturn"))
                     ),
-                    "data" => array(),
-                );
-                if ($paginationConditionsBrindes["page"] == 1) {
-                    $retorno = array(
-                        "brindes" => array(
-                            "count" => 0,
-                            "page_count" => 0,
-                            "data" => array()
-                        ),
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryNoDataToReturn"),
-                            "errors" => array()
-                        )
-                    );
-                } else {
-                    $retorno = array(
+                    "brindes" => array(
+                        "count" => 0,
                         "page_count" => 0,
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryPaginationEnd"),
-                            "errors" => array()
-                        ),
-                        "brindes" => array(
-                            "count" => 0,
-                            "page_count" => 0,
-                            "data" => array()
-                        )
+                        "data" => array()
+                    ),
+                );
 
-                    );
-                }
                 return $retorno;
             }
 
@@ -567,12 +581,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             if (sizeof($filterTiposBrindesClientesColumns)) {
                 $containArray["TiposBrindesClientes"] = array("fields" => $filterTiposBrindesClientesColumns);
             } else {
-                $containArray[] = "TiposBrindesClientes";
+                $containArray[] = "TiposBrindesClientes.TipoBrindeRede";
             }
 
             $clientesBrindesHabilitados = array();
 
             $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
+
+            $count = 0;
 
             foreach ($brindesIds as $key => $brindeId) {
 
@@ -586,20 +602,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->contain($containArray)
                     ->first();
 
-                    // die();
-
-                // DebugUtil::print($clientesBrindesHabilitado);
-                // DebugUtil::print($clientesBrindesHabilitado, true, false);
-
-                $brinde_habilitado_preco_table = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-
+                $brindeHabilitadoPrecoTable = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
                 $brinde = $brindesTable->getBrindesById($brindeId);
 
                 if (!empty($clientesBrindesHabilitado) && ($clientesBrindesHabilitado["tipos_brindes_clientes_id"] != 0)) {
 
                     $clientesBrindesHabilitado["brinde"] = $brinde;
 
-                    $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brinde_habilitado_preco_table
+                    $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brindeHabilitadoPrecoTable
                         ->find('all')
                         ->where(
                             array(
@@ -611,15 +621,15 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         ->order(['id' => 'DESC'])
                         ->first();
 
+                    $count = $count + 1;
                     $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
-                } else {
-                    $count -= 1;
                 }
+                // else {
+                // $count -= 1;
+                // }
             }
 
             $clientesBrindesHabilitadosReturn = array();
-
-            // DebugUtil::print($clientesBrindesHabilitados);
 
             if ($precoMin == 0 && $precoMax == 0) {
                 $clientesBrindesHabilitadosReturn = $clientesBrindesHabilitados;
@@ -669,6 +679,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
                 $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
+
+                $limiteInicial = ($limite * $paginaAtual) - $limite;
+                $limiteFinal = ($limite * $paginaAtual);
+                $clientesBrindesHabilitados = array_slice($clientesBrindesHabilitados, $limiteInicial, $limiteFinal);
             }
 
             $retorno = array(
@@ -680,8 +694,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 ),
                 "mensagem" => array(
                     "status" => sizeof($clientesBrindesHabilitados) > 0,
-                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
-                    "errors" => array()
+                    "message" => sizeof($clientesBrindesHabilitados) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageLoadDataWithError"),
+                    "errors" => sizeof($clientesBrindesHabilitados) > 0 ? array() : array(Configure::read("messageQueryNoDataToReturn"))
                 ),
             );
 
@@ -845,99 +859,153 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
              */
             $brindeTable = TableRegistry::get("Brindes");
             $brindesRede = $brindeTable->find('all')
-                ->where(array(
-                    "habilitado" => 1,
-                    "clientes_id in " => $clientesIds
-                ))->toArray();
+                ->where(
+                    array(
+                        "habilitado" => 1,
+                        "clientes_id in " => $clientesIds
+                    )
+                )
+                ->select(
+                    array(
+                        "id",
+                        "nome",
+                        "ilimitado"
+                    )
+                )
+                ->toArray();
 
             // Obtem os ids dos brindes da rede
 
             $brindesRedeIds = array();
 
-            foreach ($brindesRede as $key => $brinde) {
-                $brindesRedeIds[] = $brinde["id"];
+            $error = false;
+            $message = __("");
+
+            if (sizeof($brindesRede) == 0) {
+                $error = true;
+                $message = __("{0} {1}", Configure::read("messageNoGiftFoundNetwork"), Configure::read("callNetworkAdministrator"));
             }
 
-            /**
-             * Brindes não configurados será iterado e aquele que constar na lista será removido.
-             * em contrapartida, aquele removido será adicionado em Brindes Configurados Ids
-             */
-            $brindesConfiguradosIds = array();
-            $brindesNaoConfiguradosIds = $brindesRedeIds;
+            $arrayRetorno = array();
+            if (!$error) {
 
-            // Obtem todos os brindes que estão configurados para aquela unidade.
-
-            $brindesAtribuidos = $this->_getClientesHasBrindesHabilitadosTable()->find("all")
-                ->where(
-                    array(
-                        "brindes_id in " => $brindesRedeIds,
-                        "clientes_id" => $clienteAplicarConfiguracaoId
-                    )
-                )->toArray();
-
-            foreach ($brindesAtribuidos as $key => $brindeAtribuido) {
-                if (in_array($brindeAtribuido["brindes_id"], $brindesNaoConfiguradosIds)) {
-                    $brindesConfiguradosIds[] = $brindeAtribuido["brindes_id"];
+                foreach ($brindesRede as $key => $brinde) {
+                    $brindesRedeIds[] = $brinde["id"];
                 }
-            }
 
-            $brindesNaoAtribuidos = array();
+                /**
+                 * Brindes não configurados será iterado e aquele que constar na lista será removido.
+                 * em contrapartida, aquele removido será adicionado em Brindes Configurados Ids
+                 */
+                $brindesConfiguradosIds = array();
+                $brindesNaoConfiguradosIds = $brindesRedeIds;
 
-            $brindesNaoAtribuidosWhereConditions = array(
-                "clientes_id in " => $clientesIds,
-                "clientes_id != " => $clienteAplicarConfiguracaoId
-            );
+                // echo 'oi';
 
-            if (sizeof($brindesConfiguradosIds) > 0) {
-                $brindesNaoAtribuidosWhereConditions[] = array(
-                    "id not in " => $brindesConfiguradosIds
+                // DebugUtil::print($clientesIds);
+                // DebugUtil::print($brindesRede);
+                // DebugUtil::print($brindesRedeIds);
+                // Obtem todos os brindes que estão configurados para aquela unidade.
+
+                $brindesAtribuidos = $this->find("all")
+                    ->where(
+                        array(
+                            "brindes_id in " => $brindesRedeIds,
+                            "clientes_id" => $clienteAplicarConfiguracaoId
+                        )
+                    )->toArray();
+
+                // DebugUtil::print($brindesAtribuidos);
+
+                foreach ($brindesAtribuidos as $key => $brindeAtribuido) {
+                    if (in_array($brindeAtribuido["brindes_id"], $brindesNaoConfiguradosIds)) {
+                        $brindesConfiguradosIds[] = $brindeAtribuido["brindes_id"];
+                    }
+                }
+
+                $brindesNaoAtribuidos = array();
+
+                $brindesNaoAtribuidosWhereConditions = array(
+                    "clientes_id in " => $clientesIds,
+                    "clientes_id != " => $clienteAplicarConfiguracaoId
                 );
-            }
 
-            $brindesNaoAtribuidos = $brindeTable->find('all')
-                ->where(
-                    array($brindesNaoAtribuidosWhereConditions)
-                )->toArray();
+                if (sizeof($brindesConfiguradosIds) > 0) {
+                    $brindesNaoAtribuidosWhereConditions[] = array(
+                        "id not in " => $brindesConfiguradosIds
+                    );
+                }
 
-            $brindesNaoVinculados = array();
+                $brindesNaoAtribuidos = $brindeTable->find('all')
+                    ->where(
+                        array($brindesNaoAtribuidosWhereConditions)
+                    )->toArray();
 
-            $brindesVinculados = array();
+                $brindesNaoVinculados = array();
 
-            foreach ($brindesRede as $key => $brinde) {
-                foreach ($brindesConfiguradosIds as $key => $brindeConfiguradoId) {
-                    if ($brinde["id"] == $brindeConfiguradoId) {
-                        $clienteBrindeHabilitado = $this->_getClientesHasBrindesHabilitadosTable()->find('all')
-                            ->where(
-                                array(
-                                    "brindes_id" => $brinde["id"],
-                                    "clientes_id" => $clienteAplicarConfiguracaoId
-                                )
-                            )->first();
+                $brindesVinculados = array();
 
-                        $item = $brinde;
-                        $item["brindeVinculado"] = $clienteBrindeHabilitado;
-                        $item["atribuido"] = 1;
-                        $brindesVinculados[] = $item;
+                // DebugUtil::print($brindesRede);
+                // DebugUtil::print($brindesConfiguradosIds);
+
+                foreach ($brindesRede as $brinde) {
+                    foreach ($brindesConfiguradosIds as $brindeConfiguradoId) {
+                        if ($brinde["id"] == $brindeConfiguradoId) {
+
+                            $clienteBrindeHabilitado = $this->find('all')
+                                ->where(
+                                    array(
+                                        "brindes_id" => $brinde["id"],
+                                        "clientes_id" => $clienteAplicarConfiguracaoId
+                                    )
+                                )->first();
+
+                            $item = $brinde;
+                            $item["brinde_vinculado"] = $clienteBrindeHabilitado;
+                            $item["atribuido"] = 1;
+                            $brindesVinculados[] = $item;
+                        }
                     }
                 }
-            }
 
-            foreach ($brindesNaoAtribuidos as $key => $brinde) {
-                foreach ($brindesNaoConfiguradosIds as $key => $brindeNaoConfiguradoId) {
-                    if ($brinde["id"] == $brindeNaoConfiguradoId) {
-                        $item = $brinde;
-                        $item["brindeVinculado"] = null;
-                        $item["atribuido"] = 0;
-                        $brindesNaoVinculados[] = $item;
+                // DebugUtil::print($brindesVinculados);
+                // DebugUtil::print($brindesNaoAtribuidos);
+                foreach ($brindesNaoAtribuidos as $key => $brinde) {
+                    foreach ($brindesNaoConfiguradosIds as $key => $brindeNaoConfiguradoId) {
+                        if ($brinde["id"] == $brindeNaoConfiguradoId) {
+                            $item = $brinde;
+                            $item["brinde_vinculado"] = null;
+                            $item["atribuido"] = 0;
+                            $brindesNaoVinculados[] = $item;
+                        }
                     }
                 }
+
+                // echo __LINE__;
+                // DebugUtil::printArray($brindesVinculados, true);
+                // DebugUtil::printArray($brindesNaoAtribuidos, true);
+                // die();
+                $arrayRetorno = array_merge($brindesVinculados, $brindesNaoVinculados);
             }
-            return array_merge($brindesVinculados, $brindesNaoVinculados);
+
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => true,
+                    "message" => $message,
+                    "errors" => array()
+                ),
+                "data" => $arrayRetorno
+            );
+            // DebugUtil::print($arrayRetorno);
+            return $retorno;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao buscar registros: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
+
+            throw new \Exception($stringError);
+            // $this->Flash->error($stringError);
 
             return $stringError;
         }
@@ -979,7 +1047,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
     #endregion
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todos os preços de brindes habilitados de um cliente para a matriz
@@ -1021,7 +1089,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todos os preços para brindes habilitados de um cliente

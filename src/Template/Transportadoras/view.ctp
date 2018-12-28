@@ -1,13 +1,27 @@
 <?php
+
 /**
-  * @var \App\View\AppView $this
-  * @var \App\Model\Entity\Transportadora $transportadora
-  */
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Transportadora $transportadora
+ */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+$this->Breadcrumbs->add('Transportadoras', array("controller" => "transportadoras", "action" => "index"));
+
+$this->Breadcrumbs->add('Detalhe de Transportadora', array(), array('class' => 'active'));
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 ?>
 
 <?= $this->element('../Transportadoras/left_menu', ['controller' => 'transportadoras', 'action' => 'index', 'mode' => 'edit']) ?>
 <div class="transportadoras view col-lg-9 col-md-8 columns content">
-    <h3><?= h($transportadora->id) ?></h3>
+    <h3><?= h($transportadora["nome_fantasia"]) ?></h3>
     <table class="table table-striped table-hover">
         <tr>
             <th scope="row"><?= __('Nome Fantasia') ?></th>

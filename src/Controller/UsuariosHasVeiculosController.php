@@ -443,7 +443,7 @@ class UsuariosHasVeiculosController extends AppController
 
                 foreach ($arrayCheck as $item) {
                     if (empty($data[$item])) {
-                        $arrayErrors = __("O campo {0} precisa estar preenchido para continuar!", strtoupper($item));
+                        $arrayErrors[] = __(Configure::read("messageFieldEmptyDefault"), strtoupper($item));
                     }
                 }
 
@@ -470,6 +470,7 @@ class UsuariosHasVeiculosController extends AppController
                 if (isset($veiculosId)) {
                     $veiculo = $this->Veiculos->getVeiculoById($veiculosId);
                 }
+                
                 // Localiza registro pela placa se não achou pelo id.
                 if (!$veiculo && isset($placa)) {
                     $resultado = $this->Veiculos->getVeiculoByPlaca($placa);
@@ -497,47 +498,72 @@ class UsuariosHasVeiculosController extends AppController
                     return;
                 }
 
-                // Realiza update dos dados
-                else {
-                    $placa = $veiculo["placa"];
+                // Achou veiculo, verifica se usuário logado tem acesso ao veículo em questão.
 
-                    $veiculo = $this->Veiculos->saveUpdateVeiculo(
-                        $veiculo["id"],
-                        $placa,
-                        $modelo,
-                        $fabricante,
-                        $ano
-                    );
+                $usuarioPossuiVeiculo = $this->UsuariosHasVeiculos->findUsuariosHasVeiculos(
+                    array("veiculos_id" => $veiculo["id"], "usuarios_id" => $usuario["id"])
+                )->first();
 
+                if (empty($usuarioPossuiVeiculo)){
                     $mensagem = array(
-                        "status" => $veiculo? 1 : 0,
-                        "message" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => $veiculo ? array() : $veiculo->errors()
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array(Configure::read("messageVeiculoDoesntBelongToUserOnUpdate"))
                     );
 
-                    $arraySet = ["mensagem", "veiculo"];
+                    $veiculo = array(
+                        "data" => array(),
+                        "count" => 0,
+                        "page_count" => 0
+                    );
+                    $arraySet = array("mensagem", "veiculo");
 
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
-
                     return;
                 }
+
+                // Realiza update dos dados
+
+                $placa = $veiculo["placa"];
+
+                $veiculo = $this->Veiculos->saveUpdateVeiculo(
+                    $veiculo["id"],
+                    $placa,
+                    $modelo,
+                    $fabricante,
+                    $ano
+                );
+
+                $mensagem = array(
+                    "status" => $veiculo ? 1 : 0,
+                    "message" => $veiculo ? Configure::read("messageProcessingCompleted") : Configure::read("messageOperationFailureDuringProcessing"),
+                    "errors" => $veiculo ? array() : $veiculo->errors()
+                );
+
+                $arraySet = array("mensagem", "veiculo");
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
             $messageString = __("Não foi possível gravar veículo!");
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
 
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
-        $mensagem = ["status" => $status, "message" => $message, "errors" => $errors];
+        $mensagem = array("status" => $status, "message" => $message, "errors" => $errors);
 
-        $arraySet = ["mensagem", "veiculo"];
+        $arraySet = array("mensagem", "veiculo");
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);

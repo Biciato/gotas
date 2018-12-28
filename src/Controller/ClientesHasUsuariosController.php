@@ -137,11 +137,12 @@ class ClientesHasUsuariosController extends AppController
     public function editarAdministracao($id = null)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -153,6 +154,8 @@ class ClientesHasUsuariosController extends AppController
 
             $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
+            // debug($clientes_has_usuarios_query->toArray());
+            // die();
             // tenho o cliente alocado, pegar agora a rede que ele está
             $cliente_has_usuario = $clientes_has_usuarios_query->toArray()[0];
             $cliente = $cliente_has_usuario->cliente;
@@ -169,12 +172,14 @@ class ClientesHasUsuariosController extends AppController
 
             $where_conditions = [];
 
-            array_push($where_conditions, ['id IN' => $clientes_ids]);
+            array_push($where_conditions, ['Clientes.id IN' => $clientes_ids]);
 
             $clientes = $this->Clientes->getAllClientes($where_conditions);
 
-            $this->set(compact('usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes'));
-            $this->set('_serialize', ['usuario', 'usuario_logado_tipo_perfil', 'rede', 'clientes']);
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', 'rede', 'clientes', "usuarioLogado");
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao realizar remoção de unidade de uma rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -214,7 +219,7 @@ class ClientesHasUsuariosController extends AppController
             $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id, $tipo_perfil);
 
             // atualiza todos os outros registros de administrador do usuário citado,
-            // dentro daquela rede 
+            // dentro daquela rede
 
             // pega os ids de clientes que pertencem à uma rede
 
@@ -307,7 +312,7 @@ class ClientesHasUsuariosController extends AppController
 
             if (sizeof($clientes_has_usuarios_query->toArray()) == 1) {
 
-                $this->Flash->error("Não é possível remover a permissão do usuário. Ele deve ter ao menos um vínculo à uma Unidade da Rede!");
+                $this->Flash->error("Não é possível remover a permissão do administrador. Ele deve ter ao menos um vínculo à uma Unidade da Rede!");
 
                 return $this->redirect(
                     [
@@ -330,7 +335,7 @@ class ClientesHasUsuariosController extends AppController
                     $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
                     $usuario->tipo_perfil = Configure::read('profileTypes')['AdminLocalProfileType'];
-                    
+
                     // salva o usuário
 
                     $usuario = $this->Usuarios->addUpdateUsuario($usuario);
@@ -368,6 +373,31 @@ class ClientesHasUsuariosController extends AppController
 
             return $this->redirect($query['return_url']);
         }
+
+    }
+
+    public function alteraContaAtivaUsuario()
+    {
+        $query = $this->request->query;
+        $id = $query["id"];
+        $clientesId = $query["clientes_id"];
+        $usuariosId = $query["usuarios_id"];
+        $contaAtiva = $query["conta_ativa"];
+        $returnUrl = $query["return_url"];
+
+        $resultado = $this->ClientesHasUsuarios->updateContaAtivaUsuario($id, $clientesId, $usuariosId, $contaAtiva);
+
+        $msgSucesso = $contaAtiva ? Configure::read("messageEnableSuccess") : Configure::read("messageDisableSuccess");
+        $msgErro = $contaAtiva ? Configure::read("messageEnableError") : Configure::read("messageDisableError");
+
+        if ($resultado) {
+            $this->Flash->success($msgSucesso);
+
+            return $this->redirect($returnUrl);
+        }
+
+        $this->Flash->error($msgErro);
+        return $this->redirect($returnUrl);
 
     }
 }

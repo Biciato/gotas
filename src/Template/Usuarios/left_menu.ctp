@@ -13,8 +13,9 @@ use Cake\Routing\Router;
 $cadastrar_veiculos = isset($cadastrar_veiculos) ? $cadastrar_veiculos : false;
 $update_password = isset($update_password) ? $update_password : false;
 $mode = isset($mode) ? $mode : false;
-$list_users_pending_approval = isset($list_users_pending_approval) ? $list_users_pending_approval : false;
+$listUsersPendingApproval = isset($listUsersPendingApproval) ? $listUsersPendingApproval : false;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
+$redes_id = isset($redes_id) ? $redes_id : null;
 
 ?>
 
@@ -25,6 +26,9 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
         </li>
         <?php if ($cadastrar_veiculos) : ?>
 
+            <li>
+                <?= $this->Html->link(__("Transportadoras do Usuário"), ['controller' => 'transportadoras', 'action' => 'transportadorasUsuario', $usuario->id]) ?>
+            </li>
             <li>
                 <?= $this->Html->link(__("Veículos do Usuário"), ['controller' => 'veiculos', 'action' => 'veiculosUsuario', $usuario->id]) ?>
             </li>
@@ -53,16 +57,13 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
             </li>
 
             <li>
-                <?= $this->Html->link(__('Novo Operador/Funcionário'), ['action' => 'adicionar_operador']) ?>
+                <?= $this->Html->link(__('Novo Operador/Funcionário'), ['action' => 'adicionar_operador', $redes_id]) ?>
             </li>
 
             <?php if (isset($redes_id)) : ?>
-            <li>
-                <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede']) ?>
-            </li>
 
             <li>
-                <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns']) ?>
+                <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
             </li>
 
             <?php endif; ?>
@@ -70,17 +71,14 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
         <?php elseif ($mode == 'management') : ?>
 
             <li>
-                <?= $this->Html->link(__('Novo Funcionário'), ['action' => 'adicionar_operador']) ?>
+                <?= $this->Html->link(__('Novo Funcionário'), ['action' => 'adicionar_operador', $redes_id]) ?>
             </li>
 
-            <?php if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
+            <?php if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
                 <?php if (isset($redes_id)) : ?>
-                <li>
-                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede']) ?>
-                </li>
 
                 <li>
-                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns']) ?>
+                    <?= $this->Html->link(__("Atribuir Administração Regional/Comum"), ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $redes_id]) ?>
                 </li>
 
                 <?php endif; ?>
@@ -103,11 +101,11 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
 
         <?php endif; ?>
 
-        <?php if ($list_users_pending_approval) : ?>
+        <?php if ($listUsersPendingApproval) : ?>
             <li><?= $this->Html->link(__('Usuários Aguardando Aprovação'), ['action' => 'usuarios_aguardando_aprovacao']) ?></li>
         <?php endif; ?>
 
-        <?php if ($user_logged["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]): ?>
+        <?php if ($usuarioLogado["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]): ?>
             <li class="active">
                 <?= $this->Html->link(__('Relatórios'), []) ?>
             </li>

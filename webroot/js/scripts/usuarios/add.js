@@ -2,10 +2,12 @@
  * @author Gustavo Souza Gonçalves
  * @date 12/07/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function () {
+
+    $("#cpf").focus();
 
     var imageStored = false;
 
@@ -112,7 +114,7 @@ $(document).ready(function () {
                         // atribui como true a imagem enviada
                         imageStored = true;
 
-                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem. 
+                        // a imagem foi armazenada, então o CPF, mesmo incorreto, está vinculado à imagem.
                         $("#cpf").attr('disabled', true);
                     }
                 });
@@ -162,7 +164,7 @@ $(document).ready(function () {
 
     /**
      * Carrega unidades de uma rede
-     * @param {object} data 
+     * @param {object} data
      */
     var loadUnidadesRede = function (data) {
 
@@ -194,11 +196,11 @@ $(document).ready(function () {
         });
     }
 
-    // carrega todas as unidades da rede caso já esteja definido redes_id
+    // carrega todas as unidades da rede caso já esteja definido redesId
 
-    if ($("#redes_id").val() != undefined && $("#redes_id").val().length > 0) {
+    if ($("#redesId").val() != undefined && $("#redesId").val().length > 0) {
         var data = {
-            redes_id: $("#redes_id").val()
+            redes_id: $("#redesId").val()
         };
 
         loadUnidadesRede(data);
@@ -215,8 +217,8 @@ $(document).ready(function () {
 
     /**
      * Atualiza dados de Perfil selecionado
-     * 
-     * @param {object} data 
+     *
+     * @param {object} data
      */
     var changeProfileType = function (data) {
         $("#senha").val(null);
@@ -224,10 +226,20 @@ $(document).ready(function () {
 
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-        var tipo_perfil = $(".usuario_logado_tipo_perfil").val();
+        var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
 
-        if (tipo_perfil !== undefined) {
-            if (tipo_perfil >= 0 && tipo_perfil <= 2) {
+        // Gerente
+        var tipoPerfilSelecionado = $("#tipo_perfil").val();
+        if (tipoPerfilSelecionado >= 5) {
+            $("#telefone").attr("required", null);
+            $("#label-telefone").text("Telefone");
+        } else {
+            $("#telefone").attr("required", true);
+            $("#label-telefone").text("Telefone*");
+        }
+
+        if (tipoPerfil !== undefined) {
+            if (tipoPerfil >= 0 && tipoPerfil <= 2) {
                 if ($(data).val() < 1 || $(data).val() > 5) {
                     hide_redes_input();
                 } else {
@@ -300,7 +312,7 @@ $(document).ready(function () {
 
     /**
      * Limpa o formulário de cadastro
-     * TODO: melhorar 
+     * TODO: melhorar
      */
     $(".clearForm").on('click', function () {
 
@@ -346,7 +358,7 @@ $(document).ready(function () {
 
     /**
      * Remove qualquer caracter especial
-     * @param {object} documentUser 
+     * @param {object} documentUser
      */
     var cleanIdentity = function (parameter) {
         var returnValue = parameter.replace(/\./g, '');
@@ -356,7 +368,7 @@ $(document).ready(function () {
 
     /**
      * Verifica se CPF é válido
-     * @param {*} strCPF 
+     * @param {*} strCPF
      */
     var checkCPFIsValid = function (strCPF) {
         var sum;
@@ -588,16 +600,7 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    $("#data_nasc").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    }).on('changeDate', function (ev) {
-        $("#data_nasc").val(ev.target.value);
-
-    });
-
+    initializeDatePicker("data_nasc");
     /**
      * Configurações de ação para botão confirmar
      */

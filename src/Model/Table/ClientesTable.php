@@ -83,12 +83,12 @@ class ClientesTable extends GenericTable
         $this->setDisplayField('razao_social');
         $this->setPrimaryKey('id');
 
-        $this->belongsto(
+        $this->belongsTo(
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'id',
-                'join' => 'left'
+                'joinType' => 'left'
             ]
         );
 
@@ -97,7 +97,7 @@ class ClientesTable extends GenericTable
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'joinType' => 'left'
             ]
         );
 
@@ -106,7 +106,7 @@ class ClientesTable extends GenericTable
             [
                 'className' => 'ClientesHasUsuarios',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'joinType' => 'LEFT'
             ]
         );
 
@@ -141,6 +141,7 @@ class ClientesTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
+            ->integer('matriz')
             ->notEmpty('matriz');
 
         $validator
@@ -149,7 +150,7 @@ class ClientesTable extends GenericTable
             ->notEmpty('tipo_unidade');
 
         $validator
-            ->allowEmpty('codigo_rti_shower');
+            ->allowEmpty('codigo_equipamento_rti');
 
         $validator
             ->allowEmpty('nome_fantasia');
@@ -182,7 +183,7 @@ class ClientesTable extends GenericTable
 
         $validator
             ->requirePresence('pais')
-            ->notEmpty('pais');
+            ->allowEmpty('pais');
 
         $validator
             ->allowEmpty('cep', 'Se o usuário não souber o CEP do local, utilize o CEP da cidade.');
@@ -226,15 +227,7 @@ class ClientesTable extends GenericTable
         return $rules;
     }
 
-    public function beforeMarshal(Event $event, ArrayObject $data)
-    {
-        $data = $this->formatClient($data);
-
-        return $data;
-    }
-
-    /* ------------------------ Create -------------------------- */
-
+    #region Create 
 
     /**
      * Adiciona nova unidade para uma rede
@@ -248,7 +241,7 @@ class ClientesTable extends GenericTable
     {
         try {
 
-            $redes_has_clientes = $this->_getClientesTable()
+            $redesHasClientes = $this
                 ->RedeHasCliente->find('all')
                 ->where(
                     [
@@ -258,25 +251,42 @@ class ClientesTable extends GenericTable
 
             // verifica se tem alguma empresa cadastrada.
             // Se não tiver, esta fica sendo a matriz
-            $cliente->matriz = sizeof($redes_has_clientes) == 0;
+            $cliente["matriz"] = sizeof($redesHasClientes) == 0;
 
-            $cliente = $this->_getClientesTable()->save($cliente);
+            // $cliente["matriz"] = $cliente["matriz"];
+            // $cliente["ativado"] = $cliente["ativado"];
+            // $cliente['tipo_unidade'] = $cliente['tipo_unidade'];
+            // $cliente['nome_fantasia'] = $cliente['nome_fantasia'];
+            // $cliente['razao_social'] = $cliente['razao_social'];
+            // $cliente['endereco'] = $cliente['endereco'];
+            // $cliente['endereco_numero'] = $cliente['endereco_numero'];
+            // $cliente['endereco_complemento'] = $cliente['endereco_complemento'];
+            // $cliente['bairro'] = $cliente['bairro'];
+            // $cliente['municipio'] = $cliente['municipio'];
+            // $cliente['estado'] = $cliente['estado'];
+            $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
+            $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
+            $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
+            $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
+            $cliente['cep'] = $this->cleanNumber($cliente['cep']);
+
+            $cliente = $this->save($cliente);
 
             // salvou o cliente
             if ($cliente) {
-                $redes_has_cliente = $this->_getClientesTable()->RedeHasCliente->newEntity();
+                $redesHasCliente = $this->RedeHasCliente->newEntity();
 
-                $redes_has_cliente->redes_id = $redes_id;
-                $redes_has_cliente->clientes_id = $cliente->id;
+                $redesHasCliente["redes_id"] = $redes_id;
+                $redesHasCliente["clientes_id"] = $cliente->id;
 
-                $result = $this->_getClientesTable()->RedeHasCliente->save($redes_has_cliente);
+                $result = $this->RedeHasCliente->save($redesHasCliente);
 
-                // Atribui os Gêneros de Brindes que são de atribuição automática
+                // Atribui os Tipos de Brindes que são de atribuição automática
 
                 $tiposBrindesRedesTable = TableRegistry::get("TiposBrindesRedes");
                 $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
 
-                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente();
+                $tiposBrindesRedes = $tiposBrindesRedesTable->findTiposBrindesRedesAtribuirAutomaticamente($redes_id);
                 $tiposBrindesClientesArray = array();
 
                 foreach ($tiposBrindesRedes as $key => $tiposBrindesRede) {
@@ -294,14 +304,14 @@ class ClientesTable extends GenericTable
 
                     $tiposBrindesClientesSave = $tiposBrindesClientesTable->newEntities($tiposBrindesClientesArray);
 
-                    // Gravação dos dados de gênero brindes
+                    // Gravação dos dados de Tipo brindes
                     $resultSave = $tiposBrindesClientesTable->saveMany($tiposBrindesClientesSave);
 
                     if (!$resultSave) {
                         Log::write("error", "Lista de Brindes para Gravar: ");
                         Log::write("error", $tiposBrindesClientesSave);
 
-                        throw new \Exception("Não foi possível salvar os gêneros de brindes ao cliente novo!");
+                        throw new \Exception("Não foi possível salvar os tipos de brindes ao cliente novo!");
                     }
                 }
             }
@@ -318,7 +328,9 @@ class ClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read -------------------------- */
+    #endregion
+
+    #region Read
 
     /**
      * Obtem todos os clientes
@@ -336,11 +348,11 @@ class ClientesTable extends GenericTable
                 array_push($conditions, $condition);
             }
 
-            return $this->_getClientesTable()->find('all')
+            return $this->find('all')
                 ->where($conditions)
                 ->order(
                     [
-                        'id' => 'asc'
+                        'Clientes.id' => 'asc'
                     ]
                 )
                 ->contain(['ClientesHasUsuarios']);
@@ -364,7 +376,7 @@ class ClientesTable extends GenericTable
      * @param array $paginationConditions Condições de Paginação
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 2018/05/13
+     * @date 2018-05-13
      *
      * @return array ("count", "data")
      */
@@ -500,7 +512,7 @@ class ClientesTable extends GenericTable
                     "conditions" => array("CHU.usuarios_id = U.id", "U.id" => $usuariosId)
                 )
             );
-            $clientes = $this->_getClientesTable()->find("all")
+            $clientes = $this->find("all")
                 ->join($options)
                 ->where(
                     array(
@@ -594,7 +606,7 @@ class ClientesTable extends GenericTable
     {
         try {
 
-            $cliente = $this->_getClientesTable()
+            $cliente = $this
                 ->find('all')
                 ->where(
                     [
@@ -754,7 +766,7 @@ class ClientesTable extends GenericTable
 
             $clientesIds = sizeof($clientesIds) > 0 ? $clientesIds : array(0);
 
-            return $this->_getClientesTable()->find('list')
+            return $this->find('list')
                 ->where(["id in " => $clientesIds]);
 
         } catch (\Exception $e) {
@@ -812,19 +824,18 @@ class ClientesTable extends GenericTable
     public function getIdsMatrizFiliaisByClienteId($clientes_id)
     {
         try {
-            // $array_ids = $this->_getClientesTable()->getAllIdsCliente($clientes_id);
-            $array_ids = $this->_getClientesTable()->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
+            $arrayIds = $this->_getClientesTable()->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
 
             $array = [];
 
             // preciso somente dos ids
-            foreach ($array_ids as $key => $value) {
+            foreach ($arrayIds as $key => $value) {
                 array_push($array, $value['clientes_id']);
             }
 
-            $array_ids = $array;
+            $arrayIds = $array;
 
-            return $array_ids;
+            return $arrayIds;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -839,31 +850,58 @@ class ClientesTable extends GenericTable
      * Retorna Entidade Cliente associado à usuário
      *
      * @return Entity\Cliente $cliente
-     * @param Cake\Auth\Storage $user_logged
+     * @param Cake\Auth\Storage $usuarioLogado
      * @author Gustavo Souza Gonçalves
      **/
-    public function getClienteMatrizLinkedToUsuario($user_logged = null)
+    public function getClienteMatrizLinkedToUsuario($usuarioLogado = null)
     {
-        $matriz = $this->_getClientesTable()->find('all')
-            ->join(
-                [
-                    'ClientesHasUsuarios' =>
-                        [
-                        'table' => 'clientes_has_usuarios',
-                        'alias' => 'chu',
-                        'type' => 'inner',
-                        'conditions' =>
-                            [
-                            'chu.clientes_id = Clientes.id',
-                            'chu.usuarios_id' => $user_logged['id']
-                        ]
+        /**
+         *  TODO: validar todos os serviços que usam este método
+         *
+         *  Primeiro problema...
+         * Se usuário não estiver na matriz, o registro retornará nulo.
+         * Segundo...
+         * Em casos como Adm Redes ou Regional, eles possuem mais de uma unidade.
+         *
+         * Solução:
+         * Criar um objeto de session que irá guardar a lista de clientes.
+         *
+         *
+         */
+        $matriz = $this->find('all')
+            ->where(
+                array(
+                    "Usuarios.id" => $usuarioLogado["id"],
+                    "Cliente.matriz" => 1
+                )
+            )
+            ->contain(
+                array(
+                    "ClientesHasUsuarios.Cliente",
+                    "ClientesHasUsuarios.Usuarios",
+                )
+            )
+            // ->join(
+            //     [
+            //         'ClientesHasUsuarios' =>
+            //             [
+            //             'table' => 'clientes_has_usuarios',
+            //             'alias' => 'chu',
+            //             'type' => 'inner',
+            //             'conditions' =>
+            //                 [
+            //                 'chu.clientes_id = Clientes.id',
+            //                 'chu.usuarios_id' => $usuarioLogado['id']
+            //             ]
 
-                    ]
-                ]
-            )->select([
+            //         ]
+            //     ]
+            // )
+            ->select([
                 'id',
+                "matriz",
                 'tipo_unidade',
-                'codigo_rti_shower',
+                'codigo_equipamento_rti',
                 'nome_fantasia',
                 'razao_social',
                 'cnpj',
@@ -879,9 +917,12 @@ class ClientesTable extends GenericTable
                 'cep',
                 'audit_insert',
                 'audit_update',
-                'chu.id',
-                'chu.clientes_id',
-                'chu.usuarios_id'
+                'ClientesHasUsuarios.id',
+                'ClientesHasUsuarios.clientes_id',
+                'ClientesHasUsuarios.usuarios_id'
+                // 'chu.id',
+                // 'chu.clientes_id',
+                // 'chu.usuarios_id'
             ]);
 
         if (sizeof($matriz->toArray()) > 0) {
@@ -954,13 +995,13 @@ class ClientesTable extends GenericTable
      * @return object|null $cliente
      * @author
      **/
-    public function getClienteMatrizLinkedToAdmin($user_logged)
+    public function getClienteMatrizLinkedToAdmin($usuarioLogado)
     {
         $cliente = $this->_getClientesTable()->find('all')
             ->matching(
                 'ClientesHasUsuarios',
-                function ($q) use ($user_logged) {
-                    return $q->where(['ClientesHasUsuarios.matriz_id' => $user_logged['matriz_id']]);
+                function ($q) use ($usuarioLogado) {
+                    return $q->where(['ClientesHasUsuarios.matriz_id' => $usuarioLogado['matriz_id']]);
                 }
             )
             ->first();
@@ -968,7 +1009,9 @@ class ClientesTable extends GenericTable
         return $cliente;
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
+
+    #region Update
 
     /**
      * Troca estado de unidade
@@ -986,7 +1029,7 @@ class ClientesTable extends GenericTable
                 ->where(['id' => $id])
                 ->first();
 
-            $cliente->ativado = $ativado;
+            $cliente["ativado"] = $ativado;
 
             return $this->_getClientesTable()->save($cliente);
 
@@ -1018,10 +1061,15 @@ class ClientesTable extends GenericTable
     public function updateClient($cliente)
     {
         try {
-            $clienteTable = TableRegistry::get('Clientes');
-            $clienteToUpdate = $this->formatClient($cliente);
+            $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
+            $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
+            $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
+            $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
+            $cliente['cep'] = $this->cleanNumber($cliente['cep']);
+            $clienteToUpdate = $cliente;
+            // $clienteToUpdate = $this->formatClient($cliente);
 
-            return $clienteTable->save($clienteToUpdate);
+            return $this->save($clienteToUpdate);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -1034,7 +1082,9 @@ class ClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #endregion 
+    
+    #region Delete 
 
     /**
      * Remove todos os clientes
@@ -1070,6 +1120,9 @@ class ClientesTable extends GenericTable
         }
     }
 
+    #endregion 
+
+
     /* ------------------------ Others ------------------------ */
 
     /**
@@ -1079,6 +1132,10 @@ class ClientesTable extends GenericTable
      */
     public function formatClient($cliente)
     {
+        echo __LINE__;
+        DebugUtil::print($cliente);
+        $cliente["matriz"] = $cliente["matriz"];
+        $cliente["ativado"] = $cliente["ativado"];
         $cliente['tipo_unidade'] = $cliente['tipo_unidade'];
         $cliente['nome_fantasia'] = $cliente['nome_fantasia'];
         $cliente['razao_social'] = $cliente['razao_social'];
@@ -1094,24 +1151,9 @@ class ClientesTable extends GenericTable
         $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
         $cliente['cep'] = $this->cleanNumber($cliente['cep']);
 
-        if (isset($cliente['matriz_id'])) {
-            $cliente['matriz_id'] = $cliente['matriz_id'];
-        }
-
-        return $cliente;
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param [type] $cliente
-     * @param [type] $matrizId
-     *
-     * @return void
-     */
-    public function setMatrizId($cliente, $matrizId)
-    {
-        $cliente->matriz_id = $matrizId;
+        // if (isset($cliente['matriz_id'])) {
+        //     $cliente['matriz_id'] = $cliente['matriz_id'];
+        // }
 
         return $cliente;
     }

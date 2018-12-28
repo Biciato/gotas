@@ -11,11 +11,7 @@
 
 use Cake\Core\Configure;
 ?>
-
-
-
     <div class="col-lg-12">
-
         <div class="gifts-query-region">
 
             <h4>Selecione um brinde</h4>
@@ -30,7 +26,7 @@ use Cake\Core\Configure;
 
             <div class="col-lg-2">
 
-                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block', 'type' => 'button', 'id'=> 'searchBrinde']) ?>
+                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block botao-pesquisar', 'type' => 'button', 'id'=> 'searchBrinde']) ?>
             </div>
 
             <span class="text-danger validation-message" id="giftValidationMessage"></span>
@@ -77,7 +73,7 @@ use Cake\Core\Configure;
             </div>
             <div class="col-lg-1 col-md-2">
 
-                <?= $this->Form->input('tempo_rti_shower', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'tempo_rti_shower']) ?>
+                <?= $this->Form->input('tempo_uso_brinde', ['readonly' => true, 'required' => false, 'label' => false, 'id' => 'tempo_uso_brinde']) ?>
             </div>
 
             <div class="col-lg-2 col-md-1">

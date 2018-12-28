@@ -153,12 +153,12 @@ class UsuariosHasVeiculosTable extends GenericTable
     public function addUsuarioHasVeiculo($veiculos_id = null, $usuarios_id = null)
     {
         try {
-            $usuarioHasVeiculo = $this->_getUsuarioHasVeiculosTable()->newEntity();
+            $usuarioHasVeiculo = $this->newEntity();
 
             $usuarioHasVeiculo->veiculos_id = (int)$veiculos_id;
             $usuarioHasVeiculo->usuarios_id = (int)$usuarios_id;
 
-            return $this->_getUsuarioHasVeiculosTable()->save($usuarioHasVeiculo);
+            return $this->save($usuarioHasVeiculo);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -226,12 +226,12 @@ class UsuariosHasVeiculosTable extends GenericTable
      *
      * @return array $veiculos
      */
-    public function getUsuariosHasVeiculosById(int $usuario_has_veiculo_id)
+    public function getUsuariosHasVeiculosById(int $id)
     {
         try {
             $vehicles = $this->getUsuarioHasVeiculosQuery()
                 ->find('all')
-                ->where(['id' => $usuario_has_veiculo_id])
+                ->where(['id' => $id])
                 ->first();
 
             return $vehicles;

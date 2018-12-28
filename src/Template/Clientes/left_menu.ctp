@@ -9,13 +9,13 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$user_logged = isset($user_logged) ? $user_logged : false;
+$usuarioLogado = isset($usuarioLogado) ? $usuarioLogado : false;
 
-$user_admin = $this->request->session()->read('User.RootLogged');
-$user_managed = $this->request->session()->read('User.ToManage');
+$usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+$usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-if ($user_admin) {
-    $user_logged = $user_managed;
+if ($usuarioAdministrador) {
+    $usuarioLogado = $usuarioAdministrar;
 }
 
 $showAdministratorsNetwork = isset($showAdministratorsNetwork) ? $showAdministratorsNetwork : false;
@@ -41,7 +41,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                         </a>
                     </li>
 
-                    <?php if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
+                    <?php if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
 
                         <li>
                             <?= $this->Html->link(__('Editar {0}', ['Cliente']), ['action' => 'editar', $cliente->id]) ?>
@@ -132,7 +132,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                                 'Remover Unidade ',
                                 $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
                             ),
-                            '#',
+                            '#',    
                             [
                                 'title' => 'Deletar',
                                 'class' => 'text-danger bg-danger',

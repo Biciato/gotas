@@ -14,10 +14,18 @@ $(document).ready(function () {
 
     var cropper = image.data("cropper");
 
+    $("#custo_referencia_gotas").maskMoney();
 
     $("#nome-img").on("change", function (image) {
 
         var formData = new FormData();
+
+        var file = image.target.files[0];
+
+        if (file.size >= (2 * (1024 * 1024))) {
+            callModalError("É permitido apenas o envio de imagens menores que 2MB!");
+            return;
+        }
 
         formData.append("file", image.target.files[0]);
 
@@ -74,13 +82,14 @@ $(document).ready(function () {
 
                             $(".img-crop").cropper('destroy');
                             image.cropper({
-                                aspectRatio: 1/1,
+                                // aspectRatio: 1/1,
                                 preview: ".img-crop-preview",
                                 autoCrop: true,
                                 dragDrop: true,
                                 movable: true,
                                 resizable: true,
-                                zoomable: false,
+                                // zoomable: false,
+                                zoomable: true,
                                 crop: function (event) {
                                     coordenadas(event.detail);
                                 },

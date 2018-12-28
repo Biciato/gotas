@@ -15,6 +15,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
+use Cake\Auth\DefaultPasswordHasher;
 
 /**
  * Redes Controller
@@ -33,29 +34,23 @@ class RedesController extends AppController
      */
     public function index()
     {
-        try {
-            $conditions = [];
+        $conditions = [];
 
-            if ($this->request->is(['post', 'put'])) {
-                $data = $this->request->getData();
+        if ($this->request->is(['post', 'put'])) {
+            $data = $this->request->getData();
 
-                array_push(
-                    $conditions,
-                    [
-                        $data['opcoes'] . ' like' => '%' . $data['parametro'] . '%'
-                    ]
-                );
-            }
-
-            $redes = $this->Redes->getAllRedes('all', $conditions);
-
-            $this->paginate($redes, ['limit' => 10]);
-
-            $this->set(compact('redes'));
-            $this->set('_serialize', ['redes']);
-        } catch (\Exception $e) {
-
+            $conditions[] = array($data['opcoes'] . ' like' => '%' . $data['parametro'] . '%');
         }
+
+        $redes = $this->Redes->getAllRedes('all', $conditions);
+        $redes = $this->Paginate($redes, ['limit' => 10]);
+
+        // DebugUtil::print($redes);
+
+        $arraySet = array("redes");
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -73,8 +68,25 @@ class RedesController extends AppController
 
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($id);
+            $nomeFantasia = null;
+            $razaoSocial = null;
+            $cnpj = null;
 
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
+
+                $nomeFantasia = !empty($data["nomeFantasia"]) ? $data["nomeFantasia"] : null;
+                $razaoSocial = !empty($data["razaoSocial"]) ? $data["razaoSocial"] : null;
+                $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
+
+                // debug($data);
+                // die();
+            }
+
+            $redes_has_clientes = $this->RedesHasClientes->getClientesFromRedesIdAndParams($id, $nomeFantasia, $razaoSocial, $cnpj);
+            // $redes_has_clientes = $rede["redes_has_clientes"];
+
+            // $this->paginate($rede["redes_has_clientes"], ['limit' => 10]);
             $this->paginate($redes_has_clientes, ['limit' => 10]);
 
             $this->set(compact('rede', 'redes_has_clientes', 'imagem'));
@@ -104,6 +116,9 @@ class RedesController extends AppController
     {
         try {
             $rede = $this->Redes->newEntity();
+
+            $rede["quantidade_pontuacoes_usuarios_ida"] = 3;
+            $rede["quantidade_consumo_usuarios_dia"] = 10;
             if ($this->request->is('post')) {
 
                 $data = $this->request->getData();
@@ -167,19 +182,15 @@ class RedesController extends AppController
     public function editar($id = null)
     {
         try {
-
-            $rede = $this->Redes->getRedeById($id);
-
             $imagemOriginal = null;
+            $rede = $this->Redes->getRedeById($id);
 
             if (strlen($rede->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageNetworkPath"), $rede->nome_img);
             }
 
             if ($this->request->is(['post', 'put'])) {
-
                 $data = $this->request->getData();
-
                 $trocaImagem = 0;
 
                 if (strlen($data['crop-height']) > 0) {
@@ -187,24 +198,21 @@ class RedesController extends AppController
                     // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
 
                     // obtem dados de redimensionamento
-
                     $height = $data["crop-height"];
                     $width = $data["crop-width"];
                     $valueX = $data["crop-x1"];
                     $valueY = $data["crop-y1"];
 
                     $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
-
                     $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $data["img-upload"]);
-                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
+                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
-                    // Se imagem foi redimensionada, move e atribui o nome para gravação
+                    // Se imagem foi redimensionada, move e
+                    // atribui o nome para gravação
+
                     if ($resizeSucesso == 1) {
-
                         rename($imagemOrigem, $imagemDestino);
-
                         $data["nome_img"] = $data["img-upload"];
-
                         $trocaImagem = 1;
                     }
                 }
@@ -218,15 +226,12 @@ class RedesController extends AppController
                     }
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
                     return $this->redirect(['action' => 'index']);
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
-
             $this->set(compact('rede', 'imagem'));
             $this->set('_serialize', ['rede', 'imagem']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -247,78 +252,97 @@ class RedesController extends AppController
      */
     public function delete()
     {
-        $query = $this->request->query;
-
         try {
             $this->request->allowMethod(['post', 'delete']);
 
-            $rede_id = $query['rede_id'];
+            $data = $this->request->getData();
 
-            $rede = $this->Redes->getRedeById($rede_id);
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+            $senhaUsuario = !empty($data["senha_usuario"]) ? $data["senha_usuario"] : null;
 
-            $clientes_ids = [];
-            $redes_has_clientes_ids = [];
+            $usuario = $this->Auth->user();
+            $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
 
-            foreach ($rede->redes_has_clientes as $key => $rede_has_cliente) {
-                $redes_has_clientes_ids[] = $rede_has_cliente->id;
-                $clientes_ids[] = $rede_has_cliente->clientes_id;
+            if (empty($redesId)) {
+                $this->Flash->error("Para remover uma rede, é necessário selecioná-la!");
+
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
             }
 
-            if (sizeof($clientes_ids) > 0) {
+            if (empty($senhaUsuario)) {
+                $this->Flash->error("Para continuar, informe sua senha!");
 
-                $this->PontuacoesPendentes
-                    ->deleteAllPontuacoesPendentesByClienteIds($clientes_ids);
-                $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientes_ids);
-                $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientes_ids);
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
+            }
 
+            // Testa a senha do usuário
+            if (!(new DefaultPasswordHasher)->check($senhaUsuario, $usuario["senha"])) {
+                $this->Flash->error(Configure::read("messageUsuarioSenhaDoesntMatch"));
 
-            // gotas
+                return $this->redirect(array("controller" => "redes", "action" => "index"));
+            }
 
-                $this->Gotas->deleteAllGotasByClientesIds($clientes_ids);
-                $this->Cupons->deleteAllCuponsByClientesIds($clientes_ids);
+            $rede = $this->Redes->getRedeById($redesId);
 
-            // brindes
+            $clientesIds = [];
+            $redesHasClientesIds = [];
 
-                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientes_ids);
-                $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientes_ids);
-                $this->Brindes->deleteAllBrindesByClientesIds($clientes_ids);
+            foreach ($rede["redes_has_clientes"] as $redeHasCliente) {
+                $redesHasClientesIds[] = $redeHasCliente->id;
+                $clientesIds[] = $redeHasCliente->clientes_id;
+            }
 
-            // apagar os usuários que são da rede (Administradores da Rede até funcionários)
+            if (sizeof($clientesIds) > 0) {
 
-                $whereConditions = [];
+                // Usuários Has Brindes
+                $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+                // Remoção de Cupons
+                $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
 
+                $this->PontuacoesPendentes->deleteAllPontuacoesPendentesByClientesIds($clientesIds);
+                $this->Pontuacoes->deleteAllPontuacoesByClientesIds($clientesIds);
+                $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientesIds);
+
+                // Tipos Brindes
+                $this->TiposBrindesClientes->deleteAllTiposBrindesClientesByRedesId($redesId);
+                $this->TiposBrindesRedes->deleteAllTiposBrindesRedesByRedesId($redesId);
+
+                // brindes
+                $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientesIds);
+                $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
+                $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
+                $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
+
+                // gotas
+                $this->Gotas->deleteAllGotasByClientesIds($clientesIds);
+
+                // apagar os usuários que são da rede (Administradores da Rede até funcionários)
+                $whereConditions = array();
                 $whereConditions[] = ['tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']];
                 $whereConditions[] = ['tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']];
 
-                $this->Usuarios->deleteAllUsuariosByClienteIds(
-                    $clientes_ids,
-                    $whereConditions
-                );
-
-                // Não apaga os usuários que estão vinculados, mas remove o vínculo
-
-                $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientes_ids);
+                // Apaga os funcionários
+                $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds, $whereConditions);
+                $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);
             }
 
-            if (sizeof($redes_has_clientes_ids) > 0) {
+            if (sizeof($redesHasClientesIds) > 0) {
                 // Remove os Administradores da Rede
-                $this->RedesHasClientesAdministradores->deleteAllRedesHasClientesAdministradoresByClientesIds($redes_has_clientes_ids);
+                $this->RedesHasClientesAdministradores->deleteAllRedesHasClientesAdministradoresByClientesIds($redesHasClientesIds);
             }
 
-            if (sizeof($clientes_ids) > 0) {
+            if (sizeof($clientesIds) > 0) {
 
                 // Remove a unidade de rede
-                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientes_ids);
+                $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
 
-                $this->Clientes->deleteClientesByIds($clientes_ids);
+                $this->Clientes->deleteClientesByIds($clientesIds);
             }
 
             // remove a rede
             $this->Redes->deleteRedesById($rede->id);
 
-            return $this->redirect($query['return_url']);
+            return $this->redirect(array("controller" => "redes", "action" => "index"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao remover rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -403,22 +427,22 @@ class RedesController extends AppController
     public function configurarPropaganda()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             // Se usuário não tem acesso, redireciona
-            if (!$this->security_util->checkUserIsAuthorized($this->user_logged, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if (!$this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, "AdminNetworkProfileType", "AdminRegionalProfileType")) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $rede = $this->Redes->getRedeById($rede["id"]);
 
-            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead") , $rede["propaganda_img"]);
+            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $rede["propaganda_img"]);
 
             $imagemOriginal = null;
 
@@ -465,7 +489,9 @@ class RedesController extends AppController
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        unlink($imagemOriginal);
+                        if (file_exists($imagemOriginal)) {
+                            unlink($imagemOriginal);
+                        }
                     }
 
                     // atualiza todas as unidades de atendimento
@@ -565,11 +591,6 @@ class RedesController extends AppController
             // Registros Ativados no Sistema?
             if (strlen($data['ativado']) > 0) {
                 $whereConditions[] = ['ativado' => $data['ativado']];
-            }
-
-            // Consumo Gotas de Funcionários?
-            if (strlen($data['permite_consumo_gotas_funcionarios']) > 0) {
-                $whereConditions[] = ['permite_consumo_gotas_funcionarios' => $data['permite_consumo_gotas_funcionarios']];
             }
 
             // Qte. de Registros
@@ -744,7 +765,9 @@ class RedesController extends AppController
                 if (count($unidadesIds) == 0) {
                     $status = 0;
                     $messageString = Configure::read("messageLoadDataWithError");
-                    $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
+
+
+                    $errors = array(Configure::read("messageUsuarioDoesNotAcquiredPoints"));
 
                     $mensagem = array(
                         "status" => $status,
@@ -768,10 +791,10 @@ class RedesController extends AppController
                 }
 
 
-                $redes_ids = [];
+                $redesIds = [];
 
                 foreach ($redes_array as $key => $value) {
-                    $redes_ids[] = $value->redes_id;
+                    $redesIds[] = $value->redes_id;
                 }
 
                 /* agora tenho o id das redes que o usuário está vinculado.
@@ -781,14 +804,14 @@ class RedesController extends AppController
 
                 $redes = [];
 
-                if (count($redes_ids) == 0) {
+                if (count($redesIds) == 0) {
                     $status = 0;
                     $messageString = Configure::read("messageLoadDataWithError");
                     $errors = array("Para utilizar seus pontos é necessário primeiramente realizar um abastecimento em algum Posto credenciado ao sistema!");
                 } else {
 
                     $redesQueryResult = $this->Redes->getRedes(
-                        array("Redes.id in " => $redes_ids, "Redes.nome_rede like '%{$nomeRede}%'"),
+                        array("Redes.id in " => $redesIds, "Redes.nome_rede like '%{$nomeRede}%'"),
                         array(
                             "id",
                             "nome_rede",
@@ -901,9 +924,6 @@ class RedesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**

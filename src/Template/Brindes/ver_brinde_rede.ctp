@@ -22,7 +22,7 @@ echo $this->Breadcrumbs->render(
 
 
 ?>
-<?= $this->element('../Brindes/left_menu', ['clientes_id' => $brinde->clientes_id, 'mode' => 'view']) ?>
+<?= $this->element('../Brindes/left_menu', ['clientesId' => $brinde->clientes_id, 'mode' => 'view']) ?>
 <div class="brindes view col-lg-9 col-md-8">
     <h3><?= h($brinde->nome) ?></h3>
     <table class="table table-striped table-hover">
@@ -36,8 +36,13 @@ echo $this->Breadcrumbs->render(
             <td><?= !empty($brinde) ? $this->Boolean->convertBooleanToString($brinde->ilimitado) : null; ?></td>
         </tr>
         <tr>
-            <th>Preco (em gotas):</th>
+            <th>Preco (em gotas)</th>
             <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?></td>
+        </tr>
+
+        <tr>
+            <th>Valor Moeda Venda Padrão</th>
+            <td><?= $this->Number->precision($brinde->valor_moeda_venda_padrao, 2) ?></td>
         </tr>
 
         <?php if ($brinde->equipamento_rti_shower) : ?>
@@ -49,7 +54,7 @@ echo $this->Breadcrumbs->render(
 
         <tr>
             <th>Tempo de banho</th>
-            <td><?= h(__("{0} minutos", $brinde->tempo_rti_shower)) ?></td>
+            <td><?= h(__("{0} minutos", $brinde->tempo_uso_brinde)) ?></td>
         </tr>
         <?php endif; ?>
 

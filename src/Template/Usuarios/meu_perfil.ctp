@@ -76,7 +76,7 @@ use Cake\Core\Configure;
 
                     </tr>
 
-                    <?php if ($user_logged["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+                    <?php if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) : ?>
                         <tr>
                             <th scope="row">
                                 <?= __('Tipo Perfil') ?>
@@ -172,7 +172,7 @@ use Cake\Core\Configure;
                             <?= h($usuario->audit_insert->format('d/m/Y H:i:s')) ?>
                         </td>
                     </tr>
-                    <?php if ($user_logged["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+                    <?php if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) : ?>
 
                         <tr>
                             <th><?= __("Última atualização") ?></th>

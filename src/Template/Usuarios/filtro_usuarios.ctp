@@ -1,5 +1,7 @@
 <?php
 
+use Cake\Core\Configure;
+
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Usuarios/filtro_usuarios.ctp
@@ -7,7 +9,8 @@
  */
 
 $show_filiais = isset($show_filiais) ? $show_filiais : true;
-
+$fixarTipoPerfil = isset($fixarTipoPerfil) ? $fixarTipoPerfil : false;
+$tipoPerfilFixo = isset($tipoPerfilFixo) ? $tipoPerfilFixo : null;
 $options = [
     'nome' => 'nome',
     'cpf' => 'cpf',
@@ -15,7 +18,9 @@ $options = [
     'email' => 'e-mail'
 ];
 
-if (isset($filter_redes)) {
+$perfisUsuariosList = Configure::read("profileTypesTranslatedAdminNetwork");
+
+if (isset($filter_redes) && $filter_redes) {
     $options = [
         'nome' => 'nome',
         'cpf' => 'cpf',
@@ -30,19 +35,19 @@ if (isset($filter_redes)) {
 
     <div class="panel-group">
         <div class="panel panel-default">
-            <div class="panel-heading panel-heading-sm text-center"     
-                data-toggle="collapse" 
-                href="#collapse1"   
+            <div class="panel-heading panel-heading-sm text-center"
+                data-toggle="collapse"
+                href="#collapse1"
                 data-target="#filter-coupons">
                 <!-- <h4 class="panel-title"> -->
                     <div>
                         <span class="fa fa-search"></span>
                             Exibir / Ocultar Filtros
                     </div>
-            
+
                 <!-- </h4> -->
             </div>
-            <div id="filter-coupons" class="panel-collapse collapse">
+            <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
 
                     <?=
@@ -59,71 +64,131 @@ if (isset($filter_redes)) {
                     )
                     ?>
 
-                    <div class="inline-block">
-                        <?php if ($show_filiais) : ?>
-                            
-                            <div class="col-lg-5">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6 parametro']) ?> 
-                            </div>
-
-                            <div class="col-lg-3">
+                        <div class="form-group row">
+                            <?php if ($fixarTipoPerfil): ?>
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
-                                    'opcoes',
+                                    'tipo_perfil',
                                     [
                                         'type' => 'select',
-                                        'id' => 'opcoes',
-                                        'class' => 'opcoes',
-                                        'label' => 'Opções',
-                                        'options' => $options,
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "<Todos>",
+                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        "value" => $tipoPerfilFixo,
+                                        "disabled" => true,
                                         'class' => 'form-control col-lg-2'
                                     ]
                                 ) ?>
-                            </div>  
-                            <div class="col-lg-2">
+                            </div>
+                            <?php else : ?>
+                            <div class="col-lg-4">
                                 <?= $this->Form->input(
-                                    'incluir_filiais',
+                                    'tipo_perfil',
                                     [
                                         'type' => 'select',
-                                        'id' => 'incluir_filiais',
-                                        'label' => "Incluir filiais?",
-                                        'options' =>
-                                            [
-                                            false => 'Não',
-                                            true => 'Sim'
-                                        ]
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "<Todos>",
+                                        // 'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        'options' => $perfisUsuariosList,
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <?php endif; ?>
+                            <div class="col-lg-4">
+                                <?= $this->Form->input(
+                                    'nome',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'nome',
+                                        'label' => 'Nome',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-4">
+                                <?= $this->Form->input(
+                                    'email',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'email',
+                                        'label' => 'Email',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-2">
+                                <?= $this->Form->input(
+                                    'cpf',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'cpf',
+                                        'label' => 'CPF',
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'doc_estrangeiro',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'doc_estrangeiro',
+                                        'label' => 'Documento Estrangeiro',
+                                        'class' => 'form-control col-lg-2',
+                                        'placeHolder' => "Documento Estrangeiro"
                                     ]
                                 ) ?>
                             </div>
 
-                            <div class="col-lg-2 vertical-align">
-
-                                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
-                            </div>
-                        <?php else : ?>
                             <div class="col-lg-7">
-                                <?= $this->Form->input('parametro', ['id' => 'parametro', 'label' => 'Parâmetro', 'class' => 'form-control col-lg-6']) ?> 
+
+                                <?php
+
+                                if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
+
+                                    echo $this->Form->input(
+                                        'filtrar_unidade',
+                                        [
+                                            'type' => 'select',
+                                            'id' => 'filtrar_unidade',
+                                            'label' => "Filtrar por unidade?",
+                                            'empty' => 'Todas',
+                                            'options' => $unidades_ids
+                                        ]
+                                    );
+                                }
+                                ?>
                             </div>
+                        </div>
 
-                            <div class="col-lg-3">
-                                <?= $this->Form->input('opcoes', [
-                                    'type' => 'select',
-                                    'id' => 'opcoes',
-                                    'label' => 'Opções',
-                                    'options' => $options,
-                                    'class' => 'form-control col-lg-2'
-                                ]) ?>
-                            </div>  
-
-                            <div class="col-lg-2 vertical-align">
-
-                                <?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
+                        <div class="form-group row">
+                            <div class="col-lg-12 text-right">
+                                <button type="submit" 
+                                    class="btn btn-primary save-button botao-pesquisar">
+                                    <i class="fa fa-search"></i>
+                                    Pesquisar
+                                </button>
                             </div>
-                        <?php endif; ?>
+                        </div>
+
                     </div>
+
                 <?= $this->Form->end() ?>
 
             </div>
         </div>
     </div>
-    
+
 </div>
+
+<?php
+
+$extension = Configure::read("debug") ? "" : ".min";
+echo $this->Html->script("scripts/usuarios/filtro_usuarios" . $extension);
+echo $this->fetch('script');
+?>

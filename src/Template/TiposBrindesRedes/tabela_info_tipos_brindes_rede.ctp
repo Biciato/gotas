@@ -80,7 +80,7 @@
             <td><?= h($clientes->matriz) ?></td>
             <td><?= h($clientes->ativado) ?></td>
             <td><?= h($clientes->tipo_unidade) ?></td>
-            <td><?= h($clientes->codigo_rti_shower) ?></td>
+            <td><?= h($clientes->codigo_equipamento_rti) ?></td>
             <td><?= h($clientes->nome_fantasia) ?></td>
             <td><?= h($clientes->razao_social) ?></td>
             <td><?= h($clientes->cnpj) ?></td>

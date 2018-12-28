@@ -10,11 +10,11 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 
-} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
-    && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
+    && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
@@ -24,11 +24,11 @@ echo $this->Breadcrumbs->render(
 
 $update_password = false;
 
-if ($user_logged['tipo_perfil'] == 0) {
+if ($usuarioLogado['tipo_perfil'] == 0) {
     $controller = 'usuarios';
     $action = 'index';
     $update_password = true;
-} else if ($user_logged['tipo_perfil'] >= 1 && $user_logged['tipo_perfil'] <= 3) {
+} else if ($usuarioLogado['tipo_perfil'] >= 1 && $usuarioLogado['tipo_perfil'] <= 3) {
     $controller = 'usuarios';
     $action = 'minha_equipe';
     $update_password = true;
@@ -63,7 +63,7 @@ if ($user_logged['tipo_perfil'] == 0) {
             ]
         ); ?>
 
-        <?php if (isset($user_logged) && $user_logged['tipo_perfil'] == 0) {
+        <?php if (isset($usuarioLogado) && $usuarioLogado['tipo_perfil'] == 0) {
             ?>
             <div class='col-lg-4'>
                 <?php
@@ -112,7 +112,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                 <div class='col-lg-3 redes_input'>
                     <?php
 
-                    if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                    if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         echo $this->Form->input(
                             'redes_id',
                             [
@@ -127,8 +127,8 @@ if ($user_logged['tipo_perfil'] == 0) {
                             ]
                         );
 
-                    } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
-                        && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+                    } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
+                        && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
 
                         echo $this->Form->input(
                             'redes_id',
@@ -159,7 +159,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                 </div>
             <?php
 
-        } else if ($user_logged['id'] == $usuario['id']) {
+        } else if ($usuarioLogado['id'] == $usuario['id']) {
 
             // se o usuário está se editando, ele não pode mudar o perfil à qual ele se encontra
             ?>
@@ -180,7 +180,7 @@ if ($user_logged['tipo_perfil'] == 0) {
             <?php
 
         } else {
-            if ($user_logged['tipo_perfil'] == 1) {
+            if ($usuarioLogado['tipo_perfil'] == 1) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
                     'options' =>
@@ -193,7 +193,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                         '5' => 'Cliente Final',
                     ]
                 ]);
-            } elseif ($user_logged['tipo_perfil'] == 2) {
+            } elseif ($usuarioLogado['tipo_perfil'] == 2) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
                     'options' =>
@@ -205,7 +205,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                         '5' => 'Cliente Final',
                     ]
                 ]);
-            } elseif ($user_logged['tipo_perfil'] == 3) {
+            } elseif ($usuarioLogado['tipo_perfil'] == 3) {
                 echo $this->Form->input('tipo_perfil', [
                     'type' => 'select',
                     'options' =>
@@ -215,7 +215,7 @@ if ($user_logged['tipo_perfil'] == 0) {
                         '5' => 'Cliente Final'
                     ]
                 ]);
-            } elseif ($user_logged['tipo_perfil'] == 3 || is_null($user_logged)) {
+            } elseif ($usuarioLogado['tipo_perfil'] == 3 || is_null($usuarioLogado)) {
                 echo $this->Form->hidden('tipo_perfil', ['value' => '5']);
             }
         }
@@ -305,16 +305,16 @@ if ($user_logged['tipo_perfil'] == 0) {
                 <?= $this->Form->input(
                     'data_nasc',
                     [
-                        'class' => 'datepicker-input',
+                        // 'class' => 'datepicker-input',
                         'div' =>
                             [
                             'class' => 'form-inline',
                         ],
                         'type' => 'text',
                         'id' => 'data_nasc',
-                        'format' => 'd/m/Y',
-                        'default' => date('d/m/Y'),
-                        'value' => date('d/m/Y'),
+                        // 'format' => 'd/m/Y',
+                        // 'default' => date('d/m/Y'),
+                        'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
                         'label' => 'Data de Nascimento'
                     ]
                 ); ?>
@@ -393,20 +393,20 @@ if ($user_logged['tipo_perfil'] == 0) {
             <?= $this->Form->control('pais', ['class' => 'pais']); ?>
         </div>
     </fieldset>
-    <div class="col-lg-12">
+    <div class="col-lg-12 text-right">
 
-        <?= $this->Form->button(
-            __(
-                '{0} Salvar',
-                $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-            ),
-            [
-                'id' => 'user_submit',
-                'escape' => false
-            ]
-        ) ?>
-        <?= $this->Form->end() ?>
+        <button type="submit"
+            class="btn btn-primary botao-confirmar">
+            <span class="fa fa-save"></span>
+            Salvar
+        </button>
+        <a href="/usuarios/index"
+            class="btn btn-danger botao-cancelar">
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
     </div>
+    <?= $this->Form->end() ?>
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>

@@ -3,7 +3,7 @@
  * @author Gustavo Souza Gonçalves
  * @date 05/09/2017
  * @
- * 
+ *
  */
 
 $(document).ready(function () {
@@ -94,7 +94,7 @@ $(document).ready(function () {
     }
 
     /**
-     * Inicia gravação de câmera para captura de imagem 
+     * Inicia gravação de câmera para captura de imagem
      */
     var startScanCapture = function (regionCapture, videoElement, canvasElement) {
 
@@ -180,6 +180,8 @@ $(document).ready(function () {
 
     $(".qr_code_reader").on('keydown', function (event) {
 
+        // console.log(event);
+        // return;
         if (event.keyCode == 13) {
             populateFuelWords(this.value.trim());
         }
@@ -206,7 +208,7 @@ $(document).ready(function () {
 
     /**
      * Obtêm todos os modos de combustíveis disponíveis
-     * @param url 
+     * @param url
      */
     var populateFuelWords = function (url) {
 
@@ -287,36 +289,26 @@ $(document).ready(function () {
 
     /**
      * Chama um serviço REST de salvar comprovante
-     * @param {string} url 
-     * 
+     * @param {string} url
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      */
     var saveTaxCoupon = function (url) {
-        var urlToSave = url;
-
         // chave de autenticação
-        var chave_nfe_start = 'chNFe=';
-        var chave_nfe_start_index = url.indexOf(chave_nfe_start) + chave_nfe_start.length;
-        var chave_nfe_end_index = url.indexOf('&', chave_nfe_start_index);
-        var chave_nfe = url.substr(chave_nfe_start_index, chave_nfe_end_index - chave_nfe_start_index);
-
-        // estado
-        var estado_nfe = url.substr(url.indexOf('sefaz.') + 'sefaz.'.length, 2).toUpperCase();
 
         $.ajax({
             type: "POST",
-            url: "/PontuacoesComprovantes/saveTaxCoupon",
+            url: "/api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario",
             data: JSON.stringify({
-                url: urlToSave,
-                clientes_id: $("#clientes_id").val(),
+                qr_code: url,
+                clientes_cnpj: $("#clientesCNPJ").val(),
                 usuarios_id: $("#usuarios_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
-                chave_nfe: chave_nfe,
-                estado_nfe: estado_nfe
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", true);
             },
             error: function (response) {
                 console.log(response);
@@ -325,13 +317,13 @@ $(document).ready(function () {
                 callModalError(response.responseText);
             }
         }).done(function (result) {
-            if (result.success) {
-                var content = prepareContentPontuacoesDisplay(result.data);
+            if (result.mensagem.status) {
+                var content = prepareContentPontuacoesDisplay(result);
 
                 callModalSave(content);
                 resetLayout();
             } else {
-                callModalError(result.message);
+                callModalError(result.mensagem.message, result.mensagem.errors);
             }
 
             closeLoaderAnimation();
@@ -340,7 +332,7 @@ $(document).ready(function () {
 
     /**
      * Verifica consistência do URL conforme documento da SEFAZ
-     * @param {string} url 
+     * @param {string} url
      */
     var checkURLConsistency = function (url) {
 
@@ -439,7 +431,7 @@ $(document).ready(function () {
             var keyIndex = url.indexOf(key);
             value.index = keyIndex + key.length;
 
-            // registro é obrigatório? 
+            // registro é obrigatório?
             if (!value.isOptional) {
 
                 var errorType = "";
@@ -567,7 +559,7 @@ $(document).ready(function () {
 
     /**
      * Obtêm novo nome para imagem. Salva imagem se obter com sucesso do servidor
-     * @param {base64} imageData 
+     * @param {base64} imageData
      */
     var getNewNameForImage = function (imageData) {
 

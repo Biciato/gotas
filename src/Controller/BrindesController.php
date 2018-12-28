@@ -29,7 +29,7 @@ class BrindesController extends AppController
      * Campos
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -96,36 +96,6 @@ class BrindesController extends AppController
     }
 
     /**
-     * Edit method
-     *
-     * @param string|null $id Brinde id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $brinde = $this->Brindes->get(
-            $id,
-            [
-                'contain' => []
-            ]
-        );
-
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
-            if ($this->Brindes->save($brinde)) {
-                $this->Flash->success(__('The brinde has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The brinde could not be saved. Please, try again.'));
-        }
-        $clientes = $this->Brindes->Clientes->find('list', ['limit' => 200]);
-        $this->set(compact('brinde', 'clientes'));
-        $this->set('_serialize', ['brinde']);
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Brinde id.
@@ -152,47 +122,75 @@ class BrindesController extends AppController
      */
     public function brindesMinhaRede($param = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+
+        // Se não tem acesso, redireciona
+        if (!$temAcesso) {
+            return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
         }
-
-        $rede = $this->request->session()->read('Network.Main');
 
         $clientes_ids = [];
 
         // pega a matriz da rede
 
-        $redes_has_clientes = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
-        $unidadesIds = $redes_has_clientes->clientes_id;
+        $redesHasClientes = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+        $unidadesIds = $redesHasClientes["clientes_id"];
 
         $conditions = [];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if (strlen($data['parametro']) > 0) {
-                if ($data['opcoes'] == 'nome') {
-                    array_push($conditions, ['nome like' => '%' . $data['parametro'] . '%']);
+            $nome = !empty($data["nome"]) ? $data["nome"] : null;
+            $ilimitado = strlen($data["ilimitado"]) > 0 ? $data["ilimitado"] : null;
+            $precoPadrao = !empty($data["preco_padrao"]) ? $data["preco_padrao"] : null;
+            $valorMoedaVendaPadrao = strlen($data["valor_moeda_venda_padrao"]) > 0 ? $data["valor_moeda_venda_padrao"] : null;
+            $habilitado = strlen($data["habilitado"]) > 0 ? $data["habilitado"] : null;
+
+            $conditions[] = array("nome like '%{$nome}%'");
+
+            if (strlen($ilimitado) > 0) {
+                $conditions[] = array("ilimitado" => $ilimitado);
+            }
+
+            if ($precoPadrao > 0) {
+                $conditions[] = array("preco_padrao" => (float)$precoPadrao);
+            }
+
+            if (strlen($valorMoedaVendaPadrao) > 0) {
+                if ($valorMoedaVendaPadrao == "0,00") {
+                    $conditions[] = array(
+                        "OR" => array(
+                            "valor_moeda_venda_padrao IS NULL",
+                            "valor_moeda_venda_padrao " => $valorMoedaVendaPadrao
+                        )
+                    );
                 } else {
-                    array_push($conditions, ['preco_padrao' => $data['parametro']]);
+                    $conditions[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
                 }
             }
 
+            if (strlen($habilitado) > 0) {
+                $conditions[] = array("habilitado" => $habilitado);
+            }
         }
 
         array_push($conditions, ['clientes_id ' => $unidadesIds]);
 
         $brindes = $this->Brindes->findBrindes($conditions);
-
         $brindes = $this->paginate($brindes, ['limit' => 10]);
-
         $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"])->toArray();
 
-        $this->set(compact(['brindes', 'unidadesIds', 'unidade']));
-        $this->set('_serialize', ['brindes', 'clientes_id', 'unidade']);
+        $arraySet = array('brindes', 'unidadesIds', 'cliente', "rede");
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -207,16 +205,16 @@ class BrindesController extends AppController
 
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
-            $rede = $this->request->session()->read('Network.Main');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
-                $this->user_logged,
+            $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed(
+                $this->usuarioLogado,
                 $this->Clientes,
                 $this->ClientesHasUsuarios,
                 array(),
@@ -256,34 +254,48 @@ class BrindesController extends AppController
     {
         $editMode = 0;
 
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+
         try {
-            $rede = $this->request->session()->read("Network.Main");
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
-
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-            }
-
             $clientesId = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
             // verifica se usuário é pelo menos administrador.
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
             // Verifica permissão do usuário na rede / unidade da rede
 
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+            $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
 
             // Se não tem acesso, redireciona
             if (!$temAcesso) {
-                return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
+                return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
             }
 
             $brinde = $this->Brindes->newEntity();
 
-            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados($clientesId);
+            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
+            $tiposBrindesCliente = $tiposBrindesCliente->toArray();
+            $tiposBrindesClienteTemp = array();
+
+            foreach ($tiposBrindesCliente as $tipoBrinde) {
+                $tipo = array(
+                    "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
+                    "value" => $tipoBrinde["id"],
+                    "id" => "tipos_brindes_redes_id",
+                    "data-obrigatorio" => $tipoBrinde["obrigatorio"],
+                    "data-tipo-principal-codigo-brinde" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                    "data-tipo-secundario-codigo-brinde" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                );
+                $tiposBrindesClienteTemp[] = $tipo;
+            }
+            $tiposBrindesCliente = $tiposBrindesClienteTemp;
 
             // Obtem a matriz pois o Brinde é atribuído sempre para a matriz
             $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede["id"]);
@@ -293,26 +305,38 @@ class BrindesController extends AppController
             }
             $clientesId = $redeHasCliente["clientes_id"];
 
-            // DebugUtil::print($tiposBrindesCliente);
-
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
             }
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
-                $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
 
-                // DebugUtil::print($data);
-                // $brinde->preco_padrao = str_replace(",", "", $this->request->getData()['preco_padrao']);
+                $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
+                $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+
+                if (empty($tiposBrindesRedesId)) {
+
+                    $this->Flash->error("É necessário selecionar um tipo de brinde!");
+
+                    return $this->redirect(array("controller" => "brindes", "action" => "adicionarBrindeRede"));
+                }
+
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+
+                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
+
+                if ($tipoBrindeRede["equipamento_rti"]) {
+                    $brinde["ilimitado"] = 1;
+                } else {
+                    $brinde["ilimitado"] = $data["ilimitado"];
+                }
+
                 $brinde->preco_padrao = (float)$data['preco_padrao'];
 
-                // DebugUtil::print($brinde);
-
-                if ($this->Brindes->findBrindesByName($brinde['nome'])) {
+                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
-
                     $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
                     if ($enviouNovaImagem) {
@@ -320,33 +344,20 @@ class BrindesController extends AppController
                     }
 
                     $brinde["clientes_id"] = $clientesId;
-
-                    // DebugUtil::print($brinde);
-                    $brinde = $this->Brindes->save($brinde);
+                    $brinde = $this->Brindes->saveBrinde($brinde);
 
                     $errors = $brinde->errors();
-                    // DebugUtil::print($errors);
-
                     $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
                         $clientesId,
                         $data["tipos_brindes_redes_id"]
                     );
 
-                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0){
+                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0) {
                         $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
                     }
 
-                    // DebugUtil::print($tiposBrindesClienteSelecionadoId);
                     if ($brinde) {
-                        // habilita brinde para venda na matriz
-                        $clienteHasBrindeHabilitado
-                            = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
-                            $clientesId,
-                            $brinde->id,
-                            $tiposBrindesClienteSelecionadoId
-                        );
-
-                        // DebugUtil::print($clienteHasBrindeHabilitado);
+                        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado($clientesId, $brinde->id, $tiposBrindesClienteSelecionadoId);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -355,7 +366,7 @@ class BrindesController extends AppController
                          * 3 - Se não houver cadastro anterior
                          */
 
-                        if (!$brinde->ilimitado) {
+                        if (!$brinde["ilimitado"]) {
                             $estoque = $this->ClientesHasBrindesEstoque
                                 ->getEstoqueForBrindeId(
                                     $clienteHasBrindeHabilitado->id,
@@ -367,7 +378,7 @@ class BrindesController extends AppController
                                 $result
                                     = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                                     $clienteHasBrindeHabilitado->id,
-                                    $this->user_logged['id'],
+                                    $this->usuarioLogado['id'],
                                     0,
                                     0
                                 );
@@ -387,6 +398,18 @@ class BrindesController extends AppController
 
                         if ($brindesHabilitadosPreco) {
                             $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                            if (empty($clienteHasBrindeHabilitado["tipo_codigo_barras"])) {
+
+                                $this->Flash->error(Configure::read("messageBrindeBarcodeNotConfigured"));
+                                return $this->redirect(
+                                    array(
+                                        "controller" => "clientesHasBrindesHabilitados",
+                                        "action" => 'configurarBrinde',
+                                        $clienteHasBrindeHabilitado["id"]
+                                    )
+                                );
+                            }
 
                             return $this->redirect(['action' => 'brindes_minha_rede']);
                         }
@@ -426,60 +449,83 @@ class BrindesController extends AppController
      */
     public function editarBrindeRede($id = null)
     {
-        $editMode = 1;
-
         $brinde = $this->Brindes->get($id);
 
+        $editMode = 1;
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
         $tiposBrindesRedesId = $brinde["tipos_brindes_redes_id"];
-
         $imagemOriginal = null;
         $imagemOriginalDisco = null;
 
-        if (strlen($brinde->nome_img) > 0) {
+        if (strlen($brinde["nome_img"]) > 0) {
             $imagemOriginal = __("{0}{1}{2}{3}", Configure::read("appAddress"), "webroot", Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
             $imagemOriginalDisco = __("{0}{1}{2}", WWW_ROOT, Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
         }
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
-        $rede = $this->request->session()->read("Network.Main");
-
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed(
-            $this->user_logged,
-            $this->Clientes,
-            $this->ClientesHasUsuarios,
-            array(),
-            $rede["id"]
-        );
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente(array($cliente["id"]));
+        $tiposBrindesCliente = $tiposBrindesCliente->toArray();
+        $tiposBrindesClienteTemp = array();
 
-        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesVinculados(array($brinde["clientes_id"]));
+        foreach ($tiposBrindesCliente as $tipoBrinde) {
+            $tipo = array(
+                "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
+                "value" => $tipoBrinde["id"],
+                "id" => "tipos_brindes_redes_id",
+                "data-obrigatorio" => $tipoBrinde["obrigatorio"],
+                "data-tipo-principal-codigo-brinde" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                "data-tipo-secundario-codigo-brinde" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+            );
+            $tiposBrindesClienteTemp[] = $tipo;
+        }
+        $tiposBrindesCliente = $tiposBrindesClienteTemp;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($this->Brindes->findBrindesByName($data['nome'], $brinde["id"])) {
+            $brindeCheck = $this->Brindes->findBrindesByConditions(
+                $rede["id"],
+                array(),
+                null,
+                $brinde['nome'],
+                $brinde["tipos_brindes_redes_id"],
+                $brinde["tempo_uso_brinde"],
+                $brinde["ilimitado"]
+            );
+
+            if ($brindeCheck["id"] != $id) {
                 $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
             } else {
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+
+                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
+                if ($tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4) {
+                    $brinde["ilimitado"] = 1;
+                } else {
+                    $brinde["ilimitado"] = $data["ilimitado"];
+                }
+
                 $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
                 $brinde = $this->Brindes->patchEntity($brinde, $data);
 
-                // Preserva o id base de gênero brindes
+                // Preserva o id base de tipos brindes
                 $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
-
-                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
-                // $brinde->preco_padrao = str_replace(",", "", $data['preco_padrao']);
                 $brinde->preco_padrao = (float)$data['preco_padrao'];
 
                 if ($enviouNovaImagem) {
                     $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
                 }
 
-                if ($this->Brindes->save($brinde)) {
+                if ($this->Brindes->saveBrinde($brinde)) {
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
                     // Se mandou imagem nova
@@ -493,7 +539,6 @@ class BrindesController extends AppController
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
-
         }
 
         $arraySet = array(
@@ -572,27 +617,27 @@ class BrindesController extends AppController
     public function impressaoRapida()
     {
         $urlRedirectConfirmacao = array("controller" => "Brindes", "action" => "impressao_rapida");
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -612,7 +657,7 @@ class BrindesController extends AppController
         $veiculoPath = "UsuariosHasVeiculos.Veiculos.";
 
         $arraySet = array(
-            "user_logged",
+            "usuarioLogado",
             "usuario",
             "cliente",
             "clientes_id",
@@ -653,6 +698,7 @@ class BrindesController extends AppController
         $imagemOrigem = __("{0}{1}", Configure::read("imageGiftPathTemp"), $data["img-upload"]);
         $imagemDestino = __("{0}{1}", Configure::read("imageGiftPath"), $data["img-upload"]);
 
+        // TODO: NÃO MUDAR!
         $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
         // Se imagem foi redimensionada, move e atribui o nome para gravação
@@ -880,7 +926,7 @@ class BrindesController extends AppController
 
             $brindesTemp = array();
 
-            foreach ($brindesHabilitadosCliente as $key => $brindeHabilitadoCliente) {
+            foreach ($brindesHabilitadosCliente as $brindeHabilitadoCliente) {
                 $brindeHabilitadoCliente["brinde"]["nome_img"] =
                     __(
                     "{0}{1}{2}",
@@ -888,6 +934,20 @@ class BrindesController extends AppController
                     Configure::read("imageGiftPathRead"),
                     $brindeHabilitadoCliente["brinde"]["nome_img"]
                 );
+
+                $nome = $brindeHabilitadoCliente["brinde"]["nome"];
+                $isBrindeShower = $brindeHabilitadoCliente["tipos_brindes_redes_id"] >= 1 && $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;
+
+                if ($isBrindeShower) {
+                    $nome = __("{0} ({1} minutos)", $nome, $brindeHabilitadoCliente["brinde"]["tempo_uso_brinde"]);
+                }
+
+                if ($brindeHabilitadoCliente["tipos_brindes_cliente"]["tipos_brindes_rede"]["brinde_necessidades_especiais"]) {
+                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome . " (PNE)";
+                } else {
+                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome;
+                }
+
                 $brindesTemp[] = $brindeHabilitadoCliente;
             }
 
@@ -948,8 +1008,5 @@ class BrindesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 }

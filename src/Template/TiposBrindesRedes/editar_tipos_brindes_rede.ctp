@@ -34,7 +34,7 @@ echo $this->element('../TiposBrindesRedes/left_menu')
 
     <?= $this->Form->create($tiposBrindesRede) ?>
 
-    <!-- Formulário de Gênero de Brindes -->
+    <!-- Formulário de Tipo de Brindes -->
     <?= $this->element(
         "../TiposBrindesRedes/form_tipos_brindes_rede",
         array(

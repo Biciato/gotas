@@ -8,6 +8,15 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+$this->Breadcrumbs->add('Cupons Emitidos', array("controller" => "pontuacoes", "action" => "cupons_minha_rede"));
+$this->Breadcrumbs->add('Detalhes do Cupom Fiscal', array(), ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 ?>
     <?= $this->element('../Pontuacoes/left_menu', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede', 'id' => $pontuacao->id, 'mode' => 'details']) ?>
 
@@ -48,7 +57,7 @@ use Cake\Routing\Router;
                 </tr>
                 <tr>
                     <th>
-                    
+
                         <?= __("Alternar Validade") ?>
                             <td>
                                 <?php
@@ -125,7 +134,7 @@ use Cake\Routing\Router;
                         <?= __('Total de Gotas') ?>
                     </th>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 2)) ?>
+                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 0)) ?>
                     </td>
                 </tr>
                 <tr>
@@ -165,7 +174,7 @@ use Cake\Routing\Router;
 
             <h4>Descritivo de gotas:</h4>
 
-                                
+
             <?php if (is_null($pontuacao->nome_img)) : ?>
                 <?= $this->element('../Pontuacoes/tabela_descritivo_pontuacoes', ['pontos' => $pontuacao->pontuacoes]) ?>
                 <?php else : ?>
@@ -185,7 +194,7 @@ use Cake\Routing\Router;
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->css('styles/pontuacoes/detalhes_cupom'); ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->css('styles/pontuacoes/detalhes_cupom.min'); ?>
 <?php endif; ?>
 

@@ -27,13 +27,13 @@ class Security
     /**
      * Verifica se usuário está autorizado à acessar uma action
      *
-     * @param array $user_logged
+     * @param array $usuarioLogado
      * @param string $minimumProfileType
      * @param string $maximumProfileType
      * @return boolean
      * @author Gustavo Souza Gonçalves
      **/
-    public function checkUserIsAuthorized($user_logged, $minimumProfileType, $maximumProfileType = null)
+    public function checkUserIsAuthorized($usuarioLogado, $minimumProfileType, $maximumProfileType = null)
     {
         $profileTypes = Configure::read('profileTypes');
 
@@ -46,7 +46,7 @@ class Security
         }
 
         if ($maxValue != null) {
-            if (($user_logged['tipo_perfil'] <= $minValue) || ($user_logged['tipo_perfil'] >= $maxValue)) {
+            if (($usuarioLogado['tipo_perfil'] <= $minValue) || ($usuarioLogado['tipo_perfil'] >= $maxValue)) {
                 return true;
                 // return false;
             } else {
@@ -54,7 +54,7 @@ class Security
                 return false;
             }
         } else {
-            if ($user_logged['tipo_perfil'] >= $minValue) {
+            if ($usuarioLogado['tipo_perfil'] >= $minValue) {
                 return true;
             } else {
                 return false;
@@ -82,7 +82,7 @@ class Security
 
             // Pega qual é a rede que ele logou
 
-            $rede = $thisInstance->request->session()->read("Network.Main");
+            $rede = $thisInstance->request->session()->read("Rede.Grupo");
 
             if ($rede["id"] != $redesId) {
                 $this->redirectUserNotAuthorized($thisInstance, $user);
@@ -105,43 +105,26 @@ class Security
         // Verifica se o usuário é um Administrador de Rede ou Administrador da RTI. Se for e tiver algum registro vinculado na pesquisa,
         // então possui acesso.
 
-        // É Administrador RTI / Devel, retorna True
-        if ($user["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) {
-            return 1;
-        }
-
-        // É adminstrador de Rede, verifica se ele tem acesso à alguma unidade
-        if ($user["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
-
-            // Pega o id de todos os clientes daquela rede
-
-            $redesHasClientesTable = TableRegistry::get('RedesHasClientes');
-            $redeHasClientes = $redesHasClientesTable->getAllRedesHasClientesIdsByRedesId($redesId);
-            $temAcesso = 0;
-
-            foreach ($redeHasClientes as $key => $redeHasCliente) {
-                foreach ($clientesIds as $key => $clienteId) {
-                    if ($redeHasCliente["clientes_id"] == $clienteId) {
-                        $temAcesso = 1;
-                        break;
-                    }
-                }
-            }
-
-            if (!$temAcesso) {
-                return 0;
-            }
+        // É Administrador RTI / Devel, ou
+        // É adminstrador de Rede, verifica se ele tem acesso à alguma unidade, retorna True
+        if (($user["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"])
+            || ($user["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"])) {
 
             return 1;
+
         } else if ($user["tipo_perfil"] >= Configure::read("profileTypes")["AdminRegionalProfileType"]
             && $user["tipo_perfil"] <= Configure::read("profileTypes")["WorkerProfileType"]) {
 
             // Se usuário logado for Regional ou Funcionário, verificar através do ID passado
-            $cliente = $clienteTable->getClienteMatrizLinkedToUsuario($user);
-            $hasAccess = 0;
 
-            foreach ($clientesIds as $clienteId) {
-                if ($clienteId == $cliente["id"]) {
+            $clientes = $clienteHasUsuariosTable->getClientesFilterAllowedByUsuariosId($redesId, $user['id'], false);
+
+            $clientes = $clientes->toArray();
+            $clientesIdsEncontrados = array_keys($clientes);
+
+            $hasAccess = 0;
+            foreach ($clientesIdsEncontrados as $clienteEncontrado) {
+                if (in_array($clienteEncontrado, $clientesIds)) {
                     $hasAccess = 1;
                     break;
                 }
@@ -149,21 +132,6 @@ class Security
 
             return $hasAccess;
         }
-        // $hasAccess = !is_null(
-        //     $clienteHasUsuariosTable->findClienteHasUsuario(
-        //         [
-        //             'ClientesHasUsuarios.usuarios_id' => $user['id'],
-        //             'ClientesHasUsuarios.clientes_id' => $cliente->id,
-        //             'ClientesHasUsuarios.tipo_perfil' => $user['tipo_perfil'],
-        //         ]
-        //     )
-        // );
-
-        // if (!$hasAccess) {
-        //     $this->redirectUserNotAuthorized($this, $user);
-        // }
-
-        // return $cliente;
     }
 
     /**

@@ -27,11 +27,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 </li>
 
                 <li>
-                    <?= $this->Html->link(__("Administradores da Rede"), ['controller' => 'usuarios', 'action' => 'administradores_rede', $redes_id]) ?>
-                </li>
-
-                <li>
-                    <?= $this->Html->link(__("Administradores Regionais e Comuns"), ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $redes_id]) ?>
+                    <?= $this->Html->link(__("Atribuir Administração Regional/Comum"), ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $redes_id]) ?>
                 </li>
 
             <?php endif; ?>
@@ -46,45 +42,6 @@ $show_reports = isset($show_reports) ? $show_reports : false;
                 </li>
 
             <?php elseif ($mode == 'details') : ?>
-
-                <li>
-                    <?= $this->Html->link(__("Editar Rede"), ['controller' => 'redes', 'action' => 'editar', $redes_id]) ?>
-                </li>
-
-                <li>
-                    <?= $this->Html->link(
-                        __(
-                            'Remover Rede',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
-                        ),
-                        '#',
-                        [
-                            'title' => 'Deletar',
-                            'class' => 'text-danger bg-danger',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede->nome_rede),
-                            'data-action' => Router::url(
-                                [
-                                    'controller' => 'redes',
-                                    'action' => 'delete',
-                                    '?' =>
-                                        [
-                                        'rede_id' => $rede->id,
-                                        'return_url' =>
-                                            [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
-                                    ]
-                                ]
-                            ),
-                            'escape' => false
-                        ],
-                        false
-                    );
-                    ?>
-                </li>
 
                 <li>
                     <?= $this->Html->link(__("Nova Unidade de Rede"), ['controller' => 'clientes', 'action' => 'adicionar', $redes_id]) ?>

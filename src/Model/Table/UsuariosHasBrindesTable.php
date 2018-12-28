@@ -41,7 +41,7 @@ class UsuariosHasBrindesTable extends GenericTable
 
     /**
      * Method get of brinde table property
-     * 
+     *
      * @return Cake\ORM\Table Table object
      */
     private function _getUsuariosHasBrindesTable()
@@ -54,7 +54,7 @@ class UsuariosHasBrindesTable extends GenericTable
 
     /**
      * Method set of brinde table property
-     * 
+     *
      * @return void
      */
     private function _setUsuariosHasBrindesTable()
@@ -134,45 +134,88 @@ class UsuariosHasBrindesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
-     * Add a new Brinde for a Usuario
+     * UsuariosHasBrindesTable::addUsuarioHasBrindes
      *
+     * Adiciona um novo brinde ao usuário
      *
-     * @param int $usuarios_id
-     * @param int $brindes_habilitados_id
-     * @param int $cupons_id
+     * @param int $usuariosId
+     * @param int $redesId Id da rede
+     * @param int $clientesId Id da Unidade da Rede
+     * @param int $brindesHabilitadosId
      * @param float $quantidade
      * @param float $preco
+     * @param string $tipoVenda Tipo de Venda ("Gotas", "Dinheiro")
+     * @param int $cuponsId
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2017-10-10
+     *
      * @return \App\Model\Entity\UsuariosHasBrinde $usuarioHasBrinde
-     * @author
      **/
-    public function addUsuarioHasBrindes(int $usuarios_id, int $brindes_habilitados_id, float $quantidade, float $preco, int $cupons_id = null)
+    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $preco, string $tipoVenda, int $cuponsId = null)
     {
         try {
-            $brinde_usuario = $this->_getUsuariosHasBrindesTable()->newEntity();
+            $brindeUsuario = $this->newEntity();
 
-            $brinde_usuario->usuarios_id = $usuarios_id;
-            $brinde_usuario->clientes_has_brindes_habilitados_id = $brindes_habilitados_id;
-            $brinde_usuario->quantidade = (int)$quantidade;
-            $brinde_usuario->preco = $preco * $quantidade;
-            $brinde_usuario->data = date('Y-m-d H:i:s');
+            $brindeUsuario["redes_id"] = $redesId;
+            $brindeUsuario["clientes_id"] = $clientesId;
 
-            
-            $brinde_usuario->cupons_id = $cupons_id;
+            $brindeUsuario["usuarios_id"] = $usuariosId;
+            $brindeUsuario["clientes_has_brindes_habilitados_id"] = $brindesHabilitadosId;
+            $brindeUsuario["quantidade"] = (int)$quantidade;
+            $brindeUsuario["preco"] = $preco * $quantidade;
+            $brindeUsuario["tipo_venda"] = $tipoVenda;
+            $brindeUsuario["data"] = date('Y-m-d H:i:s');
 
-            return $this->_getUsuariosHasBrindesTable()->save($brinde_usuario);
+
+            $brindeUsuario["cupons_id"] = $cuponsId;
+
+            return $this->save($brindeUsuario);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao salvar brinde de usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
+            throw new \Exception($stringError);
         }
     }
-    /* ------------------------ Read ------------------------ */
+
+    #endregion
+
+    #region Read
+
+    /**
+     * Verifica o número de resgates de brindes do usuário na rede
+     *
+     * @param integer $redesId
+     * @param integer $usuariosId
+     * @return void
+     */
+    public function checkNumberRescuesUsuarioRede(int $redesId, int $usuariosId)
+    {
+        try {
+            $whereCondicoes = array(
+                "DATE_FORMAT(data, '%Y-%m-%d') = CURDATE()",
+                "redes_id" => $redesId,
+                "usuarios_id" => $usuariosId
+            );
+            return $this
+                ->find("all")
+                ->where($whereCondicoes)
+                ->count(array("id"));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao obter registro: " . $e->getMessage());
+
+            Log::write('error', $stringError);
+
+            throw new \Exception($stringError);
+        }
+    }
 
     /**
      * Obtem detalhes de brinde de usuário pelo Id
@@ -203,7 +246,7 @@ class UsuariosHasBrindesTable extends GenericTable
      *
      * @param array $where_conditions Condições de pesquisa
      * @param array $order_conditions Condições de ordem
-     * 
+     *
      * @return \App\Model\Entity\UsuariosHasBrindes[]
      */
     public function getAllUsuariosHasBrindes(array $where_conditions = [], array $order_conditions = [])
@@ -227,10 +270,10 @@ class UsuariosHasBrindesTable extends GenericTable
             return $stringError;
         }
     }
-    
-    /* ------------------------ Update ------------------------ */
 
-    /* ------------------------ Delete ------------------------ */
+    #region Update
+
+    #region Delete
 
     /**
      * Apaga todas as gotas de um cliente
@@ -285,14 +328,14 @@ class UsuariosHasBrindesTable extends GenericTable
     /**
      * Apaga todas as gotas de um usuário
      *
-     * @param int $usuarios_id Id de usuario
+     * @param int $usuariosId Id de usuario
      *
      * @return boolean
      */
-    public function deleteAllUsuariosHasBrindesByUsuariosId(int $usuarios_id)
+    public function deleteAllUsuariosHasBrindesByUsuariosId(int $usuariosId)
     {
         try {
-            return $this->deleteAll(['usuarios_id' => $usuarios_id]);
+            return $this->deleteAll(['usuarios_id' => $usuariosId]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

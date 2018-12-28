@@ -149,12 +149,9 @@ class UsuariosTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->allowEmpty('matriz_id');
-
-        $validator
             ->integer('tipo_perfil')
             ->requirePresence('tipo_perfil', 'create')
-            ->notEmpty('tipo_perfil', 'Tipo de perfil é necessário informar')
+            ->notEmpty('tipo_perfil', 'É necessário informar o Tipo de perfil!')
             ->add(
                 'tipo_perfil',
                 'inList',
@@ -166,7 +163,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('nome', 'create')
+            ->requirePresence('nome', 'create', "O campo Nome precisa ser informado!")
             ->notEmpty('nome', "É necessário informar o nome");
 
         $validator
@@ -183,8 +180,8 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->integer('sexo')
-            ->requirePresence('sexo', 'create')
-            ->notEmpty('sexo', 'Por favor informe o sexo')
+            ->requirePresence('sexo', 'create', "O campo Sexo precisa ser informado!")
+            ->allowEmpty('sexo', 'Por favor informe o sexo')
             ->add(
                 'sexo',
                 'inList',
@@ -195,12 +192,12 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create')
-            ->notEmpty('data_nasc');
+            ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
+            ->allowEmpty('data_nasc');
 
         $validator
             ->email('email')
-            ->requirePresence('email', 'create')
+            ->requirePresence('email', 'create', "O campo E-mail precisa ser informado!")
             ->add(
                 'email',
                 'unique',
@@ -213,7 +210,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('email', 'Você deve informar um e-mail', 'create');
 
         $validator
-            ->requirePresence('senha', 'create')
+            ->requirePresence('senha', 'create', "O campo Senha precisa ser informado!")
             ->notEmpty('senha', 'Você deve inserir uma senha', 'create')
             ->add(
                 'senha',
@@ -234,7 +231,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('confirm_senha', 'create')
+            ->requirePresence('confirm_senha', 'create', "O Campo de Confirmar Senha precisa ser informado!")
             ->notEmpty('confirm_senha', 'Você deve redigir a senha', 'create')
             ->allowEmpty('confirm_senha', 'update')
             ->add('confirm_senha', 'compareWith', [
@@ -565,8 +562,8 @@ class UsuariosTable extends GenericTable
                 $data['cpf'] = $this->cleanNumber($data['cpf']);
             }
 
-            $data['sexo'] = $data['sexo'];
-            $data['data_nasc'] = date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d');
+            $data['sexo'] = isset($data["sexo"]) && strlen($data['sexo']) > 0 ? $data["sexo"] : null;
+            $data['data_nasc'] = !empty($data["data_nasc"])? date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d') : null;;
 
             if (isset($data["email"])) {
                 $data['email'] = $data['email'];
@@ -666,7 +663,7 @@ class UsuariosTable extends GenericTable
         // probably skip this check if your system doesn't enforce unique email
         // per user.
 
-            debug($profile);
+            // debug($profile);
             $user = $this->find()
                 ->where(['email' => $profile->email])
                 ->first();
@@ -677,7 +674,7 @@ class UsuariosTable extends GenericTable
 
             // Create new user account
 
-            die();
+            // die();
 
             $user = array(
                 "email" => $profile["email"],
@@ -858,17 +855,17 @@ class UsuariosTable extends GenericTable
      *
      * @param int $id Id do usuário
      *
-     * @return entity\usuario $usuario
+     * @return \App\Model\Entity\Usuario $usuario
      *
      * @author Gustavo Souza Gonçalves
      */
-    public function getUsuarioById($id = null)
+    public function getUsuarioById($id)
     {
         try {
-            return $this->_getUsuarioTable()->get($id);
+            return $this->get($id);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 
@@ -1219,20 +1216,144 @@ class UsuariosTable extends GenericTable
      *
      * @return array $usuarios Lista de Usuários
      */
-    public function findAllUsuarios(array $whereConditions = [])
-    {
+    // public function findAllUsuarios(array $whereConditions = [])
+    public function findAllUsuarios(
+        int $redesId = null,
+        array $clientesIds = array(),
+        string $nome = null,
+        string $email = null,
+        int $tipoPerfilMin = null,
+        int $tipoPerfilMax = null,
+        string $cpf = null,
+        string $docEstrangeiro = null,
+        int $contaAtiva = null,
+        bool $join = true,
+        array $usuariosIds = array()
+    ) {
         try {
-            return $this->_getUsuarioTable()
-                ->find('all')
-                ->where($whereConditions)
-                ->contain(['ClientesHasUsuarios.Cliente.RedeHasCliente.Redes']);
+            $whereConditions = array();
+
+            if (sizeof($usuariosIds) > 0) {
+                $whereConditions[] = array("Usuarios.id in " => $usuariosIds);
+            }
+
+            if (sizeof($clientesIds) > 0) {
+                $whereConditions[] = array("ClienteHasUsuario.clientes_id IN" => $clientesIds);
+            } else if (strlen($redesId) > 0) {
+                $whereConditions[] = array("Redes.id" => $redesId);
+            }
+
+            if (!empty($nome)) {
+                $whereConditions[] = array("Usuarios.nome like '%{$nome}%'");
+            }
+
+            if (!empty($email)) {
+                $whereConditions[] = array("Usuarios.email like '%{$email}%'");
+            }
+
+            if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
+                $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
+                $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
+                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
+
+                $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
+                // $whereConditions[] = array(__("{$prefixo}.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                    // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
+                    // $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
+            } else {
+                $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
+
+                $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
+            }
+
+            if (!empty($cpf)) {
+                $whereConditions[] = array("Usuarios.cpf like '%{$cpf}%'");
+            }
+
+            if (!empty($docEstrangeiro)) {
+                $whereConditions[] = array("Usuarios.doc_estrangeiro like '%{$docEstrangeiro}%'");
+            }
+
+            if (!empty($contaAtiva)) {
+                $whereConditions[] = array("Usuarios.conta_ativa" => $contaAtiva);
+                $whereConditions[] = array("ClienteHasUsuario.conta_ativa" => $contaAtiva);
+            }
+
+            // $arrayContain = array("ClienteHasUsuario");
+            $arrayContain = array();
+
+            $usuarios = $this->find('all')
+                ->where($whereConditions);
+
+            if ($join) {
+                $arrayContain[] = 'ClienteHasUsuario.Cliente.RedesHasClientes.Redes';
+            }
+
+            $usuarios->contain($arrayContain);
+
+            $usuariosSelectFields = array(
+                "Usuarios.id",
+                "Usuarios.tipo_perfil",
+                "Usuarios.nome",
+                "Usuarios.data_nasc",
+                "Usuarios.sexo",
+                "Usuarios.necessidades_especiais",
+                "Usuarios.cpf",
+                "Usuarios.foto_documento",
+                "Usuarios.foto_perfil",
+                "Usuarios.doc_estrangeiro",
+                "Usuarios.aguardando_aprovacao",
+                "Usuarios.data_limite_aprovacao",
+                "Usuarios.email",
+                "Usuarios.senha",
+                "Usuarios.telefone",
+                "Usuarios.endereco",
+                "Usuarios.endereco_numero",
+                "Usuarios.endereco_complemento",
+                "Usuarios.bairro",
+                "Usuarios.municipio",
+                "Usuarios.estado",
+                "Usuarios.pais",
+                "Usuarios.cep",
+                "Usuarios.token_senha",
+                "Usuarios.data_expiracao_token",
+                "Usuarios.conta_ativa",
+                "Usuarios.conta_bloqueada",
+                "Usuarios.tentativas_login",
+                "Usuarios.ultima_tentativa_login"
+            );
+
+            if ($join) {
+
+                $arrayTemp = array(
+                    "ClienteHasUsuario.tipo_perfil",
+                    "ClienteHasUsuario.clientes_id",
+                    "ClienteHasUsuario.conta_ativa",
+                    "RedesHasClientes.id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.clientes_id",
+                    "Redes.id",
+                    "Redes.nome_rede",
+                    "Redes.nome_img",
+                    "Redes.propaganda_img",
+                    "Cliente.nome_fantasia",
+                );
+                $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
+            }
+
+            $usuarios = $usuarios->select($usuariosSelectFields);
+
+            return $usuarios;
 
         } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            return $stringError;
+            Log::write('error', $trace);
         }
     }
 
@@ -1307,65 +1428,150 @@ class UsuariosTable extends GenericTable
     /**
      * Obtêm todos os funcionários de uma rede
      *
-     * @param int   $redes_id         Id da rede
-     * @param array $clientes_ids     Array de Id de clientes (Se for toda a rede, passar todos os ids de clientes_ids)
-     * @param array $where_conditions Condições extras de pesquisa
+     * @param int   $redes_id Id da rede
+     * @param array $clientes_ids Array de Id de clientes (Se for toda a rede, passar todos os ids de clientes_ids)
+     * @param string $nome Nome
+     * @param string $cpf Cpf
+     * @param string $documentoEstrangeiro Documento Estrangeiro
+     * @param integer $tipoPerfilMin Tipo Perfil Minimo
+     * @param integer $tipoPerfilMax Tipo Perfil Maximo
      *
      * @return entity\usuarios[] $usuarios
+     *
+     * TODO: renomear para getUsuarios (o antigo irá morrer, ver a funcionalidade do outro)
      */
-    public function findFuncionariosRede(int $redes_id, array $clientes_ids, array $where_conditions = array())
-    {
+    public function findFuncionariosRede(
+        int $redesId,
+        array $clientesIds,
+        string $nome = null,
+        string $cpf = null,
+        string $documentoEstrangeiro = null,
+        int $tipoPerfilMin = null,
+        int $tipoPerfilMax = null
+    ) {
+        // TODO: Ajustar todos os locais que utilizam este serviço.
+        // Criar novo serviço caso a pesquisa seja de outro tipo de usuário (como administradores regionais)
         try {
 
-            // condições de pesquisa
-            $conditions = [];
+            // ---------- condições de pesquisa ----------
+            $conditions = array(
+                "Usuarios.nome LIKE '%{$nome}%'",
+            );
 
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
+            if (!empty($tipoPerfilMin) && empty($tipoPerfilMax)) {
+                $conditions[] = array("Usuarios.tipo_perfil" => $tipoPerfilMin);
+            } else if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
+                $conditions[] = array("Usuarios.tipo_perfil BETWEEN '{$tipoPerfilMin}' AND '{$tipoPerfilMax}'");
             }
 
-            /**
-             * Pega o usuário informado e vê qual é a permissão dele.
-             * Admin:
-             * RTI/de Rede -> lista tudo
-             * Admin regional -> lista os quais se encontra alocado
-             * Admin comum/Gerente -> lista somente da sua unidade
-             */
+            if (!empty($docEstrangeiro)) {
+                $conditions[] = array(
+                    "Usuarios.doc_estrangeiro LIKE '%{$docEstrangeiro}%'"
+                );
+            }
 
-            $redes_table = TableRegistry::get("Redes");
+            if (!empty($cpf)) {
+                $conditions[] = array(
+                    "Usuarios.cpf LIKE '%{$cpf}%'"
+                );
+            }
 
-            $rede = $redes_table->find('all')
-                ->where(['Redes.id' => $redes_id])
-                ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
-                ->first();
+            // ---------- condições de pesquisa ----------
+
+             // Se não passar qual o id das unidades, pega todas
+            if (sizeof($clientesIds) == 0) {
+                /**
+                 * Pega o usuário informado e vê qual é a permissão dele.
+                 * Admin:
+                 * RTI/de Rede -> lista tudo
+                 * Admin regional -> lista os quais se encontra alocado
+                 * Admin comum/Gerente -> lista somente da sua unidade
+                 */
+
+                $redesTable = TableRegistry::get("Redes");
+                $rede = $redesTable->find('all')
+                    ->where(['Redes.id' => $redesId])
+                    ->contain(['RedesHasClientes.Clientes.ClientesHasUsuarios'])
+                    ->first();
+
+                $clientesIds = array();
+
+                $redesHasClientes = $rede["redes_has_clientes"];
+
+                foreach ($redesHasClientes as $value) {
+                    $clientesIds[] = $value["clientes_id"];
+                }
+            }
 
             // se a pesquisa é pela rede inteira, pega o id
             // de usuários de todas as unidades às quais o
             // usuário tem acesso (informado na chamada)
 
-            $usuarios_ids_array = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
-                ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientes_ids])
-                ->contain(['Usuarios'])
-                ->select(['ClientesHasUsuarios.usuarios_id'])->toArray();
+            $usuariosIdsArray = $this->find('all')
+                ->where(['ClienteHasUsuario.clientes_id IN ' => $clientesIds])
+                ->contain('ClienteHasUsuario')
+                ->select(['Usuarios.id']);
 
             $usuarios_ids = [];
 
-            foreach ($usuarios_ids_array as $key => $value) {
-                $usuarios_ids[] = $value['usuarios_id'];
+            foreach ($usuariosIdsArray as $key => $value) {
+                $usuarios_ids[] = $value['id'];
             }
 
             if (sizeof($usuarios_ids) == 0) {
                 $usuarios_ids[] = 0;
             }
 
-            array_push($conditions, ['Usuarios.id IN ' => $usuarios_ids]);
+            $conditions[] = array('Usuarios.id IN ' => $usuarios_ids);
 
-            array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
+            if (!empty($tipoPerfilMin) && !empty($tipoPerfilMax)) {
+                array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
+            }
 
             $usuarios = $this->_getUsuarioTable()->find('all')
                 ->where($conditions)
-                ->contain(['ClientesHasUsuarios.Cliente']);
+                ->contain('ClienteHasUsuario.Cliente')
+                ->select(
+                    array(
+                        "Usuarios.id",
+                        "Usuarios.tipo_perfil",
+                        "Usuarios.nome",
+                        "Usuarios.data_nasc",
+                        "Usuarios.sexo",
+                        "Usuarios.necessidades_especiais",
+                        "Usuarios.cpf",
+                        "Usuarios.foto_documento",
+                        "Usuarios.foto_perfil",
+                        "Usuarios.doc_estrangeiro",
+                        "Usuarios.aguardando_aprovacao",
+                        "Usuarios.data_limite_aprovacao",
+                        "Usuarios.email",
+                        "Usuarios.senha",
+                        "Usuarios.telefone",
+                        "Usuarios.endereco",
+                        "Usuarios.endereco_numero",
+                        "Usuarios.endereco_complemento",
+                        "Usuarios.bairro",
+                        "Usuarios.municipio",
+                        "Usuarios.estado",
+                        "Usuarios.pais",
+                        "Usuarios.cep",
+                        "Usuarios.token_senha",
+                        "Usuarios.data_expiracao_token",
+                        "Usuarios.conta_ativa",
+                        "Usuarios.conta_bloqueada",
+                        "Usuarios.tentativas_login",
+                        "Usuarios.ultima_tentativa_login",
+                        "Usuarios.audit_insert",
+                        "Usuarios.audit_update"
+                    )
+                )
+                ->group("Usuarios.id");
+                // ->contain('ClientesHasUsuarios.Cliente');
 
+            // echo $usuarios->sql();
+
+            // debug($usuarios);
             return $usuarios;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -1678,60 +1884,6 @@ class UsuariosTable extends GenericTable
     }
 
     /**
-     * Undocumented function
-     *
-     * @param int $clientes_id
-     * @param array $where_conditions
-     *
-     * @return void
-     */
-    public function getPendingWorkersNetwork(int $clientes_id, array $where_conditions = array())
-    {
-        try {
-            $conditions = [];
-
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
-            }
-
-            array_push($conditions, ['chu.id is ' => null]);
-
-            $usuarios = $this->_getUsuarioTable()
-                ->find('all')
-                ->where($conditions)
-                ->join(
-                    [
-                        'ClientesHasUsuarios' =>
-                            [
-                            'table' => 'clientes_has_usuarios',
-                            'alias' => 'chu',
-                            'type' => 'left',
-                            'conditions' =>
-                                [
-                                'chu.usuarios_id = Usuarios.id'
-                            ],
-                            'where' =>
-                                [
-                                'chu.id' => null
-                            ]
-
-                        ]
-                    ]
-                );
-
-            return $usuarios;
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-
-
-    /**
      * Obtem usuários que estão associados à um 'cliente'
      *
      * @param Entity\Cliente $client           Objeto cliente
@@ -1739,6 +1891,7 @@ class UsuariosTable extends GenericTable
      * @param int            $maxProfileType   Máximo tipo de perfil
      * @param array          $where_conditions Condições extras
      *
+     * @deprecated 1.0
      * @return List<\Entity\Usuarios> $usuarios
      */
     public function getUsuariosAssociatedWithClient($client = null, $minProfileType = null, $maxProfileType = null, array $where_conditions = [])
@@ -1855,7 +2008,7 @@ class UsuariosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Altera estado de conta ativa do usuário informado
@@ -1872,7 +2025,7 @@ class UsuariosTable extends GenericTable
 
             $usuario['conta_ativa'] = $conta_ativa;
 
-            return $this->_getUsuarioTable()->save($usuario);
+            return $this->save($usuario);
         } catch (\Exception $e) {
             $stringError = __("Erro ao reativar conta: " . $e->getMessage() . ", em: " . $trace[1]);
 
@@ -2060,7 +2213,16 @@ class UsuariosTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
+
+    public function deleteAllFuncionariosByRedesId(int $redesId)
+    {
+        $redesTable = TableRegistry::get("Redes");
+
+        $rede = $redesTable->getRedeById($redesId);
+
+        die();
+    }
 
     /**
      * Undocumented function
@@ -2076,7 +2238,7 @@ class UsuariosTable extends GenericTable
 
             // pegar id de brindes que estão vinculados em um cliente
 
-            $usuarios_clientes_id = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+            $usuarios_clientes_id = $this->ClientesHasUsuarios->find('all')
                 ->where(['clientes_id in' => $clientes_ids])
                 ->select(['usuarios_id']);
 
@@ -2096,7 +2258,7 @@ class UsuariosTable extends GenericTable
 
                 $conditions[] = ['id in' => $usuarios_clientes_ids];
 
-                return $this->_getUsuarioTable()
+                return $this
                     ->deleteAll($conditions);
             } else {
                 return true;

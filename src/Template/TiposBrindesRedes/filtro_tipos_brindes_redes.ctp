@@ -41,7 +41,7 @@ $qteRegistros = [
                 ]) ?>
 
                 <div class="form-group row">
-                    <div class="col-lg-5">
+                    <div class="col-lg-4">
                         <?= $this->Form->input(
                             'nome',
                             [
@@ -54,51 +54,21 @@ $qteRegistros = [
                         ) ?>
                     </div>
 
-                    <div class="col-lg-3">
-                        <?= $this->Form->input(
-                            'equipamento_rti',
-                            [
-                                "type" => "select",
-                                "id" => "equipamento_rti",
-                                "label" => "Tipo de Prestação de Serviços",
-                                "class" => "form-control col-lg-5",
-                                "empty" => "<Todos>",
-                                "options" => array(
-                                    0 => "Produtos / Serviços",
-                                    1 => "Equipamento RTI",
-                                ),
-                            ]
-                        ) ?>
-                    </div>
                     <div class="col-lg-4">
                         <?= $this->Form->input(
                             'brinde_necessidades_especiais',
                             [
                                 "type" => "select",
                                 "id" => "brinde_necessidades_especiais",
-                                "label" => "Brindes Necessidades Especiais",
+                                "title" => "Brindes para Pessoas com Necessidades Especiais",
+                                "title" => "Brindes Necessidades Especiais",
                                 "class" => "form-control col-lg-5",
                                 "empty" => "<Todos>",
-                                "options" => Configure::read("enabledDisabledArray")
+                                "options" => Configure::read("yesNoArray")
                             ]
                         ) ?>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-lg-4">
-                        <?= $this->Form->input(
-                                'habilitado',
-                                [
-                                    "type" => 'select',
-                                    "id" => 'habilitado',
-                                    "label" => 'Habilitado',
-                                    "options" => Configure::read("yesNoArray"),
-                                    "empty" => "<Todos>",
-                                    "default" => '10',
-                                    "class" => 'form-control col-lg-2'
-                                ]
-                        ) ?>
-                    </div>
+                  
                     <div class="col-lg-4">
                         <?= $this->Form->input(
                             'atribuir_automatico',
@@ -106,39 +76,53 @@ $qteRegistros = [
                                 "type" => "select",
                                 "id" => "atribuir_automatico",
                                 "label" => "Atribuir Automaticamente",
+                                "label" => "Atribuir Automaticamente",
                                 "class" => "form-control col-lg-5",
                                 "empty" => "<Todos>",
                                 "options" => Configure::read("yesNoArray")
                             ]
                         ) ?>
                     </div>
-                    <div class="col-lg-2">
+                    <div class="col-lg-6">
                         <?= $this->Form->input(
-                                'qteRegistros',
-                                [
-                                    "type" => 'select',
-                                    "id" => 'qteRegistros',
-                                    "label" => 'Qte. de Registros',
-                                    "options" => $qteRegistros,
-                                    "empty" => "<Todos>",
-                                    "default" => '10',
-                                    "class" => 'form-control col-lg-2'
-                                ]
-                        ) ?>
-                    </div>
-
-                    <div class="col-lg-2 vertical-align">
-
-                        <?= $this->Form->button(
-                            __("{0} Pesquisar", '<i class="fa       fa-search" aria-hidden="true"></i>'),
+                            'habilitado',
                             [
-                                'class' => 'btn btn-primary btn-block',
-                                'type' => 'submit'
+                                "type" => 'select',
+                                "id" => 'habilitado',
+                                "label" => 'Habilitado',
+                                "options" => Configure::read("enabledDisabledArray"),
+                                "empty" => "<Todos>",
+                                "default" => '10',
+                                "class" => 'form-control col-lg-2'
                             ]
                         ) ?>
-
-                    <?= $this->Form->end() ?>
                     </div>
+                    <div class="col-lg-6">
+                        <?= $this->Form->input(
+                            'qteRegistros',
+                            [
+                                "type" => 'select',
+                                "id" => 'qteRegistros',
+                                "label" => 'Qte. de Registros',
+                                "options" => $qteRegistros,
+                                "empty" => "<Todos>",
+                                "default" => '10',
+                                "class" => 'form-control col-lg-2'
+                            ]
+                        ) ?>
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                
+                    <div class="col-lg-2 pull-right">
+                        <button type="submit" 
+                                class="btn btn-primary btn-block botao-confirmar">
+                                <span class="fa fa-search"></span> 
+                                Pesquisar
+                        </button>
+                    </div>
+                    <?= $this->Form->end() ?>
                 </div>
 
             </div>

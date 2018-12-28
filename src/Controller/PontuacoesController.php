@@ -26,7 +26,7 @@ class PontuacoesController extends AppController
      * Campos
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -51,9 +51,6 @@ class PontuacoesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**
@@ -239,25 +236,28 @@ class PontuacoesController extends AppController
     {
         // se o usuário que estiver logado for
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // Pega unidades que tem acesso
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
-            foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+            $clientesIds = array();
+
+            foreach ($unidadesIds as $key => $value) {
+                $clientesIds[] = $key;
             }
 
             // verifica se usuário é ao menos gerente
-            $this->security_util->checkUserIsAuthorized($this->user_logged, 'ManagerProfileType');
+            $this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, 'ManagerProfileType');
 
             $pontuacoes_cliente = null;
 
@@ -271,13 +271,13 @@ class PontuacoesController extends AppController
                 $start = \strtotime($date . ' -7 days');
                 array_push($array_options, ['data between "' . date('Y-m-d 00:00:00', $start) . '" and "' . date('Y-m-d 23:59:59', $end) . '"']);
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
+                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
             } else {
                 $data = $this->request->getData();
 
                 if ($data['filtrar_unidade'] != "") {
-                    $clientes_ids = [];
-                    $clientes_ids[] = (int)$data['filtrar_unidade'];
+                    $clientesIds = [];
+                    $clientesIds[] = (int)$data['filtrar_unidade'];
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
@@ -288,8 +288,8 @@ class PontuacoesController extends AppController
                     array_push($array_options, ['requer_auditoria' => $data['requer_auditoria']]);
                 }
 
-                if (strlen($data['registro_auditado']) > 0) {
-                    array_push($array_options, ['registro_auditado' => $data['registro_auditado']]);
+                if (strlen($data['auditado']) > 0) {
+                    array_push($array_options, ['auditado' => $data['auditado']]);
                 }
 
                 if (strlen($data['registro_invalido']) > 0) {
@@ -310,18 +310,19 @@ class PontuacoesController extends AppController
 
                 array_push($array_options, ['data between "' . $start . '" and "' . $end . '"']);
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientes_ids, $array_options);
+                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
             }
 
-            $funcionarios_array = $this->Usuarios->findFuncionariosRede($rede->id, $clientes_ids)->select(['id', 'nome']);
+            // TODO: Ajustar
+            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds)->select(['id', 'nome']);
+            $funcionarios = array();
 
-            $funcionarios = [null => null];
-
-            foreach ($funcionarios_array as $key => $value) {
+            foreach ($funcionariosQuery as $key => $value) {
                 array_push($funcionarios, ['value' => $value->id, 'text' => $value->nome]);
             }
 
-            $this->paginate($pontuacoes_cliente, ['limit' => 10]);
+            // debug($funcionarios);
+            $pontuacoes_cliente = $this->Paginate($pontuacoes_cliente, ['limit' => 10]);
 
             $pontuacoes_cliente_new_array = [];
 
@@ -334,8 +335,9 @@ class PontuacoesController extends AppController
             $pontuacoes_cliente = null;
             $pontuacoes_cliente = $pontuacoes_cliente_new_array;
 
-            $this->set(compact(['pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids']));
-            $this->set('_serialize', ['pontuacoes_cliente', 'funcionarios', 'cliente', 'unidades_ids']);
+            $arraySet = array('pontuacoes_cliente', 'funcionarios', 'cliente', 'unidadesIds');
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $stringError = __("Erro ao exibir página: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -466,14 +468,14 @@ class PontuacoesController extends AppController
     {
         try {
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $pontuacao = $this->PontuacoesComprovantes->getDetalhesCupomByCouponId($id);
 
@@ -482,7 +484,7 @@ class PontuacoesController extends AppController
             $array_set = [
                 'pontuacao',
                 'usuarios_id',
-                'user_logged'
+                'usuarioLogado'
             ];
 
             $this->set(compact($array_set));

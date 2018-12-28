@@ -8,7 +8,7 @@ use Cake\Core\Configure;
  * Cliente Entity
  *
  * @property int $id
- * @property int $matriz_id
+ * @property int $matriz
  * @property int $tipo_unidade
  * @property string $nome_fantasia
  * @property string $razao_social

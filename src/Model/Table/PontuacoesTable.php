@@ -44,29 +44,6 @@ class PontuacoesTable extends GenericTable
      */
 
     /**
-     * Method get of pontuacoes table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getPontuacoesTable()
-    {
-        if (is_null($this->pontuacoesTable)) {
-            $this->_setPontuacoesTable();
-        }
-        return $this->pontuacoesTable;
-    }
-
-    /**
-     * Method set of pontuacoes table property
-     *
-     * @return void
-     */
-    private function _setPontuacoesTable()
-    {
-        $this->pontuacoesTable = TableRegistry::get('Pontuacoes');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -83,18 +60,18 @@ class PontuacoesTable extends GenericTable
 
         $this->belongsTo(
             'Clientes',
-            [
+            array(
                 'foreignKey' => 'clientes_id',
                 'joinType' => 'INNER'
-            ]
+            )
         );
 
         $this->belongsTo(
             'Usuarios',
-            [
+            array(
                 'foreignKey' => 'usuarios_id',
                 'joinType' => 'INNER'
-            ]
+            )
         );
 
         $this->belongsTo(
@@ -163,7 +140,7 @@ class PontuacoesTable extends GenericTable
 
         $validator
             ->decimal('valor_moeda_venda')
-            ->requirePresence('valor_moeda_venda', 'create')
+            // ->requirePresence('valor_moeda_venda', 'create')
             ->allowEmpty('valor_moeda_venda');
 
         $validator
@@ -221,7 +198,7 @@ class PontuacoesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Adiciona pontuação de brinde para usuário
@@ -244,7 +221,7 @@ class PontuacoesTable extends GenericTable
         bool $tipoVenda = true
     ) {
         try {
-            $pontuacao = $this->_getPontuacoesTable()->newEntity();
+            $pontuacao = $this->newEntity();
 
             if ($tipoVenda) {
                 $pontuacao->quantidade_gotas = $quantidadePontos;
@@ -259,7 +236,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao->data = date('Y-m-d H:i:s');
             $pontuacao->funcionarios_id = $funcionariosId;
 
-            return $this->_getPontuacoesTable()->save($pontuacao);
+            return $this->save($pontuacao);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -284,10 +261,18 @@ class PontuacoesTable extends GenericTable
      *
      * @return object $pontuacao
      */
-    public function addPontuacaoCupom(int $clientes_id, int $usuarios_id, int $funcionarios_id, int $gotas_id, float $quantidade_multiplicador, float $quantidade_gotas, int $pontuacoes_comprovante_id, string $data)
-    {
+    public function addPontuacaoCupom(
+        int $clientes_id,
+        int $usuarios_id,
+        int $funcionarios_id,
+        int $gotas_id,
+        float $quantidade_multiplicador,
+        float $quantidade_gotas,
+        int $pontuacoes_comprovante_id,
+        string $data
+    ) {
         try {
-            $pontuacao = $this->_getPontuacoesTable()->newEntity();
+            $pontuacao = $this->newEntity();
 
             $pontuacao->clientes_id = $clientes_id;
             $pontuacao->usuarios_id = $usuarios_id;
@@ -299,7 +284,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao->data = $data;
             $pontuacao->expirado = false;
 
-            return $this->_getPontuacoesTable()->save($pontuacao);
+            return $this->save($pontuacao);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -309,7 +294,28 @@ class PontuacoesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    /**
+     * Insere vários registros
+     *
+     * @param array $pontuacoes Pontuacoes de cupom
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 04/11/2018
+     *
+     * @return void
+     */
+    public function insertPontuacoesCupons(array $pontuacoes)
+    {
+        // Prepara os registros
+        $pontuacoesSave = $this->newEntities($pontuacoes);
+
+        // retona os registros salvos
+        return $this->saveMany($pontuacoesSave);
+    }
+
+    #endregion
+
+    #region Read
 
     /**
      * Obtêm pontuação por Id
@@ -321,7 +327,7 @@ class PontuacoesTable extends GenericTable
     public function getPontuacaoById(int $pontuacoes_id)
     {
         try {
-            $pontuacao = $this->_getPontuacoesTable()->find('all')
+            $pontuacao = $this->find('all')
                 ->where(['Pontuacoes.id' => $pontuacoes_id])
                 ->contain('PontuacoesComprovantes')
                 ->first();
@@ -346,7 +352,7 @@ class PontuacoesTable extends GenericTable
     public function getPontuacoesByClienteId(int $clientes_id)
     {
         try {
-            return $this->_getPontuacoesTable()->find('all')
+            return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->contain(['PontuacoesComprovantes']);
 
@@ -385,7 +391,7 @@ class PontuacoesTable extends GenericTable
              */
 
             // pega os ids de pontuações inválidas
-            $pontuacoes_invalidas = $this->_getPontuacoesTable()->PontuacoesComprovantes->find('all')
+            $pontuacoes_invalidas = $this->PontuacoesComprovantes->find('all')
                 ->where(
                     [
                         'usuarios_id' => $usuarios_id,
@@ -406,7 +412,7 @@ class PontuacoesTable extends GenericTable
             if ($registro_invalido) {
                 if (sizeof($pontuacoes_invalidas_array) > 0) {
                     $pontuacoes
-                        = $this->_getPontuacoesTable()->find('all')
+                        = $this->find('all')
                         ->where(
                             [
                                 'Pontuacoes.usuarios_id' => $usuarios_id,
@@ -417,7 +423,7 @@ class PontuacoesTable extends GenericTable
                         );
                 } else {
                     $pontuacoes
-                        = $this->_getPontuacoesTable()->find('all')
+                        = $this->find('all')
                         ->where(
                             [
                                 'Pontuacoes.usuarios_id' => $usuarios_id,
@@ -453,7 +459,7 @@ class PontuacoesTable extends GenericTable
                 }
 
                 $pontuacoes
-                    = $this->_getPontuacoesTable()->find('all')
+                    = $this->find('all')
                     ->where($conditions)
                     ->contain(['Gotas']);
             }
@@ -488,7 +494,7 @@ class PontuacoesTable extends GenericTable
             $conditions = [];
 
             $pontuacoes_comprovantes_invalidated
-                = $this->_getPontuacoesTable()->PontuacoesComprovantes
+                = $this->PontuacoesComprovantes
                 ->find('all')
                 ->select(['id'])
                 ->where(
@@ -526,7 +532,7 @@ class PontuacoesTable extends GenericTable
                 array_push($conditions, ['id >= ' => (int)$ultimo_id_processado]);
             }
 
-            $result = $this->_getPontuacoesTable()
+            $result = $this
                 ->find('all')
                 ->select(['id', 'quantidade_gotas', 'utilizado'])
                 ->where($conditions)
@@ -557,13 +563,13 @@ class PontuacoesTable extends GenericTable
     public function getSumPontuacoesByComprovanteId(int $pontuacoes_comprovante_id)
     {
         try {
-            $value = $this->_getPontuacoesTable()->find('all')
+            $value = $this->find('all')
                 ->where(
                     [
                         'pontuacoes_comprovante_id' => $pontuacoes_comprovante_id
                     ]
                 )
-                ->select(['soma_quantidade' => $this->_getPontuacoesTable()
+                ->select(['soma_quantidade' => $this
                     ->find()
                     ->func()
                     ->sum('quantidade_gotas'), 'pontuacoes_comprovante_id'])
@@ -643,7 +649,7 @@ class PontuacoesTable extends GenericTable
 
                 // faz o tratamento se tem algum id de pontuacao
                 if (sizeof($comprovantesIds) > 0) {
-                    $querytotalGotasAdquiridas = $this->_getPontuacoesTable()->find()->where(
+                    $querytotalGotasAdquiridas = $this->find()->where(
                         [
                             "pontuacoes_comprovante_id in " => $comprovantesIds
                         ]
@@ -658,7 +664,7 @@ class PontuacoesTable extends GenericTable
                     $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
 
                 }
-                $queryTotalGotasUtilizadas = $this->_getPontuacoesTable()->find()->where(
+                $queryTotalGotasUtilizadas = $this->find()->where(
                     [
                         "clientes_id in " => $clientesIds,
                         "usuarios_id" => $usuariosId,
@@ -675,7 +681,7 @@ class PontuacoesTable extends GenericTable
 
                 $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
 
-                $queryTotalGotasExpiradas = $this->_getPontuacoesTable()
+                $queryTotalGotasExpiradas = $this
                     ->find()->where(
                         [
                             "clientes_id in " => $clientesIds,
@@ -704,7 +710,7 @@ class PontuacoesTable extends GenericTable
                 $mensagem = array(
                     "status" => 0,
                     "message" => Configure::read("messageLoadDataWithError"),
-                    "errors" => array(Configure::read("messageUserNoPointsInNetwork"))
+                    "errors" => array(Configure::read("messageUsuarioNoPointsInNetwork"))
                 );
             }
 
@@ -813,9 +819,9 @@ class PontuacoesTable extends GenericTable
         try {
             // pegar os ids de comprovantes que foram invalidados pelo admin
 
-            $query = $this->_getPontuacoesTable()->find();
+            $query = $this->find();
 
-            $total = $this->_getPontuacoesTable()
+            $total = $this
                 ->find('all')
                 ->select(['soma' => $query->func()->sum('quantidade_gotas')])
                 ->where(
@@ -853,9 +859,9 @@ class PontuacoesTable extends GenericTable
         try {
             // pegar os ids de comprovantes que foram invalidados pelo admin
 
-            $query = $this->_getPontuacoesTable()->find();
+            $query = $this->find();
 
-            $total = $this->_getPontuacoesTable()
+            $total = $this
                 ->find('all')
                 ->select(['soma' => $query->func()->sum('quantidade_gotas')])
                 ->where(
@@ -892,7 +898,7 @@ class PontuacoesTable extends GenericTable
             // pegar os ids de comprovantes que foram invalidados pelo admin
 
             $pontuacoes_comprovantes_invalidated
-                = $this->_getPontuacoesTable()->PontuacoesComprovantes
+                = $this->PontuacoesComprovantes
                 ->find('all')
                 ->select(['id'])
                 ->where(
@@ -933,7 +939,7 @@ class PontuacoesTable extends GenericTable
             }
             // verifica se o usuário tem alguma pontuacao parcialmente usada
 
-            $last_pontuacao_partially_used = $this->_getPontuacoesTable()->find('all')
+            $last_pontuacao_partially_used = $this->find('all')
                 ->where($partial_conditions)->first();
 
             $difference = null;
@@ -971,11 +977,11 @@ class PontuacoesTable extends GenericTable
                     );
                 }
 
-                $sum_pontuacoes_partially_used = $this->_getPontuacoesTable()->find('all')
+                $sum_pontuacoes_partially_used = $this->find('all')
                     ->select(
                         [
                             'sum'
-                                => $this->_getPontuacoesTable()
+                                => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1010,12 +1016,12 @@ class PontuacoesTable extends GenericTable
                 }
 
                 $sum_pontuacoes_with_brinde_fully_used
-                    = $this->_getPontuacoesTable()
+                    = $this
                     ->find('all')
                     ->select(
                         [
                             'sum'
-                                => $this->_getPontuacoesTable()
+                                => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1058,12 +1064,12 @@ class PontuacoesTable extends GenericTable
                 }
 
                 $sum_pontuacoes_fully_used
-                    = $this->_getPontuacoesTable()
+                    = $this
                     ->find('all')
                     ->select(
                         [
                             'sum'
-                                => $this->_getPontuacoesTable()
+                                => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1099,12 +1105,12 @@ class PontuacoesTable extends GenericTable
                 }
 
                 $sum_pontuacoes_with_brinde_fully_used
-                    = $this->_getPontuacoesTable()
+                    = $this
                     ->find('all')
                     ->select(
                         [
                             'sum'
-                                => $this->_getPontuacoesTable()
+                                => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1144,7 +1150,7 @@ class PontuacoesTable extends GenericTable
 
             $whereConditions = ['gotas_id in ' => $gotasIds];
 
-            return $this->_getPontuacoesTable()
+            return $this
                 ->find('all')
                 ->where($whereConditions)
                 // TODO: olhar pq não está agrupando
@@ -1262,7 +1268,7 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["data <= " => $dataFim];
             }
 
-            $pontuacoesQuery = $this->_getPontuacoesTable()->find("all")
+            $pontuacoesQuery = $this->find("all")
                 ->where($whereConditions)
                 ->order($orderConditions);
 
@@ -1386,7 +1392,9 @@ class PontuacoesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
+
+    #region Update
 
     /**
      * Atualiza todos os comprovantes de pontuações conforme objeto de condições
@@ -1399,7 +1407,7 @@ class PontuacoesTable extends GenericTable
     public function updateAllPontuacoesByComprovantesId(int $pontuacoes_comprovante_id, array $array_conditions)
     {
         try {
-            $pontuacoes = $this->_getPontuacoesTable()->query();
+            $pontuacoes = $this->query();
 
             return $pontuacoes->update()
                 ->set([$array_conditions])
@@ -1425,7 +1433,7 @@ class PontuacoesTable extends GenericTable
     {
         try {
             foreach ($array_update as $key => $value) {
-                $pontuacao = $this->_getPontuacoesTable()->find('all')
+                $pontuacao = $this->find('all')
                     ->where(['Pontuacoes.id' => $value['id']])
                     ->first();
 
@@ -1434,7 +1442,7 @@ class PontuacoesTable extends GenericTable
                 }
                 $pontuacao->utilizado = $value['utilizado'];
 
-                $this->_getPontuacoesTable()->save($pontuacao);
+                $this->save($pontuacao);
             }
 
             return true;
@@ -1497,7 +1505,7 @@ class PontuacoesTable extends GenericTable
     public function updateQuantidadeGotasByPontuacaoId(int $pontuacao_id, float $quantidade_gotas)
     {
         try {
-            $pontuacoes = $this->_getPontuacoesTable()->query();
+            $pontuacoes = $this->query();
 
             return $pontuacoes->update()
                 ->set(['quantidade_gotas' => $quantidade_gotas])
@@ -1543,7 +1551,9 @@ class PontuacoesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #endregion
+
+    #region Delete
 
     /**
      * Remove todas as pontuacoes por Id de Cliente
@@ -1627,5 +1637,5 @@ class PontuacoesTable extends GenericTable
             return ['success' => false, 'message' => $stringError];
         }
     }
-
+    #endregion
 }

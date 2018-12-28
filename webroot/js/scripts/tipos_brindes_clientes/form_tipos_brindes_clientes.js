@@ -19,11 +19,15 @@ $(document).ready(function () {
         // eu sei que obj.target.value <= 4 é Smart Shower, então o tipo principal deve ser igual o valor
         // e o tipo secundário deve ser 00
 
-        if (obj.target.value <= 4) {
-            $("#tipo_principal_codigo_brinde").val(obj.target.value);
-            $("#tipo_secundario_codigo_brinde").val("00");
+        var tipoPrincipal = jQuery("option:selected", this).data("tipo-principal");
+        $("#tipo_principal_codigo_brinde").val(tipoPrincipal);
+        var tipoSecundario = jQuery("option:selected", this).data("tipo-secundario");
+        $("#tipo_secundario_codigo_brinde").val(tipoSecundario);
+
+        if (tipoPrincipal <= 4) {
             $("#tipo_principal_codigo_brinde").attr("readonly", true);
             $("#tipo_secundario_codigo_brinde").attr("readonly", true);
+            $("#tipo_secundario_codigo_brinde").val("00");
         } else {
             $("#tipo_principal_codigo_brinde").attr("readonly", false);
             $("#tipo_secundario_codigo_brinde").attr("readonly", false);

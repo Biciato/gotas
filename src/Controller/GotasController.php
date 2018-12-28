@@ -27,7 +27,7 @@ class GotasController extends AppController
      * Campos
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -55,9 +55,6 @@ class GotasController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 
     /**
@@ -107,18 +104,18 @@ class GotasController extends AppController
     public function add()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $cliente
-                = $this->Clientes->getClienteMatrizLinkedToAdmin($this->user_logged);
+                = $this->Clientes->getClienteMatrizLinkedToAdmin($this->usuarioLogado);
 
             if (is_null($cliente)) {
-                $this->security_util->redirectUserNotAuthorized($this);
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             $gota = $this->Gotas->newEntity();
@@ -172,17 +169,17 @@ class GotasController extends AppController
     public function edit($id = null)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $cliente = $this->Clientes->getClienteMatrizLinkedToAdmin($this->user_logged);
+            $cliente = $this->Clientes->getClienteMatrizLinkedToAdmin($this->usuarioLogado);
 
             if (is_null($cliente)) {
-                $this->security_util->redirectUserNotAuthorized($this);
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             $gota = $this->Gotas->getGotaClienteById($id, $cliente->id);
@@ -269,53 +266,52 @@ class GotasController extends AppController
     public function gotasMinhaRede()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // pega a matriz da rede
 
-            $clientes_ids = [];
+            $clientesIds = [];
+            $clientesId = 0;
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-            foreach ($unidades_ids as $key => $value) {
-                $clientes_ids[] = $key;
+            foreach ($unidadesIds as $key => $value) {
+                $clientesIds[] = $key;
             }
 
             $conditions = [];
 
-            $cliente = $unidades_ids->toArray()[$clientes_ids[0]];
+            $unidadesIds = $unidadesIds->toArray();
 
             if ($this->request->is(['post', 'put'])) {
                 // verifica se há consulta de filtro
                 $data = $this->request->getData();
 
                 if ($data['filtrar_unidade'] != "") {
-                    $clientes_ids = [];
-                    $clientes_ids[] = (int)$data['filtrar_unidade'];
+                    $clientesIds = [];
+                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesId = $data["filtrar_unidade"];
                 }
-
             }
 
-            // pega o primeiro registro de clientes_id
-            $clientes_id = $clientes_ids[0];
-            $clientes_ids = [];
-            $clientes_ids[] = $clientes_id;
-
             $gotas = $this->Gotas->findGotasByClientesId(
-                $clientes_ids
+                $clientesIds
             );
 
-            $this->paginate($gotas, ['limit' => 10]);
+            $gotas = $this->paginate($gotas, ['limit' => 10]);
 
-            $this->set(compact(['gotas_matriz', 'clientes', 'clientes_id', 'cliente', 'gotas', 'unidades_ids']));
-            $this->set('_serialize', ['clientes', 'cliente', 'clientes_id', 'gotas', 'unidades_ids']);
+            // $arraySet = array('gotas_matriz', 'clientes', 'clientes_id', 'cliente', 'gotas', 'unidadesIds');
+            $arraySet = array('gotas_matriz', 'clientes', 'clientesId', 'gotas', 'unidadesIds');
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao exibir gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -334,14 +330,14 @@ class GotasController extends AppController
     public function gotasMinhaLoja()
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $unidades_ids = [];
 
@@ -349,7 +345,7 @@ class GotasController extends AppController
 
             // pega todas as unidades que o usuário possui acesso
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             $clientes_ids[] = key($unidades_ids->toArray());
 
@@ -380,57 +376,54 @@ class GotasController extends AppController
     {
         try {
 
-            $rede = $this->request->session()->read('Network.Main');
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $rede = $this->request->session()->read('Rede.Grupo');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
-            // verifica se usuário é pelo menos administrador.
+            // verifica se usuário é pelo menos administrador regional
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
+
+            $unidades = array();
+
+            if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
+                $unidades = $this->Clientes->getClientesListByRedesId($rede["id"]);
+            } else {
+
+                $unidades = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+            }
+
             // Verifica permissão do usuário na rede / unidade da rede
-
-            $temAcesso = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, [$cliente_id], $rede["id"]);
-
-            if (!$temAcesso) {
-                return $this->security_util->redirectUserNotAuthorized($this, $this->user_logged);
-            }
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                $clientes_has_usuarios_query = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
-
-                $found = false;
-
-                foreach ($clientes_has_usuarios_query->toArray() as $key => $value) {
-                    if ($key == $cliente_id) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    $this->security_util->redirectUserNotAuthorized($this);
-                }
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             // concluiu validação de cliente, agora cadastra uma gota para o cliente em questão
-
-            $cliente = $this->Clientes->getClienteById($cliente_id);
 
             $gota = $this->Gotas->newEntity();
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
+                if (empty($data["clientes_id"])) {
+                    $this->Flash->error("É necessário informar o Posto de Atendimento!");
+
+                    return $this->redirect(array("controller" => "gotas", "action" => "adicionarGota"));
+                }
+
+                $clientesId = $data["clientes_id"];
                 // Verifica se há um registro de mesmo nome para aquele cliente, não pode ter dois registros
-                $record_exists = $this->Gotas->getGotaClienteByName($cliente->id, $data['nome_parametro']);
+                $record_exists = $this->Gotas->getGotaClienteByName($clientesId, $data['nome_parametro']);
 
                 if ($record_exists) {
                     $this->Flash->Error(__("Já existe uma gota configurada de nome {0}", $data['nome_parametro']));
@@ -440,12 +433,12 @@ class GotasController extends AppController
                     } else {
                         $gota = $this->Gotas->patchEntity($gota, $data);
 
-                        $gota['clientes_id'] = $cliente->id;
+                        $gota['clientes_id'] = $clientesId;
 
                         if ($this->Gotas->save($gota)) {
                             $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                            if ($this->user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                            if ($this->usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
                                 return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_rede']);
                             } else {
                                 return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_loja']);
@@ -458,8 +451,16 @@ class GotasController extends AppController
                 }
             }
 
-            $this->set(compact(['gota', 'cliente']));
-            $this->set('_serialize', ['gota', 'cliente']);
+            $unidadesId = 0;
+            $unidades = $unidades->toArray();
+
+            if (sizeof($unidades) == 1) {
+                $unidadesId = array_keys($unidades)[0];
+            }
+
+            $arraySet = array('gota', "usuarioLogado", "unidades", "unidadesId");
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -481,44 +482,39 @@ class GotasController extends AppController
     public function editarGota($id = null)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             // verifica se usuário é pelo menos administrador.
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->security_util->redirectUserNotAuthorized($this);
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // se usuário não for admin da rede, verifica se tem acesso naquele perfil
 
-            if ($this->user_logged['tipo_perfil'] > Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                $clientes_has_usuarios_query = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
-
-                $found = false;
-
-                foreach ($clientes_has_usuarios_query->toArray() as $key => $value) {
-                    if ($key == $cliente_id) {
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    $this->security_util->redirectUserNotAuthorized($this);
-                }
+            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
             $gota = $this->Gotas->getGotaById($id);
 
+            $unidades = $this->Clientes->find('list')->where(array("id" => $gota["clientes_id"]));
+
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+
+                if (empty($data["clientes_id"])) {
+                    $this->Flash->error("É necessário informar o Posto de Atendimento!");
+
+                    return $this->redirect(array("controller" => "gotas", "action" => "editarGota", $id));
+                }
 
                 $gota = $this->Gotas->patchEntity($gota, $data);
 
@@ -550,8 +546,12 @@ class GotasController extends AppController
                 }
             }
 
-            $this->set(compact('gota'));
-            $this->set('_serialize', ['gota']);
+            $unidadesId = $gota["clientes_id"];
+
+            $arraySet = array("gota", "unidades", "unidadesId");
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao editar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -571,20 +571,20 @@ class GotasController extends AppController
     public function habilitarGota(int $id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $result = $this->_alteraEstadoGota($id, true);
             if ($result[0]) {
                 $this->Flash->success(Configure::read('messageEnableSuccess'));
 
-                if ($this->user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                if ($this->usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
                     return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_rede']);
                 } else {
                     return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_loja']);
@@ -627,19 +627,19 @@ class GotasController extends AppController
     public function desabilitarGota(int $id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             if ($this->_alteraEstadoGota($id, false)) {
                 $this->Flash->success(Configure::read('messageDisableSuccess'));
 
-                if ($this->user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                if ($this->usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
                     return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_rede']);
                 } else {
                     return $this->redirect(['controller' => 'gotas', 'action' => 'gotas_minha_loja']);
@@ -698,46 +698,59 @@ class GotasController extends AppController
      */
     public function atribuirGotas()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
-        $clientes_ids = [];
+        $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-        foreach ($unidades_ids as $key => $value) {
-            $clientes_ids[] = $key;
+        foreach ($unidadesIds as $key => $value) {
+            $clientesIds[] = $key;
         }
 
         // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
 
-        $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
+        $cliente = $this->Clientes->getClienteById($clientesIds[0]);
 
-        $clientes_id = $cliente->id;
+        $clientes_id = $cliente["id"];
+        $clientesCNPJ = $cliente["cnpj"];
 
         // o estado do funcionário é o local onde se encontra o estabelecimento.
-        $estado_funcionario = $cliente->estado;
+        $estado_funcionario = $cliente["estado"];
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        // $usuario_logado_tipo_perfil = $funcionario->tipo_perfil;
-        $usuario_logado_tipo_perfil = 6;
-        $this->set(compact(['usuario', 'cliente', 'clientes_id', 'funcionario', 'estado_funcionario', 'usuario_logado_tipo_perfil']));
+        // $usuarioLogadoTipoPerfil = $funcionario->tipo_perfil;
+        $usuarioLogadoTipoPerfil = 6;
+        $transportadoraPath = 'TransportadorasHasUsuarios.Transportadoras.';
+        $veiculoPath = 'UsuariosHasVeiculos.Veiculos.';
 
-        $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
-        $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
+        $arraySet = array(
+            'usuario',
+            'cliente',
+            'clientes_id',
+            "clientesCNPJ",
+            'funcionario',
+            'estado_funcionario',
+            'usuarioLogadoTipoPerfil',
+            "transportadoraPath",
+            "veiculoPath"
+        );
+
+        $this->set(compact($arraySet));
     }
 
     /**
@@ -1050,7 +1063,7 @@ class GotasController extends AppController
 
                 $gotas_array = $this->Gotas->findGotasEnabledByClientesId($cliente->id);
 
-                $gotas = $this->gotas_util->prepareGotasArray($gotas_array);
+                $gotas = $this->gotasUtil->prepareGotasArray($gotas_array);
 
                 /*
                  * se gotas está vazio, verifica pelo campo
@@ -1060,7 +1073,7 @@ class GotasController extends AppController
                 if (sizeof($gotas) == 0 && !is_null($cliente->matriz_id)) {
                     $gotas_array = $this->Gotas->findGotasEnabledByClientesId($cliente->matriz_id);
 
-                    $gotas = $this->gotas_util->prepareGotasArray($gotas_array);
+                    $gotas = $this->gotasUtil->prepareGotasArray($gotas_array);
                 }
             }
 

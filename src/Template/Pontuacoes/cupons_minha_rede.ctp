@@ -27,7 +27,7 @@ echo $this->Breadcrumbs->render(
     </legend>
 
     <div class="col-lg-12">
-        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede', 'unidades_ids' => $unidadesIds]) ?>
     </div>
 
     <div class="col-lg-12">
@@ -41,7 +41,7 @@ echo $this->Breadcrumbs->render(
                     <th>
                         <?= $this->Paginator->sort('funcionario.nome', ['label' => 'Funcionário']) ?>
                     </th>
-                    
+
                     <th>
                         <?= $this->Paginator->sort('pontuacoes.soma_quantidade', ['label' => 'Total de Gotas']) ?>
                     </th>
@@ -50,15 +50,14 @@ echo $this->Breadcrumbs->render(
                         <?= $this->Paginator->sort('chave_nfe', ['label' => 'Chave da NFE']) ?>
                     </th>
                     <th >
-                        <?= $this->Paginator->sort('requer_auditoria', ['label' => 'Requer Auditoria']) ?>
+                        <?= $this->Paginator->sort('requer_auditoria', ['label' => 'Nec. Auditoria?']) ?>
                     </th>
                     <th>
-                        <?= $this->Paginator->sort('auditado', ['label' => 'Registro Auditado']) ?>
+                        <?= $this->Paginator->sort('auditado', ['label' => 'Auditado?']) ?>
                     </th>
                         <th>
-                        <?= $this->Paginator->sort('registro_invalido', ['label' => 'Registro Inválido']) ?>
+                        <?= $this->Paginator->sort('registro_invalido', ['label' => 'Inválido?']) ?>
                     </th>
-
 
                     <th>
                         <?= $this->Paginator->sort('data', ['label' => 'Data Impressão ']) ?>
@@ -81,7 +80,7 @@ echo $this->Breadcrumbs->render(
                         <?= h($pontuacao->funcionario->nome) ?>
                     </td>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 2)) ?>
+                        <?= h(floor($pontuacao->soma_pontuacoes)) ?>
                     </td>
                     <td>
                         <?= h($pontuacao->chave_nfe) ?>
@@ -113,7 +112,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Ver detalhes',
-                                'class' => 'btn btn-primary btn-xs',
+                                'class' => 'btn btn-default btn-xs',
                                 'escape' => false
                             ]
                         )

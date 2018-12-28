@@ -22,7 +22,11 @@ class BooleanHelper extends Helper
      */
     public function convertBooleanToString(bool $param = null)
     {
-        return is_null($param) || $param == 0 ? 'Não' : 'Sim';
+        if (is_null($param)) {
+            return null;
+        }
+
+        return $param == 0 ? 'Não' : 'Sim';
     }
 
     /**

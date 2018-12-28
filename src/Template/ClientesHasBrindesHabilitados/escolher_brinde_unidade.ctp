@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/ClientesHasBrindesHabilitados/escolher_brinde_unidade.ctp
@@ -11,7 +11,7 @@ use Cake\Core\Configure;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Unidades da Rede', ['controller' => 'redes', 'action' => 'escolher_unidade_rede', $redes_id]);
+$this->Breadcrumbs->add('Unidades da Rede', ['controller' => 'redes', 'action' => 'escolher_unidade_rede', $redesId]);
 
 $this->Breadcrumbs->add('Escolha um Brinde para Resgatar', [], ['class' => 'active']);
 
@@ -20,9 +20,9 @@ echo $this->Breadcrumbs->render(
 
 );
 
-?> 
+?>
 
-<?= $this->element('../ClientesHasBrindesHabilitados/left_menu', []) ?> 
+<?= $this->element('../ClientesHasBrindesHabilitados/left_menu', []) ?>
 
 <div class="redes index col-lg-9 col-md-10 columns content">
     <legend>Escolha um Brinde para Resgatar</legend>
@@ -43,7 +43,7 @@ echo $this->Breadcrumbs->render(
 
         <tbody>
 
-            <?php foreach ($brindes_habilitados as $key => $value) : ?> 
+            <?php foreach ($brindes_habilitados as $key => $value) : ?>
 
             <tr>
                 <td>
@@ -54,9 +54,9 @@ echo $this->Breadcrumbs->render(
                 </td>
                 <td>
 
-                    <?php if ($value->brinde->equipamento_rti_shower) : ?> 
-                        <?= __("Equipamento Smart Shower é emitido no Posto de Atendimento") ?> 
-                    <?php else : ?> 
+                    <?php if ($value->brinde->equipamento_rti_shower) : ?>
+                        <?= __("Equipamento Smart Shower é emitido no Posto de Atendimento") ?>
+                    <?php else : ?>
                         <?= $this->Html->link(
                             __(
                                 "{0} Adquirir",
@@ -78,10 +78,10 @@ echo $this->Breadcrumbs->render(
             </tr>
 
             <?php endforeach; ?>
-        
+
         </tbody>
 
     </table>
 
-    
+
 </div>

@@ -34,7 +34,7 @@ $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_r
 		</li>
 		<?php endif; ?>
 
-		<?php if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']): ?>
+		<?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']): ?>
 
 		<li class="active">
 			<?= $this->Html->Link(__('Relatórios'), []) ?>

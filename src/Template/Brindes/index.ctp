@@ -1,3 +1,11 @@
+<?php 
+
+/**
+ * @deprecated 1.0
+ */
+
+?> 
+
 <div class="row">
 <nav class="col-md-2" id="actions-sidebar">
     <ul class="nav nav-pills nav-stacked">

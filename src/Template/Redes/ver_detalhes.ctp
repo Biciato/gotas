@@ -33,7 +33,7 @@ echo $this->Breadcrumbs->render(
     <legend><?= h($rede->nome_rede) ?></legend>
     <?= $this->element('../Redes/tabela_info_redes') ?>
 
-    <?= $this->element('../Clientes/filtro_clientes', ['controller' => 'redes', 'action' => 'ver_detalhes', $rede->id, 'user_logged' => $user_logged]) ?>
+    <?= $this->element('../Clientes/filtro_clientes', ['controller' => 'redes', 'action' => 'ver_detalhes', "id" => $rede->id, 'usuarioLogado' => $usuarioLogado]) ?>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -66,8 +66,8 @@ echo $this->Breadcrumbs->render(
                     <?=
                     $this->Html->link(
                         __(
-                            '{0}',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                            "{0}",
+                            $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                         ),
                         [
                             'controller' => 'clientes',
@@ -75,9 +75,9 @@ echo $this->Breadcrumbs->render(
                             $rede_has_cliente->cliente->id
                         ],
                         [
-                            'title' => 'Ver detalhes',
-                            'class' => 'btn btn-default btn-xs',
-                            'escape' => false
+                            'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
+                            'escape' => false,
+                            'title' => 'Configurar Parâmetros de Loja/Postos',
                         ]
                     )
                     ?>
@@ -94,7 +94,7 @@ echo $this->Breadcrumbs->render(
                         ],
                         [
                             'title' => 'Editar',
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                             'escape' => false
                         ]
                     )

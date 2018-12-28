@@ -1,12 +1,16 @@
 <?php
 
+use Cake\Core\Configure;
+
 /**
  * @var \App\View\AppView $this
  */
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Escolher Unidade para Configurar Propagandas', array("controller" => "RedesHasClientes", "action" => "propaganda_escolha_unidades"));
+if ($usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+    $this->Breadcrumbs->add('Escolher Unidade para Configurar Propagandas', array("controller" => "RedesHasClientes", "action" => "propaganda_escolha_unidades"));
+}
 $this->Breadcrumbs->add('Propaganda Para a Unidade', array(), array("class" => "active"));
 
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);

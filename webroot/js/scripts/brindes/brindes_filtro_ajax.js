@@ -22,9 +22,8 @@ $(document).ready(function () {
             var brindeSelecionado = brindePesquisa[0];
 
             // Se for <=4 é SMART Shower
-            if (brindeSelecionado != undefined
-                && (brindeSelecionado.tipos_brindes_cliente != undefined
-                || brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4)) {
+            if ((brindeSelecionado != undefined && brindeSelecionado.tipos_brindes_cliente != undefined)
+                && brindeSelecionado.tipos_brindes_cliente.tipo_principal_codigo_brinde <= 4) {
                 $("#quantidade").attr('disabled', true);
             } else {
                 $("#quantidade").attr('disabled', false);
@@ -59,11 +58,16 @@ $(document).ready(function () {
         }
     };
 
+    /**
+     *
+     * @deprecated
+     * @param {object} data
+     */
     var setBrindesInfo = function (data) {
         if (data !== undefined) {
             $("#brindes_id").val(data.id);
             $("#brindes_nome").val(data.brinde.nome);
-            $("#tempo_rti_shower").val(data.brinde.tempo_rti_shower);
+            $("#tempo_uso_brinde").val(data.brinde.tempo_uso_brinde);
             $("#preco_banho").val(data.brinde_habilitado_preco_atual.preco);
 
             $(".gifts-result").show();
@@ -73,7 +77,7 @@ $(document).ready(function () {
         } else {
             $("#brindes_id").val(null);
             $("#brindes_nome").val(null);
-            $("#tempo_rti_shower").val(null);
+            $("#tempo_uso_brinde").val(null);
             $("#preco_banho").val(null);
         }
 
@@ -107,10 +111,10 @@ $(document).ready(function () {
         }).done(function (result) {
 
             closeLoaderAnimation();
+
             if (result.brindes !== null && result.brindes.length > 0) {
 
                 arrayBrindes.set(result.brindes);
-                $(".list-gifts").append($('<option>'));
 
                 var brindeSemPreco = false;
 
@@ -122,7 +126,7 @@ $(document).ready(function () {
                         brindeSemPreco = true;
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: <NÃO CONFIGURADO>"
+                            text: value.brinde.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
                         }));
                     }
                     else {
@@ -132,7 +136,7 @@ $(document).ready(function () {
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
+                            text: value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
                         }));
                     }
 
@@ -141,6 +145,8 @@ $(document).ready(function () {
                 if (brindeSemPreco) {
                     callModalError("Há brindes sem configuração de preço! Avise seu gerente!");
                 }
+            } else {
+                callModalError("Não há brindes cadastrados para este Ponto de Atendimento! Não será possível emitir Brindes pelo sistema!");
             }
 
         }).fail(function (e) {

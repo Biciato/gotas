@@ -23,7 +23,7 @@ use App\Custom\RTI\ResponseUtil;
 class VeiculosController extends AppController
 {
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * Index method
@@ -32,24 +32,30 @@ class VeiculosController extends AppController
      */
     public function index()
     {
-        $conditions = [];
+        $whereConditions = [];
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $value = $data['parametro'];
+            $placa = !empty($data["placa"]) ? strtoupper($data["placa"]) : null;
+            $modelo = !empty($data["modelo"]) ? $data["modelo"] : null;
+            $fabricante = !empty($data["fabricante"]) ? $data["fabricante"] : null;
+            $ano = !empty($data["ano"]) ? $data["ano"] : null;
 
-            array_push(
-                $conditions,
-                [
-                    $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
+            $whereConditions = array(
+                "placa like '%{$placa}%'",
+                "modelo like '%{$modelo}%'",
+                "fabricante like '%{$fabricante}%'"
             );
+
+            if (!empty($ano)) {
+                $whereConditions[] = array("ano" => $ano);
+            }
         }
 
-        $veiculos = $this->Veiculos->findVeiculos($conditions);
+        $veiculos = $this->Veiculos->findVeiculos($whereConditions);
 
-        $this->paginate($this->Veiculos, ['limit' => 10]);
+        $veiculos = $this->paginate($this->Veiculos, ['limit' => 10]);
 
         $this->set(compact('veiculos'));
         $this->set('_serialize', ['veiculos']);
@@ -103,8 +109,11 @@ class VeiculosController extends AppController
     public function edit($id = null)
     {
         $veiculo = $this->Veiculos->get($id, [
-            'contain' => []
+            'contain' => ["UsuariosHasVeiculos.Usuarios"]
         ]);
+
+        $usuario = $veiculo["usuarios_has_veiculos"][0]["usuario"];
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $veiculo = $this->Veiculos->patchEntity($veiculo, $this->request->getData());
             if ($this->Veiculos->save($veiculo)) {
@@ -114,8 +123,11 @@ class VeiculosController extends AppController
             }
             $this->Flash->error(__('The veiculo could not be saved. Please, try again.'));
         }
-        $this->set(compact('veiculo'));
-        $this->set('_serialize', ['veiculo']);
+
+        $arraySet = array("veiculo", "usuario");
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -153,18 +165,18 @@ class VeiculosController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
-                $user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $veiculo = $this->Veiculos->newEntity();
@@ -174,6 +186,7 @@ class VeiculosController extends AppController
 
                 $veiculo = $this->Veiculos->getVeiculoByPlaca($data['placa']);
 
+                $veiculo = $veiculo["veiculo"];
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
                     $veiculo = $this->Veiculos->saveUpdateVeiculo(
@@ -185,6 +198,7 @@ class VeiculosController extends AppController
                     );
                 }
 
+                // debug($veiculo);
                 // Com o Veículo do Banco de Dados (ou novo) insere e faz vínculo
                 if ($veiculo) {
                     $usuario_has_veiculo = $this->UsuariosHasVeiculos->addUsuarioHasVeiculo($veiculo->id, $usuario->id);
@@ -201,8 +215,8 @@ class VeiculosController extends AppController
                 }
                 $this->Flash->error(__('O veículo não pode ser gravado.'));
             }
-            $this->set(compact('veiculo', 'usuario', 'user_logged'));
-            $this->set('_serialize', ['veiculo', 'usuario', 'user_logged']);
+            $this->set(compact('veiculo', 'usuario', 'usuarioLogado'));
+            $this->set('_serialize', ['veiculo', 'usuario', 'usuarioLogado']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -221,14 +235,14 @@ class VeiculosController extends AppController
      **/
     public function meusVeiculos()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        $usuario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
         $usuariosHasVeiculos
             = $this->UsuariosHasVeiculos->getVeiculoByUsuarioId($usuario->id);
@@ -245,7 +259,7 @@ class VeiculosController extends AppController
 
         $arraySet = [
             'usuario',
-            'user_logged',
+            'usuarioLogado',
             'usuariosHasVeiculos'
         ];
 
@@ -262,11 +276,12 @@ class VeiculosController extends AppController
      */
     public function veiculosUsuario(int $usuarios_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read("Rede.Grupo");
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
@@ -289,7 +304,11 @@ class VeiculosController extends AppController
         $this->paginate($usuariosHasVeiculos);
 
         $arraySet = array(
-            'usuariosHasVeiculos', 'usuarios_id', 'usuario', 'user_logged'
+            'usuariosHasVeiculos',
+            'usuarios_id',
+            'usuario',
+            'usuarioLogado',
+            "rede"
         );
 
         $this->set(compact($arraySet));
@@ -394,17 +413,17 @@ class VeiculosController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $veiculo = $this->Veiculos->newEntity();
@@ -414,6 +433,7 @@ class VeiculosController extends AppController
 
                 $veiculo = $this->Veiculos->getVeiculoByPlaca($data['placa']);
 
+                $veiculo = $veiculo["veiculo"];
                 // Se não achou o veículo, significa que é novo registro
                 if (!$veiculo) {
                     $veiculo = $this->Veiculos->saveUpdateVeiculo(
@@ -438,7 +458,7 @@ class VeiculosController extends AppController
                     // se cliente ja tem o veículo vinculado, dá mensagem de erro
                     // pois ele não pode ter dois registros do mesmo item
                     if ($usuario_has_veiculo) {
-                        $this->Flash->error(__(Configure::read('messageVehicleAlreadyLinked')));
+                        $this->Flash->error(__(Configure::read('messageVeiculoAlreadyLinked')));
 
                         $url = Router::url(['controller' => 'Veiculos', 'action' => 'adicionarVeiculoUsuarioFinal', $usuarios_id]);
                         return $this->response = $this->response->withLocation($url);
@@ -459,7 +479,7 @@ class VeiculosController extends AppController
             $array_set = [
                 'veiculo',
                 'usuario',
-                'user_logged',
+                'usuarioLogado',
                 'usuarios_id'
             ];
 
@@ -666,7 +686,7 @@ class VeiculosController extends AppController
      **/
     public function getVeiculoByIdAPI()
     {
-        $mensagem = [];
+        $mensagem = array();
 
         try {
             if ($this->request->is(['post', 'put'])) {
@@ -679,7 +699,7 @@ class VeiculosController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageLoadDataWithError"),
-                        "errors" => array("Id não pode ser vazio!")
+                        "errors" => array(Configure::read("messageVeiculoIdEmpty"))
                     );
                     $veiculo = array(
                         "data" => null
@@ -697,8 +717,8 @@ class VeiculosController extends AppController
                 if (empty($veiculo)) {
                     $mensagem = array(
                         "status" => 0,
-                        "message" => Configure::read("messageRecordNotFound"),
-                        "errors" => array()
+                        "message" => Configure::read("messageLoadDataWithError"),
+                        "errors" => array(Configure::read("messageRecordNotFound"))
                     );
                 } else {
                     $mensagem = array(
@@ -734,7 +754,7 @@ class VeiculosController extends AppController
      **/
     public function getVeiculoByPlacaAPI()
     {
-        $mensagem = [];
+        $mensagem = array();
 
         try {
             if ($this->request->is(['post', 'put'])) {

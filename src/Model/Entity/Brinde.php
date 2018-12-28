@@ -36,7 +36,6 @@ class Brinde extends Entity
 
     protected $_virtual = array("nome_img_completo");
 
-
     protected function _getNomeImgCompleto()
     {
         if (!empty($this->_properties["nome_img"]) && strlen($this->_properties["nome_img"]) > 0) {
@@ -44,6 +43,6 @@ class Brinde extends Entity
         }
 
         return null;
-        // return $this->_properties["nome_img"];
     }
 }
+;

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\BrindesHabilitadosPreco[]|\Cake\Collection\CollectionInterface $brinde_aguardando_autorizacao
  */
@@ -47,12 +47,12 @@ echo $this->Breadcrumbs->render(
                 <?= $this->Html->link(
                     __(
                         '{0}',
-                        $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                        $this->Html->tag('i', '', ['class' => 'fa fa-check'])
                     ),
                     '#',
                     [
                         'class' => 'btn btn-xs btn-primary btn-confirm',
-                        'title' => 'Habilitar',
+                        'title' => 'Aprovar Pedido',
                         'data-toggle' => 'modal',
                         'data-target' => '#modal-confirm-with-message',
                         'data-message' => __(Configure::read('messageQuestionAllowGiftPrice'), $brinde_aguardando_autorizacao->clientes_has_brindes_habilitado->brinde->nome),
@@ -69,12 +69,12 @@ echo $this->Breadcrumbs->render(
                 <?= $this->Html->link(
                     __(
                         '{0}',
-                        $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                        $this->Html->tag('i', '', ['class' => 'fa fa-window-close'])
                     ),
                     '#',
                     [
                         'class' => 'btn btn-xs btn-danger btn-confirm',
-                        'title' => 'Habilitar',
+                        'title' => 'Negar Pedido',
                         'data-toggle' => 'modal',
                         'data-target' => '#modal-confirm-with-message',
                         'data-message' => __(Configure::read('messageQuestionDenyGiftPrice'), $brinde_aguardando_autorizacao->clientes_has_brindes_habilitado->brinde->nome),

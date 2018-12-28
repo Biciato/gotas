@@ -3,6 +3,26 @@
  */
 $(document).ready(function () {
 
+    $(".botao-confirmar").on("click", function (e) {
+        var form = e.target.form;
+
+        var isValid = form.checkValidity();
+
+        if (isValid) {
+            callLoaderAnimation("");
+        }
+    });
+
+    $(".botao-pesquisar").on("click", function () {
+        callLoaderAnimation();
+    });
+
+    $(".botao-cancelar").on("click", function () {
+        callLoaderAnimation();
+    });
+
+    $(".botao-navegacao-tabela").on("click", function () { callLoaderAnimation(); });
+
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
      */
@@ -64,6 +84,11 @@ $(document).ready(function () {
         addModalBootstrapPopup(element);
     }, this);
 
+    /**
+     * Adiciona informações no corpo do modal
+     *
+     * @param {*} parameter
+     */
     var addModalBootstrapPopupWithMessage = function (parameter) {
         $("#" + parameter).on("show.bs.modal", function (e) {
             $(this)
@@ -79,16 +104,79 @@ $(document).ready(function () {
             $("#" + parameter)
                 .find("form")
                 .submit();
+            callLoaderAnimation();
         });
     };
+
 
     var parametersWithMessage = [
         "modal-confirm-with-message",
         "modal-delete-with-message"
+
     ];
 
     parametersWithMessage.forEach(function (element) {
         addModalBootstrapPopupWithMessage(element);
+    });
+
+    /**
+     * Adiciona informações no corpo do modal
+     *
+     * @param {*} parameter
+     */
+    var addModalBootstrapPopupWithMessageConfirmation = function (parameter) {
+        $("#" + parameter).on("show.bs.modal", function (e) {
+
+            $(this).find("#modal-body-content-append").empty();
+
+            var action = $(e.relatedTarget).data("action");
+
+            action = action.substr(action.indexOf("?") + 1);
+
+            var actionArray = action.split("&");
+            var arrayElements = [];
+            actionArray.forEach(element => {
+                console.log(element);
+
+                var posicaoIgual = element.indexOf("=");
+                var id = element.substr(0, posicaoIgual);
+                var valor = element.substr(posicaoIgual + 1);
+
+                arrayElements.push({ id: id, value: valor });
+
+                $(this)
+                    .find("#modal-body-content-append")
+                    .append("<input type='text' class='hidden' name='" + id + "' id='" + id + "' value='" + valor + "' />");
+            });
+            console.log(action);
+
+            $(this)
+                .find("form")
+                .attr("action", $(e.relatedTarget).data("action"));
+
+            $("#" + parameter)
+                .find("p.modal-body-content")
+                .text($(e.relatedTarget).attr("data-message"));
+        });
+
+        $("#" + parameter + " #submit_button").on("click", function (e) {
+            if ($(this.form).find("#senha_usuario").val().length > 0) {
+                callLoaderAnimation();
+                $("#" + parameter)
+                    .find("form")
+                    .submit();
+            }
+        });
+    };
+
+
+    var parametersWithMessageConfirmation = [
+        "modal-delete-with-message-confirmation"
+
+    ];
+
+    parametersWithMessageConfirmation.forEach(function (element) {
+        addModalBootstrapPopupWithMessageConfirmation(element);
     });
 
     /**
@@ -145,11 +233,12 @@ var callModalSave = function (content) {
 var callModalError = function (error, arrayContent) {
     closeLoaderAnimation();
     $(".modal-error .modal-body-content").html(error);
+    $(".modal-error .modal-body-content-description").empty();
 
     if (arrayContent != undefined && arrayContent.length > 0) {
         $(".modal-error .modal-body-content-description").empty();
         $.each(arrayContent, function (index, value) {
-            $(".modal-error .modal-body-content-description").append("(" +( parseInt(index) + 1) + ")  " + value);
+            $(".modal-error .modal-body-content-description").append("(" + (parseInt(index) + 1) + ")  " + value + "<br />");
         })
     }
     $(".modal-error").modal();
@@ -164,6 +253,7 @@ var callModalError = function (error, arrayContent) {
 var callLoaderAnimation = function (text_info) {
     $(".modal-loader").modal();
 
+    $(".loader-message").text("");
     if (text_info !== undefined && text_info.length > 0) {
         $(".loader-message").text(text_info);
     }
@@ -214,28 +304,52 @@ var getCEP = function (parameter) {
             getGeolocalizationGoogle(cep);
 
             //Consulta o webservice viacep.com.br/
-            $.getJSON(
-                "//viacep.com.br/ws/" + cep + "/json/?callback=?",
-                function (dados) {
-                    if (!("erro" in dados)) {
-                        //Atualiza os campos com os valores da consulta.
-                        $(".endereco").val(dados.logradouro);
-                        $(".bairro").val(dados.bairro);
-                        $(".municipio").val(dados.localidade);
-                        $(".estado").val(dados.uf);
-                        $(".pais").val("Brasil");
+            $.ajax({
+                type: "GET",
+                "url": "https://viacep.com.br/ws/" + cep + "/json/",
+                complete: function (success) {
+                    console.log(success);
+                    var dados = success.responseJSON;
+                    $(".endereco").val(dados.logradouro);
+                    $(".bairro").val(dados.bairro);
+                    $(".municipio").val(dados.localidade);
+                    $(".estado").val(dados.uf);
+                    $(".pais").val("Brasil");
 
-                        closeLoaderAnimation();
-                    } else {
-                        //end if.
-                        //CEP pesquisado não foi encontrado.
-                        //limpa_formulário_cep();
-                        closeLoaderAnimation();
-
-                        callModalError("CEP não encontrado.");
-                    }
+                },
+                error: function (err) {
+                    //end if.
+                    //CEP pesquisado não foi encontrado.
+                    //limpa_formulário_cep();
+                    callModalError("CEP não encontrado.");
+                    console.log(err);
                 }
-            );
+            });
+
+            closeLoaderAnimation();
+
+            // $.getJSON(
+            //     "https://viacep.com.br/ws/" + cep + "/json/?callback=?",
+            //     function (dados) {
+            //         if (!("erro" in dados)) {
+            //             //Atualiza os campos com os valores da consulta.
+            //             $(".endereco").val(dados.logradouro);
+            //             $(".bairro").val(dados.bairro);
+            //             $(".municipio").val(dados.localidade);
+            //             $(".estado").val(dados.uf);
+            //             $(".pais").val("Brasil");
+
+            //             closeLoaderAnimation();
+            //         } else {
+            //             //end if.
+            //             //CEP pesquisado não foi encontrado.
+            //             //limpa_formulário_cep();
+            //             closeLoaderAnimation();
+
+            //             callModalError("CEP não encontrado.");
+            //         }
+            //     }
+            // );
         } else {
 
             callModalError("Formato de CEP inválido.");
@@ -253,13 +367,29 @@ var getGeolocalizationGoogle = function (cep) {
         if (status == google.maps.GeocoderStatus.OK) {
 
             if ($("#latitude").length == 1) {
-                $("#latitude").val(results[0].geometry.location.lat());
+                var latitude = results[0].geometry.location.lat().toString();
+
+                var virgulaLatPos = latitude.indexOf(".");
+
+                if (virgulaLatPos > 0) {
+                    latitude = latitude.substr(0, virgulaLatPos + 7);
+                }
+
+                $("#latitude").val(latitude);
             }
             if ($("#longitude").length == 1) {
-                $("#longitude").val(results[0].geometry.location.lng());
+                var longitude = results[0].geometry.location.lng().toString();
+
+                var virgulaLongPos = longitude.indexOf(".");
+
+                if (virgulaLongPos > 0) {
+                    longitude = longitude.substr(0, virgulaLongPos + 7);
+                }
+
+                $("#longitude").val(longitude);
             }
         } else {
-            callModalError("Não foi possivel obter localização: " + status);
+            callModalError("Google não encontrou Latitude/Longitude pelo CEP informado! Informe Latitude/Longitude manualmente!");
         }
     });
 }
@@ -271,10 +401,14 @@ var getGeolocalizationGoogle = function (cep) {
 var prepareContentPontuacoesDisplay = function (data) {
     var content = $("<div></div>");
 
+    var usuario = data.pontuacoes_comprovantes.usuario;
+    var pontuacoes = data.pontuacoes_comprovantes.pontuacoes;
+    var somaPontuacoes = data.pontuacoes_comprovantes.soma_pontuacoes;
+
     var title = $(
         "<legend>" +
         "Dados gravados para o usuário " +
-        data.usuario.nome +
+        usuario.nome +
         "</legend>"
     );
 
@@ -287,7 +421,7 @@ var prepareContentPontuacoesDisplay = function (data) {
     table.append(header);
 
     var rows = [];
-    $.each(data.pontuacoes, function (index, pontuacao) {
+    $.each(pontuacoes, function (index, pontuacao) {
         var row =
             "<tr><td>" +
             pontuacao.gota.nome_parametro +
@@ -299,7 +433,7 @@ var prepareContentPontuacoesDisplay = function (data) {
 
     var total = $(
         "<table class='table table-responsive'><th>Total:</th><td> " +
-        data.soma_pontuacoes +
+        somaPontuacoes +
         "</td></table>"
     );
 
@@ -330,43 +464,116 @@ var formatDateTimeToDate = function (data) {
 };
 
 /**
+ * Comportamento padrão em campo de Date Picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {*} ev
+ * @param {*} value
+ */
+var defaultKeyUpDatePickerAction = function (field, ev, value) {
+    var value = value.replace(/(\d{2})(\d{2})(\d{4})/g, "$1/$2/$3");
+    if (value.length == 10 && ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105))) {
+        updateDatePicker(field, value);
+    }
+};
+
+/**
+ * Prevê Enter de ser informado em campo de date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {event} ev Evento
+ */
+var preventEnterActionInput = function (ev) {
+    if (ev.keyCode === 13) {
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        return false;
+    }
+};
+
+
+/**
+ * home::initializeDatePicker
+ *
+ * Inicializa um campo como date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} field Campo a ser inicializado
+ *
+ * @return void
+ */
+var initializeDatePicker = function (field) {
+    $("#" + field).datepicker({
+        minView: 2,
+        maxView: 2,
+        clearBtn: true,
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        forceParse: false,
+        language: "pt-BR",
+        format: "dd/mm/yyyy",
+        initialDate: new Date()
+    });
+
+    $("#" + field).on("keyup", function (ev) {
+        preventEnterActionInput(ev);
+        defaultKeyUpDatePickerAction(field, ev, this.value);
+    }).on("keydown", function (ev) {
+        preventEnterActionInput(ev);
+    });
+};
+
+/**
+ * home::updateDatePicker
+ *
+ * Atualiza o valor do campo de data do tipo date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} field Campo
+ * @param {string} date Valor
+ *
+ * @return void
+ */
+var updateDatePicker = function (field, date) {
+    $("#" + field).datepicker("update", date);
+};
+
+
+/**
  * Popula dados de cupom para resgate
  */
 var popularDadosCupomResgate = function (data) {
     if (data !== undefined && data !== null) {
         var usuario = null;
         var brinde_habilitado = {};
-
         var unidade_funcionario_id = 0;
-        var quantidade = 0;
-        var nome = "";
-        var valor_pago = 0.0;
-
         var cupom_emitido = null;
-
         var data_hora = null;
-
         var rows = [];
 
         $.each(data, function (index, value) {
+            var valorPago = value.valor_pago;
+            var tipoMoeda = value.tipo_venda == 0 ? "Gotas:" : "R$";
+
             data_hora = value.data;
-
             unidade_funcionario_id = value.unidade_funcionario_id;
-
             cupom_emitido = value.cupom_emitido;
-
             usuario = value.usuario;
             brinde_habilitado = value.clientes_has_brindes_habilitado;
 
-            var row =
-                "<tr><td>" +
-                value.quantidade +
-                "</td><td>" +
-                brinde_habilitado.brinde.nome +
-                "</td><td>" +
-                value.valor_pago +
-                "</td></tr>";
+            valorPago = valorPago.toString().indexOf(",") < 0 ? tipoMoeda + valorPago + ",00" : tipoMoeda + valorPago;
 
+            var row = "<tr><td>" + value.quantidade + "</td><td>" + brinde_habilitado.brinde.nome + "</td><td>" + valorPago + "</td></tr>";
             rows.push(row);
         });
 

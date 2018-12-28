@@ -91,7 +91,7 @@ echo $this->Breadcrumbs->render(
                                 <td><?= $brindeHabilitado->cliente->nome_fantasia ?></td>
                                 <td><?= $brindeHabilitado->brinde->nome ?></td>
                                 <td><?= h($this->Boolean->convertBooleanToString($brindeHabilitado->brinde->equipamento_rti_shower)) ?> </td>
-                                <td><?= $brindeHabilitado->brinde->tempo_rti_shower ?> </td>
+                                <td><?= $brindeHabilitado->brinde->tempo_uso_brinde ?> </td>
                                 <td><?= h($this->Boolean->convertBooleanToString($brindeHabilitado->brinde->ilimitado)) ?> </td>
                                 <td><?= h($this->Boolean->convertEnabledToString($brindeHabilitado->brinde->habilitado)) ?> </td>
                                 <td><?= $this->Number->precision($brindeHabilitado->brinde->preco_padrao, 2) ?> </td>

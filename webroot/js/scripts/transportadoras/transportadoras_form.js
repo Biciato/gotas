@@ -45,6 +45,7 @@ $(document).ready(function () {
     $(".transportadora #cnpj").mask('99.999.999/9999-99');
     $(".transportadora #tel_fixo").mask('(99)9999-9999');
     $(".transportadora #tel_celular").mask('(99)99999-9999');
+    $(".transportadora #cep").mask('99.999-999');
 
     $("#cnpj").on('keyup', function () {
         if (this.value.length == 18) {
@@ -52,7 +53,7 @@ $(document).ready(function () {
             callLoaderAnimation();
 
             $.ajax({
-                url: '/transportadoras/findTransportadoraByCNPJ',
+                url: '/api/transportadoras/get_transportadora_by_cnpj',
                 type: 'post',
                 data: JSON.stringify({
                     cnpj: this.value
@@ -60,6 +61,7 @@ $(document).ready(function () {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                    xhr.setRequestHeader("IsMobile", true);
                 },
                 success: function (e) {
                     console.log(e);
@@ -116,7 +118,7 @@ var getCEPTransportadora = function (parameter) {
 
                 }
             });
-        } 
+        }
         else {
             //cep é inválido.
 

@@ -87,7 +87,6 @@ class RedesTable extends GenericTable
                 'join' => 'INNER'
 
             ]
-
         );
     }
 
@@ -111,6 +110,22 @@ class RedesTable extends GenericTable
             ->allowEmpty('ativado');
 
         $validator
+            ->decimal("custo_referencia_gotas")
+            ->notEmpty("custo_referencia_gotas");
+
+        $validator
+            ->integer("media_assiduidade_clientes")
+            ->notEmpty("media_assiduidade_clientes");
+
+        $validator
+            ->integer("quantidade_pontuacoes_usuarios_dia")
+            ->notEmpty("quantidade_pontuacoes_usuarios_dia");
+
+        $validator
+            ->integer("quantidade_consumo_usuarios_dia")
+            ->notEmpty("quantidade_consumo_usuarios_dia");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
@@ -127,22 +142,21 @@ class RedesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
-     * Undocumented function
+     * Adiciona uma rede
      *
-     * @param string $nome_rede
-     * @param string $nome_fantasia
-     * @param bool   $ativado
+     * @param \App\Model\Entity\Rede $rede Objeto Rede
      *
-     * @return void
+     * @return bool
      */
     public function addRede(\App\Model\Entity\Rede $rede)
     {
         try {
-            return $this->_getRedesTable()->save($rede);
+            return $this->save($rede);
         } catch (\Exception $e) {
+            // @todo gustavosg Corrigir log
             $trace = $e->getTrace();
             $object = null;
 
@@ -162,7 +176,9 @@ class RedesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #endregion
+
+    #region Read
 
     /**
      * RedesTable::findRedesByName
@@ -212,15 +228,41 @@ class RedesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/13
      *
-     * @return array ['id', 'nome']
+     * @return \App\Model\Entity\Redes ['id', 'nome']
      */
-    public function getRedesList(array $whereConditions = [])
+    public function getRedesList(int $id = null, string $nomeRede = null, int $ativado = null, bool $permiteConsumoGotasFuncionarios = null, int $tempoExpiracaoGotasUsuarios = null, int $quantidadePontuacoesUsuariosDia = null, int $mediaAssiduidadeClientes = null)
     {
         try {
 
+            $whereConditions = array();
+
+            if (strlen($id) > 0 && $id > 0) {
+                $whereConditions[] = array("Redes.id" => $id);
+            }
+
+            if (!empty($nomeRede)) {
+                $whereConditions[] = array("Redes.nome_rede like '%{$nomeRede}%'");
+            }
+
+            if (strlen($ativado) > 0){
+                $whereConditions[] = array("Redes.ativado" => $ativado);
+            }
+
+            if (strlen($tempoExpiracaoGotasUsuarios) > 0){
+                $whereConditions[] = array("Redes.tempo_expiracao_gotas_usuarios" => $tempoExpiracaoGotasUsuarios);
+            }
+            if (strlen($quantidadePontuacoesUsuariosDia) > 0){
+                $whereConditions[] = array("Redes.quantidade_pontuacoes_usuarios_dia" => $quantidadePontuacoesUsuariosDia);
+            }
+
+            if (strlen($mediaAssiduidadeClientes) > 0){
+                $whereConditions[] = array("Redes.media_assiduidade_clientes" => $mediaAssiduidadeClientes);
+            }
+
             return $this->_getRedesTable()->find('list')
                 ->where($whereConditions)
-                ->select(['id', 'nome_rede']);
+                ->select(['id', 'nome_rede'])
+                ->order(array("nome_rede" => "asc"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -245,17 +287,17 @@ class RedesTable extends GenericTable
      * Obtem todas as redes
      *
      * @param string $queryType        Tipo de Query
-     * @param array  $where_conditions Condições extras
+     * @param array  $whereConditions Condições extras
      *
      * @return \App\Entity\Model\Redes $redes[] Lista de Redes
      */
-    public function getAllRedes(string $queryType = null, array $where_conditions = [], bool $withAssociations = true)
+    public function getAllRedes(string $queryType = null, array $whereConditions = [], bool $withAssociations = true)
     {
         try {
 
             $conditions = [];
 
-            foreach ($where_conditions as $key => $value) {
+            foreach ($whereConditions as $key => $value) {
                 array_push($conditions, [$key => $value]);
             }
 
@@ -319,9 +361,6 @@ class RedesTable extends GenericTable
                 array_push($conditions, [$key => $value]);
             }
 
-            // DebugUtil::printArray($whereConditions);
-            // DebugUtil::printArray($conditions);
-
             $redesQuery = $this->_getRedesTable()->find('all')
                 ->where($conditions);
 
@@ -332,18 +371,11 @@ class RedesTable extends GenericTable
             $redesTodas = $redesQuery->toArray();
             $redesAtual = $redesQuery->toArray();
 
-            // DebugUtil::printArray($redesTodas, false);
-            // DebugUtil::printArray($redesAtual, true);
-
             $retorno = $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
             }
-
-            // DebugUtil::printArray($retorno);
-
-            // $count = $redes->count();
 
             if (sizeof($orderConditions) > 0) {
                 $redesQuery = $redesQuery->order($orderConditions);
@@ -356,70 +388,7 @@ class RedesTable extends GenericTable
 
             $redesAtual = $redesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
-
-            return $retorno;
-            // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
-            if (sizeof($redes->toArray()) == 0) {
-
-                $retorno = array(
-                    "count" => 0,
-                    "page_count" => 0,
-                    "mensagem" => array(
-                        "status" => false,
-                        "message" => __(""),
-                        "errors" => array()
-                    ),
-                    "data" => array(),
-                );
-                if ($paginationConditions["page"] == 1) {
-                    $retorno = array(
-                        "count" => 0,
-                        "page_count" => 0,
-                        "mensagem" => array(
-                            "status" => false,
-                            "message" => Configure::read("messageQueryNoDataToReturn"),
-                            "errors" => array()
-                        ),
-                        "data" => array(),
-                    );
-                } else {
-                    $retorno["page_count"] = 0;
-                    $retorno["mensagem"] = array(
-                        "status" => false,
-                        "message" => Configure::read("messageQueryPaginationEnd"),
-                        "errors" => array()
-                    );
-                }
-                return $retorno;
-            }
-
-            $redes = $redes->contain($associations);
-
-            if (sizeof($orderConditions) > 0) {
-                $redes = $redes->order($orderConditions);
-            }
-
-            if (sizeof($paginationConditions) > 0) {
-                $redes = $redes->limit($paginationConditions["limit"])
-                    ->page($paginationConditions["page"]);
-            }
-
-            $pageCount = $redes->count();
-
-            $retorno = array(
-                "count" => $count,
-                "page_count" => sizeof($pageCount),
-                "mensagem" => array(
-                    "status" => true,
-                    "message" => Configure::read("messageLoadDataWithSuccess"),
-                    "errors" => array()
-                ),
-                "data" => $redes->toArray(),
-            );
-
-            return $retorno;
-
+            return $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -447,22 +416,17 @@ class RedesTable extends GenericTable
      *
      * @return \App\Model\Entity\Rede
      */
-    public function getRedeById(int $id, bool $ativado = true)
+    public function getRedeById(int $id)
     {
         try {
-            return $this->_getRedesTable()->find('all')
-                ->where(
-                    [
-                        'id' => $id,
-                        'ativado' => $ativado
-                    ]
-                )
+            return $this->find('all')
+                ->where(array('id' => $id))
                 ->contain(
-                    [
+                    array(
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
                         'RedesHasClientes.Clientes.ClientesHasBrindesHabilitados.Brindes'
-                    ]
+                    )
                 )
                 ->first();
         } catch (\Exception $e) {
@@ -488,7 +452,9 @@ class RedesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
+
+    #region Update
 
     /**
      * Troca estado de unidade
@@ -582,7 +548,9 @@ class RedesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #endregion
+
+    #region Delete
 
     /**
      * Remove uma rede
@@ -618,4 +586,5 @@ class RedesTable extends GenericTable
         }
     }
 
+    #endregion
 }

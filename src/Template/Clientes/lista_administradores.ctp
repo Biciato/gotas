@@ -8,10 +8,10 @@
  use Cake\Routing\Router;
  use Cake\Core\Configure;
 
-$action = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'] ? 'index' : 'dados_minha_rede';
+$action = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'] ? 'index' : 'dados_minha_rede';
 
 ?>
-<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => $action, 'user_logged' => $user_logged, 'showAdministratorsNetwork' => true]) ?>
+<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => $action, 'usuarioLogado' => $usuarioLogado, 'showAdministratorsNetwork' => true]) ?>
 
 <div class="clientes index col-lg-9 col-md-10 columns content">
 

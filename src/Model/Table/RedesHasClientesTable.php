@@ -82,10 +82,11 @@ class RedesHasClientesTable extends GenericTable
 
         $this->belongsTo(
             'Redes',
-            [
+            array(
+                "className" => "Redes",
                 'foreignKey' => 'redes_id',
-                'joinType' => 'INNER'
-            ]
+                'joinType' => 'LEFT'
+            )
         );
 
         $this->hasMany(
@@ -107,6 +108,7 @@ class RedesHasClientesTable extends GenericTable
         $this->belongsToMany(
             'ClientesHasUsuarios',
             [
+                "className" => "ClientesHasUsuarios",
                 'foreignKey' => 'clientes_id',
                 'joinType' => 'INNER'
             ]
@@ -154,9 +156,11 @@ class RedesHasClientesTable extends GenericTable
         return $rules;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
-    /* ------------------------ Read ------------------------ */
+    #endregion
+
+    #region Read
 
     /**
      * Localiza a matriz de uma rede
@@ -170,15 +174,16 @@ class RedesHasClientesTable extends GenericTable
         try {
             return $this->_getRedesHasClientesTable()->find('all')
                 ->where(
-                    [
+                    array(
                         'redes_has_clientes.redes_id' => $redes_id,
                         'clientes.matriz' => true
-                    ]
+                    )
                 )
-                ->contain(['Redes', 'Clientes'])
+                ->contain(array('Redes', 'Clientes'))
                 ->first();
 
         } catch (\Exception $e) {
+            // TODO: Corrigir catch
             $trace = $e->getTrace();
             $object = null;
 
@@ -211,9 +216,9 @@ class RedesHasClientesTable extends GenericTable
     {
         try {
             // pega o id da rede que pertence a unidade
-            $clientesIdsQuery = $this->_getRedesHasClientesTable()->find('all')
-                ->where(['redes_id' => $redesId])
-                ->select(['clientes_id']);
+            $clientesIdsQuery = $this->find('all')
+                ->where(array('redes_id' => $redesId))
+                ->select(array('clientes_id'));
 
             $clientesIds = array();
 
@@ -244,8 +249,10 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesById(int $id)
     {
         try {
-            return $this->_getRedesHasClientesTable()->find('all')
-                ->where(['redes_has_clientes.id' => $id])
+            // return $this->_getRedesHasClientesTable()->find('all')
+            //     ->where(['redes_has_clientes.id' => $id])
+            return $this->find('all')
+                ->where(['RedesHasClientes.id' => $id])
                 ->contain(['Redes', 'Clientes'])
                 ->first();
 
@@ -430,6 +437,41 @@ class RedesHasClientesTable extends GenericTable
     /**
      * Obtem todos os clientes e a rede pelo id da rede
      *
+     * @param int   $redesId     Id de Redes
+     * @param array $clientesIds Ids de clientes
+     *
+     * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
+     */
+    public function getRedesHasClientesByRedesId(int $redesId, array $clientesIds = [])
+    {
+        try {
+
+            // $whereCondition = [];
+
+            $whereCondition = array('redes_id' => $redesId);
+
+            if (isset($clientesIds) && sizeof($clientesIds) > 0) {
+                $whereCondition[] = array('clientes_id in ' => $clientesIds);
+            }
+
+            return $this->find('all')
+                ->where($whereCondition)
+                ->contain(['Redes', 'Clientes']);
+
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return ['success' => false, 'message' => $stringError];
+        }
+    }
+
+    /**
+     * Obtem todos os clientes e a rede pelo id da rede
+     *
      * @param int   $redes_id     Id de Redes
      * @param array $clientes_ids Ids de clientes
      *
@@ -439,12 +481,20 @@ class RedesHasClientesTable extends GenericTable
     {
         try {
 
-            $where_condition = [];
+            $whereCondition = array();
 
-            $where_condition[] = ['redes_id' => $redes_id];
+            $whereCondition[] = array('redes_id' => $redes_id);
 
-            if (isset($clientes_ids) && sizeof($clientes_ids) > 0) {
-                $where_condition[] = ['clientes_id in ' => $clientes_ids];
+            if (!empty($nomeFantasia)) {
+                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
+            }
+
+            if (!empty($razaoSocial)) {
+                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
+            }
+
+            if (!empty($cnpj)) {
+                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
             }
 
             $redesHasClientes = $this->_getRedesHasClientesTable()->find('all')
@@ -459,16 +509,8 @@ class RedesHasClientesTable extends GenericTable
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
@@ -476,11 +518,13 @@ class RedesHasClientesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #endregion
 
+    #region Update
 
+    #endregion
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Remove uma unidade da rede
@@ -515,5 +559,7 @@ class RedesHasClientesTable extends GenericTable
             return $error;
         }
     }
+
+    #endregion
 
 }

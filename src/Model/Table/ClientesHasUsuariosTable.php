@@ -88,22 +88,23 @@ class ClientesHasUsuariosTable extends Table
 
         $this->belongsTo(
             'Cliente',
-            [
+            array(
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
-            ]
+                'joinType' => 'LEFT'
+            )
         );
 
         $this->hasMany(
             'Clientes',
             [
                 'className' => 'Clientes',
-                'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
+                'foreignKey' => 'id',
+                'joinType' => 'LEFT'
             ]
         );
-        // $this->belongsToMany(
+
+        // $this->belongsTo(
         //     'Clientes',
         //     [
         //         'className' => 'Clientes',
@@ -132,12 +133,13 @@ class ClientesHasUsuariosTable extends Table
                 'joinType' => 'LEFT'
             ]
         );
-        $this->hasMany(
+
+        $this->belongsTo(
             'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
-                'joinType' => 'left'
+                'joinType' => 'INNER'
             ]
         );
     }
@@ -180,58 +182,8 @@ class ClientesHasUsuariosTable extends Table
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
 
-    /**
-     * Adiciona novo Usuário em cliente
-     *
-     * @param int $clientes_id  Id do cliente
-     * @param int $usuarios_id Id do usuário
-     *
-     * @return boolean
-     */
-    public function saveClienteHasUsuario(int $clientes_id, int $usuarios_id, int $tipo_perfil)
-    {
-        try {
-            $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->find('all')
-                ->where(
-                    [
-                        'usuarios_id' => $usuarios_id,
-                        'clientes_id' => $clientes_id,
-                        'tipo_perfil' => $tipo_perfil
-                    ]
-                )->first();
-
-            if (!$clientesHasUsuario) {
-                $clientesHasUsuario = $this->_getClienteHasUsuarioTable()->newEntity();
-            }
-
-            $clientesHasUsuario->clientes_id = (int)$clientes_id;
-            $clientesHasUsuario->usuarios_id = (int)$usuarios_id;
-            $clientesHasUsuario->tipo_perfil = (int)$tipo_perfil;
-
-            return $this->_getClienteHasUsuarioTable()->save($clientesHasUsuario);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao inserir registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            $error = ['success' => false, 'message' => $stringError];
-            return $error;
-        }
-    }
-
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Obtem um relacionamento cliente has usuario
@@ -243,7 +195,7 @@ class ClientesHasUsuariosTable extends Table
     public function findClienteHasUsuario(array $where_conditions)
     {
         try {
-            return $this->_getClienteHasUsuarioTable()->find('all')
+            return $this->find('all')
                 ->where($where_conditions)
                 ->contain(['Cliente', 'Usuario']);
         } catch (\Exception $e) {
@@ -257,19 +209,19 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Procura por um usuário dentro de uma rede de lojas
      *
-     * @param int   $usuarios_id       Id do usuário
+     * @param int   $usuariosId       Id do usuário
      * @param array $array_clientes_id Array de Id de clientes
      *
      * @return void
      */
-    public function findClienteHasUsuarioInsideNetwork(int $usuarios_id, array $array_clientes_id)
+    public function findClienteHasUsuarioInsideNetwork(int $usuariosId, array $array_clientes_id)
     {
         try {
             $data = $this->_getClienteHasUsuarioTable()->find('all')
                 ->where(
                     [
                         'ClientesHasUsuarios.clientes_id in' => $array_clientes_id,
-                        'ClientesHasUsuarios.usuarios_id' => $usuarios_id
+                        'ClientesHasUsuarios.usuarios_id' => $usuariosId
                     ]
                 )
                 ->join(['Usuarios'])
@@ -401,56 +353,47 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Pega id de unidades que usuário pode filtrar
      *
-     * @param int  $redes_id         Id da Rede
-     * @param int  $usuarios_id      Id de Usuário
-     * @param bool $descartar_matriz Retira ou Inclui matriz
+     * @param int  $redesId         Id da Rede
+     * @param int  $usuariosId      Id de Usuário
+     * @param bool $descartarMatriz Retira ou Inclui matriz
      *
      * @return void
      */
-    public function getClientesFilterAllowedByUsuariosId(int $redes_id, int $usuarios_id, bool $descartar_matriz = false)
+    public function getClientesFilterAllowedByUsuariosId(int $redesId, int $usuariosId, bool $descartarMatriz = false)
     {
         try {
-            $rede_table = TableRegistry::get('Redes');
 
-            $rede = $rede_table->find('all')->where(['id' => $redes_id])
-                ->contain(['RedesHasClientes'])
-                ->first();
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
-            $clientes_ids = [];
+            $usuario = $this->Usuarios->find('all')
+                ->where(['id' => $usuariosId])->first();
 
-            foreach ($rede->redes_has_clientes as $key => $value) {
-                $clientes_ids[] = $value['clientes_id'];
-            }
-            $usuario = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
-                ->where(['id' => $usuarios_id])->first();
-
-            if (sizeof($clientes_ids) == 0) {
+            if (sizeof($clientesIds) == 0) {
                 return null;
             }
 
-            if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            if ($usuario["tipo_perfil"] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // se for admin rti ou admin rede, pega o id de todas as unidades
 
-                if ($descartar_matriz) {
+                if ($descartarMatriz) {
                     $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientes_ids, 'matriz' => false]);
+                        ->where(['id in' => $clientesIds, 'matriz' => false]);
                 } else {
                     $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientes_ids]);
+                        ->where(['id in' => $clientesIds]);
                 }
 
-                return $clientes;
             } else if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminLocalProfileType']) {
 
                 // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
 
                 // pega os id's aos quais ele tem permissão de admin
 
-                $clientes_has_usuarios_list = $this->_getClienteHasUsuarioTable()
+                $clientesHasUsuariosList = $this
                     ->find('all')
                     ->where(
                         [
-                            'clientes_id in ' => $clientes_ids,
+                            'clientes_id in ' => $clientesIds,
                             'usuarios_id' => $usuario->id,
                             'tipo_perfil IN ' => [
                                 (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
@@ -459,69 +402,62 @@ class ClientesHasUsuariosTable extends Table
                         ]
                     );
 
-                $clientes_ids = [];
-                foreach ($clientes_has_usuarios_list as $key => $value) {
-                    $clientes_ids[] = $value['clientes_id'];
+                $clientesIds = [];
+                foreach ($clientesHasUsuariosList as $key => $value) {
+                    $clientesIds[] = $value['clientes_id'];
                 }
 
-                if ($descartar_matriz) {
+                if ($descartarMatriz) {
 
                     $clientes = $this->_getClienteHasUsuarioTable()->Clientes
                         ->find('list')
                         ->where(
                             [
-                                'id IN ' => $clientes_ids,
+                                'id IN ' => $clientesIds,
                                 'matriz' => false
                             ]
                         );
                 } else {
                     $clientes = $this->_getClienteHasUsuarioTable()->Clientes
                         ->find('list')
-                        ->where(['id IN ' => $clientes_ids]);
+                        ->where(['id IN ' => $clientesIds]);
                 }
-
-                return $clientes;
 
             } else {
 
                 // pega os id's aos quais ele tem permissão de admin
 
-                $clientes_has_usuarios_list = $this->_getClienteHasUsuarioTable()
+                $clientesHasUsuariosList = $this
                     ->find('all')
                     ->where(
                         [
-                            'clientes_id in ' => $clientes_ids,
-                            'usuarios_id' => $usuario->id,
-                            'tipo_perfil' => $usuario->tipo_perfil
+                            'clientes_id in ' => $clientesIds,
+                            'usuarios_id' => $usuario["id"],
+                            'tipo_perfil' => $usuario["tipo_perfil"]
                         ]
-                    );
+                    )
+                    ->select(array("clientes_id"));
 
-                $clientes_ids = [];
-                foreach ($clientes_has_usuarios_list as $key => $value) {
-                    $clientes_ids[] = $value['clientes_id'];
+                $clientesIds = [];
+                foreach ($clientesHasUsuariosList as $value) {
+                    $clientesIds[] = $value['clientes_id'];
                 }
 
-                if ($descartar_matriz) {
+                $whereConditions = array("id IN " => $clientesIds);
 
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
-                        ->find('list')
-                        ->where(
-                            [
-                                'id IN ' => $clientes_ids,
-                                'matriz' => false
-                            ]
-                        );
-                } else {
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
-                        ->find('list')
-                        ->where(['id IN ' => $clientes_ids]);
+                if ($descartarMatriz) {
+                    $whereConditions[] = array("matriz" => false);
                 }
 
-                return $clientes;
+                $clientes = $this->Clientes
+                    ->find('list')
+                    ->where($whereConditions);
             }
+
+            return $clientes->select(array("id", "razao_social"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
 
             Log::write('error', $stringError);
 
@@ -530,22 +466,55 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * Obtem todos os vínculos de um usuário pela rede
+     *
+     * @param integer $redesId    Id da Rede
+     * @param integer $usuariosId Id do usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 01/10/2017
+     *
+     * @return \App\Model\Entity\ClientesHasUsuarios
+     */
+    public function getVinculoClienteUsuario(int $redesId, int $usuariosId)
+    {
+        $conditions = array(
+            "Redes.id" => $redesId,
+            "ClientesHasUsuarios.usuarios_id" => $usuariosId
+        );
+        $usuario = $this->find("all")
+            ->where($conditions)
+            ->contain("RedesHasClientes.Redes")
+            ->select(
+                array(
+                    "id",
+                    "clientes_id",
+                    "usuarios_id",
+                    "tipo_perfil",
+                    "conta_ativa"
+                )
+            )->first();
+
+        return $usuario;
+    }
+
+    /**
      * Obtêm todos os usuários de um cliente através do
      * Id de cliente e tipo de perfil
      *
-     * @param int $clientes_id  Id do cliente
+     * @param int $clientesId  Id do cliente
      * @param int $tipo_perfil  Tipo de perfil procurado
      *
-     * @return object ClientesHasUsuarios
+     * @return \App\Model\Entity\ClientesHasUsuarios
      */
-    public function getAllUsersByClienteId(int $clientes_id, int $tipo_perfil = null)
+    public function getAllUsersByClienteId(int $clientesId, int $tipo_perfil = null)
     {
         try {
 
             $whereConditions = array();
 
             $whereConditions[] = [
-                'ClientesHasUsuarios.clientes_id' => $clientes_id
+                'ClientesHasUsuarios.clientes_id' => $clientesId
             ];
 
             if (!is_null($tipo_perfil)) {
@@ -555,19 +524,19 @@ class ClientesHasUsuariosTable extends Table
             $clientes_has_usuarios = $this->_getClienteHasUsuarioTable()->find('all')
                 ->where($whereConditions);
 
-            $usuarios_ids = [];
+            $usuariosIds = [];
 
             foreach ($clientes_has_usuarios as $key => $value) {
-                $usuarios_ids[] = $value['usuarios_id'];
+                $usuariosIds[] = $value['usuarios_id'];
             }
 
             $result = null;
 
-            if (sizeof($usuarios_ids) > 0) {
+            if (sizeof($usuariosIds) > 0) {
                 $result = $this->_getClienteHasUsuarioTable()
                     ->Usuarios
                     ->find('all')
-                    ->where(['id IN ' => $usuarios_ids]);
+                    ->where(['id IN ' => $usuariosIds]);
             }
 
             return $result;
@@ -582,21 +551,75 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * ClientesHasUsuariosTable::getAllClientesIdsAllowedFromRedesIdUsuariosId
+     *
+     * Obtem todos os vínculos de um usuário em uma rede específica
+     *
+     * @param integer $redesId
+     * @param integer $usuariosId
+     * @param integer $tipo_perfil
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 11/10/2018
+     *
+     * @return array Lista de seleção
+     */
+    public function getAllClientesIdsAllowedFromRedesIdUsuariosId(int $redesId, int $usuariosId, int $tipo_perfil)
+    {
+        try {
+            $query = $this->find("all")
+                ->contain(array(
+                    "RedesHasClientes",
+                    "Clientes",
+                    "Usuarios"
+                ))
+                ->where(
+                    array(
+                        "RedesHasClientes.redes_id" => $redesId,
+                        "Usuarios.id" => $usuariosId,
+                        "Usuarios.tipo_perfil" => $tipo_perfil
+                    )
+                )
+                ->select(
+                    array(
+                        "ClientesHasUsuarios.clientes_id",
+                        "Clientes.nome_fantasia"
+                    )
+                )
+                ->toArray();
+
+            $items = array();
+
+            foreach ($query as $key => $value) {
+                $items[$value["clientes_id"]] = $value["cliente"]["nome_fantasia"];
+            }
+
+            return $items;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registros: {0}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+        }
+    }
+
+    /**
      * Obtêm todos os clientes através de um usuário e tipo de perfil
      *
-     * @param int $usuarios_id Id de usuário
+     * @param int $usuariosId Id de usuário
      * @param int $tipo_perfil Tipo de perfil procurado
      *
      * @return object ClientesHasUsuarios
      */
-    public function getAllClientesIdsByUsuariosId(int $usuarios_id, int $tipo_perfil = null)
+    public function getAllClientesIdsByUsuariosId(int $usuariosId, int $tipo_perfil = null)
     {
         try {
 
             $whereConditions = array();
 
             $whereConditions[] = [
-                'ClientesHasUsuarios.usuarios_id' => $usuarios_id
+                'ClientesHasUsuarios.usuarios_id' => $usuariosId
             ];
 
             if (!is_null($tipo_perfil)) {
@@ -623,26 +646,126 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    /**
+     * Obtem o vínculo de clientes a um usuário
+     *
+     * @param integer $usuariosId Id de Usuário
+     * @param boolean $filtrarPrimeiro Se deve trazer somente o primeiro registro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 19/10/2018
+     *
+     * @return array $ids de clientes
+     */
+    public function getVinculoClientesUsuario(int $usuariosId, bool $filtrarPrimeiro = true)
+    {
+        try {
+            $whereConditions = array(
+                "usuarios_id" => $usuariosId
+            );
+            $clientesUsuarios = $this->find("all")
+                ->where($whereConditions)
+                ->contain("Cliente")
+                ->order(array("tipo_perfil" => "ASC"));
+
+            if ($filtrarPrimeiro) {
+                $clientesUsuarios = $clientesUsuarios->first();
+                return $clientesUsuarios;
+            } else {
+                return $clientesUsuarios->toArray();
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter vínculo de clientes ao usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    #endregion
+
+    #region  Create
+
+    /**
+     * Adiciona novo Usuário em cliente
+     *
+     * @param int $usuariosId Id do cliente
+     * @param int $clientesId Id do usuário
+     * @param int $tipoPerfil Tipo do perfil
+     * @param int $contaAtiva Conta do usuário Ativa
+     *
+     * @return \App\Model\Entity\ClienteHasUsuario
+     */
+    public function saveClienteHasUsuario(int $clientesId, int $usuariosId, int $tipoPerfil, bool $contaAtiva = true)
+    {
+        try {
+
+            $whereConditions = array(
+                'usuarios_id' => $usuariosId,
+                'clientes_id' => $clientesId
+                // "conta_ativa" => $contaAtiva
+            );
+
+            if (strlen($tipoPerfil) > 0) {
+                $whereConditions[] = array('tipo_perfil' => $tipoPerfil);
+            }
+
+            $clientesHasUsuario = $this->find('all')->where($whereConditions)->first();
+
+            if (!$clientesHasUsuario) {
+                $clientesHasUsuario = $this->newEntity();
+            }
+
+            $clientesHasUsuario["clientes_id"] = (int)$clientesId;
+            $clientesHasUsuario["usuarios_id"] = (int)$usuariosId;
+            $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
+            $clientesHasUsuario["conta_ativa"] = (int)$contaAtiva;
+
+            return $this->save($clientesHasUsuario);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $object = null;
+
+            foreach ($trace as $key => $item_trace) {
+                if ($item_trace['class'] == 'Cake\Database\Query') {
+                    $object = $item_trace;
+                    break;
+                }
+            }
+
+            $stringError = __("Erro ao inserir registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            $error = ['success' => false, 'message' => $stringError];
+            return $error;
+        }
+    }
+
+    #endregion
+
+    #region  Update
 
     /**
      * Atualiza o relacionamento de cliente e usuário
      *
      * @param int $id          Id do registro
-     * @param int $clientes_id Id do cliente
-     * @param int $usuarios_id Id do Usuário
+     * @param int $clientesId Id do cliente
+     * @param int $usuariosId Id do Usuário
      * @param int $tipo_perfil Tipo de Perfil
      *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
-    public function updateClienteHasUsuarioRelationship(int $id, int $clientes_id, int $usuarios_id, int $tipo_perfil)
+    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId, int $tipo_perfil)
     {
         try {
 
             return $this->updateAll(
                 [
-                    'clientes_id' => $clientes_id,
-                    'usuarios_id' => $usuarios_id,
+                    'clientes_id' => $clientesId,
+                    'usuarios_id' => $usuariosId,
                     'tipo_perfil' => $tipo_perfil
                 ],
                 [
@@ -705,12 +828,12 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Define usuário informado para uma matriz (migração)
      *
-     * @param int $clientes_id Id de Cliente
+     * @param int $clientesId Id de Cliente
      * @param int $matriz_id   Id da Matriz
      *
      * @return boolean
      */
-    public function setClientesHasUsuariosToMainCliente(int $clientes_id, int $matriz_id)
+    public function setClientesHasUsuariosToMainCliente(int $clientesId, int $matriz_id)
     {
         try {
             return $this->updateAll(
@@ -718,7 +841,7 @@ class ClientesHasUsuariosTable extends Table
                     'clientes_id' => $matriz_id
                 ],
                 [
-                    'clientes_id' => $clientes_id
+                    'clientes_id' => $clientesId
                 ]
             );
         } catch (\Exception $e) {
@@ -741,21 +864,48 @@ class ClientesHasUsuariosTable extends Table
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    public function updateContaAtivaUsuario(int $id = null, int $clientesId, int $usuariosId, bool $contaAtiva)
+    {
+        $usuarioCliente = null;
+
+        if (!empty($id)) {
+            $usuarioCliente = $this->getById($id);
+        } else {
+            $usuarioCliente = $this->find("all")->where(
+                array(
+                    "clientes_id" => $clientesId,
+                    "usuarios_id" => $usuariosId
+                )
+            )->first();
+        }
+
+        if (empty($usuarioCliente)) {
+            throw new \Exception("Este usuário não possui vínculo com o Posto de Atendimento, não sendo possível alterar o status da conta!");
+        }
+
+        $usuarioCliente["conta_ativa"] = $contaAtiva;
+
+        return $this->saveClienteHasUsuario($usuarioCliente["clientes_id"], $usuarioCliente["usuarios_id"], $usuarioCliente["tipo_perfil"], $contaAtiva);
+
+    }
+
+    #endregion
+
+    #region  Delete
 
     /**
      * Apaga todos os vínculos de um usuário à um cliente
      *
-     * @param array $clientes_ids Ids de clientes
+     * @param array $clientesIds Ids de clientes
      *
      * @return boolean
      */
-    public function deleteAllClientesHasUsuariosByClientesIds(array $clientes_ids)
+    public function deleteAllClientesHasUsuariosByClientesIds(array $clientesIds)
     {
         try {
 
             return $this->_getClienteHasUsuarioTable()
-                ->deleteAll(['clientes_id in' => $clientes_ids]);
+                ->deleteAll(['clientes_id in' => $clientesIds]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -778,16 +928,16 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Apaga todos os vínculos de um usuário à um cliente
      *
-     * @param int $usuarios_id Id de usuário
+     * @param int $usuariosId Id de usuário
      *
      * @return boolean
      */
-    public function deleteAllClientesHasUsuariosByUsuariosId(int $usuarios_id)
+    public function deleteAllClientesHasUsuariosByUsuariosId(int $usuariosId)
     {
         try {
 
             return $this->_getClienteHasUsuarioTable()
-                ->deleteAll(['usuarios_id' => $usuarios_id]);
+                ->deleteAll(['usuarios_id' => $usuariosId]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -811,20 +961,20 @@ class ClientesHasUsuariosTable extends Table
      * Remove Administrador de cliente
      *
      * @param int $matrizId    Id da matriz
-     * @param int $clientes_id Id do cliente
-     * @param int $usuarios_id Id do usuário
+     * @param int $clientesId Id do cliente
+     * @param int $usuariosId Id do usuário
      *
      * @return boolean
      */
-    public function removeAdministratorOfClienteHasUsuario($clientes_id, $usuarios_id)
+    public function removeAdministratorOfClienteHasUsuario($clientesId, $usuariosId)
     {
         try {
             $clientesHasUsuario = $this->_getClienteHasUsuarioTable()
                 ->find()
                 ->where(
                     [
-                        'clientes_id' => $clientes_id,
-                        'usuarios_id' => $usuarios_id
+                        'clientes_id' => $clientesId,
+                        'usuarios_id' => $usuariosId
                     ]
                 )
                 ->first();
@@ -836,7 +986,7 @@ class ClientesHasUsuariosTable extends Table
 
                 $usuario
                     = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
-                    ->where(['id' => $usuarios_id])
+                    ->where(['id' => $usuariosId])
                     ->first();
 
                 $usuario->matriz_id = null;
@@ -899,4 +1049,6 @@ class ClientesHasUsuariosTable extends Table
             return $stringError;
         }
     }
+
+    #endregion
 }

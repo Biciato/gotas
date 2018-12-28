@@ -11,6 +11,7 @@ use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * ClientesHasBrindesEstoque Controller
@@ -27,7 +28,7 @@ class ClientesHasBrindesEstoqueController extends AppController
      * ------------------------------------------------------------
      */
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * ------------------------------------------------------------
@@ -153,11 +154,11 @@ class ClientesHasBrindesEstoqueController extends AppController
      */
     public function gerenciarEstoque($brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $cliente_has_brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -182,11 +183,11 @@ class ClientesHasBrindesEstoqueController extends AppController
      **/
     public function adicionarEstoque($brindes_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
@@ -199,7 +200,7 @@ class ClientesHasBrindesEstoqueController extends AppController
             $data = $this->request->getData();
 
             $data['clientes_has_brindes_habilitados_id'] = $brinde->id;
-            $data['usuarios_id'] = $this->user_logged['id'];
+            $data['usuarios_id'] = $this->usuarioLogado['id'];
             $data['data'] = date('Y-m-d H:i:s');
             $data['tipo_operacao'] = Configure::read('stockOperationTypes')['addType'];
 
@@ -228,24 +229,26 @@ class ClientesHasBrindesEstoqueController extends AppController
     /**
      * Action para vender um item de Brinde
      *
-     * @param int $brindes_id Id do Brinde
+     * @param int $brindesId Id do Brinde
      *
      * @return \Cake\Http\Response|void
      **/
-    public function vendaManualEstoque($brindes_id)
+    public function vendaManualEstoque($brindesId)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
+        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
 
         $clientes_id = $brinde->clientes_id;
 
-        $brinde_estoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $brindeEstoque = $this->ClientesHasBrindesEstoque->newEntity();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -257,30 +260,39 @@ class ClientesHasBrindesEstoqueController extends AppController
 
                 $data['preco'] = str_replace('.', '', $data['preco']);
                 $data['preco'] = str_replace(',', '.', $data['preco']);
-            } else if (strpos($data['preco'], ',')) {
+            } elseif (strpos($data['preco'], ',')) {
                 $data['preco'] = str_replace(',', '.', $data['preco']);
             }
 
             $totalPontosAGastar = $data['quantidade'] * (float)$data['preco'];
 
-            $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+            $usuario = null;
+            // Se usuário for nulo, define venda para o usuário avulso
+            if (empty($data["usuarios_id"])) {
+                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyUserProfileType"], 1);
+            } else {
+                $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
+            }
 
             $array_clientes_id = $this->Clientes->getIdsMatrizFiliaisByClienteId($clientes_id);
 
             // verificar se tem estoque suficiente na loja em questão
 
-            $estoqueAtual = $this->ClientesHasBrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindes_id, $data['quantidade']);
+            $estoqueAtual = $this->ClientesHasBrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindesId, $data['quantidade']);
 
-            if ($estoqueAtual['enough'] == false) {
-                $qte = strlen($estoqueAtual['left']) > 0 ? $estoqueAtual['left'] : 0;
-                $this->Flash->error(__('Não há estoque suficiente para vender, solicitado {0}, restam {1}', $data['quantidade'], $qte));
+            $possuiEstoque = $estoqueAtual["enough"] == true || $brinde["brinde"]["ilimitado"];
+
+            if (!$possuiEstoque) {
+                $restante = strlen($estoqueAtual['left']) > 0 ? $estoqueAtual['left'] : 0;
+                $this->Flash->error(__('Não há estoque suficiente para vender, solicitado {0}, restam {1}', $data['quantidade'], $restante));
             }
 
-            if ($usuario && $estoqueAtual['enough']) {
+            if ($usuario && $possuiEstoque) {
                 // Pegar soma de pontuações do usuário para saber se ele tem saldo
                 $usuario->pontuacoes
                     = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                     $usuario['id'],
+                    $rede["id"],
                     $array_clientes_id
                 );
 
@@ -290,7 +302,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                     //usuário possui pontuação suficiente, cliente tem brinde suficiente, iniciar as transações
 
                     // Diminuir estoque do cliente
-                    $brinde_estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                    $brindeEstoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                         $brinde->id,
                         $usuario->id,
                         $data['quantidade'],
@@ -300,10 +312,13 @@ class ClientesHasBrindesEstoqueController extends AppController
                     // adicionar brinde resgatado no cadastro do usuário
                     $brindeUsuario
                         = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                        $usuario->id,
+                        $rede["id"],
+                        $clientes_id,
+                        $usuario["id"],
                         $brinde->id,
                         $data['quantidade'],
-                        $totalPontosAGastar
+                        $totalPontosAGastar,
+                        TYPE_PAYMENT_POINTS
                     );
 
                     // salvar pontuação do usuário
@@ -312,14 +327,14 @@ class ClientesHasBrindesEstoqueController extends AppController
                         $usuario->id,
                         $brinde->id,
                         $totalPontosAGastar,
-                        $this->user_logged["id"],
+                        $this->usuarioLogado["id"],
                         true
                     );
 
-                    if ($brinde_estoque && $brindeUsuario && $pontos) {
+                    if ($brindeEstoque && $brindeUsuario && $pontos) {
                         $this->Flash->success('Venda realizada');
 
-                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
+                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindesId]);
                     }
                 }
             }
@@ -327,24 +342,14 @@ class ClientesHasBrindesEstoqueController extends AppController
 
         $array_set = [
             'brinde',
-            'brinde_estoque',
+            'brindeEstoque',
             'cliente',
             'clientes_id',
-            'brindes_id'
+            'brindesId'
         ];
 
-        $this->set(compact(
-            [
-                $array_set
-            ]
-        ));
-
-        $this->set(
-            '_serialize',
-            [
-                $array_set
-            ]
-        );
+        $this->set(compact($array_set));
+        $this->set('_serialize', $array_set);
     }
 
     /**
@@ -595,8 +600,5 @@ class ClientesHasBrindesEstoqueController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->user_logged = $this->getUserLogged();
-        $this->set('user_logged', $this->getUserLogged());
     }
 }

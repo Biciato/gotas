@@ -20,9 +20,10 @@ use App\Custom\RTI\DebugUtil;
                 "preco",
                 [
                     "label" => "Preço Atual: ",
-                    "value" => is_null($ultimoPrecoAutorizadoGotas) ? 0 : $ultimoPrecoAutorizadoGotas["preco"],
+                    "value" => $ultimoPrecoAutorizadoGotas["preco"],
                     "id" => "preco_atual",
-                    "readonly" => true
+                    "readonly" => true,
+                    "type" => "text"
                 ]
             );
             ?>

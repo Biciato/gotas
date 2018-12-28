@@ -245,7 +245,8 @@ return [
         'default' => [
             'className' => 'Cake\Database\Connection',
             'driver' => 'Cake\Database\Driver\Mysql',
-            'persistent' => false,
+            // 'persistent' => false,
+            'persistent' => true,
             'host' => 'localhost',
             // 'host' => '40.71.26.138',
             /**
@@ -264,6 +265,7 @@ return [
             //  'timezone' => 'UTC',
             'flags' => [],
             'cacheMetadata' => true,
+            // 'cacheMetadata' => false,
             // true para guardar tudo no arquivo queries
             'log' => true,
             // 'log' => false,
@@ -434,6 +436,7 @@ return [
      */
     'Session' => [
         'defaults' => 'cake',
+        // 'defaults' => 'php',
         // 'timeout' => 30
         // 'timeout' => 1
         // uma semana

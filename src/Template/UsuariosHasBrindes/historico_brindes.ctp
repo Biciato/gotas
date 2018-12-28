@@ -12,7 +12,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) {
+if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) {
     $this->Breadcrumbs->add('Cupons do Usuário', [], ['class' => 'active']);
 } else {
     $this->Breadcrumbs->add('Meu Histórico de Cupons', [], ['class' => 'active']);
@@ -28,7 +28,7 @@ echo $this->Breadcrumbs->render(
 
 <div class="redes form col-lg-9 col-md-8 columns content">
 
-    <?php if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
+    <?php if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
         <legend>Cupons de Brindes do Usuário</legend>
 
     <?php else : ?> 

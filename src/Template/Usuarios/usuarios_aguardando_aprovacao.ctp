@@ -13,7 +13,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 }
 
@@ -27,9 +27,130 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <div class="usuarios index col-lg-9 col-md-10 columns content">
     <legend><?= __("Usuários Aguardando Aprovacao") ?></legend>
     
-    <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'usuarios', 'action' => 'usuarios_aguardando_aprovacao', 'show_filiais' => false]) ?>
+    <div class="form-group">
 
-    <table class="table table-striped table-hover">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-heading-sm text-center"
+                data-toggle="collapse"
+                href="#collapse1"
+                data-target="#filter-coupons">
+                <!-- <h4 class="panel-title"> -->
+                    <div>
+                        <span class="fa fa-search"></span>
+                            Exibir / Ocultar Filtros
+                    </div>
+
+                <!-- </h4> -->
+            </div>
+            <div id="filter-coupons" class="panel-collapse collapse in">
+                <div class="panel-body">
+
+                    <?=
+                    $this->Form->create('Post', array('url' => array('controller' => "usuarios", 'action' => "usuariosAguardandoAprovacao")))
+                    ?>
+
+                        <div class="form-group row">
+                            
+                            <div class="hidden">
+                                <?= $this->Form->input(
+                                    'tipo_perfil',
+                                    [
+                                        'type' => 'select',
+                                        'id' => 'tipo_perfil',
+                                        'label' => 'Tipo de Perfil',
+                                        "empty" => "Todos",
+                                        'options' => Configure::read("profileTypesTranslatedAdminNetwork"),
+                                        "value" => Configure::read("profileTypes")["UserProfileType"],
+                                        "disabled" => true,
+                                        'class' => 'form-control col-lg-2'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-4">
+                                <?= $this->Form->input(
+                                    'nome',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'nome',
+                                        'label' => 'Nome',
+                                        'class' => 'form-control'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'email',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'email',
+                                        'label' => 'Email',
+                                        'class' => 'form-control'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-2">
+                                <?= $this->Form->input(
+                                    'cpf',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'cpf',
+                                        'label' => 'CPF',
+                                        'class' => 'form-control'
+                                    ]
+                                ) ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'doc_estrangeiro',
+                                    [
+                                        'type' => 'text',
+                                        'id' => 'doc_estrangeiro',
+                                        'label' => 'Doc Estrangeiro',
+                                        'class' => 'form-control'
+                                    ]
+                                ) ?>
+                            </div>
+
+                            <div class="col-lg-7">
+
+                                <?php
+
+                                if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
+
+                                    echo $this->Form->input(
+                                        'filtrar_unidade',
+                                        [
+                                            'type' => 'select',
+                                            'id' => 'filtrar_unidade',
+                                            'label' => " Filtrar por unidade ? ",
+                                            'empty' => 'Todas',
+                                            'options' => $unidades_ids
+                                        ]
+                                    );
+                                }
+                                ?>
+                            </div>
+
+                            <div class="col-lg-12 text-right">
+                                <button type="submit" 
+                                    class="btn btn-primary save-button botao-pesquisar">
+                                    <i class="fa fa-search"></i>
+                                    Pesquisar
+                                </button>
+                            </div>
+
+                    </div>
+
+                <?= $this->Form->end() ?>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <table class=" table table - striped table - hover ">
         <thead>
             <tr>
                 <th><?= $this->Paginator->sort('tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
@@ -39,14 +160,14 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <th><?= $this->Paginator->sort('sexo', ['label' => 'Sexo']) ?></th>
                 <th><?= $this->Paginator->sort('data_nasc', ['label' => 'Data de Nascimento']) ?></th>
                 <th><?= $this->Paginator->sort('email', ['label' => 'E-mail']) ?></th>
-                <th class="actions">
+                <th class=" actions ">
                     <?= __('Ações') ?>
-                    <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($usuarios as $usuario) : ?>
+                    <div class=" btn btn - xs btn - default right - align call - modal - how - it - works " data-toggle=" modal " data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
+                            </th>
+                        </tr>
+                    </thead>
+                <tbody>
+                <?php foreach ($usuarios as $usuario) : ?>
                 <tr>
                     <td><?= h($this->UserUtil->getProfileType($usuario->tipo_perfil)) ?></td>
                     <td><?= h($usuario->nome) ?></td>

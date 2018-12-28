@@ -10,19 +10,19 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
 
     $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'redes', 'action' => 'ver_detalhes', $rede->id]);
 
-} else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
-    && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
+    && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
 }
 
-$this->Breadcrumbs->add('Administradores Regionais e Comuns', ['controller' => 'usuarios', 'action' => 'administradores_regionais_comuns', $rede->id]);
+$this->Breadcrumbs->add('Atribuir Administração Regional/Comum', ['controller' => 'usuarios', 'action' => 'atribuir_admin_regional_comum', $rede->id]);
 
 $this->Breadcrumbs->add('Unidades do Administrador', [], ['class' => 'active']);
 
@@ -32,10 +32,10 @@ echo $this->Breadcrumbs->render(
 
 $update_password = false;
 
-if ($user_logged['tipo_perfil'] == 0) {
+if ($usuarioLogado['tipo_perfil'] == 0) {
     $controller = 'usuarios';
     $action = 'index';
-} else if ($user_logged['tipo_perfil'] >= 1 && $user_logged['tipo_perfil'] <= 3) {
+} else if ($usuarioLogado['tipo_perfil'] >= 1 && $usuarioLogado['tipo_perfil'] <= 3) {
     $controller = 'usuarios';
     $action = 'minha_equipe';
 } else {
@@ -56,7 +56,7 @@ if ($user_logged['tipo_perfil'] == 0) {
 <div class="usuarios view col-lg-9 col-md-10">
     <?= $this->Form->create($usuario) ?>
         <legend><?= __('Unidades que o Administrador {0} Gerencia', $usuario->nome) ?></legend>
-        
+
         <table class="table table-striped table-hover table-condensed table-responsive">
             <thead>
 
@@ -97,13 +97,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                         <?= h($cliente->nome_fantasia) ?>
                     </td>
 
-                        <?php 
+                        <?php
 
                         $record_found = false;
                         $cliente_has_usuario_id = null;
 
+                        // debug($cliente);
                         // procura pelo registro
-                        foreach ($cliente->clientes_has_usuarios as $key => $cliente_has_usuario) {
+                        foreach ($cliente["clientes_has_usuarios"] as $cliente_has_usuario) {
                             // se o registro existe, a opção será desvincular
                             if ($usuario->id == $cliente_has_usuario->usuarios_id
                                 && $usuario->tipo_perfil == $cliente_has_usuario->tipo_perfil) {
@@ -113,14 +114,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                         }
 
                         if ($record_found) {
-                            ?> 
+                            ?>
 
                             <td>
                                 <?= __("Habilitado") ?>
                             </td>
                             <td>
 
-                            <?php 
+                            <?php
                             echo $this->Html->link(
                                 $this->Html->tag('i', '', array('class' => 'fa fa-power-off')),
                                 '#',
@@ -147,14 +148,14 @@ if ($user_logged['tipo_perfil'] == 0) {
                                 false
                             );
                         } else {
-                            ?> 
+                            ?>
 
                             <td>
                                 <?= __("Desabilitado") ?>
                             </td>
 
                             <td>
-                            <?php 
+                            <?php
                             echo $this->Html->link(
                                 $this->Html->tag('i', '', array('class' => 'fa fa-power-off')),
                                 '#',
@@ -185,10 +186,10 @@ if ($user_logged['tipo_perfil'] == 0) {
                         ?>
                     </td>
 
-                    
+
                 </tr>
                 <?php endforeach; ?>
             </tbody>
-                
+
         </table>
 </div>

@@ -18,18 +18,14 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 
-echo $this->Breadcrumbs->render(
-    [
-        'class' => 'breadcrumb'
-    ]
-);
+echo $this->Breadcrumbs->render(array('class' => 'breadcrumb'));
 ?>
 
 <?= $this->element(
     '../Brindes/left_menu',
     [
-        'show_reports_admin_rti' => $user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType'],
-        'show_reports_admin' => $user_logged['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminLocalProfileType']
+        'show_reports_admin_rti' => $usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType'],
+        'show_reports_admin' => $usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminLocalProfileType']
 
     ]
 ) ?>
@@ -90,7 +86,7 @@ echo $this->Breadcrumbs->render(
                         <tr>
                             <td><?= $brinde->nome ?> </td>
                             <td><?= h($this->Boolean->convertBooleanToString($brinde->equipamento_rti_shower)) ?> </td>
-                            <td><?= $brinde->tempo_rti_shower ?> </td>
+                            <td><?= $brinde->tempo_uso_brinde ?> </td>
                             <td><?= h($this->Boolean->convertBooleanToString($brinde->ilimitado)) ?> </td>
                             <td><?= h($this->Boolean->convertEnabledToString($brinde->habilitado)) ?> </td>
                             <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?> </td>

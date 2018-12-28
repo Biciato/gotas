@@ -10,16 +10,8 @@ $(document).ready(function () {
     // Métodos de inicialização
     // ------------------------------------------------------------------
 
-    $("#auditInsertInicio").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
-    $("#auditInsertFim").datetimepicker({
-        minView: 2,
-        maxView: 4,
-        clearBtn: true,
-        format: "dd/mm/yyyy"
-    });
+    initializeDatePicker("auditInsertInicio");
+    initializeDatePicker("auditInsertFim");
+
+
 });

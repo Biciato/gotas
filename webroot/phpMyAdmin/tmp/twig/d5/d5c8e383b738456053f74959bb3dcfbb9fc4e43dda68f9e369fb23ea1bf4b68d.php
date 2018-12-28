@@ -84,6 +84,6 @@ class __TwigTemplate_e4300051b0f63e7e4379d585ca3aab34b75d0e3b370361af2de654b379d
 
     public function getSourceContext()
     {
-        return new Twig_Source("", "console/query_action.twig", "/var/www/html/phpMyAdmin/templates/console/query_action.twig");
+        return new Twig_Source("", "console/query_action.twig", "/media/sf_gotas/webroot/phpMyAdmin/templates/console/query_action.twig");
     }
 }

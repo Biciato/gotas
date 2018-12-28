@@ -9,7 +9,7 @@ use Cake\Routing\Router;
         <legend><?= __('Editar Usuario') ?></legend>
 
             <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
-            <?= $this->Form->hidden('usuario_logado_tipo_perfil', ['value' => $usuario_logado_tipo_perfil, 'class' => 'usuario_logado_tipo_perfil']); ?>
+            <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
 
             <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => (int)Configure::read('profileTypes')['UserProfileType']]) ?>
 
@@ -103,7 +103,7 @@ use Cake\Routing\Router;
                             'id' => 'data_nasc',
                             'format' => 'd/m/Y',
                             'default' => date('d/m/Y'),
-                            'value' => date('d/m/Y'),
+                            'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
                             'label' => 'Data de Nascimento'
                         ]
                     ); ?>

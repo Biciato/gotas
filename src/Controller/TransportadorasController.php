@@ -24,7 +24,7 @@ use App\Custom\RTI\ResponseUtil;
 class TransportadorasController extends AppController
 {
 
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
     /**
      * Index method
@@ -33,37 +33,34 @@ class TransportadorasController extends AppController
      */
     public function index()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!$this->security_util->checkUserIsAuthorized($this->user_logged, 'AdminDeveloperProfileType')) {
+        if (!$this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, 'AdminDeveloperProfileType')) {
             $this->Flash->error(Configure::read("messageNotAuthorized"));
         }
 
-        $conditions = [];
+        $whereConditions = array();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            if ($data['opcoes'] == 'cnpj') {
-                $value = $this->cleanNumber($data['parametro']);
-            } else {
-                $value = $data['parametro'];
-            }
+            $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+            $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+            $cnpj = !empty($data["cnpj"]) ? $this->cleanNumber($data["cnpj"]) : null;
 
-            array_push(
-                $conditions,
-                [
-                    $data['opcoes'] . ' like' => '%' . $value . '%'
-                ]
+            $whereConditions = array(
+                "nome_fantasia like '%{$nomeFantasia}%'",
+                "razao_social like '%{$razaoSocial}%'",
+                "cnpj like '%{$cnpj}%'"
             );
         }
 
-        $transportadoras = $this->Transportadoras->findTransportadoras($conditions);
+        $transportadoras = $this->Transportadoras->findTransportadoras($whereConditions);
 
         $this->paginate($transportadoras, ['limit' => 10]);
 
@@ -96,6 +93,7 @@ class TransportadorasController extends AppController
     public function add()
     {
         $transportadora = $this->Transportadoras->newEntity();
+        // debug($transportadora);
         if ($this->request->is('post')) {
             $transportadora = $this->Transportadoras->patchEntity($transportadora, $this->request->getData());
             if ($this->Transportadoras->save($transportadora)) {
@@ -221,9 +219,19 @@ class TransportadorasController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function transportadorasUsuarioFinal(int $usuarios_id)
+    public function transportadorasUsuario(int $usuarios_id)
     {
         try {
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+            $rede = $this->request->session()->read("Rede.Grupo");
+
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $this->usuarioLogado;
+            }
+
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
             $transportadora_has_usuario = $this
@@ -231,27 +239,37 @@ class TransportadorasController extends AppController
                 ->findTransportadorasHasUsuariosByUsuariosId($usuarios_id);
 
             if ($this->request->is(['post', 'put'])) {
-                $param = $this->request->getData();
+                $data = $this->request->getData();
 
-                if (strlen($param['placa'] > 0)) {
+                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+                $cnpj = !empty($data["cnpj"]) ? $this->cleanNumber($data["cnpj"]) : null;
+
+                $whereConditions = array(
+                    "nome_fantasia like '%{$nomeFantasia}%'",
+                    "razao_social like '%{$razaoSocial}%'",
+                    "cnpj like '%{$cnpj}%'"
+                );
+
+                if (sizeof($whereConditions) > 0) {
                     $transportadora_has_usuario = $transportadora_has_usuario->where(
-                        [
-                            'placa' => $param['placa']
-                        ]
+                        $whereConditions
                     );
                 }
             }
 
-            $this->paginate($transportadora_has_usuario);
+            $transportadora_has_usuario = $this->paginate($transportadora_has_usuario);
 
-            $array_set = [
+            $arraySet = [
                 'transportadora_has_usuario',
                 'usuarios_id',
-                'usuario'
+                'usuario',
+                "usuarioLogado",
+                "rede"
             ];
 
-            $this->set(compact($array_set));
-            $this->set('_serialize', $array_set);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -271,17 +289,18 @@ class TransportadorasController extends AppController
     public function adicionarTransportadoraUsuarioFinal(int $usuarios_id)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             if (!is_null($usuarios_id)) {
                 $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
             } else {
-                $usuario = $this->user_logged;
+                $usuario = $this->usuarioLogado;
             }
 
             $transportadora = $this->Transportadoras->newEntity();
@@ -322,22 +341,23 @@ class TransportadorasController extends AppController
                     if ($transportadora_has_usuario) {
                         $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                        $url = Router::url(['controller' => 'Transportadoras', 'action' => 'transportadoras_usuario_final', $usuarios_id]);
+                        $url = Router::url(['controller' => 'Transportadoras', 'action' => 'transportadorasUsuario', $usuarios_id]);
                         return $this->response = $this->response->withLocation($url);
                     }
                 }
                 $this->Flash->error(Configure::read('messageSavedError'));
             }
 
-            $array_set = [
+            $arraySet = [
                 'transportadora',
                 'usuario',
-                'user_logged',
-                'usuarios_id'
+                'usuarioLogado',
+                'usuarios_id',
+                "rede"
             ];
 
-            $this->set(compact($array_set));
-            $this->set('_serialize', [$array_set]);
+            $this->set(compact($arraySet));
+            $this->set('_serialize', [$arraySet]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -549,11 +569,7 @@ class TransportadorasController extends AppController
     {
         parent::initialize();
 
-        // $this->user_logged = $this->getUserLogged();
-        // $this->set('user_logged', $this->getUserLogged());
-
     }
-
 
     /**
      * ------------------------------------------------------------
@@ -562,7 +578,7 @@ class TransportadorasController extends AppController
      */
 
     /**
-     * TransportadorasController::getTransportadoraByCNPJ
+     * TransportadorasController::getTransportadoraByCNPJAPI
      *
      * Busca transportadora por CNPJ
      *
@@ -573,7 +589,7 @@ class TransportadorasController extends AppController
      *
      * @return (json_encode) $result
      **/
-    public function getTransportadoraByCNPJ()
+    public function getTransportadoraByCNPJAPI()
     {
         // Dados de mensagem
         $mensagem = array();
@@ -584,6 +600,40 @@ class TransportadorasController extends AppController
         try {
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+
+                if (empty($cnpj)){
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageLoadDataWithError")),
+                        "errors" => array(__(Configure::read("messageFieldEmptyDefault"), "CNPJ")),
+                    );
+    
+                    $arraySet = array("transportadora", "mensagem");
+    
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+    
+                    return;
+                }
+
+                if (strlen($cnpj) < 14)
+                {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => __(Configure::read("messageLoadDataWithError")),
+                        "errors" => array(__(Configure::read("messageFieldDigitsMinimum"), "CNPJ", 14)),
+                    );
+    
+                    $arraySet = array("transportadora", "mensagem");
+    
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+    
+                    return;
+                }
+
                 $transportadora = $this->Transportadoras->findTransportadoraByCNPJ($data['cnpj']);
 
                 $mensagem = array(
@@ -596,7 +646,7 @@ class TransportadorasController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageLoadDataWithError")),
-                        "errors" => array("Não foi encontrado Transportadora conforme CNPJ informado!"),
+                        "errors" => array(Configure::read("messageTransportadoraNotFound")),
                     );
                 }
 

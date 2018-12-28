@@ -5,7 +5,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
+if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
     $this->Breadcrumbs->add(
         'Escolher Unidade para Configurar os Brindes',
@@ -51,7 +51,7 @@ echo $this->Breadcrumbs->render(
                 <tr>
                     <td><?= h($brinde['nome']) ?></td>
                     <td><?= h($this->Boolean->convertBooleanToString($brinde['ilimitado'])) ?></td>
-                    <td><?= h($this->Boolean->convertEnabledToString(is_null($brinde["brindeVinculado"]) ? false : $brinde["brindeVinculado"]["habilitado"])) ?></td>
+                    <td><?= h($this->Boolean->convertEnabledToString(is_null($brinde["brinde_vinculado"]) ? false : $brinde["brinde_vinculado"]["habilitado"])) ?></td>
                     <!-- Campo calculado -->
                     <td><?= h($this->Boolean->convertBooleanToString($brinde['pendente_configuracao'])) ?></td>
                     <td><?= h($this->Boolean->convertBooleanToString($brinde["atribuido"])) ?></td>
@@ -75,8 +75,8 @@ echo $this->Breadcrumbs->render(
                                         [
                                             'action' => 'habilitar_brinde',
                                             "?" => [
-                                                'brindes_id' => $brinde['id'],
-                                                'clientes_id' => $clientes_id,
+                                                'brindes_id' => $brinde["id"],
+                                                'clientes_id' => $clientesId,
                                             ]
                                         ]
                                     ),
@@ -86,7 +86,7 @@ echo $this->Breadcrumbs->render(
                             )
                             ?>
                         <?php else : ?>
-                            <?php if ($brinde["brindeVinculado"]["habilitado"] == 0) : ?>
+                            <?php if ($brinde["brinde_vinculado"]["habilitado"] == 0) : ?>
 
                                 <?=
                                 $this->Html->link(
@@ -105,8 +105,8 @@ echo $this->Breadcrumbs->render(
                                             [
                                                 'action' => 'habilitar_brinde',
                                                 "?" => [
-                                                    'brindes_id' => $brinde["brindeVinculado"]["id"],
-                                                    'clientes_id' => $clientes_id,
+                                                    'brindes_id' => $brinde["id"],
+                                                    'clientes_id' => $clientesId,
                                                 ]
                                             ]
                                         ),
@@ -134,8 +134,8 @@ echo $this->Breadcrumbs->render(
                                             [
                                                 'action' => 'desabilitar_brinde',
                                                 "?" => [
-                                                    'brindes_id' => $brinde["brindeVinculado"]["id"],
-                                                    'clientes_id' => $clientes_id,
+                                                    'brindes_id' => $brinde["id"],
+                                                    'clientes_id' => $clientesId,
                                                 ]
                                             ]
                                         ),
@@ -151,7 +151,7 @@ echo $this->Breadcrumbs->render(
                                         $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                                     ),
                                     [
-                                        'action' => 'configurar_brinde', $brinde["brindeVinculado"]["id"]
+                                        'action' => 'configurar_brinde', $brinde["brinde_vinculado"]["id"]
                                     ],
                                     [
                                         'title' => 'Configurar',

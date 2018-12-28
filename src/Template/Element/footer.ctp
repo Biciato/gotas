@@ -1,7 +1,7 @@
 <?php
 
 
-$filialAdministrar= $this->request->session()->read('ClientToManage');
+$filialAdministrar= $this->request->session()->read('Rede.PontoAtendimento');
 ?>
 
 <!-- <div id="footer_common">

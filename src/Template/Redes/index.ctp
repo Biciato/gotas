@@ -62,18 +62,17 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     <?= $this->Html->link(
                         __(
                             "{0}",
-                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                            $this->Html->tag('i', '', ['class' => 'fa fa-cogs'])
                         ),
-                        [
+                        array(
                             'controller' => 'redes',
                             'action' => 'ver_detalhes', $rede->id
-
-                        ],
-                        [
-                            'class' => 'btn btn-xs btn-default',
-                            'title' => 'Informações',
+                        ),
+                        array(
+                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
+                            'title' => 'Configurar Parâmetros de Rede e Postos',
                             'escape' => false
-                        ]
+                        )
                     )
                     ?>
 
@@ -88,7 +87,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         ],
                         [
-                            'class' => 'btn btn-xs btn-primary',
+                            'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
                             'title' => 'Editar',
                             'escape' => false
                         ]
@@ -174,18 +173,15 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             'class' => 'btn btn-xs  btn-danger btn-confirm',
                             'title' => 'Remover',
                             'data-toggle' => 'modal',
-                            'data-target' => '#modal-delete-with-message',
-                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede->nome_rede),
+                            'data-target' => '#modal-delete-with-message-confirmation',
+                            'data-message' => __(Configure::read('messageDeleteQuestion'), $rede["nome_rede"]),
                             'data-action' => Router::url(
                                 [
                                     'action' => 'delete', $rede->id,
                                     '?' =>
                                         [
-                                        'rede_id' => $rede->id,
-                                        'return_url' => [
-                                            'controller' => 'redes',
-                                            'action' => 'index'
-                                        ]
+                                        'redes_id' => $rede["id"]
+
                                     ]
                                 ]
                             ),

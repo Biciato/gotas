@@ -230,3 +230,9 @@ Plugin::load('TwitterBootstrap');
 Plugin::load('ADmad/JwtAuth');
 
 Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
+
+
+// Constantes
+
+const TYPE_PAYMENT_POINTS = "Gotas";
+const TYPE_PAYMENT_MONEY = "Dinheiro";

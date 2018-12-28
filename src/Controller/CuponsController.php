@@ -13,6 +13,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * Cupons Controller
@@ -28,7 +29,7 @@ class CuponsController extends AppController
      * Fields
      * ------------------------------------------------------------
      */
-    protected $user_logged = null;
+    protected $usuarioLogado = null;
 
 
     /**
@@ -157,16 +158,16 @@ class CuponsController extends AppController
     public function emissaoBrindeSuperiores()
     {
         $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_superiores");
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $cliente = $this->request->session()->read("Network.Unit");
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
 
         $arraySet = array(
             "cliente",
@@ -191,26 +192,26 @@ class CuponsController extends AppController
     {
         $urlRedirectConfirmacao = array("controller" => "cupons", "action" => "emissao_brinde_avulso");
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
-        $funcionario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $funcionario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -231,7 +232,7 @@ class CuponsController extends AppController
 
         $arraySet = array(
             "urlRedirectConfirmacao",
-            "user_logged",
+            "usuarioLogado",
             "usuario",
             "cliente",
             "clientes_id",
@@ -254,14 +255,14 @@ class CuponsController extends AppController
      */
     public function escolherBrinde()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
     }
 
     /**
@@ -272,36 +273,36 @@ class CuponsController extends AppController
      **/
     public function brindeShower()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
-        if (!is_null($client_to_manage)) {
-            $cliente = $client_to_manage;
+        if (!is_null($clienteAdministrar)) {
+            $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $unidades_ids = [];
 
         $clientes_ids = [];
 
         // Se o perfil é até administrador regional, pode filtrar por todas as unidades / unidades que tem acesso
-        if ($this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        if ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
             }
         } else {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
@@ -325,10 +326,12 @@ class CuponsController extends AppController
                 $clientes_ids = [];
                 $clientes_ids[] = (int)$data['filtrar_unidade'];
             }
-
         }
 
-        $clientes_has_brindes_habilitados = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId($clientes_ids, $conditions);
+        $clientes_has_brindes_habilitados = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId(
+            $clientes_ids,
+            $conditions
+        );
 
         $this->set(compact(['clientesHasBrindesHabilitados', 'cliente']));
     }
@@ -341,36 +344,36 @@ class CuponsController extends AppController
      **/
     public function brindeComum()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios);
 
-        $client_to_manage = $this->request->session()->read('ClientToManage');
+        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
-        if (!is_null($client_to_manage)) {
-            $cliente = $client_to_manage;
+        if (!is_null($clienteAdministrar)) {
+            $cliente = $clienteAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         $unidades_ids = [];
 
         $clientes_ids = [];
 
         // Se o perfil é até administrador regional, pode filtrar por todas as unidades / unidades que tem acesso
-        if ($this->user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+        if ($this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
             }
         } else {
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id']);
+            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
                 $clientes_ids[] = $key;
@@ -416,46 +419,100 @@ class CuponsController extends AppController
      */
     public function historicoBrindes()
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         // pega a rede e as unidades que o usuário tem acesso
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
         // Pega unidades que tem acesso
-        $clientes_ids = [];
+        $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->user_logged['id'], false);
+        $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-        foreach ($unidades_ids as $key => $value) {
-            $clientes_ids[] = $key;
+        foreach ($unidadesAtendimento as $key => $value) {
+            $clientesIds[] = $key;
         }
 
-        if ($this->request->is('post')) {
+        $nomeUsuarios = null;
+        $unidadeSelecionado = null;
+        $brindeSelecionado = null;
+        $nomeBrindes = null;
+        $valorMinimo = null;
+        $valorMaximo = null;
+        $date = 'd/m/Y';
+        $dataFim = date($date);
+        $dataInicio = date($date, strtotime("-30 day"));
+        $dataFimPesquisa = date($date);
+        $dataInicioPesquisa = date($date, strtotime("-30 day"));
 
+        $brindes = $this->Brindes->getBrindesByClientes($clientesIds)->find("list");
+
+        $data = array();
+
+        if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            if ($data['filtrar_unidade'] != "") {
-                $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+            $this->request->session()->write("QueryConditions", $data);
+
+        } else {
+            $data = $this->request->session()->read("QueryConditions");
+        }
+
+        if (sizeof($data) > 0) {
+
+            $unidadeSelecionado = strlen($data["unidadeSelecionado"]) > 0 ? $data["unidadeSelecionado"] : null;
+            $brindeSelecionado = strlen($data["brindeSelecionado"]) > 0 ? $data["brindeSelecionado"] : null;
+            $nomeUsuarios = !empty($data["nomeUsuarios"]) ? $data["nomeUsuarios"] : null;
+            $valorMinimo = strlen($data["valorMinimo"]) > 0 ? str_replace(",", "", $data["valorMinimo"]) : null;
+            $valorMaximo = strlen($data["valorMaximo"]) > 0 ? str_replace(",", "", $data["valorMaximo"]) : null;
+            $dataInicio = !empty($data["dataInicio"]) ? $data["dataInicio"] : null;
+            $dataFim = !empty($data["dataFim"]) ? $data["dataFim"] : null;
+
+            if (!empty($dataInicio)) {
+                $dataInicioPesquisa = date_format(date_create_from_format("d/m/Y", $dataInicio), "Y-m-d");
+            }
+
+            if (!empty($dataFim)) {
+                $dataFimPesquisa = date_format(date_create_from_format("d/m/Y", $dataFim), "Y-m-d");
             }
         }
 
-        $cliente = $unidades_ids->toArray()[$clientes_ids[0]];
+        if (empty($valorMinimo)) {
+            $valorMinimo = 0;
+        }
 
-        $cupons = $this->Cupons->getCuponsByClienteIds($clientes_ids, date('Y-m-d'));
+        if (empty($valorMaximo)) {
+            $valorMaximo = 9999999999999999;
+        }
 
-        // se não tiver filtros, ordena decrescente pela data
-        $this->paginate = ['order' => ['Cupons.data' => 'desc'], 'limit' => 10];
+        if ($valorMinimo > $valorMaximo) {
+            $this->Flash->error("Valor Mínimo não pode ser maior que Valor Máximo!");
+        }
 
-        $this->paginate($cupons);
+        if ($dataInicioPesquisa > $dataFimPesquisa) {
+            $this->Flash->error("Data de Início não pode ser maior que Data de Fim!");
+        }
 
-        $this->set(compact(['cupons', 'cliente', 'unidades_ids']));
+        if (!empty($unidadeSelecionado)) {
+            $clientesIds = [];
+            $clientesIds[] = (int)$unidadeSelecionado;
+        }
+
+        $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
+
+        // Paginação
+        $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
+
+        $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -468,16 +525,16 @@ class CuponsController extends AppController
      */
     public function detalhesTicket(int $id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Network.Main');
+        $rede = $this->request->session()->read('Rede.Grupo');
 
-        $cliente = $this->security_util->checkUserIsClienteRouteAllowed($this->user_logged, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $cupom = $this->Cupons->getCuponsById($id);
 
@@ -499,14 +556,14 @@ class CuponsController extends AppController
     public function imprimeBrindeComum(string $cupom_emitido)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
 
@@ -531,7 +588,7 @@ class CuponsController extends AppController
                 'data_impressao',
                 'produtos',
                 'redes_id',
-                'user_logged',
+                'usuarioLogado',
             ];
 
             $this->set(compact($arraySet));
@@ -554,14 +611,14 @@ class CuponsController extends AppController
     public function reimprimeBrindeComum(string $cupom_emitido)
     {
         try {
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $user_logged = $this->user_logged;
+            $usuarioLogado = $this->usuarioLogado;
 
             $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
 
@@ -585,7 +642,7 @@ class CuponsController extends AppController
                 'data_impressao',
                 'produtos',
                 'redes_id',
-                'user_logged',
+                'usuarioLogado',
             ];
 
             $this->set(compact($arraySet));
@@ -654,21 +711,21 @@ class CuponsController extends AppController
      */
     public function verDetalhes(int $cupons_id)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
-        $usuario = $this->Usuarios->getUsuarioById($user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($usuarioLogado['id']);
 
         $cupom = $this->Cupons->getCuponsById($cupons_id);
 
-        $this->set(compact('cupom', 'user_logged'));
-        $this->set('_serialize', ['cupom', 'user_logged']);
+        $this->set(compact('cupom', 'usuarioLogado'));
+        $this->set('_serialize', ['cupom', 'usuarioLogado']);
     }
 
     /**
@@ -727,17 +784,28 @@ class CuponsController extends AppController
                 $usuariosId = isset($data["usuarios_id"]) && $data["usuarios_id"] > 0 ? $data["usuarios_id"] : 0;
                 $vendaAvulsa = isset($data["venda_avulsa"]) ? $data["venda_avulsa"] : false;
                 $clientesId = $data["clientes_id"];
+                // $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : 1;
                 $quantidade = $data["quantidade"];
                 $funcionariosId = isset($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : null;
                 $senhaAtual = isset($data["current_password"]) ? $data["current_password"] : "";
 
-                $retorno = $this->_trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionariosId, $vendaAvulsa, $senhaAtual, false);
+                $retorno = $this->trataCompraCupom(
+                    $brindesId,
+                    $usuariosId,
+                    $clientesId,
+                    (float)$quantidade,
+                    $funcionariosId,
+                    $vendaAvulsa,
+                    $senhaAtual,
+                    false
+                );
 
                 $arraySet = $retorno["arraySet"];
                 $mensagem = $retorno["mensagem"];
                 $ticket = $retorno["ticket"];
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
+                // TODO: temp
                 $tempo = $retorno["tempo"];
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
@@ -808,7 +876,7 @@ class CuponsController extends AppController
 
             $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             // pega id de todos os clientes que estão ligados à uma rede
 
@@ -854,7 +922,11 @@ class CuponsController extends AppController
             }
 
             if ($senhaValida == false) {
-                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                if (strlen($data["current_password"]) == 0) {
+                    $message = 'Informe a senha do usuário.';
+                } else {
+                    $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                }
             } else {
 
                 // Se o usuário tiver pontuações suficientes ou for um usuário de venda avulsa somente
@@ -867,12 +939,7 @@ class CuponsController extends AppController
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
                     array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
 
-                    if ($rede->permite_consumo_gotas_funcionarios) {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
-                    } else {
-                        array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
-                    }
+                    array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
 
                     $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
@@ -1011,10 +1078,13 @@ class CuponsController extends AppController
                          // vincula item resgatado ao cliente final
 
                         $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                            $usuario->id,
+                            $rede["id"],
+                            $cliente["id"],
+                            $usuario["id"],
                             $brinde_habilitado->id,
                             $quantidade,
                             $brinde_habilitado->brinde_habilitado_preco_atual->preco,
+                            TYPE_PAYMENT_POINTS,
                             $cupom->id
                         );
 
@@ -1038,7 +1108,7 @@ class CuponsController extends AppController
             $status = $status;
             $cliente = $cliente;
             $usuario = $usuario;
-            $tempo = $brinde_habilitado->brinde->tempo_rti_shower;
+            $tempo = $brinde_habilitado->brinde->tempo_uso_brinde;
         }
 
         $arraySet = [
@@ -1080,7 +1150,11 @@ class CuponsController extends AppController
             }
 
             if ($senhaValida == false) {
-                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                if (strlen($data["current_password"]) == 0) {
+                    $message = 'Informe a senha do usuário.';
+                } else {
+                    $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+                }
             } else {
                 $cliente = $this->Clientes->getClienteById($data['clientes_id']);
 
@@ -1323,10 +1397,10 @@ class CuponsController extends AppController
 
                 if ($cupomEmitido == "" || strlen($cupomEmitido) < 14) {
 
-                    $errors = array("É preciso informar o código do cupom para continuar!");
+                    $errors = array(__(Configure::read("messageFieldEmptyDefault"), "CUPOM EMITIDO"));
 
                     if (strlen($cupomEmitido) <= 14) {
-                        $errors[] = "O código do cupom deve ter 14 dígitos!";
+                        $errors[] = __(Configure::read("messageFieldDigitsMinimum"), "CUPOM EMITIDO", 14);
                     }
 
                     $mensagem = array(
@@ -1344,14 +1418,16 @@ class CuponsController extends AppController
                 }
 
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
+                $cupons = $cupons->toArray();
 
+                // DebugUtil::print($cupons);
                 // Verifica se este cupom já foi usado
                 $somaTotal = 0;
                 $dadosCupons = array();
 
                 $verificado = false;
                 $usado = false;
-                foreach ($cupons->toArray() as $cupom) {
+                foreach ($cupons as $cupom) {
 
                     $dadoCupom = array();
 
@@ -1411,7 +1487,7 @@ class CuponsController extends AppController
 
                 }
 
-                if (!$cupons) {
+                if (sizeof($cupons) == 0) {
                     // Avisa erro se não for encontrado. Motivos podem ser:
                     // Cupom já foi resgatado
                     // Cupom pertence a outra rede
@@ -1427,43 +1503,43 @@ class CuponsController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
+                }
+                // else {
+                foreach ($cupons as $cupom) {
 
-                } else {
-                    foreach ($cupons->toArray() as $key => $cupom) {
+                    $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
-                        $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                    $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                        $cupom->clientes_has_brindes_habilitados_id,
+                        $cupom->usuarios_id,
+                        $cupom->quantidade,
+                        (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                    );
 
-                        $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
-                            $cupom->clientes_has_brindes_habilitados_id,
-                            $cupom->usuarios_id,
-                            $cupom->quantidade,
-                            (int)Configure::read('stockOperationTypes')['sellTypeGift']
-                        );
+                    // diminuiu estoque, considera o item do cupom como resgatado
+                    if ($estoque) {
+                        $cupomSave = null;
 
-                        // diminuiu estoque, considera o item do cupom como resgatado
-                        if ($estoque) {
-                            $cupomSave = null;
-
-                            // Brinde Smart Shower ( <= 4 )
-                            if ($cupom["tipo_principal_codigo_brinde"] <= 4) {
-                                $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
-                            } else {
-                                $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
-                            }
-
-                            // adiciona novo registro de pontuação
-
-                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                                $cupom->clientes_id,
-                                $cupom->usuarios_id,
-                                $cupom->clientes_has_brindes_habilitados_id,
-                                $cupom->valor_pago,
-                                $this->Auth->user()["id"],
-                                true
-                            );
+                        // Equipamento RTI?
+                        if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                        } else {
+                            $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
                         }
+
+                        // adiciona novo registro de pontuação
+
+                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                            $cupom->clientes_id,
+                            $cupom->usuarios_id,
+                            $cupom->clientes_has_brindes_habilitados_id,
+                            $cupom->valor_pago,
+                            $this->Auth->user()["id"],
+                            true
+                        );
                     }
                 }
+                // }
 
                 $mensagem = array(
                     "status" => 1,
@@ -1551,7 +1627,7 @@ class CuponsController extends AppController
             $quantidade = $data["quantidade"];
             $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
 
-            $retorno = $this->_trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, "", true);
+            $retorno = $this->trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, "", true);
 
             $arraySet = $retorno["arraySet"];
             $mensagem = $retorno["mensagem"];
@@ -1590,6 +1666,11 @@ class CuponsController extends AppController
                 $tiposBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();
+                $redesId = 0;
+                $clientesIds = array();
+
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (isset($data["order_by"])) {
                     $orderConditions = $data["order_by"];
@@ -1604,10 +1685,8 @@ class CuponsController extends AppController
                 }
 
                 // Pesquisa por Redes
-                if (isset($data['redes_id'])) {
-                    $rede = $this->Redes->getRedeById($data['redes_id']);
-
-                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+                if (!empty($redesId)) {
+                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
                     if (sizeof($clientesIds) == 0) {
                         $mensagem = array(
@@ -1626,14 +1705,13 @@ class CuponsController extends AppController
                     $whereConditions[] = array('Cupons.clientes_id in' => $clientesIds);
                 }
                 // Pesquisa por uma Unidade da Rede
-                else if (isset($data['clientes_id'])) {
-
-                    $whereConditions[] = ['clientes_id' => (int)($data['clientes_id'])];
+                elseif (!empty($clientesId)) {
+                    $whereConditions[] = array('Cupons.clientes_id' => $clientesId);
                 }
 
                 // se tipos_brindes_redes_id estiver setado, pesquisa por um tipo de brinde
 
-                if (isset($data["tipos_brindes_redes_id"])) {
+                if (isset($data["tipos_brindes_redes_id"]) && sizeof($clientesIds) > 0) {
                     $tiposBrindesClientesConditions[] = array(
                         "tipos_brindes_redes_id" => $data['tipos_brindes_redes_id'],
                         "clientes_id in " => $clientesIds
@@ -1648,9 +1726,9 @@ class CuponsController extends AppController
                 // Valor pago à compra
                 if (isset($data["valor_pago_min"]) && isset($data["valor_pago_max"])) {
                     $whereConditions[] = ["Cupons.valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
-                } else if (isset($data["valor_pago_min"])) {
+                } elseif (isset($data["valor_pago_min"])) {
                     $whereConditions[] = ["Cupons.valor_pago >= " => $data["valor_pago_min"]];
-                } else if (isset($data["valor_pago_max"])) {
+                } elseif (isset($data["valor_pago_max"])) {
                     $whereConditions[] = ["Cupons.valor_pago <= " => $data["valor_pago_max"]];
                 }
 
@@ -1661,11 +1739,11 @@ class CuponsController extends AppController
                     $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
                     $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
 
-                } else if (isset($data["data_inicio"])) {
+                } elseif (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
 
-                } else if (isset($data["dataFim"])) {
+                } elseif (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
                     $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
@@ -1722,17 +1800,18 @@ class CuponsController extends AppController
      * @param integer $usuariosId Id de Usuários
      * @param integer $clientesId Id da Unidade do Posto
      * @param float $quantidade Quantidade do brinde
-     * @param integer $funcionariosId Id de Funcionários (se a compra for feita via dashboard de funcionário)
+     * @param integer $funcionariosId Id de Funcionários
+     *              (se a compra via dash de funcionário)
      * @param bool $vendaAvulsa Indica se é usuário avulso no sistema
      * @param string $senhaAtualUsuario Senha atual do usuário (quando via Web)
-     * @param bool $usoViaMobile Indica se o método é chamado via Mobile ou via Web (Uso via mobile não pede confirmação de senha)
+     * @param bool $usoViaMobile Via Mobile ou via Web (Uso via mobile não pede confirmação de senha)
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/07/2018
      *
      * @return array $dados Tratados
      */
-    private function _trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
+    private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
     {
         $retorno = array();
         $mensagem = array();
@@ -1740,8 +1819,43 @@ class CuponsController extends AppController
 
         // pega id de todos os clientes que estão ligados à uma rede
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
-        $rede = $redesHasClientes->rede;
+        $rede = $redesHasClientes["rede"];
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+
+        // Verifica se o cliente final estourou o número de compras por dia na Rede
+
+        $retornoCompras = 0;
+
+        // Validação acontecerá somente se for usuário identificado
+        if ($usuariosId != 0) {
+
+            $retornoCompras = $this->UsuariosHasBrindes->checkNumberRescuesUsuarioRede($rede["id"], $usuariosId);
+
+        // if ($retornoCompras >= $rede["limite_compras_usuario_dia"]){
+            if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
+                $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
+                $mensagem = array(
+                    "status" => false,
+                    "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                    "errors" => array($message),
+                );
+
+                $arraySet = array(
+                    "mensagem"
+                );
+
+                $retorno = array(
+                    "arraySet" => $arraySet,
+                    "mensagem" => $mensagem,
+                    "ticket" => null,
+                    "cliente" => null,
+                    "usuario" => null,
+                    "tempo" => null,
+                    "tipo_emissao_codigo_barras" => null
+                );
+                return $retorno;
+            }
+        }
 
         $listaCamposClienteSelect = array(
             "id",
@@ -1764,8 +1878,37 @@ class CuponsController extends AppController
             "propaganda_img"
         );
         $cliente = $this->Clientes->getClienteById($clientesId, $listaCamposClienteSelect);
-        $quantidade = is_null($quantidade) ? 1 : $quantidade;
-        $quantidade = $quantidade < 1 ? 1 : $quantidade;
+
+        $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $clientesId);
+
+        // DebugUtil::print($brindeSelecionado);
+        // Se for equipamento RTI, a quantidade máxima é 1
+        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]
+            == Configure::read("serviceTypes")["rti"]) {
+            $quantidade = 1;
+        } elseif (empty($quantidade)) {
+            $message = "É necessário especificar uma quantidade mínima de brindes para resgatar!";
+            $mensagem = array(
+                "status" => false,
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => array($message),
+            );
+
+            $arraySet = array(
+                "mensagem"
+            );
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null
+            );
+            return $retorno;
+        }
 
         if ($vendaAvulsa) {
             if (empty($usuariosId) || $usuariosId == 0) {
@@ -1784,7 +1927,13 @@ class CuponsController extends AppController
 
         $senhaValida = false;
 
-        if (($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType'] && !$usoViaMobile) || !$vendaAvulsa) {
+        if ($usoViaMobile) {
+            $senhaValida = true;
+        } elseif ($vendaAvulsa) {
+            // Venda Avulsa não precisa de confirmação de senha, conforme solicitação do Samuel
+            $senhaValida = true;
+        } elseif (($usuario["tipo_perfil"] < Configure::read('profileTypes')['DummyUserProfileType']) || !$vendaAvulsa) {
+
             if ((new DefaultPasswordHasher)->check($senhaAtualUsuario, $usuario->senha)) {
                 $senhaValida = true;
             }
@@ -1793,10 +1942,16 @@ class CuponsController extends AppController
         }
 
         if (!$senhaValida) {
+            if (strlen($senhaAtualUsuario) == 0) {
+                $message = 'Informe a senha do usuário.';
+            } else {
+                $message = 'Senha incorreta para usuário. Nâo foi possível resgatar o brinde';
+            }
+
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array("Senha incorreta para usuário. Nâo foi possível resgatar o brinde!"),
+                "errors" => array($message),
             );
 
             $arraySet = array(
@@ -1828,7 +1983,6 @@ class CuponsController extends AppController
             $usuario['pontuacoes'] = $detalhesPontuacaoResultado["resumo_gotas"]["saldo"];
         }
 
-        $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $clientesId);
 
         // Se não encontrado, retorna vazio.
         if (empty($brindeSelecionado)) {
@@ -1836,7 +1990,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__("A unidade de atendimento informada não possui o brinde desejado!"))
+                "errors" => array(__(Configure::read("messageClienteDoesNotHaveBrinde")))
             );
 
             $arraySet = array("mensagem");
@@ -1852,34 +2006,14 @@ class CuponsController extends AppController
                 "tipo_emissao_codigo_barras" => null,
                 "is_brinde_smart_shower" => null,
             );
-            return $retorno;
-        } else if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4 && $quantidade > 1) {
-            $mensagem = array(
-                "status" => false,
-                "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__("Para Brindes do tipo banho, a quantidade mínima é 1!"))
-            );
-
-            $arraySet = array("mensagem");
-
-            $retorno = array(
-                "arraySet" => $arraySet,
-                "mensagem" => $mensagem,
-                "ticket" => null,
-                "status" => null,
-                "cliente" => null,
-                "usuario" => null,
-                "tempo" => null,
-                "tipo_emissao_codigo_barras" => null,
-                "is_brinde_smart_shower" => null,
-            );
-
             return $retorno;
         }
 
         // Verifica se o brinde em questão está com brinde zerado.
 
-        $preco = $vendaAvulsa ? $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] : $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
+        $preco = $vendaAvulsa ?
+            $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] :
+            $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
 
         if (empty($preco)) {
             $mensagem = array(
@@ -1904,6 +2038,11 @@ class CuponsController extends AppController
 
             return $retorno;
         }
+        $mensagem = array(
+            "status" => false,
+            "message" => "",
+            "errors" => array(__(""))
+        );
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
         if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
@@ -1911,15 +2050,17 @@ class CuponsController extends AppController
             // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
             $clientesHasUsuariosConditions = [];
 
-            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.usuarios_id' => $usuario['id']]);
-            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.clientes_id IN' => $clientesIds]);
+            array_push(
+                $clientesHasUsuariosConditions,
+                array('ClientesHasUsuarios.usuarios_id' => $usuario['id'])
 
-            if ($rede->permite_consumo_gotas_funcionarios) {
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminNetworkProfileType']]);
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['UserProfileType']]);
-            } else {
-                array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
-            }
+            );
+            array_push(
+                $clientesHasUsuariosConditions,
+                array('ClientesHasUsuarios.clientes_id IN' => $clientesIds)
+            );
+
+            array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);
 
             $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 
@@ -1963,6 +2104,18 @@ class CuponsController extends AppController
                         1
                     );
 
+                    // vincula item resgatado ao cliente final
+                    $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
+                        $rede["id"],
+                        $cliente["id"],
+                        $usuario["id"],
+                        $brindeSelecionado["id"],
+                        $quantidade,
+                        $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"],
+                        TYPE_PAYMENT_MONEY,
+                        $cupom["id"]
+                    );
+
                     $mensagem = array(
                         "status" => true,
                         "message" => Configure::read("messageProcessingCompleted"),
@@ -1996,7 +2149,7 @@ class CuponsController extends AppController
                         "status" => $mensagem["status"],
                         "cliente" => $cliente,
                         "usuario" => $usuario,
-                        "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                        "tempo" => $brindeSelecionado["brinde"]["tempo_uso_brinde"],
                         "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
                         "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                     );
@@ -2141,10 +2294,13 @@ class CuponsController extends AppController
                     // vincula item resgatado ao cliente final
 
                     $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
+                        $rede["id"],
+                        $cliente["id"],
                         $usuario["id"],
                         $brindeSelecionado["id"],
                         $quantidade,
                         $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"],
+                        TYPE_PAYMENT_POINTS,
                         $cupom["id"]
                     );
 
@@ -2201,7 +2357,7 @@ class CuponsController extends AppController
                 }
 
                 // Se é Banho
-                // TODO: conferir esta lógica
+                // @todo gustavosg: conferir esta lógica
                 if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
                     $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
 
@@ -2241,7 +2397,7 @@ class CuponsController extends AppController
                     "status" => $status,
                     "cliente" => $cliente,
                     "usuario" => $usuario,
-                    "tempo" => $brindeSelecionado["brinde"]["tempo_rti_shower"],
+                    "tempo" => $brindeSelecionado["brinde"]["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
                     "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
                 );
@@ -2279,14 +2435,14 @@ class CuponsController extends AppController
      */
     private function processarCupom($cupons)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $funcionario = $this->user_logged;
+        $funcionario = $this->usuarioLogado;
 
         // checagem de cupons
 

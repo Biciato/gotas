@@ -26,26 +26,12 @@
     </ul>
 </nav>
 <div class="brindes form col-lg-9 col-md-10 columns content">
+    <legend><?= 'Editar Brinde' ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
-        <legend><?= 'Editar Brinde' ?></legend>
         <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, "imagemOriginal" => $imagemOriginal]); ?>
     </fieldset>
-    <?= $this->Form->button(__('{0} Salvar',
-        $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
 
-    ) ?>
     <?= $this->Form->end() ?>
 </div>
-
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_form') ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_form.min') ?>
-<?php endif; ?>
-
 <?= $this->fetch('script')?>

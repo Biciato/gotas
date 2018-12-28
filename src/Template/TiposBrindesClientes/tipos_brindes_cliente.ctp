@@ -23,13 +23,23 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use App\Custom\RTI\DebugUtil;
 
+$title = __("Tipos de Brindes Habilitados para Ponto de Atendimento: [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia);
 // Navegação
-$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
-$this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
-$this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
+
+if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]){
+    $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+    $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
+    $this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
+} else {
+    $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+    $this->Breadcrumbs->add('Selecionar Loja para Configurar Tipo de Brinde', ['controller' => 'tiposBrindesClientes', 'action' => 'selecionarClienteTipoBrinde']);
+    $this->Breadcrumbs->add("Tipos de Brindes Habilitados para Ponto de Atendimento", array(), array("class" => "active"));
+}
+
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -39,7 +49,7 @@ echo $this->Breadcrumbs->render(
 <?= $this->element("../TiposBrindesClientes/left_menu", ["mode" => "add", "clientesId" => $cliente->id]) ?>
 <div class="tiposBrindesClientes view col-lg-9 col-mg-8 columns content">
 
-    <legend><?= __("Gênero de Brindes Habilitados para cliente [{0}] / Nome Fantasia: {1}", $cliente->id, $cliente->nome_fantasia) ?> </legend>
+    <legend><?= $title ?> </legend>
 
     <?php if (sizeof($tiposBrindesClientes->toArray()) == 0) : ?>
         <?= __("Dados não encontrados para o cliente {0} ! ", $cliente->nome_fantasia) ?>
@@ -50,9 +60,11 @@ echo $this->Breadcrumbs->render(
             <thead>
                 <tr>
                     <th scope="col"><?= $this->Paginator->sort("tipo_brindes_id") ?> </th>
-                    <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
-                    <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
-                    <th scope="col"><?= __("Vinculado?") ?> </th>
+                    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                        <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
+                        <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
+                    <?php endif; ?> 
+                    <th scope="col"><?= __("Em uso?") ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("habilitado", ["label" => "Estado"]) ?> </th>
                     <th scope="col" class="actions">
                         <?= __('Ações') ?>
@@ -77,13 +89,16 @@ echo $this->Breadcrumbs->render(
                 <?php foreach ($tiposBrindesClientes as $key => $tipoBrindeItem) : ?>
 
                     <?php
-                    $vinculado = count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0;
-                    $banhoSmart = $tipoBrindeItem->tipo_brinde["id"] <= 4;
+                    $emUso = count($tipoBrindeItem["clientes_has_brindes_habilitados"]) > 0;
+
+                    // echo sprintf("Vinculado: %s Banho Smart: %s", $emUso, $banhoSmart);
                     ?>
                     <tr>
-                        <td><?= $tipoBrindeItem["tipos_brindes_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
-                        <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
-                        <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
+                        <td><?= $tipoBrindeItem["tipo_brinde_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
+                        <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                            <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
+                            <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
+                        <?php endif; ?> 
                         <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
                         <td><?= $this->Boolean->convertEnabledToString($tipoBrindeItem->habilitado) ?> </td>
                         <td class="actions" style="white-space:nowrap">
@@ -106,14 +121,14 @@ echo $this->Breadcrumbs->render(
                             ) ?>
                             <!-- Editar -->
 
-                            <?php if (!$vinculado && !$banhoSmart) : ?>
+                            <?php if ($tipoBrindeItem["tipo_brinde_rede"]["equipamento_rti"]) : ?>
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
                                         $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                                     ),
                                     [
-                                        'action' => 'editar_tipo_brindes_cliente',
+                                        'action' => 'editarTiposBrindesCliente',
                                         $tipoBrindeItem->id
                                     ],
                                     [
@@ -124,64 +139,76 @@ echo $this->Breadcrumbs->render(
                                 ) ?>
 
                             <?php endif; ?>
-                            <?php if ($tipoBrindeItem->habilitado) : ?>
-                                <!-- Desabilitar -->
+                            <?php if ($tipoBrindeItem["habilitado"]) : ?>
+                                <!-- Desativar -->
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
-                                    [
-                                        "controller" => "tipos_brindes_clientes",
-                                        'action' => 'alteraEstadoTiposBrindesCliente',
-                                        '?' =>
-                                            array(
-                                            'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
-                                            'return_url' => array(
-                                                "controller" => "tipos_brindes_clientes",
-                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
-                                            ),
-                                            "estado" => false,
-                                            "clientes_id" => $cliente["id"]
-                                        )
-                                    ],
-                                    [
+                                    "#",
+                                    array(
                                         'class' => 'btn btn-danger btn-xs',
                                         'escape' => false,
-                                        "title" => "Desabilitar"
-                                    ]
+                                        "title" => "Desativar",
+                                        'data-toggle' => 'modal',
+                                        'data-target' => '#modal-delete-with-message',
+                                        'data-message' => __(Configure::read('messageEnableQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
+                                        'data-action' => Router::url(
+                                            array(
+                                                'action' => 'alteraEstadoTiposBrindesCliente',
+                                                '?' =>
+                                                    array(
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    "clientes_id" => $cliente["id"],
+                                                    "estado" => false,
+                                                    'return_url' => array(
+                                                        "controller" => "tipos_brindes_clientes",
+                                                        "action" => 'tipos_brindes_cliente', $cliente["id"]
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        "escape" => false
+                                    )
                                 ) ?>
                             <?php else : ?>
-                                <!-- Habilitar -->
+                                <!-- Ativar -->
                                 <?= $this->Html->link(
                                     __(
                                         '{0}',
                                         $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
                                     ),
-                                    [
-                                        "controller" => "tipos_brindes_clientes",
-                                        'action' => 'alteraEstadoTiposBrindesCliente',
-                                        '?' =>
-                                            array(
-                                            'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
-                                            'return_url' => array(
-                                                "controller" => "tipos_brindes_clientes",
-                                                "action" => 'tipos_brindes_cliente', $cliente["id"]
-                                            ),
-                                            "estado" => true,
-                                            "clientes_id" => $cliente["id"]
-                                        )
-                                    ],
-                                    [
+                                    "#",
+                                    array(
                                         'class' => 'btn btn-primary btn-xs',
                                         'escape' => false,
-                                        "title" => "Habilitar"
-                                    ]
+                                        "title" => "Ativar",
+                                        'data-toggle' => 'modal',
+                                        'data-target' => '#modal-delete-with-message',
+                                        'data-message' => __(Configure::read('messageDisableQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
+                                        'data-action' => Router::url(
+                                            array(
+                                                'action' => 'alteraEstadoTiposBrindesCliente',
+                                                '?' =>
+                                                    array(
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    "clientes_id" => $cliente["id"],
+                                                    "estado" => true,
+                                                    'return_url' => array(
+                                                        "controller" => "tipos_brindes_clientes",
+                                                        "action" => 'tipos_brindes_cliente', $cliente["id"]
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        "escape" => false
+                                    )
                                 ) ?>
 
                             <?php endif; ?>
                             <!-- Delete -->
-                            <?php if (!$vinculado && !$banhoSmart) : ?>
+                            <?php if (!$emUso) : ?>
 
                                 <?= $this->Html->link(
                                     __(
@@ -194,13 +221,13 @@ echo $this->Breadcrumbs->render(
                                         "title" => "Deletar",
                                         'data-toggle' => 'modal',
                                         'data-target' => '#modal-delete-with-message',
-                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipos_brindes_rede"]["nome"]),
+                                        'data-message' => __(Configure::read('messageDeleteQuestion'), $tipoBrindeItem["tipo_brinde_rede"]["nome"]),
                                         'data-action' => Router::url(
                                             [
                                                 'action' => 'delete', $tipoBrindeItem->id,
                                                 '?' =>
                                                     [
-                                                    'tipo_brindes_cliente_id' => $tipoBrindeItem->id,
+                                                    'tipos_brindes_cliente_id' => $tipoBrindeItem->id,
                                                     'return_url' => array(
                                                         "controller" => "tipos_brindes_clientes",
                                                         "action" => 'tipos_brindes_cliente', $cliente["id"]

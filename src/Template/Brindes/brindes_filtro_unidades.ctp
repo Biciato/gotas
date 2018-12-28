@@ -60,7 +60,7 @@ use Cake\Core\Configure;
 					'type' => 'select',
 					'id' => 'filtrar_unidade',
 					'label' => "Filtrar por unidade?",
-					'empty' => isset($todas_unidades) ? $todas_unidades: "<Todas>",
+					'empty' => isset($todas_unidades) ? $todas_unidades: "Todas",
 					'options' => $unidadesIds
 				]
 			) ?>
@@ -68,7 +68,7 @@ use Cake\Core\Configure;
 
            <div class="col-lg-2 vertical-align">
 
-				<?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block']) ?>
+				<?= $this->Form->button("Pesquisar", ['class' => 'btn btn-primary btn-block botao-pesquisar']) ?>
 			</div>
 
        </div>

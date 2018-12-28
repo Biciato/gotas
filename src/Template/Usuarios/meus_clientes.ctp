@@ -5,10 +5,18 @@
  * @author      Gustavo Souza Gonçalves
  * @file        src/Template/Usuarios/meus_clientes.ctp
  * @date        28/08/2017
- * 
+ *
  */
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+$this->Breadcrumbs->add('Meus Clientes', array(), ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 
 ?>
 
@@ -23,10 +31,20 @@ use Cake\Routing\Router;
     <legend>
         <?= __("Cadastro de Clientes") ?>
     </legend>
-    
-    
-    <?= $this->element('../Usuarios/filtro_usuarios', ['controller' => 'Usuarios', 'action' => 'meus_clientes', 'show_filiais' => false]) ?>
-    
+
+
+    <?= $this->element(
+        '../Usuarios/filtro_usuarios',
+        array(
+            'controller' => 'Usuarios',
+            'action' => 'meus_clientes',
+            'show_filiais' => true,
+            "fixarTipoPerfil" => true,
+            "tipoPerfilFixo" => Configure::read("profileTypes")["UserProfileType"],
+            "unidades_ids" => isset($unidades_ids) ? $unidades_ids : array()
+        )
+    ) ?>
+
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>
             <tr>
@@ -63,14 +81,17 @@ use Cake\Routing\Router;
                         ],
                         [
                             'title' => 'Ver',
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-default btn-xs',
                             'escape' => false
                         ],
-                        ['test' => 'test']
+                        [
+                            'test' => 'test',
+                            "rota" => "meusClientes"
+                        ]
                     )
                     ?>
 
-                    <?php if (($user_logged['tipo_perfil'] <= 1) || $user_logged['id'] == $usuario->id) : ?>
+                    <?php if (($usuarioLogado['tipo_perfil'] <= 1) || $usuarioLogado['id'] == $usuario->id) : ?>
                         <?=
                         $this->Html->link(
                             __(

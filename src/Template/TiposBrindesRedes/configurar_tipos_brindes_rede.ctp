@@ -23,6 +23,8 @@
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 
+$isUsuarioAdministrador = $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"];
+
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
 $this->Breadcrumbs->add('Tipos de Brindes da Rede', array(), array('class' => 'active'));
@@ -53,10 +55,14 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <thead>
             <tr>
                 <th scope="col" style="min-width: 200px";><?= $this->Paginator->sort('nome', ["label" => "Nome"]) ?></th>
-                <th scope="col"><?= $this->Paginator->sort('equipamento_rti', ["label" => "Equip. RTI?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('brinde_necessidades_especiais', ["label" => "Brinde Nec. Especiais?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('habilitado', ["label" => "Habilitado?"]) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('atribuir_automatico', ["label" => "Atribuir Auto.?"]) ?></th>
+                
+                <?php if ($isUsuarioAdministrador) : ?> 
+                    <th scope="col"><?= $this->Paginator->sort('tipo_principal_codigo_brinde_default', ["label" => "Cód. Principal"]) ?></th>
+                    <th scope="col"><?= $this->Paginator->sort('tipo_secundario_codigo_brinde_default', ["label" => "Cód. Secundário"]) ?></th>
+                <?php endif; ?> 
                 <th scope="col" class="actions">
                     <?= __('Ações') ?>
                     <?= $this->Html->tag(
@@ -79,10 +85,15 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <?php foreach ($tiposBrindes as $tipo) : ?>
             <tr>
                 <td><?= h($tipo->nome . ($tipo->brinde_necessidades_especiais == 1 ? " (PNE)" : null)) ?> </td>
-                <td><?= h($this->Boolean->convertBooleanToString($tipo->equipamento_rti)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->brinde_necessidades_especiais)) ?> </td>
                 <td><?= h($this->Boolean->convertEnabledToString($tipo->habilitado)) ?> </td>
                 <td><?= h($this->Boolean->convertBooleanToString($tipo->atribuir_automatico)) ?> </td>
+
+                <?php if ($isUsuarioAdministrador) : ?> 
+                    <td><?= h($tipo->tipo_principal_codigo_brinde_default) ?> </td>
+                    <td><?= h($tipo->tipo_secundario_codigo_brinde_default) ?> </td>
+                <?php endif; ?> 
+                
                 <td class="actions" style="white-space:nowrap">
                     <!-- Info -->
 
@@ -96,7 +107,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             $tipo->id
                         ],
                         [
-                            'class' => 'btn btn-default btn-xs',
+                            'class' => 'btn btn-default btn-xs botao-navegacao-tabela',
                             'escape' => false,
                             "title" => "Ver detalhes"
                         ]
@@ -112,11 +123,89 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             $tipo->id
                         ],
                         [
-                            'class' => 'btn btn-primary btn-xs',
+                            'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                             'escape' => false,
                             "title" => "Editar"
                         ]
                     ) ?>
+
+
+                    <?php if ($tipo["habilitado"]) : ?>
+                        <!-- Desabilitar -->
+                        <?= $this->Html->link(
+                            __(
+                                '{0} ',
+                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                            ),
+                            '#',
+                            [
+                                'title' => 'Desativar',
+                                'class' => 'btn btn-xs btn-danger btn-confirm',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#modal-delete-with-message',
+                                'data-message' => __(Configure::read('messageDisableQuestion'), $tipo["nome"]),
+                                'data-action' => Router::url(
+                                    [
+                                        'controller' => 'tipos_brindes_redes',
+                                        'action' => 'alteraEstadoTiposBrindesRede', $tipo["id"],
+                                        '?' =>
+                                            [
+                                            'tipos_brindes_redes_id' => $tipo["id"],
+                                            "habilitar" => 0,
+                                            'return_url' =>
+                                                [
+                                                'controller' => 'tiposBrindesRedes',
+                                                'action' => 'configurarTiposBrindesRede',
+                                                $tipo["redes_id"]
+                                            ]
+                                        ]
+                                    ]
+                                ),
+                                'escape' => false
+                            ],
+                            false
+                        );
+                        ?>
+                    <?php else : ?>
+                        <!-- Ativar -->
+                        <?= $this->Html->link(
+                            __(
+                                '{0} ',
+                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                            ),
+                            '#',
+                            [
+                                'title' => 'Habilitar',
+                                'class' => 'btn btn-xs btn-primary btn-confirm',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#modal-delete-with-message',
+                                'data-message' => __(Configure::read('messageEnableQuestion'), $tipo["nome"]),
+                                'data-action' => Router::url(
+                                    [
+                                        'controller' => 'tipos_brindes_redes',
+                                        'action' => 'alteraEstadoTiposBrindesRede', $tipo["id"],
+                                        '?' =>
+                                            [
+                                            'tipos_brindes_redes_id' => $tipo["id"],
+                                            "habilitar" => 1,
+                                            'return_url' =>
+                                                [
+                                                'controller' => 'tipos_brindes_redes',
+                                                'action' => 'configurar_tipos_brindes_rede',
+                                                $tipo["redes_id"]
+                                            ]
+                                        ]
+                                    ]
+                                ),
+                                'escape' => false
+                            ],
+                            false
+                        );
+                        ?>
+
+                    <?php endif; ?>
+
+                    <?php if (sizeof($tipo["tipos_brindes_clientes"]) == 0) : ?>
                     <!-- Delete -->
                     <?= $this->Html->link(
                         __(
@@ -144,6 +233,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         false
                     );
                     ?>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>

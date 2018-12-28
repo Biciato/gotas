@@ -267,7 +267,8 @@ $(document).ready(function () {
         if (data !== undefined && data !== null) {
             $(".usuarios_id_brinde_shower").val(data.id);
 
-            $(".brinde .usuariosNome").val(data.nome);
+            // $(".brinde .usuariosNome").val(data.nome);
+            $("#usuariosNome").val(data.nome);
             $(".brinde .usuariosDataNasc").val(data.data_nasc);
 
             $("#sexo_brinde_shower").val(data.sexo == true ? 1 : 0);
@@ -356,7 +357,8 @@ $(document).ready(function () {
         $(".container-confirmacao-cupom").hide();
         $(".container-confirmacao-canhoto").show();
 
-        var nome = $(".brinde .usuariosNome").val();
+        var nome = $("#usuariosNome").val();
+        nome = nome.substr(0, 35);
         var data = $(".impressao-cupom #print_data_emissao").text();
         var tempo = $(".impressao-cupom #rti_shower_minutos").text();
 
@@ -426,6 +428,8 @@ $(document).ready(function () {
 
                 if (result.mensagem.status == true) {
 
+                    // console.log(result);
+
                     if (result.is_brinde_smart_shower) {
                         // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
 
@@ -441,6 +445,12 @@ $(document).ready(function () {
                         var cupom_emitido = result.ticket.cupom_emitido;
 
                         $("#rti_shower_minutos").text(result.tempo);
+
+                        if (result.usuario.sexo !== undefined){
+
+                            var sexo = result.usuario.sexo ? "Masculino" : "Feminino";
+                            $("#tipos_brinde_box").text(sexo);
+                        }
 
                         var tipoEmissaoCodigoBarras = result.tipo_emissao_codigo_barras;
 

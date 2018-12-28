@@ -13,7 +13,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($user_logged['tipo_perfil'] == (int)Configure::read('profileTypes')['UserProfileType']) {
+if ($usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['UserProfileType']) {
 
     $this->Breadcrumbs->add(
         'Meus Veículos',
@@ -35,6 +35,6 @@ echo $this->Breadcrumbs->render(
 
 <?= $this->element('../Veiculos/left_menu', ['usuario' => $usuario]) ?>
 <div class="veiculos form col-lg-9 col-md-8 columns content">
-    <?= $this->element('../Veiculos/form_cadastrar_veiculo', ['veiculo' => $veiculo]) ?>
+    <?= $this->element('../Veiculos/form_cadastrar_veiculo', ['veiculo' => $veiculo, "title" => "Adicionar Veículo"]) ?>
 </div>
 

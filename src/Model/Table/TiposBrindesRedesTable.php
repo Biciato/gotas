@@ -84,6 +84,23 @@ class TiposBrindesRedesTable extends GenericTable
             "foreignKey" => "redes_id",
             "joinTable" => "Redes"
         ));
+
+        $this->hasOne(
+            "TipoBrindesCliente",
+            array(
+                "className" => "TiposBrindesClientes",
+                "foreignKey" => "tipos_brindes_redes_id",
+                "joinType" => "LEFT"
+            )
+        );
+        $this->hasMany(
+            "TiposBrindesClientes",
+            array(
+                "className" => "TiposBrindesClientes",
+                "foreignKey" => "tipos_brindes_redes_id",
+                "joinType" => "LEFT"
+            )
+        );
     }
 
     /**
@@ -160,7 +177,7 @@ class TiposBrindesRedesTable extends GenericTable
     /**
      * TiposBrindesRedesTable::saveTiposBrindesRedes()
      *
-     * Salva um Gênero de Brinde. Atualiza se informar o Id
+     * Salva um tipo de Brinde. Atualiza se informar o Id
      *
      * @param array $tipoBrindesRedes
      *
@@ -197,16 +214,29 @@ class TiposBrindesRedesTable extends GenericTable
             $tipoBrindesRedesSave->brinde_necessidades_especiais = $brindeNecessidadesEspeciais;
             $tipoBrindesRedesSave->habilitado = $habilitado;
             $tipoBrindesRedesSave->atribuir_automatico = $atribuirAutomatico;
-            $tipoBrindesRedesSave->tipo_principal_codigo_brinde_default = !empty($tipoPrincipalCodigoBrindeDefault) ? $tipoPrincipalCodigoBrindeDefault : null;
-            $tipoBrindesRedesSave->tipo_secundario_codigo_brinde_default = !empty($tipoSecundarioCodigoBrindeDefault) ? $tipoSecundarioCodigoBrindeDefault : null;
+            $tipoBrindesRedesSave->tipo_principal_codigo_brinde_default = $tipoPrincipalCodigoBrindeDefault;
+            $tipoBrindesRedesSave->tipo_secundario_codigo_brinde_default = $tipoSecundarioCodigoBrindeDefault;
 
             return $this->save($tipoBrindesRedesSave);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao salvar gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao salvar tipo de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+        }
+    }
+
+    public function updateStateTiposBrindesRedesById(int $id, int $estado)
+    {
+        try {
+            $tipoBrindeRede = $this->getTiposBrindesRedeById($id);
+            $tipoBrindeRede["habilitado"] = $estado;
+
+            return $this->save($tipoBrindeRede);
+        } catch (\Exception $e) {
+
+            throw new \Exception($e->getMessage());
         }
     }
 
@@ -215,7 +245,7 @@ class TiposBrindesRedesTable extends GenericTable
     /**
      * TiposBrindesRedesTable::findTiposBrindesRedes()
      *
-     * Obtem Gênero de Brindes conforme condições passadas
+     * Obtem tipo de Brindes conforme condições passadas
      *
      * @param array $whereConditions Condições de Where
      *
@@ -227,8 +257,9 @@ class TiposBrindesRedesTable extends GenericTable
     public function findTiposBrindesRedes(array $whereConditions = array(), int $limit = null)
     {
         try {
-            $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()->find("all")
-                ->where($whereConditions);
+            $tipoBrindesRedes = $this->find("all")
+                ->where($whereConditions)
+                ->contain("TiposBrindesClientes");
 
             if (!empty($limit) && isset($limit)) {
                 if ($limit == 1) {
@@ -243,15 +274,16 @@ class TiposBrindesRedesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
     /**
      * TiposBrindesRedesTable::findTiposBrindesRedesByIds()
      *
-     * Obtem Gênero de Brindes conforme condições passadas
+     * Obtem tipo de Brindes conforme condições passadas
      *
      * @param array $clientesIds Ids de clientes
      *
@@ -306,7 +338,7 @@ class TiposBrindesRedesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
@@ -318,21 +350,22 @@ class TiposBrindesRedesTable extends GenericTable
     /**
      * TiposBrindesRedesTable::findTiposBrindesRedesAtribuirAutomaticamente
      *
-     * Procura todos os Gêneros de Brindes que estão habilitados e que podem
+     * Procura todos os tipos de Brindes que estão habilitados e que podem
      * atribuir automaticamente para novas unidades de Redes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date   26/06/2018
      *
-     * @return \App\Model\Entity\TiposBrindesRede[] $array de gêneros
+     * @return \App\Model\Entity\TiposBrindesRede[] $array de tipos
      */
-    public function findTiposBrindesRedesAtribuirAutomaticamente()
+    public function findTiposBrindesRedesAtribuirAutomaticamente(int $redesId)
     {
         try {
             $tipoBrindesRedes = $this->_getTiposBrindesRedesTable()
                 ->find('all')
                 ->where(
                     array(
+                        "redes_id" => $redesId,
                         "habilitado" => 1,
                         "atribuir_automatico" => 1,
                         "tipo_principal_codigo_brinde_default IS NOT NULL",
@@ -344,7 +377,7 @@ class TiposBrindesRedesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
@@ -378,11 +411,39 @@ class TiposBrindesRedesTable extends GenericTable
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
-            $stringError = __("Erro ao obter gênero de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao obter tipo de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
     }
 
+
+    #region Delete 
+
+    /**
+     * TiposBrindesRedesTable::deleteAllTiposBrindesRedesByRedesId
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-11-25
+     * 
+     * Remove todos os tipos brindes redes por um redes id
+     *
+     * @param integer $redesId Id da rede 
+     * @return boolean registro removido
+     */
+    public function deleteAllTiposBrindesRedesByRedesId(int $redesId)
+    {
+        try {
+            return $this->deleteAll(array("redes_id" => $redesId));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = sprintf("Erro ao remover registros: %s. [Função: %s / Arquivo: %s / Linha: %s]. ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            Log::write("error", $stringError);
+            Log::write("error", $trace);
+        }
+    }
+
+    #endregion
 }

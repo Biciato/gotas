@@ -193,9 +193,9 @@ class TransportadorasTable extends GenericTable
     ) {
         try {
 
-            if (strlen($transportadora['id']) > 0) {
+            if (!empty($transportadora["id"]) && strlen($transportadora['id']) > 0) {
                 $transportadoraSave = $this
-                    ->_getTransportadorasTable()
+
                     ->find('all')
                     ->where(['id' => $transportadora['id']])
                     ->first();

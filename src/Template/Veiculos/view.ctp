@@ -1,21 +1,41 @@
 <?php
+
 /**
-  * @var \App\View\AppView $this
-  * @var \App\Model\Entity\Veiculo $veiculo
-  */
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Veiculo $veiculo
+ */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+
+$this->Breadcrumbs->add('Início', ['controller' => 'pages']);
+
+// $this->Breadcrumbs->add('Veículos do Usuário', array(), array('class' => 'active'));
+
+if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+    // $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
+    $this->Breadcrumbs->add('Veículos', ['controller' => 'veiculos', 'action' => 'index']);
+
+} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminDeveloperProfileType']
+&& $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+    $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'usuarios_rede', $rede->id]);
+}
+
+$this->Breadcrumbs->add("Detalhes do Veículo", array(), array("class" => "active"));
+
+// $this->Breadcrumbs->add('Detalhes de Usuário', array("controller" => "usuarios", "action" => "index"), ['class' =>'active']);
+// $this->Breadcrumbs->add('Detalhes de Usuário', array(), ['class' =>'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Veiculo'), ['action' => 'edit', $veiculo->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Veiculo'), ['action' => 'delete', $veiculo->id], ['confirm' => __('Are you sure you want to delete # {0}?', $veiculo->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Veiculos'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Veiculo'), ['action' => 'add']) ?> </li>
-    </ul>
-</nav>
-<div class="veiculos view large-9 medium-8 columns content">
-    <h3><?= h($veiculo->id) ?></h3>
-    <table class="vertical-table">
+
+<?= $this->element("../Veiculos/left_menu", array()); ?>
+
+<div class="veiculos view col-lg-9 col-md-8 columns content">
+    <h3><?= h($veiculo["placa"]) ?></h3>
+    <table class="table table-striped table-hover">
         <tr>
             <th scope="row"><?= __('Placa') ?></th>
             <td><?= h($veiculo->placa) ?></td>
@@ -37,12 +57,9 @@
             <td><?= $this->Number->format($veiculo->ano) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Audit Insert') ?></th>
+            <th scope="row"><?= __('Data de Criação') ?></th>
             <td><?= h($veiculo->audit_insert->format('d/m/Y H:i:s')) ?></td>
         </tr>
-        <tr>
-            <th scope="row"><?= __('Audit Update') ?></th>
-            <td><?= h(isset($veiculo->audit_update) ? $veiculo->audit_update->format('d/m/Y H:i:s') : null) ?></td>
-        </tr>
+
     </table>
 </div>

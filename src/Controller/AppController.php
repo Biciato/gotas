@@ -46,13 +46,13 @@ class AppController extends Controller
      * ------------------------------------------------------------
      */
     var $persistModel = true;
-    protected $security_util = null;
+    protected $securityUtil = null;
     protected $datetime_util = null;
-    protected $email_util = null;
-    protected $gotas_util = null;
-    protected $sefaz_util = null;
-    protected $web_tools = null;
-    protected $crypt_util = null;
+    protected $emailUtil = null;
+    protected $gotasUtil = null;
+    protected $sefazUtil = null;
+    protected $webTools = null;
+    protected $cryptUtil = null;
 
     /**
      * Initialization hook method.
@@ -137,8 +137,8 @@ class AppController extends Controller
 
         if ($this->getUserLogged()) {
 
-            $this->user_logged = $this->getUserLogged();
-            $this->set('user_logged', $this->getUserLogged());
+            $this->usuarioLogado = $this->getUserLogged();
+            $this->set('usuarioLogado', $this->getUserLogged());
         }
 
         // Seta encoding de JSON para não fazer escape
@@ -212,7 +212,7 @@ class AppController extends Controller
 
         //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
         //     if ($urlAtual != $urlDestino) {
-        //         $this->Flash->error(Configure::read("messageUserProfileDocumentNotFoundError"));
+        //         $this->Flash->error(Configure::read("messageUsuarioProfileDocumentNotFoundError"));
         //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
         //     }
         // }
@@ -253,32 +253,32 @@ class AppController extends Controller
      */
     private function _initializeUtils()
     {
-        if (is_null($this->crypt_util)) {
-            $this->crypt_util = new CryptUtil();
+        if (is_null($this->cryptUtil)) {
+            $this->cryptUtil = new CryptUtil();
         }
 
-        if (is_null($this->email_util)) {
-            $this->email_util = new EmailUtil();
+        if (is_null($this->emailUtil)) {
+            $this->emailUtil = new EmailUtil();
         }
 
-        if (is_null($this->security_util)) {
-            $this->security_util = new Security();
+        if (is_null($this->securityUtil)) {
+            $this->securityUtil = new Security();
         }
 
         if (is_null($this->datetime_util)) {
             $this->datetime_util = new DateTimeUtil();
         }
 
-        if (is_null($this->gotas_util)) {
-            $this->gotas_util = new GotasUtil();
+        if (is_null($this->gotasUtil)) {
+            $this->gotasUtil = new GotasUtil();
         }
 
-        if (is_null($this->sefaz_util)) {
-            $this->sefaz_util = new SefazUtil();
+        if (is_null($this->sefazUtil)) {
+            $this->sefazUtil = new SefazUtil();
         }
 
-        if (is_null($this->web_tools)) {
-            $this->web_tools = new WebTools();
+        if (is_null($this->webTools)) {
+            $this->webTools = new WebTools();
         }
     }
 
@@ -290,32 +290,30 @@ class AppController extends Controller
      */
     private function _setUserTemplatePath()
     {
-        if ($this->request->session()->read("Auth.User")) {
-            $user_logged = $this->Auth->user();
-        }
+        $usuarioLogado = $this->getUserLogged();
 
         // verifica se está sendo administrado algum usuário, caso contrário prossegue
 
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrar;
         }
 
-        if (!empty($user_logged)) {
-            if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if (!empty($usuarioLogado)) {
+            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $this->viewBuilder()->setLayout('template_desenvolvedor');
 
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardDesenvolvedor']);
-            } else if ($user_logged['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
                 $this->viewBuilder()->setLayout('template_administrador');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardAdministrador']);
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
                 $this->viewBuilder()->setLayout('template_gerente');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'dashboard_gerente']);
 
-            } else if ($user_logged['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 $this->viewBuilder()->setLayout('template_funcionario');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardFuncionario']);
 
@@ -352,61 +350,45 @@ class AppController extends Controller
         }
     }
 
-    /**
-     * Converte string de base 64 para arquivo jpg
-     *
-     * @param string $base64_string
-     * @param object $output_file
-     *
-     * @return void
-     */
-    public function generateImageFromBase64($base64_string, $output_file, $path_destination)
+    public function getSessionUserVariables()
     {
-        try {
-            $this->createPathIfNotExists($path_destination);
-            // abre o arquivo destino para edição
-            $ifp = fopen($output_file, 'wb');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = $this->getUserLogged();
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
+        $rede = $this->request->session()->read("Rede.Grupo");
 
-            // separa a string por virgulas, para criar os dados
-
-            $data = explode(',', $base64_string);
-
-            // escreve os dados no arquivo destino
-            fwrite($ifp, base64_decode($data[1]));
-
-            // fecha o arquivo destino
-            fclose($ifp);
-
-            chmod($output_file, 0766);
-
-            return $output_file;
-        } catch (\Exception $e) {
-            $this->log($e->getMessage());
+        // Certifica que o usuário em questão está vinculado a uma rede 
+        if (empty($rede) && !empty($cliente)) {
+            // verifica qual rede o usuário se encontra (somente funcionários)
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+            $rede = $redeHasCliente["rede"];
         }
-    }
 
-    /**
-     * Rotates a Image
-     *
-     * @param string $image_path
-     * @param int $degrees
-     * @return bool
-     */
-    public function rotateImage(string $image_path, int $degrees)
-    {
-        try {
-            $source = imagecreatefromjpeg($image_path);
-
-            $rotate = \imagerotate($source, $degrees, 0);
-
-            $result = imagejpeg($rotate, $image_path);
-
-            return $result;
-        } catch (\Exception $e) {
-            Log::write('error', $e->getMessage());
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
-    }
 
+        $arraySet = array(
+            "usuarioAdministrador",
+            "usuarioAdministrar",
+            "usuarioLogado",
+            "rede",
+            "cliente"
+        );
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+
+        return array(
+            "usuarioAdministrador" => $usuarioAdministrador,
+            "usuarioAdministrar" => $usuarioAdministrar,
+            "usuarioLogado" => $usuarioLogado,
+            "rede" => $rede,
+            "cliente" => $cliente
+        );
+    }
     /**
      * Verifica se caminho existe. Se não existir, cria novo caminho
      *
@@ -503,6 +485,7 @@ class AppController extends Controller
      *
      * @param string $value CNPJ
      *
+     * @deprecated 1.0 Mudar para NumberUtil::limparFormatacaoNumeros
      * @return string
      */
     public function cleanNumber($value)

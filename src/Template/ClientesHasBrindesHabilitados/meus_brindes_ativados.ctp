@@ -35,14 +35,14 @@ echo $this->Breadcrumbs->render(
 <div class="clientes_has_brindes_habilitados index col-lg-9 col-md-10 columns content">
 
 <legend>
-    <?php if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
+    <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
         <?= __('Brindes Habilitados de Unidades') ?>
     <?php else : ?>
         <?= __('Brindes Habilitados de Unidade') ?>
     <?php endif; ?>
 </legend>
 
-<?php if ($user_logged['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
+<?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
     <?= $this->element('../Brindes/brindes_filtro_unidades', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'meus_brindes_ativados']) ?>
 <?php else : ?>
     <?= $this->element('../Brindes/brindes_filtro_pesquisa_comum', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'meus_brindes_ativados']) ?>

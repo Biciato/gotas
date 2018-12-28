@@ -135,7 +135,7 @@ class GotasTable extends GenericTable
         return $rules;
     }
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Cria uma nova gota
@@ -166,7 +166,7 @@ class GotasTable extends GenericTable
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Encontra todas as 'gotas' de clientes
@@ -189,8 +189,7 @@ class GotasTable extends GenericTable
                 $conditionsSql[] = $value;
             }
 
-            return $this->_getGotasTable()
-                ->find('all')
+            return $this->find('all')
                 ->where($conditionsSql)
                 ->contain(['Clientes']);
 
@@ -437,7 +436,7 @@ class GotasTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Define todas as gotas de um cliente para a matriz
@@ -519,7 +518,7 @@ class GotasTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Apaga todas as gotas de um cliente

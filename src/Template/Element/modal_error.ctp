@@ -36,7 +36,6 @@
         <h3 class="modal-title error-message"><span class="modal-title-content">Atenção</span></h4>
       </div>
       <div class="modal-body">
-        <p>Houve um erro:</p>
         <span class="modal-body-content"></span>
         <br />
         <span class="modal-body-content-description"></span>

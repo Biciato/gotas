@@ -207,7 +207,7 @@ class PontuacoesComprovantesTable extends GenericTable
      * -------------------------------------------------------------
      */
 
-    /* ------------------------ Create ------------------------ */
+    #region Create
 
     /**
      * Guarda registro de Pontuacao Comprovante
@@ -236,29 +236,33 @@ class PontuacoesComprovantesTable extends GenericTable
     ) {
 
         try {
-            $pontuacoes_comprovantes = $this->_getPontuacoesComprovantesTable()->newEntity();
-            $pontuacoes_comprovantes['clientes_id'] = $clientes_id;
-            $pontuacoes_comprovantes['usuarios_id'] = $usuarios_id;
-            $pontuacoes_comprovantes['funcionarios_id'] = $funcionarios_id;
-            $pontuacoes_comprovantes['conteudo'] = $conteudo;
-            $pontuacoes_comprovantes['chave_nfe'] = $chave_nfe;
-            $pontuacoes_comprovantes['estado_nfe'] = $estado_nfe;
-            $pontuacoes_comprovantes['data'] = $data;
-            $pontuacoes_comprovantes['requer_auditoria'] = $requer_auditoria;
-            $pontuacoes_comprovantes['auditado'] = $auditado;
+            $pontuacoesComprovante = $this->newEntity();
+            $pontuacoesComprovante['clientes_id'] = $clientes_id;
+            $pontuacoesComprovante['usuarios_id'] = $usuarios_id;
+            $pontuacoesComprovante['funcionarios_id'] = $funcionarios_id;
+            $pontuacoesComprovante['conteudo'] = $conteudo;
+            $pontuacoesComprovante['chave_nfe'] = $chave_nfe;
+            $pontuacoesComprovante['estado_nfe'] = $estado_nfe;
+            $pontuacoesComprovante['data'] = $data;
+            $pontuacoesComprovante['requer_auditoria'] = $requer_auditoria;
+            $pontuacoesComprovante['auditado'] = $auditado;
 
-            return $this->_getPontuacoesComprovantesTable()->save($pontuacoes_comprovantes);
+            return $this->save($pontuacoesComprovante);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao criar registro: {0} em {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao criar registro: {0}", $e->getMessage());
 
+            $trace = $e->getTrace();
             Log::write('error', $stringError);
+
+            if (Configure::read("debug")){
+                Log::write('error', $trace);
+            }
 
             return $stringError;
         }
     }
 
-    /* ------------------------ Read ------------------------ */
+    #region Read
 
     /**
      * Procura por cupom previamente inserido
@@ -432,11 +436,11 @@ class PontuacoesComprovantesTable extends GenericTable
 
             // condições para datas
             if (!is_null($dataInicio) && !is_null($dataFim)) {
-                $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') BETWEEN '{$dataInicio}' AND '{$dataFim}'");
             } else if (!is_null($dataInicio)) {
-                $whereConditions[] = array("data >=" => $dataInicio);
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') >=" => $dataInicio);
             } else if (!is_null($dataFim)) {
-                $whereConditions[] = array("data <=" => $dataFim);
+                $whereConditions[] = array("DATE_FORMAT(data, '%Y-%m-%d') <=" => $dataFim);
             } else {
                 // Data não está setada, procura pelos últimos 30 dias
                 $dataFim = date("Y-m-d");
@@ -774,8 +778,9 @@ class PontuacoesComprovantesTable extends GenericTable
                     ]
                 )->first();
 
-            $value['soma_pontuacoes'] = $value['soma_pontuacoes'][0]['soma_quantidade'];
-
+            if (sizeof($value["soma_pontuacoes"]) > 0) {
+                $value['soma_pontuacoes'] = $value['soma_pontuacoes'][0]['soma_quantidade'];
+            }
 
             return $value;
         } catch (\Exception $e) {
@@ -788,7 +793,7 @@ class PontuacoesComprovantesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Update ------------------------ */
+    #region Update
 
     /**
      * Configura comprovante de pontuação como aprovado
@@ -938,7 +943,7 @@ class PontuacoesComprovantesTable extends GenericTable
         }
     }
 
-    /* ------------------------ Delete ------------------------ */
+    #region Delete
 
     /**
      * Limpa todos os comprovantes de pontuações

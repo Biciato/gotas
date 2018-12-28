@@ -133,16 +133,16 @@ class UsuariosHasBrindesController extends AppController
      */
     public function historicoBrindes(int $usuarios_id = null)
     {
-        $user_admin = $this->request->session()->read('User.RootLogged');
-        $user_managed = $this->request->session()->read('User.ToManage');
+        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($user_admin) {
-            $this->user_logged = $user_managed;
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $user_logged = $this->user_logged;
+        $usuarioLogado = $this->usuarioLogado;
 
-        $usuario = $this->Usuarios->getUsuarioById($this->user_logged['id']);
+        $usuario = $this->Usuarios->getUsuarioById($this->usuarioLogado['id']);
 
         $usuario_id = is_null($usuarios_id) ? $usuario->id : $usuarios_id;
 
@@ -150,8 +150,8 @@ class UsuariosHasBrindesController extends AppController
 
         $this->paginate($brindes, ['limit' => 10]);
 
-        $this->set(compact('brindes', 'user_logged'));
-        $this->set('_serialize', ['brindes', 'user_logged']);
+        $this->set(compact('brindes', 'usuarioLogado'));
+        $this->set('_serialize', ['brindes', 'usuarioLogado']);
     }
 
     /**
@@ -184,18 +184,18 @@ class UsuariosHasBrindesController extends AppController
             // se o usuário que estiver cadastrando for um cliente final
             // o id será nulo, senão será o funcionário
 
-            $user_admin = $this->request->session()->read('User.RootLogged');
-            $user_managed = $this->request->session()->read('User.ToManage');
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-            if ($user_admin) {
-                $this->user_logged = $user_managed;
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
             // pegar rede que usuário está logado e suas unidades
 
-            $rede = $this->request->session()->read('Network.Main');
+            $rede = $this->request->session()->read('Rede.Grupo');
 
             $clientes_ids = [];
 
@@ -215,26 +215,43 @@ class UsuariosHasBrindesController extends AppController
 
             $brindes_habilitados_ids = [];
 
-            // TODO: Conferir se isto está funcional
-            $brindes_habilitados_clientes = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId($clientes_ids);
+            // TODO: ARRUMAR PARA FUNCIONARIO!
+            $brindesHabilitadosClientes = $this->ClientesHasBrindesHabilitados->getTodosBrindesByClienteId($clientes_ids);
 
-            foreach ($brindes_habilitados_clientes as $key => $brinde_habilitado_cliente) {
-                $brindes_habilitados_ids[] = $brinde_habilitado_cliente['id'];
+            if (!$brindesHabilitadosClientes["mensagem"]["status"]) {
+                $this->Flash->error($brindesHabilitadosClientes["mensagem"]["message"]);
+                $brindesHabilitadosClientes = array();
+            } else {
+                $brindesConfigurarArrayRetorno = array();
+                $brindesHabilitadosClientes = $brindesHabilitadosClientes["data"];
+
+                foreach ($brindesHabilitadosClientes as $brinde) {
+                    $brinde["pendente_configuracao"] = empty($brinde["brinde_vinculado"]["tipo_codigo_barras"]);
+                    $brindesConfigurarArrayRetorno[] = $brinde;
+                }
+
+                $brindesHabilitadosClientes = $brindesConfigurarArrayRetorno;
+
+                $usuarios_has_brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(
+                    [
+                        'usuarios_id' => $usuario->id,
+                        'clientes_has_brindes_habilitados_id in ' => $brindes_habilitados_ids
+                    ]
+                );
             }
 
-            $usuarios_has_brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(
-                [
-                    'usuarios_id' => $usuario->id,
-                    'clientes_has_brindes_habilitados_id in ' => $brindes_habilitados_ids
-                ]
-            );
+            // foreach ($brindesHabilitadosClientes as $brinde_habilitado_cliente) {
+            //     $brindes_habilitados_ids[] = $brinde_habilitado_cliente['id'];
+            // }
+
+
 
             $this->paginate($usuarios_has_brindes, ['limit' => 10, 'order' => ['data' => 'desc']]);
 
             $array_set = [
                 'usuarios_has_brindes',
                 'usuario',
-                'user_logged',
+                'usuarioLogado',
                 'usuarios_id'
             ];
 
@@ -385,13 +402,9 @@ class UsuariosHasBrindesController extends AppController
                          * pegue somente os usuários
                          */
 
-                        $usuariosWhereConditions = [];
-
+                        $usuariosWhereConditions = array();
                         $usuariosWhereConditions[] = ['id in ' => $usuariosIds];
-
-                        if (!$rede->permite_consumo_gotas_funcionarios) {
-                            $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
-                        }
+                        $usuariosWhereConditions[] = ['tipo_perfil' => Configure::read('profileTypes')['UserProfileType']];
 
                         $usuariosList = $this->Usuarios->find('all')->where(
                             $usuariosWhereConditions

@@ -8,10 +8,10 @@
  use Cake\Core\Configure;
  use Cake\Routing\Router;
 
-$action = $user_logged['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'] ? 'view'.'/'. $cliente->id : 'dados_minha_rede';
+$action = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'] ? 'view'.'/'. $cliente->id : 'dados_minha_rede';
 
 ?>
-<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => $action, 'user_logged' => $user_logged]) ?>
+<?= $this->element('../Clientes/left_menu', ['controller' => 'clientes', 'action' => $action, 'usuarioLogado' => $usuarioLogado]) ?>
 
 <div class="clientes index col-lg-9 col-md-10 columns content">
 
