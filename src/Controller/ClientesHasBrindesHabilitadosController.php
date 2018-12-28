@@ -390,8 +390,11 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     private function _alteraEstadoBrinde(int $brindesId, int $clientesId, $status)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -432,7 +435,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $clienteHasBrindeHabilitado["tipos_brindes_clientes_id"] = $tiposBrindesCliente["id"];
         }
 
-        $clienteHasBrindeHabilitado->habilitado = $status;
+        $clienteHasBrindeHabilitado["habilitado"] = $status;
         $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->save($clienteHasBrindeHabilitado);
 
         // DebugUtil::print($clienteHasBrindeHabilitado);
@@ -442,44 +445,42 @@ class ClientesHasBrindesHabilitadosController extends AppController
              */
 
             if ($status) {
-                if (!is_null($clienteHasBrindeHabilitado)) {
-                    /* estoque só deve ser criado para registro nas
-                     * seguintes situações.
-                     *
-                     * 1 - O Brinde está sendo vinculado a um cadastro de loja
-                     *     no sistema (Isto é, se ele não foi anteriormente )
-                     * 2 - Não é ilimitado
-                     * 3 - Se não houver cadastro anterior
-                     */
-                    $brinde
-                        = $this->Brindes->getBrindesById(
-                        $clienteHasBrindeHabilitado->brindes_id
-                    );
+                /* estoque só deve ser criado para registro nas
+                 * seguintes situações.
+                 *
+                 * 1 - O Brinde está sendo vinculado a um cadastro de loja
+                 *     no sistema (Isto é, se ele não foi anteriormente )
+                 * 2 - Não é ilimitado
+                 * 3 - Se não houver cadastro anterior
+                 */
+                $brinde
+                    = $this->Brindes->getBrindesById(
+                    $clienteHasBrindeHabilitado->brindes_id
+                );
 
-                    if (!$brinde->ilimitado) {
-                        $estoque = $this->ClientesHasBrindesEstoque
-                            ->getEstoqueForBrindeId(
-                                $clienteHasBrindeHabilitado->id,
-                                0
-                            );
-
-                        if (is_null($estoque)) {
-                                // Não tem estoque, criar novo registro vazio
-                            $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
-                        }
-                    }
-                    // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
-                    $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
-
-                    if (!isset($precos)) {
-                        $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
-                            $clienteHasBrindeHabilitado["id"],
-                            $clientesId,
-                            (int)Configure::read('giftApprovalStatus')['Allowed'],
-                            $brinde["preco_padrao"],
-                            $brinde["valor_moeda_venda"]
+                if (!$brinde["ilimitado"]) {
+                    $estoque = $this->ClientesHasBrindesEstoque
+                        ->getEstoqueForBrindeId(
+                            $clienteHasBrindeHabilitado->id,
+                            0
                         );
+
+                    if (is_null($estoque)) {
+                        // Não tem estoque, criar novo registro vazio
+                        $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
                     }
+                }
+                    // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
+                $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
+
+                if (!isset($precos)) {
+                    $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                        $clienteHasBrindeHabilitado["id"],
+                        $clientesId,
+                        (int)Configure::read('giftApprovalStatus')['Allowed'],
+                        $brinde["preco_padrao"],
+                        $brinde["valor_moeda_venda"]
+                    );
                 }
             }
             $this->Flash->success(__(Configure::read('messageSavedSuccess')));
@@ -488,7 +489,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $this->Flash->error(__(Configure::read('messageSavedError')));
         }
 
-        if ($status && strlen($clienteHasBrindeHabilitado->tipo_codigo_barras) == 0) {
+        if ($status && strlen($clienteHasBrindeHabilitado["tipo_codigo_barras"]) == 0) {
             return $this->redirect(['action' => 'configurar_tipo_emissao', $clienteHasBrindeHabilitado->id]);
         }
 

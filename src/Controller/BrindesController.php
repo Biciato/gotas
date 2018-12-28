@@ -305,8 +305,6 @@ class BrindesController extends AppController
             }
             $clientesId = $redeHasCliente["clientes_id"];
 
-            // DebugUtil::print($tiposBrindesCliente);
-
             if (strlen($brinde->nome_img) > 0) {
                 $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
             }
@@ -328,7 +326,7 @@ class BrindesController extends AppController
 
                 $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
 
-                if ($tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4) {
+                if ($tipoBrindeRede["equipamento_rti"]) {
                     $brinde["ilimitado"] = 1;
                 } else {
                     $brinde["ilimitado"] = $data["ilimitado"];
@@ -349,8 +347,7 @@ class BrindesController extends AppController
                     $brinde = $this->Brindes->saveBrinde($brinde);
 
                     $errors = $brinde->errors();
-                    $tiposBrindesClienteSelecionadoId
-                        = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
+                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
                         $clientesId,
                         $data["tipos_brindes_redes_id"]
                     );
@@ -360,12 +357,7 @@ class BrindesController extends AppController
                     }
 
                     if ($brinde) {
-                        $clienteHasBrindeHabilitado
-                            = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado(
-                            $clientesId,
-                            $brinde->id,
-                            $tiposBrindesClienteSelecionadoId
-                        );
+                        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado($clientesId, $brinde->id, $tiposBrindesClienteSelecionadoId);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -374,7 +366,7 @@ class BrindesController extends AppController
                          * 3 - Se não houver cadastro anterior
                          */
 
-                        if (!$brinde->ilimitado) {
+                        if (!$brinde["ilimitado"]) {
                             $estoque = $this->ClientesHasBrindesEstoque
                                 ->getEstoqueForBrindeId(
                                     $clienteHasBrindeHabilitado->id,
@@ -499,7 +491,15 @@ class BrindesController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            $brindeCheck = ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"], $brinde["ilimitado"]));
+            $brindeCheck = $this->Brindes->findBrindesByConditions(
+                $rede["id"],
+                array(),
+                null,
+                $brinde['nome'],
+                $brinde["tipos_brindes_redes_id"],
+                $brinde["tempo_uso_brinde"],
+                $brinde["ilimitado"]
+            );
 
             if ($brindeCheck["id"] != $id) {
                 $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));

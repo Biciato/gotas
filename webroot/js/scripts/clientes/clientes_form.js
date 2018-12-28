@@ -26,7 +26,6 @@ $(document).ready(function () {
 
         if (horas != undefined && horas.length > 0) {
 
-
             var hora = parseInt(horas[0]);
             var minuto = parseInt(horas[1]);
 
@@ -49,6 +48,9 @@ $(document).ready(function () {
                     horaTurno = horaTurno - 24;
                 }
 
+                turno.proximaHora = horaTurno.toString().length == 1 ? "0" + horaTurno : horaTurno;
+                turno.proximaMinuto = minuto.toString().length == 1 ? "0" + minuto : minuto;
+
                 horaTemp = horaTurno;
 
                 turnos.push(turno);
@@ -56,14 +58,17 @@ $(document).ready(function () {
 
             $(".horariosContent").empty();
             $.each(turnos, function (index, value) {
-                $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + ". <br />");
+                $(".horariosContent").append("<strong>Turno " + (value.id + 1) + ": </strong> " + value.hora + ":" + value.minuto + " até " + value.proximaHora + ":" + value.proximaMinuto + ".<br />");
             });
         }
     }
 
     $("#quantidade_turnos").on("blur", function (ev) {
-        if (this.value > 4) {
-            this.value = 4;
+
+        var max = $("#quantidade_turnos").attr('max');
+
+        if (this.value > max) {
+            this.value = max;
         }
 
         preencheQuadroHorarios();

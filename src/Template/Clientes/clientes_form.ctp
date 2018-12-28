@@ -164,14 +164,14 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
             </div>
         </div>
 
-    <!-- <legend>Quadro de Horários da Unidade</legend>
+    <legend>Quadro de Horários da Unidade</legend>
 
     <div class="form-group row">
         <div class="col-lg-6">
             <label for="quantidade_turnos">Quantidade de Turnos</label>
             <input type="number"
                 min="2"
-                max="4"
+                max="6"
                 step="1"
                 value="<?= $cliente["quantidade_turnos"] ?> "
                 class="form-control"
@@ -191,7 +191,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
 
     </div>
 
-    <h4>Detalhamento Quadro de Horários</h4>
+    <!-- <h4>Detalhamento Quadro de Horários</h4>
 
     <h5>Os horários serão cadastrados da seguinte forma:</h5>
 
@@ -199,7 +199,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
         <div class="col-lg-12">
             <span class="horariosContent"></span>
         </div>
-    </div> -->
+    </div>
     </fieldset>
     <div class="form-group row">
         <div class="col-lg-12 text-right">
@@ -212,7 +212,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
             <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger"><i class="fa fa-window-close"></i> Cancelar</a>
         </div>
 
-    </div>
+    </div> -->
 
     <?= $this->Form->end() ?>
 
