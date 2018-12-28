@@ -92,17 +92,27 @@ class ResponseUtil
         foreach ($arrayKeys as $key => $item) {
             $contentReturn[$item] = $contentArray[$item];
         }
+        $mensagem = array(
+            "mensagem" => array(
+
+                "status" => 1,
+                "message" => $msg,
+                "errors" => array()
+            ),
+        );
         $arraySet = array(
+            // $mensagem,
             "mensagem" => array(
 
                 "status" => 1,
                 "message" => $msg,
                 "errors" => $errors
             ),
-            // key($contentArray) => $contentArray
+            array_values($contentReturn)
             // $contentReturn
             // print_r($contentReturn, true)
-            $contentReturn
+            // $contentReturn
+            // $contentArray
         );
 
         echo json_encode($arraySet);
