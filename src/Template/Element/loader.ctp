@@ -10,6 +10,8 @@ use Cake\Core\Configure;
             Isto deverá ser portado para o template principal depois da mudança para AngularJS
         -->
         <img src="/img/icons/loading.gif" alt="">
+
+        <p><span class="loader-message"></span></p>
 </div>
 
     <div class="loader-container">
