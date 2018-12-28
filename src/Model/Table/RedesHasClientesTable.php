@@ -477,7 +477,7 @@ class RedesHasClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getRedesHasClientesByRedesId(int $redes_id, array $clientes_ids = [], array $selectList = array())
+    public function getClientesFromRedesIdAndParams(int $redes_id, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
     {
         try {
 

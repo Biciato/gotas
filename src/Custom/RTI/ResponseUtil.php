@@ -16,6 +16,7 @@ namespace App\Custom\RTI;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use Cake\Http\Response;
 
 /**
  * Classe de retorno de resposta
@@ -77,5 +78,67 @@ class ResponseUtil
         );
         echo json_encode($arraySet);
         die();
+    }
+
+    public static function successAPI($msg, $contentArray)
+    {
+        header("HTTP/1.0 200");
+        header("Content-Type: application/json");
+        // header("Content-Type: application/xml");
+
+        $arrayKeys = array_keys($contentArray);
+
+        $contentReturn = array();
+        foreach ($arrayKeys as $key => $item) {
+            $contentReturn[$item] = $contentArray[$item];
+        }
+        $arraySet = array(
+            "mensagem" => array(
+
+                "status" => 1,
+                "message" => $msg,
+                "errors" => $errors
+            ),
+            // key($contentArray) => $contentArray
+            // $contentReturn
+            // print_r($contentReturn, true)
+            $contentReturn
+        );
+
+        echo json_encode($arraySet);
+        die();
+
+    }
+
+    /**
+     * Retorna erro para API Mobile
+     *
+     * @param string $msg String da mensagem de erro
+     * @param array $errors
+     * @param array $data
+     * @return void
+     */
+    public static function errorAPI(string $msg, array $errors = array(), array $data = array())
+    {
+        header("HTTP/1.0 400");
+        header("Content-Type: application/json");
+        // header("Content-Type: application/xml");
+        $arraySet = array(
+            "mensagem" => array(
+
+                "status" => 0,
+                "message" => $msg,
+                "errors" => $errors
+            )
+        );
+
+        $response= new Response();
+
+        // $this->response($arraySet);
+        echo json_encode($arraySet);
+        die();
+
+
+
     }
 }

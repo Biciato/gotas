@@ -16,8 +16,8 @@ Configure::write(
     [
         // configuração de banco de dados:
 
-        "environmentMode" => "development",
-        // "environmentMode" => "production",
+        // "environmentMode" => "development",
+        "environmentMode" => "production",
         // 'appAddress' => 'https://40.71.26.138/',
         'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
         'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
@@ -227,12 +227,8 @@ Configure::write(
         'messageGenericCheckFields' => "Verifique se todos os campos estão preenchidos!",
 
         'messageLoadDataWithSuccess' => "Dados carregados com sucesso!",
-<<<<<<< HEAD
         'messageLoadDataWithError' => "Erro durante carregamento dos dados!",
         'messageLoadDataNotFound' => "A consulta não retornou dados!",
-=======
-        'messageLoadDataWithError' => "Erro ao obter dados!",
->>>>>>> master
 
         'messageInvalidateSuccess' => 'O registro foi invalidado com sucesso',
         'messageInvalidateError' => 'Não foi possível invalidar o registro!',
@@ -307,6 +303,7 @@ Configure::write(
         "messageUsuarioSenhaDoesntMatch" => "Senha não confere!",
         "messageUsuarioSenhaInvalid" => "Senha inválida!",
 
+        "messageUsuarioLoginPasswordIncorrect" => "Usuário ou senha incorreto!",
         'messageUsuarioLoggedInSuccessfully' => "Usuário logado com sucesso!",
         'messageUsuarioLoggedOutSuccessfully' => "Usuário encerrou sessão com sucesso!",
 

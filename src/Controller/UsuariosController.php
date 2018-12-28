@@ -1042,34 +1042,41 @@ class UsuariosController extends AppController
         // DebugUtil::print($usuario);
 
         if (!$usuario) {
-            throw new UnauthorizedException('Usuário ou senha inválidos');
+
+            return ResponseUtil::errorAPI(MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT);
+
+            // throw new UnauthorizedException('Usuário ou senha inválidos');
         }
 
-        $mensagem = [
-            'status' => true,
-            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
-        ];
+        // $mensagem = [
+        //     'status' => true,
+        //     'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
+        // ];
 
 
-        $usuario = [
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 604800
-                ],
-                Security::salt()
+        $usuario = array(
+            "usuario" => array(
+                'id' => $usuario['id'],
+                'token' => JWT::encode(
+                    [
+                        'id' => $usuario['id'],
+                        'sub' => $usuario['id'],
+                        'exp' => time() + 604800
+                    ],
+                    Security::salt()
+                )
             )
-        ];
+        );
 
-        $arraySet = [
-            'mensagem',
-            'usuario'
-        ];
+        // $arraySet = [
+        //     'mensagem',
+        //     'usuario'
+        // ];
 
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
+        return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, $usuario);
+
+        // $this->set(compact($arraySet));
+        // $this->set('_serialize', $arraySet);
     }
 
     /**
