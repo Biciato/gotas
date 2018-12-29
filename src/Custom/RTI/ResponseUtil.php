@@ -80,75 +80,74 @@ class ResponseUtil
         die();
     }
 
+    /**
+     * ResponseUtil::successAPI
+     *
+     * Retorna dados via json à API Mobile
+     *
+     * @param string $msg Mensagem de sucesso
+     * @param array $contentArray Array contendo todos os dados
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/12/29
+     *
+     * @return json_encode Dados json
+     */
     public static function successAPI($msg, $contentArray)
     {
         header("HTTP/1.0 200");
         header("Content-Type: application/json");
-        // header("Content-Type: application/xml");
 
         $arrayKeys = array_keys($contentArray);
-
-        $contentReturn = array();
-        foreach ($arrayKeys as $key => $item) {
-            $contentReturn[$item] = $contentArray[$item];
-        }
         $mensagem = array(
-            "mensagem" => array(
-
-                "status" => 1,
-                "message" => $msg,
-                "errors" => array()
-            ),
+            "status" => 1,
+            "message" => $msg,
+            "errors" => array()
         );
-        $arraySet = array(
-            // $mensagem,
-            "mensagem" => array(
+        $arraySet = array();
+        $arraySet["mensagem"] = $mensagem;
 
-                "status" => 1,
-                "message" => $msg,
-                "errors" => $errors
-            ),
-            array_values($contentReturn)
-            // $contentReturn
-            // print_r($contentReturn, true)
-            // $contentReturn
-            // $contentArray
-        );
+        foreach ($arrayKeys as $key => $item) {
+            $arraySet[$item] = $contentArray[$item];
+        }
 
         echo json_encode($arraySet);
         die();
-
     }
 
     /**
+     * ResponseUtil::successAPI
+     *
      * Retorna erro para API Mobile
      *
      * @param string $msg String da mensagem de erro
-     * @param array $errors
-     * @param array $data
-     * @return void
+     * @param array $data Dados adicionais de retorno
+     * @param array $errors Array de Erros
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/12/29
+     *
+     * @return json_encode Dados json
      */
-    public static function errorAPI(string $msg, array $errors = array(), array $data = array())
+    public static function errorAPI(string $msg, array $data = array(), array $errors = array())
     {
         header("HTTP/1.0 400");
         header("Content-Type: application/json");
-        // header("Content-Type: application/xml");
-        $arraySet = array(
-            "mensagem" => array(
 
-                "status" => 0,
-                "message" => $msg,
-                "errors" => $errors
-            )
+        $arrayKeys = array_keys($contentArray);
+        $mensagem = array(
+            "status" => 0,
+            "message" => $msg,
+            "errors" => array()
         );
+        $arraySet = array();
+        $arraySet["mensagem"] = $mensagem;
 
-        $response= new Response();
+        foreach ($arrayKeys as $key => $item) {
+            $arraySet[$item] = $contentArray[$item];
+        }
 
-        // $this->response($arraySet);
         echo json_encode($arraySet);
         die();
-
-
-
     }
 }
