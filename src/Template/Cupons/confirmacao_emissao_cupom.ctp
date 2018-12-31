@@ -16,7 +16,7 @@
 
     <div class="form-group row text-center">
         <div class="col-lg-4">
-            <a href="<?= "/".implode("/", array_values($urlRedirectConfirmacao)) ?>" class="btn btn-primary">
+            <a href="<?= "/".strtolower(implode("/", array_values($urlRedirectConfirmacao))) ?>" class="btn btn-primary">
                 <i class="fa fa-check"></i>
                 Sim, Concluir sem Imp. Canhoto
             </a>

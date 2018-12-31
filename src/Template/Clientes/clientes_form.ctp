@@ -191,7 +191,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
 
     </div>
 
-    <!-- <h4>Detalhamento Quadro de Horários</h4>
+    <h4>Detalhamento Quadro de Horários</h4>
 
     <h5>Os horários serão cadastrados da seguinte forma:</h5>
 
@@ -212,7 +212,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
             <a href="<?php echo sprintf("/redes/ver_detalhes/%s", $redesId) ?>"  class="btn btn-danger"><i class="fa fa-window-close"></i> Cancelar</a>
         </div>
 
-    </div> -->
+    </div>
 
     <?= $this->Form->end() ?>
 

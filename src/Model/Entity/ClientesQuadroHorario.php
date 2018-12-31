@@ -27,6 +27,7 @@ class ClientesQuadroHorario extends Entity
      * @var array
      */
     protected $_accessible = [
+        'redes_id' => true,
         'clientes_id' => true,
         'horario' => true,
         'audit_insert' => true,

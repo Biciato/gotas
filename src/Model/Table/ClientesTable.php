@@ -227,7 +227,7 @@ class ClientesTable extends GenericTable
         return $rules;
     }
 
-    #region Create 
+    #region Create
 
     /**
      * Adiciona nova unidade para uma rede
@@ -1082,9 +1082,9 @@ class ClientesTable extends GenericTable
         }
     }
 
-    #endregion 
-    
-    #region Delete 
+    #endregion
+
+    #region Delete
 
     /**
      * Remove todos os clientes
@@ -1120,7 +1120,7 @@ class ClientesTable extends GenericTable
         }
     }
 
-    #endregion 
+    #endregion
 
 
     /* ------------------------ Others ------------------------ */

@@ -138,7 +138,9 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
         <div class="form-group row  col-lg-12">
         <!-- <div class="form-group row  "> -->
-            <h4>Cliente selecionado</h4>
+            <div class="col-lg-12">
+                <h4>Cliente selecionado</h4>
+            </div>
 
             <?= $this->Form->text('usuarios_id', [
                 'id' => 'usuarios_id',

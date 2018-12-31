@@ -36,6 +36,11 @@ class ClientesQuadroHorarioTable extends Table
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
+        $this->belongsTo('Redes', [
+            'foreignKey' => 'redes_id',
+            'joinType' => 'INNER'
+        ]);
+
         $this->belongsTo('Clientes', [
             'foreignKey' => 'clientes_id',
             'joinType' => 'INNER'
@@ -54,7 +59,7 @@ class ClientesQuadroHorarioTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->dateTime('horario')
+            ->time('horario')
             ->requirePresence('horario', 'create')
             ->notEmpty('horario');
 
@@ -82,4 +87,42 @@ class ClientesQuadroHorarioTable extends Table
 
         return $rules;
     }
+
+    #region Create
+
+    /**
+     * Adiciona Quadro de Horários
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Cliente
+     * @param array $horarios Array de Horários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-12-31
+     *
+     * @return \App\Model\ClientesQuadroHorario entidade
+     */
+    public function addHorariosCliente(int $redesId, int $clientesId, array $horarios)
+    {
+        $arrayHorarios = array();
+
+        foreach ($horarios as $horario) {
+
+            $item = array(
+                "redes_id" => $redesId,
+                "clientes_id" => $clientesId,
+                "horario" => implode(":", $horario)
+            );
+
+            $arrayHorarios[] = $item;
+        };
+
+        $horariosSave = $this->newEntities($arrayHorarios);
+
+        $result = $this->saveMany($horariosSave);
+        return $result;
+    }
+
+    #endregion
+
 }

@@ -498,12 +498,12 @@ class RedesHasClientesTable extends GenericTable
             }
 
             $redesHasClientes = $this->_getRedesHasClientesTable()->find('all')
-                ->where($where_condition)
+                ->where($whereCondition)
                 ->contain(['Redes', 'Clientes']);
 
-            if (sizeof($selectList) > 0) {
-                $redesHasClientes = $redesHasClientes->select($selectList);
-            }
+            // if (sizeof($selectList) > 0) {
+            //     $redesHasClientes = $redesHasClientes->select($selectList);
+            // }
 
             return $redesHasClientes;
 

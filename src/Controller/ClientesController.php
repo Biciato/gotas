@@ -15,6 +15,7 @@ use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\NumberUtil;
 
 /**
  * Clientes Controller
@@ -240,6 +241,13 @@ class ClientesController extends AppController
             }
 
             if ($this->Clientes->addClient($redes_id, $cliente)) {
+
+                $qteTurnos = $data["quantidade_turnos"];
+                $horarioInicial = $data["horario"];
+                $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
+
+                $this->ClientesQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+
                 $this->Flash->success(__("Registro gravado com sucesso."));
 
                 return $this->redirect(
@@ -489,88 +497,6 @@ class ClientesController extends AppController
     }
 
     /**
-     * Action que seleciona unidade para administrar
-     *
-     * @param int $cliente_id Id de cliente
-     *
-     * @deprecated 1.0
-     * @return \Cake\Http\Response|void
-     */
-    public function administrarUnidades(int $cliente_id = null)
-    {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-        }
-
-        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed(
-            $this->usuarioLogado,
-            $this->Clientes,
-            $this->ClientesHasUsuarios
-        );
-
-        $conditions = [];
-
-        if ($this->request->is('post')) {
-            $data = $this->request->getData();
-
-            if (sizeof($data) > 0) {
-                if ($data['opcoes'] == 'cnpj') {
-                    $value = $this->cleanNumber($data['parametro']);
-                } else {
-                    $value = $data['parametro'];
-                }
-
-                array_push(
-                    $conditions,
-                    [
-                        $data['opcoes'] . ' like ' => '%' . $value . '%'
-                    ]
-                );
-            }
-
-            if (!is_null($cliente_id)) {
-                $cliente = $this->Clientes->getClienteById($cliente_id);
-                $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-
-                $usuario = $this->usuarioLogado;
-
-                Log::write('info', __("Operador [{0} - {1}] iniciou gerenciamento de unidade [{2} - {3}].", $usuario['id'], $usuario['nome'], $cliente['id'], $cliente['razao_social']));
-
-                return $this->redirect('/');
-            }
-        }
-
-        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-            $clientes = $this->Clientes->getAllClientes($conditions);
-        } else {
-            $clientes = $this->Clientes->getClienteFiliais($cliente->id, $conditions);
-        }
-
-        $this->paginate($clientes, ['limit' => 10]);
-
-        $this->set(compact(['clientes']));
-
-        $this->set('_serialize', ['clientes']);
-    }
-
-    /**
-     * Encerra a administração de uma unidade (Modo Admin RTI)
-     *
-     * @deprecated 1.0
-     * @return void
-     */
-    public function encerrarAdministracaoUnidades()
-    {
-        $this->viewBuilder()->setLayout('none');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-
-        return $this->redirect('/');
-    }
-
-    /**
      * Exibe os dados de um cliente (local de abastecimento) para um usuário
      *
      * @param integer $pontuacao_comprovante_id Id de Comprovante da Pontuação (nele tem todos os dados)
@@ -716,6 +642,45 @@ class ClientesController extends AppController
         }
     }
 
+    /**
+     * ClientesController::calculaTurnos
+     *
+     * Calcula os turnos cadastrados para a unidade
+     *
+     * @param int $qteTurnos Quantidade de turnos
+     * @param string $horaMinutoTurno Hora e Minuto do Turno
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 31/12/2018
+     *
+     * @return array
+     */
+    private function calculaTurnos($qteTurnos, $horaMinutoTurno)
+    {
+        $horaMinutoTurno = explode(":", $horaMinutoTurno);
+        $hora = intval($horaMinutoTurno[0]);
+        $minuto = intval($horaMinutoTurno[1]);
+        $divisao = 24 / $qteTurnos;
+        $turnos = array();
+        $horaTemp = $hora;
+
+        for ($i = 0; $i < $qteTurnos; $i++) {
+            $turno = array();
+
+            // $turno["id"] = $i;
+            $turno["hora"] = strlen($horaTemp) == 1 ? "0" . $horaTemp : $horaTemp;
+            $turno["minuto"] = strlen($minuto) == 1 ? "0" . $minuto : $minuto;
+
+            $horaTurno = $horaTemp + $divisao;
+
+            $horaTurno = $horaTurno > 23 ? $horaTurno - 24 : $horaTurno;
+
+            $horaTemp = $horaTurno;
+            $turnos[] = $turno;
+        }
+
+        return $turnos;
+    }
 
     /**
      * ------------------------------------------------------------
