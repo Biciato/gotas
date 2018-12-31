@@ -743,7 +743,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                 $data = $this->request->getData();
 
-                $quantidade = $data['quantidade'];
+                // $quantidade = $data['quantidade'];
+                // Ajuste solicitado pelo Samuel, quantidade sempre será 1
+                $quantidade = 1;
 
                 if ($quantidade > 0) {
                     // obtem valor total de pontos necessários

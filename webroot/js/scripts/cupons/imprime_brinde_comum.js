@@ -385,7 +385,7 @@ $(document).ready(function () {
                 brindes_id: $(".brinde-comum-container .list-gifts-comum").val(),
                 clientes_id: $(".brinde-comum-container #clientes_id").val(),
                 usuarios_id: $(".brinde-comum-container #usuarios_id_brinde_comum").val(),
-                quantidade: $(".brinde-comum-container .quantidade-brindes").val(),
+                quantidade: 1,
                 current_password: $(".brinde-comum-container #current_password").val(),
                 _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
             };

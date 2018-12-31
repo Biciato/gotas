@@ -37,12 +37,17 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         ); ?>
 
         <div class="form-group row">
-            <?php
-            echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1));
-            ?>
+            <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 1)); ?>
         </div>
 
-        <?php echo $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
+        <?php echo $this->Form->text(
+            'clientes_id',
+            array(
+                'id' => 'clientes_id',
+                'value' => $cliente->id,
+                'style' => 'display: none;'
+            )
+        ); ?>
 
         <div class="form-group">
             <?php echo $this->element('../Brindes/brindes_filtro_ajax', array("usuarioVendaAvulsa" => true, "compraGotas" => false)) ?>
@@ -50,17 +55,20 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <div class="gifts-query-region">
 
-            <div class="col-lg-12">
-                <?= $this->Form->button(
-                    __('{0} Imprimir', $this->Html->tag('i', '', ['class' => 'fa fa-print'])),
-                    [
-                        // 'type' => 'button',
-                        'type' => 'submit',
-                        'id' => 'print_gift',
-                        'escape' => false,
-                        'class' => 'print-gift-shower'
-                    ]
-                ) ?>
+            <div class="col-lg-12 text-right">
+                <button type="button"
+                    id="print_gift"
+                    class="print-gift-shower
+                    btn btn-primary" >
+                    <i class="fa fa-print"></i>
+                    Imprimir
+                </button>
+
+                <button type="button"
+                    class="print-gift-cancel btn btn-default" id="print-gift-cancel">
+                <i class="fa fa-trash"></i>
+                Limpar
+                </button>
 
                 <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
                 <?= $this->Html->tag('/div') ?>

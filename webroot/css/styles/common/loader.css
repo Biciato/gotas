@@ -2,15 +2,21 @@
 
 .loading {
     position: fixed;
+    display: none;
     z-index: 999;
-    height: 2em;
-    width: 2em;
+    /* height: 2em;
+    width: 2em; */
+
     overflow: show;
     margin: auto;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
+    /* Configuração nova para centralizar texto */
+    height: 40vh;
+    width: 100vh;
+    text-align: center;
 }
 
 /* Transparent Overlay */
@@ -30,8 +36,8 @@
 
 .loading:not(:required) {
     /* hide "loading..." text */
-    font: 0/0 a;
-    color: transparent;
+    /* font: 0/0 a;
+    color: transparent; */
     text-shadow: none;
     background-color: transparent;
     border: 0;
@@ -44,4 +50,57 @@
     width: 1em;
     height: 1em;
     margin-top: -0.5em;
+}
+
+.loading-message{
+    font-weight: bold;
+    text-align: center !important;
+    color: #4F4F4F;
+    font-size: 28px;
+
+}
+/* Loader antigo */
+.loader-container {
+    margin: 1%;
+    position: initial;
+    z-index: 1
+}
+
+.loader-container p {
+    font-size: 20px;
+    font-weight: 600
+}
+
+.loader-panel {
+    text-align: center;
+    background: #d9d9da;
+    opacity: .9;
+    height: 95vh;
+    border-radius: 50px
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-radius: 50%;
+    width: 120px;
+    display: inline-block;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin-top: 35vh
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg)
+    }
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+@media screen and (max-width:1200px) {
+    .loader-container {
+        margin: 5%
+    }
 }

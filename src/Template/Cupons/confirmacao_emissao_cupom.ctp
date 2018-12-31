@@ -14,28 +14,25 @@
 
     <h4>O Cupom foi emitido com sucesso?</h4>
 
-    <div class="form-group row">
-        <div class="col-lg-2"></div>
-        <div class="col-lg-3">
-            <!-- Sim Impressão Brinde Smart  -->
-
-            <?= $this->Html->tag('button', __("{0} Sim, Imprimir Canhoto", $this->Html->tag('i', '', ['class' => 'fa fa-check'])), [
-                    'id' => 'imprimir-canhoto',
-                    'class' => 'imprimir-canhoto btn btn-primary btn-block'
-                ]) ?>
-
+    <div class="form-group row text-center">
+        <div class="col-lg-4">
+            <a href="<?= "/".implode("/", array_values($urlRedirectConfirmacao)) ?>" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                Sim, Concluir sem Imp. Canhoto
+            </a>
         </div>
-        <div class="col-lg-2"></div>
-        <div class="col-lg-3">
-            <!-- Sim Impressão Brinde Smart  -->
-
-            <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
-                    'id' => 'reimpressao-cupom',
-                    'class' => 'reimpressao-cupom btn btn-danger btn-block'
-                ]) ?>
-
+        <div class="col-lg-4">
+            <button type="button" id="imprimir-canhoto" class="imprimir-canhoto btn btn-primary">
+                <i class="fa fa-check"></i>
+                Sim, Imprimir Canhoto
+            </button>
         </div>
-        <div class="col-lg-2"></div>
+        <div class="col-lg-4">
+            <button type="button" id="reimpressao-cupom" class="reimpressao-cupom btn btn-danger">
+                <i class="fa fa-check"></i>
+                Não, Reimprimir
+            </button>
+        </div>
 
     </div>
 </div>

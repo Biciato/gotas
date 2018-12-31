@@ -785,7 +785,8 @@ class CuponsController extends AppController
                 $vendaAvulsa = isset($data["venda_avulsa"]) ? $data["venda_avulsa"] : false;
                 $clientesId = $data["clientes_id"];
                 // $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : 1;
-                $quantidade = $data["quantidade"];
+                // Definido pelo Samuel, cliente só pode retirar 1 por vez
+                $quantidade = 1;
                 $funcionariosId = isset($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : null;
                 $senhaAtual = isset($data["current_password"]) ? $data["current_password"] : "";
 
@@ -875,28 +876,27 @@ class CuponsController extends AppController
             $data = $this->request->getData();
 
             $cliente = $this->Clientes->getClienteById($data['clientes_id']);
-
             $rede = $this->request->session()->read('Rede.Grupo');
 
             // pega id de todos os clientes que estão ligados à uma rede
 
             $redes_has_clientes_query = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede->id);
-
-            $clientes_ids = [];
+            $clientes_ids = array();
 
             foreach ($redes_has_clientes_query as $key => $value) {
                 $clientes_ids[] = $value['clientes_id'];
             }
 
             $array = [];
-
             $clientes_id = $array;
 
             $brinde_habilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById(
                 $data['brindes_id']
             );
 
-            $quantidade = $data['quantidade'];
+            // $quantidade = $data['quantidade'];
+            // Definido pelo Samuel, cliente só pode retirar 1 por vez
+            $quantidade = 1;
 
             if ($data['usuarios_id'] == "conta_avulsa") {
                 $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read('profileTypes')['DummyUserProfileType'], 1);
@@ -1259,7 +1259,6 @@ class CuponsController extends AppController
             $error = __("{0} {1}", Configure::read('messageRedeemCouponError'), Configure::read('callSupport'));
 
             if ($this->request->is(['post'])) {
-
                 $data = $this->request->getData();
 
                 $cupom_emitido = $data['cupom_emitido'];
@@ -1273,7 +1272,9 @@ class CuponsController extends AppController
 
                 } else {
                     foreach ($cupons->toArray() as $key => $cupom) {
-                        $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                        $cliente_has_brinde_estoque = $this
+                            ->ClientesHasBrindesEstoque
+                            ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
                         $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                             $cupom->clientes_has_brindes_habilitados_id,
@@ -1287,7 +1288,6 @@ class CuponsController extends AppController
                             $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
 
                             // adiciona novo registro de pontuação
-
                             $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                                 $cupom->clientes_id,
                                 $cupom->usuarios_id,
@@ -1504,10 +1504,11 @@ class CuponsController extends AppController
 
                     return;
                 }
-                // else {
                 foreach ($cupons as $cupom) {
 
-                    $cliente_has_brinde_estoque = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                    $cliente_has_brinde_estoque = $this
+                        ->ClientesHasBrindesEstoque
+                        ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
                     $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
                         $cupom->clientes_has_brindes_habilitados_id,
@@ -1543,7 +1544,11 @@ class CuponsController extends AppController
 
                 $mensagem = array(
                     "status" => 1,
-                    "message" => __("{0} {1}", Configure::read("messageProcessingCompleted"), Configure::read("messageRedeemCouponRedeemed")),
+                    "message" => __(
+                        "{0} {1}",
+                        Configure::read("messageProcessingCompleted"),
+                        Configure::read("messageRedeemCouponRedeemed")
+                    ),
                     "errors" => array()
                 );
                 $resultado = array(
@@ -1624,10 +1629,21 @@ class CuponsController extends AppController
             $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
             $usuariosId = $usuario["id"];
             $clientesId = $data["clientes_id"];
-            $quantidade = $data["quantidade"];
+            // $quantidade = $data["quantidade"];
+            // Definido pelo Samuel, cliente só pode retirar 1 por vez
+            $quantidade = 1;
             $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
 
-            $retorno = $this->trataCompraCupom($brindesId, $usuariosId, $clientesId, $quantidade, $funcionario["id"], false, "", true);
+            $retorno = $this->trataCompraCupom(
+                $brindesId,
+                $usuariosId,
+                $clientesId,
+                $quantidade,
+                $funcionario["id"],
+                false,
+                "",
+                true
+            );
 
             $arraySet = $retorno["arraySet"];
             $mensagem = $retorno["mensagem"];

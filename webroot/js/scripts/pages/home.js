@@ -251,11 +251,13 @@ var callModalError = function (error, arrayContent) {
  *
  */
 var callLoaderAnimation = function (text_info) {
+    // $(".modal-loader").modal();
+    $(".loading").show();
     $(".modal-loader").modal();
 
-    $(".loader-message").text("");
+    $(".loading-message").text("");
     if (text_info !== undefined && text_info.length > 0) {
-        $(".loader-message").text(text_info);
+        $(".loading-message").text(text_info);
     }
 };
 
@@ -263,7 +265,9 @@ var callLoaderAnimation = function (text_info) {
  * Fecha tela de loading
  */
 var closeLoaderAnimation = function () {
-    $(".modal-loader").modal("hide");
+    $(".loading").hide();
+
+    // $(".modal-loader").modal("hide");
 };
 
 /**

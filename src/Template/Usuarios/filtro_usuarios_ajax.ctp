@@ -15,7 +15,9 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
     <div class="user-query-region">
 
-    <h4>Selecione um cliente</h4>
+    <div class="col-lg-12">
+        <h4>Selecione um cliente</h4>
+    </div>
 
     <div class="col-lg-3">
 

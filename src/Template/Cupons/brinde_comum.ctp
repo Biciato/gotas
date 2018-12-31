@@ -49,7 +49,9 @@ $showMenu = isset($showMenu) ? $showMenu : true;
 
                         <div class="brinde-comum user-query-region">
 
+                        <div class="col-lg-12">
                             <h4>Selecione um cliente</h4>
+                        </div>
 
                             <div class="col-lg-3">
 

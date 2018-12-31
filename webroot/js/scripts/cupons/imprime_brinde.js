@@ -388,6 +388,16 @@ $(document).ready(function () {
     $(".imprimir-canhoto").on('click', imprimirCanhoto);
     $(".reimpressao-canhoto").on('click', imprimirCanhoto);
 
+    $(".print-gift-cancel").on("click", function(){
+        $(".opcoes").val("placa");
+        $(".opcoes").change();
+        $(".parametro").val(undefined);
+        $(".list-gifts").val(null);
+        $(".list-gifts").change();
+
+        resetUserTab();
+    })
+
     $(".print-gift-shower").on('click', function () {
 
         callLoaderAnimation();
@@ -400,7 +410,7 @@ $(document).ready(function () {
                 clientes_id: $("#clientes_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
                 usuarios_id: $(".usuarios_id").val(),
-                quantidade: $(".quantidade-brindes").val(),
+                quantidade: 1,
                 venda_avulsa: $(".venda_avulsa").val(),
                 current_password: $("#current_password").val(),
                 _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)

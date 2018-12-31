@@ -10,13 +10,15 @@ use Cake\Core\Configure;
 
 $usuarioVendaAvulsa = isset($usuarioVendaAvulsa) ? $usuarioVendaAvulsa : false;
 $compraGotas = isset($compraGotas) ? $compraGotas : true;
+$divComboBoxBrindes = $compraGotas ? "col-lg-4" : "col-lg-6";
 
 ?>
 <div class="gifts-query-region">
     <h4>Selecione um brinde</h4>
     <form>
     <div class="row">
-        <div class="col-lg-6">
+
+        <div class="<?= $divComboBoxBrindes ?>">
             <?= $this->Form->text(
                 'restrict_query',
                 array(
@@ -55,6 +57,18 @@ $compraGotas = isset($compraGotas) ? $compraGotas : true;
             ) ?>
         </div>
 
+        <?php if ($compraGotas) : ?>
+        <div class="col-lg-2">
+            <label for="current_password">Senha do usuário:*</label>
+            <input type="password"
+                class="current_password form-control"
+                required id="current_password"
+                />
+
+        </div>
+
+        <?php endif; ?>
+
         <div class="col-lg-6">
             <label for="gift-image">Imagem do Brinde</label>
             <br />
@@ -68,43 +82,7 @@ $compraGotas = isset($compraGotas) ? $compraGotas : true;
             ) ?>
         </div>
     </div>
-    <div class="row">
-        <?php if ($compraGotas) : ?>
-        <div class="col-lg-4">
-            <label for="quantidade">Quantidade (Se Não é SMART Shower)</label>
-            <input type="number"
-                min="1"
-                step="1.0"
-                default="0"
-                name="quantidade"
-                id="quantidade"
-                class="quantidade-brindes form-control"
-                required=true />
-        </div>
 
-        <div class="col-lg-2">
-            <label for="current_password">Senha do usuário:*</label>
-            <input type="password"
-                class="current_password form-control"
-                required id="current_password"
-                />
-
-        </div>
-        <?php else : ?>
-        <div class="col-lg-6">
-            <label for="quantidade">Quantidade (Se Não é SMART Shower)</label>
-            <input type="number"
-                min="1"
-                step="1.0"
-                default="0"
-                name="quantidade"
-                id="quantidade"
-                class="quantidade-brindes form-control"
-                required=true />
-        </div>
-
-        <?php endif; ?>
-    </div>
     </form>
 
 </div>
