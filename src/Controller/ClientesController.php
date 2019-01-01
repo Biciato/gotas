@@ -288,6 +288,18 @@ class ClientesController extends AppController
             }
 
             $cliente = $this->Clientes->getClienteById($id);
+            $redesId = $cliente["rede_has_cliente"]["redes_id"];
+
+            // Monta o quadro de horários
+            $quantidadeTurnos = sizeof($cliente["clientes_quadro_horarios"]);
+            $turnoInicial = null;
+
+            if ($quantidadeTurnos > 0) {
+                $turnoInicial = $cliente["clientes_quadro_horarios"][0]["horario"]->format("H:i");
+            }
+
+            $cliente["quantidade_turnos"] = $quantidadeTurnos;
+            $cliente["horario"] = $turnoInicial;
 
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $data = $this->request->getData();
@@ -315,6 +327,24 @@ class ClientesController extends AppController
 
 
                 if ($this->Clientes->updateClient($cliente)) {
+
+                    /** Atualização do quadro de horarios
+                     * Se o primeiro horário e a quantidade de turno for diferente,
+                     * apaga todos e grava novamente
+                     */
+
+                    $novaQteTurnos = $data["quantidade_turnos"];
+                    $novoTurno = $data["horario"];
+
+                    if (($novaQteTurnos != $quantidadeTurnos) || ($novoTurno != $turnoInicial)) {
+
+                        $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
+
+                        $resultRemove = $this->ClientesQuadroHorario->deleteHorariosCliente($cliente["id"]);
+
+                        $status = $this->ClientesQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
+                    }
+
                     $this->Flash->success(__('O registro foi atualizado com sucesso.'));
 
                     return $this->redirect(

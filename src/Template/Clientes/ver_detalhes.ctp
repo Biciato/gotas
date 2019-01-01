@@ -47,9 +47,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         <div class="form-group row">
             <div class="col-lg-6">
                 <label for="codigo_equipamento_rti">Código Equipamento RTI</label>
-                <input type="text" 
-                    class="form-control" 
-                    title="Código que será utilizado para impressão de senhas" 
+                <input type="text"
+                    class="form-control"
+                    title="Código que será utilizado para impressão de senhas"
                     id="codigo_equipamento_rti"
                     name="codigo_equipamento_rti"
                     readonly="readonly"
@@ -57,9 +57,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-6">
                 <label for="tipo_unidade">Tipo da Unidade</label>
-                <input type="text" 
-                    class="form-control" 
-                    title="Tipo da Unidade" 
+                <input type="text"
+                    class="form-control"
+                    title="Tipo da Unidade"
                     id="tipo_unidade"
                     name="tipo_unidade"
                     readonly="readonly"
@@ -70,9 +70,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         <div class="form-group row">
             <div class="col-lg-4">
                 <label for="nome_fantasia">Nome Fantasia</label>
-                <input type="text" 
-                    class="form-control" 
-                    title="Nome Fantasia" 
+                <input type="text"
+                    class="form-control"
+                    title="Nome Fantasia"
                     id="nome_fantasia"
                     name="nome_fantasia"
                     readonly="readonly"
@@ -80,9 +80,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-4">
                 <label for="razao_social">Razão Social</label>
-                <input type="text" 
-                    class="form-control" 
-                    title="Razão Social" 
+                <input type="text"
+                    class="form-control"
+                    title="Razão Social"
                     id="razao_social"
                     name="razao_social"
                     readonly="readonly"
@@ -90,9 +90,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-4">
                 <label for="cnpj">CNPJ</label>
-                <input type="text" 
-                    class="form-control" 
-                    title="CNPJ" 
+                <input type="text"
+                    class="form-control"
+                    title="CNPJ"
                     id="cnpj"
                     name="cnpj"
                     readonly="readonly"
@@ -103,8 +103,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         <div class="form-group row">
             <div class='col-lg-2'>
             <label for="cep">CEP</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="CEP do local do cliente"
                     id="cep"
                     name="cep"
@@ -114,30 +114,30 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 
             <div class="col-lg-5" >
                 <label for="endereco">Endereço</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Endereço"
                     id="endereco"
                     name="endereco"
                     readonly="readonly"
                     value="<?php echo $cliente['endereco'] ?>" />
             </div>
-            
+
             <div class="col-lg-2">
                 <label for="endereco_numero">Número</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Número"
                     id="endereco_numero"
                     name="endereco_numero"
                     readonly="readonly"
                     value="<?php echo $cliente['endereco_numero'] ?>" />
             </div>
-            
+
             <div class="col-lg-3">
                 <label for="endereco_complemento">Complemento</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Complemento"
                     id="endereco_complemento"
                     name="endereco_complemento"
@@ -150,8 +150,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 
             <div class="col-lg-3">
                 <label for="bairro">Bairro</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Bairro"
                     id="bairro"
                     name="bairro"
@@ -160,8 +160,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-3">
                 <label for="municipio">Município</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Município"
                     id="municipio"
                     name="municipio"
@@ -170,8 +170,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-3">
                 <label for="estado">Estado</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Estado"
                     id="estado"
                     name="estado"
@@ -180,8 +180,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-3">
                 <label for="pais">País</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="País"
                     id="pais"
                     name="pais"
@@ -194,8 +194,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         <div class="form-group row">
             <div class="col-lg-6">
                 <label for="latitude">Latitude</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Latitude"
                     id="latitude"
                     name="latitude"
@@ -204,21 +204,21 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             </div>
             <div class="col-lg-6">
                 <label for="longitude">Longitude</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Longitude"
                     id="longitude"
                     name="longitude"
                     readonly="readonly"
                     value="<?php echo $cliente['longitude'] ?>" />
             </div>
-        
+
         </div>
         <div class="form-group row">
             <div class="col-lg-4">
                 <label for="tel_fixo">Telefone Fixo</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Telefone Fixo"
                     id="tel_fixo"
                     name="tel_fixo"
@@ -228,8 +228,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 
             <div class="col-lg-4">
                 <label for="tel_fax">Telefone Fax</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Telefone Fax"
                     id="tel_fax"
                     name="tel_fax"
@@ -239,8 +239,8 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 
             <div class="col-lg-4">
                 <label for="tel_celular">Telefone Celular</label>
-                <input type="text" 
-                    class="form-control" 
+                <input type="text"
+                    class="form-control"
                     title="Telefone Celular"
                     id="tel_celular"
                     name="tel_celular"
@@ -248,5 +248,28 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
                     value="<?php echo $this->Phone->formatPhone($cliente['tel_celular']) ?>" />
             </div>
         </div>
+
+        <h4>Quadro de Horários</h4>
+        <?php if (sizeof($cliente["clientes_quadro_horarios"]) > 0) : ?>
+            <div class="form-group row">
+                <?php for ($i = 0; $i < sizeof($cliente["clientes_quadro_horarios"]); $i++) : ?>
+                    <div class="col-lg-4">
+                        <label for="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>">
+                        <?= sprintf("<strong>%s %s</strong>", "Turno", $i + 1) ?>
+                        </label>
+                        <input type="text"
+                            class="form-control"
+                            id="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>"
+                            name="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>"
+                            readonly
+                            value="<?= $cliente["clientes_quadro_horarios"][$i]["horario"]->format("H:i") ?>"
+                            />
+
+                    </div>
+                <?php endfor; ?>
+            </div>
+        <?php else : ?>
+            <div class="col-lg-12 text-center text-uppercase"><span class="text-bold"> Não há dados de quadro de horários!</span></div>
+        <?php endif; ?>
     </fieldset>
 </div>

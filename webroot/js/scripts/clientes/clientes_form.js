@@ -64,7 +64,6 @@ $(document).ready(function () {
     }
 
     $("#quantidade_turnos").on("blur", function (ev) {
-
         var max = $("#quantidade_turnos").attr('max');
 
         if (this.value > max) {
@@ -77,8 +76,8 @@ $(document).ready(function () {
 
     $("#horario").on("blur", function (ev) {
         preencheQuadroHorarios();
-
     });
 
-
+    // Dispara atualização de quantidade de turnos se já tiver preenchido
+    $("#quantidade_turnos").blur()
 });

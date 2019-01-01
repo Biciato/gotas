@@ -173,7 +173,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
                 min="2"
                 max="6"
                 step="1"
-                value="<?= $cliente["quantidade_turnos"] ?> "
+                value="<?= $cliente["quantidade_turnos"] ?>"
                 class="form-control"
                 name="quantidade_turnos"
                 id="quantidade_turnos" />
@@ -183,7 +183,7 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
             <input type="time"
                 min="2"
                 max="4"
-                value="<?= $cliente["horario"] ?> "
+                value="<?= $cliente["horario"] ?>"
                 class="form-control"
                 name="horario"
                 id="horario" />
