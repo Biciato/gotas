@@ -134,7 +134,7 @@ class ResponseUtil
         header("HTTP/1.0 400");
         header("Content-Type: application/json");
 
-        $arrayKeys = array_keys($contentArray);
+        $arrayKeys = array_keys($data);
         $mensagem = array(
             "status" => 0,
             "message" => $msg,
@@ -144,7 +144,7 @@ class ResponseUtil
         $arraySet["mensagem"] = $mensagem;
 
         foreach ($arrayKeys as $key => $item) {
-            $arraySet[$item] = $contentArray[$item];
+            $arraySet[$item] = $data[$item];
         }
 
         echo json_encode($arraySet);
