@@ -1,22 +1,22 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\ClientesQuadroHorarioTable;
+use App\Model\Table\ClientesHasQuadroHorarioTable;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
- * App\Model\Table\ClientesQuadroHorarioTable Test Case
+ * App\Model\Table\ClientesHasQuadroHorarioTable Test Case
  */
-class ClientesQuadroHorarioTableTest extends TestCase
+class ClientesHasQuadroHorarioTableTest extends TestCase
 {
 
     /**
      * Test subject
      *
-     * @var \App\Model\Table\ClientesQuadroHorarioTable
+     * @var \App\Model\Table\ClientesHasQuadroHorarioTable
      */
-    public $ClientesQuadroHorario;
+    public $ClientesHasQuadroHorario;
 
     /**
      * Fixtures
@@ -24,7 +24,7 @@ class ClientesQuadroHorarioTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'app.clientes_quadro_horario',
+        'app.clientes_has_quadro_horario',
         'app.clientes'
     ];
 
@@ -36,8 +36,8 @@ class ClientesQuadroHorarioTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('ClientesQuadroHorario') ? [] : ['className' => ClientesQuadroHorarioTable::class];
-        $this->ClientesQuadroHorario = TableRegistry::get('ClientesQuadroHorario', $config);
+        $config = TableRegistry::exists('ClientesHasQuadroHorario') ? [] : ['className' => ClientesHasQuadroHorarioTable::class];
+        $this->ClientesHasQuadroHorario = TableRegistry::get('ClientesHasQuadroHorario', $config);
     }
 
     /**

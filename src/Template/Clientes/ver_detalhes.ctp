@@ -250,9 +250,9 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         </div>
 
         <h4>Quadro de Horários</h4>
-        <?php if (sizeof($cliente["clientes_quadro_horarios"]) > 0) : ?>
+        <?php if (sizeof($cliente["clientes_has_quadro_horarios"]) > 0) : ?>
             <div class="form-group row">
-                <?php for ($i = 0; $i < sizeof($cliente["clientes_quadro_horarios"]); $i++) : ?>
+                <?php for ($i = 0; $i < sizeof($cliente["clientes_has_quadro_horarios"]); $i++) : ?>
                     <div class="col-lg-4">
                         <label for="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>">
                         <?= sprintf("<strong>%s %s</strong>", "Turno", $i + 1) ?>
@@ -262,7 +262,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
                             id="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>"
                             name="<?= sprintf('%s%s', 'quadro_horario_', $i + 1); ?>"
                             readonly
-                            value="<?= $cliente["clientes_quadro_horarios"][$i]["horario"]->format("H:i") ?>"
+                            value="<?= $cliente["clientes_has_quadro_horarios"][$i]["horario"]->format("H:i") ?>"
                             />
 
                     </div>

@@ -4,10 +4,10 @@ namespace App\Test\Fixture;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * ClientesQuadroHorarioFixture
+ * ClientesHasQuadroHorarioFixture
  *
  */
-class ClientesQuadroHorarioFixture extends TestFixture
+class ClientesHasQuadroHorarioFixture extends TestFixture
 {
 
     /**
@@ -15,7 +15,7 @@ class ClientesQuadroHorarioFixture extends TestFixture
      *
      * @var string
      */
-    public $table = 'clientes_quadro_horario';
+    public $table = 'clientes_has_quadro_horario';
 
     /**
      * Fields
@@ -30,13 +30,13 @@ class ClientesQuadroHorarioFixture extends TestFixture
         'audit_insert' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
         'audit_update' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
         '_indexes' => [
-            'clientes_quadro_horario_idx' => ['type' => 'index', 'columns' => ['id'], 'length' => []],
-            'clientes_quadro_horario_clientes_id_idx' => ['type' => 'index', 'columns' => ['clientes_id'], 'length' => []],
-            'clientes_quadro_horario_horario_idx' => ['type' => 'index', 'columns' => ['horario'], 'length' => []],
+            'clientes_has_quadro_horario_idx' => ['type' => 'index', 'columns' => ['id'], 'length' => []],
+            'clientes_has_quadro_horario_clientes_id_idx' => ['type' => 'index', 'columns' => ['clientes_id'], 'length' => []],
+            'clientes_has_quadro_horario_horario_idx' => ['type' => 'index', 'columns' => ['horario'], 'length' => []],
         ],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
-            'fk_clientes_quadro_horario_clientes_id' => ['type' => 'foreign', 'columns' => ['clientes_id'], 'references' => ['clientes', 'id'], 'update' => 'noAction', 'delete' => 'noAction', 'length' => []],
+            'fk_clientes_has_quadro_horario_clientes_id' => ['type' => 'foreign', 'columns' => ['clientes_id'], 'references' => ['clientes', 'id'], 'update' => 'noAction', 'delete' => 'noAction', 'length' => []],
         ],
         '_options' => [
             'engine' => 'InnoDB',

@@ -246,7 +246,7 @@ class ClientesController extends AppController
                 $horarioInicial = $data["horario"];
                 $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
 
-                $this->ClientesQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+                $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
 
                 $this->Flash->success(__("Registro gravado com sucesso."));
 
@@ -291,11 +291,11 @@ class ClientesController extends AppController
             $redesId = $cliente["rede_has_cliente"]["redes_id"];
 
             // Monta o quadro de horários
-            $quantidadeTurnos = sizeof($cliente["clientes_quadro_horarios"]);
+            $quantidadeTurnos = sizeof($cliente["clientes_has_quadro_horarios"]);
             $turnoInicial = null;
 
             if ($quantidadeTurnos > 0) {
-                $turnoInicial = $cliente["clientes_quadro_horarios"][0]["horario"]->format("H:i");
+                $turnoInicial = $cliente["clientes_has_quadro_horarios"][0]["horario"]->format("H:i");
             }
 
             $cliente["quantidade_turnos"] = $quantidadeTurnos;
@@ -340,9 +340,9 @@ class ClientesController extends AppController
 
                         $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
 
-                        $resultRemove = $this->ClientesQuadroHorario->deleteHorariosCliente($cliente["id"]);
+                        $resultRemove = $this->ClientesHasQuadroHorario->deleteHorariosCliente($cliente["id"]);
 
-                        $status = $this->ClientesQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
+                        $status = $this->ClientesHasQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
                     }
 
                     $this->Flash->success(__('O registro foi atualizado com sucesso.'));

@@ -129,9 +129,9 @@ class ClientesTable extends GenericTable
         );
 
         $this->hasMany(
-            "ClientesQuadroHorarios",
+            "ClientesHasQuadroHorarios",
             array(
-                "className" => "ClientesQuadroHorario",
+                "className" => "ClientesHasQuadroHorario",
                 "foreignKey" => "clientes_id",
                 "join" => "LEFT"
             )
@@ -621,7 +621,7 @@ class ClientesTable extends GenericTable
                     [
                         'Clientes.id' => $clientes_id
                     ]
-                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes', "ClientesQuadroHorarios"]);
+                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes', "ClientesHasQuadroHorarios"]);
 
             if (sizeof($selectFields) > 0) {
                 $cliente = $cliente->select($selectFields);

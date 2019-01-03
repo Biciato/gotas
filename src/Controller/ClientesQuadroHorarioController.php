@@ -4,13 +4,13 @@ namespace App\Controller;
 use App\Controller\AppController;
 
 /**
- * ClientesQuadroHorario Controller
+ * ClientesHasQuadroHorario Controller
  *
- * @property \App\Model\Table\ClientesQuadroHorarioTable $ClientesQuadroHorario
+ * @property \App\Model\Table\ClientesHasQuadroHorarioTable $ClientesHasQuadroHorario
  *
- * @method \App\Model\Entity\ClientesQuadroHorario[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class ClientesQuadroHorarioController extends AppController
+class ClientesHasQuadroHorarioController extends AppController
 {
 
     /**
@@ -23,9 +23,9 @@ class ClientesQuadroHorarioController extends AppController
         $this->paginate = [
             'contain' => ['Clientes']
         ];
-        $clientesQuadroHorario = $this->paginate($this->ClientesQuadroHorario);
+        $ClientesHasQuadroHorario = $this->paginate($this->ClientesHasQuadroHorario);
 
-        $this->set(compact('clientesQuadroHorario'));
+        $this->set(compact('ClientesHasQuadroHorario'));
     }
 
     /**
@@ -37,11 +37,11 @@ class ClientesQuadroHorarioController extends AppController
      */
     public function view($id = null)
     {
-        $clientesQuadroHorario = $this->ClientesQuadroHorario->get($id, [
+        $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->get($id, [
             'contain' => ['Clientes']
         ]);
 
-        $this->set('clientesQuadroHorario', $clientesQuadroHorario);
+        $this->set('ClientesHasQuadroHorario', $ClientesHasQuadroHorario);
     }
 
     /**
@@ -51,18 +51,18 @@ class ClientesQuadroHorarioController extends AppController
      */
     public function add()
     {
-        $clientesQuadroHorario = $this->ClientesQuadroHorario->newEntity();
+        $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->newEntity();
         if ($this->request->is('post')) {
-            $clientesQuadroHorario = $this->ClientesQuadroHorario->patchEntity($clientesQuadroHorario, $this->request->getData());
-            if ($this->ClientesQuadroHorario->save($clientesQuadroHorario)) {
+            $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->patchEntity($ClientesHasQuadroHorario, $this->request->getData());
+            if ($this->ClientesHasQuadroHorario->save($ClientesHasQuadroHorario)) {
                 $this->Flash->success(__('The clientes quadro horario has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The clientes quadro horario could not be saved. Please, try again.'));
         }
-        $clientes = $this->ClientesQuadroHorario->Clientes->find('list', ['limit' => 200]);
-        $this->set(compact('clientesQuadroHorario', 'clientes'));
+        $clientes = $this->ClientesHasQuadroHorario->Clientes->find('list', ['limit' => 200]);
+        $this->set(compact('ClientesHasQuadroHorario', 'clientes'));
     }
 
     /**
@@ -74,20 +74,20 @@ class ClientesQuadroHorarioController extends AppController
      */
     public function edit($id = null)
     {
-        $clientesQuadroHorario = $this->ClientesQuadroHorario->get($id, [
+        $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->get($id, [
             'contain' => []
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $clientesQuadroHorario = $this->ClientesQuadroHorario->patchEntity($clientesQuadroHorario, $this->request->getData());
-            if ($this->ClientesQuadroHorario->save($clientesQuadroHorario)) {
+            $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->patchEntity($ClientesHasQuadroHorario, $this->request->getData());
+            if ($this->ClientesHasQuadroHorario->save($ClientesHasQuadroHorario)) {
                 $this->Flash->success(__('The clientes quadro horario has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The clientes quadro horario could not be saved. Please, try again.'));
         }
-        $clientes = $this->ClientesQuadroHorario->Clientes->find('list', ['limit' => 200]);
-        $this->set(compact('clientesQuadroHorario', 'clientes'));
+        $clientes = $this->ClientesHasQuadroHorario->Clientes->find('list', ['limit' => 200]);
+        $this->set(compact('ClientesHasQuadroHorario', 'clientes'));
     }
 
     /**
@@ -100,8 +100,8 @@ class ClientesQuadroHorarioController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $clientesQuadroHorario = $this->ClientesQuadroHorario->get($id);
-        if ($this->ClientesQuadroHorario->delete($clientesQuadroHorario)) {
+        $ClientesHasQuadroHorario = $this->ClientesHasQuadroHorario->get($id);
+        if ($this->ClientesHasQuadroHorario->delete($ClientesHasQuadroHorario)) {
             $this->Flash->success(__('The clientes quadro horario has been deleted.'));
         } else {
             $this->Flash->error(__('The clientes quadro horario could not be deleted. Please, try again.'));

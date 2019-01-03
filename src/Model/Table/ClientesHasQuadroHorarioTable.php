@@ -5,21 +5,22 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Log\Log;
 
 /**
- * ClientesQuadroHorario Model
+ * ClientesHasQuadroHorario Model
  *
  * @property \App\Model\Table\ClientesTable|\Cake\ORM\Association\BelongsTo $Clientes
  *
- * @method \App\Model\Entity\ClientesQuadroHorario get($primaryKey, $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\ClientesQuadroHorario findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario get($primaryKey, $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\ClientesHasQuadroHorario findOrCreate($search, callable $callback = null, $options = [])
  */
-class ClientesQuadroHorarioTable extends Table
+class ClientesHasQuadroHorarioTable extends Table
 {
 
     /**
@@ -32,7 +33,7 @@ class ClientesQuadroHorarioTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('clientes_quadro_horario');
+        $this->setTable('clientes_has_quadro_horario');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
@@ -100,7 +101,7 @@ class ClientesQuadroHorarioTable extends Table
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-12-31
      *
-     * @return \App\Model\ClientesQuadroHorario entidade
+     * @return \App\Model\ClientesHasQuadroHorario entidade
      */
     public function addHorariosCliente(int $redesId, int $clientesId, array $horarios)
     {
@@ -129,7 +130,7 @@ class ClientesQuadroHorarioTable extends Table
                 $error->getMessage(),
                 __FUNCTION__,
                 __FILE__,
-                __LINE__
+                $error->getLine()
             );
 
             Log::write('error', $stringError);
@@ -142,7 +143,7 @@ class ClientesQuadroHorarioTable extends Table
     #region Read
 
     /**
-     * ClientesQuadroHorario::getHorariosCliente
+     * ClientesHasQuadroHorario::getHorariosCliente
      *
      * Obtem as Horas de trabalho do Ponto de Atendimento
      *
@@ -155,7 +156,7 @@ class ClientesQuadroHorarioTable extends Table
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-12-31
      *
-     * @return \App\Model\ClientesQuadroHorario[] Quadros de Horário
+     * @return \App\Model\ClientesHasQuadroHorario[] Quadros de Horário
      */
     public function getHorariosCliente(int $redesId, int $clientesId, int $hora = 0, int $minutos = 0, int $limite = 999)
     {
@@ -207,7 +208,7 @@ class ClientesQuadroHorarioTable extends Table
     #region Delete
 
     /**
-     * ClientesQuadroHorarioTable::deleteHorariosCliente
+     * ClientesHasQuadroHorarioTable::deleteHorariosCliente
      *
      * Remove todos os quadros de horarios de cliente
      *
