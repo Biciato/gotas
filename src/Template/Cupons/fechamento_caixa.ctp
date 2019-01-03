@@ -11,9 +11,9 @@
 use Cake\Core\Configure;
 use Cake\View\Helper\NumberHelper;
 
-
+$title = "Fechamento de Caixa";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Atribuição de Gotas', [], ['class' => 'active']);
+$this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
@@ -22,7 +22,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 <div class="col-lg-9 col-md-8">
 
-<legend>Fechamento de Caixa</legend>
+<legend><?= $title?> </legend>
 
     <?php foreach ($cuponsFuncionariosRetorno as $key => $cupom) : ?>
         <p>
