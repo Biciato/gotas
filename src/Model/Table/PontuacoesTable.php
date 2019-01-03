@@ -718,10 +718,10 @@ class PontuacoesTable extends GenericTable
                 "mensagem" => $mensagem,
                 "resumo_gotas" =>
                     array(
-                    'total_gotas_adquiridas' => $totalGotasAdquiridas,
-                    'total_gotas_utilizadas' => $totalGotasUtilizadas,
-                    'total_gotas_expiradas' => $totalGotasExpiradas,
-                    'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : $totalGotasAdquiridas - $totalGotasUtilizadas
+                    'total_gotas_adquiridas' => floor($totalGotasAdquiridas),
+                    'total_gotas_utilizadas' => floor($totalGotasUtilizadas),
+                    'total_gotas_expiradas' => floor($totalGotasExpiradas),
+                    'saldo' => $totalGotasAdquiridas == 0 ? $totalGotasAdquiridas : floor($totalGotasAdquiridas - $totalGotasUtilizadas)
                 )
             );
             return $retorno;

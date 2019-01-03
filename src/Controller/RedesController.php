@@ -844,9 +844,9 @@ class RedesController extends AppController
                         foreach ($clientesIdsQuery as $key => $clientesIdsItem) {
                             $clientesIds[] = $clientesIdsItem->cliente_id;
                         }
-                        $soma_pontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuariosId, $rede["id"], $unidadesIds);
+                        $somaPontos = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuariosId, $rede["id"], $unidadesIds);
 
-                        $rede['soma_pontos'] = $soma_pontos;
+                        $rede['soma_pontos'] = floor($somaPontos);
 
                         $redes["data"][] = $rede;
                     }

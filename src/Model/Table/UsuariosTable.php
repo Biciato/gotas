@@ -1821,10 +1821,10 @@ class UsuariosTable extends GenericTable
                     $usuarioTemp["nome"] = $usuario["nome"];
                     $usuarioTemp["totalAssiduidade"] = $totalAssiduidade;
                     $usuarioTemp["mediaAssiduidade"] = $mediaAssiduidade;
-                    $usuarioTemp["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
-                    $usuarioTemp["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
-                    $usuarioTemp["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
-                    $usuarioTemp["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+                    $usuarioTemp["gotasAdquiridas"] = floor($saldoAtual["resumo_gotas"]["total_gotas_adquiridas"]);
+                    $usuarioTemp["gotasUtilizadas"] = floor($saldoAtual["resumo_gotas"]["total_gotas_utilizadas"]);
+                    $usuarioTemp["gotasExpiradas"] = floor($saldoAtual["resumo_gotas"]["total_gotas_expiradas"]);
+                    $usuarioTemp["saldoAtual"] = floor($saldoAtual["resumo_gotas"]["saldo"]);
                     $usuarioTemp["totalMoedaCompraBrindes"] = $totalMoedaCompraBrindes;
                     $usuarioTemp["statusAssiduidade"] = $mediaAssiduidade >= $mediaAssiduidadeClientes;
                     $usuarioTemp["statusConta"] = $usuario["statusConta"];
