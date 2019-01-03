@@ -39,8 +39,7 @@ if (!empty($usuarioAdministrar)) {
                 <?= __('Menu') ?>
             </li>
         </ul>
-    <?php elseif ($tipoPerfil >= Configure::read("profileTypes")["ManagerProfileType"] &&
-        $tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                 <?= __('Menu') ?>
@@ -95,6 +94,15 @@ if (!empty($usuarioAdministrar)) {
                 <li>
             <?php endif; ?>
                 <?= $this->Html->link(__('Atualizar Cad. Cliente'), ['controller' => 'Usuarios', 'action' => 'pesquisar_cliente_alterar_dados']) ?>
+            </li>
+
+            <li class="list-group-item active">
+                <?= __('Relatórios') ?>
+            </li>
+
+
+            <li class="<?= $item_selected == 'fechamento_caixa' ? 'list-group-item-success' : '' ?> ">
+                <a href="/cupons/fechamentoCaixa/">Fechamento de Caixa</a>
             </li>
 
 

@@ -465,7 +465,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         array $filterTiposBrindesClientesColumns = array()
     ) {
         try {
-
             // Verifica se ordenação ordena algum campo de preço do brinde
 
             $brindesPrecosOrdenacao = array();
@@ -591,9 +590,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $count = 0;
 
             foreach ($brindesIds as $key => $brindeId) {
-
                 $whereConditions = $clientesBrindesHabilitadosWhereConditions;
-
                 $whereConditions[] = array("ClientesHasBrindesHabilitados.brindes_id" => $brindeId);
 
                 $clientesBrindesHabilitado = $this

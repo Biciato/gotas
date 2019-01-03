@@ -91,6 +91,12 @@ class CuponsTable extends GenericTable
             'foreignKey' => 'clientes_id',
             'joinType' => 'INNER'
         ]);
+        $this->belongsTo('Funcionarios', [
+            "className" => "Usuarios",
+            'foreignKey' => 'usuarios_id',
+            'joinType' => 'INNER'
+        ]);
+
         $this->belongsTo('Usuarios', [
             'foreignKey' => 'usuarios_id',
             'joinType' => 'INNER'
@@ -193,6 +199,7 @@ class CuponsTable extends GenericTable
      *
      * @param int $clientesHasBrindesHabilitadosId Id de Brinde Habilitado
      * @param int $clientesId Id de Cliente
+     * @param int $funcionariosId Id de Funcionário
      * @param int $usuariosId Id de Usuário
      * @param float $valorPago Valor Pago
      * @param int $quantidade Quantidade Solicitada
@@ -200,7 +207,7 @@ class CuponsTable extends GenericTable
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $usuariosId, float $valorPago, int $quantidade, int $tipoVenda = 0)
+    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPago, int $quantidade, int $tipoVenda = 0)
     {
         try {
             $cupom = $this->_getCuponsTable()->newEntity();

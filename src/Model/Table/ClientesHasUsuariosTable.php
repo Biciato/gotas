@@ -503,11 +503,11 @@ class ClientesHasUsuariosTable extends Table
      * Id de cliente e tipo de perfil
      *
      * @param int $clientesId  Id do cliente
-     * @param int $tipo_perfil  Tipo de perfil procurado
+     * @param int $tipoPerfil  Tipo de perfil procurado
      *
      * @return \App\Model\Entity\ClientesHasUsuarios
      */
-    public function getAllUsersByClienteId(int $clientesId, int $tipo_perfil = null)
+    public function getAllUsersByClienteId(int $clientesId, int $tipoPerfil = null, bool $ativo = null)
     {
         try {
 
@@ -517,26 +517,30 @@ class ClientesHasUsuariosTable extends Table
                 'ClientesHasUsuarios.clientes_id' => $clientesId
             ];
 
-            if (!is_null($tipo_perfil)) {
-                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipo_perfil];
+            if (!is_null($tipoPerfil)) {
+                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
             }
 
-            $clientes_has_usuarios = $this->_getClienteHasUsuarioTable()->find('all')
+            if (!is_null($ativo)) {
+                $whereConditions[] = array("ClientesHasUsuarios.conta_ativa" => $ativo);
+            }
+
+            $clientesHasUsuarios = $this->find('all')
                 ->where($whereConditions);
 
             $usuariosIds = [];
 
-            foreach ($clientes_has_usuarios as $key => $value) {
+            foreach ($clientesHasUsuarios as $key => $value) {
                 $usuariosIds[] = $value['usuarios_id'];
             }
 
             $result = null;
 
             if (sizeof($usuariosIds) > 0) {
-                $result = $this->_getClienteHasUsuarioTable()
+                $result = $this
                     ->Usuarios
                     ->find('all')
-                    ->where(['id IN ' => $usuariosIds]);
+                    ->where(array('id IN ' => $usuariosIds));
             }
 
             return $result;
@@ -557,14 +561,14 @@ class ClientesHasUsuariosTable extends Table
      *
      * @param integer $redesId
      * @param integer $usuariosId
-     * @param integer $tipo_perfil
+     * @param integer $tipoPerfil
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 11/10/2018
      *
      * @return array Lista de seleção
      */
-    public function getAllClientesIdsAllowedFromRedesIdUsuariosId(int $redesId, int $usuariosId, int $tipo_perfil)
+    public function getAllClientesIdsAllowedFromRedesIdUsuariosId(int $redesId, int $usuariosId, int $tipoPerfil)
     {
         try {
             $query = $this->find("all")
@@ -577,7 +581,7 @@ class ClientesHasUsuariosTable extends Table
                     array(
                         "RedesHasClientes.redes_id" => $redesId,
                         "Usuarios.id" => $usuariosId,
-                        "Usuarios.tipo_perfil" => $tipo_perfil
+                        "Usuarios.tipo_perfil" => $tipoPerfil
                     )
                 )
                 ->select(
@@ -608,11 +612,11 @@ class ClientesHasUsuariosTable extends Table
      * Obtêm todos os clientes através de um usuário e tipo de perfil
      *
      * @param int $usuariosId Id de usuário
-     * @param int $tipo_perfil Tipo de perfil procurado
+     * @param int $tipoPerfil Tipo de perfil procurado
      *
      * @return object ClientesHasUsuarios
      */
-    public function getAllClientesIdsByUsuariosId(int $usuariosId, int $tipo_perfil = null)
+    public function getAllClientesIdsByUsuariosId(int $usuariosId, int $tipoPerfil = null)
     {
         try {
 
@@ -622,16 +626,16 @@ class ClientesHasUsuariosTable extends Table
                 'ClientesHasUsuarios.usuarios_id' => $usuariosId
             ];
 
-            if (!is_null($tipo_perfil)) {
-                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipo_perfil];
+            if (!is_null($tipoPerfil)) {
+                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
             }
 
-            $clientes_has_usuarios = $this->_getClienteHasUsuarioTable()->find('all')
+            $clientesHasUsuarios = $this->_getClienteHasUsuarioTable()->find('all')
                 ->where($whereConditions);
 
             $clientesIds = [];
 
-            foreach ($clientes_has_usuarios as $key => $value) {
+            foreach ($clientesHasUsuarios as $key => $value) {
                 $clientesIds[] = $value['clientes_id'];
             }
 
@@ -751,14 +755,14 @@ class ClientesHasUsuariosTable extends Table
     /**
      * Atualiza o relacionamento de cliente e usuário
      *
-     * @param int $id          Id do registro
+     * @param int $id Id do registro
      * @param int $clientesId Id do cliente
      * @param int $usuariosId Id do Usuário
-     * @param int $tipo_perfil Tipo de Perfil
+     * @param int $tipoPerfil Tipo de Perfil
      *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
-    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId, int $tipo_perfil)
+    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId, int $tipoPerfil)
     {
         try {
 
@@ -766,7 +770,7 @@ class ClientesHasUsuariosTable extends Table
                 [
                     'clientes_id' => $clientesId,
                     'usuarios_id' => $usuariosId,
-                    'tipo_perfil' => $tipo_perfil
+                    'tipo_perfil' => $tipoPerfil
                 ],
                 [
                     'id' => $id

@@ -735,7 +735,216 @@ class CuponsController extends AppController
      */
     public function resgateCupons()
     {
+    }
 
+    public function fechamentoCaixa()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
+
+        $quadroHorariosCliente = $quadroHorariosCliente->toArray();
+        $quadroHorariosClienteLength = sizeof($quadroHorariosCliente);
+
+        if (empty($quadroHorariosCliente) || $quadroHorariosClienteLength == 0) {
+            return $this->Flash->error("Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!");
+        }
+
+        // Obtem a hora atual e divide em array
+        $turnoAtualDataFim = date("Y-m-d");
+        $turnoAtualDataInicio = date("Y-m-d");
+        $dataHojeFim = date("Y-m-d");
+        $horaAgora = date("H:i");
+        $horaMinutoArrayTemp = explode(":", $horaAgora);
+        $hora = $horaMinutoArrayTemp[0];
+        $minuto = $horaMinutoArrayTemp[1];
+
+        $turnoAtualFim = $hora;
+        $turnoAtualHoraInicio = $hora - (24 / $quadroHorariosClienteLength);
+        $turnoAtualHoraFim = $hora;
+
+        if ($turnoAtualHoraInicio < 0) {
+            $turnoAtualHoraInicio = $turnoAtualHoraInicio + 24;
+            $turnoAtualDataInicio = date("Y-m-d", strtotime('-1 day'));
+        }
+
+        // Dados do turno anterior
+
+        $turnoAnteriorHoraInicio = $turnoAtualHoraInicio - (24 / $quadroHorariosClienteLength);
+        $turnoAnteriorHoraInicio = $turnoAnteriorHoraInicio < 0 ? $turnoAnteriorHoraInicio + 24 : $turnoAnteriorHoraInicio;
+
+        if (strlen($turnoAnteriorHoraInicio) == 1) {
+            $turnoAnteriorHoraInicio = '0' . $turnoAnteriorHoraInicio;
+        }
+
+        $turnoAnteriorHoraFim = $turnoAtualHoraInicio;
+
+        $turnoAnteriorDataFim = $turnoAtualDataInicio;
+        $turnoAnteriorDataInicio = $turnoAtualDataInicio;
+
+        $turnoAtualInicio = sprintf("%s %s:%s:00", $turnoAtualDataInicio, $turnoAtualHoraInicio, $minuto);
+        $turnoAtualFim = sprintf("%s %s:%s:00", $turnoAtualDataFim, $turnoAtualHoraFim, $minuto);
+        $turnoAnteriorInicio = sprintf("%s %s:%s:00", $turnoAnteriorDataInicio, $turnoAnteriorHoraInicio, $minuto);
+        $turnoAnteriorFim = sprintf("%s %s:%s:00", $turnoAnteriorDataFim, $turnoAnteriorHoraFim, $minuto);
+
+        // Obtem lista de funcionários da unidade
+
+        $funcionariosArray = $this->ClientesHasUsuarios->getAllUsersByClienteId(
+            $cliente["id"],
+            PROFILE_TYPE_WORKER_PROFILE_TYPE,
+            1
+        );
+        $funcionariosArray = $funcionariosArray->toArray();
+
+        // Lista dos IDS de funcionários
+        $funcionariosIdsList = array();
+
+        foreach ($funcionariosArray as $funcionario) {
+            $funcionariosIdsList[$funcionario["id"]] = $funcionario["nome"];
+        }
+
+        // Obtem os brindes habilitados do posto de atendimento
+
+        $brindesHabilitadosArray = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId(array($cliente["id"]));
+        $brindesHabilitadosArray = $brindesHabilitadosArray->toArray();
+
+        $dadosPesquisaCuponsArray = array();
+
+        foreach ($brindesHabilitadosArray as $brindeHabilitado) {
+            $dadosPesquisaCuponsArray[] = array(
+                "id" => $brindeHabilitado["id"],
+                "nomeBrinde" => $brindeHabilitado["brinde"]["nome"],
+                "clientesId" => $cliente["id"]
+            );
+        };
+
+        // Obtem os dados dos cupons
+
+        // Fechamento Anterior
+
+        $cuponsFuncionariosAnterior = array();
+
+        $cuponsFuncionariosRetorno = array();
+
+        foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
+            foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
+                $dataInicio = $turnoAnteriorInicio;
+                $dataFim = $turnoAnteriorFim;
+                $cuponsAnteriores = $this->Cupons->find("all")->where(
+                    array(
+                        "clientes_has_brindes_habilitados_id" => $cupomPesquisa["id"],
+                        "clientes_id" => $cupomPesquisa["clientesId"],
+                        "funcionarios_id" => $funcionarioId,
+                        "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+                    )
+                );
+
+                $cuponsAnterioresArray = $cuponsAnteriores->toArray();
+
+                $anteriorArray = array();
+
+                $resgatados = 0;
+                $usados = 0;
+                $totalGotas = 0;
+                $totalDinheiro = 0;
+                $totalBrindes = 0;
+                $totalCompras = 0;
+
+                foreach ($cuponsAnterioresArray as $anterior) {
+                    $resgatados = $anterior["resgatado"] ? $resgatados + 1 : $resgatados;
+
+                    if ($anterior["tipo_venda"]) {
+                        $totalDinheiro += $anterior["valor_pago"];
+                        $totalCompras += 1;
+                    } else {
+                        $totalGotas += $anterior["valor_pago"];
+                        $totalBrindes += 1;
+                    }
+
+                    $usados = $anterior["usado"] ? $usados + 1 : $usados;
+                }
+
+                $anteriorArray = array(
+                    "idBrinde" => $cupomPesquisa["id"],
+                    "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                    "funcionarioNome" => $funcionarioNome,
+                    "totalResgatados" => $resgatados,
+                    "totalUsados" => $usados,
+                    "totalGotas" => $totalGotas,
+                    "totalDinheiro" => $totalDinheiro,
+                    "totalBrindes" => $totalBrindes,
+                    "totalCompras" => $totalCompras,
+                    "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
+                    "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
+                );
+
+            // }
+            // foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
+
+                $dataInicio = $turnoAtualInicio;
+                $dataFim = $turnoAtualFim;
+
+                $cuponsAtuais = $this->Cupons->find("all")->where(
+                    array(
+                        "clientes_has_brindes_habilitados_id" => $cupomPesquisa["id"],
+                        "clientes_id" => $cupomPesquisa["clientesId"],
+                        "funcionarios_id" => $funcionarioId,
+                        "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+
+                    )
+                );
+
+                $cuponsAtuaisArray = $cuponsAtuais->toArray();
+
+                $resgatados = 0;
+                $usados = 0;
+                $totalGotas = 0;
+                $totalDinheiro = 0;
+                $totalBrindes = 0;
+                $totalCompras = 0;
+
+
+                foreach ($cuponsAtuaisArray as $atual) {
+                    $resgatados = $atual["resgatado"] ? $resgatados + 1 : $resgatados;
+
+                    if ($atual["tipo_venda"]) {
+                        $totalDinheiro += $atual["valor_pago"];
+                        $totalCompras += 1;
+                    } else {
+                        $totalGotas += $atual["valor_pago"];
+                        $totalBrindes += 1;
+                    }
+
+                    $usados = $atual["usado"] ? $usados + 1 : $usados;
+                }
+
+                $atualArray = array(
+                    "idBrinde" => $cupomPesquisa["id"],
+                    "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                    "funcionarioNome" => $funcionarioNome,
+                    "totalResgatados" => $resgatados,
+                    "totalUsados" => $usados,
+                    "totalGotas" => $totalGotas,
+                    "totalDinheiro" => $totalDinheiro,
+                    "totalBrindes" => $totalBrindes,
+                    "totalCompras" => $totalCompras,
+                    "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
+                    "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
+                );
+
+                $cuponsFuncionariosRetorno[] = $anteriorArray;
+                $cuponsFuncionariosRetorno[] = $atualArray;
+            }
+        }
+
+        // DebugUtil::print($cuponsFuncionariosRetorno);
+
+        $arraySet = array("cuponsFuncionariosRetorno");
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -1315,8 +1524,9 @@ class CuponsController extends AppController
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao resgatar cupom: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao resgatar cupom: {0}", $e->getMessage());
 
+            // @todo gustavosg melhorar log
             Log::write('error', $stringError);
         }
     }
@@ -1791,7 +2001,7 @@ class CuponsController extends AppController
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
 
-            // TODO: @gustavosg melhorar
+            // @todo: @gustavosg melhorar
             Log::write("error", $messageString);
             Log::write("error", $trace);
 
@@ -1805,7 +2015,6 @@ class CuponsController extends AppController
     }
 
     #region Métodos Comuns
-
 
     /**
      * CuponsController::trataCompraCupom
@@ -2090,7 +2299,6 @@ class CuponsController extends AppController
             // ------------------------------------------------------------------------
 
             if ($vendaAvulsa) {
-
                 // Realiza a venda de pontuações
 
                 try {
@@ -2113,6 +2321,7 @@ class CuponsController extends AppController
                     $cupom = $this->Cupons->addCupomForUsuario(
                         $brindeSelecionado["id"],
                         $cliente["id"],
+                        $funcionariosId,
                         $usuario["id"],
                         $preco * $quantidade,
                         $quantidade,
@@ -2195,8 +2404,7 @@ class CuponsController extends AppController
                 // Obter pontos não utilizados totalmente
                 // verifica se tem algum pendente para continuar o cálculo sobre ele
 
-                $pontuacaoPendenteUso
-                    = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
+                $pontuacaoPendenteUso = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
                     $usuario->id,
                     $clientesIds,
                     1,
@@ -2302,6 +2510,7 @@ class CuponsController extends AppController
                     $cupom = $this->Cupons->addCupomForUsuario(
                         $brindeSelecionado["id"],
                         $cliente["id"],
+                        $funcionariosId,
                         $usuario["id"],
                         $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade,
                         $quantidade
