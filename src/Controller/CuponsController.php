@@ -826,11 +826,37 @@ class CuponsController extends AppController
         // Fechamento Anterior
 
         $cuponsFuncionariosAnterior = array();
+        $dadosVendaFuncionarios = array();
+        $funcionarios = array();
 
-        $cuponsFuncionariosRetorno = array();
+        $dataInicioAnterior = null;
+        $dataFimAnterior = null;
+        $dataInicioAtual = null;
+        $dataFimAtual = null;
 
-        foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
-            foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
+        foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
+
+            $funcionario = array();
+
+            $funcionario["id"] = $funcionarioId;
+            $funcionario["nome"] = $funcionarioNome;
+
+            $dadosTurnoAnterior = array();
+            $dadosTurnoAtual = array();
+            $somaResgatadosAnterior = 0;
+            $somaUsadosAnterior = 0;
+            $somaGotasAnterior = 0;
+            $somaDinheiroAnterior = 0;
+            $somaBrindesAnterior = 0;
+            $somaComprasAnterior = 0;
+            $somaResgatadosAtual = 0;
+            $somaUsadosAtual = 0;
+            $somaGotasAtual = 0;
+            $somaDinheiroAtual = 0;
+            $somaBrindesAtual = 0;
+            $somaComprasAtual = 0;
+
+            foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
                 $dataInicio = $turnoAnteriorInicio;
                 $dataFim = $turnoAnteriorFim;
                 $cuponsAnteriores = $this->Cupons->find("all")->where(
@@ -848,10 +874,10 @@ class CuponsController extends AppController
 
                 $resgatados = 0;
                 $usados = 0;
-                $totalGotas = 0;
-                $totalDinheiro = 0;
-                $totalBrindes = 0;
-                $totalCompras = 0;
+                $gotas = 0;
+                $dinheiro = 0;
+                $brindes = 0;
+                $compras = 0;
 
                 foreach ($cuponsAnterioresArray as $anterior) {
                     $resgatados = $anterior["resgatado"] ? $resgatados + 1 : $resgatados;
@@ -867,23 +893,36 @@ class CuponsController extends AppController
                     $usados = $anterior["usado"] ? $usados + 1 : $usados;
                 }
 
+                // somatória parcial
+
                 $anteriorArray = array(
                     "idBrinde" => $cupomPesquisa["id"],
                     "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
-                    "funcionarioNome" => $funcionarioNome,
-                    "totalResgatados" => $resgatados,
-                    "totalUsados" => $usados,
-                    "totalGotas" => $totalGotas,
-                    "totalDinheiro" => $totalDinheiro,
-                    "totalBrindes" => $totalBrindes,
-                    "totalCompras" => $totalCompras,
+                    "resgatados" => $resgatados,
+                    "usados" => $usados,
+                    "gotas" => $gotas,
+                    "dinheiro" => $dinheiro,
+                    "brindes" => $brindes,
+                    "compras" => $compras,
                     "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
                     "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
                 );
 
-            // }
-            // foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
+                $dataInicioAnterior = date("d/m/Y H:i:s", strtotime($dataInicio));
+                $dataFimAnterior = date("d/m/Y H:i:s", strtotime($dataFim));
 
+                $somaResgatadosAnterior += $resgatados;
+                $somaUsadosAnterior += $usados;
+                $somaGotasAnterior += $gotas;
+                $somaDinheiroAnterior += $dinheiro;
+                $somaBrindesAnterior += $brindes;
+                $somaComprasAnterior += $compras;
+                // $dadosVendaFuncionarios[] = $anteriorArray;
+
+                $dadosTurnoAnterior[] = $anteriorArray;
+            }
+
+            foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
                 $dataInicio = $turnoAtualInicio;
                 $dataFim = $turnoAtualFim;
 
@@ -901,10 +940,10 @@ class CuponsController extends AppController
 
                 $resgatados = 0;
                 $usados = 0;
-                $totalGotas = 0;
-                $totalDinheiro = 0;
-                $totalBrindes = 0;
-                $totalCompras = 0;
+                $gotas = 0;
+                $dinheiro = 0;
+                $brindes = 0;
+                $compras = 0;
 
 
                 foreach ($cuponsAtuaisArray as $atual) {
@@ -924,25 +963,70 @@ class CuponsController extends AppController
                 $atualArray = array(
                     "idBrinde" => $cupomPesquisa["id"],
                     "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
-                    "funcionarioNome" => $funcionarioNome,
-                    "totalResgatados" => $resgatados,
-                    "totalUsados" => $usados,
-                    "totalGotas" => $totalGotas,
-                    "totalDinheiro" => $totalDinheiro,
-                    "totalBrindes" => $totalBrindes,
-                    "totalCompras" => $totalCompras,
+                    "resgatados" => $resgatados,
+                    "usados" => $usados,
+                    "gotas" => $gotas,
+                    "dinheiro" => $dinheiro,
+                    "brindes" => $brindes,
+                    "compras" => $compras,
                     "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
                     "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
                 );
 
-                $cuponsFuncionariosRetorno[] = $anteriorArray;
-                $cuponsFuncionariosRetorno[] = $atualArray;
+                $dataInicioAtual = date("d/m/Y H:i:s", strtotime($dataInicio));
+                $dataFimAtual = date("d/m/Y H:i:s", strtotime($dataFim));
+
+                $somaResgatadosAtual += $resgatados;
+                $somaUsadosAtual += $usados;
+                $somaGotasAtual += $gotas;
+                $somaDinheiroAtual += $dinheiro;
+                $somaBrindesAtual += $brindes;
+                $somaComprasAtual += $compras;
+
+                // $dadosVendaFuncionarios[] = $anteriorArray;
+                // $dadosVendaFuncionarios[] = $atualArray;
+                $dadosTurnoAtual[] = $atualArray;
             }
+
+            // aqui acabou do funcionário
+
+            $somaAnterior = array(
+                "somaResgatados" => $somaResgatadosAnterior,
+                "somaUsados" => $somaUsadosAnterior,
+                "somaGotas" => $somaGotasAnterior,
+                "somaDinheiro" => $somaDinheiroAnterior,
+                "somaBrindes" => $somaBrindesAnterior,
+                "somaCompras" => $somaComprasAnterior,
+            );
+
+            $somaAtual = array(
+                "somaResgatados" => $somaResgatadosAtual,
+                "somaUsados" => $somaUsadosAtual,
+                "somaGotas" => $somaGotasAtual,
+                "somaDinheiro" => $somaDinheiroAtual,
+                "somaBrindes" => $somaBrindesAtual,
+                "somaCompras" => $somaComprasAtual,
+            );
+
+            $funcionario["somaAnterior"] = $somaAnterior;
+            $funcionario["somaAtual"] = $somaAtual;
+            $funcionario["turnoAnterior"] = array(
+                "dataInicio" => $dataInicioAnterior,
+                "dataFim" => $dataFimAnterior,
+                "dados" => $dadosTurnoAnterior
+            );
+            $funcionario["turnoAtual"] = array(
+                "dataInicio" => $dataInicioAtual,
+                "dataFim" => $dataFimAtual,
+                "dados" => $dadosTurnoAtual
+            );
+            $dadosVendaFuncionarios[] = $funcionario;
         }
 
-        // DebugUtil::print($cuponsFuncionariosRetorno);
 
-        $arraySet = array("cuponsFuncionariosRetorno");
+        // DebugUtil::print($dadosVendaFuncionarios);
+
+        $arraySet = array("dadosVendaFuncionarios");
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }
