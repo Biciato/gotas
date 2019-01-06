@@ -49,6 +49,7 @@ class PontuacoesPendentesShell extends ExtendedShell
      */
     public function startProcessPontuacoesPendentes()
     {
+        $this->out("hello");
         Log::write('info', 'Iniciando processamento de cupons pendentes de processamento...');
 
         $pontuacoes_pendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
@@ -65,16 +66,16 @@ class PontuacoesPendentesShell extends ExtendedShell
                 // pega suas gotas (multiplicadores) e faz o tratamento
 
                 Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacao_pendente->chave_nfe, $pontuacao_pendente->estado_nfe));
-                
+
                 $cliente = $this->Clientes->getClienteById($pontuacao_pendente->clientes_id);
                 $clientes_id = is_null($cliente->matriz_id)? $cliente->id : $cliente->matriz_id;
-                
+
                 /*
-                * Como é automático, preciso verificar se a loja 
+                * Como é automático, preciso verificar se a loja
                 * possui gotas configuradas, se não tiver, preciso verificar a
                 * matriz. Neste ponto ao menos a matriz deve ter a configuração
                 */
-                
+
                 // obtem todos os multiplicadores (gotas)
                 $gotas = $this->Gotas->findGotasByClientesId($cliente->id);
 
@@ -103,10 +104,10 @@ class PontuacoesPendentesShell extends ExtendedShell
                 $pontuacao['clientes_id'] = $cliente->id;
                 $pontuacao['usuarios_id'] = $pontuacao_pendente->usuarios_id;
                 $pontuacao['funcionarios_id'] = $pontuacao_pendente->funcionarios_id;
-                
+
                 $pontuacao['data'] = $pontuacao_pendente->data->format('Y-m-d H:i:s');
 
-                $array_return 
+                $array_return
                     = $this->sefazUtil->convertHtmlToCouponData(
                         $html_content['response'],
                         $gotas,
@@ -129,18 +130,18 @@ class PontuacoesPendentesShell extends ExtendedShell
                 foreach ($array_save as $key => $value) {
                     /*
                      * verifica se tem pontuações à gravar
-                     * se não tem, somente configura o registro 
+                     * se não tem, somente configura o registro
                      * pendente como processado
                      */
-                    
+
                     $array_pontuacao = $value['array_pontuacoes_item'];
-    
+
                     $pontuacao_comprovante_id = null;
-    
+
                     if (sizeof($array_pontuacao)>0) {
                         // item novo, gera entidade e grava
                         $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
-    
+
                         $pontuacao_comprovante
                             = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
                                 $pontuacao_comprovante['clientes_id'],
@@ -153,11 +154,11 @@ class PontuacoesPendentesShell extends ExtendedShell
                                 false,
                                 false
                             );
-    
+
                         // item novo. usa id de pontuacao_comprovante e grava os registros dependentes
                         if ($pontuacao_comprovante) {
                             $pontuacao_comprovante_id = $pontuacao_comprovante->id;
-    
+
                             foreach ($array_pontuacao as $key => $item_pontuacao) {
                                 $item_pontuacao = $this->Pontuacoes->addPontuacaoCupom(
                                     $item_pontuacao['clientes_id'],
@@ -169,7 +170,7 @@ class PontuacoesPendentesShell extends ExtendedShell
                                     $pontuacao_comprovante->id,
                                     $item_pontuacao['data']
                                 );
-    
+
                                 if (!$item_pontuacao) {
                                         $process_failed=true;
                                 }
@@ -178,10 +179,10 @@ class PontuacoesPendentesShell extends ExtendedShell
                     } else {
                         Log::write('warning', __('No Cupom Fiscal {0} da SEFAZ de {1} não há gotas à processar conforme configurações definidas!...', $pontuacao_pendente->chave_nfe, $pontuacao_pendente->estado_nfe ));
                     }
-    
+
                     // busca registro de pontuacao_pendente no bd e atualiza
                     $pontuacao_pendente = $value['pontuacao_pendente_item'];
-    
+
                     if (!$process_failed) {
                         $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacao_pendente['id'], $pontuacao_comprovante_id);
                     }

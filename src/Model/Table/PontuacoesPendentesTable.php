@@ -290,16 +290,19 @@ class PontuacoesPendentesTable extends GenericTable
     /**
      * Procura por todos os cupons aguardando processamento
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2017-09-01
+     *
      * @return array $pontuacao_pendentes
      */
     public function findAllPontuacoesPendentesAwaitingProcessing()
     {
         try {
-            $pontuacao_pendente = $this->_getPontuacoesPendentesTable()->find('all')
+            $pontuacao_pendente = $this->find('all')
                 ->where(
-                    [
+                    array(
                         'registro_processado' => false,
-                    ]
+                    )
                 );
 
             return $pontuacao_pendente;

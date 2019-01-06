@@ -44,12 +44,12 @@ class EmailUtil
      * @param string $template      Qual template utilizar
      * @param Usuario $destination   Destinátário
      * @param string $subject       Título
-     * @param array  $content_array Conteúdo
+     * @param array  $contentArray Conteúdo
      * @param array  $attachments   Lista de anexos
      *
      * @return void
      */
-    public function sendMail(string $template, Usuario $destination, string $subject, array $content_array, array $attachments = [])
+    public function sendMail(string $template, Usuario $destination, string $subject, array $contentArray, array $attachments = [])
     {
         try {
             $from = Configure::read('emailAddressSender');
@@ -80,7 +80,7 @@ class EmailUtil
 
             $email->from(Configure::read("emailAddressSender"));
             $email->to($destination->email, $destination->nome);
-            $email->viewVars($content_array);
+            $email->viewVars($contentArray);
 
             if (!$email->send()) {
                 throw new Exception($e);

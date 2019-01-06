@@ -12,15 +12,36 @@ use Cake\Routing\Router;
 // const SITE_ADDRESS = "https://www.rtibrindes.local/";
 // const WEBROOT_ADDRESS = self::SITE_ADDRESS + "webroot";
 
+$debug = Configure::read("debug");
+
+$develHost = 1;
+$serverSuffix = $develHost ? ".com.br" : ".local";
+
+$serverAddress = $debug? "sistema-devel.gotas.com.br" : "sistema.gotas.com.br";
+$serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
+
+$serverAddress = $serverAddress . $serverSuffix;
+
+
+
+// $server = empty($_SERVER) ? "sistema.gotas.com.br" : $_SERVER["HTTP_HOST"];
 Configure::write(
     [
         // configuração de banco de dados:
 
-        // "environmentMode" => "development",
-        "environmentMode" => "production",
+        "environmentMode" => "development",
+        // "environmentMode" => "production",
         // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
-        'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
+        'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
+
+        // Código antigo
+        //  // "environmentMode" => "development",
+        //  "environmentMode" => "production",
+        //  // 'appAddress' => 'https://40.71.26.138/',
+        //  'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        //  'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+
 
         // Gotas
 

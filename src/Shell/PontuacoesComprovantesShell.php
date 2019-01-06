@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Arquivo para Classe para execução em terminal (shell)
  *
@@ -10,7 +11,7 @@
  * @link     https://www.rtibrindes.com.br/Shell/ClasseDeExecucaoBackground
  */
 
- namespace App\Shell;
+namespace App\Shell;
 
 use Cake\Console\Shell;
 use ArrayObject;
@@ -44,7 +45,7 @@ use \DateTime;
 class PontuacoesComprovantesShell extends ExtendedShell
 {
     // Fields
-    protected $datetime_util = null;
+    protected $dateTimeUtil = null;
     protected $emailUtil = null;
     protected $sefazUtil = null;
 
@@ -57,8 +58,8 @@ class PontuacoesComprovantesShell extends ExtendedShell
     {
         parent::initialize();
 
-        if (is_null($this->datetime_util)) {
-            $this->datetime_util = new DateTimeUtil();
+        if (is_null($this->dateTimeUtil)) {
+            $this->dateTimeUtil = new DateTimeUtil();
         }
 
         if (is_null($this->emailUtil)) {
@@ -83,34 +84,34 @@ class PontuacoesComprovantesShell extends ExtendedShell
             // pega a data que será feito a análise
             $today = date('Y-m-d');
 
-            $yesterday = $this->datetime_util->substractDaysFromDateTime($today, 1, 'Y-m-d');
+            $yesterday = $this->dateTimeUtil->substractDaysFromDateTime($today, 1, 'Y-m-d');
 
             // TODO: usar só para carater de teste
             // $yesterday = $today;
 
-            $date_start = $yesterday . ' 00:00:00';
-            $date_end = $yesterday . ' 23:59:59';
+            $dateStart = $yesterday . ' 00:00:00';
+            $dateEnd = $yesterday . ' 23:59:59';
 
-            $array_options = [];
+            $arrayOptions = [];
 
-            array_push($array_options, ['data between "'.$date_start.'" and "'.$date_end.'"']);
+            $arrayOptions[] = array('data between "' . $dateStart . '" and "' . $dateEnd . '"');
 
             // pegar lista de todos os clientes
 
             $clientes = $this->Clientes->getAllClientes();
 
             foreach ($clientes as $key => $cliente) {
-                $content_array = [];
+                $contentArray = [];
 
                 // obtem os administradores (destinatários) de cada rede
 
-                $destination_users_array = $this->ClientesHasUsuarios->getAllUsersByClienteId(
+                $destinationUsersArray = $this->ClientesHasUsuarios->getAllUsersByClienteId(
                     $cliente->id,
                     Configure::read('profileTypes')['AdminNetworkProfileType']
                 );
 
                 // obtêm a lista de funcionários de cada cliente
-                $funcionarios_array = $this->Usuarios->findFuncionariosRede(
+                $funcionariosArray = $this->Usuarios->findFuncionariosRede(
                     $cliente->id,
                     array()
                 );
@@ -119,92 +120,85 @@ class PontuacoesComprovantesShell extends ExtendedShell
                 // no dia que foram feitos de forma manual e
                 // sorteia um para auditoria
 
-                $comprovantes_array = [];
-                $attachments_array = [];
+                $comprovantesArray = [];
+                $attachmentsArray = [];
 
-                $comprovantes_id_array_selected = [];
+                $comprovantesIdArraySelected = [];
 
-                foreach ($funcionarios_array as $key => $funcionario) {
-                    $comprovantes_id
-                        = $this->PontuacoesComprovantes->getAllCouponsIdByWorkerId(
-                            $funcionario->id,
-                            $date_start,
-                            $date_end,
-                            true,
-                            false
-                        );
+                foreach ($funcionariosArray as $key => $funcionario) {
+                    $comprovantesId =
+                        $this->PontuacoesComprovantes->getAllCouponsIdByWorkerId(
+                        $funcionario->id,
+                        $dateStart,
+                        $dateEnd,
+                        true,
+                        false
+                    );
 
 
-                    $comprovantes_id_array_not_selected = [];
+                    $comprovantesIdNotSelected = [];
 
-                    foreach ($comprovantes_id as $key => $comprovante) {
-                        array_push($comprovantes_id_array_not_selected, $comprovante['id']);
+                    foreach ($comprovantesId as $key => $comprovante) {
+                        $comprovantesIdNotSelected[] = $comprovante['id'];
                     }
 
-                    if (sizeof($comprovantes_id_array_not_selected) > 0) {
-                        $comprovante_selected
-                            = rand(0, sizeof($comprovantes_id_array_not_selected) -1);
+                    if (sizeof($comprovantesIdNotSelected) > 0) {
+                        $comprovanteSelected
+                            = rand(0, sizeof($comprovantesIdNotSelected) - 1);
 
-                        array_push($comprovantes_id_array_selected, $comprovantes_id_array_not_selected[$comprovante_selected]);
+                        $comprovantesIdArraySelected[] = $comprovantesIdNotSelected[$comprovanteSelected];
                     }
                 }
 
-                foreach ($comprovantes_id_array_selected as $key => $comprovante_id_selected) {
+                foreach ($comprovantesIdArraySelected as $key => $comprovanteIdSelected) {
 
                     // se teve registro para o funcionário, obtêm o que foi sorteado
                     $comprovante = $this->PontuacoesComprovantes->getCouponById(
-                        $comprovante_id_selected
+                        $comprovanteIdSelected
                     );
 
                     // comprovante encontrado, chama função que retorna
                     // as informações para enviar à função de e-mail
 
                     if ($comprovante) {
-                        array_push(
-                            $comprovantes_array,
-                            $this->_prepareComprovanteData($comprovante)
-                        );
+                        $comprovantesArray[] = $this->prepareComprovanteData($comprovante);
                     }
-
                 }
 
-                foreach ($comprovantes_array as $key => $value) {
-                    array_push($attachments_array, $value['attachment']);
+                foreach ($comprovantesArray as $key => $value) {
+                    array_push($attachmentsArray, $value['attachment']);
                 }
 
                 // E-mail deve ser enviado somente se teve atendimento
-                if (sizeof($comprovantes_array) > 0) {
+                if (sizeof($comprovantesArray) > 0) {
 
-                    $content_array['pontuacoes_comprovantes'] = $comprovantes_array;
+                    $contentArray['pontuacoes_comprovantes'] = $comprovantesArray;
 
-                    $subject = __(
-                        "Relatório dos Cupons Fiscais Inseridos Manualmente de {0}",
-                        date('d/m/Y')
-                    );
+                    $subject = __("Relatório dos Cupons Fiscais Inseridos Manualmente de {0}", date('d/m/Y'));
 
-                    $content_array['link_sefaz'] = $this->sefazUtil->getUrlSefazByState($cliente->estado);
+                    $contentArray['link_sefaz'] = $this->sefazUtil->getUrlSefazByState($cliente->estado);
 
-                    foreach ($destination_users_array as $key => $destination_user) {
+                    foreach ($destinationUsersArray as $key => $destinationUser) {
 
-                        $content_array['admin_name'] = $destination_user->usuario->nome . ' / '. $destination_user->usuario->email;
+                        $contentArray['admin_name'] = $destinationUser->usuario->nome . ' / ' . $destinationUser["usuario"]["email"];
 
                         Log::write(
                             'info',
                             __(
                                 'Enviando e-mail para administrador {0} / {1} ...',
-                                $destination_user->usuario->nome,
-                                $destination_user->usuario->email
+                                $destinationUser["usuario"]["nome"],
+                                $destinationUser["usuario"]["email"]
                             )
                         );
 
-                        // debug($content_array);
+                        // debug($contentArray);
 
                         $this->emailUtil->sendMail(
                             'batch_email_report_day_coupons',
-                            $destination_user->usuario,
+                            $destinationUser["usuario"],
                             $subject,
-                            $content_array,
-                            $attachments_array
+                            $contentArray,
+                            $attachmentsArray
                         );
                     }
                 }
@@ -222,12 +216,12 @@ class PontuacoesComprovantesShell extends ExtendedShell
      *
      * @return PontuacoesComprovante $data Dados preparados para envio
      */
-    private function _prepareComprovanteData(PontuacoesComprovante $comprovante)
+    private function prepareComprovanteData(PontuacoesComprovante $comprovante)
     {
         try {
             $file = __(
                 "{0}{1}{2}",
-                Configure::read('appAddress').'webroot/',
+                Configure::read('appAddress') . 'webroot/',
                 Configure::read('documentReceiptPathShellRead'),
                 $comprovante['nome_img']
             );
@@ -240,7 +234,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
             $object['appAddress'] = Configure::read('appAddress');
             $object['id'] = $comprovante->id;
             // $object['image_data'] =  $file;
-            $object['image_data'] =  $comprovante['nome_img'];
+            $object['image_data'] = $comprovante['nome_img'];
             $object['chave_nfe'] = $comprovante->chave_nfe;
             $object['estado_nfe'] = $comprovante->estado_nfe;
             $object['data'] = $comprovante->data;
@@ -263,7 +257,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
             return $object;
         } catch (\Exception $e) {
-            $stringError= __("Erro ao criar objeto: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("Erro ao criar objeto: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
             debug($stringError);
             Log::write('error', $stringError);
