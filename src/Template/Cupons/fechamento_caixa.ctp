@@ -11,6 +11,8 @@
 use Cake\Core\Configure;
 use Cake\View\Helper\NumberHelper;
 
+$debug = Configure::read("debug");
+
 $title = "Fechamento de Caixa";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
@@ -25,9 +27,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <legend><?= $title ?> </legend>
 
 
-<div class="col-lg-9">
+<div class="col-lg-9 print-area">
     <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
-        <h3>Funcionário: <?= $dadoVenda["nome"] ?></h3>
+        <h4>Funcionário:</h4>
+        <h5>Nome: <?= $dadoVenda["nome"] ?></h5>
         <p>
         <?php
         $turnoAnterior = $dadoVenda["turnoAnterior"];
@@ -40,7 +43,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         $somaAnterior = $dadoVenda["somaAnterior"];
         $somaAtual = $dadoVenda["somaAtual"];
         ?>
-            <h4>Turno Anterior: <?= sprintf("%s %s às %s", "De:", $dataInicioAnterior, $dataFimAnterior) ?></h4>
+            <span><strong>Turno Anterior:</strong> </span>
+            <br />
+            <span><?= sprintf("De: %s", $dataInicioAnterior) ?></span>
+            <br />
+            <span><?= sprintf("Às: %s", $dataFimAnterior) ?></span>
+            <br />
             <?php foreach ($turnoAnterior["dados"] as $cupom) : ?>
 
                 <h6>Brinde: <?= $cupom["nomeBrinde"] ?></h6>
@@ -74,7 +82,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
             <br />
 
-            <h4>Turno Atual: <?= sprintf("%s %s às %s", "De:", $dataInicioAtual, $dataFimAtual) ?></h4>
+            <span ><strong>Turno Atual:</strong> </span>
+            <br />
+            <span><?= sprintf("De: %s", $dataInicioAtual) ?></span>
+            <br />
+            <span><?= sprintf("Às: %s", $dataFimAtual) ?></span>
+            <br />
             <?php foreach ($turnoAtual["dados"] as $cupom) : ?>
 
                 <h6>Brinde: <?= $cupom["nomeBrinde"] ?></h6>
@@ -111,9 +124,17 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <?php endforeach; ?>
     </div>
     <div class="col-lg-3 text-right">
-        <button type="button" class="imprimir btn btn-primary " id="imprimir">
+        <button type="button" class="imprimir btn btn-primary print-button " id="imprimir">
             <i class="fa fa-print"></i>
             Imprimir
         </button>
     </div>
 </div>
+
+
+<?php
+// Adiciona comportamento jquery
+$extension = $debug ? ".js": ".min.js";
+echo $this->Html->script('scripts/cupons/fechamento_caixa'.$extension);
+echo $this->fetch("script");
+?>
