@@ -856,6 +856,14 @@ class CuponsController extends AppController
             $somaBrindesAtual = 0;
             $somaComprasAtual = 0;
 
+            // Soma total de todos os funcionários
+            $totalResgatados = null;
+            $totalUsados = null;
+            $totalGotas = null;
+            $totalDinheiro = null;
+            $totalBrindes = null;
+            $totalCompras = null;
+
             foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
                 $dataInicio = $turnoAnteriorInicio;
                 $dataFim = $turnoAnteriorFim;
@@ -1008,6 +1016,19 @@ class CuponsController extends AppController
                 "somaCompras" => $somaComprasAtual,
             );
 
+            $totalResgatados += $somaResgatadosAnterior;
+            $totalUsados += $somaResgatadosAnterior;
+            $totalGotas += $somaResgatadosAnterior;
+            $totalDinheiro += $somaResgatadosAnterior;
+            $totalBrindes += $somaResgatadosAnterior;
+            $totalCompras += $somaResgatadosAnterior;
+            $totalResgatados += $somaResgatadosAtual;
+            $totalUsados += $somaResgatadosAtual;
+            $totalGotas += $somaResgatadosAtual;
+            $totalDinheiro += $somaResgatadosAtual;
+            $totalBrindes += $somaResgatadosAtual;
+            $totalCompras += $somaResgatadosAtual;
+
             $funcionario["somaAnterior"] = $somaAnterior;
             $funcionario["somaAtual"] = $somaAtual;
             $funcionario["turnoAnterior"] = array(
@@ -1024,9 +1045,19 @@ class CuponsController extends AppController
         }
 
 
-        // DebugUtil::print($dadosVendaFuncionarios);
+        $totalGeral = array(
+            "totalResgatados" => $totalResgatados,
+            "totalUsados" => $totalUsados,
+            "totalGotas" => $totalGotas,
+            "totalDinheiro" => $totalDinheiro,
+            "totalBrindes" => $totalBrindes,
+            "totalCompras" => $totalCompras,
+        );
 
-        $arraySet = array("dadosVendaFuncionarios");
+        // DebugUtil::print($dadosVendaFuncionarios);
+        // DebugUtil::print($totalGeral);
+
+        $arraySet = array("dadosVendaFuncionarios", "totalGeral");
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }

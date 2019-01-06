@@ -10,10 +10,17 @@
  */
 
 $(document).ready(function () {
-    $(".print-button").on("click", function(){
+    $(".print-button-thermal").on("click", function () {
 
-        setTimeout($(".print-area").printThis({
+        setTimeout($(".print-area-thermal").printThis({
             importCss: false
         }), 100);
     })
+    $(".print-button-common").on("click", function () {
+
+        setTimeout($(".print-area-common").printThis({
+            importCss: false
+        }), 100);
+    })
+
 });

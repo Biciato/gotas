@@ -27,10 +27,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <legend><?= $title ?> </legend>
 
 
-<div class="col-lg-9 print-area">
+<div class="col-lg-8 print-area-common">
+
     <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
-        <h4>Funcionário:</h4>
-        <h5>Nome: <?= $dadoVenda["nome"] ?></h5>
+        <h3>Funcionário: <?= $dadoVenda["nome"] ?></h3>
+
         <p>
         <?php
         $turnoAnterior = $dadoVenda["turnoAnterior"];
@@ -43,98 +44,231 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         $somaAnterior = $dadoVenda["somaAnterior"];
         $somaAtual = $dadoVenda["somaAtual"];
         ?>
-            <span><strong>Turno Anterior:</strong> </span>
-            <br />
-            <span><?= sprintf("De: %s", $dataInicioAnterior) ?></span>
-            <br />
-            <span><?= sprintf("Às: %s", $dataFimAnterior) ?></span>
-            <br />
-            <?php foreach ($turnoAnterior["dados"] as $cupom) : ?>
+            <h4>Turno Anterior:</h4>
+            <span><?= sprintf("De: %s Às %s: ", $dataInicioAnterior, $dataFimAnterior) ?></span>
+            <p>
+                <?php foreach ($turnoAnterior["dados"] as $cupom) : ?>
 
-                <h6>Brinde: <?= $cupom["nomeBrinde"] ?></h6>
+                    <h4>Brinde: <?= $cupom["nomeBrinde"] ?></h4>
 
-                    <li>Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                    <li>Brindes Usados: <?= $cupom["usados"] ?> </li>
-                    <!-- Qte de gotas recebido -->
-                    <li>Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                    <!-- Qte de dinheiro recebido daquele brinde -->
-                    <li>Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                    <!-- Qte de Brindes vendidos via gotas -->
-                    <li>Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                    <!-- Qte de Brindes vendidos via dinheiro -->
-                    <li>Total de Vendas: <?= $cupom["compras"] ?> </li>
+                        <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                        <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                        <!-- Qte de gotas recebido -->
+                        <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                        <!-- Qte de dinheiro recebido daquele brinde -->
+                        <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                        <!-- Qte de Brindes vendidos via gotas -->
+                        <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                        <!-- Qte de Brindes vendidos via dinheiro -->
+                        <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
 
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </p>
 
             <h5 ><strong>SubTotal Turno Anterior Funcionario <?= $dadoVenda["nome"] ?>:</strong></h5>
 
-            <li>Soma de Brindes Resgatados: <?= $somaAnterior["somaResgatados"] ?> </li>
-            <li>Soma de Brindes Usados: <?= $somaAnterior["somaUsados"] ?> </li>
-            <!-- Qte de gotas recebido -->
-            <li>Soma de Total de Gotas Bonificadas: <?= $somaAnterior["somaGotas"] ?> </li>
-            <!-- Qte de dinheiro recebido daquele brinde -->
-            <li>Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAnterior["somaDinheiro"]) ?> </li>
+            <ul class="list-group">
+                <li class="list-group-item">Soma de Brindes Resgatados: <?= $somaAnterior["somaResgatados"] ?> </li>
+                <li class="list-group-item">Soma de Brindes Usados: <?= $somaAnterior["somaUsados"] ?> </li>
+                <!-- Qte de gotas recebido -->
+                <li class="list-group-item">Soma de Total de Gotas Bonificadas: <?= $somaAnterior["somaGotas"] ?> </li>
+                <!-- Qte de dinheiro recebido daquele brinde -->
+                <li class="list-group-item">Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAnterior["somaDinheiro"]) ?> </li>
 
-            <!-- Qte de Brindes vendidos via gotas -->
-            <li>Soma de Total de Bonificação: <?= $somaAnterior["somaBrindes"] ?> </li>
-            <!-- Qte de Brindes vendidos via dinheiro -->
-            <li>Soma de Total de Vendas: <?= $somaAnterior["somaCompras"] ?> </li>
+                <!-- Qte de Brindes vendidos via gotas -->
+                <li class="list-group-item">Soma de Total de Bonificação: <?= $somaAnterior["somaBrindes"] ?> </li>
+                <!-- Qte de Brindes vendidos via dinheiro -->
+                <li class="list-group-item">Soma de Total de Vendas: <?= $somaAnterior["somaCompras"] ?> </li>
+            </ul>
 
-            <br />
+            <h5>Turno Atual: </h5>
+            <span><?= sprintf("De: %s Às %s: ", $dataInicioAtual, $dataFimAtual) ?></span>
+            <p>
 
-            <span ><strong>Turno Atual:</strong> </span>
-            <br />
-            <span><?= sprintf("De: %s", $dataInicioAtual) ?></span>
-            <br />
-            <span><?= sprintf("Às: %s", $dataFimAtual) ?></span>
-            <br />
-            <?php foreach ($turnoAtual["dados"] as $cupom) : ?>
+                <?php foreach ($turnoAtual["dados"] as $cupom) : ?>
 
-                <h6>Brinde: <?= $cupom["nomeBrinde"] ?></h6>
+                    <h4>Brinde: <?= $cupom["nomeBrinde"] ?></h4>
 
-                    <li>Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                    <li>Brindes Usados: <?= $cupom["usados"] ?> </li>
-                    <!-- Qte de gotas recebido -->
-                    <li>Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                    <!-- Qte de dinheiro recebido daquele brinde -->
-                    <li>Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                    <!-- Qte de Brindes vendidos via gotas -->
-                    <li>Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                    <!-- Qte de Brindes vendidos via dinheiro -->
-                    <li>Total de Vendas: <?= $cupom["compras"] ?> </li>
+                    <ul class="list-group">
+                        <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                        <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                        <!-- Qte de gotas recebido -->
+                        <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                        <!-- Qte de dinheiro recebido daquele brinde -->
+                        <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                        <!-- Qte de Brindes vendidos via gotas -->
+                        <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                        <!-- Qte de Brindes vendidos via dinheiro -->
+                        <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                    </ul>
 
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </p>
 
             <h5 ><strong>SubTotal Turno Atual Funcionario <?= $dadoVenda["nome"] ?>:</strong></h5>
+            <ul class="list-group">
+                <li class="list-group-item ">Soma de Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
+                <li class="list-group-item">Soma de Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
+                <!-- Qte de gotas recebido -->
+                <li class="list-group-item">Soma de Total de Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
+                <!-- Qte de dinheiro recebido daquele brinde -->
+                <li class="list-group-item">Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
 
-            <li>Soma de Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
-            <li>Soma de Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
-            <!-- Qte de gotas recebido -->
-            <li>Soma de Total de Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
-            <!-- Qte de dinheiro recebido daquele brinde -->
-            <li>Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
+                <!-- Qte de Brindes vendidos via gotas -->
+                <li class="list-group-item">Soma de Total de Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
+                <!-- Qte de Brindes vendidos via dinheiro -->
+                <li class="list-group-item">Soma de Total de Vendas: <?= $somaAtual["somaCompras"] ?> </li>
+            </ul>
 
-            <!-- Qte de Brindes vendidos via gotas -->
-            <li>Soma de Total de Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
-            <!-- Qte de Brindes vendidos via dinheiro -->
-            <li>Soma de Total de Vendas: <?= $somaAtual["somaCompras"] ?> </li>
-
-            <br />
+            <div class="total-geral">
+                <h4>Total Geral</h4>
+                <ul class="list-group">
+                    <li class="list-group-item"> Total de Brindes Resgatados:  <?= $totalGeral["totalResgatados"] ?> </li>
+                    <li class="list-group-item"> Total de Brindes Usados:  <?= $totalGeral["totalUsados"] ?> </li>
+                    <li class="list-group-item"> Total de Gotas Bonificadas:  <?= $totalGeral["totalGotas"] ?> </li>
+                    <li class="list-group-item"> Total de Dinheiro Recebido:  <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
+                    <li class="list-group-item"> Total de Bonificação:  <?= $totalGeral["totalBrindes"] ?> </li>
+                    <li class="list-group-item"> Total de Vendas:  <?= $totalGeral["totalCompras"] ?> </li>
+                </ul>
+            </div>
 
     <?php endforeach; ?>
+</div>
+
+<div class="col-lg-4 text-center">
+        <h4>Opções de impressão</h4>
+        <div class="col-lg-6">
+            <button type="button" class="imprimir btn btn-primary print-button-thermal " id="imprimir">
+                <i class="fa fa-print"></i>
+                Impressora Térmica
+            </button>
+        </div>
+        <div class="col-lg-6">
+            <button type="button" class="imprimir btn btn-primary print-button-common " id="imprimir">
+                <i class="fa fa-print"></i>
+                Impressora Comum
+            </button>
+        </div>
     </div>
-    <div class="col-lg-3 text-right">
-        <button type="button" class="imprimir btn btn-primary print-button " id="imprimir">
-            <i class="fa fa-print"></i>
-            Imprimir
-        </button>
-    </div>
+
 </div>
 
 
+<div class="print-area-thermal col-lg-3 print-thermal" >
+
+    <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
+        <span class="main-title">Funcionário: <?= $dadoVenda["nome"] ?></span>
+
+        <p>
+        <?php
+        $turnoAnterior = $dadoVenda["turnoAnterior"];
+        $dataInicioAnterior = $turnoAnterior["dataInicio"];
+        $dataFimAnterior = $turnoAnterior["dataFim"];
+        $turnoAtual = $dadoVenda["turnoAtual"];
+        $dataInicioAtual = $turnoAnterior["dataInicio"];
+        $dataFimAtual = $turnoAnterior["dataFim"];
+
+        $somaAnterior = $dadoVenda["somaAnterior"];
+        $somaAtual = $dadoVenda["somaAtual"];
+        ?>
+            <span class="shift-title">Turno Anterior:</span>
+            <span class="shift-title-timer"><?= sprintf("De: %s Às %s: ", $dataInicioAnterior, $dataFimAnterior) ?></span>
+            <p>
+                <?php foreach ($turnoAnterior["dados"] as $cupom) : ?>
+
+                    <span class="gift-title">Brinde: <?= $cupom["nomeBrinde"] ?></span>
+                    <ul class="list-group">
+
+                        <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                        <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                        <!-- Qte de gotas recebido -->
+                        <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                        <!-- Qte de dinheiro recebido daquele brinde -->
+                        <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                        <!-- Qte de Brindes vendidos via gotas -->
+                        <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                        <!-- Qte de Brindes vendidos via dinheiro -->
+                        <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                    </ul>
+
+                <?php endforeach; ?>
+            </p>
+
+            <h5 ><strong>SubTotal Turno Anterior Funcionario <?= $dadoVenda["nome"] ?>:</strong></h5>
+
+            <ul class="list-group">
+                <li class="list-group-item">Soma de Brindes Resgatados: <?= $somaAnterior["somaResgatados"] ?> </li>
+                <li class="list-group-item">Soma de Brindes Usados: <?= $somaAnterior["somaUsados"] ?> </li>
+                <!-- Qte de gotas recebido -->
+                <li class="list-group-item">Soma de Total de Gotas Bonificadas: <?= $somaAnterior["somaGotas"] ?> </li>
+                <!-- Qte de dinheiro recebido daquele brinde -->
+                <li class="list-group-item">Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAnterior["somaDinheiro"]) ?> </li>
+
+                <!-- Qte de Brindes vendidos via gotas -->
+                <li class="list-group-item">Soma de Total de Bonificação: <?= $somaAnterior["somaBrindes"] ?> </li>
+                <!-- Qte de Brindes vendidos via dinheiro -->
+                <li class="list-group-item">Soma de Total de Vendas: <?= $somaAnterior["somaCompras"] ?> </li>
+            </ul>
+
+            <span class="shift-title">Turno Atual: </span>
+            <span><?= sprintf("De: %s Às %s: ", $dataInicioAtual, $dataFimAtual) ?></span>
+            <p>
+
+                <?php foreach ($turnoAtual["dados"] as $cupom) : ?>
+
+                <span class="gift-title">Brinde: <?= $cupom["nomeBrinde"] ?></span>
+
+                <ul class="list-group">
+                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                    <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                    <!-- Qte de gotas recebido -->
+                    <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                    <!-- Qte de dinheiro recebido daquele brinde -->
+                    <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                    <!-- Qte de Brindes vendidos via gotas -->
+                    <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                    <!-- Qte de Brindes vendidos via dinheiro -->
+                    <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                </ul>
+
+                <?php endforeach; ?>
+            </p>
+
+            <h5 ><strong>SubTotal Turno Atual Funcionario <?= $dadoVenda["nome"] ?>:</strong></h5>
+            <ul class="list-group">
+                <li class="list-group-item ">Soma de Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
+                <li class="list-group-item">Soma de Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
+                <!-- Qte de gotas recebido -->
+                <li class="list-group-item">Soma de Total de Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
+                <!-- Qte de dinheiro recebido daquele brinde -->
+                <li class="list-group-item">Soma de Total de Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
+
+                <!-- Qte de Brindes vendidos via gotas -->
+                <li class="list-group-item">Soma de Total de Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
+                <!-- Qte de Brindes vendidos via dinheiro -->
+                <li class="list-group-item">Soma de Total de Vendas: <?= $somaAtual["somaCompras"] ?> </li>
+            </ul>
+
+            <div class="total-geral">
+                <span class="main-title">Total Geral</span>
+                <ul class="list-group">
+                    <li class="list-group-item"> Total de Brindes Resgatados:  <?= $totalGeral["totalResgatados"] ?> </li>
+                    <li class="list-group-item"> Total de Brindes Usados:  <?= $totalGeral["totalUsados"] ?> </li>
+                    <li class="list-group-item"> Total de Gotas Bonificadas:  <?= $totalGeral["totalGotas"] ?> </li>
+                    <li class="list-group-item"> Total de Dinheiro Recebido:  <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
+                    <li class="list-group-item"> Total de Bonificação:  <?= $totalGeral["totalBrindes"] ?> </li>
+                    <li class="list-group-item"> Total de Vendas:  <?= $totalGeral["totalCompras"] ?> </li>
+                </ul>
+            </div>
+
+    <?php endforeach; ?>
+</div>
+
 <?php
 // Adiciona comportamento jquery
-$extension = $debug ? ".js": ".min.js";
-echo $this->Html->script('scripts/cupons/fechamento_caixa'.$extension);
+$extensionJs = $debug ? ".js" : ".min.js";
+$extensionCss = $debug ? ".css" : ".min.css";
+echo $this->Html->script('scripts/cupons/fechamento_caixa' . $extensionJs);
+echo $this->Html->css("styles/cupons/fechamento_caixa" . $extensionCss);
 echo $this->fetch("script");
 ?>

@@ -1,0 +1,33 @@
+/**
+ *
+ *
+ *
+ */
+
+.print-thermal {
+    display: none;
+}
+
+@media print {
+    .print-thermal {
+        display: block !important;
+    }
+}
+
+.main-title {
+    font-size: 16px;
+    font-weight: bolder;
+}
+
+.shift-title {
+    font-size: 14px;
+}
+
+.shift-title>.shift-title-timer {
+    font-size: 12px;
+}
+
+.gift-title {
+    font-size: 13px;
+    font-weight: bold;
+}
