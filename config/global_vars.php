@@ -296,7 +296,7 @@ Configure::write(
 
         'messageRecordClienteNotFound' => 'Cliente não encontrado!',
 
-        'messageClienteNotFoundByCNPJ' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. CNPJ Informado: {0}",
+        'messageClienteNotFoundByCupomFiscal' => "Esta Nota Fiscal é de uma unidade que ainda não está cadastrada no sistema, sendo assim, não será possível realizar a importação de dados. Procure o gerente do Posto para maiores detalhes. Cupom Fiscal Informado: {0}",
 
 
 

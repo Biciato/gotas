@@ -67,10 +67,7 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        // Troca base de dados
-        if (Configure::read("environmentMode") == "development") {
-            ConnectionManager::alias("devel", "default");
-        }
+        $this->chooseDatabaseConnection();
 
         $this->loadComponent(
             'Auth',
@@ -358,7 +355,7 @@ class AppController extends Controller
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
         $rede = $this->request->session()->read("Rede.Grupo");
 
-        // Certifica que o usuário em questão está vinculado a uma rede 
+        // Certifica que o usuário em questão está vinculado a uma rede
         if (empty($rede) && !empty($cliente)) {
             // verifica qual rede o usuário se encontra (somente funcionários)
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
@@ -504,6 +501,22 @@ class AppController extends Controller
     {
         return preg_replace('/[^A-Za-z0-9?!]/', "", $value);
 
+    }
+
+    /**
+     * Define a conexão ao banco
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2017-08-01
+     *
+     * @return void
+     */
+    public function chooseDatabaseConnection()
+    {
+        // Troca base de dados
+        if (Configure::read("environmentMode") == "development") {
+            ConnectionManager::alias("devel", "default");
+        }
     }
 
 }

@@ -79,19 +79,14 @@ class WebTools
 
             $response = trim(preg_replace('/\s+/', ' ', $response));
 
-            // $response = utf8_encode($response);
-
             Log::write('debug', $response);
 
-            // die();
-
             $error = \curl_errno($curl);
-
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
             curl_close($curl);
 
             // só pode prosseguir se houve status= 200
+            $status = 400;
             $result = null;
 
             if ($status == 200) {
@@ -113,5 +108,47 @@ class WebTools
 
             return $stringError;
         }
+    }
+
+    public static function callAPI($method, $url, $data = false)
+    {
+        $curl = curl_init();
+
+        // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
+        // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
+        // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+
+                if ($data) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                }
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_PUT, 1);
+                break;
+            default:
+                if ($data) {
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+                }
+        }
+
+        // Optional Authentication:
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+        $curlErr = curl_errno($curl);
+        $curlError = curl_error($curl);
+        Log::write("info", array("err" => $curlErr, "str" => $curlError));
+        $result = curl_exec($curl);
+
+        curl_close($curl);
+
+        return $result;
     }
 }

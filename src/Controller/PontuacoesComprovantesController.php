@@ -1371,8 +1371,6 @@ class PontuacoesComprovantesController extends AppController
      * @date 06/05/2018
      *
      * @return json object
-     *
-     *
      */
     public function setComprovanteFiscalUsuarioAPI()
     {
@@ -1535,7 +1533,8 @@ class PontuacoesComprovantesController extends AppController
                         if (empty($cliente)) {
                             $mensagem = array(
                                 "status" => false,
-                                "message" => __(Configure::read("messageClienteNotFoundByCNPJ", $cnpjEncontrado)), "errors" => array()
+                                "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
+                                "errors" => array()
                             );
 
                             $arraySet = [

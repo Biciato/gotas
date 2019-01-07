@@ -14,9 +14,14 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Cake\Datasource\ConnectionManager;
+use Cake\Core\App;
 
 class ExtendedShell extends Shell
 {
+
+    private $appController = null;
+
     /**
      * Initialize
      *
@@ -26,8 +31,9 @@ class ExtendedShell extends Shell
     {
         parent::initialize();
 
-        $this->loadNecessaryModels(Configure::read('models'));
+        AppController::chooseDatabaseConnection();
 
+        $this->loadNecessaryModels(Configure::read('models'));
     }
 
     public function loadNecessaryModels($models = null)
