@@ -172,7 +172,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                                                 ),
                                                 '#',
                                                 [
-                                                    'class' => 'btn btn-xs  btn-danger btn-confirm',
+                                                    'class' => 'btn btn-xs btn-danger btn-confirm',
                                                     'title' => 'Desativar',
                                                     'data-toggle' => 'modal',
                                                     'data-target' => '#modal-delete-with-message',
