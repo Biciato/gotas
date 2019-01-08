@@ -86,7 +86,7 @@ class WebTools
             curl_close($curl);
 
             // só pode prosseguir se houve status= 200
-            $status = 400;
+            // $status = 400;
             $result = null;
 
             if ($status == 200) {

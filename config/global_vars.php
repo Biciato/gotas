@@ -29,8 +29,8 @@ Configure::write(
     [
         // configuração de banco de dados:
 
-        "environmentMode" => "development",
-        // "environmentMode" => "production",
+        // "environmentMode" => "development",
+        "environmentMode" => "production",
         // 'appAddress' => 'https://40.71.26.138/',
         'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
         'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
