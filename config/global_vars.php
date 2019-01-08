@@ -18,7 +18,7 @@ $develHost = 1;
 $serverSuffix = $develHost ? ".local": ".com.br" ;
 
 $serverAddress = $debug? "sistema-devel.gotas.com.br" : "sistema.gotas.com.br";
-$serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
+// $serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
 
 $serverAddress = $serverAddress . $serverSuffix;
 
