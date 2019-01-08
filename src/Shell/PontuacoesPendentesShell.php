@@ -56,6 +56,10 @@ class PontuacoesPendentesShell extends ExtendedShell
 
         // DebugUtil::print($pontuacoesPendentes->toArray());
 
+        $test = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
+
+        DebugUtil::print($test);
+
         if (sizeof($pontuacoesPendentes->toArray()) == 0) {
             Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
         } else {

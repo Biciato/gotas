@@ -67,7 +67,7 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this->chooseDatabaseConnection();
+        $this::chooseDatabaseConnection();
 
         $this->loadComponent(
             'Auth',
@@ -148,7 +148,25 @@ class AppController extends Controller
         if (!$isMobile) {
             $userAuthenticated = $this->request->session()->read("Auth.User");
 
-            if (!$userAuthenticated && ($url != "/pages" && $url != "/usuarios/login" && $url != "/usuarios/registrar")) {
+            $urlPages = array(
+                "/pages",
+                "/usuarios/login",
+                "/usuarios/registrar",
+                "/usuarios/esqueci-minha-senha",
+                "/usuarios/resetar-minha-senha",
+            );
+
+            $found = 0;
+            foreach ($urlPages as $page) {
+                $indexFound = strpos($url, $page) !== false;
+
+                if ($indexFound) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$userAuthenticated && (!$found)) {
                 $this->response = $this->redirect(['controller' => 'Pages', 'action' => 'display']);
                 $this->response->send();
                 die();
@@ -511,7 +529,7 @@ class AppController extends Controller
      *
      * @return void
      */
-    public function chooseDatabaseConnection()
+    public static function chooseDatabaseConnection()
     {
         // Troca base de dados
         if (Configure::read("environmentMode") == "development") {

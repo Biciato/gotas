@@ -110,7 +110,78 @@ class WebTools
         }
     }
 
-    public static function callAPI($method, $url, $data = false)
+    public static function loginAPIGotas(string $email, string $senha)
+    {
+        $curl = curl_init();
+
+        // $suffix = Configure::read("debug") ? ".local" : ".com.br";
+        $suffix = "local";
+
+        $url = "https://sistema.gotas.".$suffix."/api/usuarios/token";
+
+        $data = array("email" => $email, "senha" => $senha);
+
+        // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
+        // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
+        // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+
+        $method = "POST";
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+
+                if ($data) {
+                    $dataJson = json_encode($data);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                        "Content-Type: application/json",
+                        "Content-Length: " . strlen($dataJson),
+                        "IsMobile: 1"
+                    ));
+                }
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_PUT, 1);
+                break;
+            default:
+                if ($data) {
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+                }
+        }
+
+
+        // Optional Authentication:
+        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        // curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_VERBOSE, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
+        $curlErr = curl_errno($curl);
+        $curlError = curl_error($curl);
+        Log::write("info", array("err" => $curlErr, "str" => $curlError));
+        $result = curl_exec($curl);
+        $result = json_decode($result);
+        Log::write("info", array("result" => $result));
+
+        curl_close($curl);
+
+        return $result;
+    }
+
+    /**
+     * Realiza chamada de API
+     *
+     * @param [type] $method
+     * @param [type] $url
+     * @param boolean $data
+     * @param string $authentication
+     * @return void
+     */
+    public static function callAPI($method, $url, $data = false, string $authentication = "")
     {
         $curl = curl_init();
 
@@ -124,6 +195,12 @@ class WebTools
 
                 if ($data) {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                        "Content-Type: application/json",
+                        "Content-Length: " . strlen($dataJson),
+                        "IsMobile: 1"
+                    ));
                 }
                 break;
             case "PUT":
@@ -134,6 +211,7 @@ class WebTools
                     $url = sprintf("%s?%s", $url, http_build_query($data));
                 }
         }
+
 
         // Optional Authentication:
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
