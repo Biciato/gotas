@@ -9,9 +9,6 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-
-$redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has_cliente"]["redes_id"] : null;
-
 ?>
 
 
@@ -169,14 +166,26 @@ $redesId = !empty($cliente["rede_has_cliente"]["redes_id"]) ? $cliente["rede_has
     <div class="form-group row">
         <div class="col-lg-6">
             <label for="quantidade_turnos">Quantidade de Turnos</label>
-            <input type="number"
+            <?= $this->Form->input("quantidade_turnos", array(
+                "type" => "select",
+                "options" => array(
+                    2 => 2,
+                    3 => 3,
+                    4 => 4,
+                    6 => 6
+                ),
+                "value" => $cliente["quantidade_turnos"],
+                "id" => "quantidade_turnos",
+                "label" => false
+            )); ?>
+            <!-- <input type="number"
                 min="2"
                 max="6"
                 step="1"
                 value="<?= $cliente["quantidade_turnos"] ?>"
                 class="form-control"
                 name="quantidade_turnos"
-                id="quantidade_turnos" />
+                id="quantidade_turnos" /> -->
         </div>
         <div class="col-lg-6">
         <label for="inicio_turno">Primeiro Turno do Dia</label>

@@ -63,7 +63,7 @@ $(document).ready(function () {
         }
     }
 
-    $("#quantidade_turnos").on("blur", function (ev) {
+    $("#quantidade_turnos").on("change", function (ev) {
         var max = $("#quantidade_turnos").attr('max');
 
         if (this.value > max) {
@@ -72,6 +72,8 @@ $(document).ready(function () {
 
         preencheQuadroHorarios();
     });
+
+    preencheQuadroHorarios();
 
 
     $("#horario").on("blur", function (ev) {

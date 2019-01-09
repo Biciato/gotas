@@ -201,7 +201,7 @@ class ClientesController extends AppController
      */
     public function adicionar(int $redes_id = null)
     {
-        $arraySet = array('cliente', 'clientes', 'rede', 'usuarioLogado');
+        $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
 
         $cliente = $this->Clientes->newEntity();
 
@@ -278,7 +278,7 @@ class ClientesController extends AppController
     public function editar($id = null)
     {
         try {
-            $arraySet = array('cliente');
+            $arraySet = array('cliente', "redesId");
 
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
