@@ -857,6 +857,12 @@ class CuponsController extends AppController
 
         }
 
+        // Turno Anterior:
+        // Se a hora do turno anterior é maior que a do turno atual, então é um dia a menos.
+
+        // Turno Atual:
+        // Se o horário do turno atual é maior que a hora atual, então turno anterior e turno atual é um dia a menos.
+
         // Pega turno anterior
 
         DebugUtil::print($horarios);
