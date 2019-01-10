@@ -245,8 +245,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 
 
-<!-- <div class="print-area-thermal col-lg-3 print-thermal" > -->
-<div class="print-area-thermal col-lg-3" >
+<div class="print-area-thermal col-lg-3 print-thermal" >
+<!-- <div class="print-area-thermal col-lg-3" > -->
 
     <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
         <span class="main-title">Funcionário: <?= $dadoVenda["nome"] ?></span>
