@@ -100,9 +100,8 @@ if (!empty($usuarioAdministrar)) {
                 <?= __('Relatórios') ?>
             </li>
 
-
-            <li class="<?= $item_selected == 'fechamento_caixa' ? 'list-group-item-success' : '' ?> ">
-                <a href="/cupons/fechamentoCaixa/">Fechamento de Caixa</a>
+            <li class="<?= $item_selected == 'fechamento_caixa_funcionario' ? 'list-group-item-success' : '' ?> ">
+                <a href="/cupons/fechamentoCaixaFuncionario/">Fechamento de Caixa</a>
             </li>
 
 

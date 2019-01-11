@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Gotas/atribuir_gotas_form.ctp
+ * @file     src\Template\Cupons\fechamento_caixa_funcionario.ctp
  * @date     06/08/2017
  *
  * Arquivo para atribuir gotas de cliente na view de funcionário
@@ -13,14 +13,14 @@ use Cake\View\Helper\NumberHelper;
 
 $debug = Configure::read("debug");
 
-$title = "Fechamento de Caixa";
+$title = "Fechamento de Caixa de Funcionários";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
-<?= $this->element('../Pages/left_menu', ['item_selected' => 'atribuir_gotas']) ?>
+<?= $this->element('../Pages/left_menu', ['item_selected' => 'fechamento_caixa_funcionario']) ?>
 
 <div class="col-lg-9 col-md-8">
 
@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
         <div id="filter-coupons" class="panel-collapse collapse in">
             <div class="panel-body">
-            <form action="/cupons/fechamento-caixa" method="post">
+            <form action="/cupons/fechamentoCaixaFuncionario/" method="post">
                 <div class="form-group row">
                     <div class="col-lg-12">
                         <label for="filtrar-turno-anterior">Filtrar Turno Anterior?</label>
