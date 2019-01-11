@@ -30,18 +30,18 @@ Configure::write(
     [
         // configuração de banco de dados:
 
-        // "environmentMode" => "development",
-        // // "environmentMode" => "production",
-        // // 'appAddress' => 'https://40.71.26.138/',
-        // 'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
-        // 'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
+        "environmentMode" => "development",
+        // "environmentMode" => "production",
+        // 'appAddress' => 'https://40.71.26.138/',
+        'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
+        'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
 
         // Código antigo
-         // "environmentMode" => "development",
-         "environmentMode" => "production",
-         // 'appAddress' => 'https://40.71.26.138/',
-         'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
-         'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        //  // "environmentMode" => "development",
+        //  "environmentMode" => "production",
+        //  // 'appAddress' => 'https://40.71.26.138/',
+        //  'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        //  'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
 
 
         // Gotas
