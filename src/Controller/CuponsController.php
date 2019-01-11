@@ -14,6 +14,7 @@ use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\TimeUtil;
 
 /**
  * Cupons Controller
@@ -751,12 +752,10 @@ class CuponsController extends AppController
             1 => "Sim",
             0 => "Nâo"
         );
-
         $filtrarTurnoAnterior = null;
 
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
-
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
 
@@ -766,7 +765,6 @@ class CuponsController extends AppController
 
             $filtrarTurnoAnterior = $data["filtrar_turno_anterior"];
             $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
-
             $quadroHorariosCliente = $quadroHorariosCliente->toArray();
             $quadroHorariosClienteLength = sizeof($quadroHorariosCliente);
 
@@ -777,102 +775,12 @@ class CuponsController extends AppController
                 return $this->Flash->error("Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!");
             }
 
-            $horarios = array();
-
-            $horaAtual = date("H");
-            $tempoTurno = 24 / $quadroHorariosClienteLength;
-
-            $index = 0;
-
-            foreach ($quadroHorariosCliente as $horarioItem) {
-                $horaItem = $horarioItem["horario"]->format("H");
-                $fim = $horaItem + $tempoTurno;
-
-                if ($fim >= 24) {
-                    $fim = $fim - 24;
-                }
-
-                $fim = strlen($fim) == 1 ? "0" . $fim : $fim;
-                $fim = $fim . ":" . $horarioItem["horario"]->format("i:s");
-                $diferencaHora = $horaAtual - $horaItem;
-                $horaInicio = $horarioItem["horario"]->format("H:i:s");
-                $horaFim = explode(":", $fim)[0];
-                $item = array(
-                    "id" => $horarioItem["id"],
-                    "dataExibicao" => null,
-                    "dataConsultaInicio" => null,
-                    "dataConsultaFim" => null,
-                    "inicio" => $horarioItem["horario"]->format("H:i:s"),
-                    "horaInicio" => $horarioItem["horario"]->format("H"),
-                    "fim" => $fim,
-                    "horaFim" => $horaFim,
-                    "diferencaHora" => $diferencaHora
-                );
-
-                $horarios[] = $item;
-            }
-
-            usort($horarios, function ($a, $b) {
-                return ($b["horaInicio"] > $a["horaInicio"]);
-            });
-
-            // Pega turno Atual
-
-            $horaComparacao = $horaAtual;
-
-            $processamentoConcluido = false;
-            $dataHoje = new DateTime(date("Y-m-d H:i:s"));
-
-            while (!$processamentoConcluido) {
-                if ($horaComparacao < 0 && !$processamentoConcluido) {
-                    $horaComparacao = 23;
-                    $dataHoje = $dataHoje->modify("-1 day");
-                }
-
-                $registro = array_filter($horarios, function ($hora) use ($horaComparacao) {
-                    return intval($hora["horaInicio"]) == $horaComparacao;
-                });
-
-                $registro = array_values($registro);
-
-                if (sizeof($registro) > 0) {
-                    $registro = $registro[0];
-                    $dataRegistro = new DateTime($dataHoje->format("Y-m-d"));
-                    $registro["dataConsultaInicio"] = $dataRegistro->format("Y-m-d") . " " . $registro["inicio"];
-                    $tempoComparacao = intval($registro["horaInicio"]) + $tempoTurno;
-
-                    if ($tempoComparacao >= 24) {
-                        $tempoComparacao = $tempoComparacao - 24;
-                    }
-                    if (($tempoComparacao) < $registro["horaInicio"]) {
-                        // $dataRegistro = $dataRegistro->modify("+1 day");
-                    }
-                    $registro["dataExibicao"] = $registro["inicio"] . " " . $dataHoje->format("d/m/Y");
-
-                    if ($registro["horaFim"] < $registro["horaInicio"]) {
-                        $dataRegistro->modify("+1 day");
-                    }
-                    $registro["dataConsultaFim"] = $dataRegistro->format("Y-m-d") . " " . $registro["fim"];
-                }
-
-                if (!empty($registro)) {
-                    if (empty($turnoAtual)) {
-                        $turnoAtual = $registro;
-                    } else {
-                        $turnoAnterior = $registro;
-                    }
-                }
-
-                $horaComparacao -= 1;
-
-                $processamentoConcluido = !empty($turnoAnterior) && !empty($turnoAtual);
-            }
-
-            DebugUtil::print(array("anterior" => $turnoAnterior, "atual" => $turnoAtual));
+            $turnos = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente);
+            $turnoAtual = $turnos["turnoAtual"];
+            $turnoAnterior = $turnos["turnoAnterior"];
 
             // Turno Anterior:
             // Se a hora do turno anterior é maior que a do turno atual, então é um dia a menos.
-
             // Turno Atual:
             // Se o horário do turno atual é maior que a hora atual, então turno anterior e turno atual é um dia a menos.
 
@@ -911,9 +819,9 @@ class CuponsController extends AppController
                 );
             };
 
-        // Obtem os dados dos cupons
+            // Obtem os dados dos cupons
 
-        // Fechamento Anterior
+            // Fechamento Anterior
 
             $cuponsFuncionariosAnterior = array();
             $dadosVendaFuncionarios = array();
