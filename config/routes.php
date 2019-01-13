@@ -184,6 +184,12 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/set_comprovante_fiscal_usuario"
                 ],
+                // utilizado por clientes REST de Sistemas de Postos. Cuidado ao mexer
+                "setPontuacoesUsuarioViaPostoAPI" => array(
+                    "action" => "setPontuacoesUsuarioViaPostoAPI",
+                    "method" => "POST",
+                    "path" => "/set_pontuacoes_usuario_via_posto"
+                ),
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "removerPontuacoesDevAPI" => array(
                     "action" => "removerPontuacoesDevAPI",

@@ -793,7 +793,7 @@ class CuponsController extends AppController
 
             $funcionariosArray = $this->ClientesHasUsuarios->getAllUsersByClienteId(
                 $cliente["id"],
-                PROFILE_TYPE_WORKER_PROFILE_TYPE,
+                PROFILE_TYPE_WORKER,
                 1
             );
             $funcionariosArray = $funcionariosArray->toArray();

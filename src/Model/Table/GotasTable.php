@@ -140,29 +140,27 @@ class GotasTable extends GenericTable
     /**
      * Cria uma nova gota
      *
-     * @param int    $clientes_id        Id de Cliente
+     * @param int    $clientesId        Id de Cliente
      * @param string $nome_parametro     Nome da gota
      * @param float  $multiplicador_gota Multiplicador da gota
      *
      * @return boolean Registro gravado
      */
-    public function createGota(int $clientes_id, string $nome_parametro, float $multiplicador_gota)
+    public function createGota(int $clientesId, string $nome_parametro, float $multiplicador_gota)
     {
         try {
-            $gota = $this->_getGotasTable()->newEntity();
+            $gota = $this->newEntity();
 
-            $gota->clientes_id = $clientes_id;
+            $gota->clientes_id = $clientesId;
             $gota->nome_parametro = $nome_parametro;
             $gota->multiplicador_gota = $multiplicador_gota;
 
-            return $this->_getGotasTable()->save($gota);
+            return $this->save($gota);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
         }
     }
 
@@ -206,17 +204,17 @@ class GotasTable extends GenericTable
     /**
      * Encontra todas as 'gotas' de um cliente
      *
-     * @param int $clientes_id Id de Cliente
+     * @param int $clientesId Id de Cliente
      *
      * @return (entity\Gotas)[] $gotas
      **/
-    public function findGotasEnabledByClientesId(int $clientes_id)
+    public function findGotasEnabledByClientesId(int $clientesId)
     {
         try {
-            return $this->_getGotasTable()->find('all')
+            return $this->find('all')
                 ->where(
                     [
-                        'clientes_id' => $clientes_id,
+                        'clientes_id' => $clientesId,
                         'habilitado' => true,
                     ]
                 );
@@ -364,18 +362,18 @@ class GotasTable extends GenericTable
      * Obtem gota por id e clientes Id
      *
      * @param int $id          Id da gota
-     * @param int $clientes_id Id de clientes
+     * @param int $clientesId Id de clientes
      *
      * @return (entity\Gotas) $gota
      */
-    public function getGotaClienteById(int $id, int $clientes_id)
+    public function getGotaClienteById(int $id, int $clientesId)
     {
         try {
             return $this->_getGotasTable()->find('all')
                 ->where(
                     [
                         'id' => $id,
-                        'clientes_id' => $clientes_id
+                        'clientes_id' => $clientesId
                     ]
                 )->first();
         } catch (\Exception $e) {
@@ -401,18 +399,18 @@ class GotasTable extends GenericTable
     /**
      * Obtem gota de cliente pelo nome
      *
-     * @param int    $clientes_id    Id de cliente
+     * @param int    $clientesId    Id de cliente
      * @param string $nome_parametro Nome do parâmetro
      *
      * @return (entity\Gotas) $gota
      */
-    public function getGotaClienteByName(int $clientes_id, string $nome_parametro)
+    public function getGotaClienteByName(int $clientesId, string $nome_parametro)
     {
         try {
             return $this->_getGotasTable()->find('all')
                 ->where(
                     [
-                        'clientes_id' => $clientes_id,
+                        'clientes_id' => $clientesId,
                         'nome_parametro' => $nome_parametro
                     ]
                 )->first();
@@ -441,12 +439,12 @@ class GotasTable extends GenericTable
     /**
      * Define todas as gotas de um cliente para a matriz
      *
-     * @param int $clientes_id Id de Cliente
+     * @param int $clientesId Id de Cliente
      * @param int $matriz_id   Id da Matriz
      *
      * @return boolean
      */
-    public function setGotasToMainCliente(int $clientes_id, int $matriz_id)
+    public function setGotasToMainCliente(int $clientesId, int $matriz_id)
     {
         try {
             return $this->updateAll(
@@ -455,7 +453,7 @@ class GotasTable extends GenericTable
                     'habilitado' => false,
                 ],
                 [
-                    'clientes_id' => $clientes_id
+                    'clientes_id' => $clientesId
                 ]
             );
         } catch (\Exception $e) {

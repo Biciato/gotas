@@ -121,15 +121,15 @@ class ResponseUtil
      * Retorna erro para API Mobile
      *
      * @param string $msg String da mensagem de erro
-     * @param array $data Dados adicionais de retorno
      * @param array $errors Array de Erros
+     * @param array $data Dados adicionais de retorno
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018/12/29
      *
      * @return json_encode Dados json
      */
-    public static function errorAPI(string $msg, array $data = array(), array $errors = array())
+    public static function errorAPI(string $msg, array $errors = array(), array $data = array())
     {
         header("HTTP/1.0 400");
         header("Content-Type: application/json");
@@ -138,13 +138,15 @@ class ResponseUtil
         $mensagem = array(
             "status" => 0,
             "message" => $msg,
-            "errors" => array()
+            "errors" => $errors
         );
         $arraySet = array();
         $arraySet["mensagem"] = $mensagem;
 
-        foreach ($arrayKeys as $key => $item) {
-            $arraySet[$item] = $data[$item];
+        if (sizeof($data) > 0) {
+            foreach ($arrayKeys as $key => $item) {
+                $arraySet[$item] = $data[$item];
+            }
         }
 
         echo json_encode($arraySet);

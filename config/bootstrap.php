@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -237,15 +238,27 @@ Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
 
+// Clientes
+
+const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
+const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
+
+// Usuários
+const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
-const PROFILE_TYPE_ADMIN_DEVELOPER_PROFILE_TYPE = 0;
-const PROFILE_TYPE_ADMIN_NETWORK_PROFILE_TYPE = 1;
-const PROFILE_TYPE_ADMIN_REGIONAL_PROFILE_TYPE = 2;
-const PROFILE_TYPE_ADMIN_LOCAL_PROFILE_TYPE = 3;
-const PROFILE_TYPE_MANAGER_PROFILE_TYPE = 4;
-const PROFILE_TYPE_WORKER_PROFILE_TYPE = 5;
-const PROFILE_TYPE_USER_PROFILE_TYPE = 6;
-const PROFILE_TYPE_DUMMY_WORKER_PROFILE_TYPE = 998;
-const PROFILE_TYPE_DUMMY_USER_PROFILE_TYPE = 999;
+//
+const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
+
+const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+const PROFILE_TYPE_ADMIN_DEVELOPER = 0;
+const PROFILE_TYPE_ADMIN_NETWORK = 1;
+const PROFILE_TYPE_ADMIN_REGIONAL = 2;
+const PROFILE_TYPE_ADMIN_LOCAL = 3;
+const PROFILE_TYPE_MANAGER = 4;
+const PROFILE_TYPE_WORKER = 5;
+const PROFILE_TYPE_USER = 6;
+const PROFILE_TYPE_DUMMY_WORKER = 998;
+const PROFILE_TYPE_DUMMY_USER = 999;

@@ -275,7 +275,7 @@ Configure::write(
         "messageUsuarioDoesNotAcquiredPoints" => "Você ainda não adquiriu pontos em nenhum Posto Credenciado ao Sistema!",
 
         "messageProcessingCompleted" => "Processamento realizado com sucesso!",
-        "messageOperationFailureDuringProcessing" => "Erro durante o processamento! Não foi possível concluir a operação devido os seguintes erros:",
+        "messageOperationFailureDuringProcessing" => "Erro! Não foi possível concluir a operação devido os seguintes erros:",
 
         "messageErrorDefault" => "Erro!",
         "messageWarningDefault" => "Atenção!",

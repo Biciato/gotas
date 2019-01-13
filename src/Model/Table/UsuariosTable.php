@@ -563,7 +563,7 @@ class UsuariosTable extends GenericTable
             }
 
             $data['sexo'] = isset($data["sexo"]) && strlen($data['sexo']) > 0 ? $data["sexo"] : null;
-            $data['data_nasc'] = !empty($data["data_nasc"])? date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d') : null;;
+            $data['data_nasc'] = !empty($data["data_nasc"]) ? date_format(date_create_from_format('d/m/Y', $data['data_nasc']), 'Y-m-d') : null;;
 
             if (isset($data["email"])) {
                 $data['email'] = $data['email'];
@@ -612,7 +612,7 @@ class UsuariosTable extends GenericTable
     public function addUsuario($usuario = null)
     {
         try {
-            $usuarioAdd = $this->_getUsuarioTable()
+            $usuarioAdd = $this
                 ->newEntity();
             $usuarioAdd = $this->formatUsuario(0, $usuario);
 
@@ -812,7 +812,7 @@ class UsuariosTable extends GenericTable
     public function findUsuariosByType($type)
     {
         try {
-            return $this->_getUsuarioTable()
+            return $this
                 ->find('all')
                 ->where(['tipo_perfil' => $type]);
         } catch (\Exception $e) {

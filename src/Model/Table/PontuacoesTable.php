@@ -250,44 +250,44 @@ class PontuacoesTable extends GenericTable
      * Guarda registro de Pontuacao
      * Se $auto_save = false, retorna objeto para gravar posteriormente em batch
      *
-     * @param int    $clientes_id               Id de cliente
-     * @param int    $usuarios_id               Id de usuário
-     * @param int    $funcionarios_id           Id de funcionário (usuário)
-     * @param int    $gotas_id                  Id da gota
-     * @param float  $quantidade_multiplicador  Quantidade de multiplicador
-     * @param float  $quantidade_gotas          Quantidade de gotas
-     * @param int    $pontuacoes_comprovante_id Id do comprovante da pontuação
+     * @param int    $clientesId               Id de cliente
+     * @param int    $usuariosId               Id de usuário
+     * @param int    $funcionariosId           Id de funcionário (usuário)
+     * @param int    $gotasId                  Id da gota
+     * @param float  $quantidadeMultiplicador  Quantidade de multiplicador
+     * @param float  $quantidadeGotas          Quantidade de gotas
+     * @param int    $pontuacoesComprovanteId Id do comprovante da pontuação
      * @param string $data                      Data de processamento
      *
      * @return object $pontuacao
      */
     public function addPontuacaoCupom(
-        int $clientes_id,
-        int $usuarios_id,
-        int $funcionarios_id,
-        int $gotas_id,
-        float $quantidade_multiplicador,
-        float $quantidade_gotas,
-        int $pontuacoes_comprovante_id,
+        int $clientesId,
+        int $usuariosId,
+        int $funcionariosId,
+        int $gotasId,
+        float $quantidadeMultiplicador,
+        float $quantidadeGotas,
+        int $pontuacoesComprovanteId,
         string $data
     ) {
         try {
             $pontuacao = $this->newEntity();
 
-            $pontuacao->clientes_id = $clientes_id;
-            $pontuacao->usuarios_id = $usuarios_id;
-            $pontuacao->funcionarios_id = $funcionarios_id;
-            $pontuacao->quantidade_multiplicador = $quantidade_multiplicador;
-            $pontuacao->quantidade_gotas = $quantidade_gotas;
-            $pontuacao->gotas_id = $gotas_id;
-            $pontuacao->pontuacoes_comprovante_id = $pontuacoes_comprovante_id;
-            $pontuacao->data = $data;
-            $pontuacao->expirado = false;
+            $pontuacao["clientes_id"] = $clientesId;
+            $pontuacao["usuarios_id"] = $usuariosId;
+            $pontuacao["funcionarios_id"] = $funcionariosId;
+            $pontuacao["quantidade_multiplicador"] = $quantidadeMultiplicador;
+            $pontuacao["quantidade_gotas"] = $quantidadeGotas;
+            $pontuacao["gotas_id"] = $gotasId;
+            $pontuacao["pontuacoes_comprovante_id"] = $pontuacoesComprovanteId;
+            $pontuacao["data"] = $data;
+            $pontuacao["expirado"] = false;
 
             return $this->save($pontuacao);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao gravar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
             Log::write("error", $trace);
@@ -1498,17 +1498,17 @@ class PontuacoesTable extends GenericTable
      * Atualiza a quantidade de litros abastecidos de uma Pontuação
      *
      * @param int   $pontuacao_id     Id da pontuação
-     * @param float $quantidade_gotas Quantidade de gotas acumuladas
+     * @param float $quantidadeGotas Quantidade de gotas acumuladas
      *
      * @return \App\Model\Entity\Pontuaco $pontuacao Entidade atualizada
      */
-    public function updateQuantidadeGotasByPontuacaoId(int $pontuacao_id, float $quantidade_gotas)
+    public function updateQuantidadeGotasByPontuacaoId(int $pontuacao_id, float $quantidadeGotas)
     {
         try {
             $pontuacoes = $this->query();
 
             return $pontuacoes->update()
-                ->set(['quantidade_gotas' => $quantidade_gotas])
+                ->set(['quantidade_gotas' => $quantidadeGotas])
                 ->where(['id' => $pontuacao_id])
                 ->execute();
         } catch (\Exception $e) {

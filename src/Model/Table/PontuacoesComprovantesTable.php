@@ -254,7 +254,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $trace = $e->getTrace();
             Log::write('error', $stringError);
 
-            if (Configure::read("debug")){
+            if (Configure::read("debug")) {
                 Log::write('error', $trace);
             }
 
@@ -953,9 +953,9 @@ class PontuacoesComprovantesTable extends GenericTable
      */
     public function deleteAllPontuacoesComprovantes()
     {
-        try{
+        try {
             return $this->deleteAll(['id >= ' => 0]);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
 
         }
     }
