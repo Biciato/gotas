@@ -1826,6 +1826,8 @@ class PontuacoesComprovantesController extends AppController
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
             }
 
+            $chave = null;
+
             if (empty($qrCode) && strtoupper($cliente["estado"]) == "MG") {
                 $qrCode = "Cupom ECF-MG";
                 $chave = "Cupom ECF-MG";
@@ -1853,7 +1855,6 @@ class PontuacoesComprovantesController extends AppController
                 $usuario = $this->Usuarios->addUsuario(array("cpf" => $cpf, "senha" => $pass, "confirm_senha" => $pass, "tipo_perfil" => PROFILE_TYPE_USER));
             }
 
-            $chave = null;
 
             if (empty($funcionario)) {
                 $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
