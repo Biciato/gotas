@@ -15,10 +15,10 @@ use Cake\Routing\Router;
 $debug = Configure::read("debug");
 
 $develHost = 1;
-$serverSuffix = $develHost ? ".local": ".com.br" ;
+$serverSuffix = $develHost ? ".local" : ".com.br";
 
 // $serverAddress = $debug? "sistema-devel.gotas.com.br" : "sistema.gotas.com.br";
-$serverAddress = $debug? "sistema.gotas.com.br" : "sistema.gotas.com.br";
+$serverAddress = $debug ? "sistema.gotas.com.br" : "sistema.gotas.com.br";
 // $serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
 
 $serverAddress = $serverAddress . $serverSuffix;
@@ -30,18 +30,20 @@ Configure::write(
     [
         // configuração de banco de dados:
 
-        "environmentMode" => "development",
-        // "environmentMode" => "production",
-        // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
-        'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
+        // "environmentMode" => "development",
+        // // "environmentMode" => "production",
+        // // 'appAddress' => 'https://40.71.26.138/',
+        // 'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
+        // 'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
 
         // Código antigo
-        //  // "environmentMode" => "development",
+        "environmentMode" => "development",
         //  "environmentMode" => "production",
-        //  // 'appAddress' => 'https://40.71.26.138/',
+         // 'appAddress' => 'https://40.71.26.138/',
         //  'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        'appAddress' => "https://sistema-devel.gotas.com.br/",
         //  'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        'webrootAddress' => "https://sistema-devel.gotas.com.br/webroot",
 
 
         // Gotas
