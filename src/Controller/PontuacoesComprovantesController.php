@@ -1775,8 +1775,6 @@ class PontuacoesComprovantesController extends AppController
      */
     public function setPontuacoesUsuarioViaPostoAPI()
     {
-        $data = array();
-
         if ($this->request->is("post")) {
             $data = $this->request->getData();
             $errors = array();
@@ -1786,7 +1784,9 @@ class PontuacoesComprovantesController extends AppController
             $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+            $funcionario = $this->getUserLogged();
 
+            // Validação
             if (empty($cnpj)) {
                 $errors[] = MESSAGE_CNPJ_EMPTY;
             }
@@ -1819,27 +1819,39 @@ class PontuacoesComprovantesController extends AppController
                 ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
-            // posto de atendimento
+            // Posto de atendimento
             $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
 
             if (empty($cliente)) {
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
             }
 
-            // cliente do posto
-            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+            if (empty($qrCode) && strtoupper($cliente["estado"]) == "MG") {
+                $qrCode = "Cupom ECF-MG";
+                $chave = "Cupom ECF-MG";
+            } else {
+                $url = $qrCode;
+                $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+            }
 
-            // Se usuário não encontrado, cadastra para futuro acesso
-            if (empty($usuario)) {
-                // @todo: ajustar para gravar somente o cpf
-                // $usuario = $this->Usuarios->save($usuario);
+            if (empty($qrCode)) {
+                $errors[] = MESSAGE_COUPON_EMPTY;
             }
 
             if (sizeof($errors) > 0) {
                 ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
-            $funcionario = $this->getUserLogged();
+            // Fim de Validação
+
+            // Cliente do posto
+            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
+            // Se usuário não encontrado, cadastra para futuro acesso
+            if (empty($usuario)) {
+                $pass = rand(1000, 9999);
+                $usuario = $this->Usuarios->addUsuario(array("cpf" => $cpf, "senha" => $pass, "confirm_senha" => $pass, "tipo_perfil" => PROFILE_TYPE_USER));
+            }
 
             $chave = null;
 
@@ -1848,15 +1860,9 @@ class PontuacoesComprovantesController extends AppController
             }
 
             $gotasCliente = $this->Gotas->findGotasEnabledByClientesId($cliente["id"]);
-            $response = array(
-                // 'funcionario' => $funcionario,
-                "gotasCliente" => $gotasCliente
-            );
-
             $pontuacoes = array();
             $data = date("Y-m-d H:i:s");
             $gotasAtualizarPreco = array();
-
             $gotasCliente = $gotasCliente->toArray();
 
             foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
@@ -1888,19 +1894,12 @@ class PontuacoesComprovantesController extends AppController
                             "preco" => $gotaUsuario["gotas_vl_unit"]
                         );
 
+                        // @todo gustavosg: pendente!
                         $gotasAtualizarPreco[] = $gotaPreco;
                     }
 
                     $pontuacoes[] = $item;
                 }
-            }
-
-            if (empty($qrCode) && strtoupper($cliente["estado"]) == "MG") {
-                $qrCode = "Cupom ECF";
-                $chave = "Cupom ECF";
-            } else {
-                $url = $qrCode;
-                $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
             }
 
             $pontuacoesComprovante = array(
@@ -1916,14 +1915,12 @@ class PontuacoesComprovantesController extends AppController
             $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
 
             $comprovanteResumo = array();
-
             $comprovanteResumo["chave_nfe"] = $chave;
             $comprovanteResumo["estado_nfe"] = $cliente["estado"];
             $comprovanteResumo["data"] = $data;
             $comprovanteResumo["soma_pontuacoes"] = floor($comprovante["soma_pontuacoes"]);
 
             foreach ($comprovante["pontuacoes"] as $pontuacao) {
-
                 $item = array(
                     "nome_gota" => $pontuacao["gota"]["nome_parametro"],
                     "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
@@ -1938,7 +1935,6 @@ class PontuacoesComprovantesController extends AppController
                 "comprovante_resumo" => $comprovanteResumo
             );
 
-
             $retorno = array(
                 "pontuacoes_comprovantes" => $pontuacaoComprovanteSave,
                 "resumo_envio_pontuacoes" => array(
@@ -1948,8 +1944,6 @@ class PontuacoesComprovantesController extends AppController
                 )
             );
             ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
-
-            // ResponseUtil::successAPI("", $data);
         }
     }
 

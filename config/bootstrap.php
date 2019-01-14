@@ -243,6 +243,10 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 
+// Cupom
+
+const MESSAGE_COUPON_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+
 // Usuários
 const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";

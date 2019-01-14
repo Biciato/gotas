@@ -616,7 +616,7 @@ class UsuariosTable extends GenericTable
                 ->newEntity();
             $usuarioAdd = $this->formatUsuario(0, $usuario);
 
-            return $this->_getUsuarioTable()->save($usuarioAdd);
+            return $this->save($usuarioAdd);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao inserir registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -2358,6 +2358,10 @@ class UsuariosTable extends GenericTable
      */
     public function formatUsuario($id = null, $usuario = null)
     {
+        if (gettype($usuario) == "array") {
+            $usuario = $this->newEntity($usuario);
+        }
+
         if ($id > 0) {
             $usuario->id = $id;
         }
@@ -2366,17 +2370,19 @@ class UsuariosTable extends GenericTable
             $usuario->matriz_id = $usuario['matriz_id'];
         }
 
-        $usuario->tipo_perfil = $usuario['tipo_perfil'];
-        $usuario->nome = $usuario['nome'];
+        // por padrão é usuário
+        $usuario->tipo_perfil = isset($usuario["tipo_perfil"]) ? $usuario['tipo_perfil'] : PROFILE_TYPE_USER;
+        $usuario->nome = isset($usuario["nome"]) ? $usuario['nome'] : null;
 
         if (strlen($usuario['cpf']) > 0) {
             $usuario->cpf = $this->cleanNumber($usuario['cpf']);
         }
+        $usuario->necessidades_especiais = isset($usuario["necessidades_especiais"]) ? $usuario["necessidades_especiais"] : null;
 
-        $usuario->sexo = $usuario['sexo'];
+        $usuario->sexo = !empty($usuario["nome"]) ? $usuario['sexo'] : null;
 
-        $usuario->data_nasc = date_format(date_create_from_format('d/m/Y', $usuario['data_nasc']->format('d/m/Y')), 'Y-m-d');
-        $usuario->email = $usuario['email'];
+        $usuario->data_nasc = !empty($usuario["data_nasc"]) ? date_format(date_create_from_format('d/m/Y', $usuario['data_nasc']->format('d/m/Y')), 'Y-m-d') : null;
+        $usuario->email = !empty($email) ? $usuario['email'] : null;
 
         $usuario->telefone = isset($usuario['telefone']) ? $this->cleanNumber($usuario['telefone']) : null;
         $usuario->endereco = isset($usuario['endereco']) ? $usuario['endereco'] : null;
