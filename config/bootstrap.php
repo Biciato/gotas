@@ -251,6 +251,7 @@ const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 //
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 
+const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
 const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
 
 const PROFILE_TYPE_ADMIN_DEVELOPER = 0;

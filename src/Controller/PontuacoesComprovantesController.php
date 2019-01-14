@@ -1784,7 +1784,7 @@ class PontuacoesComprovantesController extends AppController
             // Informações do POST
             $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
             $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
-            $gotasAbastecidasCliente = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
+            $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
 
             if (empty($cnpj)) {
@@ -1795,7 +1795,7 @@ class PontuacoesComprovantesController extends AppController
                 $errors[] = MESSAGE_CPF_EMPTY;
             }
 
-            if (empty($gotasAbastecidasCliente) && sizeof($gotasAbastecidasCliente) == 0) {
+            if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
                 $errors[] = "Itens da Venda não foram informados!";
             }
 
@@ -1852,46 +1852,104 @@ class PontuacoesComprovantesController extends AppController
                 // 'funcionario' => $funcionario,
                 "gotasCliente" => $gotasCliente
             );
-            ResponseUtil::successAPI("", $response);
+
             $pontuacoes = array();
             $data = date("Y-m-d H:i:s");
+            $gotasAtualizarPreco = array();
 
-            foreach ($gotasAbastecidasCliente as $gotaAbastecidaCliente) {
-                $pontuacao = array(
-                    "clientes_id" => $cliente["id"],
-                    "usuarios_id" => $usuario["id"],
-                    "funcionarios_id" => $funcionario["id"],
-                    "gotas_id" => $gotasId,
-                    "quantidade_multiplicador" => $gotaMultiplicador,
-                    "quantidade_gotas" => $gotaQuantidade,
-                    "pontuacoes_comprovantes_id" => null,
-                    "data" => $data
-                );
+            $gotasCliente = $gotasCliente->toArray();
 
+            foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
+
+                $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
+                    return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
+                });
+
+                $gota = array_values($gota);
+
+                if (!empty($gota)) {
+                    $gota = $gota[0];
+                    $item = array(
+                        "multiplicador_gota" => floor($gotaUsuario["gotas_qtde"]),
+                        "quantidade_gota" => floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]),
+                        "clientes_id" => $cliente["id"],
+                        "usuarios_id" => $usuario["id"],
+                        "funcionarios_id" => $funcionario["id"],
+                        "gotas_id" => $gota["id"],
+                        "data" => $data
+                    );
+
+                    // Confere quais gotas estão com preço desatualizado
+
+                    if ($gotaUsuario["gotas_vl_unit"] != $gota["valor_atual"]) {
+                        $gotaPreco = array(
+                            "clientes_id" => $cliente["id"],
+                            "gotas_id" => $gota["id"],
+                            "preco" => $gotaUsuario["gotas_vl_unit"]
+                        );
+
+                        $gotasAtualizarPreco[] = $gotaPreco;
+                    }
+
+                    $pontuacoes[] = $item;
+                }
             }
 
             if (empty($qrCode) && strtoupper($cliente["estado"]) == "MG") {
                 $qrCode = "Cupom ECF";
+                $chave = "Cupom ECF";
             } else {
-                $url = $qrcode;
-                $chave = substr($qrCode, strpos("chNFe=", $qrCode) + strlen("chNFe="), 44);
+                $url = $qrCode;
+                $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
             }
 
             $pontuacoesComprovante = array(
                 "qr_code" => $qrCode
             );
 
-            $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrcode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
+            $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrCode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
 
             foreach ($pontuacoes as $pontuacao) {
-                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $gotasId, $gotaMultiplicador, $gotaQuantidade, $pontuacaoComprovanteSave["id"], $data);
+                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
             }
-            ResponseUtil::successAPI("", $data);
 
-            $arraySet = array("data");
+            $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
 
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
+            $comprovanteResumo = array();
+
+            $comprovanteResumo["chave_nfe"] = $chave;
+            $comprovanteResumo["estado_nfe"] = $cliente["estado"];
+            $comprovanteResumo["data"] = $data;
+            $comprovanteResumo["soma_pontuacoes"] = floor($comprovante["soma_pontuacoes"]);
+
+            foreach ($comprovante["pontuacoes"] as $pontuacao) {
+
+                $item = array(
+                    "nome_gota" => $pontuacao["gota"]["nome_parametro"],
+                    "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
+                    "quantidade_multiplicador" => floor($pontuacao["quantidade_multiplicador"])
+                );
+                $comprovanteResumo["pontuacoes"][] = $item;
+            }
+
+            $resumo = array(
+                "funcionario" => $funcionario,
+                "unidade_atendimento" => $cliente,
+                "comprovante_resumo" => $comprovanteResumo
+            );
+
+
+            $retorno = array(
+                "pontuacoes_comprovantes" => $pontuacaoComprovanteSave,
+                "resumo_envio_pontuacoes" => array(
+                    "funcionario" => $funcionario,
+                    "unidade_atendimento" => $cliente,
+                    "comprovantes_resumo" => $comprovanteResumo
+                )
+            );
+            ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+
+            // ResponseUtil::successAPI("", $data);
         }
     }
 

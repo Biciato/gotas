@@ -84,6 +84,19 @@ class GotasTable extends GenericTable
                 'joinType' => 'INNER'
             ]
         );
+
+        $this->hasOne(
+            "GotasHasHistoricoValor",
+            array(
+                "className" => "GotasHasHistoricoValores",
+                "foreignKey" => "gotas_id",
+                "joinType" => "LEFT",
+                "limit" => 1,
+                "order" => array(
+                    "audit_insert" => "desc"
+                ),
+            )
+        );
     }
 
     /**
@@ -214,17 +227,19 @@ class GotasTable extends GenericTable
             return $this->find('all')
                 ->where(
                     [
-                        'clientes_id' => $clientesId,
-                        'habilitado' => true,
+                        'Gotas.clientes_id' => $clientesId,
+                        'Gotas.habilitado' => true,
                     ]
-                );
+                )
+                ->contain(array("GotasHasHistoricoValor"))
+                ;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
+            // $this->Flash->error($stringError);
         }
     }
 
