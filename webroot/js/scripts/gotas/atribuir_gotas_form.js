@@ -39,7 +39,9 @@ $(document).ready(function () {
         if (estado != "MG") {
             startQRCodeCapture();
         } else {
-            startScanCapture("video-gotas-capture-container", "video-gotas-capture", "canvas-cam-gotas");
+            // startScanCapture("video-gotas-capture-container", "video-gotas-capture", "canvas-cam-gotas");
+            // startScanCapture("video-gotas-capture-container", "video-gotas-capture");
+            exibeContainerCupomMG();
         }
     });
 
@@ -93,10 +95,15 @@ $(document).ready(function () {
 
     }
 
+    var exibeContainerCupomMG = function() {
+        $(".gotas-camera-manual-insert").fadeIn(500);
+    }
+
     /**
      * Inicia gravação de câmera para captura de imagem
      */
-    var startScanCapture = function (regionCapture, videoElement, canvasElement) {
+    // var startScanCapture = function (regionCapture, videoElement, canvasElement) {
+    var startScanCapture = function (regionCapture, videoElement) {
 
         $("." + regionCapture).show();
 
@@ -131,7 +138,9 @@ $(document).ready(function () {
 
         function handleVideo(stream) {
             window.localStream = stream;
-            video.src = window.URL.createObjectURL(stream);
+            // video.src = window.URL.createObjectURL(stream);
+            video.srcObject = stream;
+            video.play();
 
         }
 
@@ -512,7 +521,8 @@ $(document).ready(function () {
     var manualInstascanReceipt = function () {
         stopQRCodeCapture();
 
-        startScanCapture("video-receipt-capture-container", "video-receipt-capture", "canvas-instascan-gotas");
+        // startScanCapture("video-receipt-capture-container", "video-receipt-capture", "canvas-instascan-gotas");
+        startScanCapture("video-receipt-capture-container", "video-receipt-capture");
     }
 
     $(".capture-receipt-snapshot").on('click', function () {
@@ -547,7 +557,8 @@ $(document).ready(function () {
 
         $(".video-receipt-captured-region").hide();
         $(".video-receipt-capture-container").fadeIn(500);
-        startScanCapture("video-receipt-capture-container", "video-receipt-capture", "canvas-instascan-gotas");
+        // startScanCapture("video-receipt-capture-container", "video-receipt-capture", "canvas-instascan-gotas");
+        startScanCapture("video-receipt-capture-container", "video-receipt-capture");
     });
 
     $(".store-receipt-image").on('click', function () {
@@ -664,7 +675,8 @@ $(document).ready(function () {
 
         $(".video-gotas-captured-region").hide();
         $(".video-gotas-capture-container").fadeIn(500);
-        startScanCapture("video-gotas-capture-container", "video-gotas-capture", "canvas-cam-gotas");
+        // startScanCapture("video-gotas-capture-container", "video-gotas-capture", "canvas-cam-gotas");
+        startScanCapture("video-gotas-capture-container", "video-gotas-capture");
     });
 
     $(".store-gotas-image").on('click', function () {

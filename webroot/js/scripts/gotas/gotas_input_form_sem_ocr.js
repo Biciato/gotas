@@ -3,7 +3,7 @@
  * @author Gustavo Souza Gonçalves
  * @date 13/09/2017
  * @
- * 
+ *
  */
 $(document).ready(function () {
 
@@ -16,7 +16,7 @@ $(document).ready(function () {
     $(".gotas-camera-manual-insert #chave_nfe").mask('999999');
 
     // Máscara para quantidade
-    $(".gotas-camera-manual-insert #quantidade_input").mask("####.##", {
+    $(".gotas-camera-manual-insert #quantidade_input").mask("####.###", {
         reverse: true
     });
 
@@ -103,7 +103,7 @@ $(document).ready(function () {
     });
 
     /**
-     * 
+     *
      */
     var initializeSelectClicks = function () {
         $(".gotas-camera-manual-insert .select-button").on('click', function () {
@@ -331,7 +331,7 @@ $(document).ready(function () {
      */
     $(".gotas-camera-manual-insert .save-receipt-button").on('click', function () {
 
-        // verifica primeiro se registro já existe. 
+        // verifica primeiro se registro já existe.
         // se não existir, executa a função passada via parâmetro
         checkTaxCouponRepeated(saveReceipt);
 

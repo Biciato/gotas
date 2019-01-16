@@ -810,6 +810,7 @@ class PontuacoesComprovantesController extends AppController
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
 
+            return;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter novo nome para comprovante: {0} em: {1} ", $e->getMessage(), $trace[1]);

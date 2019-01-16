@@ -308,7 +308,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $keyname = bin2hex(openssl_random_pseudo_bytes(32)) . '.jpg';
 
             while ($proceed == false) {
-                $record = $this->_getPontuacoesComprovantesTable()->find('all')->where(['nome_img' => $keyname])->first();
+                $record = $this->find('all')->where(['nome_img' => $keyname])->first();
 
                 // sai do loop se nome disponível, gera novo nome se já existe
                 if (is_null($record)) {
@@ -318,7 +318,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 }
             }
 
-            $keyname = substr($keyname, 0, sizeof($keyname) - 5);
+            $keyname = substr($keyname, 0, -4);
 
             return $keyname;
         } catch (\Exception $e) {
