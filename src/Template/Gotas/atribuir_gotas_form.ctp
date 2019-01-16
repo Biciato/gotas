@@ -15,51 +15,38 @@ use Cake\Core\Configure;
 
     <legend>Atribuição de Gotas</legend>
 
-        <?php if (isset($clientes_id)) : ?>
+    <?php if (isset($clientes_id)) : ?>
 
-            <?= $this->Form->input('clientes_id', [
-                'type' => 'text',
-                'class' => 'hidden',
-                'id' => 'clientes_id',
-                'value' => $clientes_id,
-                'label' => false
-            ]) ?>
-            <?= $this->Form->input('clientesCNPJ', [
-                'type' => 'text',
-                'class' => 'hidden',
-                'id' => 'clientesCNPJ',
-                'value' => $clientesCNPJ,
-                'label' => false
-            ]) ?>
+        <?= $this->Form->input('clientes_id', [
+            'type' => 'text',
+            'class' => 'hidden',
+            'id' => 'clientes_id',
+            'value' => $clientes_id,
+            'label' => false
+        ]) ?>
+        <?= $this->Form->input('clientesCNPJ', [
+            'type' => 'text',
+            'class' => 'hidden',
+            'id' => 'clientesCNPJ',
+            'value' => $clientesCNPJ,
+            'label' => false
+        ]) ?>
 
-           <?php endif; ?>
+    <?php endif; ?>
 
-           <?= $this->Form->input(
-                'id',
-                [
-                    'type' => 'hidden',
-                    'id' => 'funcionarios_id',
-                    'value' => $funcionario->id
-                ]
-            ) ?>
-
-            <?= $this->Form->input(
-                'estado_funcionario',
-                [
-                    'type' => 'hidden',
-                    'id' => 'estado_funcionario',
-                    'value' => $estado_funcionario
-                ]
-            ) ?>
-
-        <?= $this->Form->input(
-            'image_name',
-            [
-                'type' => 'hidden',
-                'id' => 'image_name'
-            ]
-        ) ?>
-
+    <input type="hidden"
+        name="id"
+        id="funcionarios_id"
+        value="<?= $funcionario['id'] ?>"
+    />
+    <input type="hidden"
+        name="estado_funcionario"
+        id="estado_funcionario"
+        value="<?= $estado_funcionario?>"
+        />
+    <input type="hidden"
+        name="image_name"
+        id="image_name"/>
 
         <div class="col-lg-12 group-video-capture-gotas video-capture-gotas-user-select-container">
 
@@ -79,9 +66,7 @@ use Cake\Core\Configure;
                         <div>
 
                             <button class="btn btn-default btn-block disabled user-btn-proceed" type="button">
-                                <div class="fa fa-2x fa-arrow-right">
-
-                                </div>
+                                <div class="fa fa-2x fa-arrow-right"></div>
                                 <span>Prosseguir</span>
                             </button>
                         </div>
@@ -94,8 +79,6 @@ use Cake\Core\Configure;
         </div>
 
         <div class="col-lg-12 group-video-capture-gotas video-gotas-scanning-container">
-
-
             <div class="col-lg-12">
                 <h4>Capturar Cupom Fiscal</h4>
             </div>
@@ -113,7 +96,6 @@ use Cake\Core\Configure;
                         'autocomplete' => 'new-password'
                     ]
                 ) ?>
-
             </div>
 
             <div class="col-lg-2 vertical-align">
@@ -264,55 +246,50 @@ use Cake\Core\Configure;
 
         </div>
 
-
-        <div class="modal-how-it-works-parent hidden" id="gotas-explicacao">
-            <div class="modal-how-it-works-title">
-                Ajuda de Atribuição de Gotas:
-            </div>
-            <div class="modal-how-it-works-body" style="max-height: 50vh; overflow: auto;">
-                <p>
-                    <span>O estado onde o posto se encontra não possui importação automática pelo site da SEFAZ, será necessário informar manualmente. Informe cada compra conforme a nota fiscal.</span>
-                    <br />
-                    <span><strong>Atenção: </strong> Esta inserção será auditada pelo seu Administrador no futuro.</span>
-                </p>
-                <h4>Chave de Acesso</h4>
-                <span>É a chave de acesso que consta em um Cupom Fiscal emitido após a compra do produto. É composto de 44 dígitos, se encontra na seção <strong>Emissão Normal</strong> de um Cupom Fiscal</span>
-                <h4>Parâmetro à ser inserido</h4>
-                <ul>
-                        <li>
-                            <h4>
-                                Lista de Parâmetros Disponíveis
-                            </h4>
-                        </li>
-                        <span>
-                            São os produtos que o cliente adquire em seu ponto de venda. Selecione aquele(s) que consta(m) na nota.
-                        </span>
-                        <li>
-                            <h4>
-                                Quantidade
-                            </h4>
-                        </li>
-                        <span>
-                            É a quantidade abastecida em litros.
-                        </span>
-                        <div class="hidden">
+            <div class="modal-how-it-works-parent hidden" id="gotas-explicacao">
+                <div class="modal-how-it-works-title">
+                    Ajuda de Atribuição de Gotas:
+                </div>
+                <div class="modal-how-it-works-body" style="max-height: 50vh; overflow: auto;">
+                    <p>
+                        <span>O estado onde o posto se encontra não possui importação automática pelo site da SEFAZ, será necessário informar manualmente. Informe cada compra conforme a nota fiscal.</span>
+                        <br />
+                        <span><strong>Atenção: </strong> Esta inserção será auditada pelo seu Administrador no futuro.</span>
+                    </p>
+                    <h4>Chave de Acesso</h4>
+                    <span>É a chave de acesso que consta em um Cupom Fiscal emitido após a compra do produto. É composto de 44 dígitos, se encontra na seção <strong>Emissão Normal</strong> de um Cupom Fiscal</span>
+                    <h4>Parâmetro à ser inserido</h4>
+                    <ul>
                             <li>
-                                <h4>
-                                    Preço
-                                </h4>
+                                <h5>
+                                    Lista de Parâmetros Disponíveis
+                                </h5>
                             </li>
-                            <span>Preço do combustível no momento do abastecimento.</span>
-                        </div>
-
-                </ul>
-
-
-
-                <h3>Gotas à Gravar para Cliente</h3>
-                <span>Esta tabela é a representação de todas as informações que serão enviadas ao servidor, ao apertar o botão <button class="btn btn-primary"><span class="fa fa-save"> Salvar</span></button>
-                </span>
+                            <span>
+                                São os produtos que o cliente adquire em seu ponto de venda. Selecione aquele(s) que consta(m) na nota.
+                            </span>
+                            <li>
+                                <h5>
+                                    Quantidade
+                                </h5>
+                            </li>
+                            <span>
+                                É a quantidade abastecida em litros.
+                            </span>
+                            <div class="hidden">
+                                <li>
+                                    <h5>
+                                        Preço
+                                    </h5>
+                                </li>
+                                <span>Preço do combustível no momento do abastecimento.</span>
+                            </div>
+                    </ul>
+                    <h4>Gotas à Gravar para Cliente</h4>
+                    <span>Esta tabela é a representação de todas as informações que serão enviadas ao servidor, ao apertar o botão <button class="btn btn-primary"><span class="fa fa-save"> Salvar</span></button>
+                    </span>
+                </div>
             </div>
-        </div>
 
         </div>
 
