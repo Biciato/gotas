@@ -195,11 +195,7 @@ use Cake\Core\Configure;
                     </div>
                 </div>
 
-                <p>
-                    <span>O estado onde o posto se encontra não possui importação automática pelo site da SEFAZ, será necessário informar manualmente. Informe cada compra conforme a nota fiscal.</span>
-                    <br />
-                    <span><strong>Atenção: </strong> Esta inserção será auditada pelo seu Administrador no futuro.</span>
-                </p>
+
 
                 <div class="form-group row">
                     <div class="col-lg-12">
@@ -213,12 +209,12 @@ use Cake\Core\Configure;
                         'id' => 'chave_nfe',
                         'class' => 'form-control',
                         'title' => 'Chave para consulta da Nota Fiscal Eletrônica. Informe apenas números'
-                        ]) ?>
+                    ]) ?>
 
                     <?= $this->Html->tag('span', "", [
                         'id' => 'chave_nfe_validation',
                         'class' => 'validation-message text-danger'
-                        ]) ?>
+                    ]) ?>
                     </div>
                 </div>
 
@@ -236,6 +232,11 @@ use Cake\Core\Configure;
                         <label for="quantidade_input">Quantidade</label>
                         <input type="text" name="quantidade_input" class="form-control readonly" disabled="true" id="quantidade_input">
 
+                        <div class="hidden">
+                            <label for="quantidade_input">Preço</label>
+                            <input type="text" name="quantidade_input" class="form-control readonly" disabled="true" id="quantidade_input">
+                        </div>
+
 
                         <div class="col-lg-12 text-right">
                             <button class="btn btn-default add-parameter text-right"><span class="fa fa-plus-circle"> Adicionar</span></button>
@@ -243,7 +244,7 @@ use Cake\Core\Configure;
                     </div>
                     <div class="col-lg-6">
                         <div class="gotas-products-table-container">
-                            <h4>Consumo à Gravar</h4>
+                            <h4>Lista de Gotas Inseridas</h4>
                             <table class="table table-hover table-responsive gotas-products-table">
                                 <thead>
                                     <tr>
@@ -266,20 +267,48 @@ use Cake\Core\Configure;
 
         <div class="modal-how-it-works-parent hidden" id="gotas-explicacao">
             <div class="modal-how-it-works-title">
-                Como funciona:
+                Ajuda de Atribuição de Gotas:
             </div>
             <div class="modal-how-it-works-body" style="max-height: 50vh; overflow: auto;">
-                <h3>Dados Fiscais:</h3>
+                <p>
+                    <span>O estado onde o posto se encontra não possui importação automática pelo site da SEFAZ, será necessário informar manualmente. Informe cada compra conforme a nota fiscal.</span>
+                    <br />
+                    <span><strong>Atenção: </strong> Esta inserção será auditada pelo seu Administrador no futuro.</span>
+                </p>
                 <h4>Chave de Acesso</h4>
                 <span>É a chave de acesso que consta em um Cupom Fiscal emitido após a compra do produto. É composto de 44 dígitos, se encontra na seção <strong>Emissão Normal</strong> de um Cupom Fiscal</span>
-                <h3>Parâmetro à ser inserido</h3>
-                <h4>Lista de Parâmetros Disponíveis</h4>
-                <span>São os produtos que o cliente adquire em seu ponto de venda. Selecione aquele(s) que consta(m) na nota.</span>
+                <h4>Parâmetro à ser inserido</h4>
+                <ul>
+                        <li>
+                            <h4>
+                                Lista de Parâmetros Disponíveis
+                            </h4>
+                        </li>
+                        <span>
+                            São os produtos que o cliente adquire em seu ponto de venda. Selecione aquele(s) que consta(m) na nota.
+                        </span>
+                        <li>
+                            <h4>
+                                Quantidade
+                            </h4>
+                        </li>
+                        <span>
+                            É a quantidade abastecida em litros.
+                        </span>
+                        <div class="hidden">
+                            <li>
+                                <h4>
+                                    Preço
+                                </h4>
+                            </li>
+                            <span>Preço do combustível no momento do abastecimento.</span>
+                        </div>
 
-                <h4>Quantidade</h4>
-                <span>É a quantidade abastecida em litros.</span>
+                </ul>
 
-                <h3>Consumo à gravar</h3>
+
+
+                <h3>Gotas à Gravar para Cliente</h3>
                 <span>Esta tabela é a representação de todas as informações que serão enviadas ao servidor, ao apertar o botão <button class="btn btn-primary"><span class="fa fa-save"> Salvar</span></button>
                 </span>
             </div>
