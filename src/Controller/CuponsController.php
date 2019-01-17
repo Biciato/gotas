@@ -1025,8 +1025,8 @@ class CuponsController extends AppController
                     $totalCompras += $somaResgatadosAnterior;
                     $funcionario["somaAnterior"] = $somaAnterior;
                     $funcionario["turnoAnterior"] = array(
-                        "dataInicio" => $dataInicioAnterior,
-                        "dataFim" => $dataFimAnterior,
+                        "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoAnteriorInicio)),
+                        "dataFim" => date("d/m/Y H:i:s", strtotime($turnoAnteriorFim)),
                         "dados" => $dadosTurnoAnterior
                     );
                 }
@@ -1038,8 +1038,8 @@ class CuponsController extends AppController
                 $totalCompras += $somaResgatadosAtual;
                 $funcionario["somaAtual"] = $somaAtual;
                 $funcionario["turnoAtual"] = array(
-                    "dataInicio" => $dataInicioAtual,
-                    "dataFim" => $dataFimAtual,
+                    "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoAtualInicio)),
+                    "dataFim" => date("d/m/Y H:i:s", strtotime($turnoAtualFim)),
                     "dados" => $dadosTurnoAtual
                 );
                 $dadosVendaFuncionarios[] = $funcionario;
@@ -1055,6 +1055,8 @@ class CuponsController extends AppController
                 "totalCompras" => $totalCompras,
             );
         }
+
+        // DebugUtil::print($dadosVendaFuncionarios);
 
         $arraySet = array("dadosVendaFuncionarios", "totalGeral", "filtrarTurnoAnteriorList", "filtrarTurnoAnterior");
         $this->set(compact($arraySet));
