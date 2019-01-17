@@ -381,9 +381,12 @@ $(document).ready(function () {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+                callLoaderAnimation();
             },
             error: function (response) {
                 console.log(response);
+                closeLoaderAnimation();
             }
         }).done(function (result) {
             console.log(result);
@@ -405,9 +408,13 @@ $(document).ready(function () {
                 updateTableParametrosGravar();
 
                 resetLayout();
+
+                closeLoaderAnimation();
             } else {
                 // erro
                 callModalError("Houve um erro no processamento.");
+
+                closeLoaderAnimation();
             }
         });
     }
@@ -532,7 +539,7 @@ $(document).ready(function () {
         var img = canvas.toDataURL('image/jpeg');
 
         var items = arrayParametrosGravar.get();
-        console.log(items);
+
         saveReceipt(img, items);
     });
 
