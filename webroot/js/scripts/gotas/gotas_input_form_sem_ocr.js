@@ -7,6 +7,8 @@
  */
 $(document).ready(function () {
 
+    var video = null;
+
     // --------------- Inicialização de campos na tela ---------------
 
     // Lista de seleção de parâmetros
@@ -33,7 +35,7 @@ $(document).ready(function () {
     });
 
     // Botão de Salvar Recibo
-    $(".gotas-camera-manual-insert .save-receipt-button").prop('disabled', true);
+    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").prop('disabled', true);
 
     // --------------- Propriedades ---------------
 
@@ -153,7 +155,7 @@ $(document).ready(function () {
                 if (result.found) {
                     callModalError("Este registro já foi importado previamente, não sendo possível a importação!");
 
-                    $(".gotas-camera-manual-insert .save-receipt-button").attr('disabled', true);
+                    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr('disabled', true);
                     $(".gotas-camera-manual-insert #list_parametros").val(null);
                     $(".gotas-camera-manual-insert #list_parametros").attr('disabled', true);
                     $(".gotas-camera-manual-insert #list_parametros").change();
@@ -162,7 +164,7 @@ $(document).ready(function () {
                     $(".gotas-camera-manual-insert #list_parametros").attr('disabled', false);
 
                     if (arrayParametrosGravar.get().length > 0) {
-                        $(".gotas-camera-manual-insert .save-receipt-button").attr('disabled', false);
+                        $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr('disabled', false);
 
                         if (function_execute !== undefined) {
                             function_execute();
@@ -172,6 +174,14 @@ $(document).ready(function () {
             })
                 ;
         }
+    }
+
+    var exibeTelaCapturaMG = function(){
+        // window.localStorage.setItem("dadosCupom", arrayParametrosGravar.get());
+
+        $(".gotas-camera-manual-insert").hide();
+
+        manualInstascanReceipt();
     }
 
     /**
@@ -311,9 +321,9 @@ $(document).ready(function () {
         $(".gotas-camera-manual-insert .gotas-products-table >tbody").html('');
 
         if (arrayParametrosGravar.get().length > 0) {
-            $(".gotas-camera-manual-insert .save-receipt-button").prop('disabled', false);
+            $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").prop('disabled', false);
         } else {
-            $(".gotas-camera-manual-insert .save-receipt-button").prop('disabled', true);
+            $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").prop('disabled', true);
         }
 
         $.each(arrayParametrosGravar.get(), function (index, value) {
@@ -329,18 +339,18 @@ $(document).ready(function () {
     /**
      * Configura botão de salvar
      */
-    $(".gotas-camera-manual-insert .save-receipt-button").on('click', function () {
+    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").on('click', function () {
 
         // verifica primeiro se registro já existe.
         // se não existir, executa a função passada via parâmetro
-        checkTaxCouponRepeated(saveReceipt);
+        checkTaxCouponRepeated(exibeTelaCapturaMG);
 
     });
 
     /**
      * Salva os registros
      */
-    var saveReceipt = function () {
+    var saveReceipt = function (image) {
         var data = [];
 
         $.each(arrayParametrosGravar.get(), function (index, value) {
@@ -365,7 +375,8 @@ $(document).ready(function () {
             type: "POST",
             url: "/PontuacoesComprovantes/saveManualReceipt",
             data: JSON.stringify({
-                data: data
+                data: data,
+                image: image
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -400,4 +411,129 @@ $(document).ready(function () {
             }
         });
     }
+
+
+
+
+
+
+
+     /**
+     * Inicia gravação de câmera para captura de imagem
+     */
+    // var startScanCapture = function (regionCapture, videoElement, canvasElement) {
+        var startScanCapture = function (regionCapture, videoElement) {
+
+            $("." + regionCapture).show();
+
+            video = null;
+            video = document.querySelector("#" + videoElement);
+
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+
+            var hdConstraints = {
+                video: {
+                    optional: [{
+                        minWidth: 320
+                    }, {
+                        minWidth: 640
+                    }, {
+                        minWidth: 1024
+                    }, {
+                        minWidth: 1280
+                    }, {
+                        minWidth: 1920
+                    }, {
+                        minWidth: 2560
+                    },],
+
+                },
+                audio: false
+            };
+
+            if (navigator.getUserMedia) {
+                navigator.getUserMedia(hdConstraints, handleVideo, videoError);
+            }
+
+            function handleVideo(stream) {
+                // window.localStream = stream;
+                // video.src = window.URL.createObjectURL(stream);
+                video.srcObject = stream;
+                video.play();
+
+            }
+
+            function videoError(e) { // do something
+            }
+        };
+
+        /**
+         * Interrompe captura da Webcam
+         */
+        var stopCamRecording = function () {
+
+            var interval = 0;
+            var retries = 0;
+            interval = setInterval(function () {
+                if (window.localStream !== undefined) {
+                    window.localStream.getVideoTracks()[0].stop();
+                }
+                clearInterval(interval);
+
+                // necessário aguardar pelo menos 1 segundo para evitar efeito de imagem escurecida
+
+            }, 1000);
+        }
+
+        /**
+     * Oculta região de captura de imagem e interrompe o dispositivo webcam
+     */
+    var stopScanDocument = function () {
+        stopCamRecording();
+
+        $(".group-video-capture").hide();
+    };
+
+    var stopQRCodeCapture = function () {
+        $(".video-gotas-scanning-container").hide();
+        $(".group-capture-qr-code").hide();
+
+    }
+
+      /**
+     * Interrompe captura de QR Code e exibe captura de imagem
+     */
+    var manualInstascanReceipt = function () {
+        stopQRCodeCapture();
+
+        // startScanCapture("video-receipt-capture-container", "video-receipt-capture", "canvas-instascan-gotas");
+
+        startScanCapture("video-receipt-capture-container", "video-receipt-capture");
+        // startScanCapture("video-gotas-capture-container", "group-video-capture-gotas");
+    }
+
+    $(".capture-receipt-snapshot").on('click', function () {
+        canvas = $("#canvas-instascan-gotas")[0];
+
+        var height = canvas.height;
+        var width = canvas.width;
+
+        var canvasContext = canvas.getContext('2d');
+        canvasContext.drawImage(video, 0, 0, width, height);
+
+        $(".video-receipt-capture-container").hide();
+        $(".video-receipt-captured-region").fadeIn(500);
+
+        stopScanDocument();
+    });
+
+    $(".store-receipt").on('click', function () {
+        var canvas = $("#canvas-instascan-gotas")[0];
+        var img = canvas.toDataURL('image/jpeg');
+
+        var items = arrayParametrosGravar.get();
+        console.log(items);
+        saveReceipt(img, items);
+    });
+
 });

@@ -1089,8 +1089,6 @@ class PontuacoesComprovantesController extends AppController
     public function saveManualReceipt()
     {
         try {
-            $extension_img = '.jpg';
-
             $funcionario = $this->getUserLogged();
 
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
@@ -1101,7 +1099,31 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if ($this->request->is('post')) {
+                $data = $this->request->getData();
+                $img = !empty($data["image"]) ? $data["image"] : null;
+
+                $nomeImg = null;
+
+                if (!empty($img)) {
+                    $nomeImg = $this->PontuacoesComprovantes->generateNewImageCoupon();
+
+                    // move a imagem
+                    $nomeImg = $nomeImg . '.jpg';
+
+                    ImageUtil::generateImageFromBase64(
+                        $img,
+                        Configure::read('imageReceiptPathTemporary') . $nomeImg,
+                        Configure::read('imageReceiptPathTemporary')
+                    );
+
+                    // rotaciona a imagem guardada temporariamente
+                    ImageUtil::rotateImage(Configure::read('imageReceiptPathTemporary') . $nomeImg, 90);
+                }
+
+
                 $data_array = $this->request->getData()['data'];
+
+                // DebugUtil::print($data);
 
                 $pontuacoes_comprovante = null;
 
@@ -1152,7 +1174,7 @@ class PontuacoesComprovantesController extends AppController
 
                     $quantidade = $data['quantidade_multiplicador'] * $gotas->multiplicador_gota;
 
-                    $nome_img = $data['nome_img'] . $extension_img;
+                    // $nome_img = $data['nome_img'] . $extension_img;
 
                     if (is_null($pontuacoes_comprovante)) {
                         $pontuacoes_comprovante = $this->PontuacoesComprovantes->newEntity();
@@ -1161,7 +1183,7 @@ class PontuacoesComprovantesController extends AppController
                         $pontuacoes_comprovante['usuarios_id'] = $usuarios_id;
                         $pontuacoes_comprovante['funcionarios_id'] = $funcionario['id'];
                         $pontuacoes_comprovante['conteudo'] = $conteudo;
-                        $pontuacoes_comprovante['nome_img'] = $nome_img;
+                        $pontuacoes_comprovante['nome_img'] = $nomeImg;
                         $pontuacoes_comprovante['chave_nfe'] = $chave_nfe;
                         $pontuacoes_comprovante['estado_nfe'] = $estado_nfe;
                         $pontuacoes_comprovante['data'] = date('Y-m-d H:i:s');
@@ -1194,12 +1216,12 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 // move a imagem para a pasta definitiva
-                $this->moveDocumentPermanently(Configure::read('imageReceiptPathTemporary') . $data['nome_img'] . $extension_img, Configure::read('documentReceiptPath'), $data['nome_img'], $extension_img);
+                $this->moveDocumentPermanently(Configure::read('imageReceiptPathTemporary') . $nomeImg, Configure::read('documentReceiptPath'), $nomeImg);
 
                 $pontuacoes_comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacoes_comprovante->id);
 
                 $success = $pontuacoes && $pontuacoes_comprovante;
-                $data = $pontuacoes_comprovante;
+                $data = array("pontuacoes_comprovantes" => $pontuacoes_comprovante);
             }
 
             $arraySet = [

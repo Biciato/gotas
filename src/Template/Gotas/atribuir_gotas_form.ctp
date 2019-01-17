@@ -42,7 +42,7 @@ use Cake\Core\Configure;
     <input type="hidden"
         name="estado_funcionario"
         id="estado_funcionario"
-        value="<?= $estado_funcionario?>"
+        value="<?= $estado_funcionario ?>"
         />
     <input type="hidden"
         name="image_name"
@@ -114,7 +114,7 @@ use Cake\Core\Configure;
 
         <div class="col-lg-12 group-video-capture-gotas video-receipt-capture-container">
             <div class="col-lg-12">
-                <span>Capturar Cupom Fiscal com QR Code</span>
+                <span>Capturar Cupom Fiscal</span>
             </div>
             <div class="col-lg-10 ">
                 <div class="video-cam-container-row">
@@ -136,7 +136,7 @@ use Cake\Core\Configure;
 
         <div class="col-lg-12 group-video-capture-gotas video-receipt-captured-region">
             <div class="col-lg-12">
-                <span>Foto com QR Code Capturada</span>
+                <span>Foto Capturada</span>
             </div>
             <div class="col-lg-10">
                 <div class="video-receipt-captured-row">
@@ -155,9 +155,9 @@ use Cake\Core\Configure;
                         <div class="fa fa-2x fa-camera"></div>
                         <span>Recapturar</span>
                     </div>
-                    <div class="store-receipt-image btn btn-primary ">
-                        <div class="fa fa-2x fa-check"> </div>
-                        <span>Processar</span>
+                    <div class="store-receipt btn btn-primary ">
+                        <div class="fa fa-2x fa-save"> </div>
+                        <span>Gravar</span>
                     </div>
                 </div>
 
@@ -166,25 +166,23 @@ use Cake\Core\Configure;
 
 
         <div class="col-lg-12 gotas-camera-manual-insert">
+            <div class="form-group row">
+                <h4 class="col-lg-11">
+                    <?= __('Inserção Manual de Gotas') ?>
+                </h4>
 
-                <div class="form-group row">
-                    <h4 class="col-lg-11">
-                        <?= __('Inserção Manual de Gotas') ?>
-                    </h4>
-
-                    <div class="col-lg-1 btn btn-default right-align call-modal-how-it-works" target-id="#gotas-explicacao">
-                        <span class=" fa fa-question-circle-o"> Ajuda</span>
-                    </div>
+                <div class="col-lg-1 btn btn-default right-align call-modal-how-it-works" target-id="#gotas-explicacao">
+                    <span class=" fa fa-question-circle-o"> Ajuda</span>
                 </div>
+            </div>
 
-
-
-                <div class="form-group row">
-                    <div class="col-lg-12">
+            <div class="form-group row">
+                <div class="col-lg-6">
+                    <div class="form-group">
                         <h4>Dados Fiscais</h4>
                     </div>
 
-                    <div class="col-lg-12">
+                    <div class="form-group">
                     <?= $this->Form->input('chave_nfe', [
                         'type' => 'text',
                         'label' => 'Chave de Acesso',
@@ -193,15 +191,11 @@ use Cake\Core\Configure;
                         'title' => 'Chave para consulta da Nota Fiscal Eletrônica. Informe apenas números'
                     ]) ?>
 
-                    <?= $this->Html->tag('span', "", [
-                        'id' => 'chave_nfe_validation',
-                        'class' => 'validation-message text-danger'
-                    ]) ?>
-                    </div>
-                </div>
+                    <span id="chave_nfe_validation" class="validation-message text-danger"></span>
 
+                    </div>
                 <div class="form-group row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         <h4>Parâmetro à ser inserido</h4>
 
                         <?= $this->Form->input('list_parametros', [
@@ -220,29 +214,39 @@ use Cake\Core\Configure;
                         </div>
 
 
-                        <div class="col-lg-12 text-right">
-                            <button class="btn btn-default add-parameter text-right"><span class="fa fa-plus-circle"> Adicionar</span></button>
+                        <div class="form-group row">
+                            <div class="col-lg-12 text-right">
+                                <button class="btn btn-default add-parameter text-right"><span class="fa fa-plus-circle"> Adicionar</span></button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="gotas-products-table-container">
-                            <h4>Lista de Gotas Inseridas</h4>
-                            <table class="table table-hover table-responsive gotas-products-table">
-                                <thead>
-                                    <tr>
-                                        <td class="row">Nome</td>
-                                        <td>Quantidade</td>
-                                        <td>Ações</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-lg-12 text-right">
-                            <button class="btn btn-primary save-receipt-button"><span class="fa fa-save"> Salvar</span></button>
-                        </div>
                 </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="gotas-products-table-container">
+                        <h4>Lista de Gotas Inseridas</h4>
+                        <table class="table table-hover table-responsive gotas-products-table">
+                            <thead>
+                                <tr>
+                                    <td class="row">Nome</td>
+                                    <td>Quantidade</td>
+                                    <td>Ações</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-12 text-right">
+                            <button class="btn btn-default user-btn-proceed-picture-mg">
+                                <div class="fa fa-arrow-right"></div> Prosseguir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
 

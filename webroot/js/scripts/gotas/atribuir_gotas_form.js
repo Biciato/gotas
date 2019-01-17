@@ -525,20 +525,20 @@ $(document).ready(function () {
         startScanCapture("video-receipt-capture-container", "video-receipt-capture");
     }
 
-    $(".capture-receipt-snapshot").on('click', function () {
-        canvas = $("#canvas-instascan-gotas")[0];
+    // $(".capture-receipt-snapshot").on('click', function () {
+    //     canvas = $("#canvas-instascan-gotas")[0];
 
-        var height = canvas.height;
-        var width = canvas.width;
+    //     var height = canvas.height;
+    //     var width = canvas.width;
 
-        var canvasContext = canvas.getContext('2d');
-        canvasContext.drawImage(video, 0, 0, width, height);
+    //     var canvasContext = canvas.getContext('2d');
+    //     canvasContext.drawImage(video, 0, 0, width, height);
 
-        $(".video-receipt-capture-container").hide();
-        $(".video-receipt-captured-region").fadeIn(500);
+    //     $(".video-receipt-capture-container").hide();
+    //     $(".video-receipt-captured-region").fadeIn(500);
 
-        stopScanDocument();
-    });
+    //     stopScanDocument();
+    // });
 
     /**
      * Exibe área de captura caso o operador queira tirar nova foto do documento
@@ -630,9 +630,10 @@ $(document).ready(function () {
                     $(".video-receipt-captured-region").hide();
                     $(".gotas-instascan-manual-insert").fadeIn(500);
                 } else {
-                    populateFuelWords();
-                    $(".video-gotas-captured-region").hide();
-                    $(".gotas-camera-manual-insert").fadeIn(500);
+                    // todo wip
+                    // populateFuelWords();
+                    // $(".video-gotas-captured-region").hide();
+                    // $(".gotas-camera-manual-insert").fadeIn(500);
                 }
 
                 // guarda nome a ser usado ao salvar no bd
