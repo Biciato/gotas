@@ -1308,9 +1308,9 @@ class PontuacoesTable extends GenericTable
                         )->first();
 
                     if (!empty($gotasNomeParametro) && strlen($gotasNomeParametro) > 0) {
-                        $gota = $gotasTable->getGotaByIdNome($pontuacao["gotas_id"], $gotasNomeParametro);
+                        $gota = $gotasTable->getGotasByIdNome($pontuacao["gotas_id"], $gotasNomeParametro);
                     } else {
-                        $gota = $gotasTable->getGotaById($pontuacao["gotas_id"]);
+                        $gota = $gotasTable->getGotasById($pontuacao["gotas_id"]);
                     }
                     if (!empty($gota)) {
                         $pontuacao["gotas"] = $gota;
@@ -1499,16 +1499,22 @@ class PontuacoesTable extends GenericTable
      *
      * @param int   $pontuacao_id     Id da pontuação
      * @param float $quantidadeGotas Quantidade de gotas acumuladas
+     * @param float $quantidadeMultiplicador Quantidade do Multiplicador (Litros de gasolina)
      *
      * @return \App\Model\Entity\Pontuaco $pontuacao Entidade atualizada
      */
-    public function updateQuantidadeGotasByPontuacaoId(int $pontuacao_id, float $quantidadeGotas)
+    public function updateQuantidadeGotasByPontuacaoId(int $pontuacao_id, float $quantidadeGotas, float $quantidadeMultiplicador)
     {
         try {
             $pontuacoes = $this->query();
 
             return $pontuacoes->update()
-                ->set(['quantidade_gotas' => $quantidadeGotas])
+                ->set(
+                    array(
+                        'quantidade_gotas' => $quantidadeGotas,
+                        'quantidade_multiplicador' => $quantidadeMultiplicador
+                    )
+                )
                 ->where(['id' => $pontuacao_id])
                 ->execute();
         } catch (\Exception $e) {

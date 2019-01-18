@@ -21,10 +21,10 @@ $show_actions = isset($show_actions) ? $show_actions : true;
             <?= __('Nome') ?>
         </th>
         <th>
-            <?= __('Quantidade de Valor Adquirido') ?>
+            <?= __('Qte. de Valor Adquirido') ?>
         </th>
         <th>
-            <?= __('Quantidade de Gotas') ?>
+            <?= __('Qte. de Gotas') ?>
         </th>
         <?php if ($show_actions) : ?>
         <th>
@@ -53,7 +53,7 @@ $show_actions = isset($show_actions) ? $show_actions : true;
             <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) : ?>
             <?= $this->Html->link(
                 __(
-                    "{0} Editar",
+                    "{0}",
                     $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
                 ),
                 [
@@ -61,6 +61,7 @@ $show_actions = isset($show_actions) ? $show_actions : true;
                     'action' => 'editar_pontuacao', $value->id
                 ],
                 [
+                    'title' => "Editar",
                     'class' => 'btn btn-primary btn-xs',
                     'escape' => false,
                 ]
@@ -68,11 +69,12 @@ $show_actions = isset($show_actions) ? $show_actions : true;
 
             <?= $this->Html->link(
                 __(
-                    "{0} Remover",
+                    "{0}",
                     $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
                 ),
                 '#',
                 [
+                    "title" => "Remover",
                     'class' => 'btn btn-primary btn-danger  btn-xs',
                     'data-toggle' => 'modal',
                     'data-target' => '#modal-delete',

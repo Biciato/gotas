@@ -10,6 +10,7 @@ use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use Cake\I18n\Number;
 
 /**
  * Pontuacoes Controller
@@ -363,6 +364,7 @@ class PontuacoesController extends AppController
                 $pontuacao->nome_img = Configure::read('documentReceiptPathRead') . $pontuacao->nome_img;
             }
 
+            // DebugUtil::print($pontuacao);
             $this->set(compact('pontuacao'));
 
             $this->set('_serialize', ['pontuacao']);
@@ -383,31 +385,28 @@ class PontuacoesController extends AppController
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function editarPontuacao(int $pontuacao_id)
+    public function editarPontuacao(int $pontuacaoId)
     {
         try {
-            $pontuacao = $this->Pontuacoes->getPontuacaoById($pontuacao_id);
+            $pontuacao = $this->Pontuacoes->getPontuacaoById($pontuacaoId);
 
+
+            $pontuacao["quantidade_multiplicador"] = Number::precision($pontuacao["quantidade_multiplicador"], 3);
+            // DebugUtil::print($pontuacao);
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
-                $quantidade_multiplicador = $data['quantidade_multiplicador'];
+                $quantidadeMultiplicador = $data['quantidade_multiplicador'];
 
-                $gotas_parameter = $pontuacao->quantidade_gotas / $pontuacao->quantidade_multiplicador;
-
-                $quantidade_gotas = $gotas_parameter * $quantidade_multiplicador;
-
-                $result = $this->Pontuacoes->updateQuantidadeGotasByPontuacaoId($pontuacao->id, $quantidade_gotas);
+                $gota = $this->Gotas->getGotasById($pontuacao["gotas_id"]);
+                $parametroGota = $gota["multiplicador_gota"];
+                $quantidadeGotas = $parametroGota * $quantidadeMultiplicador;
+                $result = $this->Pontuacoes->updateQuantidadeGotasByPontuacaoId($pontuacao["id"], $quantidadeGotas, $quantidadeMultiplicador);
 
                 if ($result) {
                     $this->Flash->success(Configure::read('messageSavedSuccess'));
 
-                    return $this->redirect(
-                        [
-                            'action' => 'detalhes_cupom',
-                            $pontuacao->pontuacoes_comprovante_id
-                        ]
-                    );
+                    return $this->redirect(array('action' => 'detalhes_cupom', $pontuacao->pontuacoes_comprovante_id));
                 }
 
                 $this->Flash->error(Configure::read('messageSavedError'));

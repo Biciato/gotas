@@ -231,8 +231,7 @@ class GotasTable extends GenericTable
                         'Gotas.habilitado' => true,
                     ]
                 )
-                ->contain(array("GotasHasHistoricoValor"))
-                ;
+                ->contain(array("GotasHasHistoricoValor"));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());
@@ -301,14 +300,14 @@ class GotasTable extends GenericTable
      *
      * @return object $gota Gota
      */
-    public function getGotaById(int $id)
+    public function getGotasById(int $id)
     {
         try {
-            return $this->_getGotasTable()->find('all')
+            return $this->find('all')
                 ->where(
-                    [
+                    array(
                         'id' => $id
-                    ]
+                    )
                 )->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -331,7 +330,7 @@ class GotasTable extends GenericTable
     }
 
     /**
-     * GotasTable::getGotaByIdNome
+     * GotasTable::getGotasByIdNome
      *
      * Obtêm gota pelo ID e nome
      *
@@ -343,7 +342,7 @@ class GotasTable extends GenericTable
      *
      * @return object $gota Gota
      */
-    public function getGotaByIdNome(int $id, string $nomeParametro = null)
+    public function getGotasByIdNome(int $id, string $nomeParametro = null)
     {
         try {
             return $this->_getGotasTable()->find('all')

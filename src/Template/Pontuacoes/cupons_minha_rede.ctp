@@ -36,6 +36,9 @@ echo $this->Breadcrumbs->render(
             <thead>
                 <tr>
                     <th>
+                        <?= $this->Paginator->sort('id', ['label' => 'Id']) ?>
+                    </th>
+                    <th>
                         <?= $this->Paginator->sort('usuario.nome', ['label' => 'Cliente']) ?>
                     </th>
                     <th>
@@ -73,6 +76,9 @@ echo $this->Breadcrumbs->render(
                 <?php foreach ($pontuacoes_cliente as $pontuacao) : ?>
 
                 <tr>
+                    <td>
+                        <?= h($pontuacao->id) ?>
+                    </td>
                     <td>
                         <?= h($pontuacao->usuario->nome) ?>
                     </td>
@@ -122,5 +128,19 @@ echo $this->Breadcrumbs->render(
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <div class="paginator">
+        <center>
+            <ul class="pagination">
+                <?= $this->Paginator->first('<< ' . __('primeiro')) ?>
+                <?= $this->Paginator->prev('&laquo; ' . __('anterior'), ['escape' => false]) ?>
+                <?= $this->Paginator->numbers(['escape' => false]) ?>
+                <?= $this->Paginator->next(__('próximo') . ' &raquo;', ['escape' => false]) ?>
+                <?= $this->Paginator->last(__('último') . ' >>') ?>
+            </ul>
+            <p>
+                <?= $this->Paginator->counter(__('Página {{page}} de {{pages}}, mostrando {{current}} registros de  {{count}} total, iniciando no registro {{start}}, terminando em {{end}}')) ?>
+            </p>
+        </center>
+    </div>
     </div>
 </div>

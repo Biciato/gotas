@@ -185,10 +185,10 @@ use Cake\Core\Configure;
                     <div class="form-group">
                     <?= $this->Form->input('chave_nfe', [
                         'type' => 'text',
-                        'label' => 'Chave de Acesso',
+                        'label' => 'Código',
                         'id' => 'chave_nfe',
                         'class' => 'form-control',
-                        'title' => 'Chave para consulta da Nota Fiscal Eletrônica. Informe apenas números'
+                        'title' => 'Código de consulta da Nota Fiscal Eletrônica'
                     ]) ?>
 
                     <span id="chave_nfe_validation" class="validation-message text-danger"></span>

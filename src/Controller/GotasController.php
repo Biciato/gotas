@@ -503,7 +503,7 @@ class GotasController extends AppController
                 $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
-            $gota = $this->Gotas->getGotaById($id);
+            $gota = $this->Gotas->getGotasById($id);
 
             $unidades = $this->Clientes->find('list')->where(array("id" => $gota["clientes_id"]));
 

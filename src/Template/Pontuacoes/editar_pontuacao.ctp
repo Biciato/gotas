@@ -23,7 +23,7 @@ use Cake\Routing\Router;
                         <?= __('Quantidade de Litros Abastecidos') ?>
                     </th>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->quantidade_multiplicador, 2)) ?>
+                        <?= h($this->Number->precision($pontuacao->quantidade_multiplicador, 3)) ?>
                     </td>
                 </tr>
                 <tr>
@@ -31,19 +31,19 @@ use Cake\Routing\Router;
                         <?= __('Quantidade de Gotas') ?>
                     </th>
                     <td>
-                        <?= h($this->Number->precision($pontuacao->quantidade_gotas, 2)) ?>
+                        <?= h($this->Number->precision($pontuacao->quantidade_gotas, 3)) ?>
                     </td>
                 </tr>
 
-                <tr>
+                <!-- <tr>
                     <th>
                         <?= __('Valor do Parâmetro de Gotas do Registro') ?>
                     </th>
                     <td>
                         <?= h($this->Number->precision($pontuacao->quantidade_gotas / $pontuacao->quantidade_multiplicador, 2)) ?>
                     </td>
-                </tr>
-                
+                </tr> -->
+
                 <tr>
                     <th>
                         <?= __('Chave da NFE') ?>
@@ -73,7 +73,7 @@ use Cake\Routing\Router;
                 ]
             ) ?>
 
-  
+
             <?= $this->Form->button(__("{0} Salvar",
                 $this->Html->tag('i', '', ['class' => 'fa fa-check'])),
                 [
@@ -81,14 +81,14 @@ use Cake\Routing\Router;
                     'type' => 'submit'
                 ]
             ) ?>
-              
+
 
             <?= $this->Form->end(); ?>
         </div>
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/pontuacoes/editar_pontuacao') ?>
-<?php else: ?> 
+<?php else: ?>
     <?= $this->Html->script('scripts/pontuacoes/editar_pontuacao.min') ?>
 <?php endif; ?>
 

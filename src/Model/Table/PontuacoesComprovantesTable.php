@@ -753,7 +753,7 @@ class PontuacoesComprovantesTable extends GenericTable
     public function getDetalhesCupomByCouponId(int $id)
     {
         try {
-            $value = $this->_getPontuacoesComprovantesTable()->find('all')
+            $value = $this->find('all')
                 ->where(
                     [
                         'PontuacoesComprovantes.id' => $id

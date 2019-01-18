@@ -1103,12 +1103,13 @@ class PontuacoesComprovantesController extends AppController
                 $img = !empty($data["image"]) ? $data["image"] : null;
 
                 $nomeImg = null;
+                $nomeImgExtensao = null;
 
                 if (!empty($img)) {
                     $nomeImg = $this->PontuacoesComprovantes->generateNewImageCoupon();
 
                     // move a imagem
-                    $nomeImg = $nomeImg . '.jpg';
+                    $nomeImgExtensao = $nomeImg . '.jpg';
 
                     ImageUtil::generateImageFromBase64(
                         $img,
@@ -1170,7 +1171,7 @@ class PontuacoesComprovantesController extends AppController
                     // na forma manual, eu ja tenho o id de gotas que preciso
                     $gotas_id = $data['gotas_id'];
 
-                    $gotas = $this->Gotas->getGotaById($gotas_id);
+                    $gotas = $this->Gotas->getGotasById($gotas_id);
 
                     $quantidade = $data['quantidade_multiplicador'] * $gotas->multiplicador_gota;
 
@@ -1183,7 +1184,7 @@ class PontuacoesComprovantesController extends AppController
                         $pontuacoes_comprovante['usuarios_id'] = $usuarios_id;
                         $pontuacoes_comprovante['funcionarios_id'] = $funcionario['id'];
                         $pontuacoes_comprovante['conteudo'] = $conteudo;
-                        $pontuacoes_comprovante['nome_img'] = $nomeImg;
+                        $pontuacoes_comprovante['nome_img'] = $nomeImgExtensao;
                         $pontuacoes_comprovante['chave_nfe'] = $chave_nfe;
                         $pontuacoes_comprovante['estado_nfe'] = $estado_nfe;
                         $pontuacoes_comprovante['data'] = date('Y-m-d H:i:s');
@@ -1216,7 +1217,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 // move a imagem para a pasta definitiva
-                $this->moveDocumentPermanently(Configure::read('imageReceiptPathTemporary') . $nomeImg, Configure::read('documentReceiptPath'), $nomeImg);
+                $this->moveDocumentPermanently(Configure::read('imageReceiptPathTemporary') . $nomeImg, Configure::read('documentReceiptPath'), $nomeImg, ".jpg");
 
                 $pontuacoes_comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacoes_comprovante->id);
 
