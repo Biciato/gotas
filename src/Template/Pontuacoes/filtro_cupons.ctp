@@ -114,7 +114,7 @@ use Cake\Core\Configure;
                                 'id' => 'data_inicio',
                                 'label' => 'Data de Início',
                                 'format' => 'd/m/Y',
-                                'default' => date('d/m/Y'),
+                                'default' => date('d/m/Y', strtotime('-7 day')),
                                 'class' => 'datepicker-input',
                                 'div' =>
                                     [

@@ -1,12 +1,22 @@
 <?php
+
+/**
+ * @author   Gustavo Souza Gonçalves
+ * @file     src/Template/Pontuacoes/editar_pontuacao.ctp
+ * @date     19/10/2017
+ */
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-/**
-  * @author   Gustavo Souza Gonçalves
-  * @file     src/Template/Pontuacoes/editar_pontuacao.ctp
-  * @date     19/10/2017
-  */
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+
+$this->Breadcrumbs->add('Cupons Emitidos', array("controller" => "pontuacoes", "action" => "cupons_minha_rede"));
+$this->Breadcrumbs->add('Detalhes do Cupom Fiscal', array("controller" => "pontuacoes", "action" => "detalhes_cupom" , $pontuacao["pontuacoes_comprovante_id"]), ['class' => 'active']);
+$this->Breadcrumbs->add('Editar Valor de Pontuação', array(), ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 
 ?>
     <?= $this->element('../Pontuacoes/left_menu', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede','id' => $pontuacao->id, 'mode' => 'details']) ?>

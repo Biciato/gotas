@@ -260,9 +260,9 @@ class PontuacoesController extends AppController
             // verifica se usuário é ao menos gerente
             $this->securityUtil->checkUserIsAuthorized($this->usuarioLogado, 'ManagerProfileType');
 
-            $pontuacoes_cliente = null;
+            $pontuacoes = null;
 
-            $array_options = [];
+            $arrayOptions = [];
 
             if (!$this->request->is(['post'])) {
                 // Se não tiver filtrado, consultará a última semana
@@ -270,9 +270,9 @@ class PontuacoesController extends AppController
                 $date = date('Y-m-d');
                 $end = \strtotime($date);
                 $start = \strtotime($date . ' -7 days');
-                array_push($array_options, ['data between "' . date('Y-m-d 00:00:00', $start) . '" and "' . date('Y-m-d 23:59:59', $end) . '"']);
+                $arrayOptions[] = array('data between "' . date('Y-m-d 00:00:00', $start) . '" and "' . date('Y-m-d 23:59:59', $end) . '"');
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
+                $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
             } else {
                 $data = $this->request->getData();
 
@@ -282,19 +282,19 @@ class PontuacoesController extends AppController
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
-                    array_push($array_options, ['funcionarios_id' => (int)$data['funcionarios_id']]);
+                    $arrayOptions[] = array('funcionarios_id' => (int)$data['funcionarios_id']);
                 }
 
                 if (strlen($data['requer_auditoria']) > 0) {
-                    array_push($array_options, ['requer_auditoria' => $data['requer_auditoria']]);
+                    $arrayOptions[] = array('requer_auditoria' => $data['requer_auditoria']);
                 }
 
                 if (strlen($data['auditado']) > 0) {
-                    array_push($array_options, ['auditado' => $data['auditado']]);
+                    $arrayOptions[] = array('auditado' => $data['auditado']);
                 }
 
                 if (strlen($data['registro_invalido']) > 0) {
-                    array_push($array_options, ['registro_invalido' => $data['registro_invalido']]);
+                    $arrayOptions[] = array('registro_invalido' => $data['registro_invalido']);
                 }
 
                 if (strlen($data['data_inicio']) > 0) {
@@ -309,9 +309,9 @@ class PontuacoesController extends AppController
                     $end = $this->datetime_util->convertDateTimeToUTC($end);
                 }
 
-                array_push($array_options, ['data between "' . $start . '" and "' . $end . '"']);
+                $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
 
-                $pontuacoes_cliente = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $array_options);
+                $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
             }
 
             // TODO: Ajustar
@@ -319,24 +319,24 @@ class PontuacoesController extends AppController
             $funcionarios = array();
 
             foreach ($funcionariosQuery as $key => $value) {
-                array_push($funcionarios, ['value' => $value->id, 'text' => $value->nome]);
+                $funcionarios[] = array('value' => $value["id"], 'text' => $value["nome"]);
             }
 
             // debug($funcionarios);
-            $pontuacoes_cliente = $this->Paginate($pontuacoes_cliente, ['limit' => 10]);
+            $pontuacoes = $this->Paginate($pontuacoes, ['limit' => 10]);
 
-            $pontuacoes_cliente_new_array = [];
+            $pontuacoes_new_array = [];
 
-            foreach ($pontuacoes_cliente as $key => $value) {
+            foreach ($pontuacoes as $key => $value) {
                 $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
 
-                array_push($pontuacoes_cliente_new_array, $value);
+                array_push($pontuacoes_new_array, $value);
             }
 
-            $pontuacoes_cliente = null;
-            $pontuacoes_cliente = $pontuacoes_cliente_new_array;
+            $pontuacoes = null;
+            $pontuacoes = $pontuacoes_new_array;
 
-            $arraySet = array('pontuacoes_cliente', 'funcionarios', 'cliente', 'unidadesIds');
+            $arraySet = array('pontuacoes', 'funcionarios', 'cliente', 'unidadesIds');
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

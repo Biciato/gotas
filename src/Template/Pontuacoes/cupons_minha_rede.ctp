@@ -73,7 +73,7 @@ echo $this->Breadcrumbs->render(
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($pontuacoes_cliente as $pontuacao) : ?>
+                <?php foreach ($pontuacoes as $pontuacao) : ?>
 
                 <tr>
                     <td>
