@@ -96,6 +96,9 @@ $(document).ready(function () {
     }
 
     var exibeContainerCupomMG = function() {
+        var data = new Date().toLocaleString();
+
+        $(".gotas-camera-manual-insert #data_processamento").val(data);
         $(".gotas-camera-manual-insert").fadeIn(500);
     }
 

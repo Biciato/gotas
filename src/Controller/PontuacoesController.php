@@ -392,6 +392,21 @@ class PontuacoesController extends AppController
 
 
             $pontuacao["quantidade_multiplicador"] = Number::precision($pontuacao["quantidade_multiplicador"], 3);
+            // $quantidadeMultiplicador = $pontuacao["quantidade_multiplicador"];
+            // $quantidadeMultiplicador = "40,01";
+
+            // // $quantidadeMultiplicadorArray = explode(",", $quantidadeMultiplicador);
+
+            // // $fracao = $quantidadeMultiplicadorArray[1];
+            // // $fracao = str_pad($fracao, 3, 0, STR_PAD_RIGHT);
+
+            // $quantidadeMultiplicador = str_replace(".", "", $quantidadeMultiplicador);
+            // $quantidadeMultiplicador = str_replace(",", ".", $quantidadeMultiplicador);
+
+            // $pontuacao["quantidade_multiplicador"] = $quantidadeMultiplicador;
+
+
+            // DebugUtil::print($pontuacao);
             // DebugUtil::print($pontuacao);
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();

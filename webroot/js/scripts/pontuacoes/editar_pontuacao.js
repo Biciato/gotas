@@ -41,7 +41,7 @@ $(document).ready(function () {
         }
     }
 
-    $("#quantidade_multiplicador").val(quantidade);
+    // $("#quantidade_multiplicador").val(quantidade);
     $("#quantidade_multiplicador").mask("####.###", {
         reverse: true
     });

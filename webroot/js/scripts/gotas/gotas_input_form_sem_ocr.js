@@ -306,7 +306,8 @@ $(document).ready(function () {
             id: item.id,
             gotas_id: item.gotas_id,
             nome_parametro: item.nome_parametro,
-            quantidade_multiplicador: parseFloat($(".gotas-camera-manual-insert #quantidade_input").val())
+            quantidade_multiplicador: parseFloat($(".gotas-camera-manual-insert #quantidade_input").val()),
+            quantidade_multiplicador_exibicao: $(".gotas-camera-manual-insert #quantidade_input").val()
         };
 
         arrayParametrosGravar.add(itemToAdd);
@@ -328,7 +329,7 @@ $(document).ready(function () {
 
         $.each(arrayParametrosGravar.get(), function (index, value) {
 
-            var html = "<tr><td>" + value.nome_parametro + "</td><td>" + value.quantidade_multiplicador + "</td><td>" + "<div class='btn btn-danger btn-xs select-button' value='" + value.key + "'>Remover</div>" + "</td></tr>";
+            var html = "<tr><td>" + value.nome_parametro + "</td><td>" + value.quantidade_multiplicador_exibicao + "</td><td>" + "<div class='btn btn-danger btn-xs select-button' value='" + value.key + "'>Remover</div>" + "</td></tr>";
 
             $(".gotas-camera-manual-insert .gotas-products-table ").append(html);
         });

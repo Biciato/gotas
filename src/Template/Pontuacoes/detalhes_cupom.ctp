@@ -26,9 +26,6 @@ echo $this->Breadcrumbs->render(
         <?= __("Detalhes do Cupom Fiscal") ?>
     </legend>
 
-    <h4>Descritivo de gotas:</h4>
-
-
     <?php if (is_null($pontuacao->nome_img)) : ?>
         <?= $this->element('../Pontuacoes/tabela_descritivo_pontuacoes', ['pontos' => $pontuacao->pontuacoes]) ?>
         <?php else : ?>
@@ -42,6 +39,9 @@ echo $this->Breadcrumbs->render(
             <?= $this->element('../Pontuacoes/tabela_descritivo_pontuacoes', ['pontos' => $pontuacao->pontuacoes]) ?>
         </div>
     <?php endif; ?>
+
+    <div class="form-group row">
+    <div class="col-lg-12">
 
 
 
@@ -191,6 +191,8 @@ echo $this->Breadcrumbs->render(
         </tr>
     </table>
 
+        </div>
+    </div>
 </div>
 
 

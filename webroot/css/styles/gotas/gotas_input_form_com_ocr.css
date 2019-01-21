@@ -89,5 +89,6 @@
 .gotas-products-table-container {
     height: 300px;
     margin: 5px 0px;
+    overflow-x: hidden;
     overflow-y: auto;
 }

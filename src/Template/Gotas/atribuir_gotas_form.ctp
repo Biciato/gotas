@@ -225,6 +225,17 @@ use Cake\Core\Configure;
                 <div class="col-lg-6">
                     <div class="gotas-products-table-container">
                         <h4>Lista de Gotas Inseridas</h4>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                            <label for="data_processamento">Data do Cupom</label>
+                            <input type="text"
+                                class="disabled form-control"
+                                readonly="readonly"
+                                id="data_processamento"
+                                name="data_processamento"
+                                value="">
+                            </div>
+                        </div>
                         <table class="table table-hover table-responsive gotas-products-table">
                             <thead>
                                 <tr>
