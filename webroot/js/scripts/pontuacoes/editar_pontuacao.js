@@ -33,7 +33,7 @@ $(document).ready(function () {
         var quantidadeArray = quantidade.split(".");
 
         if (quantidadeArray.length > 0) {
-            var quantidadeAposVirgula = "";
+            var quantidadeAposVirgula = quantidadeArray[1];
             while (quantidadeAposVirgula.length < 3) {
                 quantidadeAposVirgula += quantidadeArray[1] + "0";
             }
@@ -41,7 +41,7 @@ $(document).ready(function () {
         }
     }
 
-    // $("#quantidade_multiplicador").val(quantidade);
+    $("#quantidade_multiplicador").val(quantidade);
     $("#quantidade_multiplicador").mask("####.###", {
         reverse: true
     });

@@ -392,18 +392,15 @@ class PontuacoesController extends AppController
 
 
             $pontuacao["quantidade_multiplicador"] = Number::precision($pontuacao["quantidade_multiplicador"], 3);
-            // $quantidadeMultiplicador = $pontuacao["quantidade_multiplicador"];
-            // $quantidadeMultiplicador = "40,01";
 
-            // // $quantidadeMultiplicadorArray = explode(",", $quantidadeMultiplicador);
-
-            // // $fracao = $quantidadeMultiplicadorArray[1];
-            // // $fracao = str_pad($fracao, 3, 0, STR_PAD_RIGHT);
-
-            // $quantidadeMultiplicador = str_replace(".", "", $quantidadeMultiplicador);
-            // $quantidadeMultiplicador = str_replace(",", ".", $quantidadeMultiplicador);
-
-            // $pontuacao["quantidade_multiplicador"] = $quantidadeMultiplicador;
+            // Trata conversão de valores para a interface com javascript
+            $quantidadeMultiplicador = $pontuacao["quantidade_multiplicador"];
+            $quantidadeMultiplicadorArray = explode(",", $quantidadeMultiplicador);
+            $inteiro = str_replace(".", "", $quantidadeMultiplicadorArray[0]);
+            $fracao = $quantidadeMultiplicadorArray[1];
+            $fracao = str_pad($fracao, 3, 0, STR_PAD_RIGHT);
+            $quantidadeMultiplicador = sprintf("%s.%s", $inteiro, $fracao);
+            $pontuacao["quantidade_multiplicador"] = $quantidadeMultiplicador;
 
 
             // DebugUtil::print($pontuacao);
