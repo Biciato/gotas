@@ -1056,15 +1056,15 @@ class UsuariosController extends AppController
 
         $usuario = array(
             // "usuario" => array(
-                'id' => $usuario['id'],
-                'token' => JWT::encode(
-                    [
-                        'id' => $usuario['id'],
-                        'sub' => $usuario['id'],
-                        'exp' => time() + 604800
-                    ],
-                    Security::salt()
-                )
+            'id' => $usuario['id'],
+            'token' => JWT::encode(
+                [
+                    'id' => $usuario['id'],
+                    'sub' => $usuario['id'],
+                    'exp' => time() + 604800
+                ],
+                Security::salt()
+            )
             // )
         );
 
@@ -3771,6 +3771,8 @@ class UsuariosController extends AppController
                 $data = $this->request->getData();
                 $usuarios = array();
 
+                $criaUsuarioCPFPesquisa = !empty($data["cria_usuario_cpf_pesquisa"]) ? $data["cria_usuario_cpf_pesquisa"] : false;
+
                 if (strlen($data['parametro']) >= 3) {
 
                     $rede = $this->request->session()->read('Rede.Grupo');
@@ -3797,11 +3799,23 @@ class UsuariosController extends AppController
                         }
 
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
+                        $cpf = preg_replace("(\W)", "", $data["parametro"]);
                         // Pesquisa por CPF
                         if ($restringirUsuariosRede) {
-                            $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], $rede["id"], array(), false, array());
+                            $usuario = $this->Usuarios->getUsuarioByCPF($cpf, $rede["id"], array(), false, array());
                         } else {
-                            $usuario = $this->Usuarios->getUsuarioByCPF($data["parametro"], null, array(), false, array());
+                            $usuario = $this->Usuarios->getUsuarioByCPF($cpf, null, array(), false, array());
+                        }
+
+                        if ($criaUsuarioCPFPesquisa) {
+                            // Validação
+                            $cpfValido = NumberUtil::validarCPF($cpf);
+
+                            if (!$cpfValido["status"]){
+                                return ResponseUtil::error("Erro", "erro");
+                            }
+                            // Criação
+                            $usuario = $this->Usuario->addUsuario(array("cpf" => $cpf));
                         }
 
                         $usuarios[] = $usuario;

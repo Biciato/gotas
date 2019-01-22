@@ -52,6 +52,8 @@ use Cake\Core\Configure;
 
             <?= $this->element('../Usuarios/filtro_usuarios_ajax') ?>
 
+            <input type="hidden" name="cria-cpf-pesquisa" id="cria-usuario-cpf-pesquisa" value="1" />
+
             <div class="col-lg-12 row-separator">
 
             </div>

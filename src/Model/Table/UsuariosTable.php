@@ -627,6 +627,15 @@ class UsuariosTable extends GenericTable
         }
     }
 
+    public function addUsuarioPendente(string $cpf)
+    {
+        try{
+            // @todo Completar
+        }catch (\Exception $e){
+
+        }
+    }
+
     /**
      * Edita usuario
      */

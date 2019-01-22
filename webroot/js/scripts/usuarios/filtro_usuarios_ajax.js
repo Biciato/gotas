@@ -127,17 +127,23 @@ $(document).ready(function () {
 
         callLoaderAnimation();
 
+        var parametro = $(".user-query-region .parametro").val();
+        var opcao = $(".user-query-region .opcoes").val();
+
         var data = {
             parametro: $(".user-query-region .parametro").val(),
             opcao: $("#opcoes").val(),
             clientes_id: $("#clientes_id").val(),
             restrict_query: $("#restrict_query").length > 0 ? $("#restrict_query").val() : null,
+            cria_usuario_cpf_pesquisa: $("#cria-usuario-cpf-pesquisa").val(),
             _Token: document.cookie.substr(document.cookie.indexOf("csrfToken=") + "csrfToken=".length)
 
         };
 
         if (data.parametro.length <= 3) {
             callModalError("O tamanho do parâmetro deve ser maior ou igual a 3 dígitos");
+        } else if (opcao == "cpf" && parametro.match(/(\d+)/gm).join('').length < 11) {
+            callModalError("Para consultar o CPF, é necessário informar completamente o mesmo.");
         } else {
             $.ajax({
                 url: '/Usuarios/findUsuario',
