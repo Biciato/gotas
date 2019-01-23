@@ -246,6 +246,7 @@ const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema W
 // Cupom
 
 const MESSAGE_COUPON_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MESSAGE_COUPON_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 
 // Usuários
 const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";

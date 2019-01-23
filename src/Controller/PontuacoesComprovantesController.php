@@ -1852,16 +1852,25 @@ class PontuacoesComprovantesController extends AppController
 
             $chave = null;
 
-            if (empty($qrCode) && strtoupper($cliente["estado"]) == "MG") {
-                $qrCode = "Cupom ECF-MG";
-                $chave = "Cupom ECF-MG";
+            if (strtoupper($cliente["estado"] == "MG")) {
+                if (empty($qrCode)) {
+                    $qrCode = "CUPOM ECF-MG";
+                    $chave = $qrCode;
+                } else {
+                    $chave = $qrCode;
+                }
             } else {
-                $url = $qrCode;
-                $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
-            }
+                if (empty($qrCode)) {
+                    $errors[] = MESSAGE_COUPON_EMPTY;
+                } else if (strpos($qrCode, "sefaz.") == 0) {
+                    $errors[] = MESSAGE_COUPON_MISMATCH_FORMAT;
+                }
 
-            if (empty($qrCode)) {
-                $errors[] = MESSAGE_COUPON_EMPTY;
+                if (sizeof($errors) > 0) {
+                    ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                } else {
+                    $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+                }
             }
 
             if (sizeof($errors) > 0) {
