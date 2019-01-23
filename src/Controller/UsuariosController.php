@@ -3772,6 +3772,7 @@ class UsuariosController extends AppController
                 $usuarios = array();
 
                 $criaUsuarioCPFPesquisa = !empty($data["cria_usuario_cpf_pesquisa"]) ? $data["cria_usuario_cpf_pesquisa"] : false;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (strlen($data['parametro']) >= 3) {
 
@@ -3811,11 +3812,37 @@ class UsuariosController extends AppController
                             // Validação
                             $cpfValido = NumberUtil::validarCPF($cpf);
 
-                            if (!$cpfValido["status"]){
-                                return ResponseUtil::error("Erro", "erro");
+                            if (!$cpfValido["status"]) {
+                                // return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, array($cpfValido["message"]));
+
+                                // $message = MESSAGE_OPERATION_FAILURE_DURING_PROCESSING;
+                                $message = __($cpfValido["message"], $data["parametro"]);
+                                $error = 1;
+                                $count = 0;
+                                $usuarios = null;
+                                $veiculoEncontrado = 0;
+
+                                $arraySet = [
+                                    "error",
+                                    "count",
+                                    "message",
+                                    "usuarios",
+                                    "veiculoEncontrado"
+                                ];
+
+                                $this->set(compact($arraySet));
+                                $this->set("_serialize", $arraySet);
+
+                                return;
                             }
                             // Criação
-                            $usuario = $this->Usuario->addUsuario(array("cpf" => $cpf));
+                            // Se usuário não encontrado, cadastra para futuro acesso
+                            $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
+
+                            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
+                            if ($usuario) {
+                                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuario["id"], $usuario["tipo_perfil"], 0);
+                            }
                         }
 
                         $usuarios[] = $usuario;

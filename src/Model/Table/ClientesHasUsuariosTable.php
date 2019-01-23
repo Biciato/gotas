@@ -50,29 +50,6 @@ class ClientesHasUsuariosTable extends Table
      */
 
     /**
-     * Method get of client table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getClienteHasUsuarioTable()
-    {
-        if (is_null($this->clienteHasUsuarioTable)) {
-            $this->_setClienteHasUsuarioTable();
-        }
-        return $this->clienteHasUsuarioTable;
-    }
-
-    /**
-     * Method set of client table property
-     *
-     * @return void
-     */
-    private function _setClienteHasUsuarioTable()
-    {
-        $this->clienteHasUsuarioTable = TableRegistry::get('ClientesHasUsuarios');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -217,7 +194,7 @@ class ClientesHasUsuariosTable extends Table
     public function findClienteHasUsuarioInsideNetwork(int $usuariosId, array $array_clientes_id)
     {
         try {
-            $data = $this->_getClienteHasUsuarioTable()->find('all')
+            $data = $this->find('all')
                 ->where(
                     [
                         'ClientesHasUsuarios.clientes_id in' => $array_clientes_id,
@@ -409,7 +386,7 @@ class ClientesHasUsuariosTable extends Table
 
                 if ($descartarMatriz) {
 
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
+                    $clientes = $this->Clientes
                         ->find('list')
                         ->where(
                             [
@@ -418,7 +395,7 @@ class ClientesHasUsuariosTable extends Table
                             ]
                         );
                 } else {
-                    $clientes = $this->_getClienteHasUsuarioTable()->Clientes
+                    $clientes = $this->Clientes
                         ->find('list')
                         ->where(['id IN ' => $clientesIds]);
                 }
@@ -630,7 +607,7 @@ class ClientesHasUsuariosTable extends Table
                 $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
             }
 
-            $clientesHasUsuarios = $this->_getClienteHasUsuarioTable()->find('all')
+            $clientesHasUsuarios = $this->find('all')
                 ->where($whereConditions);
 
             $clientesIds = [];
@@ -908,8 +885,7 @@ class ClientesHasUsuariosTable extends Table
     {
         try {
 
-            return $this->_getClienteHasUsuarioTable()
-                ->deleteAll(['clientes_id in' => $clientesIds]);
+            return $this->deleteAll(array('clientes_id in' => $clientesIds));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -940,8 +916,7 @@ class ClientesHasUsuariosTable extends Table
     {
         try {
 
-            return $this->_getClienteHasUsuarioTable()
-                ->deleteAll(['usuarios_id' => $usuariosId]);
+            return $this->deleteAll(['usuarios_id' => $usuariosId]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -973,13 +948,12 @@ class ClientesHasUsuariosTable extends Table
     public function removeAdministratorOfClienteHasUsuario($clientesId, $usuariosId)
     {
         try {
-            $clientesHasUsuario = $this->_getClienteHasUsuarioTable()
-                ->find()
+            $clientesHasUsuario = $this->find()
                 ->where(
-                    [
+                    array(
                         'clientes_id' => $clientesId,
                         'usuarios_id' => $usuariosId
-                    ]
+                    )
                 )
                 ->first();
 
@@ -989,13 +963,13 @@ class ClientesHasUsuariosTable extends Table
                 // se adicionou o registro, atualiza o perfil do admin
 
                 $usuario
-                    = $this->_getClienteHasUsuarioTable()->Usuarios->find('all')
+                    = $this->Usuarios->find('all')
                     ->where(['id' => $usuariosId])
                     ->first();
 
                 $usuario->matriz_id = null;
 
-                return $this->_getClienteHasUsuarioTable()->Usuarios->save($usuario);
+                return $this->Usuarios->save($usuario);
             } else {
                 return false;
             }
@@ -1028,13 +1002,13 @@ class ClientesHasUsuariosTable extends Table
     public function removeClienteHasUsuario($id)
     {
         try {
-            $cliente_has_usuario = $this->_getClienteHasUsuarioTable()
+            $cliente_has_usuario = $this
                 ->find('all')
                 ->where(['id' => $id])
                 ->first();
 
 
-            return $this->_getClienteHasUsuarioTable()->delete($cliente_has_usuario);
+            return $this->delete($cliente_has_usuario);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

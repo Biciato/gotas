@@ -17,6 +17,7 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\I18n\Number;
+use App\Custom\RTI\NumberUtil;
 
 /**
  * Usuarios Model
@@ -627,12 +628,46 @@ class UsuariosTable extends GenericTable
         }
     }
 
-    public function addUsuarioPendente(string $cpf)
+    /**
+     * UsuariosTable::addUsuarioAguardandoAtivacao
+     *
+     * Adiciona usuários ao sistema aguardando ativação
+     *
+     * @param string $cpf cpf do cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-01-22
+     *
+     * @return bool Sucesso Gravação
+     */
+    public function addUsuarioAguardandoAtivacao(string $cpf)
     {
-        try{
-            // @todo Completar
-        }catch (\Exception $e){
+        try {
+            $pass = rand(1000, 9999);
 
+            $usuario = $this->formatUsuario(
+                0,
+                array(
+                    "nome" => "Usuário Aguardando Cadastramento",
+                    "cpf" => $cpf,
+                    "senha" => $pass,
+                    "confirm_senha" => $pass,
+                    "tipo_perfil" => PROFILE_TYPE_USER,
+                    "conta_ativa" => 0,
+                    "conta_bloqueada" => 0
+                )
+            );
+
+            return $this->save($usuario);
+        } catch (\Exception $e) {
+            // $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao consultar usuários: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            return $stringError;
         }
     }
 
@@ -642,7 +677,7 @@ class UsuariosTable extends GenericTable
     public function addUpdateUsuario($usuario = null)
     {
         try {
-            $usuario = $this->_getUsuarioTable()->save($usuario);
+            $usuario = $this->save($usuario);
 
             return $usuario;
         } catch (\Exception $e) {
@@ -2384,7 +2419,7 @@ class UsuariosTable extends GenericTable
         $usuario->nome = isset($usuario["nome"]) ? $usuario['nome'] : null;
 
         if (strlen($usuario['cpf']) > 0) {
-            $usuario->cpf = $this->cleanNumber($usuario['cpf']);
+            $usuario->cpf = NumberUtil::limparFormatacaoNumeros($usuario['cpf']);
         }
         $usuario->necessidades_especiais = isset($usuario["necessidades_especiais"]) ? $usuario["necessidades_especiais"] : null;
 
@@ -2393,7 +2428,7 @@ class UsuariosTable extends GenericTable
         $usuario->data_nasc = !empty($usuario["data_nasc"]) ? date_format(date_create_from_format('d/m/Y', $usuario['data_nasc']->format('d/m/Y')), 'Y-m-d') : null;
         $usuario->email = !empty($email) ? $usuario['email'] : null;
 
-        $usuario->telefone = isset($usuario['telefone']) ? $this->cleanNumber($usuario['telefone']) : null;
+        $usuario->telefone = isset($usuario['telefone']) ? NumberUtil::limparFormatacaoNumeros($usuario['telefone']) : null;
         $usuario->endereco = isset($usuario['endereco']) ? $usuario['endereco'] : null;
         $usuario->endereco_numero = isset($usuario['endereco_numero']) ? $usuario['endereco_numero'] : null;
         $usuario->endereco_complemento = isset($usuario['endereco_complemento']) ? $usuario['endereco_complemento'] : null;

@@ -132,6 +132,7 @@ $(document).ready(function () {
 
         var data = {
             parametro: $(".user-query-region .parametro").val(),
+            clientes_id: $("#clientes_id").val(),
             opcao: $("#opcoes").val(),
             clientes_id: $("#clientes_id").val(),
             restrict_query: $("#restrict_query").length > 0 ? $("#restrict_query").val() : null,

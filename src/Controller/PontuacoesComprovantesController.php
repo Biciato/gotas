@@ -1875,10 +1875,13 @@ class PontuacoesComprovantesController extends AppController
 
             // Se usuário não encontrado, cadastra para futuro acesso
             if (empty($usuario)) {
-                $pass = rand(1000, 9999);
-                $usuario = $this->Usuarios->addUsuario(array("cpf" => $cpf, "senha" => $pass, "confirm_senha" => $pass, "tipo_perfil" => PROFILE_TYPE_USER));
-            }
+                $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
 
+                // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
+                if ($usuario) {
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"], 0);
+                }
+            }
 
             if (empty($funcionario)) {
                 $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
