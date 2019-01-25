@@ -112,32 +112,115 @@ class WebTools
 
     public static function loginAPIGotas(string $email, string $senha)
     {
+        try {
+            // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
+            // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
+            // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+
+            $curl = curl_init();
+            // $suffix = Configure::read("debug") ? ".local" : ".com.br";
+            $suffix = "local";
+            $url = "https://sistema.gotas." . $suffix . "/api/usuarios/token";
+            $data = array("email" => $email, "senha" => $senha);
+
+            $method = "POST";
+            switch ($method) {
+                case "POST":
+                    curl_setopt($curl, CURLOPT_POST, 1);
+
+                    if ($data) {
+                        $dataJson = json_encode($data);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                            "Content-Type: application/json",
+                            "Content-Length: " . strlen($dataJson),
+                            "IsMobile: 1"
+                        ));
+                    }
+                    break;
+                case "PUT":
+                    curl_setopt($curl, CURLOPT_PUT, 1);
+                    break;
+                default:
+                    if ($data) {
+                        $url = sprintf("%s?%s", $url, http_build_query($data));
+                    }
+            }
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_VERBOSE, 1);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
+            $curlErr = curl_errno($curl);
+            $curlError = curl_error($curl);
+            $result = curl_exec($curl);
+            $result = json_decode($result, true);
+
+            curl_close($curl);
+
+            $authentication = array();
+
+            if (!empty($result["usuario"])) {
+                $authentication = array(
+                    "id" => $result["usuario"]["id"],
+                    "token" => $result["usuario"]["token"]
+                );
+            }
+
+            return $authentication;
+
+        } catch (\Exception $e) {
+            Log::write("error", sprintf("Message: %s / Trace: %s", $e->getMessage(), $e->getTraceAsString()));
+        }
+    }
+
+    /**
+     * Realiza chamada de API
+     *
+     * @param [type] $method
+     * @param [type] $url
+     * @param boolean $data
+     * @param string $dataType (json / xml)
+     * @param string $authentication
+     * @return void
+     */
+    public static function callAPI($method, $url, $data = false, string $dataType = "json", string $authentication = "")
+    {
         $curl = curl_init();
-
-        // $suffix = Configure::read("debug") ? ".local" : ".com.br";
-        $suffix = "local";
-
-        $url = "https://sistema.gotas.".$suffix."/api/usuarios/token";
-
-        $data = array("email" => $email, "senha" => $senha);
 
         // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
         // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
         // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
 
-        $method = "POST";
+        $dataSend = "";
+
+        Log::write("info", $url);
+
+
+        if ($dataType == "json") {
+            $dataSend = json_encode($data);
+        }
+
         switch ($method) {
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, 1);
 
                 if ($data) {
-                    $dataJson = json_encode($data);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                        "Content-Type: application/json",
-                        "Content-Length: " . strlen($dataJson),
-                        "IsMobile: 1"
-                    ));
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataSend);
+
+                    $header = array();
+                    $header[] = "Accept: application/json";
+                    $header[] = "Content-Type: application/json";
+                    $header[] = "Content-Length: " . strlen($dataSend);
+                    $header[] = "IsMobile: 1";
+                    if (strlen($authentication) > 0) {
+                        $header[] = "Authorization: Bearer $authentication";
+                    }
+
+                    Log::write("info", $header);
+
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
                 }
                 break;
             case "PUT":
@@ -148,12 +231,7 @@ class WebTools
                     $url = sprintf("%s?%s", $url, http_build_query($data));
                 }
         }
-
-
-        // Optional Authentication:
-        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        // curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
-
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_VERBOSE, 1);
@@ -164,68 +242,8 @@ class WebTools
         $curlError = curl_error($curl);
         Log::write("info", array("err" => $curlErr, "str" => $curlError));
         $result = curl_exec($curl);
-        $result = json_decode($result);
-        Log::write("info", array("result" => $result));
-
         curl_close($curl);
-
-        return $result;
-    }
-
-    /**
-     * Realiza chamada de API
-     *
-     * @param [type] $method
-     * @param [type] $url
-     * @param boolean $data
-     * @param string $authentication
-     * @return void
-     */
-    public static function callAPI($method, $url, $data = false, string $authentication = "")
-    {
-        $curl = curl_init();
-
-        // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
-        // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
-        // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
-
-        switch ($method) {
-            case "POST":
-                curl_setopt($curl, CURLOPT_POST, 1);
-
-                if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                        "Content-Type: application/json",
-                        "Content-Length: " . strlen($dataJson),
-                        "IsMobile: 1"
-                    ));
-                }
-                break;
-            case "PUT":
-                curl_setopt($curl, CURLOPT_PUT, 1);
-                break;
-            default:
-                if ($data) {
-                    $url = sprintf("%s?%s", $url, http_build_query($data));
-                }
-        }
-
-
-        // Optional Authentication:
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        $curlErr = curl_errno($curl);
-        $curlError = curl_error($curl);
-        Log::write("info", array("err" => $curlErr, "str" => $curlError));
-        $result = curl_exec($curl);
-
-        curl_close($curl);
+        $result = json_decode($result, true);
 
         return $result;
     }

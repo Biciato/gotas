@@ -18,8 +18,8 @@ $develHost = 1;
 $serverSuffix = $develHost ? ".local" : ".com.br";
 
 // $serverAddress = $debug? "sistema-devel.gotas.com.br" : "sistema.gotas.com.br";
-$serverAddress = $debug ? "sistema.gotas.com.br" : "sistema.gotas.com.br";
-// $serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
+// $serverAddress = $debug ? "sistema.gotas.com.br" : "sistema.gotas.com.br";
+$serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
 
 $serverAddress = $serverAddress . $serverSuffix;
 
@@ -33,16 +33,16 @@ Configure::write(
         // "environmentMode" => "development",
         // // "environmentMode" => "production",
         // // 'appAddress' => 'https://40.71.26.138/',
-        // 'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
-        // 'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
+        'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
+        'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
 
         // Código antigo
         "environmentMode" => "development",
         // "environmentMode" => "production",
          // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        // 'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
         // 'appAddress' => "https://sistema-devel.gotas.com.br/",
-        'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        // 'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
         // 'webrootAddress' => "https://sistema-devel.gotas.com.br/webroot",
 
 

@@ -56,9 +56,7 @@ class PontuacoesPendentesShell extends ExtendedShell
 
         // DebugUtil::print($pontuacoesPendentes->toArray());
 
-        $test = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
-
-        DebugUtil::print($test);
+        $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
 
         if (sizeof($pontuacoesPendentes->toArray()) == 0) {
             Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
@@ -73,20 +71,15 @@ class PontuacoesPendentesShell extends ExtendedShell
 
                 Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->chave_nfe, $pontuacaoPendente->estado_nfe));
 
-
                 $data = array(
                     "qr_code" => $pontuacaoPendente["chave_nfe"]
                 );
 
                 $server = Configure::read("appAddress");
-                $server = $server."api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario/";
-                $this->out($server);
-                $result = WebTools::callAPI("POST", $server, $data);
+                $server = $server."api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
+                $result = WebTools::callAPI("POST", $server, $data, "json", $auth["token"]);
 
-                // $this->out($result);
                 DebugUtil::print($result);
-
-
 
                 $cliente = $this->Clientes->getClienteById($pontuacaoPendente->clientes_id);
                 $clientes_id = is_null($cliente->matriz_id) ? $cliente->id : $cliente->matriz_id;
