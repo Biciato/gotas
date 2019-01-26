@@ -6,6 +6,8 @@ use App\Controller\AppController;
 
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
+
 
 /**
  * @author Gustavo Souza Gonçalves

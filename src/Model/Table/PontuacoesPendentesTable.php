@@ -321,18 +321,18 @@ class PontuacoesPendentesTable extends GenericTable
      * Atualiza pontuacao pendente para 'processado'
      *
      * @param int $id
-     * @param int $pontuacao_comprovante_id
+     * @param int $pontuacaoComprovanteId
      * @return object $pontuacao_pendente
      */
-    public function setPontuacaoPendenteProcessed(int $id, int $pontuacao_comprovante_id = null)
+    public function setPontuacaoPendenteProcessed(int $id, int $pontuacaoComprovanteId = null)
     {
         try {
             $pontuacao_pendente = $this->_getPontuacoesPendentesTable()->get($id);
 
-            $pontuacao_pendente->registro_processado = true;
-            $pontuacao_pendente->pontuacao_comprovante_id = $pontuacao_comprovante_id;
+            $pontuacao_pendente["registro_processado"] = 1;
+            $pontuacao_pendente["pontuacoes_comprovantes_id"] = $pontuacaoComprovanteId;
 
-            return $this->_getPontuacoesPendentesTable()->save($pontuacao_pendente);
+            return $this->save($pontuacao_pendente);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);

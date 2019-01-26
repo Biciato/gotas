@@ -1406,6 +1406,7 @@ class PontuacoesComprovantesController extends AppController
                 $data = $this->request->getData();
 
                 $url = isset($data['qr_code']) ? $data["qr_code"] : null;
+                $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
 
                 // Verifica se foi informado qr code. Senão já aborta
                 if (is_null($url)) {
@@ -1450,11 +1451,11 @@ class PontuacoesComprovantesController extends AppController
 
                 $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chaveNfe, $estado);
 
-                // TODO: Apenas para carater de teste
+                // @todo: Apenas para carater de teste
                 // $cupomPreviamenteImportado["status"] = true;
 
                 // Cupom previamente importado, interrompe processamento e avisa usuário
-                if (!$cupomPreviamenteImportado["status"]) {
+                if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
                     $mensagem = $cupomPreviamenteImportado;
 
                     $arraySet = [
@@ -1695,6 +1696,12 @@ class PontuacoesComprovantesController extends AppController
                         $this->set(compact($arraySet));
                         $this->set("_serialize", $arraySet);
 
+                        if ($processamentoPendente) {
+                            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
+                            $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
+                        }
+
+                        Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacoesComprovantes, "resumo" => $resumo));
                         return;
                     } else {
                         // Retorna o que veio de erro
@@ -1711,8 +1718,8 @@ class PontuacoesComprovantesController extends AppController
                         return;
                     }
 
-                } else {
-                    // Trata pontuação para ser processada posteriormente
+                } elseif (!$processamentoPendente) {
+                    // Trata pontuação para ser processada posteriormente (se já não armazenada)
 
                     // Status está anormal, grava para posterior processamento
                     $clientesId = empty($cliente) ? null : $cliente["id"];

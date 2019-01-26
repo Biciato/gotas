@@ -3,8 +3,9 @@ namespace App\Shell;
 
 use Cake\Console\Shell;
 use ArrayObject;
-use App\Custom\RTI\WebTools;
+use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\SefazUtil;
+use App\Custom\RTI\WebTools;
 use App\View\Helper;
 use App\Controller\AppController;
 use Cake\Auth\DefaultPasswordHasher;
@@ -16,7 +17,6 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use App\Custom\RTI\DebugUtil;
 
 class PontuacoesPendentesShell extends ExtendedShell
 {
@@ -57,6 +57,9 @@ class PontuacoesPendentesShell extends ExtendedShell
         // DebugUtil::print($pontuacoesPendentes->toArray());
 
         $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
+        // $auth = WebTools::loginAPIGotas1();
+
+        // DebugUtil::print($auth);
 
         if (sizeof($pontuacoesPendentes->toArray()) == 0) {
             Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
@@ -69,10 +72,11 @@ class PontuacoesPendentesShell extends ExtendedShell
                 // para cada pontuacao pendente, procura o cliente,
                 // pega suas gotas (multiplicadores) e faz o tratamento
 
-                Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->chave_nfe, $pontuacaoPendente->estado_nfe));
+                Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
 
                 $data = array(
-                    "qr_code" => $pontuacaoPendente["chave_nfe"]
+                    "qr_code" => $pontuacaoPendente["conteudo"],
+                    "processamento_pendente" => true
                 );
 
                 $server = Configure::read("appAddress");
