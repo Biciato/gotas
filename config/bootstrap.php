@@ -238,6 +238,12 @@ Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
 
+const DATA_TYPE_MESSAGE_JSON = "json";
+const DATA_TYPE_MESSAGE_XML = "xml";
+
+
+#region Mensagens
+
 // Clientes
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
@@ -253,11 +259,16 @@ const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
-//
+// Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 
+// Mensagens de processamento
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
 const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+#endregion
+
+// Tipos de Perfil de usuários
 
 const PROFILE_TYPE_ADMIN_DEVELOPER = 0;
 const PROFILE_TYPE_ADMIN_NETWORK = 1;

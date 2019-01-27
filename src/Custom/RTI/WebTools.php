@@ -115,14 +115,18 @@ class WebTools
     public static function loginAPIGotas(string $email, string $senha)
     {
         try {
-            // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
-            // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
-            // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
-
-            $curl = curl_init();
+            $debug = Configure::read("debug");
             // $suffix = Configure::read("debug") ? ".local" : ".com.br";
             $suffix = "local";
             $url = "https://sistema.gotas." . $suffix . "/api/usuarios/token";
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_VERBOSE, $debug);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
             $data = array("email" => $email, "senha" => $senha);
 
             $method = "POST";
@@ -148,14 +152,15 @@ class WebTools
                         $url = sprintf("%s?%s", $url, http_build_query($data));
                     }
             }
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_VERBOSE, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
 
             $curlErr = curl_errno($curl);
             $curlError = curl_error($curl);
+
+            if ($curlErr) {
+                Log::write("error", sprintf("Erro durante processamento cUrl: %s - %s", $curlErr, $curlError));
+            }
+
             $result = curl_exec($curl);
             $result = json_decode($result, true);
 
@@ -187,9 +192,15 @@ class WebTools
      * @param string $authentication
      * @return void
      */
-    public static function callAPI($method, $url, $data = false, string $dataType = "json", string $authentication = "")
+    public static function callAPI(string $method, string $url, $data = array(), string $dataType = DATA_TYPE_MESSAGE_JSON, string $authentication = "")
     {
         $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_VERBOSE, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 
         // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
         // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
@@ -197,11 +208,12 @@ class WebTools
 
         $dataSend = "";
 
-        Log::write("info", $url);
+        Log::write("info", __("Chamada à método: {0}", $url));
 
-
-        if ($dataType == "json") {
+        if ($dataType == DATA_TYPE_MESSAGE_JSON) {
             $dataSend = json_encode($data);
+        } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+            $dataSend = new \SimpleXMLElement($data);
         }
 
         switch ($method) {
@@ -213,14 +225,18 @@ class WebTools
 
                     $header = array();
                     $header[] = "Accept: application/json";
-                    $header[] = "Content-Type: application/json";
+                    if ($dataType == DATA_TYPE_MESSAGE_JSON) {
+                        $header[] = "Content-Type: application/json";
+                    } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+                        $header[] = "Content-Type: application/xml";
+                    }
                     $header[] = "Content-Length: " . strlen($dataSend);
                     $header[] = "IsMobile: 1";
                     if (strlen($authentication) > 0) {
                         $header[] = "Authorization: Bearer $authentication";
                     }
 
-                    Log::write("info", $header);
+                    // Log::write("info", $header);
 
                     curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
                 }
@@ -233,19 +249,16 @@ class WebTools
                     $url = sprintf("%s?%s", $url, http_build_query($data));
                 }
         }
-        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_VERBOSE, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+
 
         $curlErr = curl_errno($curl);
         $curlError = curl_error($curl);
-        Log::write("info", array("err" => $curlErr, "str" => $curlError));
         $result = curl_exec($curl);
         curl_close($curl);
         $result = json_decode($result, true);
+
+        // Log::write("info", array("err" => $curlErr, "str" => $curlError));
+
 
         return $result;
     }
