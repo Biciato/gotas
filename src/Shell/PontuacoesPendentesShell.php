@@ -25,7 +25,12 @@ class PontuacoesPendentesShell extends ExtendedShell
     protected $sefazUtil = null;
 
     /**
-     * Undocumented function
+     * PontuacoesPendentesShell::initialize
+     *
+     * Inicialize da classe
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-02-01
      *
      * @return void
      */
