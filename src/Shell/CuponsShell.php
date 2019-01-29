@@ -55,7 +55,7 @@ class CuponsShell extends ExtendedShell
 
     public function updateBrindesEquipamentosRTI()
     {
-
+        $clientes = $this->Clientes->
     }
 
     #endregion

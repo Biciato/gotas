@@ -219,6 +219,26 @@ class RedesTable extends GenericTable
         }
     }
 
+    public function getClientesFromRedes(int $id = 0, string $nomeRede = "", bool $ativado = true, int $tempoExpiracaoGotasUsuarios = 6, int $quantidadePontuacoesUsuariosDia = 3, int $quantidadeConsumoUsuariosDia = 10, float $custoReferenciaGotas = 0.05, int $mediaAssiduidadeClientes = 2, array $selectFields = array())
+    {
+
+        $whereCondicoes = array();
+
+        if (!empty($id)) {
+            $whereCondicoes["id"] = $id;
+        }
+
+        if (!empty($nomeRede)){
+            $whereCondicoes["nome_rede"] = $nomeRede;
+        }
+
+        // todo @gustavosg WIP
+
+
+        $clientes = $this->find("all")
+            ->where(array());
+    }
+
     /**
      * RedesTable::getRedesList
      * Retorna uma lista de Redes para Select
@@ -244,18 +264,18 @@ class RedesTable extends GenericTable
                 $whereConditions[] = array("Redes.nome_rede like '%{$nomeRede}%'");
             }
 
-            if (strlen($ativado) > 0){
+            if (strlen($ativado) > 0) {
                 $whereConditions[] = array("Redes.ativado" => $ativado);
             }
 
-            if (strlen($tempoExpiracaoGotasUsuarios) > 0){
+            if (strlen($tempoExpiracaoGotasUsuarios) > 0) {
                 $whereConditions[] = array("Redes.tempo_expiracao_gotas_usuarios" => $tempoExpiracaoGotasUsuarios);
             }
-            if (strlen($quantidadePontuacoesUsuariosDia) > 0){
+            if (strlen($quantidadePontuacoesUsuariosDia) > 0) {
                 $whereConditions[] = array("Redes.quantidade_pontuacoes_usuarios_dia" => $quantidadePontuacoesUsuariosDia);
             }
 
-            if (strlen($mediaAssiduidadeClientes) > 0){
+            if (strlen($mediaAssiduidadeClientes) > 0) {
                 $whereConditions[] = array("Redes.media_assiduidade_clientes" => $mediaAssiduidadeClientes);
             }
 

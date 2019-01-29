@@ -203,7 +203,7 @@ class RedesHasClientesTable extends GenericTable
     }
 
     /**
-     * Obtem os clientes ids através da pesquisa feita
+     * Obtem os clientes ids através de um id de Redes
      *
      * @param integer $redesId Id de Rede
      *
@@ -238,6 +238,8 @@ class RedesHasClientesTable extends GenericTable
             return $stringError;
         }
     }
+
+
 
     /**
      * Obtem todos os clientes e a rede pelo id da rede

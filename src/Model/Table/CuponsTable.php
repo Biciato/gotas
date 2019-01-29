@@ -270,10 +270,10 @@ class CuponsTable extends GenericTable
 
             // Obtem cliente
 
-            $cliente = $this->_getCuponsTable()->Clientes->getClienteById($clientesId);
+            $cliente = $this->Clientes->getClienteById($clientesId);
 
             // Pega todas as senhas emitidas no dia para saber qual é a próxima
-            $qteSenhas = $this->_getCuponsTable()->find('all')
+            $qteSenhas = $this->find('all')
                 ->order(['senha' => 'desc'])
                 ->where(['clientes_id' => $clientesId, 'data like' => '%' . date('Y-m-d') . '%'])->first()['senha'];
 
@@ -290,11 +290,11 @@ class CuponsTable extends GenericTable
             $cupom["tipo_venda"] = $tipoVenda;
 
             /**
-             * Se é um Equipamento RTI, já considera resgatado pois o smart shower é impresso na hora.
+             * Se é um Equipamento RTI, já considera resgatado pois equipamentos RTI são impressos na hora
              * Senão, false.
              */
             // $cupom->resgatado = $tipoPrincipalCodigoBrinde <= 4;
-            $cupom->resgatado = $brindeHabilitado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"];
+            $cupom["resgatado"] = $brindeHabilitado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"];
 
             // Usado é automatico após 24 horas se for Equipamento RTI
             // Se não for, é definido como usado, quando é feito a baixa.
