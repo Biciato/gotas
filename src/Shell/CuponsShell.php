@@ -55,7 +55,25 @@ class CuponsShell extends ExtendedShell
 
     public function updateBrindesEquipamentosRTI()
     {
-        $clientes = $this->Clientes->
+        Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Cupons de Equipamento RTI para USADO após 24 horas às %s.", __class__, __FUNCTION__, JOB_STATUS_INIT, date("d/m/Y H:i:s")));
+
+        $cupons = $this->Cupons->getCuponsResgatadosUsados(true, false, true, true, 1);
+
+        $cuponsIdsAtualizar = array();
+
+        foreach ($cupons as $cupom) {
+            $cuponsIdsAtualizar[] = $cupom["id"];
+        }
+
+        $rowCount = $this->Cupons->setCuponsResgatadosUsados($cuponsIdsAtualizar);
+
+        if ($rowCount > 0) {
+            Log::write("info", sprintf("[Class: %s / Method: %s] Número de Registros alterados: %s", __class__, __FUNCTION__, $rowCount));
+        } else {
+            Log::write("info", sprintf("[Class: %s / Method: %s] Não houve registros à serem atualizados!", __class__, __FUNCTION__));
+        }
+
+        Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Cupons de Equipamento RTI para USADO após 24 horas às %s.", __class__, __FUNCTION__, JOB_STATUS_END, date("d/m/Y H:i:s")));
     }
 
     #endregion

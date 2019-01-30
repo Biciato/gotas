@@ -1610,7 +1610,7 @@ class CuponsController extends AppController
 
                         // diminuiu estoque, considera o item do cupom como resgatado
                         if ($estoque) {
-                            $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            $cupom_save = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
 
                             // adiciona novo registro de pontuação
                             $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
@@ -1851,7 +1851,7 @@ class CuponsController extends AppController
                         if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
                             $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
                         } else {
-                            $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
                         }
 
                         // adiciona novo registro de pontuação

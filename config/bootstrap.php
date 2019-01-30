@@ -241,6 +241,12 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 const DATA_TYPE_MESSAGE_JSON = "json";
 const DATA_TYPE_MESSAGE_XML = "xml";
 
+// status de Job
+
+const JOB_STATUS_INIT = "Inicializando...";
+const JOB_STATUS_END = "Finalizando...";
+
+
 
 #region Mensagens
 

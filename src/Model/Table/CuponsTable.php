@@ -393,6 +393,8 @@ class CuponsTable extends GenericTable
         }
     }
 
+    #endregion
+
     #region Read
 
     /**
@@ -456,6 +458,86 @@ class CuponsTable extends GenericTable
 
             return $stringError;
         }
+    }
+
+    /**
+     * Obtem todos os cupons
+     *
+     * @param boolean $resgatado
+     * @param boolean $usado
+     * @param boolean $equipamentoRTI
+     * @param boolean $redeAtiva
+     * @param integer $diasAnteriores
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-01-30
+     *
+     * @return array App\Model\Entity\Cupon
+     */
+    public function getCuponsResgatadosUsados(bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = true, bool $redeAtiva = true, int $diasAnteriores = 1)
+    {
+        $cupons = $this->find("all")
+            ->contain(
+                array(
+                    "ClientesHasBrindesHabilitados.TiposBrindesClientes.TipoBrindeRede.Rede",
+                    "Usuarios"
+                )
+            )
+            ->where(
+                array(
+                    "Cupons.resgatado" => $resgatado,
+                    "Cupons.usado" => $usado,
+                    "TipoBrindeRede.equipamento_rti" => $equipamentoRTI,
+                    "Rede.ativado" => $redeAtiva,
+                    // "Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL 24 HOUR)"
+                    "Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL '{$diasAnteriores}' DAY)"
+                )
+            )
+            ->select(array(
+                "Cupons.id",
+                "Cupons.clientes_has_brindes_habilitados_id",
+                "Cupons.clientes_id",
+                "Cupons.funcionarios_id",
+                "Cupons.usuarios_id",
+                "Cupons.tipo_principal_codigo_brinde",
+                "Cupons.tipo_secundario_codigo_brinde",
+                "Cupons.valor_pago",
+                "Cupons.tipo_venda",
+                "Cupons.senha",
+                "Cupons.cupom_emitido",
+                "Cupons.data",
+                "Cupons.resgatado",
+                "Cupons.usado",
+                "Cupons.quantidade",
+                "Cupons.audit_insert",
+                "Cupons.audit_update",
+            ));
+
+        $retorno = array();
+
+        foreach ($cupons as $key => $value) {
+            $retorno[] = array(
+                "id" => $value["id"],
+                "clientes_has_brindes_habilitados_id" => $value["clientes_has_brindes_habilitados_id"],
+                "clientes_id" => $value["clientes_id"],
+                "funcionarios_id" => $value["funcionarios_id"],
+                "usuarios_id" => $value["usuarios_id"],
+                "tipo_principal_codigo_brinde" => $value["tipo_principal_codigo_brinde"],
+                "tipo_secundario_codigo_brinde" => $value["tipo_secundario_codigo_brinde"],
+                "valor_pago" => $value["valor_pago"],
+                "tipo_venda" => $value["tipo_venda"],
+                "senha" => $value["senha"],
+                "cupom_emitido" => $value["cupom_emitido"],
+                "data" => $value["data"],
+                "resgatado" => $value["resgatado"],
+                "usado" => $value["usado"],
+                "quantidade" => $value["quantidade"],
+                "audit_insert" => $value["audit_insert"],
+                "audit_update" => $value["audit_update"],
+            );
+        }
+
+        return $retorno;
     }
 
     /**
@@ -663,6 +745,8 @@ class CuponsTable extends GenericTable
         }
     }
 
+    #endregion
+
     #region Update
 
     /**
@@ -742,42 +826,38 @@ class CuponsTable extends GenericTable
     }
 
     /**
-     * Define o cupom como resgatado e usado
+     * Define o(s) cupom(s) como resgatado e usado
      *
-     * @param integer $id
-     * @return void
+     * @param array $ids Ids de Cupom
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-01-30
+     *
+     * @return int Número de registros afetados
      */
-    public function setCupomResgatadoUsado(int $id)
+    public function setCuponsResgatadosUsados(array $ids)
     {
         try {
             return $this->updateAll(
-                [
+                array(
                     'resgatado' => 1,
                     'usado' => 1
-                ],
-                [
-                    'id' => $id
-                ]
+                ),
+                array(
+                    'id IN' => $ids
+                )
             );
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
+            $trace = $e->getTraceAsString();
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            $stringError = __("Erro ao buscar registro: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
+            Log::write('error', $trace);
         }
     }
+
+    #endregion
 
     #region Delete
 
@@ -852,4 +932,6 @@ class CuponsTable extends GenericTable
             return $error;
         }
     }
+
+    #endregion
 }
