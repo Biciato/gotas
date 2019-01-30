@@ -53,6 +53,16 @@ class CuponsShell extends ExtendedShell
 
     #endregion
 
+    /**
+     * CuponsShell::updateBrindesEquipamentosRTI
+     *
+     * Método de atualização de cupons para resgatados / usado, se Equip. RTI
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-01-30
+     *
+     * @return void
+     */
     public function updateBrindesEquipamentosRTI()
     {
         Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Cupons de Equipamento RTI para USADO após 24 horas às %s.", __class__, __FUNCTION__, JOB_STATUS_INIT, date("d/m/Y H:i:s")));
