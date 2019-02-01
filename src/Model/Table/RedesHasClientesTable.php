@@ -444,12 +444,9 @@ class RedesHasClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getRedesHasClientesByRedesId(int $redesId, array $clientesIds = [])
+    public function getRedesHasClientesByRedesId(int $redesId = 0, array $clientesIds = [])
     {
         try {
-
-            // $whereCondition = [];
-
             $whereCondition = array('redes_id' => $redesId);
 
             if (isset($clientesIds) && sizeof($clientesIds) > 0) {
@@ -462,12 +459,11 @@ class RedesHasClientesTable extends GenericTable
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
 
-            return ['success' => false, 'message' => $stringError];
         }
     }
 

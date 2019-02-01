@@ -732,7 +732,8 @@ class ClientesController extends AppController
      */
     public function getClientesListAPI()
     {
-        $rede = $this->request->session()->read("Network.Main");
+        $sessao = $this->getSessionUserVariables();
+        $rede = $sessao["rede"];
         $redesId = $rede["id"];
 
         // Caso o método seja chamado via post
@@ -751,6 +752,7 @@ class ClientesController extends AppController
             "Clientes.propaganda_img"
         );
 
+        // @todo Gustavo, se a redesId for nulo, não pode retornar ninguém!
         $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
 
         $clientes = array();

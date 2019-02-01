@@ -115,6 +115,60 @@ class UsuariosController extends AppController
         $this->set('_serialize', ['message']);
     }
 
+    public function verificaTentativaLoginUsuario()
+    {
+        $result = $this->Usuarios->checkUsuarioIsLocked($data);
+
+        $email = $data['email'];
+        if ($result['actionNeeded'] == 0) {
+            $user = $this->Auth->identify();
+
+            if ($user) {
+                $this->Auth->setUser($user);
+
+                $this->Usuarios->updateLoginRetry($user, true);
+
+                if ($user['tipo_perfil'] > Configure::read('profileTypes')['AdminDeveloperProfileType'] && $user['tipo_perfil'] < Configure::read('profileTypes')['UserProfileType']) {
+                    $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+
+                    if (!empty($vinculoCliente)) {
+                        $cliente = $vinculoCliente["cliente"];
+                    }
+
+                    if ($cliente) {
+                        // TODO: correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
+                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+                    }
+
+                    // verifica qual rede o usuário se encontra (somente funcionários)
+                    $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
+                        $cliente->id
+                    );
+
+                    $rede = $redeHasCliente["rede"];
+
+                    $this->request->session()->write('Rede.Grupo', $rede);
+                }
+
+                // return $this->redirect($this->Auth->redirectUrl());
+                return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+            } else {
+
+                $user = $this->Usuarios->getUsuarioByEmail($email);
+
+                $this->Usuarios->updateLoginRetry($user, false);
+
+                $this->Flash->error("Usuário ou senha ínvalidos, tente novamente");
+            }
+        } elseif ($result['actionNeeded'] != 0) {
+            $message = $result['message'];
+            $recoverAccount = $result['actionNeeded'];
+        } else {
+            $message = $this->Usuarios->updateLoginRetry($data, false);
+        }
+    }
+
     /**
      * Logoff method
      *
