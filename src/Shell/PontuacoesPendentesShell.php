@@ -64,14 +64,14 @@ class PontuacoesPendentesShell extends ExtendedShell
         $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
         $pontuacoesPendentes = $pontuacoesPendentes->toArray();
 
-        // DebugUtil::print($pontuacoesPendentes->toArray());
-
         $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
 
         if (sizeof($pontuacoesPendentes) == 0) {
             Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
             return;
         }
+
+        $apiUrl = Configure::read("appAddress") . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
 
         foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
             // para cada pontuacao pendente, pega a chave, faz a solicitação e trata como se fosse o fluxo normal
@@ -82,8 +82,7 @@ class PontuacoesPendentesShell extends ExtendedShell
                 "processamento_pendente" => true
             );
 
-            $apiUrl = Configure::read("appAddress");
-            $apiUrl = $apiUrl . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
+
             $result = WebTools::callAPI("POST", $apiUrl, $data, DATA_TYPE_MESSAGE_JSON, $auth["token"]);
 
             // DebugUtil::print($result);

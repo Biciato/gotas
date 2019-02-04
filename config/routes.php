@@ -213,7 +213,7 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Clientes", array(
         "map" => array(
-                        // utilizado pelo Angular
+            // utilizado pelo Angular
             "getClientesListAPI" => array(
                 "action" => "getClientesListAPI",
                 "method" => "POST",
