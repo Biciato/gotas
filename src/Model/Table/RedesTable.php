@@ -442,35 +442,56 @@ class RedesTable extends GenericTable
         }
     }
 
+    /**
+     * RedesTable::getRedesHabilitadas()
+     *
+     * Obtem informações de Redes Habilitadas, e suas respectivas unidades
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-06
+     *
+     * @return App\Model\Entity\Redes[]
+     */
     public function getRedesHabilitadas()
     {
-        $redes = $this->find("all")
-            ->where(
-                array("Redes.ativado" => 1)
-            )
-            ->join(
-                array(
-                    "RedesHasClientes" => array(
-                        "type" => "left",
-                        "table" => "redes_has_clientes",
-                        "conditions" => "Redes.id = RedesHasClientes.redes_id"
-                    ),
-                    "Clientes" => array(
-                        "type" => "left",
-                        "table" => "clientes",
-                        "conditions" => "RedesHasClientes.clientes_id = Clientes.id"
-                    )
+        try {
+            $whereArray = array("Redes.ativado" => 1);
+            $joinArray = array(
+                "RedesHasClientes" => array(
+                    "type" => "left",
+                    "table" => "redes_has_clientes",
+                    "conditions" => "Redes.id = RedesHasClientes.redes_id"
+                ),
+                "Clientes" => array(
+                    "type" => "left",
+                    "alias" => "clientes",
+                    "table" => "clientes",
+                    "conditions" => "RedesHasClientes.clientes_id = clientes.id"
                 )
-            )
-            ->select(array(
+            );
+
+            $selectArray = array(
                 "id",
-                "ativado",
+                "nome_rede",
                 "tempo_expiracao_gotas_usuarios",
                 "Clientes.id",
-            ))
-            ->all();
+                "Clientes.nome_fantasia"
+            );
 
-        return $redes;
+            $redes = $this
+                ->find("all")
+                ->where($whereArray)
+                ->join($joinArray)
+                ->select($selectArray)
+                ->all();
+
+            return $redes;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
+        }
     }
 
     /**

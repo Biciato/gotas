@@ -50,36 +50,37 @@ class PontuacoesShell extends ExtendedShell
         parent::initialize();
     }
 
-    public function updatePontuacoes(Type $var = null)
+    /**
+     * PontucoesShell::updatePontuacoesExpiradas
+     *
+     * Método Shell para atualizar pontuações expiradas, conforme regra de cada rede do sistema
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-06
+     *
+     * @return void
+     */
+    public function updatePontuacoesExpiradas()
     {
+        Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Pontuações Expiradas às  %s.", __class__, __FUNCTION__, JOB_STATUS_INIT, date("d/m/Y H:i:s")));
+
         $redes = $this->Redes->getRedesHabilitadas();
 
         foreach ($redes as $rede) {
+            $redesId = $rede["id"];
+            $redesNome = $rede["nome_rede"];
+            $clientesId = $rede["Clientes"]["id"];
+            $clientesNomeFantasia = $rede["Clientes"]["nome_fantasia"];
             $mesesExpiracao = $rede["tempo_expiracao_gotas_usuarios"];
 
+            Log::write("info", sprintf("Realizando procedimento para Rede (%s / %s), Posto: (%s / %s)...", $redesId, $redesNome, $clientesId, $clientesNomeFantasia));
+
+            $result = $this->Pontuacoes->updatePontuacoesPendentesExpiracao($clientesId, $mesesExpiracao);
+
+            Log::write("info", sprintf("Realizado procedimento para Rede (%s / %s), Posto: (%s / %s)...", $redesId, $redesNome, $clientesId, $clientesNomeFantasia));
         }
-        DebugUtil::print($redes);
 
-        // SELECT TIMESTAMPDIFF(MONTH, DATE_SUB(CURDATE(), INTERVAL 6 MONTH), NOW());
-
-//         SELECT
-// 	p.id
-// 	,p.clientes_id
-// 	,p.usuarios_id
-// 	,p.gotas_id
-// 	,p.pontuacoes_comprovante_id
-// 	,p.expirado
-// 	,p.utilizado
-// 	,p.data
-// -- 	,date_format(p.data, "%m") as dataAquisicao
-// -- 	,DATE_FORMAT(p.data, "%d") AS dataAquisicao
-// 	,DATEDIFF( NOW(), DATE_FORMAT(p.data, "%Y-%m-%d")) AS dias
-
-// FROM pontuacoes p
-// WHERE p.clientes_has_brindes_habilitados_id IS NOT NULL
-// AND DATEDIFF(NOW(), DATE_FORMAT(p.data, "%Y-%m-%d"))
-// -- and date_format(p.data, "%d") > 20
-// ;
+        Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Pontuações Expiradas às  %s.", __class__, __FUNCTION__, JOB_STATUS_END, date("d/m/Y H:i:s")));
     }
 
     #endregion
