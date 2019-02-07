@@ -15,6 +15,7 @@ use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\TimeUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Cupons Controller
@@ -1849,7 +1850,7 @@ class CuponsController extends AppController
 
                         // Equipamento RTI?
                         if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
-                            $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
                         } else {
                             $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
                         }
@@ -1904,6 +1905,61 @@ class CuponsController extends AppController
             Log::write("error", $trace);
 
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+        }
+    }
+
+    public function efetuarEstornoCupomAPI()
+    {
+        $usuarioLogado = $this->Auth->user();
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+            $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : null;
+            $confirmacao = !empty($data["confirmar"]) ? $data["confirmar"] : 0;
+
+            if (empty($cupomEmitido)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_EMPTY);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+            }
+
+            $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido);
+
+            if (empty($cupomEmitido)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
+            }
+
+            $mesmoUsuario = 0;
+            $funcionariosRedeLista = array();
+            $clientesId = $cupom["clientes_id"];
+
+            $clientesRede = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientesId);
+            $clientesIds = array();
+
+            foreach ($clientesRede as $cliente) {
+                $clientesIds[] = $cliente["clientes_id"];
+            }
+
+            $usuariosConditions = array(
+                sprintf("Usuarios.tipo_perfil between %s AND %s", PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER),
+                "Clientes.ativado" => 1
+
+            );
+
+            // @todo gustavosg WIP
+            $funcionariosRedeLista = $this->Usuarios->findAllUsuariosByRede(1, $usuariosConditions);
+
+
+
+
+            $retorno = array(
+                "rede" => $clientesRede,
+                "cupom" => $cupom
+            );
+
+            // DebugUtil::print($cupom);
+
+            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
         }
     }
 

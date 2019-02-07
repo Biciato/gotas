@@ -341,25 +341,19 @@ class RedesHasClientesTable extends GenericTable
 
             // pega todos os ids de unidades que pertencem à rede
 
-            $unidades_ids = $this->_getRedesHasClientesTable()->find('all')
+            $unidadesIds = $this->_getRedesHasClientesTable()->find('all')
                 ->where(['redes_id' => $redesId])
                 ->select(['clientes_id']);
 
-            $unidades_ids = $this->retrieveColumnsQueryAsArray($unidades_ids, ['clientes_id']);
+            $unidadesIds = $this->retrieveColumnsQueryAsArray($unidadesIds, ['clientes_id']);
 
-            return $unidades_ids;
+            return $unidadesIds;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
+            // @todo gustavosg: ajustar log
             $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
 
             Log::write('error', $stringError);
