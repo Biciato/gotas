@@ -102,6 +102,14 @@ class BrindesTable extends GenericTable
                 'strategy' => 'select'
             ]
         );
+
+        $this->belongsTo(
+            "TipoBrindeRede",
+            array(
+                "className" => "TiposBrindesRedes",
+                "foreignKey" => "tipos_brindes_redes_id"
+            )
+        );
     }
 
     /**
@@ -176,13 +184,13 @@ class BrindesTable extends GenericTable
 
     /**
      * BrindesTable::saveBrinde
-     * 
+     *
      * Insere/Atualiza um registro
      *
-     * @param array $brinde Informações de Brinde 
-     * 
-     * @return \App\Model\Entity\Brinde Brinde 
-     * 
+     * @param array $brinde Informações de Brinde
+     *
+     * @return \App\Model\Entity\Brinde Brinde
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-12-02
      */
@@ -218,8 +226,8 @@ class BrindesTable extends GenericTable
 
     }
 
-    #endregion 
-    
+    #endregion
+
     #region Read
 
     /**
@@ -585,7 +593,7 @@ class BrindesTable extends GenericTable
             return $error;
         }
     }
-    
+
     #endregion
 
     #region Delete

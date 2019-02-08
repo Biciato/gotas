@@ -255,12 +255,22 @@ const JOB_STATUS_END = "Finalizando...";
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 
+// Clientes Has Brindes Habilitados Estoque
+const STOCK_OPERATION_TYPES_ADD_TYPE = 0;
+const STOCK_OPERATION_TYPES_SELL_TYPE_GIFT = 1;
+const STOCK_OPERATION_TYPES_SELL_TYPE_SALE = 2;
+const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
+
 // Cupom
 
 const MESSAGE_COUPON_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
 const MESSAGE_COUPON_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MESSAGE_COUPON_PRINTED_EMPTY = "Necessário informar o CUPOM!";
 const MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
+const MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
+const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
+
+
 
 // Usuários
 const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";

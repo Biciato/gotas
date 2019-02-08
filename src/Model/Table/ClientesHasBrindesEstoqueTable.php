@@ -163,7 +163,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     #region Create
 
     /**
-     * Add Estoque for Brinde Id
+     * Adiciona estoque para Clientes Has Brindes Estoque
      *
      * @param int $clientesHasBrindesHabilitadosId
      * @param int $usuariosId
@@ -173,7 +173,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
      *
      * @return void
      **/
-    public function addEstoqueForBrindeId($clientesHasBrindesHabilitadosId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
+    public function addEstoque($clientesHasBrindesHabilitadosId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
     {
         try {
             $estoque = null;
@@ -184,10 +184,11 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
                 $estoque = $this->get($id);
             }
 
-            $estoque->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
-            $estoque->usuarios_id = $usuariosId;
-            $estoque->quantidade = $quantidade;
-            $estoque->tipo_operacao = $tipoOperacao;
+            $estoque["clientes_has_brindes_habilitados_id"] = $clientesHasBrindesHabilitadosId;
+            $estoque["usuarios_id"] = $usuariosId;
+            $estoque["quantidade"] = $quantidade;
+            $estoque["tipo_operacao"] = $tipoOperacao;
+            $estoque["data"] = date("Y-m-d H:i:s");
 
             return $this->save($estoque);
 

@@ -408,7 +408,17 @@ class CuponsTable extends GenericTable
     {
         try {
             return $this->_getCuponsTable()->find('all')
-                ->where(['Cupons.cupom_emitido' => $cupom_emitido])->contain(['ClientesHasBrindesHabilitados', 'Clientes', 'ClientesHasBrindesHabilitados.Brindes', 'Usuarios'])->first();
+                ->where(
+                    array("Cupons.cupom_emitido" => $cupom_emitido)
+                )->contain(
+                    array(
+                        'ClientesHasBrindesHabilitados',
+                        'Clientes',
+                        'ClientesHasBrindesHabilitados.Brindes.TipoBrindeRede',
+                        'Usuarios'
+                    )
+                )->first();
+                // )->sql();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);

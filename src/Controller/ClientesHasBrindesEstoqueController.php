@@ -302,7 +302,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                     //usuário possui pontuação suficiente, cliente tem brinde suficiente, iniciar as transações
 
                     // Diminuir estoque do cliente
-                    $brindeEstoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                    $brindeEstoque = $this->ClientesHasBrindesEstoque->addEstoque(
                         $brinde->id,
                         $usuario->id,
                         $data['quantidade'],
