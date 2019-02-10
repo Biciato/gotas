@@ -1908,6 +1908,16 @@ class CuponsController extends AppController
         }
     }
 
+    /**
+     * CuponsController::efetuarEstornoCupomAPI
+     *
+     * Efetua estorno de cupom do cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-09
+     *
+     * @return json_encode Dados json
+     */
     public function efetuarEstornoCupomAPI()
     {
         $usuarioLogado = $this->Auth->user();
@@ -1922,9 +1932,12 @@ class CuponsController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
             }
 
-            $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido);
-            // echo $this->Cupons->getCupomByCupomEmitido($cupomEmitido);
-            // die();
+            $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido, 0);
+
+            if (empty($cupom)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
+            }
 
             if (empty($cupomEmitido)) {
                 $errors = array(MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST);
@@ -1947,11 +1960,39 @@ class CuponsController extends AppController
             if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_WORKER) {
                 // Se for funcionário da loja, tem que verificar se o usuário que o atendeu ainda existe e se é realmente desta loja
 
-                return;
+                $sessaoUsuario = $this->getSessionUserVariables();
+
+                $usuariosConditions = array(
+                    sprintf("Usuarios.tipo_perfil between %s AND %s", PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER),
+                    "Clientes.ativado" => 1
+                );
+
+                $funcionariosRedeQuery = $this->Usuarios->findAllUsuariosByRede($sessaoUsuario["rede"]["id"], $usuariosConditions)->select(array("Usuarios.id"));
+                $funcionariosRedeQuery = $funcionariosRedeQuery->toArray();
+
+                foreach ($funcionariosRedeQuery as $funcionario) {
+                    $funcionariosRedeLista[] = $funcionario["id"];
+                }
+
+                $pertenceCupomRede = in_array($cupom["funcionarios_id"], $funcionariosRedeLista);
+
+                if (!$pertenceCupomRede) {
+                    // Se chegou neste ponto, duas situações aconteceram:
+                    // 1 - O usuário que está tentando estornar é do tipo funcionário e não está na lista
+                    // 2 - É outro usuário
+
+                    $errors = array(MESSAGE_COUPON_ANOTHER_NETWORK);
+
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                }
+
+                // Pertence a rede, fazer procedimento de estorno
+                return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
+
             } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] != $cupom["usuarios_id"]) {
                 // Encerra fluxo, somente próprio usuário pode cancelar seu cupom
-
                 $errors = array("Somente o próprio cliente pode cancelar seu cupom!");
+
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
 
             } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] == $cupom["usuarios_id"]) {
@@ -1963,71 +2004,61 @@ class CuponsController extends AppController
                     $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
                 } else {
-                    // Se o brinde for do tipo Equipamentos RTI, não pode cancelar
-                    $tipoBrindeRede = $cupom["clientes_has_brindes_habilitado"]["brinde"]["tipo_brinde_rede"];
-
-                    if ($tipoBrindeRede["equipamento_rti"]) {
-                        $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
-                        return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
-                    } else {
-
-                        // Remove usuarios has brindes
-
-                        // todo
-                        $usuarioHasBrindeDeleted = $this->UsuariosHasBrindes->getUsuariosHasBrindesByCuponsId($cupom["id"]);
-                        $rowCount = $this->UsuariosHasBrindes->deleteBrindeByCupomId($cupom["id"]);
-
-                        // Retorna estoque (se Usuário realmente tinha o brinde)
-
-                        if ($usuarioHasBrindeDeleted && $rowCount) {
-
-                            $clientesBrindesHabilitadosId = $usuarioHasBrindeDeleted["clientes_has_brindes_habilitados_id"];
-                            $quantidade = $usuarioHasBrindeDeleted["quantidade"];
-
-                            $devolucao = $this->ClientesHasBrindesEstoque->addEstoque($clientesBrindesHabilitadosId, $usuarioLogado["id"], $quantidade, STOCK_OPERATION_TYPES_RETURN_TYPE);
-
-                            // Não precisa fazer estorno, isto só acontece depois de 24 horas (equipamento rti) ou manual, na boca do caixa
-
-                            if ($devolucao) {
-                                return ResponseUtil::successAPI(MESSAGE_COUPON_PRINTED_CANCELLED);
-                            }
-                        } else {
-                            // todo continuar, informar que o registro não foi encontrado
-                        }
-                    }
-
+                    return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
                 }
             }
+        }
+    }
 
-            $usuariosConditions = array(
-                sprintf("Usuarios.tipo_perfil between %s AND %s", PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER),
-                "Clientes.ativado" => 1
+    /**
+     * CuponsController::realizaProcessamentoEstornoCupom
+     *
+     * Executa o processamento de estorno do cupom se o mesmo possui está ok para estorno
+     *
+     * @param Cupon $cupom
+     * @param mixed $usuarioLogado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-09
+     *
+     * @return array SuccessAPI/ErrorAPI Mensagem de sucesso / erro
+     */
+    public function realizaProcessamentoEstornoCupom(\App\Model\Entity\Cupon $cupom, array $usuarioLogado)
+    {
+        // Se o brinde for do tipo Equipamentos RTI, não pode cancelar
+        $tipoBrindeRede = $cupom["clientes_has_brindes_habilitado"]["brinde"]["tipo_brinde_rede"];
 
-            );
+        if ($tipoBrindeRede["equipamento_rti"]) {
+            $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
+            return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+        } else {
+            $brindesCupomEstornados = array();
 
-            // @todo gustavosg WIP
-            $funcionariosRedeQuery = $this->Usuarios->findAllUsuariosByRede(1, $usuariosConditions)->select(array("Usuarios.id"));
-            // $funcionariosRedeQuery->hydrate(false);
+            $cupomApagado = $this->Cupons->setCupomEstornado($cupom["id"]);
+               // Remove usuarios has brindes
+            $usuarioHasBrindesCupom = $this->UsuariosHasBrindes->getUsuariosHasBrindesByCuponsId($cupom["id"]);
+            $rowCount = $this->UsuariosHasBrindes->deleteBrindeByCupomId($cupom["id"]);
 
-            $funcionariosRedeQuery = $funcionariosRedeQuery->toArray();
-
-            foreach ($funcionariosRedeQuery as $funcionario) {
-                $funcionariosRedeLista[] = $funcionario["id"];
+            if (!empty($usuarioHasBrindesCupom) && $rowCount > 0) {
+                foreach ($usuarioHasBrindesCupom as $itemCupom) {
+                    $clientesBrindesHabilitadosId = $itemCupom["clientes_has_brindes_habilitado"]["id"];
+                    $quantidade = $itemCupom["quantidade"];
+                    $brindesCupomEstornados[] = array(
+                        "quantidade" => $quantidade,
+                        "nome" => $itemCupom["clientes_has_brindes_habilitado"]["brinde"]["nome"]
+                    );
+                    $devolucao = $this->ClientesHasBrindesEstoque->addEstoque($clientesBrindesHabilitadosId, $usuarioLogado["id"], $quantidade, STOCK_OPERATION_TYPES_RETURN_TYPE);
+                }
             }
-
-            $test = in_array($cupom["funcionarios_id"], $funcionariosRedeLista);
-
-
-            DebugUtil::print($funcionariosRedeLista);
-
             $retorno = array(
-                "rede" => $clientesRede,
-                "cupom" => $cupom
+                "cupom" => $cupom["cupom_emitido"],
+                "brindes" => $brindesCupomEstornados,
+                "qteBrindesEstornados" => sizeof($brindesCupomEstornados)
             );
 
-            // DebugUtil::print($cupom);
-
-            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+            // Se teve ou não teve registro, retorna informando que foi cancelado, pois
+            // o registro terá sido removido e se teve, estoque foi adicionado
+            return ResponseUtil::successAPI(MESSAGE_COUPON_PRINTED_CANCELLED, $retorno);
         }
     }
 

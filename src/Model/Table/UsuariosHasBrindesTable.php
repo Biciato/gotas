@@ -254,7 +254,16 @@ class UsuariosHasBrindesTable extends GenericTable
                 ->find('all')
                 ->contain(array('ClientesHasBrindesHabilitados.Brindes'))
                 ->where(array('UsuariosHasBrindes.cupons_id' => $cuponsId))
-                ->first();
+                ->select(
+                    array(
+                        "UsuariosHasBrindes.id",
+                        "UsuariosHasBrindes.quantidade",
+                        "ClientesHasBrindesHabilitados.id",
+                        "Brindes.nome"
+                    )
+                )
+                ->toArray()
+                ;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);

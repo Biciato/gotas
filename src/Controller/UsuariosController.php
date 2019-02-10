@@ -192,7 +192,7 @@ class UsuariosController extends AppController
             if ($user) {
                 $this->Auth->setUser($user);
 
-                $this->Usuarios->updateLoginRetry($user["id"], 1);
+                $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
                 $status = 0;
 
                 if (($user['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK) && $user['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
@@ -214,10 +214,12 @@ class UsuariosController extends AppController
                         }
                     }
                 }
-
-                // return $this->redirect($this->Auth->redirectUrl());
-                // return $this->redirect(['controller' => 'pages', 'action' => 'display']);
-                return array("status" => 0);
+                return array(
+                    "usuario" => $usuario,
+                    "status" => 0,
+                    "message" => $message,
+                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+                );
             } else {
                 $retornoLogin = $this->Usuarios->updateLoginRetry($usuario["id"], 0);
                 $status = 1;

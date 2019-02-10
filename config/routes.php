@@ -119,6 +119,7 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/efetuar_baixa_cupom"
                 ),
+                // utilizado pelo APP Mobile.
                 "efetuarEstornoCupomAPI" => array(
                     "action" => "efetuarEstornoCupomAPI",
                     "method" => "POST",

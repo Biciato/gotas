@@ -197,8 +197,6 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
             $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
         }
     }
 

@@ -268,6 +268,8 @@ const MESSAGE_COUPON_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com form
 const MESSAGE_COUPON_PRINTED_EMPTY = "Necessário informar o CUPOM!";
 const MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
 const MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
+const MESSAGE_COUPON_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
+const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
 const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
 
 
