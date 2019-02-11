@@ -317,9 +317,12 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'redes_has_clientes', 'action' => 'propaganda_escolha_unidades']) ?>
                     </li>
 
-                        <!-- <li class="divider"></li> -->
+                        <li class="divider"></li>
 
-                            <!-- <a href="#!/relatorios">Relatórios</a> -->
+                        <!-- <li>
+                            <a href="#!/relatorios">Relatórios</a>
+                        </li> -->
+                        <!-- Ativar relatórios aqui -->
                         <!-- <li>
                             <?= $this->Html->link("Relatórios", array("controller" => "usuarios" , "action" => "relatorios")); ?>
                         </li> -->

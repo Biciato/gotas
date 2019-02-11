@@ -758,7 +758,7 @@ class ClientesController extends AppController
         $clientes = array();
 
         foreach ($redeHasClientes as $redeHasCliente) {
-            $clientes[] = $redeHasCliente["Clientes"];
+            $clientes[] = $redeHasCliente["cliente"];
         }
 
         if (sizeof($clientes) > 0) {

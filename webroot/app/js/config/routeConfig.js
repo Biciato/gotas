@@ -5,10 +5,16 @@
  */
 // angular.module("GotasApp").config(function ($routeProvider, $locationProvider) {
 angular.module("GotasApp").config(function ($routeProvider) {
-    // $routeProvider.when("#!/usuarios/relatorios", {
-    //     templateUrl: "/webroot/app/pages/relatorios/usuarios/relatorios.php",
-    // });
     $routeProvider
+        .when("/relatorios", {
+            templateUrl: "/webroot/app/pages/relatorios/usuarios/relatorios.php",
+        })
+        .when("/relUsuariosFrequenciaMedia", {
+            templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosFrequenciaMedia.php",
+            controller: "relUsuariosFrequenciaMediaController"
+
+        })
+        // $routeProvider
         // .when("!#/usuarios/relatorios/relUsuariosAssiduos", {
         .when("/relUsuariosAssiduos", {
             templateUrl: "/webroot/app/pages/relatorios/usuarios/relUsuariosAssiduos.php",

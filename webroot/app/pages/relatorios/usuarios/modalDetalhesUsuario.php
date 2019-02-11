@@ -140,7 +140,7 @@
     <div class="modal-footer">
 
         <div class="btn btn-primary" ng-click="fechar()">
-            <i class="fa fa-check"></i> Fechar
+            <i class="fas fa-window-close"></i> Fechar
         </div>
     </div>
 

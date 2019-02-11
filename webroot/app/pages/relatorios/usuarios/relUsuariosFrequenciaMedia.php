@@ -10,7 +10,7 @@
 
     <div ng-model="inputData" ng-init="init()">
 
-    <legend>Relatório de Usuários Fidelizados:</legend>
+    <legend>Relatório de Frequência Média de Usuários:</legend>
 
         <div class="row">
             <div class="col-lg-12">
