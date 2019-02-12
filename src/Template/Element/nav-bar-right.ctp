@@ -323,9 +323,9 @@ if (empty($usuarioLogado)) {
                             <a href="#!/relatorios">Relatórios</a>
                         </li> -->
                         <!-- Ativar relatórios aqui -->
-                        <!-- <li>
+                        <li>
                             <?= $this->Html->link("Relatórios", array("controller" => "usuarios" , "action" => "relatorios")); ?>
-                        </li> -->
+                        </li>
 
                     </ul>
                 </li>

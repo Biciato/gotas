@@ -13,7 +13,7 @@
     <legend>Relatório de Frequência Média de Usuários:</legend>
 
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 <label>Posto de Atendimento:</label>
                 <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento" >
                     <ui-select-match placeholder="Posto de Atendimento..." allow-clear="true">
@@ -24,14 +24,14 @@
                     </ui-select-choices>
                 </ui-select>
             </div>
-        </div>
-
-        <div class="row">
             <!-- Nome: -->
             <div class="col-lg-5">
                 <label>Nome: </label>
                 <input type="text" ng-model="inputData.nome" ng-maxlength="50" ng-trim="true" class="form-control">
             </div>
+        </div>
+
+        <div class="row">
 
             <!-- CPF: -->
             <div class="col-lg-2">
@@ -87,26 +87,26 @@
                 </p>
             </div>
 
-            <div class="form-group">
-                <div class="col-lg-5 pull-right group-btn-area vertical-align">
-                    <button class="col-lg-4 btn btn-danger text-center" escape="#" ng-click="limparDados()">
-                        <i class="fa fa-trash">
-                        </i>
-                        Limpar
-                    </button>
+        </div>
+        <div class="form-group row">
+            <div class="col-lg-5 pull-right group-btn-area vertical-align">
+                <button class="col-lg-4 btn btn-danger text-center" escape="#" ng-click="limparDados()">
+                    <i class="fas fa-trash">
+                    </i>
+                    Limpar
+                </button>
 
-                    <button class="col-lg-4 btn btn-primary text-center" escape="#" ng-click="pesquisarUsuarios(inputData)">
-                        <i class="fa fa-search">
-                        </i>
-                        Pesquisar
-                    </button>
+                <button class="col-lg-4 btn btn-primary text-center" escape="#" ng-click="pesquisarUsuarios(inputData)">
+                    <i class="fa fa-search">
+                    </i>
+                    Pesquisar
+                </button>
 
-                    <button class="col-lg-4 btn btn-success" ng-click="gerarExcel(inputData)">
-                        <span class="fa fa-file-excel-o">
-                        </span>
-                        Gerar Excel
-                    </button>
-                </div>
+                <button class="col-lg-4 btn btn-success" ng-click="gerarExcel(inputData)">
+                    <span class="fa fa-file-excel-o">
+                    </span>
+                    Gerar Excel
+                </button>
             </div>
         </div>
     </div>

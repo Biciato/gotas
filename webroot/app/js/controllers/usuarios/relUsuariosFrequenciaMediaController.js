@@ -1,14 +1,14 @@
 /**
- * Controller para Relatório de Usuários Ativo
+ * Controller para Relatório de Frequência Média de Usuários
  *
+ * @file webroot\app\js\controllers\usuarios\relUsuariosFrequenciaMediaController.js
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 17/09/2018
+ * @since 2019-02-11
+ *
  */
 // var GotasApp = angular.module("GotasApp");
 angular.module('GotasApp').controller("relUsuariosFrequenciaMediaController",
     function ($scope, FileSaver, Blob, toastr, $uibModal, clientesService, downloadService, relUsuariosAssiduosService) {
-
-        toastr.success('Hallo');
 
         $scope.inputData = {
             clientesSelectedItem: undefined,
