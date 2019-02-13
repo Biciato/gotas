@@ -648,3 +648,10 @@ body {
         float: right;
     }
 }
+
+.ui-select-placeholder, .ui-select-match-text {
+    width: 100%;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    padding-right: 40px;
+  }

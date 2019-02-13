@@ -13,28 +13,29 @@
     <legend>Relatório de Frequência Média de Usuários:</legend>
 
         <div class="row">
-            <div class="col-lg-6">
+
+            <div ng-if="usuarioLogado.tipoPerfil >= ">
+            </div>
+
+            <div class="col-lg-4">
                 <label>Posto de Atendimento:</label>
-                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento" >
-                    <ui-select-match placeholder="Posto de Atendimento..." allow-clear="true">
-                        {{$select.selected.razao_social}} / {{$select.selected.nome_fantasia}}
+                <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento"  maxlength="20">
+                    <ui-select-match placeholder="Posto de Atendimento..." allow-clear="true" maxlength="20">
+                    {{$select.selected.nome_fantasia}} / {{$select.selected.razao_social}}
                     </ui-select-match>
                     <ui-select-choices repeat="cliente in clientesList | filter: {nome_fantasia: $select.search}">
-                        <span>{{cliente.nome_fantasia}}</span>
+                        <span maxlength="20">{{cliente.nome_fantasia}}</span>
                     </ui-select-choices>
                 </ui-select>
             </div>
             <!-- Nome: -->
-            <div class="col-lg-5">
-                <label>Nome: </label>
+            <div class="col-lg-4">
+                <label>Usuário(s): </label>
                 <input type="text" ng-model="inputData.nome" ng-maxlength="50" ng-trim="true" class="form-control">
             </div>
-        </div>
-
-        <div class="row">
 
             <!-- CPF: -->
-            <div class="col-lg-2">
+            <div class="col-lg-4">
                 <label>CPF: </label>
                 <input type="text" ng-model="inputData.cpf" ui-mask="999.999.999-99" numbers-only ng-trim="true" class="form-control">
             </div>
@@ -51,8 +52,6 @@
                 <input type="text" ng-model="inputData.documentoEstrangeiro" ng-trim="true" class="form-control">
             </div>
 
-        </div>
-        <div class="row">
             <!-- Status: -->
             <div class="col-lg-3">
                 <label>Conta Ativada/Desativada: </label>

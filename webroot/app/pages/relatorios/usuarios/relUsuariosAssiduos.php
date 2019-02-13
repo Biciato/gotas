@@ -13,7 +13,7 @@
     <legend>Relatório de Usuários Assíduos:</legend>
 
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-4">
             <label>Posto de Atendimento:</label>
             <ui-select ng-model="inputData.clientesSelectedItem" theme="bootstrap" title="Posto de Atendimento" >
                 <ui-select-match placeholder="Posto de Atendimento..." allow-clear="true">
@@ -24,20 +24,20 @@
                 </ui-select-choices>
             </ui-select>
         </div>
-    </div>
 
-    <div class="row">
         <!-- Nome: -->
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <label>Nome: </label>
             <input type="text" ng-model="inputData.nome" ng-maxlength="50" ng-trim="true" class="form-control">
         </div>
 
         <!-- CPF: -->
-        <div class="col-lg-2">
+        <div class="col-lg-4">
             <label>CPF: </label>
             <input type="text" ng-model="inputData.cpf" ui-mask="999.999.999-99" numbers-only ng-trim="true" class="form-control">
         </div>
+    </div>
+    <div class="row">
 
         <!-- Veículo: -->
         <div class="col-lg-2">
@@ -52,7 +52,7 @@
         </div>
 
         <!-- Status de Cadastro: -->
-        <div class="col-lg-3">
+        <div class="col-lg-2">
             <label>Status de Cadastro: </label>
             <ui-select ng-model="inputData.statusSelectedItem" theme="bootstrap" title="Status" >
                 <ui-select-match placeholder="Status..." allow-clear="true">
@@ -63,10 +63,9 @@
                 </ui-select-choices>
             </ui-select>
         </div>
-    </div>
-    <div class="row">
+
         <!-- Usuários Assíduos: -->
-        <div class="col-lg-3">
+        <div class="col-lg-2">
             <label>Usuários Assíduos: </label>
             <ui-select ng-model="inputData.assiduidadeSelectedItem" theme="bootstrap" title="Status" >
                 <ui-select-match placeholder="Assiduidade..." allow-clear="true">

@@ -368,10 +368,17 @@ Router::scope("/api", function ($routes) {
             //     "path" => "/test"
             // ),
 
+            // utilizado pelo Angular
             "getUsuarioByIdAPI" => array(
                 "action" => "getUsuarioByIdAPI",
                 "method" => "POST",
                 "path" => "/get_usuario_by_id"
+            ),
+
+            "getListaUsuariosRedeAPI" => array(
+                "action" => "getListaUsuariosRedeAPI",
+                "method" => "POST",
+                "path" => "/get_lista_usuarios_rede"
             ),
 
             // utilizado pelo Angular

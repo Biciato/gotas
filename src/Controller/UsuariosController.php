@@ -3552,6 +3552,23 @@ class UsuariosController extends AppController
         ResponseUtil::success($usuario);
     }
 
+    public function getListaUsuariosRedeAPI()
+    {
+        $usuarioLogado = $this->Auth->user();
+        $sessaoUsuario = $this->getSessionUserVariables();
+        if ($this->request->is("post")) {
+
+            $tipoPerfil = $usuarioLogado["tipo_perfil"];
+
+            if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+                $redesId = $sessaoUsuario["rede"]["id"];
+            }
+
+            // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
+
+        }
+    }
+
     /**
      * UsuariosController::getUsuariosAssiduosAPI
      *
