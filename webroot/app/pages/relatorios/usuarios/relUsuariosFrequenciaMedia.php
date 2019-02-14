@@ -14,8 +14,9 @@
 
         <div class="row">
 
-            <div ng-if="usuarioLogado.tipoPerfil >= ">
-            </div>
+            <!-- <div ng-if="usuarioLogado.tipoPerfil >= APP_CONFIG.PROFILE_TYPES.ADMIN_DEVEL">
+                oLA
+            </div> -->
 
             <div class="col-lg-4">
                 <label>Posto de Atendimento:</label>
