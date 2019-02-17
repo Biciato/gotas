@@ -467,6 +467,12 @@ var formatDateTimeToDate = function (data) {
     return day + "/" + month + "/" + year;
 };
 
+var generateQRCode = function(id, value){
+    // https://larsjung.de/jquery-qrcode/
+    var options = {};
+    $("#" + id).qrcode(options);
+}
+
 /**
  * Comportamento padrão em campo de Date Picker
  *

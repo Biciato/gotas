@@ -62,6 +62,10 @@ class PagesController extends AppController
     public function display(...$path)
     {
 
+        // $sessaoUsuario = $this->getSessionUserVariables();
+
+        // $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
         $user = $this->request->session()->read('Auth.User');
         $user = $this->Auth->user();
 
@@ -76,6 +80,7 @@ class PagesController extends AppController
                 );
             }
         }
+
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');

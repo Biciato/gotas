@@ -29,7 +29,7 @@ if (!empty($usuarioAdministrar)) {
                     <?= __('Ações') ?>
             </li>
             <li>
-                <?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarios_id]) ?>
+                <?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarioLogado["id"]]) ?>
             </li>
         </ul>
     <?php elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>

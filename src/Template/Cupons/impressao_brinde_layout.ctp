@@ -91,7 +91,32 @@ use Cake\Core\Configure;
         </div>
 
 
-        <p class="is-code128-barcode">
+        <p>
+            <div class="print-barcode-ticket">
+                <center>
+                    <?= $this->Html->tag('span', '', ['id' => 'print_barcode_ticket']) ?>
+                </center>
+            </div>
+        </p>
+
+        <p>
+            <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
+                class="cupom_emitido">
+                <div class="print-pdf417-ticket">
+                    <center>
+                        <canvas id='canvas_origin'></canvas>
+                        <div id='canvas_destination'></div>
+                        <img id="canvas_img" src="" />
+                    </center>
+                </div>
+            </div>
+        </p>
+
+        <p>
+            <div class="print-qrcode-ticket"></div>
+        </p>
+
+        <!-- <p class="is-code128-barcode">
             <div class="print_region">
                 <center>
                     <?= $this->Html->tag('span', '', ['id' => 'print_barcode_ticket']) ?>
@@ -106,7 +131,6 @@ use Cake\Core\Configure;
 
             <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
                 class="cupom_emitido">
-                <!-- class="hidden cupom_emitido"> -->
                 <div class="print_region">
                     <center>
                         <canvas id='canvas_origin'></canvas>
@@ -118,7 +142,7 @@ use Cake\Core\Configure;
                     </center>
                 </div>
             </div>
-        </p>
+        </p> -->
 
         <div class="text-center contact">
 

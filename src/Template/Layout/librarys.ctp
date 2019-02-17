@@ -35,6 +35,7 @@ if ($debug) {
     echo $this->Html->script('scripts/util/pdf417_helper');
     echo $this->Html->css("cropper-master/dist/cropper");
     echo $this->Html->script("cropper-master/dist/cropper");
+    echo $this->Html->script("jquery-qrcode/jquery-qrcode.0.14.0.js");
 
 } else {
     echo $this->Html->meta('icon');
@@ -68,6 +69,7 @@ if ($debug) {
     echo $this->Html->script('scripts/util/pdf417_helper');
     echo $this->Html->css("cropper-master/dist/cropper.min");
     echo $this->Html->script("cropper-master/dist/cropper.min");
+    echo $this->Html->script("jquery-qrcode/jquery-qrcode.0.14.0.min.js");
 
 }
 
