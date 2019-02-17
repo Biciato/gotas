@@ -242,6 +242,39 @@ class UsuariosHasBrindesTable extends GenericTable
     }
 
     /**
+     * Obtem detalhes de brinde de usuário pelo Id
+     *
+     * @param integer $usuarios_has_brindes_id Id do brinde de usuário
+     * @return \App\Model\Entity\UsuariosHasBrindes
+     */
+    public function getUsuariosHasBrindesByCuponsId(int $cuponsId)
+    {
+        try {
+            return $this
+                ->find('all')
+                ->contain(array('ClientesHasBrindesHabilitados.Brindes'))
+                ->where(array('UsuariosHasBrindes.cupons_id' => $cuponsId))
+                ->select(
+                    array(
+                        "UsuariosHasBrindes.id",
+                        "UsuariosHasBrindes.quantidade",
+                        "ClientesHasBrindesHabilitados.id",
+                        "Brindes.nome"
+                    )
+                )
+                ->toArray()
+                ;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
      * Obtem todos os brindes de usuários conforme condições
      *
      * @param array $where_conditions Condições de pesquisa
@@ -353,6 +386,24 @@ class UsuariosHasBrindesTable extends GenericTable
 
             $error = ['result' => false, 'message' => $stringError];
             return $error;
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param integer $cuponsId
+     * @return void
+     */
+    public function deleteBrindeByCupomId(int $cuponsId)
+    {
+        try {
+            return $this->deleteAll(array("cupons_id" => $cuponsId));
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao buscar registro: {0}", $e->getMessage());
+
+            Log::write('error', $stringError);
         }
     }
 }

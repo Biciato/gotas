@@ -3,8 +3,9 @@ namespace App\Shell;
 
 use Cake\Console\Shell;
 use ArrayObject;
-use App\Custom\RTI\WebTools;
+use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\SefazUtil;
+use App\Custom\RTI\WebTools;
 use App\View\Helper;
 use App\Controller\AppController;
 use Cake\Auth\DefaultPasswordHasher;
@@ -16,7 +17,6 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use App\Custom\RTI\DebugUtil;
 
 class PontuacoesPendentesShell extends ExtendedShell
 {
@@ -25,7 +25,12 @@ class PontuacoesPendentesShell extends ExtendedShell
     protected $sefazUtil = null;
 
     /**
-     * Undocumented function
+     * PontuacoesPendentesShell::initialize
+     *
+     * Inicialize da classe
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-02-01
      *
      * @return void
      */
@@ -43,8 +48,12 @@ class PontuacoesPendentesShell extends ExtendedShell
     }
 
     /**
-     * Realiza processamento de todas as pontuações
-     * quando o site da sefaz estava offline
+     * PontuacoesPendentesShell::startProcessPontuacoesPendentes
+     *
+     * Realiza processamento de todas as pontuações quando o site da sefaz estava offline
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-01-27
      *
      * @return void
      */
@@ -53,165 +62,34 @@ class PontuacoesPendentesShell extends ExtendedShell
         Log::write('info', 'Iniciando processamento de cupons pendentes de processamento...');
 
         $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
+        $pontuacoesPendentes = $pontuacoesPendentes->toArray();
 
-        // DebugUtil::print($pontuacoesPendentes->toArray());
+        $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
 
-        $test = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
-
-        DebugUtil::print($test);
-
-        if (sizeof($pontuacoesPendentes->toArray()) == 0) {
+        if (sizeof($pontuacoesPendentes) == 0) {
             Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
-        } else {
-            $arraySave = [];
-
-            $html_content = null;
-
-            foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
-                // para cada pontuacao pendente, procura o cliente,
-                // pega suas gotas (multiplicadores) e faz o tratamento
-
-                Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->chave_nfe, $pontuacaoPendente->estado_nfe));
-
-
-                $data = array(
-                    "qr_code" => $pontuacaoPendente["chave_nfe"]
-                );
-
-                $server = Configure::read("appAddress");
-                $server = $server."api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario/";
-                $this->out($server);
-                $result = WebTools::callAPI("POST", $server, $data);
-
-                // $this->out($result);
-                DebugUtil::print($result);
-
-
-
-                $cliente = $this->Clientes->getClienteById($pontuacaoPendente->clientes_id);
-                $clientes_id = is_null($cliente->matriz_id) ? $cliente->id : $cliente->matriz_id;
-
-                /*
-                 * Como é automático, preciso verificar se a loja
-                 * possui gotas configuradas, se não tiver, preciso verificar a
-                 * matriz. Neste ponto ao menos a matriz deve ter a configuração
-                 */
-
-                // obtem todos os multiplicadores (gotas)
-                $gotas = $this->Gotas->findGotasByClientesId($cliente->id);
-
-                $gotas = $gotas->toArray();
-
-                if (sizeof($gotas) == 0 && !is_null($cliente->matriz_id)) {
-                    $gotas = $this->Gotas->findGotasByClientesId($cliente->matriz_id);
-
-                    $gotas = $gotas->toArray();
-                }
-
-                $html_content = $this->webTools->getPageContent($pontuacaoPendente->conteudo);
-
-                // $html_content = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
-
-                $pontuacoes_comprovante['clientes_id'] = $cliente->id;
-                $pontuacoes_comprovante['usuarios_id'] = $pontuacaoPendente->usuarios_id;
-                $pontuacoes_comprovante['funcionarios_id'] = $pontuacaoPendente->funcionarios_id;
-                $pontuacoes_comprovante['conteudo'] = $pontuacaoPendente->conteudo;
-                $pontuacoes_comprovante['chave_nfe'] = $pontuacaoPendente->chave_nfe;
-                $pontuacoes_comprovante['estado_nfe'] = $pontuacaoPendente->estado_nfe;
-                $pontuacoes_comprovante['data'] = $pontuacaoPendente->data;
-                $pontuacoes_comprovante['requer_auditoria'] = false;
-                $pontuacoes_comprovante['auditado'] = false;
-
-                $pontuacao['clientes_id'] = $cliente->id;
-                $pontuacao['usuarios_id'] = $pontuacaoPendente->usuarios_id;
-                $pontuacao['funcionarios_id'] = $pontuacaoPendente->funcionarios_id;
-
-                $pontuacao['data'] = $pontuacaoPendente->data->format('Y-m-d H:i:s');
-
-                $array_return
-                    = $this->sefazUtil->convertHtmlToCouponData(
-                    $html_content['response'],
-                    $gotas,
-                    $pontuacoes_comprovante,
-                    $pontuacao,
-                    $pontuacaoPendente
-                );
-
-                foreach ($array_return as $key => $value) {
-                    array_push($arraySave, $value);
-                }
-            }
-            Log::write('info', 'Iniciando gravação de informações adquiridas pela Sefaz para os cupons pendentes de processamento...');
-
-            $process_failed = false;
-
-            // Atualiza os registros se o site da sefaz retornou os dados
-
-            if (!is_null($html_content) && $html_content['statusCode'] == 200) {
-                foreach ($arraySave as $key => $value) {
-                    /*
-                     * verifica se tem pontuações à gravar
-                     * se não tem, somente configura o registro
-                     * pendente como processado
-                     */
-
-                    $array_pontuacao = $value['array_pontuacoes_item'];
-
-                    $pontuacao_comprovante_id = null;
-
-                    if (sizeof($array_pontuacao) > 0) {
-                        // item novo, gera entidade e grava
-                        $pontuacao_comprovante = $value['pontuacao_comprovante_item'];
-
-                        $pontuacao_comprovante
-                            = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
-                            $pontuacao_comprovante['clientes_id'],
-                            $pontuacao_comprovante['usuarios_id'],
-                            $pontuacao_comprovante['funcionarios_id'],
-                            $pontuacao_comprovante['conteudo'],
-                            $pontuacao_comprovante['chave_nfe'],
-                            $pontuacao_comprovante['estado_nfe'],
-                            $pontuacao_comprovante['data'],
-                            false,
-                            false
-                        );
-
-                        // item novo. usa id de pontuacao_comprovante e grava os registros dependentes
-                        if ($pontuacao_comprovante) {
-                            $pontuacao_comprovante_id = $pontuacao_comprovante->id;
-
-                            foreach ($array_pontuacao as $key => $item_pontuacao) {
-                                $item_pontuacao = $this->Pontuacoes->addPontuacaoCupom(
-                                    $item_pontuacao['clientes_id'],
-                                    $item_pontuacao['usuarios_id'],
-                                    $item_pontuacao['funcionarios_id'],
-                                    $item_pontuacao['gotas_id'],
-                                    $item_pontuacao['quantidade_multiplicador'],
-                                    $item_pontuacao['quantidade_gotas'],
-                                    $pontuacao_comprovante->id,
-                                    $item_pontuacao['data']
-                                );
-
-                                if (!$item_pontuacao) {
-                                    $process_failed = true;
-                                }
-                            }
-                        }
-                    } else {
-                        Log::write('warning', __('No Cupom Fiscal {0} da SEFAZ de {1} não há gotas à processar conforme configurações definidas!...', $pontuacaoPendente->chave_nfe, $pontuacaoPendente->estado_nfe));
-                    }
-
-                    // busca registro de pontuacao_pendente no bd e atualiza
-                    $pontuacaoPendente = $value['pontuacao_pendente_item'];
-
-                    if (!$process_failed) {
-                        $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente['id'], $pontuacao_comprovante_id);
-                    }
-                }
-                Log::write('info', 'Finalizado processamento de cupons pendentes de processamento...');
-            } else {
-                Log::write('warning', 'Site da SEFAZ indisponível no momento, aguardando próximo fluxo...');
-            }
+            return;
         }
+
+        $apiUrl = Configure::read("appAddress") . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
+
+        foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
+            // para cada pontuacao pendente, pega a chave, faz a solicitação e trata como se fosse o fluxo normal
+            Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
+
+            $data = array(
+                "qr_code" => $pontuacaoPendente["conteudo"],
+                "processamento_pendente" => true
+            );
+
+
+            $result = WebTools::callAPI("POST", $apiUrl, $data, DATA_TYPE_MESSAGE_JSON, $auth["token"]);
+
+            // DebugUtil::print($result);
+            Log::write('info', __("Finalizado execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
+        }
+        Log::write('info', 'Finalizado processamento de cupons pendentes de processamento...');
+
+        return;
     }
 }

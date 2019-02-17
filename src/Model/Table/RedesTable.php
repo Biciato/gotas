@@ -81,12 +81,11 @@ class RedesTable extends GenericTable
 
         $this->hasMany(
             'RedesHasClientes',
-            [
+            array(
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'redes_id',
-                'join' => 'INNER'
-
-            ]
+                'join' => 'LEFT'
+            )
         );
     }
 
@@ -220,6 +219,40 @@ class RedesTable extends GenericTable
     }
 
     /**
+     * Obtem Lista de Clientes pela rede
+     *
+     * @param integer $id Id da Rede
+     * @param string $nomeRede Nome da Rede
+     * @param boolean $ativado Rede Ativada / Desativada
+     * @param integer $tempoExpiracaoGotasUsuarios
+     * @param integer $quantidadePontuacoesUsuariosDia
+     * @param integer $quantidadeConsumoUsuariosDia
+     * @param float $custoReferenciaGotas
+     * @param integer $mediaAssiduidadeClientes
+     * @param array $selectFields
+     * @return void
+     */
+    public function getClientesFromRedes(int $id = 0, string $nomeRede = "", bool $ativado = true, int $tempoExpiracaoGotasUsuarios = 6, int $quantidadePontuacoesUsuariosDia = 3, int $quantidadeConsumoUsuariosDia = 10, float $custoReferenciaGotas = 0.05, int $mediaAssiduidadeClientes = 2, array $selectFields = array())
+    {
+
+        $whereCondicoes = array();
+
+        if (!empty($id)) {
+            $whereCondicoes["id"] = $id;
+        }
+
+        if (!empty($nomeRede)) {
+            $whereCondicoes["nome_rede"] = $nomeRede;
+        }
+
+        // todo @gustavosg WIP
+
+
+        $clientes = $this->find("all")
+            ->where(array());
+    }
+
+    /**
      * RedesTable::getRedesList
      * Retorna uma lista de Redes para Select
      *
@@ -244,18 +277,18 @@ class RedesTable extends GenericTable
                 $whereConditions[] = array("Redes.nome_rede like '%{$nomeRede}%'");
             }
 
-            if (strlen($ativado) > 0){
+            if (strlen($ativado) > 0) {
                 $whereConditions[] = array("Redes.ativado" => $ativado);
             }
 
-            if (strlen($tempoExpiracaoGotasUsuarios) > 0){
+            if (strlen($tempoExpiracaoGotasUsuarios) > 0) {
                 $whereConditions[] = array("Redes.tempo_expiracao_gotas_usuarios" => $tempoExpiracaoGotasUsuarios);
             }
-            if (strlen($quantidadePontuacoesUsuariosDia) > 0){
+            if (strlen($quantidadePontuacoesUsuariosDia) > 0) {
                 $whereConditions[] = array("Redes.quantidade_pontuacoes_usuarios_dia" => $quantidadePontuacoesUsuariosDia);
             }
 
-            if (strlen($mediaAssiduidadeClientes) > 0){
+            if (strlen($mediaAssiduidadeClientes) > 0) {
                 $whereConditions[] = array("Redes.media_assiduidade_clientes" => $mediaAssiduidadeClientes);
             }
 
@@ -410,6 +443,58 @@ class RedesTable extends GenericTable
     }
 
     /**
+     * RedesTable::getRedesHabilitadas()
+     *
+     * Obtem informações de Redes Habilitadas, e suas respectivas unidades
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-06
+     *
+     * @return App\Model\Entity\Redes[]
+     */
+    public function getRedesHabilitadas()
+    {
+        try {
+            $whereArray = array("Redes.ativado" => 1);
+            $joinArray = array(
+                "RedesHasClientes" => array(
+                    "type" => "left",
+                    "table" => "redes_has_clientes",
+                    "conditions" => "Redes.id = RedesHasClientes.redes_id"
+                ),
+                "Clientes" => array(
+                    "type" => "left",
+                    "alias" => "clientes",
+                    "table" => "clientes",
+                    "conditions" => "RedesHasClientes.clientes_id = clientes.id"
+                )
+            );
+
+            $selectArray = array(
+                "id",
+                "nome_rede",
+                "tempo_expiracao_gotas_usuarios",
+                "Clientes.id",
+                "Clientes.nome_fantasia"
+            );
+
+            $redes = $this
+                ->find("all")
+                ->where($whereArray)
+                ->join($joinArray)
+                ->select($selectArray)
+                ->all();
+
+            return $redes;
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
+        }
+    }
+
+    /**
      * Obtêm rede por id
      *
      * @param int $id Id da Rede
@@ -473,23 +558,20 @@ class RedesTable extends GenericTable
                 ->contain(['RedesHasClientes'])
                 ->first();
 
-            $clientes_ids = [];
+            $clientesIds = [];
 
             foreach ($rede->redes_has_clientes as $key => $value) {
-                array_push($clientes_ids, $value->clientes_id);
+                $clientesIds[] = $value["clientes_id"];
+
             }
 
             // troca o estado dos registros pertencentes à uma rede
             $clientes_table = TableRegistry::get('Clientes');
 
-            if (sizeof($clientes_ids) > 0) {
+            if (sizeof($clientesIds) > 0) {
                 $clientes_table->updateAll(
-                    [
-                        'ativado' => $ativado
-                    ],
-                    [
-                        'id IN ' => $clientes_ids
-                    ]
+                    array('ativado' => $ativado),
+                    array('id IN ' => $clientesIds)
                 );
             }
 

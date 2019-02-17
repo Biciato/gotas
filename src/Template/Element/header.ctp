@@ -15,12 +15,13 @@ $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 <div id="header-management">
 	<div class="branch-management">
 
-		
+
 		<?= $this->Html->tag('span', __("Usuário [{0}] administrando unidade [{1} / {2}]. Clique no botão para encerrar:", $usuarioLogado['nome'], $filial_administrar['razao_social'], $filial_administrar['nome_fantasia'] ))?>
-		
+
 		<?= $this->Html->link(
 			__('{0} Encerrar gerenciamento',
-			$this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])), 
+			// $this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])),
+			$this->Html->tag('i', '', ['class' => 'fas fa-sign-out-alt'])),
 			'#',
 			array(
 				'class'=>'btn btn-primary btn-quit-manage-unit',
@@ -32,7 +33,7 @@ $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 				'escape' => false),
 		false); ?>
 	</div>
-	
+
 </div>
 
 </div>
@@ -45,12 +46,13 @@ $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 <div id="header-management">
 	<div class="user-management">
 
-		
+
 		<?= $this->Html->tag('span', __("Administrador [{0}] administrando usuário {1}. Clique no botão para encerrar:", $usuarioAdministrador['nome'], $usuarioAdministrar['nome']))?>
-		
+
 		<?= $this->Html->link(
 			__('{0} Encerrar gerenciamento',
-			$this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])), 
+			// $this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])),
+			$this->Html->tag('i', '', ['class' => 'fas fa-sign-out-alt'])),
 			'#',
 			array(
 				'class'=>'btn btn-primary btn-quit-manage-unit',
@@ -63,7 +65,7 @@ $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 				'escape' => false),
 		false); ?>
 	</div>
-	
+
 </div>
 
 </div>

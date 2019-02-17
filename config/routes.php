@@ -119,6 +119,12 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/efetuar_baixa_cupom"
                 ),
+                // utilizado pelo APP Mobile.
+                "efetuarEstornoCupomAPI" => array(
+                    "action" => "efetuarEstornoCupomAPI",
+                    "method" => "POST",
+                    "path" => "efetuar_estorno_cupom"
+                ),
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "resgatarCupomAPI" => [
                     "action" => "resgatarCupomAPI",
@@ -213,7 +219,7 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Clientes", array(
         "map" => array(
-                        // utilizado pelo Angular
+            // utilizado pelo Angular
             "getClientesListAPI" => array(
                 "action" => "getClientesListAPI",
                 "method" => "POST",
@@ -362,10 +368,17 @@ Router::scope("/api", function ($routes) {
             //     "path" => "/test"
             // ),
 
+            // utilizado pelo Angular
             "getUsuarioByIdAPI" => array(
                 "action" => "getUsuarioByIdAPI",
                 "method" => "POST",
                 "path" => "/get_usuario_by_id"
+            ),
+
+            "getListaUsuariosRedeAPI" => array(
+                "action" => "getListaUsuariosRedeAPI",
+                "method" => "POST",
+                "path" => "/get_lista_usuarios_rede"
             ),
 
             // utilizado pelo Angular

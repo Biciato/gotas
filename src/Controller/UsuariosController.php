@@ -19,6 +19,7 @@ use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\ResponseUtil;
+use Cake\ORM\TableRegistry;
 
 /**
  * Usuarios Controller
@@ -45,64 +46,19 @@ class UsuariosController extends AppController
     public function login()
     {
         $recoverAccount = null;
-
         $email = '';
-
         $message = '';
+        $status = null;
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $result = $this->Usuarios->checkUsuarioIsLocked($data);
+            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
 
-            $email = $data['email'];
-            if ($result['actionNeeded'] == 0) {
-                $user = $this->Auth->identify();
-
-                if ($user) {
-                    $this->Auth->setUser($user);
-
-                    $this->Usuarios->updateLoginRetry($user, true);
-
-                    if ($user['tipo_perfil'] > Configure::read('profileTypes')['AdminDeveloperProfileType'] && $user['tipo_perfil'] < Configure::read('profileTypes')['UserProfileType']) {
-                        $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
-
-                        if (!empty($vinculoCliente)) {
-                            $cliente = $vinculoCliente["cliente"];
-                        }
-
-                        if ($cliente) {
-                            // TODO: correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
-                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-                        }
-
-                        // verifica qual rede o usuário se encontra (somente funcionários)
-                        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId(
-                            $cliente->id
-                        );
-
-                        $rede = $redeHasCliente["rede"];
-
-                        $this->request->session()->write('Rede.Grupo', $rede);
-                    }
-
-                    // return $this->redirect($this->Auth->redirectUrl());
-                    return $this->redirect(['controller' => 'pages', 'action' => 'display']);
-                } else {
-
-                    $user = $this->Usuarios->getUsuarioByEmail($email);
-
-                    $this->Usuarios->updateLoginRetry($user, false);
-
-                    $this->Flash->error("Usuário ou senha ínvalidos, tente novamente");
-                }
-            } elseif ($result['actionNeeded'] != 0) {
-                $message = $result['message'];
-                $recoverAccount = $result['actionNeeded'];
-            } else {
-                $message = $this->Usuarios->updateLoginRetry($data, false);
-            }
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
 
             if (strlen($message) > 0) {
                 $this->Flash->error(__($message));
@@ -113,6 +69,201 @@ class UsuariosController extends AppController
         $this->set('email', $email);
         $this->set('message', $message);
         $this->set('_serialize', ['message']);
+
+
+        if (isset($status) && ($status == 0)) {
+            return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+        }
+
+    }
+
+    /**
+     * Verifica se usuario está travado e qual tipo
+     *
+     * @return object conteúdo informando se conta está bloqueada
+     * @author
+     */
+    public function checkUsuarioIsLocked($usuario = null)
+    {
+        try {
+            $message = '';
+
+            /**
+             * 0 = nenhuma
+             * 1 = inativo
+             * 2 = bloqueado
+             * 3 = muitas tentativas
+             */
+            $statusUsuario = 0;
+
+            if (is_null($usuario)) {
+                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                $statusUsuario = 1;
+
+                return array('message' => $message, 'actionNeeded' => $statusUsuario);
+            }
+
+            // verifica se é uma conta sem ser usuário.
+            // se não for, verifica se a rede a qual ele se encontra está desativada
+
+            if ($usuario['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
+                // pega o vínculo do usuário com a rede
+
+                $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                    array(
+                        'ClientesHasUsuarios.usuarios_id' => $usuario['id'],
+                        'ClientesHasUsuarios.tipo_perfil' => $usuario['tipo_perfil']
+                    )
+                );
+                $clienteHasUsuario = $clienteHasUsuario->toArray();
+                $cliente = null;
+
+                    // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
+                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER && sizeof($clienteHasUsuario) > 0) {
+                    $cliente = $clienteHasUsuario[0]->cliente;
+
+                    // verifica se a unidade está ativa. Se está, a rede também está
+                    if (!$cliente["ativado"]) {
+                        $message = __("A unidade/rede à qual esta conta está vinculada está desativada. O acesso não é permitido.");
+                        $statusUsuario = 2;
+
+                        return array('message' => $message, 'actionNeeded' => $statusUsuario);
+                    }
+                }
+
+                if ($usuario['conta_ativa'] == 0) {
+                    if ($usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
+                        $message = __("A conta encontra-se desativada. Somente seu administrador poderá reativá-la.");
+                        $statusUsuario = 2;
+                    } else {
+                        $message = __("A conta encontra-se desativada. Para reativar, será necessário confirmar alguns dados.");
+                        $statusUsuario = 1;
+                    }
+
+                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
+
+                } elseif ($usuario['conta_bloqueada'] == true) {
+                    $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de atendimento.");
+                    $statusUsuario = 2;
+
+                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
+
+                } else {
+                    $tentativasLogin = $usuario['tentativas_login'];
+                    $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
+
+                    if (!is_null($tentativasLogin) && !is_null($ultimaTentativaLogin)) {
+                        $format = 'Y-m-d H:i:s';
+                        $fromTime = strtotime($ultimaTentativaLogin->format($format));
+                        $toTime = strtotime(date($format));
+
+                        $diff = round(abs($fromTime - $toTime) / 60, 0);
+
+                        if ($tentativasLogin >= 5 && ($diff < 10)) {
+                            $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
+
+                            $statusUsuario = 3;
+                            return array('message' => $message, 'actionNeeded' => $statusUsuario, "status" => $statusUsuario);
+                        }
+                    }
+                }
+            }
+
+            return array('message' => $message, 'actionNeeded' => $statusUsuario);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
+
+            Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
+        }
+    }
+
+    public function verificaTentativaLoginUsuario(string $email, string $senha)
+    {
+        $credenciais = array("email" => $email, "senha" => $senha);
+
+        $usuario = $this->Usuarios->getUsuarioByEmail($email);
+
+        $result = $this->checkUsuarioIsLocked($usuario);
+
+        if ($result['actionNeeded'] == 0) {
+            $user = $this->Auth->identify();
+
+            if ($user) {
+                $this->Auth->setUser($user);
+
+                $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
+                $status = 0;
+
+                if (($user['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK) && $user['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
+                    $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+
+                    if (!empty($vinculoCliente)) {
+                        $cliente = $vinculoCliente["cliente"];
+
+                        if ($cliente) {
+                            // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
+                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+
+                            // verifica qual rede o usuário se encontra
+                            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                            $rede = $redeHasCliente["rede"];
+
+                            $this->request->session()->write('Rede.Grupo', $rede);
+                        }
+                    }
+                }
+                return array(
+                    "usuario" => $usuario,
+                    "status" => 0,
+                    "message" => $message,
+                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+                );
+            } else {
+                $retornoLogin = $this->Usuarios->updateLoginRetry($usuario["id"], 0);
+                $status = 1;
+                $message = $retornoLogin;
+                $usuario = null;
+
+                // $this->Flash->error($retornoLogin);
+            }
+        } else {
+            $message = $result['message'];
+            $recoverAccount = $result['actionNeeded'];
+            $status = $result["status"];
+            $usuario = null;
+
+        }
+
+        /**
+         * 0 = nenhuma
+         * 1 = inativo
+         * 2 = bloqueado
+         * 3 = muitas tentativas
+         */
+
+        return array(
+            "usuario" => $usuario,
+            "status" => $status,
+            "message" => $message,
+            "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+        );
+    }
+
+    /**
+     * UsuariosController::clearCredentials
+     *
+     * Limpa todas as credenciais e variável de sessão da sessão atual
+     *
+     * @return void
+     */
+    public function clearCredentials()
+    {
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete('Rede.PontoAtendimento');
     }
 
     /**
@@ -123,10 +274,7 @@ class UsuariosController extends AppController
     public function logout()
     {
         // limpa as informações de session
-        $this->request->session()->delete('Usuario.AdministradorLogado');
-        $this->request->session()->delete('Cliente');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-        $this->request->session()->delete('Auth.User');
+        $this->clearCredentials();
 
         $usuarioAdministrar = null;
         if (isset($usuarioAdministrador)) {
@@ -1037,25 +1185,37 @@ class UsuariosController extends AppController
      */
     public function loginAPI()
     {
-        $usuario = $this->Auth->identify();
+        $usuario = null;
 
-        // DebugUtil::print($usuario);
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
 
-        if (!$usuario) {
+            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
 
-            return ResponseUtil::errorAPI(MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT);
-
-            // throw new UnauthorizedException('Usuário ou senha inválidos');
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
         }
 
-        $mensagem = [
+        // $usuario = $this->Auth->identify();
+
+        if (!$usuario) {
+            $this->Auth->logout();
+            $this->clearCredentials();
+
+            $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+
+            return ResponseUtil::errorAPI($message);
+        }
+
+        $mensagem = array(
             'status' => true,
             'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
-        ];
-
+        );
 
         $usuario = array(
-            // "usuario" => array(
             'id' => $usuario['id'],
             'token' => JWT::encode(
                 [
@@ -1065,17 +1225,8 @@ class UsuariosController extends AppController
                 ],
                 Security::salt()
             )
-            // )
         );
 
-        // $arraySet = [
-        //     'mensagem',
-        //     'usuario'
-        // ];
-
-        // $this->set(compact($arraySet));
-        // $this->set('_serialize', $arraySet);
-        // return;
         return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
 
     }
@@ -3399,6 +3550,23 @@ class UsuariosController extends AppController
         }
 
         ResponseUtil::success($usuario);
+    }
+
+    public function getListaUsuariosRedeAPI()
+    {
+        $usuarioLogado = $this->Auth->user();
+        $sessaoUsuario = $this->getSessionUserVariables();
+        if ($this->request->is("post")) {
+
+            $tipoPerfil = $usuarioLogado["tipo_perfil"];
+
+            if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+                $redesId = $sessaoUsuario["rede"]["id"];
+            }
+
+            // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
+
+        }
     }
 
     /**

@@ -165,17 +165,17 @@ class RedesHasClientesTable extends GenericTable
     /**
      * Localiza a matriz de uma rede
      *
-     * @param int $redes_id Id da Rede
+     * @param int $redesId Id da Rede
      *
      * @return \App\Model\Entity\RedesHasCliente $rede_has_cliente
      */
-    public function findMatrizOfRedesByRedesId(int $redes_id)
+    public function findMatrizOfRedesByRedesId(int $redesId)
     {
         try {
             return $this->_getRedesHasClientesTable()->find('all')
                 ->where(
                     array(
-                        'redes_has_clientes.redes_id' => $redes_id,
+                        'redes_has_clientes.redes_id' => $redesId,
                         'clientes.matriz' => true
                     )
                 )
@@ -203,7 +203,7 @@ class RedesHasClientesTable extends GenericTable
     }
 
     /**
-     * Obtem os clientes ids através da pesquisa feita
+     * Obtem os clientes ids através de um id de Redes
      *
      * @param integer $redesId Id de Rede
      *
@@ -239,10 +239,12 @@ class RedesHasClientesTable extends GenericTable
         }
     }
 
+
+
     /**
      * Obtem todos os clientes e a rede pelo id da rede
      *
-     * @param int $redes_id Id de Redes
+     * @param int $redesId Id de Redes
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
@@ -332,32 +334,26 @@ class RedesHasClientesTable extends GenericTable
         try {
 
             // pega o id da rede que pertence a unidade
-            $redes_id = $this->_getRedesHasClientesTable()->find('all')
+            $redesId = $this->_getRedesHasClientesTable()->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->first()
                 ->redes_id;
 
             // pega todos os ids de unidades que pertencem à rede
 
-            $unidades_ids = $this->_getRedesHasClientesTable()->find('all')
-                ->where(['redes_id' => $redes_id])
+            $unidadesIds = $this->_getRedesHasClientesTable()->find('all')
+                ->where(['redes_id' => $redesId])
                 ->select(['clientes_id']);
 
-            $unidades_ids = $this->retrieveColumnsQueryAsArray($unidades_ids, ['clientes_id']);
+            $unidadesIds = $this->retrieveColumnsQueryAsArray($unidadesIds, ['clientes_id']);
 
-            return $unidades_ids;
+            return $unidadesIds;
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
+            // @todo gustavosg: ajustar log
             $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
 
             Log::write('error', $stringError);
@@ -442,12 +438,9 @@ class RedesHasClientesTable extends GenericTable
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getRedesHasClientesByRedesId(int $redesId, array $clientesIds = [])
+    public function getRedesHasClientesByRedesId(int $redesId = 0, array $clientesIds = [])
     {
         try {
-
-            // $whereCondition = [];
-
             $whereCondition = array('redes_id' => $redesId);
 
             if (isset($clientesIds) && sizeof($clientesIds) > 0) {
@@ -460,30 +453,28 @@ class RedesHasClientesTable extends GenericTable
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();
-
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
 
-            return ['success' => false, 'message' => $stringError];
         }
     }
 
     /**
      * Obtem todos os clientes e a rede pelo id da rede
      *
-     * @param int   $redes_id     Id de Redes
+     * @param int   $redesId     Id de Redes
      * @param array $clientes_ids Ids de clientes
      *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
-    public function getClientesFromRedesIdAndParams(int $redes_id, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
+    public function getClientesFromRedesIdAndParams(int $redesId, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
     {
         try {
-
             $whereCondition = array();
 
-            $whereCondition[] = array('redes_id' => $redes_id);
+            $whereCondition[] = array('redes_id' => $redesId);
 
             if (!empty($nomeFantasia)) {
                 $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");

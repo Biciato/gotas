@@ -5,6 +5,10 @@
         </ul>
         <ul>
             <li>
+                <!-- <a href="/usuarios/relatorios/relUsuariosFrequenciaMedia">Relatório de Frequência Média</a> -->
+                <a href="#!/relUsuariosFrequenciaMedia">Relatório de Frequência Média</a>
+            </li>
+            <li>
                 <a href="#!/relUsuariosAssiduos">Relatório de Usuários Assíduos</a>
                 <!-- <a href="/usuarios/relatorios/relUsuariosAssiduos">Relatório de Usuários Assíduos</a> -->
             </li>
@@ -12,9 +16,6 @@
                 <a href="#!/relUsuariosFidelizados">Relatório de Usuários Fidelizados</a>
             </li>
             <!-- <li>
-                <a href="/usuarios/relatorios/relUsuariosAssiduos">Frequência Média</a>
-            </li>
-            <li>
                 <a href="/usuarios/relatorios/relUsuariosAssiduos">?? Relatório de Novos Clientes Fidelizados</a>
             </li>
             <li>

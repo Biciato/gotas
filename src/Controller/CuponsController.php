@@ -15,6 +15,7 @@ use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\TimeUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Cupons Controller
@@ -1601,7 +1602,7 @@ class CuponsController extends AppController
                             ->ClientesHasBrindesEstoque
                             ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
-                        $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                        $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
                             $cupom->clientes_has_brindes_habilitados_id,
                             $cupom->usuarios_id,
                             $cupom->quantidade,
@@ -1610,7 +1611,7 @@ class CuponsController extends AppController
 
                         // diminuiu estoque, considera o item do cupom como resgatado
                         if ($estoque) {
-                            $cupom_save = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            $cupom_save = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
 
                             // adiciona novo registro de pontuação
                             $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
@@ -1836,7 +1837,7 @@ class CuponsController extends AppController
                         ->ClientesHasBrindesEstoque
                         ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
 
-                    $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                    $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
                         $cupom->clientes_has_brindes_habilitados_id,
                         $cupom->usuarios_id,
                         $cupom->quantidade,
@@ -1849,9 +1850,9 @@ class CuponsController extends AppController
 
                         // Equipamento RTI?
                         if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
-                            $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
                         } else {
-                            $cupomSave = $this->Cupons->setCupomResgatadoUsado($cupom->id);
+                            $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
                         }
 
                         // adiciona novo registro de pontuação
@@ -1904,6 +1905,160 @@ class CuponsController extends AppController
             Log::write("error", $trace);
 
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+        }
+    }
+
+    /**
+     * CuponsController::efetuarEstornoCupomAPI
+     *
+     * Efetua estorno de cupom do cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-09
+     *
+     * @return json_encode Dados json
+     */
+    public function efetuarEstornoCupomAPI()
+    {
+        $usuarioLogado = $this->Auth->user();
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+            $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : null;
+            $confirmacao = !empty($data["confirmar"]) ? $data["confirmar"] : 0;
+
+            if (empty($cupomEmitido)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_EMPTY);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+            }
+
+            $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido, 0);
+
+            if (empty($cupom)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
+            }
+
+            if (empty($cupomEmitido)) {
+                $errors = array(MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
+            }
+
+            $mesmoUsuario = 0;
+            $funcionariosRedeLista = array();
+            $clientesId = $cupom["clientes_id"];
+
+            $clientesRede = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientesId);
+            $clientesIds = array();
+
+            foreach ($clientesRede as $cliente) {
+                $clientesIds[] = $cliente["clientes_id"];
+            }
+
+            // Verifica se o cupom está na rede (se o usuário logado for funcionário da loja)
+
+            if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_WORKER) {
+                // Se for funcionário da loja, tem que verificar se o usuário que o atendeu ainda existe e se é realmente desta loja
+
+                $sessaoUsuario = $this->getSessionUserVariables();
+
+                $usuariosConditions = array(
+                    sprintf("Usuarios.tipo_perfil between %s AND %s", PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER),
+                    "Clientes.ativado" => 1
+                );
+
+                $funcionariosRedeQuery = $this->Usuarios->findAllUsuariosByRede($sessaoUsuario["rede"]["id"], $usuariosConditions)->select(array("Usuarios.id"));
+                $funcionariosRedeQuery = $funcionariosRedeQuery->toArray();
+
+                foreach ($funcionariosRedeQuery as $funcionario) {
+                    $funcionariosRedeLista[] = $funcionario["id"];
+                }
+
+                $pertenceCupomRede = in_array($cupom["funcionarios_id"], $funcionariosRedeLista);
+
+                if (!$pertenceCupomRede) {
+                    // Se chegou neste ponto, duas situações aconteceram:
+                    // 1 - O usuário que está tentando estornar é do tipo funcionário e não está na lista
+                    // 2 - É outro usuário
+
+                    $errors = array(MESSAGE_COUPON_ANOTHER_NETWORK);
+
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                }
+
+                // Pertence a rede, fazer procedimento de estorno
+                return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
+
+            } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] != $cupom["usuarios_id"]) {
+                // Encerra fluxo, somente próprio usuário pode cancelar seu cupom
+                $errors = array("Somente o próprio cliente pode cancelar seu cupom!");
+
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+
+            } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] == $cupom["usuarios_id"]) {
+                // Somente o próprio usuário pode cancelar seu cupom
+
+                // Se o cupom já tiver sido resgatado e usado, não é possível estorno
+
+                if ($cupom["resgatado"] && $cupom["usado"]) {
+                    $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                } else {
+                    return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
+                }
+            }
+        }
+    }
+
+    /**
+     * CuponsController::realizaProcessamentoEstornoCupom
+     *
+     * Executa o processamento de estorno do cupom se o mesmo possui está ok para estorno
+     *
+     * @param Cupon $cupom
+     * @param mixed $usuarioLogado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-09
+     *
+     * @return array SuccessAPI/ErrorAPI Mensagem de sucesso / erro
+     */
+    public function realizaProcessamentoEstornoCupom(\App\Model\Entity\Cupon $cupom, array $usuarioLogado)
+    {
+        // Se o brinde for do tipo Equipamentos RTI, não pode cancelar
+        $tipoBrindeRede = $cupom["clientes_has_brindes_habilitado"]["brinde"]["tipo_brinde_rede"];
+
+        if ($tipoBrindeRede["equipamento_rti"]) {
+            $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
+            return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+        } else {
+            $brindesCupomEstornados = array();
+
+            $cupomApagado = $this->Cupons->setCupomEstornado($cupom["id"]);
+               // Remove usuarios has brindes
+            $usuarioHasBrindesCupom = $this->UsuariosHasBrindes->getUsuariosHasBrindesByCuponsId($cupom["id"]);
+            $rowCount = $this->UsuariosHasBrindes->deleteBrindeByCupomId($cupom["id"]);
+
+            if (!empty($usuarioHasBrindesCupom) && $rowCount > 0) {
+                foreach ($usuarioHasBrindesCupom as $itemCupom) {
+                    $clientesBrindesHabilitadosId = $itemCupom["clientes_has_brindes_habilitado"]["id"];
+                    $quantidade = $itemCupom["quantidade"];
+                    $brindesCupomEstornados[] = array(
+                        "quantidade" => $quantidade,
+                        "nome" => $itemCupom["clientes_has_brindes_habilitado"]["brinde"]["nome"]
+                    );
+                    $devolucao = $this->ClientesHasBrindesEstoque->addEstoque($clientesBrindesHabilitadosId, $usuarioLogado["id"], $quantidade, STOCK_OPERATION_TYPES_RETURN_TYPE);
+                }
+            }
+            $retorno = array(
+                "cupom" => $cupom["cupom_emitido"],
+                "brindes" => $brindesCupomEstornados,
+                "qteBrindesEstornados" => sizeof($brindesCupomEstornados)
+            );
+
+            // Se teve ou não teve registro, retorna informando que foi cancelado, pois
+            // o registro terá sido removido e se teve, estoque foi adicionado
+            return ResponseUtil::successAPI(MESSAGE_COUPON_PRINTED_CANCELLED, $retorno);
         }
     }
 
@@ -2421,7 +2576,7 @@ class CuponsController extends AppController
 
                     // efetua saida na tabela de estoque
 
-                    $estoque = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($brindeSelecionado["id"], $usuario["id"], $quantidade, Configure::read("stockOperationTypes")["sellTypeSale"]);
+                    $estoque = $this->ClientesHasBrindesEstoque->addEstoque($brindeSelecionado["id"], $usuario["id"], $quantidade, Configure::read("stockOperationTypes")["sellTypeSale"]);
 
                     // atribui uso de pontuações ao usuário
                     $pontuacaoDebitar = $this->Pontuacoes->addPontuacoesBrindesForUsuario(

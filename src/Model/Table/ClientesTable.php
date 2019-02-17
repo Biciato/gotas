@@ -557,11 +557,13 @@ class ClientesTable extends GenericTable
      *
      * @return void
      * @author
+     *
+     * @deprecated 1.0.0
      **/
     public function getAllIdsCliente($clientes_id)
     {
         try {
-            $cliente = $this->_getClientesTable()->get($clientes_id);
+            $cliente = $this->get($clientes_id);
 
             $matriz = null;
 

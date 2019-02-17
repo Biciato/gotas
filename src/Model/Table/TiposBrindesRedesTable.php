@@ -101,6 +101,8 @@ class TiposBrindesRedesTable extends GenericTable
                 "joinType" => "LEFT"
             )
         );
+
+
     }
 
     /**
@@ -419,17 +421,17 @@ class TiposBrindesRedesTable extends GenericTable
     }
 
 
-    #region Delete 
+    #region Delete
 
     /**
      * TiposBrindesRedesTable::deleteAllTiposBrindesRedesByRedesId
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-11-25
-     * 
+     *
      * Remove todos os tipos brindes redes por um redes id
      *
-     * @param integer $redesId Id da rede 
+     * @param integer $redesId Id da rede
      * @return boolean registro removido
      */
     public function deleteAllTiposBrindesRedesByRedesId(int $redesId)

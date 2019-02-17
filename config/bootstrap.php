@@ -238,25 +238,57 @@ Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
 
+const DATA_TYPE_MESSAGE_JSON = "json";
+const DATA_TYPE_MESSAGE_XML = "xml";
+
+// status de Job
+
+const JOB_STATUS_INIT = "Inicializando...";
+const JOB_STATUS_END = "Finalizando...";
+
+
+
+#region Mensagens
+
 // Clientes
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 
+// Clientes Has Brindes Habilitados Estoque
+const STOCK_OPERATION_TYPES_ADD_TYPE = 0;
+const STOCK_OPERATION_TYPES_SELL_TYPE_GIFT = 1;
+const STOCK_OPERATION_TYPES_SELL_TYPE_SALE = 2;
+const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
+
 // Cupom
 
 const MESSAGE_COUPON_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MESSAGE_COUPON_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+const MESSAGE_COUPON_PRINTED_EMPTY = "Necessário informar o CUPOM!";
+const MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
+const MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
+const MESSAGE_COUPON_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
+const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
+const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
+
+
 
 // Usuários
 const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
-//
+// Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 
+// Mensagens de processamento
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
 const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+#endregion
+
+// Tipos de Perfil de usuários
 
 const PROFILE_TYPE_ADMIN_DEVELOPER = 0;
 const PROFILE_TYPE_ADMIN_NETWORK = 1;

@@ -743,109 +743,7 @@ class UsuariosTable extends GenericTable
 
     }
 
-    /**
-     * Verifica se usuario está travado e qual tipo
-     *
-     * @return object conteúdo informando se conta está bloqueada
-     * @author
-     */
-    public function checkUsuarioIsLocked($usuario)
-    {
-        try {
-            $usuario = $this->getUsuarioByEmail($usuario['email']);
 
-            $message = '';
-
-            /**
-             * 0 = nothing
-             * 1 = inactive
-             * 2 = blocked
-             * 3 = too much retries
-             */
-            $actionNeeded = 0;
-
-            if (is_null($usuario)) {
-                $message = __("usuario ou senha ínvalidos, tente novamente");
-                $actionNeeded = 1;
-            } else {
-                // verifica se é uma conta sem ser usuário.
-                // se não for, verifica se a rede a qual ele se encontra está desativada
-
-                if ($usuario['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType']
-                    && $usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
-                    // pega o vínculo do usuário com a rede
-
-                    $cliente_has_usuario_table = TableRegistry::get('ClientesHasUsuarios');
-
-                    $cliente_has_usuario = $cliente_has_usuario_table->findClienteHasUsuario(
-                        [
-                            'ClientesHasUsuarios.usuarios_id' => $usuario['id'],
-                            'ClientesHasUsuarios.tipo_perfil' => $usuario['tipo_perfil']
-                        ]
-                    );
-
-                    // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
-
-                    $cliente = null;
-
-                    if (sizeof($cliente_has_usuario->toArray()) > 0) {
-                        $cliente = $cliente_has_usuario->toArray()[0]->cliente;
-
-                        // verifica se a unidade está ativa. Se está, a rede também está
-
-                        if (!$cliente->ativado) {
-                            $message = __("A unidade/rede à qual esta conta está vinculada está desativada. O acesso não é permitido.");
-                            $actionNeeded = 2;
-                        }
-                    }
-                }
-
-                if ($actionNeeded == 0) {
-
-                    if ($usuario['conta_ativa'] == 0) {
-                        if ($usuario['tipo_perfil'] <= Configure::read('profileTypes')['UserProfileType']) {
-                            $message = __("A conta encontra-se desativada. Somente seu administrador poderá reativá-la.");
-                            $actionNeeded = 2;
-                        } else {
-                            $message = __("A conta encontra-se desativada. Para reativar, será necessário confirmar alguns dados.");
-                            $actionNeeded = 1;
-                        }
-                    } elseif ($usuario['conta_bloqueada'] == true) {
-                        $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de abastecimento.");
-                        $actionNeeded = 2;
-                    } else {
-                        $tentativas_login = $usuario['tentativas_login'];
-                        $ultima_tentativa_login = $usuario['ultima_tentativa_login'];
-
-                        if (!is_null($tentativas_login) && !is_null($ultima_tentativa_login)) {
-                            $format = 'Y-m-d H:i:s';
-
-
-                            $fromTime = strtotime($ultima_tentativa_login->format($format));
-
-                            $toTime = strtotime(date($format));
-
-                            $diff = round(abs($fromTime - $toTime) / 60, 0);
-
-                            if ($tentativas_login >= 5 && ($diff < 10)) {
-                                $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa', (10 - (int)$diff));
-
-                                $actionNeeded = 3;
-                            }
-                        }
-                    }
-                }
-            }
-
-            $result = ['message' => $message, 'actionNeeded' => $actionNeeded];
-
-            return $result;
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-        }
-    }
 
     /**
      * Encontra usuario por tipo
@@ -853,12 +751,12 @@ class UsuariosTable extends GenericTable
      * @return void
      * @author
      */
-    public function findUsuariosByType($type)
+    public function findUsuariosByType($tipoPerfil)
     {
         try {
             return $this
                 ->find('all')
-                ->where(['tipo_perfil' => $type]);
+                ->where(['tipo_perfil' => $tipoPerfil]);
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
@@ -2107,52 +2005,56 @@ class UsuariosTable extends GenericTable
      * Atualiza login sem sucesso
      *
      * @param entity\usuario $usuario
-     * @param boolean $type
-     * @return string $message
+     * @param boolean $sucessoLogin
+     *
      * @author Gustavo Souza Gonçalves
+     * @since 2017-08-01
+     *
+     * @return string $message
      */
-    public function updateLoginRetry($usuario = null, $type)
+    public function updateLoginRetry(int $usuariosId = 0, int $sucessoLogin = 0)
     {
         try {
             $message = '';
+            $usuario = $this->getUsuarioById($usuariosId);
+            $usuarioIsChanged = true;
 
-            $usuario = $this->getUsuarioByEmail($usuario['email']);
-
-            if ($type) {
+            if ($sucessoLogin) {
+                $usuario["tentativas_login"] = 0;
+                $usuario["ultima_tentativa_login"] = null;
             } else {
-                $tentativas_login = $usuario['tentativas_login'];
-                $ultima_tentativa_login = $usuario['ultima_tentativa_login'];
+                if (!empty($usuario)) {
+                    $tentativasLogin = $usuario['tentativas_login'];
+                    $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
 
-                $format = 'Y-m-d H:i:s';
-
-                if (is_null($ultima_tentativa_login)) {
-                    $ultima_tentativa_login = new \DateTime('now');
-                }
-
-
-                $fromTime = strtotime($ultima_tentativa_login->format($format));
-
-                $toTime = strtotime(date($format));
-
-                $diff = round(abs($fromTime - $toTime) / 60, 0);
-
-                if ($tentativas_login >= 5 && ($diff < 10)) {
-                    $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa', (10 - (int)$diff));
-                } else {
-                    if ($tentativas_login >= 5) {
-                        $tentativas_login = 0;
-                    } else {
-                        $ultima_tentativa_login = date("Y-m-d H:i:s");
-                        $usuario['ultima_tentativa_login'] = $ultima_tentativa_login;
+                    if (is_null($ultimaTentativaLogin)) {
+                        $ultimaTentativaLogin = new \DateTime('now');
                     }
 
-                    $tentativas_login = $tentativas_login + 1;
+                    $fromTime = strtotime($ultimaTentativaLogin->format('Y-m-d H:i:s'));
+                    $toTime = strtotime(date('Y-m-d H:i:s'));
+                    $diff = round(abs($fromTime - $toTime) / 60, 0);
 
-                    $usuario['tentativas_login'] = $tentativas_login;
+                    if ($tentativasLogin >= 5 && ($diff < 10)) {
+                        $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
+                        $usuarioIsChanged = false;
+                    } else {
+                        if ($tentativasLogin >= 5) {
+                            $tentativasLogin = 0;
+                        } else {
+                            $ultimaTentativaLogin = date("Y-m-d H:i:s");
+                            $usuario['ultima_tentativa_login'] = $ultimaTentativaLogin;
+                        }
 
-                    $message = __("usuario ou senha ínvalidos, tente novamente");
-                    $usuario = $this->addUpdateUsuario($usuario);
+                        $tentativasLogin = $tentativasLogin + 1;
+                        $usuario['tentativas_login'] = $tentativasLogin;
+                        $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                    }
                 }
+            }
+
+            if ($usuarioIsChanged) {
+                $usuario = $this->addUpdateUsuario($usuario);
             }
 
             return $message;

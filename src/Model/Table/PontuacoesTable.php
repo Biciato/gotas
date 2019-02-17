@@ -1557,6 +1557,41 @@ class PontuacoesTable extends GenericTable
         }
     }
 
+    /**
+     * PontuacoesTable::updatePontuacoesPendentesExpiracao
+     *
+     * Atualiza todas as pontuacoes que não estão expiradas, conforme número de meses da rede estabelecida
+     *
+     * @param integer $clientesId Id da unidade que irá varrer todos os registros
+     * @param integer $tempoExpiracaoGotasUsuarios Tempo de expiração da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-02-06
+     *
+     * @return int Número de registros afetados
+     */
+    public function updatePontuacoesPendentesExpiracao(int $clientesId, int $tempoExpiracaoGotasUsuarios = 6)
+    {
+        try {
+            $camposSet = array(
+                "expirado" => 1
+            );
+            $camposWhere = array(
+                "expirado" => 0,
+                "TIMESTAMPDIFF(MONTH, data, NOW()) > " => $tempoExpiracaoGotasUsuarios,
+                "clientes_id" => $clientesId
+            );
+
+            return $this->updateAll($camposSet, $camposWhere);
+
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao atualizar registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
+        }
+    }
+
     #endregion
 
     #region Delete

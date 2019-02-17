@@ -6,6 +6,8 @@ use App\Controller\AppController;
 
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
+
 
 /**
  * @author Gustavo Souza Gonçalves
@@ -112,64 +114,72 @@ class WebTools
 
     public static function loginAPIGotas(string $email, string $senha)
     {
-        $curl = curl_init();
+        try {
+            $debug = Configure::read("debug");
+            // $suffix = Configure::read("debug") ? ".local" : ".com.br";
+            $suffix = "local";
+            $url = "https://sistema.gotas." . $suffix . "/api/usuarios/token";
 
-        // $suffix = Configure::read("debug") ? ".local" : ".com.br";
-        $suffix = "local";
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_VERBOSE, $debug);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 
-        $url = "https://sistema.gotas.".$suffix."/api/usuarios/token";
+            $data = array("email" => $email, "senha" => $senha);
 
-        $data = array("email" => $email, "senha" => $senha);
+            $method = "POST";
+            switch ($method) {
+                case "POST":
+                    curl_setopt($curl, CURLOPT_POST, 1);
 
-        // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
-        // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
-        // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+                    if ($data) {
+                        $dataJson = json_encode($data);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                            "Content-Type: application/json",
+                            "Content-Length: " . strlen($dataJson),
+                            "IsMobile: 1"
+                        ));
+                    }
+                    break;
+                case "PUT":
+                    curl_setopt($curl, CURLOPT_PUT, 1);
+                    break;
+                default:
+                    if ($data) {
+                        $url = sprintf("%s?%s", $url, http_build_query($data));
+                    }
+            }
 
-        $method = "POST";
-        switch ($method) {
-            case "POST":
-                curl_setopt($curl, CURLOPT_POST, 1);
 
-                if ($data) {
-                    $dataJson = json_encode($data);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                        "Content-Type: application/json",
-                        "Content-Length: " . strlen($dataJson),
-                        "IsMobile: 1"
-                    ));
-                }
-                break;
-            case "PUT":
-                curl_setopt($curl, CURLOPT_PUT, 1);
-                break;
-            default:
-                if ($data) {
-                    $url = sprintf("%s?%s", $url, http_build_query($data));
-                }
+            $curlErr = curl_errno($curl);
+            $curlError = curl_error($curl);
+
+            if ($curlErr) {
+                Log::write("error", sprintf("Erro durante processamento cUrl: %s - %s", $curlErr, $curlError));
+            }
+
+            $result = curl_exec($curl);
+            $result = json_decode($result, true);
+
+            curl_close($curl);
+
+            $authentication = array();
+
+            if (!empty($result["usuario"])) {
+                $authentication = array(
+                    "id" => $result["usuario"]["id"],
+                    "token" => $result["usuario"]["token"]
+                );
+            }
+
+            return $authentication;
+
+        } catch (\Exception $e) {
+            Log::write("error", sprintf("Message: %s / Trace: %s", $e->getMessage(), $e->getTraceAsString()));
         }
-
-
-        // Optional Authentication:
-        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        // curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_VERBOSE, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-
-        $curlErr = curl_errno($curl);
-        $curlError = curl_error($curl);
-        Log::write("info", array("err" => $curlErr, "str" => $curlError));
-        $result = curl_exec($curl);
-        $result = json_decode($result);
-        Log::write("info", array("result" => $result));
-
-        curl_close($curl);
-
-        return $result;
     }
 
     /**
@@ -178,29 +188,57 @@ class WebTools
      * @param [type] $method
      * @param [type] $url
      * @param boolean $data
+     * @param string $dataType (json / xml)
      * @param string $authentication
      * @return void
      */
-    public static function callAPI($method, $url, $data = false, string $authentication = "")
+    public static function callAPI(string $method, string $url, $data = array(), string $dataType = DATA_TYPE_MESSAGE_JSON, string $authentication = "")
     {
         $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_VERBOSE, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 
         // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
         // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
         // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+
+        $dataSend = "";
+
+        Log::write("info", __("Chamada à método: {0}", $url));
+
+        if ($dataType == DATA_TYPE_MESSAGE_JSON) {
+            $dataSend = json_encode($data);
+        } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+            $dataSend = new \SimpleXMLElement($data);
+        }
 
         switch ($method) {
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, 1);
 
                 if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataSend);
 
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                        "Content-Type: application/json",
-                        "Content-Length: " . strlen($dataJson),
-                        "IsMobile: 1"
-                    ));
+                    $header = array();
+                    $header[] = "Accept: application/json";
+                    if ($dataType == DATA_TYPE_MESSAGE_JSON) {
+                        $header[] = "Content-Type: application/json";
+                    } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+                        $header[] = "Content-Type: application/xml";
+                    }
+                    $header[] = "Content-Length: " . strlen($dataSend);
+                    $header[] = "IsMobile: 1";
+                    if (strlen($authentication) > 0) {
+                        $header[] = "Authorization: Bearer $authentication";
+                    }
+
+                    // Log::write("info", $header);
+
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
                 }
                 break;
             case "PUT":
@@ -213,19 +251,14 @@ class WebTools
         }
 
 
-        // Optional Authentication:
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($curl, CURLOPT_USERPWD, "mobileapiworker@dummy.com:1234");
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
         $curlErr = curl_errno($curl);
         $curlError = curl_error($curl);
-        Log::write("info", array("err" => $curlErr, "str" => $curlError));
         $result = curl_exec($curl);
-
         curl_close($curl);
+        $result = json_decode($result, true);
+
+        // Log::write("info", array("err" => $curlErr, "str" => $curlError));
+
 
         return $result;
     }

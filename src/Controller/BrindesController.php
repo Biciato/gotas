@@ -376,7 +376,7 @@ class BrindesController extends AppController
                             if (is_null($estoque)) {
                                 // Não tem estoque, criar novo registro vazio
                                 $result
-                                    = $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId(
+                                    = $this->ClientesHasBrindesEstoque->addEstoque(
                                     $clienteHasBrindeHabilitado->id,
                                     $this->usuarioLogado['id'],
                                     0,

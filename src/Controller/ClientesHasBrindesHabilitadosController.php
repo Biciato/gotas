@@ -467,7 +467,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                     if (is_null($estoque)) {
                         // Não tem estoque, criar novo registro vazio
-                        $this->ClientesHasBrindesEstoque->addEstoqueForBrindeId($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
+                        $this->ClientesHasBrindesEstoque->addEstoque($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
                     }
                 }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra
