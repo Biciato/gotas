@@ -375,12 +375,13 @@ class GotasController extends AppController
     public function adicionarGota(int $cliente_id = null)
     {
         try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $rede = $sessaoUsuario["rede"];
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar =  $sessaoUsuario["usuarioAdministrar"];
 
-            $rede = $this->request->session()->read('Rede.Grupo');
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-            if ($usuarioAdministrador) {
+            if ($usuarioAdministrador && $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
                 $this->usuarioLogado = $usuarioAdministrar;
                 $usuarioLogado = $usuarioAdministrar;
             }

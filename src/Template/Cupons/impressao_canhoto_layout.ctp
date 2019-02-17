@@ -23,10 +23,10 @@ use Cake\Core\Configure;
 
             <center>
                 <div class="is-cupom-shower">
-                    <span>CANHOTO RTI SHOWER</span>
+                    <span>CANHOTO SMART SHOWER</span>
                 </div>
                 <div class="is-not-cupom-shower">
-                    <span>CANHOTO BRINDES</span>
+                    <span>CANHOTO DE EMISSÃO DE BRINDES</span>
                 </div>
             </center>
         </div>

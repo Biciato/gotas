@@ -24,7 +24,7 @@ use Cake\Core\Configure;
     </div>
 
     <div class="form-group row">
-    
+
         <div class="col-lg-4">
             <?= $this->Form->input(
                 "clientes_id",
@@ -36,38 +36,40 @@ use Cake\Core\Configure;
                     "value" => $unidadesId,
                     "required" => true
                 )
-            ); ?> 
+            ); ?>
         </div>
         <div class="col-lg-4">
             <label for="nome_parametro">Nome do Parâmetro*</label>
             <input value="<?= $gota['nome_parametro'] ?>"
-                type="text" 
+                type="text"
                 class="form-control"
-                name="nome_parametro" 
-                id="nome_parametro" 
-                required  
+                name="nome_parametro"
+                id="nome_parametro"
+                required
                 />
         </div>
         <div class="col-lg-4">
             <label for="multiplicador_gota">Multiplicador de Gotas*</label>
             <input value="<?= $gota['multiplicador_gota'] ?>"
-                type="text" 
+                type="text"
                 class="form-control"
-                name="multiplicador_gota" 
-                id="multiplicador_gota" 
-                maxlength="4"
-                required  
+                name="multiplicador_gota"
+                id="multiplicador_gota"
+                maxlength="7"
+                required
                 />
+                <!-- max="1000,00" -->
+
         </div>
     </div>
     <div class="col-lg-12 text-right">
-        <button type="submit" 
+        <button type="submit"
             class="btn btn-primary botao-confirmar">
             <i class="fa fa-save"></i>
             Salvar
         </button>
 
-        <a href="/gotas/gotas-minha-rede/" 
+        <a href="/gotas/gotas-minha-rede/"
             class="btn btn-danger botao-cancelar">
             <span class="fa fa-window-close"></span>
             Cancelar

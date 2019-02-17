@@ -2855,7 +2855,10 @@ class CuponsController extends AppController
 
                 // Se é Banho
                 // @todo gustavosg: conferir esta lógica
-                if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
+                $tipoPrincipalCodigoBrinde = $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"];
+                $isBrindeSmartShower = is_numeric($tipoPrincipalCodigoBrinde) && $tipoPrincipalCodigoBrinde <= 4;
+
+                // if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
                     $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
 
                     $cuponsRetorno = array();
@@ -2867,7 +2870,7 @@ class CuponsController extends AppController
                     }
 
                     $dados_impressao = $this->processarCupom($cuponsRetorno);
-                }
+                // }
 
                 // Se chegou até aqui, ocorreu tudo bem
                 $mensagem = array(
@@ -2887,8 +2890,7 @@ class CuponsController extends AppController
                     'dados_impressao'
                 ];
 
-                $tipoPrincipalCodigoBrinde = $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"];
-                $isBrindeSmartShower = is_numeric($tipoPrincipalCodigoBrinde) && $tipoPrincipalCodigoBrinde <= 4;
+
 
                 $retorno = array(
                     "arraySet" => $arraySet,
