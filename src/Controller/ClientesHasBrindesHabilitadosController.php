@@ -203,16 +203,16 @@ class ClientesHasBrindesHabilitadosController extends AppController
      */
     public function configurarBrindesUnidade(int $clientesId)
     {
-        $rede = $this->request->session()->read("Rede.Grupo");
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar =  $sessaoUsuario["usuarioAdministrar"];
 
-        if ($usuarioAdministrador) {
+        if ($usuarioAdministrador && $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }
-
-        // DebugUtil::print($clientesId);
 
         $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, [$clientesId], $rede["id"]);
 
@@ -241,7 +241,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
             $brindesConfigurar = $brindesConfigurarArrayRetorno;
         }
 
-        $arraySet = array('brindesConfigurar', 'clientesId');
+        $arraySet = array('brindesConfigurar', 'clientesId', "usuarioLogado");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
