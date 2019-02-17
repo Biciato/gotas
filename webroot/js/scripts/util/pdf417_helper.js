@@ -9,8 +9,8 @@ var generateNewPDF417Barcode = function (text, object_canvas, object_destination
 
         PDF417.init(text);
         var barcode = PDF417.getBarcodeArray(),
-            bw = 2,
-            bh = 2,
+            bw = 3,
+            bh = 3,
             e = "",
             canvas = document.getElementById(object_canvas);
         canvas.width = bw * barcode.num_cols;

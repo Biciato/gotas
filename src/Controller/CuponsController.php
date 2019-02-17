@@ -1132,11 +1132,12 @@ class CuponsController extends AppController
                 $ticket = $retorno["ticket"];
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
-                // TODO: temp
+                // @todo: temp
                 $tempo = $retorno["tempo"];
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
-                $is_brinde_smart_shower = $ticket["tipo_principal_codigo_brinde"] <= 4;
+                // $is_brinde_smart_shower = $ticket["tipo_principal_codigo_brinde"] <= 4;
+                $is_brinde_smart_shower = $retorno["is_brinde_smart_shower"];
                 $dados_impressao = null;
 
                 if (!$is_brinde_smart_shower) {
@@ -2886,6 +2887,9 @@ class CuponsController extends AppController
                     'dados_impressao'
                 ];
 
+                $tipoPrincipalCodigoBrinde = $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"];
+                $isBrindeSmartShower = is_numeric($tipoPrincipalCodigoBrinde) && $tipoPrincipalCodigoBrinde <= 4;
+
                 $retorno = array(
                     "arraySet" => $arraySet,
                     "mensagem" => $mensagem,
@@ -2895,7 +2899,7 @@ class CuponsController extends AppController
                     "usuario" => $usuario,
                     "tempo" => $brindeSelecionado["brinde"]["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brindeSelecionado["tipo_codigo_barras"],
-                    "is_brinde_smart_shower" => $brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4,
+                    "is_brinde_smart_shower" => $isBrindeSmartShower,
                 );
 
                 return $retorno;

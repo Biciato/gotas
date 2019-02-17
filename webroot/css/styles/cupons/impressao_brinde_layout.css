@@ -4,7 +4,7 @@
 }
 
 .print-area {
-    /* display: none; */
+    display: none;
     width: 330px;
     height: 200px;
 }

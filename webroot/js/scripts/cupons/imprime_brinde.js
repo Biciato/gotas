@@ -610,12 +610,15 @@ $(document).ready(function() {
 
         $(".is-code128-barcode").show();
 
+        // Gera código code128
         $("#print_barcode_ticket").barcode(cupom_emitido, "code128", {
             barWidth: 2,
             barHeight: 70,
             showHRI: false,
             output: "bmp"
         });
+
+        // gera codigo PDF 417
         $(".is-pdf417-barcode").show();
         $("#canvas_origin").height("auto");
         generateNewPDF417Barcode(
@@ -625,6 +628,11 @@ $(document).ready(function() {
             "canvas_img"
         );
 
-        generateQRCode("print-qrcode-ticket",cupom_emitido);
+        // gera QR Code
+        $("#print-qrcode-ticket").show();
+        generateQRCode("#print-qrcode-ticket",cupom_emitido);
     };
+
+    // geraCodigoBarras("10282227A10002", "");
+
 });

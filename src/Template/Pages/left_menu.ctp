@@ -8,20 +8,24 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
 $tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
 
-$usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
+// @todo Ajustar este menu
+// $usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
 
-if (!empty($usuarioAdministrar)) {
-    $usuarioLogado = $usuarioAdministrar;
-    $tipoPerfil = $usuarioLogado["tipo_perfil"];
-}
-?>
+// if (!empty($usuarioAdministrar)) {
+//     $usuarioLogado = $usuarioAdministrar;
+//     $tipoPerfil = $usuarioLogado["tipo_perfil"];
+// }
+// ?>
 
 <nav class="col-lg-3 col-md-4 columns" id="actions-sidebar">
 
-    <?php if ($tipoPerfil >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
-        && $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) : ?>
 
-        <ul class="nav nav-pills nav-stacked list-group">
+ <?php
+// if ($tipoPerfil >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
+        // && $tipoPerfil <= Configure::read("profileTypes")["AdminRegionalProfileType"]) :
+        ?>
+
+        <!-- <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                     <?= __('Menu') ?>
             </li>
@@ -31,8 +35,11 @@ if (!empty($usuarioAdministrar)) {
             <li>
                 <?= $this->Html->link(__('Nova Transportadora'), ['controller' => 'Transportadoras', 'action' => 'adicionar_transportadora_usuario_final', $usuarioLogado["id"]]) ?>
             </li>
-        </ul>
-    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
+        </ul>  -->
+     <?php
+    //  elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) :
+     ?>
+    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">

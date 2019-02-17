@@ -62,11 +62,11 @@ class PagesController extends AppController
     public function display(...$path)
     {
 
-        // $sessaoUsuario = $this->getSessionUserVariables();
+        $sessaoUsuario = $this->getSessionUserVariables();
 
-        // $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-        $user = $this->request->session()->read('Auth.User');
+        // $user = $this->request->session()->read('Auth.User');
         $user = $this->Auth->user();
 
         if (!$this->request->is(['post'])) {
@@ -82,8 +82,9 @@ class PagesController extends AppController
         }
 
 
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar  = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar->toArray();

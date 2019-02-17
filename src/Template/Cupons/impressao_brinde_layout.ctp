@@ -59,6 +59,10 @@ use Cake\Core\Configure;
             <span>BRINDES</span>
         </div>
 
+        <!-- <div class="text-center">
+            <span>CÓDIGO PARA LEITURA</span>
+        </div> -->
+
         <!-- Esta tabela só pode aparecer se o brinde não for banho -->
 
         <div class="is-not-cupom-shower">
@@ -112,9 +116,8 @@ use Cake\Core\Configure;
             </div>
         </p>
 
-        <p>
-            <div class="print-qrcode-ticket"></div>
-        </p>
+        <div class="text-center" id="print-qrcode-ticket"></div>
+
 
         <!-- <p class="is-code128-barcode">
             <div class="print_region">

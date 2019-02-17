@@ -37,12 +37,12 @@ Configure::write(
         'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
 
         // Código antigo
-        "environmentMode" => "development",
-        // "environmentMode" => "production",
+        // "environmentMode" => "development",
+        "environmentMode" => "production",
          // 'appAddress' => 'https://40.71.26.138/',
-        // 'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
+        'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
         // 'appAddress' => "https://sistema-devel.gotas.com.br/",
-        // 'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
         // 'webrootAddress' => "https://sistema-devel.gotas.com.br/webroot",
 
 

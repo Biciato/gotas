@@ -380,7 +380,7 @@ class AppController extends Controller
             $rede = $redeHasCliente["rede"];
         }
 
-        if ($usuarioAdministrar) {
+        if ($usuarioAdministrar && $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }
