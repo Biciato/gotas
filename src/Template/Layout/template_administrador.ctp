@@ -156,10 +156,10 @@ $this->fetch('script');
         $default_footer = ROOT . DS . 'src' . DS . 'Template' . DS . 'Element' . DS . 'footer.ctp';
         if (file_exists($default_footer)) {
             ob_start();
-								// include $default_footer;
+            include $default_footer;
             echo ob_get_clean();
         } else {
-            // echo $this->element('footer');
+            echo $this->element('footer');
         }
         ?>
 	</body>
