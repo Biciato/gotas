@@ -813,10 +813,10 @@ class RedesHasClientesController extends AppController
 
                 $whereConditions = array();
 
-                // $whereConditions[] = array(
-                //     "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
-                //     "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
-                // );
+                $whereConditions[] = array(
+                    "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
+                    "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
+                );
 
                 // DebugUtil::printArray($whereConditions);
 
@@ -836,7 +836,7 @@ class RedesHasClientesController extends AppController
                     }
                 }
 
-                if (!is_null($redesId)) {
+                if (!empty($redesId)) {
                     $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
 
                     $clientesIds = array();
