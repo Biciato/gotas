@@ -54,7 +54,9 @@ class EmailUtil
         try {
             $from = Configure::read('emailAddressSender');
             $email = new Email();
-            $email->template($template);
+            if (!empty($template)) {
+                $email->template($template);
+            }
             $email->subject($subject);
             $email->emailFormat('html');
 
@@ -83,13 +85,14 @@ class EmailUtil
             $email->viewVars($contentArray);
 
             if (!$email->send()) {
-                throw new Exception($e);
+                throw new Exception("E-mail não enviado!");
             }
         } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
             $stringError = __(
                 "Erro ao enviar e-mail: {0} em: {1} ",
                 $e->getMessage(),
-                $trace[1]
+                $trace
             );
 
             Log::write('error', $stringError);

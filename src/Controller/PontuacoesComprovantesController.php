@@ -1823,7 +1823,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (empty($cpf)) {
-                $errors[] = MESSAGE_CPF_EMPTY;
+                $errors[] = MESSAGE_USUARIOS_CPF_EMPTY;
             }
 
             if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {

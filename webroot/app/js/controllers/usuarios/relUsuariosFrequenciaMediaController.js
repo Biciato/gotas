@@ -20,26 +20,7 @@ angular
         downloadService,
         relUsuariosAssiduosService
     ) {
-        $scope.inputData = {
-            clientesSelectedItem: undefined,
-            clientesId: undefined,
-            nome: undefined,
-            clientesList: [],
-            usuarioContaAtivadaList: [
-                { id: 1, nome: "Ativado" },
-                { id: 0, nome: "Desativado" }
-            ],
-            assiduidadeList: [{ id: 1, nome: "Sim" }, { id: 0, nome: "Não" }],
-            tipoFrequenciaList: ["Compras", "Abastecimentos"],
-            tipoFrequenciaSelectedItem: undefined,
-            veiculo: undefined,
-            documentoEstrangeiro: undefined,
-            usuarioContaAtivadaSelectedItem: undefined,
-            statusSelectedItem: undefined,
-            assiduidadeSelectedItem: undefined,
-            dataInicial: undefined,
-            dataFinal: undefined
-        };
+        $scope.inputData = {};
         // @todo Ajustar
         $scope.usuarioLogado = {
             tipoPerfil: 3
@@ -330,7 +311,7 @@ angular
                         nome: "Não"
                     }
                 ],
-                tipoFrequenciaList: ["Compras", "Abastecimentos"],
+                tipoFrequenciaList: ["Gotas Adquiridas", "Gotas Utilizadas"],
                 tipoFrequenciaSelectedItem: undefined,
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,

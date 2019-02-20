@@ -275,9 +275,12 @@ const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está ca
 const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
 
 
+// Redes
+
+const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
 
 // Usuários
-const MESSAGE_CPF_EMPTY = "Campo CPF não informado!";
+const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 

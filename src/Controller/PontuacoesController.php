@@ -742,4 +742,28 @@ class PontuacoesController extends AppController
 
         return;
     }
+
+    public function relUsuariosFrequenciaMediaAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $rede = $sessaoUsuario["rede"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        // usuarioAdministrador
+        // usuarioAdministrar
+        // usuarioLogado
+        // rede
+        // cliente
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            if (($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_WORKER)
+                && (empty($rede))){
+                    $erros = array();
+                    // É necessário informar uma rede
+            }
+
+
+        }
+    }
 }
