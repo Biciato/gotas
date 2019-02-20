@@ -4,6 +4,7 @@
  * @since 07/09/2018
  */
 // angular.module("GotasApp").config(function ($routeProvider, $locationProvider) {
+'use strict';
 angular.module("GotasApp").config(function ($routeProvider) {
     $routeProvider
         .when("/relatorios", {

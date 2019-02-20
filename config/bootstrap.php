@@ -232,10 +232,8 @@ Plugin::load('ADmad/JwtAuth');
 
 Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 
-
+// Carrega arquivo de constantes específico por estação
 require_once("definitions.php");
-
-echo __SERVER__;
 
 // Constantes
 

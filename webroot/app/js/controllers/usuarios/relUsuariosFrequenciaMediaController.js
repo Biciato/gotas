@@ -25,11 +25,13 @@ angular
             clientesId: undefined,
             nome: undefined,
             clientesList: [],
-            statusList: [
+            usuarioContaAtivadaList: [
                 { id: 1, nome: "Ativado" },
                 { id: 0, nome: "Desativado" }
             ],
             assiduidadeList: [{ id: 1, nome: "Sim" }, { id: 0, nome: "Não" }],
+            tipoFrequenciaList: ["Compras", "Abastecimentos"],
+            tipoFrequenciaSelectedItem: undefined,
             veiculo: undefined,
             documentoEstrangeiro: undefined,
             usuarioContaAtivadaSelectedItem: undefined,
@@ -62,20 +64,7 @@ angular
         $scope.limitePagina = 50;
         $scope.tamanhoDaPagina = 50;
 
-        $scope.cabecalhos = [
-            "Usuário",
-            "CPF",
-            "Documento Estrangeiro",
-            "Média Assiduidade/Mês",
-            "Status Assiduidade",
-            "Gotas Adquiridas",
-            "Gotas Utilizadas",
-            "Gotas Expiradas",
-            "Saldo Atual",
-            "Total Compras Brinde (R$)",
-            // "Data Cadastro na Rede",
-            "Ações"
-        ];
+        $scope.cabecalhos = ["Usuário", "CPF", "Média Frequência/Dia", "Ações"];
 
         $scope.dadosUsuarios = [];
 
@@ -321,14 +310,28 @@ angular
                 clientesId: undefined,
                 nome: undefined,
                 clientesList: [],
-                statusList: [
-                    { id: 1, nome: "Ativado" },
-                    { id: 0, nome: "Desativado" }
+                usuarioContaAtivadaList: [
+                    {
+                        id: 1,
+                        nome: "Ativado"
+                    },
+                    {
+                        id: 0,
+                        nome: "Desativado"
+                    }
                 ],
                 assiduidadeList: [
-                    { id: 1, nome: "Sim" },
-                    { id: 0, nome: "Não" }
+                    {
+                        id: 1,
+                        nome: "Sim"
+                    },
+                    {
+                        id: 0,
+                        nome: "Não"
+                    }
                 ],
+                tipoFrequenciaList: ["Compras", "Abastecimentos"],
+                tipoFrequenciaSelectedItem: undefined,
                 veiculo: undefined,
                 documentoEstrangeiro: undefined,
                 usuarioContaAtivadaSelectedItem: undefined,
