@@ -6,6 +6,7 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+require_once("definitions.php");
 
 // const SITE_ADDRESS = 'https://40.71.26.138/',
 // const SITE_ADDRESS = 'https://www.rtibrindes.com.br/',
@@ -32,17 +33,12 @@ Configure::write(
 
         // "environmentMode" => "development",
         // // "environmentMode" => "production",
-        // // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/'),
-        'webrootAddress' => sprintf("%s%s%s", 'https://', $serverAddress, '/webroot'),
 
         // Código antigo
         // "environmentMode" => "development",
         "environmentMode" => "production",
-         // 'appAddress' => 'https://40.71.26.138/',
-        'appAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/'),
-        // 'appAddress' => "https://sistema-devel.gotas.com.br/",
-        'webrootAddress' => sprintf("%s%s%s", 'https://', $_SERVER["HTTP_HOST"], '/webroot'),
+        'appAddress' => __SERVER__,
+        'webrootAddress' => sprintf("%s%s", __SERVER__, 'webroot'),
         // 'webrootAddress' => "https://sistema-devel.gotas.com.br/webroot",
 
 

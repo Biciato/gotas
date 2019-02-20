@@ -233,6 +233,10 @@ Plugin::load('ADmad/JwtAuth');
 Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 
 
+require_once("definitions.php");
+
+echo __SERVER__;
+
 // Constantes
 
 const TYPE_PAYMENT_POINTS = "Gotas";
