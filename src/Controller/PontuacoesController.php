@@ -756,6 +756,10 @@ class PontuacoesController extends AppController
         // cliente
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+            $nomeUsuario = !empty($data["usuarios_nome"]) ? $data["usuarios_nome"] : null;
+            $statusConta = !empty($data["usuarios_status_conta"]) ? $data["usuarios_status_conta"] : null;
+            $tipoFrequencia = !empty($data["tipo_frequencia"]) ? $data["tipo_frequencia"] : null;
 
             if (($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_WORKER)
                 && (empty($rede))){

@@ -355,7 +355,6 @@ class PontuacoesTable extends GenericTable
             return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->contain(['PontuacoesComprovantes']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -403,14 +402,14 @@ class PontuacoesTable extends GenericTable
 
             $pontuacoes_invalidas_array = [];
 
-            if (sizeof($pontuacoes_invalidas->toArray()) > 0) {
+            if (count($pontuacoes_invalidas->toArray()) > 0) {
                 foreach ($pontuacoes_invalidas->toArray() as $key => $value) {
                     $pontuacoes_invalidas_array[] = $value['id'];
                 }
             }
 
             if ($registro_invalido) {
-                if (sizeof($pontuacoes_invalidas_array) > 0) {
+                if (count($pontuacoes_invalidas_array) > 0) {
                     $pontuacoes
                         = $this->find('all')
                         ->where(
@@ -418,7 +417,7 @@ class PontuacoesTable extends GenericTable
                                 'Pontuacoes.usuarios_id' => $usuarios_id,
                                 'Pontuacoes.clientes_id in ' => $array_clientes_id,
                                 'Pontuacoes.pontuacoes_comprovante_id in'
-                                    => $pontuacoes_invalidas_array
+                                => $pontuacoes_invalidas_array
                             ]
                         );
                 } else {
@@ -436,12 +435,12 @@ class PontuacoesTable extends GenericTable
                 // no caso de registro válidos, deve trazer a quantidade
                 // de pontos validados mais a quantidade de pontos debitados
 
-                if (sizeof($pontuacoes_invalidas_array) > 0) {
+                if (count($pontuacoes_invalidas_array) > 0) {
                     $or_condition = [
                         'OR' =>
-                            [
+                        [
                             'Pontuacoes.pontuacoes_comprovante_id not in'
-                                => $pontuacoes_invalidas_array,
+                            => $pontuacoes_invalidas_array,
                             'Pontuacoes.pontuacoes_comprovante_id is null'
 
                         ]
@@ -450,11 +449,11 @@ class PontuacoesTable extends GenericTable
 
                 $conditions
                     = [
-                    'Pontuacoes.usuarios_id' => $usuarios_id,
-                    'Pontuacoes.clientes_id in ' => $array_clientes_id,
-                ];
+                        'Pontuacoes.usuarios_id' => $usuarios_id,
+                        'Pontuacoes.clientes_id in ' => $array_clientes_id,
+                    ];
 
-                if (sizeof($pontuacoes_invalidas_array) > 0) {
+                if (count($pontuacoes_invalidas_array) > 0) {
                     array_push($conditions, [$or_condition]);
                 }
 
@@ -511,12 +510,12 @@ class PontuacoesTable extends GenericTable
                 array_push($pontuacoes_comprovantes_invalidated_ids, $value['id']);
             }
 
-            if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+            if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                 array_push(
                     $conditions,
                     [
                         'OR' =>
-                            [
+                        [
                             'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                             'pontuacoes_comprovante_id IS NULL'
                         ]
@@ -624,7 +623,7 @@ class PontuacoesTable extends GenericTable
             $mensagem = array();
 
             // A pesquisa só será feita se tiver clientes. Se não tiver, cliente não possui pontuações.
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 // Pontuações obtidas pelo usuário
 
                 // Primeiro, pega todos os comprovantes que não foram invalidados
@@ -648,7 +647,7 @@ class PontuacoesTable extends GenericTable
                 }
 
                 // faz o tratamento se tem algum id de pontuacao
-                if (sizeof($comprovantesIds) > 0) {
+                if (count($comprovantesIds) > 0) {
                     $querytotalGotasAdquiridas = $this->find()->where(
                         [
                             "pontuacoes_comprovante_id in " => $comprovantesIds
@@ -662,7 +661,6 @@ class PontuacoesTable extends GenericTable
                     );
 
                     $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
-
                 }
                 $queryTotalGotasUtilizadas = $this->find()->where(
                     [
@@ -704,7 +702,6 @@ class PontuacoesTable extends GenericTable
                     "message" => Configure::read("messageLoadDataWithSuccess"),
                     "errors" => array()
                 );
-
             } else {
                 // Se não tiver pontuações, retorna o erro
                 $mensagem = array(
@@ -717,7 +714,7 @@ class PontuacoesTable extends GenericTable
             $retorno = array(
                 "mensagem" => $mensagem,
                 "resumo_gotas" =>
-                    array(
+                array(
                     'total_gotas_adquiridas' => floor($totalGotasAdquiridas),
                     'total_gotas_utilizadas' => floor($totalGotasUtilizadas),
                     'total_gotas_expiradas' => floor($totalGotasExpiradas),
@@ -770,7 +767,7 @@ class PontuacoesTable extends GenericTable
 
             // A pesquisa só será feita se tiver clientes. Se não tiver, cliente não possui pontuações.
 
-            if (sizeof($clientesIds) == 0) {
+            if (count($clientesIds) == 0) {
                 $resultado = array("totalMoedaCompraBrindes" => 0);
 
                 return $resultado;
@@ -836,7 +833,6 @@ class PontuacoesTable extends GenericTable
                 ->first();
 
             return $total['soma'];
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -874,7 +870,6 @@ class PontuacoesTable extends GenericTable
                 )->first();
 
             return $total['soma'];
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -924,12 +919,12 @@ class PontuacoesTable extends GenericTable
 
             array_push($partial_conditions, ['utilizado' => Configure::read('dropletsUsageStatus')['ParcialUsed']]);
 
-            if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+            if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                 array_push(
                     $partial_conditions,
                     [
                         'OR' =>
-                            [
+                        [
                             'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                             'pontuacoes_comprovante_id IS NULL'
                         ]
@@ -964,12 +959,12 @@ class PontuacoesTable extends GenericTable
                     ]
                 );
 
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                     array_push(
                         $last_pontuacao_conditions,
                         [
                             'OR' =>
-                                [
+                            [
                                 'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
@@ -981,7 +976,7 @@ class PontuacoesTable extends GenericTable
                     ->select(
                         [
                             'sum'
-                                => $this
+                            => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1002,12 +997,12 @@ class PontuacoesTable extends GenericTable
                     ]
                 );
 
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                     array_push(
                         $fully_pontuacoes_with_brinde_used_conditions,
                         [
                             'OR' =>
-                                [
+                            [
                                 'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
@@ -1021,7 +1016,7 @@ class PontuacoesTable extends GenericTable
                     ->select(
                         [
                             'sum'
-                                => $this
+                            => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1050,12 +1045,12 @@ class PontuacoesTable extends GenericTable
                     ]
                 );
 
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                     array_push(
                         $conditions_pontuacoes_fully_used,
                         [
                             'OR' =>
-                                [
+                            [
                                 'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
@@ -1069,7 +1064,7 @@ class PontuacoesTable extends GenericTable
                     ->select(
                         [
                             'sum'
-                                => $this
+                            => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1091,12 +1086,12 @@ class PontuacoesTable extends GenericTable
                     ]
                 );
 
-                if (sizeof($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
                     array_push(
                         $fully_pontuacoes_with_brinde_used_conditions,
                         [
                             'OR' =>
-                                [
+                            [
                                 'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
@@ -1110,7 +1105,7 @@ class PontuacoesTable extends GenericTable
                     ->select(
                         [
                             'sum'
-                                => $this
+                            => $this
                                 ->find('all')
                                 ->func()
                                 ->sum('quantidade_gotas')
@@ -1220,7 +1215,7 @@ class PontuacoesTable extends GenericTable
             }
 
             // Senão, verifica se $clientesIds está com valor, se tiver, adiciona na pesquisa
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $whereConditions[] = array("clientes_id in " => $clientesIds);
             };
 
@@ -1234,11 +1229,11 @@ class PontuacoesTable extends GenericTable
                 $brindesIds = $brindesTable->getBrindesIds(null, array(), null, $brindesNome);
 
                 // Se não achar o brinde, não tem problema, pois o nome do parâmetro é o mesmo para gotas
-                if (sizeof($brindesIds) > 0) {
+                if (count($brindesIds) > 0) {
                     $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
                     $whereConditions[] = array(
                         "OR" =>
-                            array(
+                        array(
                             "clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds,
                             "clientes_has_brindes_habilitados_id IS NULL"
                         )
@@ -1318,7 +1313,6 @@ class PontuacoesTable extends GenericTable
                         $pontuacao["tipo_operacao"] = 1;
                         $pontuacoesRetorno[] = $pontuacao;
                     }
-
                 } else if (!empty($pontuacao["clientes_has_brindes_habilitados_id"]) && $isBrinde) {
 
                     $clienteBrindeHabilitado = $clientesHasBrindesHabilitadosTable->find("all")
@@ -1339,7 +1333,6 @@ class PontuacoesTable extends GenericTable
                     $pontuacao["clientes_has_brindes_habilitados"] = $clienteBrindeHabilitado;
                     $pontuacoesRetorno[] = $pontuacao;
                 }
-
             }
 
             /**
@@ -1352,19 +1345,19 @@ class PontuacoesTable extends GenericTable
             // DebugUtil::printArray($paginationConditions);
 
             $pagina = 1;
-            $limite = sizeof($pontuacoesRetorno);
+            $limite = count($pontuacoesRetorno);
 
-            $totalPage = sizeof($pontuacoesRetorno);
-            $currentPage = sizeof($pontuacoesRetorno);
-            if (sizeof($paginationConditions) > 0) {
+            $totalPage = count($pontuacoesRetorno);
+            $currentPage = count($pontuacoesRetorno);
+            if (count($paginationConditions) > 0) {
                 $pagina = $paginationConditions["page"];
                 $limite = $paginationConditions["limit"];
                 $limiteInicial = (($pagina * $limite) - $limite);
 
-                $totalPage = sizeof($pontuacoesRetorno);
+                $totalPage = count($pontuacoesRetorno);
 
                 $pontuacoesRetorno = array_slice($pontuacoesRetorno, $limiteInicial, $limite);
-                $currentPage = sizeof($pontuacoesRetorno);
+                $currentPage = count($pontuacoesRetorno);
             }
 
             $resultado = array(
@@ -1381,7 +1374,6 @@ class PontuacoesTable extends GenericTable
             );
 
             return $resultado;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1390,6 +1382,11 @@ class PontuacoesTable extends GenericTable
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
+    }
+
+    public function getMediaGotasAdquiridasUnidadesRedes(int $redesId = 0, array $clientesIds = array())
+    {
+        # code...
     }
 
     #endregion
@@ -1583,7 +1580,6 @@ class PontuacoesTable extends GenericTable
             );
 
             return $this->updateAll($camposSet, $camposWhere);
-
         } catch (\Exception $e) {
             $stringError = __("Erro ao atualizar registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
