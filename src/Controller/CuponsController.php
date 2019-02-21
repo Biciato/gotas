@@ -399,7 +399,6 @@ class CuponsController extends AppController
                 $clientes_ids = [];
                 $clientes_ids[] = (int)$data['filtrar_unidade'];
             }
-
         }
 
         $clientes_has_brindes_habilitados = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId($clientes_ids, $conditions);
@@ -462,7 +461,6 @@ class CuponsController extends AppController
             $data = $this->request->getData();
 
             $this->request->session()->write("QueryConditions", $data);
-
         } else {
             $data = $this->request->session()->read("QueryConditions");
         }
@@ -736,8 +734,7 @@ class CuponsController extends AppController
      * @return void
      */
     public function resgateCupons()
-    {
-    }
+    { }
 
     /**
      * Action para Fechamento de Caixa de Funcionário
@@ -855,7 +852,7 @@ class CuponsController extends AppController
                 $somaBrindesAtual = 0;
                 $somaComprasAtual = 0;
 
-            // Soma total de todos os funcionários
+                // Soma total de todos os funcionários
                 $totalResgatados = null;
                 $totalUsados = null;
                 $totalGotas = null;
@@ -903,7 +900,7 @@ class CuponsController extends AppController
                             $usados = $anterior["usado"] ? $usados + 1 : $usados;
                         }
 
-                // somatória parcial
+                        // somatória parcial
 
                         $anteriorArray = array(
                             "idBrinde" => $cupomPesquisa["id"],
@@ -991,12 +988,12 @@ class CuponsController extends AppController
                     $somaBrindesAtual += $brindes;
                     $somaComprasAtual += $compras;
 
-                // $dadosVendaFuncionarios[] = $anteriorArray;
-                // $dadosVendaFuncionarios[] = $atualArray;
+                    // $dadosVendaFuncionarios[] = $anteriorArray;
+                    // $dadosVendaFuncionarios[] = $atualArray;
                     $dadosTurnoAtual[] = $atualArray;
                 }
 
-            // aqui acabou do funcionário
+                // aqui acabou do funcionário
 
                 $somaAnterior = array(
                     "somaResgatados" => $somaResgatadosAnterior,
@@ -1129,6 +1126,12 @@ class CuponsController extends AppController
 
                 $arraySet = $retorno["arraySet"];
                 $mensagem = $retorno["mensagem"];
+
+                if (!$mensagem["status"]) {
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+                    return;
+                }
                 $ticket = $retorno["ticket"];
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
@@ -1137,7 +1140,7 @@ class CuponsController extends AppController
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
                 // $is_brinde_smart_shower = $ticket["tipo_principal_codigo_brinde"] <= 4;
-                $is_brinde_smart_shower = $retorno["is_brinde_smart_shower"];
+                $is_brinde_smart_shower = !empty($retorno["is_brinde_smart_shower"]) ? $retorno["is_brinde_smart_shower"] : 0;
                 $dados_impressao = null;
 
                 if (!$is_brinde_smart_shower) {
@@ -1169,7 +1172,6 @@ class CuponsController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Houve um erro durante o processamento do Ticket. [{0}] ", $e->getMessage());
@@ -1279,9 +1281,9 @@ class CuponsController extends AppController
                     // ------------------------------------------------------------------------
                     if ($usuario->tipo_perfil < Configure::read('profileTypes')['DummyUserProfileType']) {
 
-                    // ------------------- Atualiza pontos à serem debitados -------------------
+                        // ------------------- Atualiza pontos à serem debitados -------------------
 
-                    /*
+                        /*
                          * Se há pontuação à debitar, devo verificar quais são as
                          * pontuações do usuário que serão utilizadas, para notificar
                          * quantos pontos ele possui que estão prestes à vencer
@@ -1292,8 +1294,8 @@ class CuponsController extends AppController
                         $podeContinuar = true;
                         $pontuacoesPendentesUsoListaSave = [];
 
-                    // Obter pontos não utilizados totalmente
-                    // verifica se tem algum pendente para continuar o cálculo sobre ele
+                        // Obter pontos não utilizados totalmente
+                        // verifica se tem algum pendente para continuar o cálculo sobre ele
 
                         $pontuacaoPendenteUso = $this
                             ->Pontuacoes
@@ -1311,7 +1313,7 @@ class CuponsController extends AppController
                         }
 
                         if (!is_null($ultimoId)) {
-                        // soma de pontos de todos os brindes usados
+                            // soma de pontos de todos os brindes usados
                             $pontuacoesBrindesUsados = $this
                                 ->Pontuacoes
                                 ->getSumPontuacoesPendingToUsageByUsuario(
@@ -1385,7 +1387,6 @@ class CuponsController extends AppController
                             $brinde_habilitado->id,
                             $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade
                         );
-
                     }
 
                     // Se for venda avulsa, considera que tem que debitar pontos
@@ -1402,7 +1403,7 @@ class CuponsController extends AppController
                             $quantidade
                         );
 
-                         // vincula item resgatado ao cliente final
+                        // vincula item resgatado ao cliente final
 
                         $brinde_usuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
                             $rede["id"],
@@ -1566,7 +1567,6 @@ class CuponsController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter cupom por código: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -1596,7 +1596,6 @@ class CuponsController extends AppController
                 if (!$cupons) {
                     $status = false;
                     $error = __("{0}", Configure::read('messageRecordNotFound'));
-
                 } else {
                     foreach ($cupons->toArray() as $key => $cupom) {
                         $cliente_has_brinde_estoque = $this
@@ -1639,7 +1638,6 @@ class CuponsController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao resgatar cupom: {0}", $e->getMessage());
@@ -1688,8 +1686,10 @@ class CuponsController extends AppController
 
                 $isFuncionario = false;
 
-                if ($tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]
-                    || $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                if (
+                    $tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]
+                    || $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]
+                ) {
                     $isFuncionario = true;
                 }
 
@@ -1812,7 +1812,6 @@ class CuponsController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
-
                 }
 
                 if (sizeof($cupons) == 0) {
@@ -1895,7 +1894,6 @@ class CuponsController extends AppController
 
                 return;
             }
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1989,13 +1987,11 @@ class CuponsController extends AppController
 
                 // Pertence a rede, fazer procedimento de estorno
                 return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
-
             } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] != $cupom["usuarios_id"]) {
                 // Encerra fluxo, somente próprio usuário pode cancelar seu cupom
                 $errors = array("Somente o próprio cliente pode cancelar seu cupom!");
 
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
-
             } elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_USER && $usuarioLogado["id"] == $cupom["usuarios_id"]) {
                 // Somente o próprio usuário pode cancelar seu cupom
 
@@ -2036,7 +2032,7 @@ class CuponsController extends AppController
             $brindesCupomEstornados = array();
 
             $cupomApagado = $this->Cupons->setCupomEstornado($cupom["id"]);
-               // Remove usuarios has brindes
+            // Remove usuarios has brindes
             $usuarioHasBrindesCupom = $this->UsuariosHasBrindes->getUsuariosHasBrindesByCuponsId($cupom["id"]);
             $rowCount = $this->UsuariosHasBrindes->deleteBrindeByCupomId($cupom["id"]);
 
@@ -2236,11 +2232,9 @@ class CuponsController extends AppController
 
                     $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
                     $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
-
                 } elseif (isset($data["data_inicio"])) {
                     $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
                     $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
-
                 } elseif (isset($data["dataFim"])) {
                     $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
 
@@ -2276,7 +2270,6 @@ class CuponsController extends AppController
             // @todo: @gustavosg melhorar
             Log::write("error", $messageString);
             Log::write("error", $trace);
-
         }
 
         $arraySet = ["mensagem", "cupons", "usuario"];
@@ -2328,7 +2321,7 @@ class CuponsController extends AppController
 
             $retornoCompras = $this->UsuariosHasBrindes->checkNumberRescuesUsuarioRede($rede["id"], $usuariosId);
 
-        // if ($retornoCompras >= $rede["limite_compras_usuario_dia"]){
+            // if ($retornoCompras >= $rede["limite_compras_usuario_dia"]){
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(
@@ -2380,8 +2373,10 @@ class CuponsController extends AppController
 
         // DebugUtil::print($brindeSelecionado);
         // Se for equipamento RTI, a quantidade máxima é 1
-        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]
-            == Configure::read("serviceTypes")["rti"]) {
+        if (
+            $brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]
+            == Configure::read("serviceTypes")["rti"]
+        ) {
             $quantidade = 1;
         } elseif (empty($quantidade)) {
             $message = "É necessário especificar uma quantidade mínima de brindes para resgatar!";
@@ -2509,8 +2504,7 @@ class CuponsController extends AppController
         // Verifica se o brinde em questão está com brinde zerado.
 
         $preco = $vendaAvulsa ?
-            $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] :
-            $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
+            $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] : $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
 
         if (empty($preco)) {
             $mensagem = array(
@@ -2626,7 +2620,6 @@ class CuponsController extends AppController
                             "message" => Configure::read("messageOperationFailureDuringProcessing"),
                             "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
                         );
-
                     }
                     $arraySet = array(
                         'mensagem',
@@ -2652,13 +2645,12 @@ class CuponsController extends AppController
                     );
 
                     return $retorno;
-                // Gera o cupom
+                    // Gera o cupom
                 } catch (\Exception $e) {
                     $message = $e->getMessage();
 
                     Log::write("error", $message);
                 }
-
             } else {
                 // ------------------- Atualiza pontos à serem debitados -------------------
 
@@ -2690,7 +2682,7 @@ class CuponsController extends AppController
                 }
 
                 if (!is_null($ultimoId)) {
-                        // soma de pontos de todos os brindes usados
+                    // soma de pontos de todos os brindes usados
                     $pontuacoesBrindesUsados = $this
                         ->Pontuacoes
                         ->getSumPontuacoesPendingToUsageByUsuario(
@@ -2717,7 +2709,7 @@ class CuponsController extends AppController
 
 
                     if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
-                            // TODO: conferir o que está acontecendo
+                        // TODO: conferir o que está acontecendo
                         $podeContinuar = false;
                         break;
                     }
@@ -2757,7 +2749,6 @@ class CuponsController extends AppController
                             $podeContinuar = false;
                             break;
                         }
-
                     }
                 }
 
@@ -2777,7 +2768,7 @@ class CuponsController extends AppController
                 );
 
                 if ($pontuacaoDebitar) {
-                     // Emitir Cupom e retornar
+                    // Emitir Cupom e retornar
 
                     $cupom = $this->Cupons->addCupomForUsuario(
                         $brindeSelecionado["id"],
@@ -2859,17 +2850,17 @@ class CuponsController extends AppController
                 $isBrindeSmartShower = is_numeric($tipoPrincipalCodigoBrinde) && $tipoPrincipalCodigoBrinde <= 4;
 
                 // if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_principal_codigo_brinde"] <= 4) {
-                    $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($ticket["cupom_emitido"])->toArray();
 
-                    $cuponsRetorno = array();
+                $cuponsRetorno = array();
 
-                    foreach ($cupons as $key => $cupom) {
-                        $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
+                foreach ($cupons as $key => $cupom) {
+                    $cupom["data"] = $cupom["data"]->format('d/m/Y H:i:s');
 
-                        $cuponsRetorno[] = $cupom;
-                    }
+                    $cuponsRetorno[] = $cupom;
+                }
 
-                    $dados_impressao = $this->processarCupom($cuponsRetorno);
+                $dados_impressao = $this->processarCupom($cuponsRetorno);
                 // }
 
                 // Se chegou até aqui, ocorreu tudo bem
@@ -2929,7 +2920,6 @@ class CuponsController extends AppController
 
             return $retorno;
         }
-
     }
 
     /**
@@ -3091,5 +3081,4 @@ class CuponsController extends AppController
     }
 
     #endregion
-
 }

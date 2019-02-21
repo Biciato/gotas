@@ -58,7 +58,7 @@ echo $this->element(
                 "type" => "select",
                 'empty' => "<Selecionar>",
                 "options" => [
-                    // "QRCode" => "QRCode",
+                    "QRCode" => "QRCode",
                     "Code128" => "Code128",
                     "PDF417" => "PDF417"
                 ]
