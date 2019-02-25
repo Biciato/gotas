@@ -61,14 +61,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <span class="fa fa-search"></span>
                             Pesquisar
                         </button>
-                        <button type="button" class="imprimir btn btn-default print-button-thermal " id="imprimir">
-                            <i class="fa fa-print"></i>
-                            Impressora Térmica
-                        </button>
-                        <button type="button" class="imprimir btn btn-default print-button-common " id="imprimir">
-                            <i class="fa fa-print"></i>
-                            Impressora Comum
-                        </button>
+                        <?php if (count($dadosVendaFuncionarios) > 0): ?>
+                            <button type="button" class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                <i class="fa fa-print"></i>
+                                Impressora Térmica
+                            </button>
+                            <button type="button" class="imprimir btn btn-default print-button-common" id="imprimir">
+                                <i class="fa fa-print"></i>
+                                Impressora Comum
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 

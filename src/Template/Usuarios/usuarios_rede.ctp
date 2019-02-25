@@ -64,7 +64,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                 <thead>
                     <tr>
                         <th>
-                            <?= $this->Paginator->sort('cliente_has_usuario.tipo_perfil', ['label' => 'Tipo de Perfil']) ?>
+                            <?= $this->Paginator->sort('tipo_perfil', ['label' => 'Tipo de Perfil']) ?>
                         </th>
                         <th>
                             <?= $this->Paginator->sort('nome') ?>
@@ -101,7 +101,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                     ?>
                     <tr>
                         <td>
-                            <?= h($this->UserUtil->getProfileType($usuario["cliente_has_usuario"]["tipo_perfil"])) ?>
+                            <?= h($this->UserUtil->getProfileType($usuario["tipo_perfil"])) ?>
                         </td>
                         <td>
                             <?= h($usuario->nome) ?>
@@ -144,7 +144,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                             <?php
 
                             // se é administrador da rede ou é regional e o tipo de perfil tem maior permissão
-                            if (($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) || ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType'] || $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
+                            if (($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_NETWORK) || ($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL || $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
 
                                 echo $this->Html->link(
                                     __('{0}', $this->Html->tag('i', '', ['class' => 'fa fa-edit'])),
@@ -162,7 +162,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                                 // só permite remover e desabilitar se o id do usuário logado não é o mesmo da tabela
 
                                 if ($usuario['id'] != $usuarioLogado['id']) {
-                                    if ($usuario["cliente_has_usuario"]["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"]) {
+                                    if ($usuario["tipo_perfil"] < PROFILE_TYPE_USER) {
 
                                         if ($usuario["cliente_has_usuario"]['conta_ativa'] == true) {
                                             echo $this->Html->link(

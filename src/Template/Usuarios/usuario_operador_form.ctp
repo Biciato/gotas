@@ -150,7 +150,7 @@ use Cake\Routing\Router;
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
                                 "empty" => "<Selecionar>",
-                                "value" => $usuario["cliente_has_usuario"]["tipo_perfil"],
+                                "value" => $usuario["tipo_perfil"],
                                 'options' =>
                                     [
                                     3 => 'Administrador',
@@ -182,7 +182,7 @@ use Cake\Routing\Router;
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
                                 "empty" => "<Selecionar>",
-                                "value" => $usuario["cliente_has_usuario"]["tipo_perfil"],
+                                "value" => $usuario["tipo_perfil"],
                                 'options' =>
                                     array(
                                     4 => 'Gerente',
@@ -240,14 +240,14 @@ use Cake\Routing\Router;
                 <!-- telefone -->
             <div class="col-lg-4">
                 <label for="telefone" id="label-telefone">Telefone*</label>
-                <input type="text" 
-                    placeholder="Telefone" 
-                    name="telefone" 
-                    id="telefone" 
-                    value="<?= $usuario['telefone'] ?>" 
-                    class="form-control" 
+                <input type="text"
+                    placeholder="Telefone"
+                    name="telefone"
+                    id="telefone"
+                    value="<?= $usuario['telefone'] ?>"
+                    class="form-control"
                     required/>
-                
+
             </div>
             </div>
     <?php endif; ?>

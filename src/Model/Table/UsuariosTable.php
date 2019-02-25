@@ -217,7 +217,7 @@ class UsuariosTable extends GenericTable
                 'senha',
                 [
                     'custom' =>
-                        [
+                    [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
                         'message' => 'A senha deve conter 4 dígitos, somente números',
@@ -346,7 +346,7 @@ class UsuariosTable extends GenericTable
                 'senha',
                 [
                     'custom' =>
-                        [
+                    [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
                         'message' => 'A senha deve conter 4 dígitos, somente números',
@@ -526,7 +526,7 @@ class UsuariosTable extends GenericTable
                 'custom',
                 [
                     'rule' =>
-                        function ($value, $context) {
+                    function ($value, $context) {
                         $query = $this->find()->where(
                             ['id' => $context['data']['id']]
                         )->first();
@@ -697,15 +697,15 @@ class UsuariosTable extends GenericTable
         try {
 
 
-        // Make sure here that all the required fields are actually present
+            // Make sure here that all the required fields are actually present
             if (empty($profile->email)) {
                 throw new \RuntimeException('Could not find email in social profile.');
             }
 
-        // Check if user with same email exists. This avoids creating multiple
-        // user accounts for different social identities of same user. You should
-        // probably skip this check if your system doesn't enforce unique email
-        // per user.
+            // Check if user with same email exists. This avoids creating multiple
+            // user accounts for different social identities of same user. You should
+            // probably skip this check if your system doesn't enforce unique email
+            // per user.
 
             // debug($profile);
             $user = $this->find()
@@ -740,7 +740,6 @@ class UsuariosTable extends GenericTable
         } catch (\Exception $e) {
             Log::write("error", $e);
         }
-
     }
 
 
@@ -843,7 +842,7 @@ class UsuariosTable extends GenericTable
                 $clientesIds = $redeHasClienteTable->getClientesIdsFromRedesHasClientes($redesId);
             }
 
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
                 $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
@@ -869,7 +868,7 @@ class UsuariosTable extends GenericTable
             }
 
             // Filtra pelos usuários (pois usou filtro da rede)
-            if (sizeof($usuariosIds) > 0) {
+            if (count($usuariosIds) > 0) {
                 $conditions[] = array("id in " => $usuariosIds);
             }
 
@@ -939,7 +938,7 @@ class UsuariosTable extends GenericTable
                 $clientesIds = $redeHasClienteTable->getClientesIdsFromRedesHasClientes($redesId);
             }
 
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
                 $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
@@ -955,7 +954,7 @@ class UsuariosTable extends GenericTable
                 $conditions[] = $condition;
             }
 
-            if (sizeof($usuariosIds) > 0) {
+            if (count($usuariosIds) > 0) {
                 $conditions[] = array("id in " => $usuariosIds);
             }
 
@@ -1014,7 +1013,7 @@ class UsuariosTable extends GenericTable
                     $clientesIds[] = $value["clientes_id"];
                 }
             }
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
                 $clienteHasUsuarioConditions = array(["clientes_id in " => $clientesIds]);
@@ -1038,7 +1037,7 @@ class UsuariosTable extends GenericTable
                 $conditions[] = array("tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]);
             }
 
-            if (sizeof($usuariosIds) > 0) {
+            if (count($usuariosIds) > 0) {
                 array_push($conditions, ["id in " => $usuariosIds]);
             }
 
@@ -1114,7 +1113,7 @@ class UsuariosTable extends GenericTable
 
             return $this->_getUsuarioTable()->find('all')
                 ->where($conditions);
-                // ->contain('ClientesHasUsuarios.Clientes');
+            // ->contain('ClientesHasUsuarios.Clientes');
         } catch (\Exception $e) {
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
@@ -1175,11 +1174,11 @@ class UsuariosTable extends GenericTable
         try {
             $whereConditions = array();
 
-            if (sizeof($usuariosIds) > 0) {
+            if (count($usuariosIds) > 0) {
                 $whereConditions[] = array("Usuarios.id in " => $usuariosIds);
             }
 
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $whereConditions[] = array("ClienteHasUsuario.clientes_id IN" => $clientesIds);
             } else if (strlen($redesId) > 0) {
                 $whereConditions[] = array("Redes.id" => $redesId);
@@ -1202,12 +1201,12 @@ class UsuariosTable extends GenericTable
                 $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
                 // $whereConditions[] = array(__("{$prefixo}.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-                    // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
-                    // $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
+                // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
+                // $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
             } else {
                 $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
 
-                $whereConditions[] = array("ClienteHasUsuario.tipo_perfil" => $tipoPerfil);
+                $whereConditions[] = array("Usuario.tipo_perfil" => $tipoPerfil);
             }
 
             if (!empty($cpf)) {
@@ -1267,11 +1266,18 @@ class UsuariosTable extends GenericTable
                 "Usuarios.ultima_tentativa_login"
             );
 
-            if ($join) {
+            if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER){
+                $usuarios = $usuarios->group(array(
+                    "ClienteHasUsuario.usuarios_id"
+                ));
+            }
+
+            if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER) ) {
 
                 $arrayTemp = array(
-                    "ClienteHasUsuario.tipo_perfil",
+                    // "ClienteHasUsuario.tipo_perfil",
                     "ClienteHasUsuario.clientes_id",
+                    // "ClienteHasUsuario.usuarios_id",
                     "ClienteHasUsuario.conta_ativa",
                     "RedesHasClientes.id",
                     "RedesHasClientes.redes_id",
@@ -1288,7 +1294,6 @@ class UsuariosTable extends GenericTable
             $usuarios = $usuarios->select($usuariosSelectFields);
 
             return $usuarios;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1349,14 +1354,13 @@ class UsuariosTable extends GenericTable
 
             $usuarios = null;
 
-            if (sizeof($usuariosIdsArray) > 0) {
+            if (count($usuariosIdsArray) > 0) {
                 $usuarios = $this->_getUsuarioTable()->find('all')
                     ->where($conditions)
                     ->contain('ClientesHasUsuarios');
             }
 
             return $usuarios;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -1420,8 +1424,8 @@ class UsuariosTable extends GenericTable
 
             // ---------- condições de pesquisa ----------
 
-             // Se não passar qual o id das unidades, pega todas
-            if (sizeof($clientesIds) == 0) {
+            // Se não passar qual o id das unidades, pega todas
+            if (count($clientesIds) == 0) {
                 /**
                  * Pega o usuário informado e vê qual é a permissão dele.
                  * Admin:
@@ -1460,7 +1464,7 @@ class UsuariosTable extends GenericTable
                 $usuarios_ids[] = $value['id'];
             }
 
-            if (sizeof($usuarios_ids) == 0) {
+            if (count($usuarios_ids) == 0) {
                 $usuarios_ids[] = 0;
             }
 
@@ -1509,7 +1513,7 @@ class UsuariosTable extends GenericTable
                     )
                 )
                 ->group("Usuarios.id");
-                // ->contain('ClientesHasUsuarios.Cliente');
+            // ->contain('ClientesHasUsuarios.Cliente');
 
             // echo $usuarios->sql();
 
@@ -1542,7 +1546,7 @@ class UsuariosTable extends GenericTable
                 $conditions,
                 [
                     'ClientesHasUsuarios.tipo_perfil '
-                        => $tipo_perfil
+                    => $tipo_perfil
                 ]
             );
 
@@ -1556,8 +1560,8 @@ class UsuariosTable extends GenericTable
                 ->join(
                     [
                         'ClientesHasUsuarios'
-                            =>
-                            [
+                        =>
+                        [
                             'table' => 'clientes_has_usuarios',
                             'type' => 'inner',
                             'conditions' => [
@@ -1593,7 +1597,7 @@ class UsuariosTable extends GenericTable
         string $dataInicio = null,
         string $dataFim = null
     ) {
-        if (sizeof($clientesIds) == 0) {
+        if (count($clientesIds) == 0) {
             throw new Exception("Não foi informado o posto de atendimento para pesquisa!");
         }
 
@@ -1709,7 +1713,7 @@ class UsuariosTable extends GenericTable
             $usuariosListTemp = array();
 
             $usuariosIdTemp = 0;
-            $totalUsuarios = sizeof($usuariosCliente);
+            $totalUsuarios = count($usuariosCliente);
 
             // Variáveis para cálculo de assiduidade por mês
             $totalAssiduidade = 0;
@@ -1719,7 +1723,7 @@ class UsuariosTable extends GenericTable
 
 
             // ResponseUtil::success($usuariosCliente);
-            for ($index = 0; $index < sizeof($usuariosCliente); $index++) {
+            for ($index = 0; $index < count($usuariosCliente); $index++) {
 
                 $usuario = $usuariosCliente[$index];
 
@@ -1731,13 +1735,13 @@ class UsuariosTable extends GenericTable
 
                 // É o primeiro índice e tem mais de um registro?
 
-                if ($index != sizeof($usuariosCliente) - 1) {
+                if ($index != count($usuariosCliente) - 1) {
                     $proximoUsuario = $usuariosCliente[$index + 1];
                 }
 
                 // O id do próximo usuário é igual o do atual?
                 // Se sim, então não adiciona
-                if ((sizeof($usuariosCliente) > 1) && $usuariosIdTemp == $proximoUsuario["usuariosId"]) {
+                if ((count($usuariosCliente) > 1) && $usuariosIdTemp == $proximoUsuario["usuariosId"]) {
                     $podeAdicionar = false;
                 } else {
                     $podeAdicionar = true;
@@ -1791,7 +1795,7 @@ class UsuariosTable extends GenericTable
         } else {
             // Se não é para agrupar, significa que está buscando os dados de um só usuário
 
-            if (sizeof($usuariosCliente) > 0) {
+            if (count($usuariosCliente) > 0) {
 
                 $usuariosId = $usuariosCliente[0]["usuariosId"];
                 $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, $redesId, $clientesIds);
@@ -1855,12 +1859,12 @@ class UsuariosTable extends GenericTable
                 $usuarios = $this->_getUsuarioTable()->find('all')
                     ->where($conditions)
                     ->join(['ClientesHasUsuarios' =>
-                        [
+                    [
                         'table' => 'clientes_has_usuarios',
                         'alias' => 'chu',
                         'type' => 'left',
                         'conditions' =>
-                            [
+                        [
                             'usuarios.id = chu.usuarios_id',
                         ]
 
@@ -1896,12 +1900,12 @@ class UsuariosTable extends GenericTable
                 $usuarios = $this->_getUsuarioTable()->find('all')
                     ->where($conditions)
                     ->join(['ClientesHasUsuarios' =>
-                        [
+                    [
                         'table' => 'clientes_has_usuarios',
                         'alias' => 'chu',
                         'type' => 'left',
                         'conditions' =>
-                            [
+                        [
                             'usuarios.id = chu.usuarios_id',
                         ]
                     ]])
@@ -2127,7 +2131,7 @@ class UsuariosTable extends GenericTable
 
             array_push($conditions, ['id in ' => $clientes_has_usuarios_ids]);
 
-            if (sizeof($clientes_has_usuarios_ids) > 0) {
+            if (count($clientes_has_usuarios_ids) > 0) {
 
                 return $this->updateAll(
                     [
@@ -2138,7 +2142,6 @@ class UsuariosTable extends GenericTable
             } else {
                 return true;
             }
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -2194,7 +2197,7 @@ class UsuariosTable extends GenericTable
                 array_push($usuarios_clientes_ids, $value['usuarios_id']);
             }
 
-            if (sizeof($usuarios_clientes_ids) > 0) {
+            if (count($usuarios_clientes_ids) > 0) {
 
                 $conditions = [];
 
@@ -2277,19 +2280,19 @@ class UsuariosTable extends GenericTable
      */
     public function checkCharacters($password, array $context)
     {
-                    // number
+        // number
         if (!preg_match("#[0-9]#", $password)) {
             return false;
         }
-                    // Uppercase
+        // Uppercase
         if (!preg_match("#[A-Z]#", $password)) {
             return false;
         }
-                    // lowercase
+        // lowercase
         if (!preg_match("#[a-z]#", $password)) {
             return false;
         }
-                    // special characters
+        // special characters
         if (!preg_match("#\W+#", $password)) {
             return false;
         }

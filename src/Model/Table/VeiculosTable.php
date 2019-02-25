@@ -205,7 +205,7 @@ class VeiculosTable extends GenericTable
     public function findVeiculos(array $conditions)
     {
         try {
-            if (sizeof($conditions) > 0) {
+            if (count($conditions) > 0) {
                 return $this->_getVeiculosTable()
                     ->find('all')
                     ->where($conditions);
@@ -548,7 +548,7 @@ class VeiculosTable extends GenericTable
                 );
             }
 
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $whereConditions[] = array("clientes_id in " => $clientesIds);
             }
 
@@ -570,7 +570,7 @@ class VeiculosTable extends GenericTable
             }
 
             $usuarios = array();
-            if (sizeof($usuariosClientesEncontradosIds) > 0) {
+            if (count($usuariosClientesEncontradosIds) > 0) {
 
                 $whereConditionsUsuariosRetorno = ["usuarios.id in " => $usuariosClientesEncontradosIds];
 

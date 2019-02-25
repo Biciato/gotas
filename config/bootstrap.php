@@ -252,10 +252,19 @@ const JOB_STATUS_END = "Finalizando...";
 
 #region Mensagens
 
+#region Comuns ao Sistema
+
+const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
+
+#endregion
+
+#region Entidades
+
 // Clientes
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
+const MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS = "Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!";
 
 // Clientes Has Brindes Habilitados Estoque
 const STOCK_OPERATION_TYPES_ADD_TYPE = 0;
@@ -290,6 +299,8 @@ const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 // Mensagens de processamento
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
 const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+#endregion
 
 #endregion
 

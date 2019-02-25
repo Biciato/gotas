@@ -465,7 +465,7 @@ class CuponsController extends AppController
             $data = $this->request->session()->read("QueryConditions");
         }
 
-        if (sizeof($data) > 0) {
+        if (count($data) > 0) {
 
             $unidadeSelecionado = strlen($data["unidadeSelecionado"]) > 0 ? $data["unidadeSelecionado"] : null;
             $brindeSelecionado = strlen($data["brindeSelecionado"]) > 0 ? $data["brindeSelecionado"] : null;
@@ -667,7 +667,7 @@ class CuponsController extends AppController
     {
         $data = null;
 
-        if (sizeof($cupons->toArray()) > 0) {
+        if (count($cupons->toArray()) > 0) {
 
             $cliente_final = $this->Usuarios->getUsuarioById($cupons->toArray()[0]->usuarios_id);
 
@@ -757,21 +757,22 @@ class CuponsController extends AppController
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
 
+        $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
+        $quadroHorariosCliente = $quadroHorariosCliente->toArray();
+        $quadroHorariosClienteLength = count($quadroHorariosCliente);
+
+        if (empty($quadroHorariosCliente) || $quadroHorariosClienteLength == 0) {
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            return $this->Flash->error(MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS);
+        }
+
         if ($this->request->is("post")) {
 
             $data = $this->request->getData();
 
             $filtrarTurnoAnterior = $data["filtrar_turno_anterior"];
-            $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
-            $quadroHorariosCliente = $quadroHorariosCliente->toArray();
-            $quadroHorariosClienteLength = sizeof($quadroHorariosCliente);
-
-            if (empty($quadroHorariosCliente) || $quadroHorariosClienteLength == 0) {
-                $this->set(compact($arraySet));
-                $this->set("_serialize", $arraySet);
-
-                return $this->Flash->error("Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!");
-            }
 
             $turnos = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente);
             $turnoAtual = $turnos["turnoAtual"];
@@ -1043,6 +1044,9 @@ class CuponsController extends AppController
                 $dadosVendaFuncionarios[] = $funcionario;
             }
 
+            if (count($dadosVendaFuncionarios) == 0){
+                $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
+            }
 
             $totalGeral = array(
                 "totalResgatados" => $totalResgatados,
@@ -1091,7 +1095,7 @@ class CuponsController extends AppController
                     $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
                 }
 
-                if (sizeof($errors) > 0) {
+                if (count($errors) > 0) {
 
                     $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
 
@@ -1334,7 +1338,7 @@ class CuponsController extends AppController
                                     $ultimoId
                                 );
 
-                            $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
+                            $maximoContador = count($pontuacoesPendentesUso->toArray());
 
                             $contador = 0;
                             foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
@@ -1711,7 +1715,7 @@ class CuponsController extends AppController
                 $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($this->Auth->user()["id"], $tipoPerfil);
 
                 $clienteId = 0;
-                if (sizeof($clientesUsuariosIds) > 0) {
+                if (count($clientesUsuariosIds) > 0) {
                     $clienteId = $clientesUsuariosIds[0];
                 }
 
@@ -1814,7 +1818,7 @@ class CuponsController extends AppController
                     return;
                 }
 
-                if (sizeof($cupons) == 0) {
+                if (count($cupons) == 0) {
                     // Avisa erro se não for encontrado. Motivos podem ser:
                     // Cupom já foi resgatado
                     // Cupom pertence a outra rede
@@ -2050,7 +2054,7 @@ class CuponsController extends AppController
             $retorno = array(
                 "cupom" => $cupom["cupom_emitido"],
                 "brindes" => $brindesCupomEstornados,
-                "qteBrindesEstornados" => sizeof($brindesCupomEstornados)
+                "qteBrindesEstornados" => count($brindesCupomEstornados)
             );
 
             // Se teve ou não teve registro, retorna informando que foi cancelado, pois
@@ -2091,7 +2095,7 @@ class CuponsController extends AppController
                 $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
             }
 
-            if (sizeof($errors) > 0) {
+            if (count($errors) > 0) {
 
                 $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
 
@@ -2182,7 +2186,7 @@ class CuponsController extends AppController
                 if (!empty($redesId)) {
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
-                    if (sizeof($clientesIds) == 0) {
+                    if (count($clientesIds) == 0) {
                         $mensagem = array(
                             'status' => 0,
                             'message' => Configure::read("messageLoadDataWithError"),
@@ -2205,7 +2209,7 @@ class CuponsController extends AppController
 
                 // se tipos_brindes_redes_id estiver setado, pesquisa por um tipo de brinde
 
-                if (isset($data["tipos_brindes_redes_id"]) && sizeof($clientesIds) > 0) {
+                if (isset($data["tipos_brindes_redes_id"]) && count($clientesIds) > 0) {
                     $tiposBrindesClientesConditions[] = array(
                         "tipos_brindes_redes_id" => $data['tipos_brindes_redes_id'],
                         "clientes_id in " => $clientesIds
@@ -2708,13 +2712,13 @@ class CuponsController extends AppController
                     }
 
 
-                    if (sizeof($pontuacoesPendentesUso->toArray()) == 0) {
+                    if (count($pontuacoesPendentesUso->toArray()) == 0) {
                         // TODO: conferir o que está acontecendo
                         $podeContinuar = false;
                         break;
                     }
 
-                    $maximoContador = sizeof($pontuacoesPendentesUso->toArray());
+                    $maximoContador = count($pontuacoesPendentesUso->toArray());
 
                     $contador = 0;
                     foreach ($pontuacoesPendentesUso as $key => $pontuacao) {
@@ -2938,7 +2942,7 @@ class CuponsController extends AppController
 
         // checagem de cupons
 
-        if (sizeof($cupons) > 0) {
+        if (count($cupons) > 0) {
             // verifica se o cupom já foi resgatado
 
             if ($cupons[0]->resgatado) {

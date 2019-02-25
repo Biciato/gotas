@@ -51,10 +51,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <div class="col-lg-3">
                                 <!-- <label for="tipo_perfil">Tipo de Perfil</label>
                                 <select name="tipo_perfil" id="tipo_perfil" class="form-control">
-                                    <option value><?= "Todos" ?> </option>    
-                                    <?php foreach ($perfisUsuariosList as $key => $value) : ?> 
-                                        <option value="<?php echo $key ?>" ><?php echo $value ?></option>    
-                                    <?php endforeach; ?> 
+                                    <option value><?= "Todos" ?> </option>
+                                    <?php foreach ($perfisUsuariosList as $key => $value) : ?>
+                                        <option value="<?php echo $key ?>" ><?php echo $value ?></option>
+                                    <?php endforeach; ?>
                                 </select> -->
                                 <?= $this->Form->input(
                                     'tipo_perfil',
@@ -67,19 +67,19 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                         'class' => 'form-control col-lg-2'
                                     )
                                 ) ?>
-                                
+
                             </div>
                             <div class="col-lg-5">
                                 <label for="nome">Nome</label>
-                                <input type="text" 
-                                    id="nome" 
-                                    class="form-control" 
+                                <input type="text"
+                                    id="nome"
+                                    class="form-control"
                                     placeholder="Nome" />
                             </div>
                             <div class="col-lg-4">
                                 <label for="email">E-mail</label>
-                                <input type="text" 
-                                    class="form-control" 
+                                <input type="text"
+                                    class="form-control"
                                     placeholder="Email" />
                             </div>
                         </div>
@@ -87,7 +87,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
 
-                            <button type="submit" 
+                            <button type="submit"
                                 class="btn btn-primary botao-pesquisar">
                                 <span class="fa fa-search"></span>
                                 Pesquisar
@@ -105,16 +105,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <thead>
         <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.RedesHasCliente.Redes.nome', ['label' => 'Rede']) ?></th>
         <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.nome_fantasia', ['label' => 'Loja/Posto']) ?></th>
-        <th><?= $this->Paginator->sort('ClienteHasUsuario.tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
+        <th><?= $this->Paginator->sort('tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
         <th><?= $this->Paginator->sort('nome') ?></th>
         <th><?= $this->Paginator->sort('email') ?></th>
         <th class="actions">
             <?= __('Ações') ?>
-            <div class="btn btn-xs btn-default right-align call-modal-how-it-works" 
-                data-toggle="modal" 
-                data-target="#modalLegendIconsSave" 
+            <div class="btn btn-xs btn-default right-align call-modal-how-it-works"
+                data-toggle="modal"
+                data-target="#modalLegendIconsSave"
                 target-id="#legenda-icones-acoes">
-                    <span class="fa fa-book"> 
+                    <span class="fa fa-book">
                     </span>
                     Legendas
             </div>
@@ -129,7 +129,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <tr>
                 <td><?= h($usuario["cliente_has_usuario"]["cliente"]["redes_has_cliente"]["rede"]["nome_rede"]) ?></td>
                 <td><?= h($usuario["cliente_has_usuario"]["cliente"]["nome_fantasia"]) ?></td>
-                <td><?= h($this->UserUtil->getProfileType($usuario["cliente_has_usuario"]["tipo_perfil"])) ?></td>
+                <td><?= h($this->UserUtil->getProfileType($usuario["tipo_perfil"])) ?></td>
                 <td><?= h($usuario->nome) ?></td>
                 <td><?= h($usuario->email) ?></td>
                 <td class="actions" style="white-space:nowrap">
