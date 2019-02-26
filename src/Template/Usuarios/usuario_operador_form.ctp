@@ -41,7 +41,7 @@ use Cake\Routing\Router;
                         'attributes' => array("autofocus")
                     ]); ?>
                 <?php else : ?>
-                    <div class="col-lg-12">
+                    <div >
                         <?= $this->Form->input('tipo_perfil', [
                             'type' => 'select',
                             'id' => 'tipo_perfil',

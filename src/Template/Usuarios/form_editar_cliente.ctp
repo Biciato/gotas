@@ -177,7 +177,14 @@ use Cake\Routing\Router;
                 <?= $this->Form->control('pais', ['class' => 'pais']); ?>
             </div>
 
-            <div class="col-lg-2">
+            <div class="col-lg-12 text-right">
+                <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
+
+                <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_MANAGER): ?>
+                    <a href="/usuarios/meus_clientes" class="btn btn-danger "> <i class="fa fa-window-close"></i> Cancelar</a>
+                <?php endif;?>
+            </div>
+            <!-- <div class="col-lg-2 text-right">
 
                 <div class="form-add-buttons">
                     <div class="sendDiv">
@@ -194,8 +201,8 @@ use Cake\Routing\Router;
                         ) ?>
                 </div>
 
-            </div>
+            </div> -->
 
-            <div class="col-lg-10">
-            </div>
+
+
     </fieldset>

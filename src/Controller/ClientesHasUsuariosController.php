@@ -216,7 +216,7 @@ class ClientesHasUsuariosController extends AppController
 
             $usuario = $this->Usuarios->addUpdateUsuario($usuario);
 
-            $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id, $tipo_perfil);
+            $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id);
 
             // atualiza todos os outros registros de administrador do usuário citado,
             // dentro daquela rede

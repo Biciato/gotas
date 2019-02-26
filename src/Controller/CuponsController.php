@@ -2571,7 +2571,7 @@ class CuponsController extends AppController
             $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 
             if (is_null($clientePossuiUsuario)) {
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId, $usuario["tipo_perfil"]);
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId);
             }
 
             // ------------------------------------------------------------------------

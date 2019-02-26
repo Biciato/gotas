@@ -678,13 +678,13 @@ class ClientesHasUsuariosTable extends Table
      *
      * @param int $usuariosId Id do cliente
      * @param int $clientesId Id do usuário
-     * @param int $tipoPerfil Tipo do perfil
      * @param int $contaAtiva Conta do usuário Ativa
      *
      * @return \App\Model\Entity\ClienteHasUsuario
      */
-    public function saveClienteHasUsuario(int $clientesId, int $usuariosId, int $tipoPerfil, bool $contaAtiva = true)
+    public function saveClienteHasUsuario(int $clientesId, int $usuariosId, bool $contaAtiva = true)
     {
+        // @todo gustavosg: Ajustar todas as ocorrências
         try {
 
             $whereConditions = array(
@@ -705,7 +705,7 @@ class ClientesHasUsuariosTable extends Table
 
             $clientesHasUsuario["clientes_id"] = (int)$clientesId;
             $clientesHasUsuario["usuarios_id"] = (int)$usuariosId;
-            $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
+            // $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
             $clientesHasUsuario["conta_ativa"] = (int)$contaAtiva;
 
             return $this->save($clientesHasUsuario);
@@ -870,7 +870,7 @@ class ClientesHasUsuariosTable extends Table
 
         $usuarioCliente["conta_ativa"] = $contaAtiva;
 
-        return $this->saveClienteHasUsuario($usuarioCliente["clientes_id"], $usuarioCliente["usuarios_id"], $usuarioCliente["tipo_perfil"], $contaAtiva);
+        return $this->saveClienteHasUsuario($usuarioCliente["clientes_id"], $usuarioCliente["usuarios_id"], $contaAtiva);
     }
 
     #endregion

@@ -1151,8 +1151,7 @@ class PontuacoesComprovantesController extends AppController
                     if (!$user_associated) {
                         $this->ClientesHasUsuarios->saveClienteHasUsuario(
                             $cliente->id,
-                            $usuario->id,
-                            $usuario->tipo_perfil
+                            $usuario->id
                         );
                     }
 
@@ -1649,7 +1648,7 @@ class PontuacoesComprovantesController extends AppController
 
                         if ($pontuacoesSave) {
                             // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
-                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"], true);
+                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], true);
                         }
 
                         $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);
@@ -1896,7 +1895,7 @@ class PontuacoesComprovantesController extends AppController
 
             // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
             if ($usuario) {
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["tipo_perfil"], 0);
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], 0);
             }
 
             if (empty($funcionario)) {

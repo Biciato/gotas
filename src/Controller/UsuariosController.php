@@ -460,12 +460,14 @@ class UsuariosController extends AppController
     public function editarUsuario($id = null)
     {
         try {
+            $sessaoUsuario = $this->getSessionUserVariables();
 
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $rede = $this->request->session()->read('Rede.Grupo');
@@ -501,8 +503,9 @@ class UsuariosController extends AppController
 
             $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
 
-            $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
-            $this->set('_serialize', ['usuario', 'usuarioLogadoTipoPerfil']);
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado");
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -907,7 +910,7 @@ class UsuariosController extends AppController
                     }
 
                     if (isset($cliente_id)) {
-                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente_id, $usuario->id, $usuario->tipo_perfil);
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente_id, $usuario->id);
                     }
                 }
 
@@ -1737,7 +1740,7 @@ class UsuariosController extends AppController
                      * será considerado equipe
                      */
 
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario->id, $usuario->tipo_perfil);
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario->id);
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -1859,8 +1862,8 @@ class UsuariosController extends AppController
 
             // Se quem está cadastrando é um  Administrador Comum >= Funcionário, pega o local onde o Funcionário está e vincula ao mesmo lugar.
 
-            if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminLocalProfileType']
-                && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['WorkerProfileType']) {
+            if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_LOCAL
+                && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
                 $cliente = $this->request->session()->read('Rede.PontoAtendimento');
                 $data['clientes_id'] = $cliente["id"];
                 $clientes_id = $cliente["id"];
@@ -1870,8 +1873,7 @@ class UsuariosController extends AppController
             // Se o tipo de perfil não for Administrador de Rede Regional ao menos, o Usuário deve estar vinculado à uma unidade!
             // Regional já está em algum lugar, pois antes ele foi um Administrador Comum!
 
-            if ($usuarioData['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']
-                && strlen($data['clientes_id']) == 0) {
+            if ($usuarioData['tipo_perfil'] > PROFILE_TYPE_ADMIN_REGIONAL && strlen($data['clientes_id']) == 0) {
                 $this->Flash->error(Configure::read('messageUsuarioRegistrationClienteNotNull'));
 
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
@@ -1905,9 +1907,9 @@ class UsuariosController extends AppController
                 $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
 
                 // a vinculação só será feita se não for um Admin RTI
-                if ($tipoPerfil != Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
 
-                    if ($tipoPerfil == Configure::read('profileTypes')['AdminNetworkProfileType']) {
+                    if ($tipoPerfil == PROFILE_TYPE_ADMIN_NETWORK) {
 
                         // Se usuário for administrador geral da rede, guarda na tabela de redes_has_clientes_administradores
 
@@ -1932,7 +1934,7 @@ class UsuariosController extends AppController
                      * será considerado equipe
                      */
 
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario["id"], $usuario["tipo_perfil"], true);
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario["id"], true);
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -4025,7 +4027,7 @@ class UsuariosController extends AppController
 
                             // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
                             if ($usuario) {
-                                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuario["id"], $usuario["tipo_perfil"], 0);
+                                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuario["id"], 0);
                             }
                         }
 
