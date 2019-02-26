@@ -43,7 +43,7 @@ echo $this->Breadcrumbs->render(
     </div>
     <legend>        <?= __('Veiculos') ?></legend>
 
-    <?php if (sizeof($usuariosHasVeiculos) > 0) : ?>
+    <?php if (count($usuariosHasVeiculos) > 0) : ?>
 
     <div class="form-group">
 

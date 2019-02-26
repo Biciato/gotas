@@ -187,19 +187,19 @@ class PagesController extends AppController
             // Pega unidades que tem acesso
             $clientesIds = [];
 
-            $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+            $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-            foreach ($unidades_ids as $key => $value) {
+            foreach ($unidadesIds as $key => $value) {
                 $clientesIds[] = $key;
             }
 
-            if (sizeof($clientesIds) > 0) {
+            if (count($clientesIds) > 0) {
                 $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientesIds);
             }
 
             $clientes_id = null;
 
-            if (sizeof($clientesIds) == 1) {
+            if (count($clientesIds) == 1) {
                 $clientes_id = $clientesIds[0];
             }
 
@@ -254,7 +254,7 @@ class PagesController extends AppController
         // Pega unidades que tem acesso
         $clientesIds = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientesIds[] = $key;
@@ -300,7 +300,7 @@ class PagesController extends AppController
 
             $redes = array();
 
-            if (sizeof($unidades_ids) > 0) {
+            if (count($unidades_ids) > 0) {
 
             // obtem o id de redes através dos ids de clientes, de forma distinta
 

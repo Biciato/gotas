@@ -286,8 +286,7 @@ class VeiculosController extends AppController
 
         $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
 
-        $usuariosHasVeiculos
-            = $this->UsuariosHasVeiculos->getVeiculoByUsuarioId($usuarios_id);
+        $usuariosHasVeiculos = $this->UsuariosHasVeiculos->getVeiculoByUsuarioId($usuarios_id);
 
         if ($this->request->is(['post', 'put'])) {
             $param = $this->request->getData();
@@ -301,7 +300,7 @@ class VeiculosController extends AppController
             }
         }
 
-        $this->paginate($usuariosHasVeiculos);
+        $usuariosHasVeiculos = $this->paginate($usuariosHasVeiculos);
 
         $arraySet = array(
             'usuariosHasVeiculos',
@@ -345,7 +344,7 @@ class VeiculosController extends AppController
             $veiculos = $this->Veiculos->getVeiculosUsuario($placa, $modelo, $fabricante, $ano, $usuariosId);
         }
 
-        if (sizeof($veiculos) == 0){
+        if (sizeof($veiculos) == 0) {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
         }
 
@@ -536,8 +535,8 @@ class VeiculosController extends AppController
 
                 $whereConditions[] =
                     [
-                    $data['opcoes'] . ' like' => '%' . $valorParametro . '%'
-                ];
+                        $data['opcoes'] . ' like' => '%' . $valorParametro . '%'
+                    ];
 
                 $qteRegistros = (int)$data['qte_registros'];
 
@@ -557,7 +556,6 @@ class VeiculosController extends AppController
                     } else {
                         $whereConditions[] = ['audit_insert BETWEEN "' . $dataInicialInsercao . '" and "' . $dataFinalInsercao . '"'];
                     }
-
                 } else if (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicialInsercao > $dataHoje) {
@@ -565,7 +563,6 @@ class VeiculosController extends AppController
                     } else {
                         $whereConditions[] = ['audit_insert >= ' => $dataInicialInsercao];
                     }
-
                 } else if (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinalInsercao > $dataHoje) {
@@ -575,7 +572,7 @@ class VeiculosController extends AppController
                     }
                 }
 
-            // Monta o Array para apresentar em tela
+                // Monta o Array para apresentar em tela
             }
 
             foreach ($redesArrayIds as $key => $value) {
@@ -595,7 +592,7 @@ class VeiculosController extends AppController
 
                 $unidades_ids = [];
 
-                    // obtem os ids das unidades para saber quais brindes estão disponíveis
+                // obtem os ids das unidades para saber quais brindes estão disponíveis
                 foreach ($rede->redes_has_clientes as $key => $value) {
                     $unidades_ids[] = $value->clientes_id;
                 }
@@ -653,7 +650,6 @@ class VeiculosController extends AppController
             ];
 
             $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -776,5 +772,4 @@ class VeiculosController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }
-
 }

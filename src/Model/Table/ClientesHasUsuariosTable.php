@@ -301,7 +301,7 @@ class ClientesHasUsuariosTable extends Table
         $pontuacoesTable = TableRegistry::get("Pontuacoes");
 
         // ResponseUtil::success($usuariosCliente);
-        if (sizeof($usuariosCliente) > 0) {
+        if (count($usuariosCliente) > 0) {
 
             foreach ($usuariosCliente as $clienteHasUsuario) {
                 if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
@@ -345,11 +345,12 @@ class ClientesHasUsuariosTable extends Table
             $usuario = $this->Usuarios->find('all')
                 ->where(['id' => $usuariosId])->first();
 
-            if (sizeof($clientesIds) == 0) {
+            // Rede não tem cliente
+            if (count($clientesIds) == 0) {
                 return null;
             }
 
-            if ($usuario["tipo_perfil"] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            if ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_NETWORK) {
                 // se for admin rti ou admin rede, pega o id de todas as unidades
 
                 if ($descartarMatriz) {
@@ -359,8 +360,7 @@ class ClientesHasUsuariosTable extends Table
                     $clientes = $this->Clientes->find('list')
                         ->where(['id in' => $clientesIds]);
                 }
-
-            } else if ($usuario->tipo_perfil <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } else if ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
 
                 // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
 
@@ -371,13 +371,14 @@ class ClientesHasUsuariosTable extends Table
                     ->where(
                         [
                             'clientes_id in ' => $clientesIds,
-                            'usuarios_id' => $usuario->id,
-                            'tipo_perfil IN ' => [
-                                (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
-                                (int)Configure::read('profileTypes')['AdminLocalProfileType']
-                            ]
+                            'usuarios_id' => $usuario["id"],
+                            // 'Usuarios.tipo_perfil IN ' => [
+                            //     (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
+                            //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
+                            // ]
                         ]
-                    );
+                    )->select(array("clientes_id"))
+                    ;
 
                 $clientesIds = [];
                 foreach ($clientesHasUsuariosList as $key => $value) {
@@ -399,7 +400,6 @@ class ClientesHasUsuariosTable extends Table
                         ->find('list')
                         ->where(['id IN ' => $clientesIds]);
                 }
-
             } else {
 
                 // pega os id's aos quais ele tem permissão de admin
@@ -407,11 +407,10 @@ class ClientesHasUsuariosTable extends Table
                 $clientesHasUsuariosList = $this
                     ->find('all')
                     ->where(
-                        [
+                        array(
                             'clientes_id in ' => $clientesIds,
-                            'usuarios_id' => $usuario["id"],
-                            'tipo_perfil' => $usuario["tipo_perfil"]
-                        ]
+                            'usuarios_id' => $usuario["id"]
+                        )
                     )
                     ->select(array("clientes_id"));
 
@@ -513,7 +512,7 @@ class ClientesHasUsuariosTable extends Table
 
             $result = null;
 
-            if (sizeof($usuariosIds) > 0) {
+            if (count($usuariosIds) > 0) {
                 $result = $this
                     ->Usuarios
                     ->find('all')
@@ -646,8 +645,11 @@ class ClientesHasUsuariosTable extends Table
             );
             $clientesUsuarios = $this->find("all")
                 ->where($whereConditions)
-                ->contain("Cliente")
-                ->order(array("tipo_perfil" => "ASC"));
+                ->contain("Cliente");
+            // ->order(
+            //     array("tipo_perfil" => "ASC")
+            // );
+
 
             if ($filtrarPrimeiro) {
                 $clientesUsuarios = $clientesUsuarios->first();
@@ -867,7 +869,6 @@ class ClientesHasUsuariosTable extends Table
         $usuarioCliente["conta_ativa"] = $contaAtiva;
 
         return $this->saveClienteHasUsuario($usuarioCliente["clientes_id"], $usuarioCliente["usuarios_id"], $usuarioCliente["tipo_perfil"], $contaAtiva);
-
     }
 
     #endregion
