@@ -1551,11 +1551,12 @@ class UsuariosController extends AppController
      */
     public function adicionarConta(int $redes_id = null)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $rede = $this->request->session()->read('Rede.Grupo');
-        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
-        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -2899,7 +2900,22 @@ class UsuariosController extends AppController
      */
     public function pesquisarClienteAlterarDados()
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
 
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $arraySet = array("usuarioLogado");
+
+        $this->set(compact($arraySet));
+        $this->set($arraySet);
     }
 
     /**

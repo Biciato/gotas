@@ -10,14 +10,19 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-?> 
+// Navegação
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Adicionar Conta', [], ['class' => 'active']);
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+
+?>
 
 <?= $this->element('../Pages/left_menu', ['item_selected' => 'cadastrar_cliente']) ?>
 
 <div class="usuarios view col-lg-9 col-md-10">
-    
+
      <?= $this->Form->create($usuario, ['url' => ['controller' => 'usuarios', 'action' => 'adicionar_conta'], ['id' => 'usuario_form']]); ?>
-                
+
         <?= $this->element('../Usuarios/usuario_form', ['show_menu' => false]) ?>
 
     <?= $this->Form->end() ?>

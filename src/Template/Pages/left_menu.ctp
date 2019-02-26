@@ -6,7 +6,7 @@ use Cake\Core\Configure;
 $item_selected = isset($item_selected) ? $item_selected : null;
 $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
-$tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
+// $tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure::read("profileTypes")["UserProfileType"];
 
 // @todo Ajustar este menu
 // $usuarioAdministrar = $this->request->session()->read("Usuario.Administrar");
@@ -39,14 +39,14 @@ $tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure:
      <?php
     //  elseif ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) :
      ?>
-    <?php if ($tipoPerfil == Configure::read("profileTypes")["AdminLocalProfileType"] || $tipoPerfil == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
+    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminLocalProfileType"] || $usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["ManagerProfileType"]) : ?>
 
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                 <?= __('Menu') ?>
             </li>
         </ul>
-    <?php elseif ($tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+    <?php elseif ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
         <ul class="nav nav-pills nav-stacked list-group">
             <li class="list-group-item active">
                 <?= __('Menu') ?>
@@ -95,13 +95,15 @@ $tipoPerfil = isset($usuarioLogado) ? $usuarioLogado["tipo_perfil"] : Configure:
             <?php endif; ?>
                 <?= $this->Html->link(__('Cadastrar Cliente'), ['controller' => 'Usuarios', 'action' => 'adicionar_conta']) ?>
             </li>
-            <?php if ($item_selected == 'atualizar_cadastro_cliente') : ?>
+
+            <!-- @todo gustavosg: 2018-02-26: Desabilitado devido demanda https://trello.com/c/QDWbmYC9
+                <?php if ($item_selected == 'atualizar_cadastro_cliente') : ?>
                 <li class="list-group-item-success">
             <?php else : ?>
                 <li>
             <?php endif; ?>
                 <?= $this->Html->link(__('Atualizar Cad. Cliente'), ['controller' => 'Usuarios', 'action' => 'pesquisar_cliente_alterar_dados']) ?>
-            </li>
+            </li> -->
 
             <li class="list-group-item active">
                 <?= __('Relatórios') ?>

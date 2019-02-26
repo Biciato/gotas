@@ -699,11 +699,14 @@ class GotasController extends AppController
      */
     public function atribuirGotas()
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         $usuario = $this->Usuarios->newEntity();

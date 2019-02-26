@@ -487,15 +487,11 @@ class ClientesHasUsuariosTable extends Table
     {
         try {
 
-            $whereConditions = array();
+            $whereConditions = array('ClientesHasUsuarios.clientes_id' => $clientesId);
 
-            $whereConditions[] = [
-                'ClientesHasUsuarios.clientes_id' => $clientesId
-            ];
-
-            if (!is_null($tipoPerfil)) {
-                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
-            }
+            // if (!is_null($tipoPerfil)) {
+            //     $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
+            // }
 
             if (!is_null($ativo)) {
                 $whereConditions[] = array("ClientesHasUsuarios.conta_ativa" => $ativo);
@@ -513,10 +509,16 @@ class ClientesHasUsuariosTable extends Table
             $result = null;
 
             if (count($usuariosIds) > 0) {
+                $whereUsuarios = array("id IN " => $usuariosIds);
+
+                if (!is_null($tipoPerfil)) {
+                    $whereUsuarios["tipo_perfil"]  = $tipoPerfil;
+                }
+
                 $result = $this
                     ->Usuarios
                     ->find('all')
-                    ->where(array('id IN ' => $usuariosIds));
+                    ->where($whereUsuarios);
             }
 
             return $result;

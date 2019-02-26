@@ -734,7 +734,18 @@ class CuponsController extends AppController
      * @return void
      */
     public function resgateCupons()
-    { }
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        $arraySet = array("usuarioLogado");
+
+        $this->set(compact($arraySet));
+        $this->set($arraySet);
+
+     }
 
     /**
      * Action para Fechamento de Caixa de Funcionário
