@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Log\Log;
@@ -461,37 +462,49 @@ class UsuariosController extends AppController
     {
         try {
             $sessaoUsuario = $this->getSessionUserVariables();
-
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
             $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
                 $usuarioLogado = $usuarioAdministrar;
             }
 
+            $senhaObrigatoriaEdicao = $usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_LOCAL && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_MANAGER;
             $rede = $this->request->session()->read('Rede.Grupo');
-
-            $usuario = $this->Usuarios->get(
-                $id,
-                [
-                    'contain' => []
-                ]
-            );
+            $usuario = $this->Usuarios->get($id, array('contain' => []));
 
             if ($this->request->is(['post', 'put'])) {
-                $usuario = $this->Usuarios->patchEntity($usuario, $this->request->getData(), ['validate' => 'EditUsuarioInfo']);
+                $data = $this->request->getData();
+                $senhaUsuario = $data["senha"];
 
+                if ($senhaObrigatoriaEdicao) {
+                    $result = ((new DefaultPasswordHasher)->check($senhaUsuario, $usuario->senha));
+
+                    if (!$result) {
+                        $this->Flash->error(MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT);
+                        $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
+                        $this->set(compact($arraySet));
+                        $this->set('_serialize', $arraySet);
+                        return;
+                    }
+
+                    // Apenas garante que não vai atualizar a senha do usuário
+                    unset($data["senha"]);
+                }
+
+                $usuario = $this->Usuarios->patchEntity($usuario, $data, ['validate' => 'EditUsuarioInfo']);
                 $errors = $usuario->errors();
-
                 $usuario = $this->Usuarios->save($usuario);
+
                 if ($usuario) {
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
                     $url = Router::url(['controller' => 'Usuarios', 'action' => 'meus_clientes']);
-                    return $this->response = $this->response->withLocation($url);
 
+                    return $this->response = $this->response->withLocation($url);
                 }
+
                 $this->Flash->error(__(Configure::read('messageSavedError')));
 
                 // exibe os erros logo acima identificados
@@ -500,10 +513,7 @@ class UsuariosController extends AppController
                     $this->Flash->error(__("{0}", $error[$key]));
                 }
             }
-
-            $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
-
-            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado");
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

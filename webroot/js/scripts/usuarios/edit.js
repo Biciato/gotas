@@ -151,28 +151,22 @@ $(document).ready(function () {
     $("#alternarEstrangeiro").click(function () {
         $("#cpf_box").toggle();
         $("#doc_estrangeiro_box").toggle();
-
-        if (this.checked) {
-            startScanDocument();
-        } else {
-            stopScanDocument();
-        }
     });
 
     if ($("#alternarEstrangeiro").checked == true) {
         $("#cpf_box").hide();
         $("#doc_estrangeiro_box").show();
-        $("#doc_estrangeiro_validation").text(
-            "É necessário capturar uma cópia do documento para posterior aprovação."
-        );
-        startScanDocument();
+        // $("#doc_estrangeiro_validation").text(
+        //     "É necessário capturar uma cópia do documento para posterior aprovação."
+        // );
+        // startScanDocument();
     } else {
         $("#cpf_box").show();
         $("#doc_estrangeiro_box").hide();
-        $("#doc_estrangeiro_validation").text(
-            "É necessário capturar uma cópia do documento para posterior aprovação."
-        );
-        stopScanDocument();
+        // $("#doc_estrangeiro_validation").text(
+        //     "É necessário capturar uma cópia do documento para posterior aprovação."
+        // );
+        // stopScanDocument();
     }
 
     var occurrencesInvalidCpf = 0;

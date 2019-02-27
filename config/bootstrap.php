@@ -255,6 +255,8 @@ const JOB_STATUS_END = "Finalizando...";
 #region Comuns ao Sistema
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
+const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação do usuário não confere com a do cadastro! Tente novamente!";
+
 
 #endregion
 

@@ -1174,6 +1174,9 @@ class UsuariosTable extends GenericTable
         try {
             $whereConditions = array();
 
+            // @todo gustavosg condição temporária até definir se realmente irá mostrar ou não.
+            $whereConditions[] = array("Usuarios.email IS NOT NULL");
+
             if (count($usuariosIds) > 0) {
                 $whereConditions[] = array("Usuarios.id in " => $usuariosIds);
             }
