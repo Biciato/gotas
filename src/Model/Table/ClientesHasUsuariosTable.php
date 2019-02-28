@@ -696,10 +696,6 @@ class ClientesHasUsuariosTable extends Table
                 // "conta_ativa" => $contaAtiva
             );
 
-            if (strlen($tipoPerfil) > 0) {
-                $whereConditions[] = array('tipo_perfil' => $tipoPerfil);
-            }
-
             $clientesHasUsuario = $this->find('all')->where($whereConditions)->first();
 
             if (!$clientesHasUsuario) {

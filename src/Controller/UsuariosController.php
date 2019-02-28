@@ -4014,13 +4014,17 @@ class UsuariosController extends AppController
 
                                 return;
                             }
+
                             // Criação
                             // Se usuário não encontrado, cadastra para futuro acesso
-                            $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
 
-                            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
-                            if ($usuario) {
-                                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuario["id"], 0);
+                            if (empty($usuario)){
+                                $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
+
+                                // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
+                                if ($usuario) {
+                                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuario["id"], 0);
+                                }
                             }
                         }
 
