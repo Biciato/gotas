@@ -535,18 +535,19 @@ class VeiculosTable extends GenericTable
 
             $whereConditions = array();
 
-            if ($filtrarComFuncionarios) {
-                // Colocar tipo de perfil de Administrador Geral até Funcionário
-                $whereConditions[] = array(
-                    "ClientesHasUsuarios.tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
-                    "ClientesHasUsuarios.tipo_perfil <= " => Configure::read("profileTypes")["WorkerProfileType"]
-                );
-            } else {
-                // Somente usuários
-                $whereConditions[] = array(
-                    "ClientesHasUsuarios.tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]
-                );
-            }
+            // Desabilitado: caso de ClientesHasUsuarios.tipo_perfil
+            // if ($filtrarComFuncionarios) {
+            //     // Colocar tipo de perfil de Administrador Geral até Funcionário
+            //     $whereConditions[] = array(
+            //         "ClientesHasUsuarios.tipo_perfil >= " => Configure::read("profileTypes")["AdminNetworkProfileType"],
+            //         "ClientesHasUsuarios.tipo_perfil <= " => Configure::read("profileTypes")["WorkerProfileType"]
+            //     );
+            // } else {
+            //     // Somente usuários
+            // $whereConditions[] = array(
+            //     "ClientesHasUsuarios.tipo_perfil" => Configure::read("profileTypes")["UserProfileType"]
+            // );
+            // }
 
             if (count($clientesIds) > 0) {
                 $whereConditions[] = array("clientes_id in " => $clientesIds);

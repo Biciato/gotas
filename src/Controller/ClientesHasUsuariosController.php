@@ -150,7 +150,7 @@ class ClientesHasUsuariosController extends AppController
             $clientes_has_usuarios_conditions = [];
 
             array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $id]);
-            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
+            // array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
 
             $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
@@ -305,8 +305,9 @@ class ClientesHasUsuariosController extends AppController
             array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $usuarios_id]);
             array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.clientes_id IN' => $clientes_ids]);
 
-            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
-            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['AdminLocalProfileType']]);
+            // @todo gustavosg Testar tipo_perfil
+            // array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil >= ' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
+            // array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['AdminLocalProfileType']]);
 
             $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
 
@@ -329,7 +330,7 @@ class ClientesHasUsuariosController extends AppController
             if ($result) {
 
                 // Usuário virou Admin Regional para Admin comum, atualiza os registros
-                if (sizeof($clientes_has_usuarios_query->toArray()) == 2) {
+                if (count($clientes_has_usuarios_query->toArray()) == 2) {
 
                     // atualiza o usuário
                     $usuario = $this->Usuarios->getUsuarioById($usuarios_id);

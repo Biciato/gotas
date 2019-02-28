@@ -1477,9 +1477,9 @@ class UsuariosTable extends GenericTable
                 array_push($conditions, ['Usuarios.tipo_perfil <=' => Configure::read('profileTypes')['WorkerProfileType']]);
             }
 
-            $usuarios = $this->_getUsuarioTable()->find('all')
+            $usuarios = $this->find('all')
                 ->where($conditions)
-                ->contain('ClienteHasUsuario.Cliente')
+                ->contain('ClientesHasUsuarios.Cliente')
                 ->select(
                     array(
                         "Usuarios.id",
@@ -1548,7 +1548,7 @@ class UsuariosTable extends GenericTable
             array_push(
                 $conditions,
                 [
-                    'ClientesHasUsuarios.tipo_perfil '
+                    'Usuarios.tipo_perfil '
                     => $tipo_perfil
                 ]
             );

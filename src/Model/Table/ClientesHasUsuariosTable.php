@@ -466,7 +466,6 @@ class ClientesHasUsuariosTable extends Table
                     "id",
                     "clientes_id",
                     "usuarios_id",
-                    "tipo_perfil",
                     "conta_ativa"
                 )
             )->first();
@@ -604,8 +603,12 @@ class ClientesHasUsuariosTable extends Table
                 'ClientesHasUsuarios.usuarios_id' => $usuariosId
             ];
 
+            // if (!is_null($tipoPerfil)) {
+            //     $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
+            // }
             if (!is_null($tipoPerfil)) {
-                $whereConditions[] = ['ClientesHasUsuarios.tipo_perfil' => $tipoPerfil];
+                // @todo gustavosg Testar tipo_perfil
+                $whereConditions[] = ['Usuarios.tipo_perfil' => $tipoPerfil];
             }
 
             $clientesHasUsuarios = $this->find('all')

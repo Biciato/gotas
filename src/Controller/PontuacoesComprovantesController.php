@@ -1142,7 +1142,6 @@ class PontuacoesComprovantesController extends AppController
                     $user_associated = $this->ClientesHasUsuarios->findClienteHasUsuario(
                         [
                             'ClientesHasUsuarios.usuarios_id' => $usuario->id,
-                            'ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil,
                             'ClientesHasUsuarios.clientes_id' => $cliente->id
                         ]
                     )->first();

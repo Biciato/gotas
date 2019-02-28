@@ -90,8 +90,8 @@ $user_is_admin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes'
                             <?= h($this->NumberFormat->formatNumberToCpf($usuario->cpf)) ?>
                         </td>
                         <td>
-                            <?=
-                            sizeof($usuario->clientes_has_usuarios)
+                            <?php
+                            echo count($usuario->clientes_has_usuarios)
 
                             ?>
                         </td>

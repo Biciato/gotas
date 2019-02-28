@@ -212,8 +212,8 @@ $senhaObrigatoriaEdicao = isset($senhaObrigatoriaEdicao) ? $senhaObrigatoriaEdic
             <?php
                     // @todo Ajustar/Verificar Outros níveis
             ?>
-            <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_MANAGER): ?>
-            <a href="/usuarios/meus_clientes" class="btn btn-danger "> <i class="fa fa-window-close"></i> Cancelar</a>
+            <?php if ($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_MANAGER): ?>
+                <a href="/usuarios/meus_clientes" class="btn btn-danger botao-cancelar"> <i class="fa fa-window-close"></i> Cancelar</a>
             <?php endif; ?>
         </div>
     </div>

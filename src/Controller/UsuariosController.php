@@ -75,7 +75,6 @@ class UsuariosController extends AppController
         if (isset($status) && ($status == 0)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
         }
-
     }
 
     /**
@@ -112,14 +111,13 @@ class UsuariosController extends AppController
 
                 $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
                     array(
-                        'ClientesHasUsuarios.usuarios_id' => $usuario['id'],
-                        'ClientesHasUsuarios.tipo_perfil' => $usuario['tipo_perfil']
+                        'ClientesHasUsuarios.usuarios_id' => $usuario['id']
                     )
                 );
                 $clienteHasUsuario = $clienteHasUsuario->toArray();
                 $cliente = null;
 
-                    // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
+                // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
                 if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER && sizeof($clienteHasUsuario) > 0) {
                     $cliente = $clienteHasUsuario[0]->cliente;
 
@@ -142,13 +140,11 @@ class UsuariosController extends AppController
                     }
 
                     return array('message' => $message, 'actionNeeded' => $statusUsuario);
-
                 } elseif ($usuario['conta_bloqueada'] == true) {
                     $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de atendimento.");
                     $statusUsuario = 2;
 
                     return array('message' => $message, 'actionNeeded' => $statusUsuario);
-
                 } else {
                     $tentativasLogin = $usuario['tentativas_login'];
                     $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
@@ -234,7 +230,6 @@ class UsuariosController extends AppController
             $recoverAccount = $result['actionNeeded'];
             $status = $result["status"];
             $usuario = null;
-
         }
 
         /**
@@ -461,6 +456,7 @@ class UsuariosController extends AppController
     public function editarUsuario($id = null)
     {
         try {
+            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
             $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -471,7 +467,7 @@ class UsuariosController extends AppController
                 $usuarioLogado = $usuarioAdministrar;
             }
 
-            $senhaObrigatoriaEdicao = $usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_LOCAL && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_MANAGER;
+            $senhaObrigatoriaEdicao = $usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_MANAGER;
             $rede = $this->request->session()->read('Rede.Grupo');
             $usuario = $this->Usuarios->get($id, array('contain' => []));
 
@@ -484,7 +480,6 @@ class UsuariosController extends AppController
 
                     if (!$result) {
                         $this->Flash->error(MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT);
-                        $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
                         $this->set(compact($arraySet));
                         $this->set('_serialize', $arraySet);
                         return;
@@ -513,7 +508,6 @@ class UsuariosController extends AppController
                     $this->Flash->error(__("{0}", $error[$key]));
                 }
             }
-            $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', "usuarioLogado", "senhaObrigatoriaEdicao");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
@@ -816,11 +810,11 @@ class UsuariosController extends AppController
 
                 $cliente_has_usuario =
                     $this->ClientesHasUsuarios->findClienteHasUsuario(
-                    [
-                        'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'],
-                        'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
-                    ]
-                )->first();
+                        [
+                            'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'],
+                            'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
+                        ]
+                    )->first();
 
                 $cliente_id = isset($cliente_has_usuario) ? $cliente_has_usuario->clientes_id : null;
 
@@ -1006,7 +1000,7 @@ class UsuariosController extends AppController
             }
             $data["doc_invalido"] = false;
 
-             // validação de cpf
+            // validação de cpf
 
             $canContinue = false;
 
@@ -1124,7 +1118,7 @@ class UsuariosController extends AppController
 
             if ($canContinue) {
 
-            // verifica se usuário já existe no sistema
+                // verifica se usuário já existe no sistema
                 if ($usuarioJaExiste) {
                     $mensagem = [
                         'status' => false,
@@ -1241,7 +1235,6 @@ class UsuariosController extends AppController
         );
 
         return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
-
     }
 
     /**
@@ -1312,12 +1305,13 @@ class UsuariosController extends AppController
             if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
                 array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.usuarios_id' => $id]);
-                array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
+                // @todo gustavosg Testar tipo_perfil
+                // array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
 
                 $clientesHasUsuariosQuery = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosWhere);
 
                 if (sizeof($clientesHasUsuariosQuery->toArray()) > 0) {
-                // tenho o cliente alocado, pegar agora a rede que ele está
+                    // tenho o cliente alocado, pegar agora a rede que ele está
                     $clienteHasUsuario = $clientesHasUsuariosQuery->toArray()[0];
                     $cliente = $clienteHasUsuario->cliente;
 
@@ -1325,7 +1319,6 @@ class UsuariosController extends AppController
 
                     $rede = $redeHasCliente->rede;
                 }
-
             }
             // pegar a rede a qual se encontra o usuário
             if (isset($rede)) {
@@ -1355,8 +1348,10 @@ class UsuariosController extends AppController
 
                 if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     if (!empty($clienteHasUsuario)) {
-                        if ($clienteHasUsuario->clientes_id != $usuario_compare['clientes_id']
-                            || $clienteHasUsuario->tipo_perfil != $usuario_compare['tipo_perfil']) {
+                        if (
+                            $clienteHasUsuario->clientes_id != $usuario_compare['clientes_id']
+                            || $clienteHasUsuario->tipo_perfil != $usuario_compare['tipo_perfil']
+                        ) {
                             $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, (int)$usuario_compare['clientes_id'], $usuario_compare['id'], (int)$usuario_compare['tipo_perfil']);
                         }
                     }
@@ -1451,14 +1446,21 @@ class UsuariosController extends AppController
 
             // primeiro, descobre o código da unidade
 
-            $unidade_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario(['ClientesHasUsuarios.usuarios_id' => $usuario->id, 'ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil])->first();
+            $unidade_usuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                array(
+                    'ClientesHasUsuarios.usuarios_id' => $usuario->id,
+                    // @todo gustavosg Testar tipo_perfil
+                    //  'ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil
+                    )
+                )->first();
 
             // com o código da unidade, verifica se há outro usuário vinculado
 
             $clientes_has_usuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
                 [
                     'ClientesHasUsuarios.clientes_id' => $unidade_usuario->clientes_id,
-                    'ClientesHasUsuarios.tipo_perfil <' => (int)Configure::read('profileTypes')['UserProfileType'],
+                    // @todo gustavosg Testar tipo_perfil
+                    // 'ClientesHasUsuarios.tipo_perfil <' => (int)Configure::read('profileTypes')['UserProfileType'],
                     'ClientesHasUsuarios.usuarios_id != ' => $usuario->id
                 ]
             )->first();
@@ -1492,7 +1494,6 @@ class UsuariosController extends AppController
 
                 $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
                 return $this->redirect($return_url);
-
             } else {
                 // não há outro usuário, então deve-se verificar se há alguma informação vinculada à ele. se não houver, pode remover.
 
@@ -1553,7 +1554,6 @@ class UsuariosController extends AppController
                     return $this->redirect($return_url);
                 }
             }
-
         }
     }
 
@@ -1643,7 +1643,6 @@ class UsuariosController extends AppController
                 if (isset($usuarioData['cpf'])) {
                     $nomeDoc = strlen($usuarioData['cpf']) > 0 ? $usuarioData['cpf'] : $usuarioData['doc_estrangeiro'];
                     $nomeDoc = $this->cleanNumberAndLetters($nomeDoc);
-
                 } else {
                     $nomeDoc = $usuarioData['doc_estrangeiro'];
                 }
@@ -1689,21 +1688,21 @@ class UsuariosController extends AppController
             if (strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario
                     = $this->Usuarios->patchEntity(
-                    $usuario,
-                    $usuarioData,
-                    [
-                        'validate' => 'CadastroEstrangeiro'
-                    ]
-                );
+                        $usuario,
+                        $usuarioData,
+                        [
+                            'validate' => 'CadastroEstrangeiro'
+                        ]
+                    );
 
                 // assegura que em um cadastro de estrangeiro, não tenha CPF vinculado.
                 $usuario['cpf'] = null;
             } else {
                 $usuario
                     = $this->Usuarios->patchEntity(
-                    $usuario,
-                    $usuarioData
-                );
+                        $usuario,
+                        $usuarioData
+                    );
             }
 
             $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
@@ -1760,8 +1759,10 @@ class UsuariosController extends AppController
 
 
                 // se quem está fazendo o cadastro é administrador da rede até gerente
-                if ($this->usuarioLogado['tipo_perfil'] >= (Configure::read('profileTypes')['AdminNetworkProfileType'])
-                    && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']) {
+                if (
+                    $this->usuarioLogado['tipo_perfil'] >= (Configure::read('profileTypes')['AdminNetworkProfileType'])
+                    && $this->usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['ManagerProfileType']
+                ) {
 
                     // se cadastrou um usuário, retorna à meus clientes,
                     // caso contrário, retorna à usuários da rede
@@ -1849,8 +1850,10 @@ class UsuariosController extends AppController
             }
         }
 
-        if ($usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+        if (
+            $usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]
+        ) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
         }
 
@@ -1872,12 +1875,13 @@ class UsuariosController extends AppController
 
             // Se quem está cadastrando é um  Administrador Comum >= Funcionário, pega o local onde o Funcionário está e vincula ao mesmo lugar.
 
-            if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_LOCAL
-                && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
+            if (
+                $usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_LOCAL
+                && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_WORKER
+            ) {
                 $cliente = $this->request->session()->read('Rede.PontoAtendimento');
                 $data['clientes_id'] = $cliente["id"];
                 $clientes_id = $cliente["id"];
-
             }
 
             // Se o tipo de perfil não for Administrador de Rede Regional ao menos, o Usuário deve estar vinculado à uma unidade!
@@ -1961,7 +1965,6 @@ class UsuariosController extends AppController
                     }
                     return $this->redirect(['action' => 'index']);
                 }
-
             }
 
             $this->Flash->error(__('O usuário não pode ser registrado. '));
@@ -2014,7 +2017,7 @@ class UsuariosController extends AppController
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
                 'ClientesHasUsuarios.usuarios_id' => $usuarios_id,
-                'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
+                // 'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
             ]
         )->first();
 
@@ -2036,8 +2039,10 @@ class UsuariosController extends AppController
 
         $unidadesRede = array();
         $unidadeRedeId = 0;
-        if ($this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
+        if (
+            $this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
+            && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]
+        ) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
         } else {
             // $unidadesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
@@ -2202,8 +2207,7 @@ class UsuariosController extends AppController
             }
 
             $this->set('usuario', $usuario);
-        } catch (\Exception $e) {
-        }
+        } catch (\Exception $e) { }
     }
 
     /**
@@ -2265,7 +2269,6 @@ class UsuariosController extends AppController
             if (is_null($usuario)) {
                 $messageString = Configure::read("messageEmailNotFound");
                 $mensagem[] = ['status' => false, 'message' => $messageString];
-
             } else {
                 // gera o token que o usuário irá utilizar para recuperar a senha
 
@@ -2429,7 +2432,6 @@ class UsuariosController extends AppController
                             } else {
                                 return $this->redirect(['controller' => 'usuarios', 'action' => 'meu_perfil']);
                             }
-
                         } else {
                             $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
                         }
@@ -2619,14 +2621,7 @@ class UsuariosController extends AppController
 
         $usuarios = $this->paginate($usuarios, ['limit' => 10]);
 
-        $arraySet = [
-            'usuarios',
-            'unidades_ids',
-            'rede',
-            'redes_id',
-            "usuarioLogado"
-
-        ];
+        $arraySet = array('usuarios', 'unidades_ids', 'rede', 'redes_id', "usuarioLogado");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -2638,14 +2633,15 @@ class UsuariosController extends AppController
      **/
     public function meusClientes()
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
-
-        $rede = $this->request->session()->read('Rede.Grupo');
 
         // pega id de todos os clientes que estão ligados à uma rede
 
@@ -2970,7 +2966,6 @@ class UsuariosController extends AppController
 
                     $url = Router::url(['controller' => 'Pages', 'action' => 'display']);
                     return $this->response = $this->response->withLocation($url);
-
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
 
@@ -3071,7 +3066,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
@@ -3079,7 +3073,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicial];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinal > $dataHoje) {
@@ -3192,7 +3185,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.data_nasc BETWEEN "' . $dataInicialNascimento . '" and "' . $dataFinalNascimento . '"'];
                 }
-
             } else if (strlen($data['dataNascimentoInicio']) > 0) {
 
                 if ($dataInicialNascimento > $dataHoje) {
@@ -3200,7 +3192,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.data_nasc >= ' => $dataInicialNascimento];
                 }
-
             } else if (strlen($data['dataNascimentoFim']) > 0) {
 
                 if ($dataFinalNascimento > $dataHoje) {
@@ -3223,7 +3214,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicialInsercao . '" and "' . $dataFinalInsercao . '"'];
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicialInsercao > $dataHoje) {
@@ -3231,7 +3221,6 @@ class UsuariosController extends AppController
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicialInsercao];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinalInsercao > $dataHoje) {
@@ -3317,7 +3306,7 @@ class UsuariosController extends AppController
                 $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
                 $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
 
-            // Data de Nascimento Inicio e Fim
+                // Data de Nascimento Inicio e Fim
 
                 $dataInicialNascimento = strlen($data['dataNascimentoInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['dataNascimentoInicio'], 'd/m/Y') : null;
                 $dataFinalNascimento = strlen($data['dataNascimentoFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['dataNascimentoFim'], 'd/m/Y') : null;
@@ -3331,7 +3320,6 @@ class UsuariosController extends AppController
                     } else {
                         $whereConditions[] = ['usuarios.data_nasc BETWEEN "' . $dataInicialNascimento . '" and "' . $dataFinalNascimento . '"'];
                     }
-
                 } else if (strlen($data['dataNascimentoInicio']) > 0) {
 
                     if ($dataInicialNascimento > $dataHoje) {
@@ -3339,7 +3327,6 @@ class UsuariosController extends AppController
                     } else {
                         $whereConditions[] = ['usuarios.data_nasc >= ' => $dataInicialNascimento];
                     }
-
                 } else if (strlen($data['dataNascimentoFim']) > 0) {
 
                     if ($dataFinalNascimento > $dataHoje) {
@@ -3348,7 +3335,7 @@ class UsuariosController extends AppController
                         $whereConditions[] = ['usuarios.data_nasc <= ' => $dataFinalNascimento];
                     }
                 }
-            // Data de Criação Início e Fim
+                // Data de Criação Início e Fim
 
                 $dataInicialInsercao = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
                 $dataFinalInsercao = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
@@ -3362,7 +3349,6 @@ class UsuariosController extends AppController
                     } else {
                         $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicialInsercao . '" and "' . $dataFinalInsercao . '"'];
                     }
-
                 } else if (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicialInsercao > $dataHoje) {
@@ -3370,7 +3356,6 @@ class UsuariosController extends AppController
                     } else {
                         $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicialInsercao];
                     }
-
                 } else if (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinalInsercao > $dataHoje) {
@@ -3380,7 +3365,7 @@ class UsuariosController extends AppController
                     }
                 }
 
-            // Monta o Array para apresentar em tela
+                // Monta o Array para apresentar em tela
 
                 foreach ($redesArrayIds as $key => $value) {
                     $usuariosConditions = $whereConditions;
@@ -3399,7 +3384,7 @@ class UsuariosController extends AppController
 
                     $unidades_ids = [];
 
-            // obtem os ids das unidades para saber quais brindes estão disponíveis
+                    // obtem os ids das unidades para saber quais brindes estão disponíveis
                     foreach ($rede->redes_has_clientes as $key => $value) {
                         $unidades_ids[] = $value->clientes_id;
                     }
@@ -3593,7 +3578,6 @@ class UsuariosController extends AppController
             }
 
             // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
-
         }
     }
 
@@ -3994,7 +3978,6 @@ class UsuariosController extends AppController
                         } else {
                             $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($data['parametro'], null, array(), false, array())->toArray();
                         }
-
                     } elseif ($data['opcao'] == 'cpf' && !isset($user)) {
                         $cpf = preg_replace("(\W)", "", $data["parametro"]);
                         // Pesquisa por CPF
@@ -4149,13 +4132,13 @@ class UsuariosController extends AppController
 
                         $pontuacoes
                             = Number::precision(
-                            $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                                $usuariosId,
-                                null,
-                                $clientes_ids
-                            ),
-                            2
-                        );
+                                $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                                    $usuariosId,
+                                    null,
+                                    $clientes_ids
+                                ),
+                                2
+                            );
                         $saldo = $pontuacoes["resumo_gotas"]["saldo"];
 
                         if (!empty($saldo) && $saldo > 0) {
@@ -4171,9 +4154,7 @@ class UsuariosController extends AppController
                         // $result = json_encode(['user' => $cliente_has_usuario->usuario, 'count' => 1]);
                         $user = $cliente_has_usuario->usuario;
                         $count = 1;
-
                     }
-
                 }
             }
 

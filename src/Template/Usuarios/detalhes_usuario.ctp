@@ -9,6 +9,14 @@ use Cake\Core\Configure;
  *
  */
 
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Meus Clientes', array("controller"=> "usuarios", "action" => "meusClientes"));
+$this->Breadcrumbs->add('Detalhes de Usuário', array(), ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
+
 ?>
 
 <?= $this->element('../Usuarios/left_menu',
@@ -24,4 +32,11 @@ use Cake\Core\Configure;
 <div class="usuarios view col-lg-9 col-md-10">
     <h3><?= h($usuario->nome) ?></h3>
     <?= $this->element('../Usuarios/tabela_info_usuarios', ['usuario' => $usuario]);?>
+
+    <div class="form-group row">
+        <div class="col-lg-12 text-right">
+            <a href="/usuarios/meus_clientes" class="btn btn-primary botao-cancelar"> <i class="fa fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
+
 </div>

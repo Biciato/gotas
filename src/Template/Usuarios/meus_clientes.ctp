@@ -70,33 +70,17 @@ echo $this->Breadcrumbs->render(
                 <td><?= h(isset($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "") ?></td>
                 <td><?= h($usuario->email) ?></td>
                 <td class="actions" style="white-space:nowrap">
-                    <?=
-                    $this->Html->link(
-                        __(
-                            '{0} ',
-                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
-                        ),
-                        [
-                            'action' => 'detalhes_usuario', $usuario->id
-                        ],
-                        [
-                            'title' => 'Ver',
-                            'class' => 'btn btn-default btn-xs',
-                            'escape' => false
-                        ],
-                        [
-                            'test' => 'test',
-                            "rota" => "meusClientes"
-                        ]
-                    )
-                    ?>
+                    <a href="/usuarios/detalhesUsuario/<?=$usuario["id"]?>" class="btn btn-default btn-xs botao-navegacao-tabela" title="Ver">
+                        <i class="fa fa-info-circle">
+                        </i>
+                    </a>
 
-                    <?php if (($usuarioLogado['tipo_perfil'] <= 1) || $usuarioLogado['id'] == $usuario->id) : ?>
+                    <?php if (($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_MANAGER)) : ?>
                         <?=
                         $this->Html->link(
                             __(
                                 '{0} ',
-                                $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
+                                $this->Html->tag('i', '', ['class' => 'fa fa-edit botao-navegacao-tabela'])
                             ),
                             [
                                 'action' => 'editar_usuario', $usuario->id
