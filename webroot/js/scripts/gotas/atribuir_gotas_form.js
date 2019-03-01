@@ -14,12 +14,14 @@ $(document).ready(function () {
 
     $("#parametro").focus();
 
-    let scanner;
+    resetLayout();
+
+    // let scanner;
 
     // campos para captura de webcam
 
     var canvas = null;
-    var canvasContext = null;
+    // var canvasContext = null;
     var video = null;
 
     $(".user-btn-proceed").prop('disabled', true);
@@ -52,7 +54,7 @@ $(document).ready(function () {
      */
     $("#usuarios_id").change(function () {
         var interval = 0;
-        var retries = 0;
+
         interval = setInterval(function () {
             if ($("#usuarios_id").val() != undefined && $("#usuarios_id").val() > 0) {
                 $(".user-btn-proceed").removeClass('disabled');
@@ -705,6 +707,9 @@ var resetLayout = function () {
     $("#parametro").focus();
     // video-capture-gotas-user-select-container
     $(".user-query-region").show();
+
+
+    initializeDateTimePicker("data_processamento");
 
     // reset para filtro de estados com qr code
     $(".group-capture-qr-code").hide();

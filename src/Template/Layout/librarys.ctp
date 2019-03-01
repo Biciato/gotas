@@ -18,6 +18,18 @@ if ($debug) {
     echo $this->Html->script('bootstrap/js/bootstrap');
     echo $this->Html->css(
         array(
+            "bootstrap-datetimepicker/css/bootstrap-datetimepicker",
+            "bootstrap-datetimepicker/css/bootstrap-datetimepicker.min"
+        )
+    );
+    echo $this->Html->script(
+        array(
+            "bootstrap-datetimepicker/js/bootstrap-datetimepicker",
+            "bootstrap-datetimepicker/js/bootstrap-datetimepicker.min"
+        )
+    );
+    echo $this->Html->css(
+        array(
             "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker",
             "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3",
         )
@@ -49,6 +61,18 @@ if ($debug) {
     echo $this->Html->script('printThis-master/printThis');
     echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
     echo $this->Html->script('bootstrap/js/bootstrap.min');
+    echo $this->Html->css(
+        array(
+            "bootstrap-datetimepicker/css/bootstrap-datetimepicker",
+            "bootstrap-datetimepicker/css/bootstrap-datetimepicker.min"
+        )
+    );
+    echo $this->Html->script(
+        array(
+            "bootstrap-datetimepicker/js/bootstrap-datetimepicker",
+            "bootstrap-datetimepicker/js/bootstrap-datetimepicker.min"
+        )
+    );
     echo $this->Html->css(
         array(
             "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min",

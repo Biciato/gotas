@@ -600,6 +600,42 @@ var initializeDatePicker = function(field) {
 };
 
 /**
+ * home::initializeDatePicker
+ *
+ * Inicializa um campo como date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} field Campo a ser inicializado
+ *
+ * @return void
+ */
+var initializeDateTimePicker = function(field) {
+    $("#" + field).datetimepicker({
+        minView: 2,
+        maxView: 2,
+        clearBtn: true,
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        forceParse: false,
+        language: "pt-BR",
+        format: "dd/mm/yyyy HH:ii",
+        initialDate: new Date()
+    });
+
+    $("#" + field)
+        .on("keyup", function(ev) {
+            preventEnterActionInput(ev);
+            defaultKeyUpDatePickerAction(field, ev, this.value);
+        })
+        .on("keydown", function(ev) {
+            preventEnterActionInput(ev);
+        });
+};
+
+/**
  * home::updateDatePicker
  *
  * Atualiza o valor do campo de data do tipo date picker

@@ -230,14 +230,14 @@ use Cake\Core\Configure;
                         <div class="form-group row">
                             <div class="col-lg-12">
                             <label for="data_processamento">Data do Cupom</label>
-                            <input type="text"
+                            <!-- <input type="text"
                                 class="form-control"
 
                                 id="data_processamento"
                                 name="data_processamento"
                                 value="">
-                            </div>
-                            <!-- <input type="text" name="data_processamento" id="data_processamento" class="form-control datepicker-input"> -->
+                            </div> -->
+                            <input type="text" name="data_processamento" id="data_processamento" class="form-control datetimepicker-input">
                         </div>
                         <table class="table table-hover table-responsive gotas-products-table">
                             <thead>
