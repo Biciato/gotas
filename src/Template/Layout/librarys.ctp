@@ -18,14 +18,14 @@ if ($debug) {
     echo $this->Html->script('bootstrap/js/bootstrap');
     echo $this->Html->css(
         array(
-            "bootstrap-datetimepicker/css/bootstrap-datetimepicker",
-            "bootstrap-datetimepicker/css/bootstrap-datetimepicker.min"
+            "bootstrap-datetimepicker/jquery.datetimepicker",
+            "bootstrap-datetimepicker/build/jquery.datetimepicker.min"
         )
     );
     echo $this->Html->script(
         array(
-            "bootstrap-datetimepicker/js/bootstrap-datetimepicker",
-            "bootstrap-datetimepicker/js/bootstrap-datetimepicker.min"
+            "bootstrap-datetimepicker/build/jquery.datetimepicker.full",
+            "bootstrap-datetimepicker/build/jquery.datetimepicker.full.min"
         )
     );
     echo $this->Html->css(
@@ -63,14 +63,14 @@ if ($debug) {
     echo $this->Html->script('bootstrap/js/bootstrap.min');
     echo $this->Html->css(
         array(
-            "bootstrap-datetimepicker/css/bootstrap-datetimepicker",
-            "bootstrap-datetimepicker/css/bootstrap-datetimepicker.min"
+            "bootstrap-datetimepicker/css/jquery.datetimepicker",
+            "bootstrap-datetimepicker/css/build/jquery.datetimepicker.min"
         )
     );
     echo $this->Html->script(
         array(
-            "bootstrap-datetimepicker/js/bootstrap-datetimepicker",
-            "bootstrap-datetimepicker/js/bootstrap-datetimepicker.min"
+            "bootstrap-datetimepicker/js/build/jquery.datetimepicker.full",
+            "bootstrap-datetimepicker/js/build/jquery.datetimepicker.full.min"
         )
     );
     echo $this->Html->css(

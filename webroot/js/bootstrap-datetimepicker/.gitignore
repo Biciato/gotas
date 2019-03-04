@@ -1,5 +1,2 @@
-# PHP Storm
 .idea
-*.iml
-atlassian-ide-plugin.xml
-yuicompressor-*
+node_modules

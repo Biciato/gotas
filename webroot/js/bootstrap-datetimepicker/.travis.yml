@@ -1,5 +1,7 @@
-sudo: false
+language: node_js
+node_js:
+  - "8"
 before_script:
-  - cd ./tests
-  - echo "new Date().toString();" | phantomjs
-script: phantomjs run-qunit.js tests.html
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
