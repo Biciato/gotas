@@ -203,11 +203,11 @@ use Cake\Core\Configure;
                         <?= $this->Form->input('list_parametros', [
                             'type' => 'select',
                             'id' => 'list_parametros',
-                            'label' => 'Lista de Parâmetros Disponíveis'
+                            'label' => 'Lista de Parâmetros Disponíveis*'
                         ]) ?>
 
                         <input type="hidden" name="gotas_id_insert" class="form-control hidden" id="gotas_id_insert"/>
-                        <label for="quantidade_input">Quantidade</label>
+                        <label for="quantidade_input">Quantidade*</label>
                         <input type="text" name="quantidade_input" class="form-control readonly" disabled="true" id="quantidade_input">
 
                         <div class="hidden">
@@ -230,14 +230,8 @@ use Cake\Core\Configure;
                         <div class="form-group row">
                             <div class="col-lg-12">
                             <label for="data_processamento">Data do Cupom</label>
-                            <!-- <input type="text"
-                                class="form-control"
-
-                                id="data_processamento"
-                                name="data_processamento"
-                                value="">
-                            </div> -->
-                            <input type="text" name="data_processamento" id="data_processamento" class="form-control datetimepicker-input">
+                            <input type="text" name="data_processamento" id="data_processamento" class="form-control">
+                            <input type="hidden" name="data_processamento_save" id="data_processamento_save" class="form-control hidden">
                         </div>
                         <table class="table table-hover table-responsive gotas-products-table">
                             <thead>

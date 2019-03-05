@@ -12,6 +12,7 @@ $(document).ready(function () {
 
     // ------------------- Inicialização de campos na tela -------------------
 
+
     $("#parametro").focus();
 
     resetLayout();
@@ -709,7 +710,7 @@ var resetLayout = function () {
     $(".user-query-region").show();
 
 
-    initializeDateTimePicker("data_processamento");
+    initializeDateTimePicker("data_processamento", "data_processamento_save");
 
     // reset para filtro de estados com qr code
     $(".group-capture-qr-code").hide();

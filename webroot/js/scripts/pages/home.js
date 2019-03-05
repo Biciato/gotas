@@ -433,7 +433,7 @@ var prepareContentPontuacoesDisplay = function(data) {
         "<table class='table table-responsive table-hover table-condensed'></table>"
     );
 
-    var header = $("<thead><th>Gota</th><th>Quantidade</th></thead>");
+    var header = $("<thead><th>Produto</th><th>Gota</th></thead>");
 
     table.append(header);
 
@@ -605,24 +605,21 @@ var initializeDatePicker = function(field) {
  * Inicializa um campo como date picker
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2018-12-26
+ * @since 2019-03-04
  *
  * @param {string} field Campo a ser inicializado
+ * @param {string} hiddenField Campo oculto que será enviado ao server
  *
  * @return void
  */
-var initializeDateTimePicker = function(field) {
+var initializeDateTimePicker = function(field, hiddenField) {
+    // Seta todos os campos DateTimePicker para Português Brasil
+    $.datetimepicker.setLocale("pt-BR");
+
     $("#" + field).datetimepicker({
-        minView: 2,
-        maxView: 2,
-        clearBtn: true,
-        autoclose: true,
-        todayBtn: true,
-        todayHighlight: true,
-        forceParse: false,
-        language: "pt-BR",
-        format: "dd/mm/yyyy HH:ii",
-        initialDate: new Date()
+        format: "d/m/Y H:i:00",
+        mask: "31/12/9999 23:59",
+        step: 15
     });
 
     $("#" + field)
@@ -632,8 +629,19 @@ var initializeDateTimePicker = function(field) {
         })
         .on("keydown", function(ev) {
             preventEnterActionInput(ev);
-        });
+        })
+        .on("change", function(ev){
+            var value = ev.target.value;
+
+            if (value != undefined && value.length > 0){
+                var valueSubmit = moment(value, "D/M/Y h:mm").format("YYYY-MM-DD HH:mm");
+                $("#" + hiddenField).val(valueSubmit);
+            }
+        })
+        ;
 };
+
+
 
 /**
  * home::updateDatePicker
