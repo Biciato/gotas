@@ -429,7 +429,7 @@ class CuponsTable extends GenericTable
                         'Usuarios'
                     )
                 )->first();
-                // )->sql();
+            // )->sql();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -495,8 +495,20 @@ class CuponsTable extends GenericTable
      *
      * @return array App\Model\Entity\Cupon
      */
-    public function getCuponsResgatadosUsados(bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = true, bool $redeAtiva = true, int $diasAnteriores = 1)
+    public function getCuponsResgatadosUsados(bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = null, bool $redeAtiva = true, int $diasAnteriores = 1)
     {
+        $whereConditions =   array();
+
+        $whereConditions[] = array("Cupons.resgatado" => $resgatado);
+        $whereConditions[] = array("Cupons.usado" => $usado);
+
+        if (isset($equipamentoRTI) && is_bool($equipamentoRTI)){
+            $whereConditions[] = array("TipoBrindeRede.equipamento_rti" => $equipamentoRTI);
+        }
+
+        $whereConditions[] = array("Rede.ativado" => $redeAtiva);
+        $whereConditions[] = array("Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL '{$diasAnteriores}' DAY)");
+
         $cupons = $this->find("all")
             ->contain(
                 array(
@@ -505,14 +517,7 @@ class CuponsTable extends GenericTable
                 )
             )
             ->where(
-                array(
-                    "Cupons.resgatado" => $resgatado,
-                    "Cupons.usado" => $usado,
-                    "TipoBrindeRede.equipamento_rti" => $equipamentoRTI,
-                    "Rede.ativado" => $redeAtiva,
-                    // "Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL 24 HOUR)"
-                    "Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL '{$diasAnteriores}' DAY)"
-                )
+                $whereConditions
             )
             ->select(array(
                 "Cupons.id",

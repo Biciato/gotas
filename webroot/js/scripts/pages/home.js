@@ -535,14 +535,14 @@ var generateQRCode = function(element, value) {
  * @param {*} ev
  * @param {*} value
  */
-var defaultKeyUpDatePickerAction = function(field, ev, value) {
+var defaultKeyUpDatePickerAction = function(campo, ev, value) {
     var value = value.replace(/(\d{2})(\d{2})(\d{4})/g, "$1/$2/$3");
     if (
         value.length == 10 &&
         ((ev.keyCode >= 48 && ev.keyCode <= 57) ||
             (ev.keyCode >= 96 && ev.keyCode <= 105))
     ) {
-        updateDatePicker(field, value);
+        updateDatePicker(campo, value);
     }
 };
 
@@ -571,12 +571,12 @@ var preventEnterActionInput = function(ev) {
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2018-12-26
  *
- * @param {string} field Campo a ser inicializado
+ * @param {string} campo Campo a ser inicializado
  *
  * @return void
  */
-var initializeDatePicker = function(field) {
-    $("#" + field).datepicker({
+var initializeDatePicker = function(campo) {
+    $("#" + campo).datepicker({
         minView: 2,
         maxView: 2,
         clearBtn: true,
@@ -589,10 +589,10 @@ var initializeDatePicker = function(field) {
         initialDate: new Date()
     });
 
-    $("#" + field)
+    $("#" + campo)
         .on("keyup", function(ev) {
             preventEnterActionInput(ev);
-            defaultKeyUpDatePickerAction(field, ev, this.value);
+            defaultKeyUpDatePickerAction(campo, ev, this.value);
         })
         .on("keydown", function(ev) {
             preventEnterActionInput(ev);
@@ -607,41 +607,76 @@ var initializeDatePicker = function(field) {
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-03-04
  *
- * @param {string} field Campo a ser inicializado
- * @param {string} hiddenField Campo oculto que será enviado ao server
+ * @param {string} campo Campo a ser inicializado
+ * @param {string} campoOculto Campo oculto que será enviado ao server
  *
  * @return void
  */
-var initializeDateTimePicker = function(field, hiddenField) {
+var initializeDateTimePicker = function(
+    campo,
+    campoOculto,
+    inicializarCampo = false
+) {
     // Seta todos os campos DateTimePicker para Português Brasil
     $.datetimepicker.setLocale("pt-BR");
 
-    $("#" + field).datetimepicker({
-        format: "d/m/Y H:i:00",
+    $("#" + campo).datetimepicker({
+        format: "d/m/Y H:i",
         mask: "31/12/9999 23:59",
+        value: moment().format("DD/MM/YYYY HH:mm"),
         step: 15
     });
 
-    $("#" + field)
+    if (inicializarCampo != undefined && inicializarCampo) {
+        var valor = moment().format("DD/MM/YYYY HH:mm");
+
+        $("#" + campo).val(valor);
+        if (campoOculto) {
+            valor = moment().format("YYYY-MM-DD HH:mm");
+            $("#" + campoOculto).val(valor);
+        }
+    }
+
+    $("#" + campo)
         .on("keyup", function(ev) {
             preventEnterActionInput(ev);
-            defaultKeyUpDatePickerAction(field, ev, this.value);
+            defaultKeyUpDatePickerAction(campo, ev, this.value);
         })
         .on("keydown", function(ev) {
             preventEnterActionInput(ev);
         })
-        .on("change", function(ev){
+        .on("change", function(ev) {
             var value = ev.target.value;
 
-            if (value != undefined && value.length > 0){
-                var valueSubmit = moment(value, "D/M/Y h:mm").format("YYYY-MM-DD HH:mm");
-                $("#" + hiddenField).val(valueSubmit);
+            if (value != undefined && value.length > 0) {
+                var valorEnviar = moment(value, "DD/MM/YYYY HH:mm").format(
+                    "YYYY-MM-DD HH:mm"
+                );
+                $("#" + campoOculto).val(valorEnviar);
             }
         })
-        ;
+        .on("blur", function(ev) {
+            console.log(ev);
+            var value = ev.target.value;
+
+            if (value == "") {
+                var data = moment(value, "DD/MM/YYYY HH:mm", true);
+
+                if (!data.isValid()) {
+                    var dataOculta = $("#" + campoOculto).val();
+
+                    dataOculta = moment(dataOculta, "YYYY-MM-DD HH:mm", true);
+
+                    if (dataOculta.isValid()) {
+                        dataOculta = moment(dataOculta).format(
+                            "DD/MM/YYYY HH:mm"
+                        );
+                        $("#" + campo).val(dataOculta);
+                    }
+                }
+            }
+        });
 };
-
-
 
 /**
  * home::updateDatePicker
@@ -651,13 +686,13 @@ var initializeDateTimePicker = function(field, hiddenField) {
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2018-12-26
  *
- * @param {string} field Campo
+ * @param {string} campo Campo
  * @param {string} date Valor
  *
  * @return void
  */
-var updateDatePicker = function(field, date) {
-    $("#" + field).datepicker("update", date);
+var updateDatePicker = function(campo, date) {
+    $("#" + campo).datepicker("update", date);
 };
 
 /**

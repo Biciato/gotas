@@ -16,3 +16,6 @@ const __SERVER__ = "https://sistema.gotas.com.br/";
 // const __SERVER__ = "https://sistema.gotas.local/";
 // Branch Devel -> Servidor local
 // const __SERVER__ = "https://sistema-devel.gotas.local/";
+
+// host
+const __HOST__ = "sistema.gotas.local";

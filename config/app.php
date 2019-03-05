@@ -1,4 +1,6 @@
 <?php
+
+require_once("definitions.php");
 return [
 /**
  * Debug Level:
@@ -247,7 +249,9 @@ return [
             'driver' => 'Cake\Database\Driver\Mysql',
             // 'persistent' => false,
             'persistent' => true,
-            'host' => 'localhost',
+            // 'host' => 'localhost',
+            // 'host' => 'sistema.gotas.local',
+            'host' => __HOST__,
             // 'host' => '40.71.26.138',
             /**
              * CakePHP will use the default DB port based on the driver selected

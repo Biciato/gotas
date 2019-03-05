@@ -67,7 +67,7 @@ class CuponsShell extends ExtendedShell
     {
         Log::write("info", sprintf("[Class: %s / Method: %s] %s: Atualização de Cupons de Equipamento RTI para USADO após 24 horas às %s.", __class__, __FUNCTION__, JOB_STATUS_INIT, date("d/m/Y H:i:s")));
 
-        $cupons = $this->Cupons->getCuponsResgatadosUsados(true, false, true, true, 1);
+        $cupons = $this->Cupons->getCuponsResgatadosUsados(true, false, null, true, 1);
 
         $cuponsIdsAtualizar = array();
 
