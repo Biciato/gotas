@@ -585,6 +585,62 @@ class CuponsTable extends GenericTable
 
             // DebugUtil::print($tiposBrindesClienteConditions);
 
+            $selectArray = array(
+                "Cupons.id",
+                "Cupons.clientes_has_brindes_habilitados_id",
+                "Cupons.clientes_id",
+                "Cupons.funcionarios_id",
+                "Cupons.usuarios_id",
+                "Cupons.tipo_principal_codigo_brinde",
+                "Cupons.tipo_secundario_codigo_brinde",
+                "Cupons.valor_pago",
+                "Cupons.tipo_venda",
+                "Cupons.senha",
+                "Cupons.cupom_emitido",
+                "Cupons.data",
+                "Cupons.data_validate",
+                "Cupons.resgatado",
+                "Cupons.usado",
+                "Cupons.quantidade",
+                "Cupons.audit_insert",
+                "Cupons.audit_update",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.endereco",
+                "Clientes.endereco_numero",
+                "Clientes.endereco_complemento",
+                "Clientes.bairro",
+                "Clientes.municipio",
+                "Clientes.estado",
+                "Clientes.pais",
+                "Clientes.propaganda_img",
+                // "Clientes.propaganda_img_completo",
+                "Clientes.cep",
+                "Clientes.tel_fixo",
+                "Clientes.tel_fax",
+                "Clientes.tel_celular",
+                "ClientesHasBrindesHabilitados.id",
+                "ClientesHasBrindesHabilitados.brindes_id",
+                "ClientesHasBrindesHabilitados.clientes_id",
+                "ClientesHasBrindesHabilitados.tipo_codigo_barras",
+                "ClientesHasBrindesHabilitados.tipos_brindes_clientes_id",
+                "ClientesHasBrindesHabilitados.habilitado",
+                "ClientesHasBrindesHabilitados.audit_insert",
+                "ClientesHasBrindesHabilitados.audit_update",
+                "Brindes.id",
+                "Brindes.clientes_id",
+                "Brindes.tipos_brindes_redes_id",
+                "Brindes.nome",
+                "Brindes.tempo_uso_brinde",
+                "Brindes.ilimitado",
+                "Brindes.habilitado",
+                "Brindes.preco_padrao",
+                "Brindes.valor_moeda_venda_padrao",
+                "Brindes.nome_img",
+                "Brindes.audit_insert",
+                "Brindes.audit_update"
+            );
+
             /**
              * Nesta pesquisa, se o usuário informar Condições de Tipo Brindes Clientes,
              * a pesquisa será particularmente pelo tipo principal de código de brinde.
@@ -619,9 +675,16 @@ class CuponsTable extends GenericTable
                 $whereConditions[] = array("clientes_has_brindes_habilitados_id in " => $clientesHasBrindesHabilitadosIds);
             }
 
-            $cupons = $this->_getCuponsTable()->find('all')
-                ->contain(["ClientesHasBrindesHabilitados.Brindes"])
-                ->where($whereConditions);
+            $cupons = $this->find('all')
+                ->contain(
+                    array(
+                        "ClientesHasBrindesHabilitados.Brindes",
+                        "Clientes"
+                    )
+                )
+                ->where($whereConditions)
+                ->select($selectArray)
+                ;
 
             $dataTodosCupons = $cupons->toArray();
 

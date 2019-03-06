@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * Cupom Entity
@@ -38,4 +39,6 @@ class Cupon extends Entity
         '*' => true,
         'id' => false
     ];
+
+
 }
