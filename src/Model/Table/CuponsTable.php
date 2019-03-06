@@ -598,7 +598,7 @@ class CuponsTable extends GenericTable
                 "Cupons.senha",
                 "Cupons.cupom_emitido",
                 "Cupons.data",
-                "Cupons.data_validate",
+                "Cupons.data_validade",
                 "Cupons.resgatado",
                 "Cupons.usado",
                 "Cupons.quantidade",
