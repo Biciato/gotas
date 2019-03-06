@@ -91,6 +91,30 @@ class DateTimeUtil
      *
      * @param string $datetime      DataHora a ser reduzida
      * @param int    $days          Quantidade de dias
+     * @param string $formatReturn Formato de retorno
+     *
+     * @return void
+     */
+    public static function addDaysFromDateTime(string $datetime, int $days, string $formatReturn = null)
+    {
+        try {
+            $dataRetorno = strtotime($datetime . ' +' . $days . ' days');
+
+            if (is_null($formatReturn)) {
+                $formatReturn = 'Y-m-d H:i:s';
+            }
+
+            return date($formatReturn, $dataRetorno);
+        } catch (\Exception $e) {
+            // TODO: fazer exception
+        }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $datetime      DataHora a ser reduzida
+     * @param int    $days          Quantidade de dias
      * @param string $format_return Formato de retorno
      *
      * @return void
@@ -98,7 +122,7 @@ class DateTimeUtil
     public function substractDaysFromDateTime(string $datetime, int $days, string $format_return = null)
     {
         try {
-            $date_return = strtotime($datetime . ' -' . $days . ' days');
+            $dataRetorno = strtotime($datetime . ' -' . $days . ' days');
 
             $format = $format_return;
 
@@ -106,7 +130,7 @@ class DateTimeUtil
                 $format = 'Y-m-d H:i:s';
             }
 
-            return date($format, $date_return);
+            return date($format, $dataRetorno);
         } catch (\Exception $e) {
             // TODO: fazer exception
         }
@@ -124,7 +148,7 @@ class DateTimeUtil
     public function substractYearsFromDateTime(string $datetime, int $years, string $format_return = null)
     {
         try {
-            $date_return = strtotime($datetime . ' -' . $years . ' years');
+            $dataRetorno = strtotime($datetime . ' -' . $years . ' years');
 
             $format = $format_return;
 
@@ -132,7 +156,7 @@ class DateTimeUtil
                 $format = 'Y-m-d H:i:s';
             }
 
-            return date($format, $date_return);
+            return date($format, $dataRetorno);
         } catch (\Exception $e) {
             // TODO: fazer exception
         }
