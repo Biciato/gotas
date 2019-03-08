@@ -744,8 +744,7 @@ class CuponsController extends AppController
 
         $this->set(compact($arraySet));
         $this->set($arraySet);
-
-     }
+    }
 
     /**
      * Action para Fechamento de Caixa de Funcionário
@@ -1055,7 +1054,7 @@ class CuponsController extends AppController
                 $dadosVendaFuncionarios[] = $funcionario;
             }
 
-            if (count($dadosVendaFuncionarios) == 0){
+            if (count($dadosVendaFuncionarios) == 0) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
             }
 
@@ -1094,6 +1093,8 @@ class CuponsController extends AppController
     {
         try {
 
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
@@ -1125,7 +1126,7 @@ class CuponsController extends AppController
                 // $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : 1;
                 // Definido pelo Samuel, cliente só pode retirar 1 por vez
                 $quantidade = 1;
-                $funcionariosId = isset($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : null;
+                $funcionariosId = isset($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : $usuarioLogado["id"];
                 $senhaAtual = isset($data["current_password"]) ? $data["current_password"] : "";
 
                 $retorno = $this->trataCompraCupom(
@@ -2389,10 +2390,7 @@ class CuponsController extends AppController
 
         // DebugUtil::print($brindeSelecionado);
         // Se for equipamento RTI, a quantidade máxima é 1
-        if (
-            $brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]
-            == Configure::read("serviceTypes")["rti"]
-        ) {
+        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"] == Configure::read("serviceTypes")["rti"]) {
             $quantidade = 1;
         } elseif (empty($quantidade)) {
             $message = "É necessário especificar uma quantidade mínima de brindes para resgatar!";
@@ -2420,7 +2418,7 @@ class CuponsController extends AppController
 
         if ($vendaAvulsa) {
             if (empty($usuariosId) || $usuariosId == 0) {
-                $usuario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyUserProfileType"], 1);
+                $usuario = $this->Usuarios->getUsuariosByProfileType(PROFILE_TYPE_DUMMY_USER, 1);
             } else {
                 $usuario = $this->Usuarios->getUsuarioById($usuariosId);
             }
@@ -2555,17 +2553,10 @@ class CuponsController extends AppController
         if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
 
             // verificar se cliente possui usuario em sua lista de usuários. se não tiver, cadastrar
-            $clientesHasUsuariosConditions = [];
+            $clientesHasUsuariosConditions = array();
 
-            array_push(
-                $clientesHasUsuariosConditions,
-                array('ClientesHasUsuarios.usuarios_id' => $usuario['id'])
-
-            );
-            array_push(
-                $clientesHasUsuariosConditions,
-                array('ClientesHasUsuarios.clientes_id IN' => $clientesIds)
-            );
+            $clientesHasUsuariosConditions[] = array('ClientesHasUsuarios.usuarios_id' => $usuario['id']);
+            $clientesHasUsuariosConditions[] = array('ClientesHasUsuarios.clientes_id IN' => $clientesIds);
 
             // @todo gustavosg Testar tipo_perfil
             // array_push($clientesHasUsuariosConditions, ['ClientesHasUsuarios.tipo_perfil' => Configure::read('profileTypes')['UserProfileType']]);

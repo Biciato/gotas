@@ -283,6 +283,7 @@ class CuponsTable extends GenericTable
             // Processo de Gravação
             $cupom["clientes_has_brindes_habilitados_id"] = $clientesHasBrindesHabilitadosId;
             $cupom["clientes_id"] = $clientesId;
+            $cupom["funcionarios_id"] = $funcionariosId;
             $cupom["usuarios_id"] = $usuariosId;
             $cupom["tipo_principal_codigo_brinde"] = $tipoPrincipalCodigoBrinde;
             $cupom["tipo_secundario_codigo_brinde"] = $tipoSecundarioCodigoBrinde;

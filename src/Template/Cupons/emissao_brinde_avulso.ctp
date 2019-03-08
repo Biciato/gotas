@@ -58,8 +58,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <div class="col-lg-12 text-right">
                 <button type="button"
                     id="print_gift"
-                    class="print-gift-shower
-                    btn btn-primary" >
+                    class="print-gift-shower btn btn-primary" >
                     <i class="fa fa-print"></i>
                     Imprimir
                 </button>

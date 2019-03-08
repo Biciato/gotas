@@ -5,14 +5,14 @@
  *
  */
 
-$(document).ready(function () {
+$(document).ready(function() {
     // ------------------------------------------------------------------
     // Métodos de inicialização
 
     // se há valor, significa que foi filtrado novamente (post de filtro)
-    if (($("#usuarios_id").val() !== undefined)
-        (&& $("#usuarios_id").val().length > 0)
-        (&& $("#usuarios_id").val() != "conta_avulsa")) {
+    if ($("#usuarios_id").val() !== undefined
+        && $("#usuarios_id").val().length > 0
+        && $("#usuarios_id").val() != "conta_avulsa") {
         callLoaderAnimation();
 
         $.ajax({
@@ -26,23 +26,23 @@ $(document).ready(function () {
                     document.cookie.indexOf("csrfToken=") + "csrfToken=".length
                 )
             },
-            beforeSend: function (xhr) {
+            beforeSend: function(xhr) {
                 xhr.setRequestHeader(
                     "X-CSRF-Token",
                     document.cookie.substr(
                         document.cookie.indexOf("csrfToken=") +
-                        "csrfToken=".length
+                            "csrfToken=".length
                     )
                 );
             },
-            error: function (e) {
+            error: function(e) {
                 console.log(e);
                 closeLoaderAnimation();
             },
-            success: function (e) {
+            success: function(e) {
                 console.log(e.user);
             },
-            complete: function (e) {
+            complete: function(e) {
                 closeLoaderAnimation();
                 setUsuariosInfo(e.responseJSON.user);
             }
@@ -51,30 +51,30 @@ $(document).ready(function () {
 
     $(".validation-message").hide();
 
-    $(".brinde.new-user-search").click(function () {
+    $(".brinde.new-user-search").click(function() {
         $(".user-query-region").show();
         setUsuariosInfo(null);
         $(".user-result").hide();
     });
 
-    $("#parametro-brinde").on("keydown", function (event) {
+    $("#parametro-brinde").on("keydown", function(event) {
         if (event.keyCode == 13) {
             event.preventDefault();
             return false;
         }
     });
-    $("#parametro-brinde").on("keyup", function (event) {
+    $("#parametro-brinde").on("keyup", function(event) {
         if (event.keyCode == 13) {
             searchUsuarioBrindeShower();
         }
     });
 
-    var initializeSelectClicks = function () {
-        $(".select-button").on("click", function (data) {
+    var initializeSelectClicks = function() {
+        $(".select-button").on("click", function(data) {
             var a = arrayUsuarios.get();
             var id = parseInt($(this).attr("value"));
             var result = null;
-            $.each(a, function (index, value) {
+            $.each(a, function(index, value) {
                 if (value.id === id) {
                     result = value;
                     return false;
@@ -90,10 +90,10 @@ $(document).ready(function () {
 
     var arrayUsuarios = {
         array: [],
-        get: function () {
+        get: function() {
             return this.array;
         },
-        set: function (array) {
+        set: function(array) {
             this.array = array;
         }
     };
@@ -101,7 +101,7 @@ $(document).ready(function () {
     // ------------------------------------------------------------------
     // Métodos
 
-    $(".brinde.opcoes").on("change", function () {
+    $(".brinde.opcoes").on("change", function() {
         $("#parametro-brinde").val(null);
         $("#parametro-brinde").unmask();
         if (this.value == "cpf") {
@@ -116,7 +116,7 @@ $(document).ready(function () {
                         pattern: /[0-9]/
                     }
                 },
-                onKeyPress: function (value, event) {
+                onKeyPress: function(value, event) {
                     event.currentTarget.value = value.toUpperCase();
                 }
             });
@@ -125,7 +125,7 @@ $(document).ready(function () {
 
     $(".brinde.opcoes").change();
 
-    var searchUsuarioBrindeShower = function () {
+    var searchUsuarioBrindeShower = function() {
         $(".user-result").hide();
 
         callLoaderAnimation();
@@ -152,22 +152,22 @@ $(document).ready(function () {
                 url: "/Usuarios/findUsuario",
                 type: "POST",
                 data: JSON.stringify(data),
-                beforeSend: function (xhr) {
+                beforeSend: function(xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader(
                         "Content-Type",
                         "application/json; charset=UTF-8"
                     );
                 },
-                error: function (e) {
+                error: function(e) {
                     console.log(e);
                     closeLoaderAnimation();
                 },
-                success: function (e) {
+                success: function(e) {
                     console.log(e.user);
                 }
             })
-                .done(function (result) {
+                .done(function(result) {
                     closeLoaderAnimation();
 
                     if (result.error) {
@@ -218,7 +218,7 @@ $(document).ready(function () {
 
                                     $(".user-result-plates").show();
 
-                                    $.each(result.usuarios, function (
+                                    $.each(result.usuarios, function(
                                         index,
                                         value
                                     ) {
@@ -235,7 +235,7 @@ $(document).ready(function () {
                                         $("#user-result-plates ").append(html);
                                     });
                                 } else {
-                                    $.each(result.usuarios, function (
+                                    $.each(result.usuarios, function(
                                         index,
                                         value
                                     ) {
@@ -260,22 +260,22 @@ $(document).ready(function () {
                         }
                     }
                 })
-                .fail(function (e) {
+                .fail(function(e) {
                     console.log("error" + e.responseJSON.message);
                 })
-                .always(function (e) {
+                .always(function(e) {
                     console.log("complete");
                 });
         }
     };
-    $("#search_usuario_brinde_shower").on("click", function () {
+    $("#search_usuario_brinde_shower").on("click", function() {
         searchUsuarioBrindeShower();
     });
 
     /**
      * Reseta o Filtro de usuário
      */
-    var resetUserFilter = function () {
+    var resetUserFilter = function() {
         // reseta informações de usuário selecionado
         setUsuariosInfo(null);
 
@@ -289,7 +289,7 @@ $(document).ready(function () {
     /**
      * Reseta a interface de brinde
      */
-    var resetBrindeLayout = function () {
+    var resetBrindeLayout = function() {
         $(".display-content").hide();
         $(".brinde.user-query-region").show();
         $(".brinde.opcoes").show();
@@ -300,7 +300,7 @@ $(document).ready(function () {
      * Seta informações de usuário
      * @param {*} data
      */
-    var setUsuariosInfo = function (data) {
+    var setUsuariosInfo = function(data) {
         if (data !== undefined && data !== null) {
             $(".usuarios_id_brinde_shower").val(data.id);
 
@@ -329,7 +329,7 @@ $(document).ready(function () {
             $("#necessidades_especiais").val(null);
         }
     };
-    var resetUserFilter = function () {
+    var resetUserFilter = function() {
         if ($(".usuarios_id").val() !== "conta_avulsa") {
             $(".usuarios_id").val(null);
         }
@@ -349,7 +349,7 @@ $(document).ready(function () {
         $(".user-query-region").show();
     };
 
-    var validateBeforePurchase = function () {
+    var validateBeforePurchase = function() {
         var message = "";
         var usuarioIsAvulso = $(".venda_avulsa").val();
         if ($("#brindes_id").val().length == 0) {
@@ -373,7 +373,7 @@ $(document).ready(function () {
 
         if (
             parseFloat($("#preco_banho").val()) >
-            parseFloat($("#usuariosPontuacoes").val()) * 1000 &&
+                parseFloat($("#usuariosPontuacoes").val()) * 1000 &&
             usuarioIsAvulso == false
         ) {
             message +=
@@ -388,7 +388,7 @@ $(document).ready(function () {
         }
     };
 
-    var exibirConfirmacaoImpressao = function () {
+    var exibirConfirmacaoImpressao = function() {
         $(".container-emissao-cupom").hide();
         $(".container-confirmacao-cupom").show();
     };
@@ -396,7 +396,7 @@ $(document).ready(function () {
     /**
      * Imprime um canhoto
      */
-    var imprimirCanhoto = function () {
+    var imprimirCanhoto = function() {
         $(".container-confirmacao-cupom").hide();
         $(".container-confirmacao-canhoto").show();
 
@@ -422,7 +422,7 @@ $(document).ready(function () {
     /**
      * Reimprime cupom Impresso
      */
-    var reimprimirCupom = function () {
+    var reimprimirCupom = function() {
         setTimeout(
             $(".impressao-cupom").printThis({
                 importCss: false
@@ -436,7 +436,7 @@ $(document).ready(function () {
     $(".imprimir-canhoto").on("click", imprimirCanhoto);
     $(".reimpressao-canhoto").on("click", imprimirCanhoto);
 
-    $(".print-gift-cancel").on("click", function () {
+    $(".print-gift-cancel").on("click", function() {
         $(".opcoes").val("placa");
         $(".opcoes").change();
         $(".parametro").val(undefined);
@@ -446,7 +446,7 @@ $(document).ready(function () {
         resetUserTab();
     });
 
-    $(".print-gift-shower").on("click", function () {
+    $(".print-gift-shower").on("click", function() {
         callLoaderAnimation();
 
         var result = validateBeforePurchase();
@@ -468,22 +468,22 @@ $(document).ready(function () {
                 type: "POST",
                 url: "/Cupons/imprimeBrindeAjax",
                 data: JSON.stringify(data),
-                beforeSend: function (xhr) {
+                beforeSend: function(xhr) {
                     xhr.setRequestHeader("Accept", "application/json");
                     xhr.setRequestHeader(
                         "Content-Type",
                         "application/json; charset=UTF-8"
                     );
                 },
-                success: function (response) {
+                success: function(response) {
                     console.log(response);
                 },
 
-                error: function (response) {
+                error: function(response) {
                     console.log(response);
                     closeLoaderAnimation();
                 }
-            }).done(function (result) {
+            }).done(function(result) {
                 closeLoaderAnimation();
 
                 if (result.mensagem.status == true) {
@@ -587,7 +587,7 @@ $(document).ready(function () {
      * @param {*} cupom_emitido
      * @param {*} tipoEmissaoCodigoBarras
      */
-    var geraCodigoBarras = function (cupom_emitido, tipoEmissaoCodigoBarras) {
+    var geraCodigoBarras = function(cupom_emitido, tipoEmissaoCodigoBarras) {
         // if (tipoEmissaoCodigoBarras == "Code128") {
 
         //     $(".is-code128-barcode").show();
@@ -632,5 +632,4 @@ $(document).ready(function () {
     };
 
     // geraCodigoBarras("10282227A10002", "");
-
 });

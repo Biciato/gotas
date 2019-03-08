@@ -53,25 +53,25 @@ $(document).ready(function () {
      * @deprecated
      * @param {object} data
      */
-    var setBrindesInfo = function (data) {
-        if (data !== undefined) {
-            $("#brindes_id").val(data.id);
-            $("#brindes_nome").val(data.brinde.nome);
-            $("#tempo_uso_brinde").val(data.brinde.tempo_uso_brinde);
-            $("#preco_banho").val(data.brinde_habilitado_preco_atual.preco);
+    // var setBrindesInfo = function (data) {
+    //     if (data !== undefined) {
+    //         $("#brindes_id").val(data.id);
+    //         $("#brindes_nome").val(data.brinde.nome);
+    //         $("#tempo_uso_brinde").val(data.brinde.tempo_uso_brinde);
+    //         $("#preco_banho").val(data.brinde_habilitado_preco_atual.preco);
 
-            $(".gifts-result").show();
-            $(".gifts-result-table").hide();
-            $(".gifts-query-region").hide();
+    //         $(".gifts-result").show();
+    //         $(".gifts-result-table").hide();
+    //         $(".gifts-query-region").hide();
 
-        } else {
-            $("#brindes_id").val(null);
-            $("#brindes_nome").val(null);
-            $("#tempo_uso_brinde").val(null);
-            $("#preco_banho").val(null);
-        }
+    //     } else {
+    //         $("#brindes_id").val(null);
+    //         $("#brindes_nome").val(null);
+    //         $("#tempo_uso_brinde").val(null);
+    //         $("#preco_banho").val(null);
+    //     }
 
-    };
+    // };
 
     var searchBrinde = function () {
 
@@ -121,12 +121,12 @@ $(document).ready(function () {
                     }
                     else {
 
-                        var valorAvulso = (value.brinde_habilitado_preco_atual.valor_moeda_venda != null) ? parseFloat(value.brinde_habilitado_preco_atual.valor_moeda_venda) : 0;
+                        var valorAvulso = (value.brinde_habilitado_preco_atual.valor_moeda_venda_formatado != null) ? value.brinde_habilitado_preco_atual.valor_moeda_venda_formatado : 0;
                         var valorGotas = (value.brinde_habilitado_preco_atual.preco != null) ? parseFloat(value.brinde_habilitado_preco_atual.preco) : 0;
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? "R$ " + valorAvulso : valorGotas)
+                            text: value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
                         }));
                     }
 

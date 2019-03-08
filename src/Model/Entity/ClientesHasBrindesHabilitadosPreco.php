@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\I18n\Number;
 
 /**
  * BrindesHabilitadosPreco Entity
@@ -31,4 +32,21 @@ class ClientesHasBrindesHabilitadosPreco extends Entity
         '*' => true,
         'id' => false
     ];
+
+    /**
+    * ------------------------------------------------------------------------------------------
+    * Propriedades Virtuais
+    * ------------------------------------------------------------------------------------------
+    */
+
+    protected $_virtual = array("valor_moeda_venda_formatado");
+
+    protected function _getValorMoedaVendaFormatado()
+    {
+
+        if (!empty($this->_properties["valor_moeda_venda"])) {
+            return Number::currency($this->_properties["valor_moeda_venda"]);
+        }
+        return null;
+    }
 }
