@@ -11,7 +11,7 @@ if ($debug) {
     echo $this->Html->css(['font-awesome/css/font-awesome']);
     echo $this->Html->script('jquery/jquery');
     echo $this->Html->script('jquery-Mask/jquery.mask');
-    echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode');
+    echo $this->Html->script('jquery-barcode-2.2.0/jquery-barcode');
     echo $this->Html->script('printThis-master/printThis');
 
     echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney');
@@ -57,7 +57,7 @@ if ($debug) {
 
     echo $this->Html->script('jquery/jquery.min');
     echo $this->Html->script('jquery-Mask/jquery.mask.min');
-    echo $this->Html->script('jquery-barcode-2.0.3/jquery-barcode.min');
+    echo $this->Html->script('jquery-barcode-2.2.0/jquery-barcode.min');
     echo $this->Html->script('printThis-master/printThis');
     echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
     echo $this->Html->script('bootstrap/js/bootstrap.min');
