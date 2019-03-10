@@ -267,7 +267,7 @@ var callModalError = function(error, arrayContent) {
 var callLoaderAnimation = function(text_info) {
     // $(".modal-loader").modal();
     $(".loading").show();
-    $(".modal-loader").modal();
+    // $(".modal-loader").modal();
 
     $(".loading-message").text("");
     if (text_info !== undefined && text_info.length > 0) {
@@ -547,6 +547,22 @@ var defaultKeyUpDatePickerAction = function(campo, ev, value) {
 };
 
 /**
+ * Comportamento padrão em campo de Date Time Picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {*} ev
+ * @param {*} value
+ */
+var defaultKeyUpDateTimePickerAction = function(campo, ev, value) {
+    var value = value.replace(/(\d{2})(\d{2})(\d{4})(\d{2})(\d{2)/g,"$1/$2/$3 $4:$5");
+    if (value.length == 10 && ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105))) {
+        updateDateTimePicker(campo, value);
+    }
+};
+
+/**
  * Prevê Enter de ser informado em campo de date picker
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -615,22 +631,35 @@ var initializeDatePicker = function(campo) {
 var initializeDateTimePicker = function(
     campo,
     campoOculto,
-    inicializarCampo = false
+    inicializarCampo = false,
+    dataMaxima
 ) {
+    console.log(dataMaxima);
     // Seta todos os campos DateTimePicker para Português Brasil
-    $.datetimepicker.setLocale("pt-BR");
+    moment.locale("pt-BR", {});
+    var options = {
+        locale: "pt-BR",
+        format: "DD/MM/YYYY HH:mm",
+        useCurrent: false
+        // format: "d/m/Y H:i",
+        // mask: "31/12/9999 23:59",
+        // value: moment().format("DD/MM/YYYY HH:mm"),
+        // step: 15,
+        // allowBlank: false
+    };
 
-    $("#" + campo).datetimepicker({
-        format: "d/m/Y H:i",
-        mask: "31/12/9999 23:59",
-        value: moment().format("DD/MM/YYYY HH:mm"),
-        step: 15
-    });
+    if (dataMaxima != undefined){
+        var format = "DD/MM/YYYY HH:mm";
+        var maxDate = moment(dataMaxima, format).format(format);
+        options.maxDate = maxDate;
+    }
+
+    $("#" + campo).datetimepicker(options);
 
     if (inicializarCampo != undefined && inicializarCampo) {
         var valor = moment().format("DD/MM/YYYY HH:mm");
 
-        $("#" + campo).val(valor);
+        $("#" + campo).data("DateTimePicker").date(valor);
         if (campoOculto) {
             valor = moment().format("YYYY-MM-DD HH:mm");
             $("#" + campoOculto).val(valor);
@@ -640,7 +669,7 @@ var initializeDateTimePicker = function(
     $("#" + campo)
         .on("keyup", function(ev) {
             preventEnterActionInput(ev);
-            defaultKeyUpDatePickerAction(campo, ev, this.value);
+            // defaultKeyUpDateTimePickerAction(campo, ev, this.value);
         })
         .on("keydown", function(ev) {
             preventEnterActionInput(ev);
@@ -656,7 +685,6 @@ var initializeDateTimePicker = function(
             }
         })
         .on("blur", function(ev) {
-            console.log(ev);
             var value = ev.target.value;
 
             if (value == "") {
@@ -693,6 +721,24 @@ var initializeDateTimePicker = function(
  */
 var updateDatePicker = function(campo, date) {
     $("#" + campo).datepicker("update", date);
+};
+
+/**
+ * home::updateDateTimePicker
+ *
+ * Atualiza o valor do campo de data do tipo date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-12-26
+ *
+ * @param {string} campo Campo
+ * @param {string} date Valor
+ *
+ * @return void
+ */
+var updateDateTimePicker = function(campo, date) {
+    console.log(date);
+    $("#" + campo).val(date);
 };
 
 /**

@@ -1100,6 +1100,8 @@ class PontuacoesComprovantesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                DebugUtil::printArray($data);
                 $img = !empty($data["image"]) ? $data["image"] : null;
 
                 $nomeImg = null;

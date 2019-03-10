@@ -444,7 +444,8 @@ $(document).ready(function() {
             url: "/PontuacoesComprovantes/saveManualReceipt",
             data: JSON.stringify({
                 data: data,
-                image: image
+                image: image,
+                data_processamento: $("#data_processamento_save").val()
             }),
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("Accept", "application/json");

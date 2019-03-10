@@ -100,7 +100,12 @@ $(document).ready(function() {
     var exibeContainerCupomMG = function() {
         // var data = new Date().toLocaleString();
 
-        initializeDateTimePicker("data_processamento", "data_processamento_save", true);
+        initializeDateTimePicker(
+            "data_processamento",
+            "data_processamento_save",
+            true,
+            moment(new Date()).format("DD/MM/YYYY HH:mm")
+        );
         // $(".gotas-camera-manual-insert #data_processamento").val(data);
         $(".gotas-camera-manual-insert").fadeIn(500);
     };
@@ -334,6 +339,8 @@ $(document).ready(function() {
                 clientes_cnpj: $("#clientesCNPJ").val(),
                 usuarios_id: $("#usuarios_id").val(),
                 funcionarios_id: $("#funcionarios_id").val()
+
+
             }),
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -757,7 +764,12 @@ var resetLayout = function() {
     // video-capture-gotas-user-select-container
     $(".user-query-region").show();
 
-    initializeDateTimePicker("data_processamento", "data_processamento_save", true);
+    initializeDateTimePicker(
+        "data_processamento",
+        "data_processamento_save",
+        true,
+        moment(new Date()).format("DD/MM/YYYY HH:mm")
+    );
 
     // reset para filtro de estados com qr code
     $(".group-capture-qr-code").hide();
