@@ -164,7 +164,7 @@ use Cake\Core\Configure;
             </h4>
 
             <div class="col-lg-1 btn btn-default right-align call-modal-how-it-works" target-id="#gotas-explicacao">
-                <span class=" fa fa-question-circle-o"> Ajuda</span>
+                <span class=" fas fa-question-circle"> Ajuda</span>
             </div>
         </div>
 
@@ -221,8 +221,8 @@ use Cake\Core\Configure;
                         <h4>Lista de Gotas Inseridas</h4>
                         <div>
                             <label for="data_processamento">Data do Cupom</label>
-                            <input type="text" name="data_processamento" id="data_processamento" class="form-control">
-                            <input type="hidden" name="data_processamento_save" id="data_processamento_save" class="form-control hidden">
+                            <input type="text" name="data_processamento" id="data_processamento" class="form-control" required>
+                            <input type="hidden" name="data_processamento_save" id="data_processamento_save" class="form-control hidden" required>
                         </div>
                         <table class="table table-hover table-responsive gotas-products-table">
                             <thead>

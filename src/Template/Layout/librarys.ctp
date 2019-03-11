@@ -58,7 +58,7 @@ echo $this->Html->meta('icon');
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.css.map">
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.min.css">
 <!-- Font Awesome 5 -->
-<!-- <link rel="stylesheet" href="/webroot/css/fontawesome5/css/all.css" /> -->
+<link rel="stylesheet" href="/webroot/css/fontawesome5/css/all.css" />
 
 <!-- Bibliotecas jQuery -->
 

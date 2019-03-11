@@ -18,7 +18,7 @@
             </h4>
 
             <div class="col-lg-1 btn btn-default right-align call-modal-how-it-works" target-id="#gotas-explicacao">
-                <span class=" fa fa-question-circle-o"> Ajuda</span>
+                <span class=" fas fa-question-circle"> Ajuda</span>
             </div>
         </div>
 
@@ -119,11 +119,11 @@
             </span>
         </div>
     </div>
-        
+
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/gotas/gotas_input_form_sem_ocr') ?>
     <?= $this->Html->css('styles/gotas/gotas_input_form_sem_ocr')?>
-<?php else: ?> 
+<?php else: ?>
     <?= $this->Html->script('scripts/gotas/gotas_input_form_sem_ocr.min') ?>
     <?= $this->Html->css('styles/gotas/gotas_input_form_sem_ocr.min') ?>
 <?php endif; ?>

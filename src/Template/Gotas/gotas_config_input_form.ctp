@@ -15,7 +15,7 @@ use Cake\Core\Configure;
 <fieldset>
 
     <div class="btn btn-default right-align pull-right call-modal-how-it-works" target-id="#explicacao-gotas">
-        <span class=" fa fa-question-circle-o"> Ajuda</span>
+        <span class=" fas fa-question-circle"> Ajuda</span>
     </div>
     <div class="form-group row">
         <legend>

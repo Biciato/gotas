@@ -28,9 +28,7 @@ $(document).ready(function() {
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
      */
     $(".dropdown-submenu a.test").on("click", function(e) {
-        $(this)
-            .next("ul")
-            .toggle();
+        $(this).next("ul").toggle();
         e.stopPropagation();
         e.preventDefault();
     });

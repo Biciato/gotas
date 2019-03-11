@@ -171,9 +171,7 @@ $(document).ready(function() {
                         "Este registro já foi importado previamente, não sendo possível a importação!"
                     );
 
-                    $(
-                        ".gotas-camera-manual-insert .user-btn-proceed-picture-mg"
-                    ).attr("disabled", true);
+                    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr("disabled", true);
                     $(".gotas-camera-manual-insert #list_parametros").val(null);
                     $(".gotas-camera-manual-insert #list_parametros").attr(
                         "disabled",
@@ -187,9 +185,7 @@ $(document).ready(function() {
                     );
 
                     if (arrayParametrosGravar.get().length > 0) {
-                        $(
-                            ".gotas-camera-manual-insert .user-btn-proceed-picture-mg"
-                        ).attr("disabled", false);
+                        $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr("disabled", false);
 
                         if (function_execute !== undefined) {
                             function_execute();
@@ -327,15 +323,9 @@ $(document).ready(function() {
 
     $(".gotas-camera-manual-insert #quantidade_input").on("keyup", function() {
         if ($(this).val() != "") {
-            $(".gotas-camera-manual-insert .add-parameter").prop(
-                "disabled",
-                false
-            );
+            $(".gotas-camera-manual-insert .add-parameter").prop("disabled", false);
         } else {
-            $(".gotas-camera-manual-insert .add-parameter").prop(
-                "disabled",
-                true
-            );
+            $(".gotas-camera-manual-insert .add-parameter").prop("disabled", true);
         }
     });
 
@@ -385,15 +375,15 @@ $(document).ready(function() {
 
         $.each(arrayParametrosGravar.get(), function(index, value) {
             var html =
-                "<tr><td>" +
+                $("<tr><td>" +
                 value.nome_parametro +
                 "</td><td>" +
                 value.quantidade_multiplicador_exibicao +
                 "</td><td>" +
                 "<div class='btn btn-danger btn-xs select-button' value='" +
                 value.key +
-                "'>Remover</div>" +
-                "</td></tr>";
+                "'><i class='fa fa-trash text-danger' title='Remover'></i></div>" +
+                "</td></tr>");
 
             $(".gotas-camera-manual-insert .gotas-products-table ").append(
                 html
@@ -411,7 +401,18 @@ $(document).ready(function() {
         function() {
             // verifica primeiro se registro já existe.
             // se não existir, executa a função passada via parâmetro
-            checkTaxCouponRepeated(exibeTelaCapturaMG);
+            // alert("Ma oe!!");
+
+            var data = $("#data_processamento").val();
+
+            var dataValida = moment(data, "YYYY-MM-DD HH:mm").isValid();
+            // valida se a data é válida
+
+            if (dataValida) {
+                checkTaxCouponRepeated(exibeTelaCapturaMG);
+            } else {
+                callModalError("A data do cupom não é válida! Corrija antes de prosseguir!");
+            }
         }
     );
 

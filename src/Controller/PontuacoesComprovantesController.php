@@ -1101,9 +1101,8 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
 
-                DebugUtil::printArray($data);
+                $dataProcessamento = !empty($data["data_processamento"]) ? $data["data_processamento"] : date("Y-m-d H:i:s");
                 $img = !empty($data["image"]) ? $data["image"] : null;
-
                 $nomeImg = null;
                 $nomeImgExtensao = null;
 
@@ -1124,9 +1123,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
 
-                $data_array = $this->request->getData()['data'];
-
-                // DebugUtil::print($data);
+                $data_array = $data['data'];
 
                 $pontuacoes_comprovante = null;
 
@@ -1187,7 +1184,7 @@ class PontuacoesComprovantesController extends AppController
                         $pontuacoes_comprovante['nome_img'] = $nomeImgExtensao;
                         $pontuacoes_comprovante['chave_nfe'] = $chave_nfe;
                         $pontuacoes_comprovante['estado_nfe'] = $estado_nfe;
-                        $pontuacoes_comprovante['data'] = date('Y-m-d H:i:s');
+                        $pontuacoes_comprovante['data'] = $dataProcessamento;
 
                         // importacao manual, precisa de auditoria
                         $pontuacoes_comprovante['requer_auditoria'] = true;
@@ -1209,7 +1206,7 @@ class PontuacoesComprovantesController extends AppController
                             = $quantidade * $gotas->multiplicador_gota;
                         $pontuacoes['pontuacoes_comprovante_id']
                             = $pontuacoes_comprovante->id;
-                        $pontuacoes['data'] = date('Y-m-d H:i:s');
+                        $pontuacoes['data'] = $dataProcessamento;
                         $pontuacoes['expirado'] = false;
 
                         $pontuacoes = $this->Pontuacoes->save($pontuacoes);
@@ -1225,10 +1222,7 @@ class PontuacoesComprovantesController extends AppController
                 $data = array("pontuacoes_comprovantes" => $pontuacoes_comprovante);
             }
 
-            $arraySet = [
-                'success',
-                'data'
-            ];
+            $arraySet = array('success', 'data');
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
