@@ -24,7 +24,7 @@ echo $this->Breadcrumbs->render(
     <?= $this->element('../Gotas/left_menu', ['mode' => 'view', 'go_back_url' => ['controller' => 'pages', 'action' => 'index']]) ?>
         <div class="gotas index col-lg-9 col-md-8 columns content">
 
-        <legend>Cadastro de Gotas de Minha Rede</legend>
+        <legend>Atribuição de Gotas de Por Consumo da Rede</legend>
 
         <h5><?php echo "" ?> </h5>
 

@@ -47,23 +47,37 @@ $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 	<div class="user-management">
 
 
-		<?= $this->Html->tag('span', __("Administrador [{0}] administrando usuário {1}. Clique no botão para encerrar:", $usuarioAdministrador['nome'], $usuarioAdministrar['nome']))?>
+        <?= $this->Html->tag('span', __("Administrador [{0}] administrando usuário {1}. Clique no botão para encerrar:", $usuarioAdministrador['nome'], $usuarioAdministrar['nome']))?>
 
-		<?= $this->Html->link(
-			__('{0} Encerrar gerenciamento',
-			// $this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])),
-			$this->Html->tag('i', '', ['class' => 'fas fa-sign-out-alt'])),
-			'#',
-			array(
-				'class'=>'btn btn-primary btn-quit-manage-unit',
-				'data-toggle'=> 'modal',
-				'data-target' => '#modal-confirm-with-message',
-				'data-message' => __('Deseja encerrar o gerenciamento do usuário {0} ?', $usuarioAdministrar['nome']),
-				'data-action'=> Router::url(
-					['controller' => 'usuarios', 'action' => 'finalizar_administracao_usuario']
-				),
-				'escape' => false),
-		false); ?>
+        <a href="#"
+            class='btn btn-primary btn-quit-manage-unit'
+            data-toggle="modal"
+            data-target="#modal-confirm-with-message"
+            data-message="<?= __('Deseja encerrar o gerenciamento do usuário {0} ?', $usuarioAdministrar['nome']) ?>"
+            data-action="/usuarios/finalizarAdministracaoUsuario">
+            <i class="fas fa-sign-out-alt"></i>
+            Encerrar Gerenciamento
+        </a>
+
+
+        <?php
+
+        // echo $this->Html->link(
+		// 	__('{0} Encerrar gerenciamento',
+		// 	// $this->Html->tag('i', '', ['class' => 'fa fa-sign-out'])),
+		// 	$this->Html->tag('i', '', ['class' => 'fas fa-sign-out-alt'])),
+		// 	'#',
+		// 	array(
+		// 		'class'=>'btn btn-primary btn-quit-manage-unit',
+		// 		'data-toggle'=> 'modal',
+		// 		'data-target' => '#modal-confirm-with-message',
+		// 		'data-message' => __('Deseja encerrar o gerenciamento do usuário {0} ?', $usuarioAdministrar['nome']),
+		// 		'data-action'=> Router::url(
+		// 			['controller' => 'usuarios', 'action' => 'finalizar_administracao_usuario']
+		// 		),
+		// 		'escape' => false),
+        // false);
+         ?>
 	</div>
 
 </div>

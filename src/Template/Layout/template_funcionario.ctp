@@ -62,11 +62,12 @@ $titlePage = 'GOTAS - Funcionário ' . $usuarioLogado['nome'];
                 </button>
                 <a class="navbar-brand" href="<?php echo $this->Url->build(isset($project_url) ? $project_url : '/'); ?>">
                     <?php
-                        if (isset($project_name)) {
-                            echo $project_name;
-                        } else {
-                            echo 'Cake Twitter Bootstrap';
-                        }
+                        // if (isset($project_name)) {
+                        //     echo $project_name;
+                        // } else {
+                        //     echo 'Cake Twitter Bootstrap';
+                        // }
+                        ECHO "INÍCIO";
                     ?>
                 </a>
                 </div>

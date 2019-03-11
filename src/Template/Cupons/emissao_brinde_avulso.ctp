@@ -20,7 +20,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <div class="col-lg-9 col-md-10 columns">
 
     <div class="container-emissao-cupom">
-        <legend>Emissão de Brinde Avulso</legend>
+        <legend>Emissão de Venda Avulsa</legend>
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
 

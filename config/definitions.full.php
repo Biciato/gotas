@@ -19,3 +19,5 @@ const __SERVER__ = "https://sistema.gotas.com.br/";
 
 // host
 const __HOST__ = "sistema.gotas.local";
+// Server
+// const __HOST__ = "sistema.gotas.com.br";

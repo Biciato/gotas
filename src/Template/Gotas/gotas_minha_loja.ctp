@@ -22,7 +22,7 @@ echo $this->Breadcrumbs->render(
     <?= $this->element('../Gotas/left_menu', ['mode' => 'view', 'go_back_url' => ['controller' => 'pages', 'action' => 'index']]) ?>
         <div class="gotas index col-lg-9 col-md-8 columns content">
             <legend>
-                <?= __('Gotas Configuradas para Loja') ?>
+                <?= __('Atribuição de Gotas de Por Consumo da Loja') ?>
             </legend>
             <table class="table table-striped table-hover">
                 <thead>
@@ -62,8 +62,8 @@ echo $this->Breadcrumbs->render(
                                     'escape' => false
                                 ]
                             ) ?>
-                            
-                            <?php if ($gota->habilitado) : ?> 
+
+                            <?php if ($gota->habilitado) : ?>
 
                                 <?= $this->Html->link(
                                     __(

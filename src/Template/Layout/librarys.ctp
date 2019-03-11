@@ -35,8 +35,8 @@ echo $this->Html->meta('icon');
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.min.css">
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.min.css.map">
 <script src="/webroot/js/bootstrap/js/bootstrap.js"></script>
-<script src="/webroot/js/bootstrap/js/bootstrap.min.js"></script>
-<script src="/webroot/js/bootstrap/js/affix.js"></script>
+<!-- <script src="/webroot/js/bootstrap/js/bootstrap.min.js"></script> -->
+<!-- <script src="/webroot/js/bootstrap/js/affix.js"></script>
 <script src="/webroot/js/bootstrap/js/alert.js"></script>
 <script src="/webroot/js/bootstrap/js/button.js"></script>
 <script src="/webroot/js/bootstrap/js/carousel.js"></script>
@@ -47,7 +47,7 @@ echo $this->Html->meta('icon');
 <script src="/webroot/js/bootstrap/js/scrollspy.js"></script>
 <script src="/webroot/js/bootstrap/js/tab.js"></script>
 <script src="/webroot/js/bootstrap/js/tooltip.js"></script>
-<script src="/webroot/js/bootstrap/js/transition.js"></script>
+<script src="/webroot/js/bootstrap/js/transition.js"></script> -->
 
 <!-- Home -->
 <script src="/webroot/js/scripts/pages/home.js"></script>
@@ -58,7 +58,7 @@ echo $this->Html->meta('icon');
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.css.map">
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.min.css">
 <!-- Font Awesome 5 -->
-<link rel="stylesheet" href="/webroot/css/fontawesome5/css/all.css" />
+<!-- <link rel="stylesheet" href="/webroot/css/fontawesome5/css/all.css" /> -->
 
 <!-- Bibliotecas jQuery -->
 
@@ -117,7 +117,7 @@ echo $this->Html->meta('icon');
 
 
 <!-- Início Estilos -->
-<link href="/webroot/app/css/site.css" rel="stylesheet" >
+<!-- <link href="/webroot/app/css/site.css" rel="stylesheet" > -->
 
 <!-- <link href="/webroot/app/css/main.css" rel="stylesheet" />
 <link href="/webroot/app/css/site.css" rel="stylesheet" /> -->
@@ -128,7 +128,7 @@ echo $this->Html->meta('icon');
 
 <link rel="stylesheet" href="/webroot/app/lib/ui.select/select.min.css" >
 
-<script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js"></script>
+<!-- <script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js"></script> -->
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->

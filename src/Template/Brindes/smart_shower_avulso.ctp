@@ -4,7 +4,7 @@
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Gotas/atribuir_gotas_form.ctp
  * @date     06/08/2017
- * 
+ *
  * Arquivo para atribuir gotas de cliente na view de funcionário
  */
 use Cake\Core\Configure;
@@ -15,7 +15,7 @@ use Cake\Core\Configure;
 
 <div class="col-lg-9">
     <div id="impressao-rapida-escolha" class="display-content">
-        <legend>Emissão de Brinde Avulso: </legend>
+        <legend>Emissão de Venda Avulsa: </legend>
 
         <div class="col-lg-12 col-md-11 columns">
             <div class="col-lg-6">
@@ -44,7 +44,7 @@ use Cake\Core\Configure;
 
 <div class="col-lg-9">
 
-  
+
     <div class="display-content impressao-rapida-escolha-rti-shower">
         <?= $this->element('../Cupons/brinde_shower_avulso', ['showMenu' => false, 'show_breadcrumbs' => false]) ?>
     </div>
@@ -55,7 +55,7 @@ use Cake\Core\Configure;
 
 </div>
 
-<?php if (isset($clientes_id)) : ?> 
+<?php if (isset($clientes_id)) : ?>
 
 <?= $this->Form->input('clientes_id', [
     'type' => 'text',
@@ -63,8 +63,8 @@ use Cake\Core\Configure;
     'id' => 'clientes_id',
     'value' => $clientes_id,
     'label' => false
-]) ?> 
-<?php endif; ?> 
+]) ?>
+<?php endif; ?>
 
 <?= $this->Form->input(
     'id',
@@ -87,7 +87,7 @@ use Cake\Core\Configure;
 <?= $this->Form->input(
 'image_name',
 [
-    'type' => 'hidden', 
+    'type' => 'hidden',
     'id' => 'image_name'
 ]
 ) ?>
@@ -95,7 +95,7 @@ use Cake\Core\Configure;
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/brindes/impressao_rapida') ?>
     <?= $this->Html->css('styles/brindes/impressao_rapida') ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/brindes/impressao_rapida.min') ?>
     <?= $this->Html->css('styles/brindes/impressao_rapida.min') ?>
 <?php endif; ?>

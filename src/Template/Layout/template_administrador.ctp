@@ -103,12 +103,14 @@ $this->fetch('script');
 				</button>
 				<a class="navbar-brand" href="<?php echo $this->Url->build(isset($project_url) ? $project_url : '/'); ?>">
                 <?php
-
-                if (isset($project_name)) {
-                    echo $project_name;
-                } else {
-                    echo 'Cake Twitter Bootstrap';
-                } ?></a>
+                    // if (isset($project_name)) {
+                    //     echo $project_name;
+                    // } else {
+                    //     echo 'Cake Twitter Bootstrap';
+                    // }
+                    echo "INÍCIO";
+                ?>
+                </a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->

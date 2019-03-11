@@ -249,7 +249,7 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider" />
 
                     <li>
-                        <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
+                        <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
                     </li>
 
                     <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]): ?>
@@ -357,7 +357,7 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider"></li>
 
                     <li>
-                        <?php echo $this->Html->link('Cadastro de Gotas', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
+                        <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
                     </li>
                     <li role="separator" class="divider"></li>
 

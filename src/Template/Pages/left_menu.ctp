@@ -60,7 +60,7 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
                 <li>
             <?php endif; ?>
 
-                <?= $this->Html->link(__('Atribuição de Gotas'), ['controller' => 'Gotas', 'action' => 'atribuir_gotas']) ?>
+                <?= $this->Html->link(__('Pontuar Gotas'), ['controller' => 'Gotas', 'action' => 'atribuir_gotas']) ?>
             </li>
             <?php if ($item_selected == 'impressao_rapida') : ?>
                 <li class="list-group-item-success">
@@ -82,7 +82,7 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
             <?php else : ?>
                 <li>
             <?php endif; ?>
-                <?= $this->Html->link(__('Brinde Avulso'), ['controller' => 'Cupons', 'action' => 'emissao_brinde_avulso']) ?>
+                <?= $this->Html->link(__('Venda Avulsa'), ['controller' => 'Cupons', 'action' => 'emissao_brinde_avulso']) ?>
             </li>
 
             <li class="list-group-item active">
