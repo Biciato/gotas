@@ -263,28 +263,33 @@ $(document).ready(function () {
     changeProfileType($("#tipo_perfil"));
 
     $("#alternarEstrangeiro").click(function () {
-        $("#cpf_box").toggle();
-        $("#doc_estrangeiro_box").toggle();
+        var toggle = this.checked;
+        console.log(toggle);
+        $("#cpf_box").toggle(!toggle);
+        $("#doc_estrangeiro_box").toggle(toggle);
 
-        if (this.checked) {
-            startScanDocument();
-        } else {
-            stopScanDocument();
-        }
+        // if (this.checked) {
+        //     startScanDocument();
+        // } else {
+        //     stopScanDocument();
+        // }
 
     });
 
-    if ($("#alternarEstrangeiro").checked == true) {
-        $("#cpf_box").hide();
-        $("#doc_estrangeiro_box").show();
-        $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
-        startScanDocument();
-    } else {
-        $("#cpf_box").show();
-        $("#doc_estrangeiro_box").hide();
-        $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
-        stopScanDocument();
-    }
+    // if ($("#alternarEstrangeiro").prop("checked") == true) {
+    //     $("#cpf_box").hide();
+    //     $("#doc_estrangeiro_box").show();
+    //     $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
+    //     // startScanDocument();
+    // } else {
+
+    //     $("#cpf_box").show();
+    //     $("#doc_estrangeiro_box").hide();
+    //     $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
+
+    //     // $("#doc_estrangeiro_validation").text(null);
+    //     // stopScanDocument();
+    // }
 
     $("#alternarTransportadora").click(function () {
         if ($("#alternarTransportadora").is(":checked")) {

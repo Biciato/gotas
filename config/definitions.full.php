@@ -9,7 +9,7 @@
  */
 
 // host
-const __HOST__ = "sistema-devel.gotas.local";
+const __HOST__ = "sistema.gotas.local";
 // Server
 // const __HOST__ = "sistema.gotas.com.br";
 

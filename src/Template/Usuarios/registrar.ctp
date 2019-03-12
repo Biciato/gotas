@@ -13,7 +13,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType'])
+if (!empty($usuarioLogado) && $usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER)
 {
     $this->Breadcrumbs->add('Usuários', ['controller' => 'usuarios', 'action' => 'index']);
 }
@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <div class="col-lg-12">
     <?= $this->Element('../Usuarios/usuario_form') ?>
 </div>
-    
+
 <?php endif; ?>
 
 
@@ -45,7 +45,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/usuarios/add'); ?>
-<?php else : ?> 
+<?php else : ?>
     <?= $this->Html->script('scripts/usuarios/add.min'); ?>
 <?php endif; ?>
 
