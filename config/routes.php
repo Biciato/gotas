@@ -375,6 +375,12 @@ Router::scope("/api", function ($routes) {
                 "path" => "/get_usuario_by_id"
             ),
 
+            "getUsuarioByDocEstrangeiroAPI" => array(
+                "action" => "getUsuarioByDocEstrangeiroAPI",
+                "method" => "POST",
+                "path" => "/get_usuario_by_doc_estrangeiro"
+            ),
+
             "getListaUsuariosRedeAPI" => array(
                 "action" => "getListaUsuariosRedeAPI",
                 "method" => "POST",

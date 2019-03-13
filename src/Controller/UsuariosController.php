@@ -21,6 +21,7 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\ORM\TableRegistry;
+use ReCaptcha\Response;
 
 /**
  * Usuarios Controller
@@ -325,8 +326,24 @@ class UsuariosController extends AppController
 
         // Permitir aos usuários se registrarem e efetuar login e logout.
 
-        // TODO: remover findUsuario
-        $this->Auth->allow(['registrar', 'registrarAPI', 'esqueciMinhaSenhaAPI', 'loginAPI', 'login', 'logout', 'esqueciMinhaSenha', 'reativarConta', 'resetarMinhaSenha', 'getUsuarioByCPF', 'getUsuarioByEmail', 'uploadDocumentTemporaly', "testAPI"]);
+        $this->Auth->allow(
+            array(
+                "registrar",
+                "registrarAPI",
+                "esqueciMinhaSenhaAPI",
+                "loginAPI",
+                "login",
+                "logout",
+                "esqueciMinhaSenha",
+                "reativarConta",
+                "resetarMinhaSenha",
+                "getUsuarioByCPF",
+                "getUsuarioByEmail",
+                "uploadDocumentTemporaly",
+                "testAPI",
+                "getUsuarioByDocEstrangeiroAPI"
+            )
+        );
     }
 
     /**
@@ -1451,8 +1468,8 @@ class UsuariosController extends AppController
                     'ClientesHasUsuarios.usuarios_id' => $usuario->id,
                     // @todo gustavosg Testar tipo_perfil
                     //  'ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil
-                    )
-                )->first();
+                )
+            )->first();
 
             // com o código da unidade, verifica se há outro usuário vinculado
 
@@ -3565,6 +3582,37 @@ class UsuariosController extends AppController
         ResponseUtil::success($usuario);
     }
 
+    /**
+     * UsuariosController::getUsuarioByDocEstrangeiroAPI
+     *
+     * Serviço REST para obter usuários contendo documento estrangeiro informado
+     *
+     * @param $data["doc_estrangeiro"] Documento Estrangeiro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-13
+     *
+     * @return json_encode
+     */
+    public function getUsuarioByDocEstrangeiroAPI()
+    {
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $documentoEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+
+            if (empty($documentoEstrangeiro)) {
+                ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
+            }
+            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($documentoEstrangeiro);
+
+            if (count($usuarios->execute()) > 0) {
+                ResponseUtil::error("", "Aviso!", array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
+            }
+            ResponseUtil::success(0);
+        }
+    }
+
     public function getListaUsuariosRedeAPI()
     {
         $usuarioLogado = $this->Auth->user();
@@ -4018,7 +4066,7 @@ class UsuariosController extends AppController
                             // Criação
                             // Se usuário não encontrado, cadastra para futuro acesso
 
-                            if (empty($usuario)){
+                            if (empty($usuario)) {
                                 $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
 
                                 // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)

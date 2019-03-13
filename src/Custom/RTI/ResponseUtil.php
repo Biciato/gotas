@@ -116,7 +116,7 @@ class ResponseUtil
     }
 
     /**
-     * ResponseUtil::successAPI
+     * ResponseUtil::errorAPI
      *
      * Retorna erro para API Mobile
      *

@@ -135,14 +135,14 @@ $(document).ready(function () {
     /**
      * Esconde e reseta as informações de Redes
      */
-    var hide_redes_input = function () {
+    var hideRedesInput = function () {
         $(".redes_input").hide();
         $(".redes_list").val(null);
         $(".clientes_rede").val(null);
 
     }
 
-    hide_redes_input();
+    hideRedesInput();
 
     /**
      * Mostra informações de redes
@@ -241,7 +241,7 @@ $(document).ready(function () {
         if (tipoPerfil !== undefined) {
             if (tipoPerfil >= 0 && tipoPerfil <= 2) {
                 if ($(data).val() < 1 || $(data).val() > 5) {
-                    hide_redes_input();
+                    hideRedesInput();
                 } else {
                     showRedesInput();
                 }
@@ -264,7 +264,6 @@ $(document).ready(function () {
 
     $("#alternarEstrangeiro").click(function () {
         var toggle = this.checked;
-        console.log(toggle);
         $("#cpf_box").toggle(!toggle);
         $("#doc_estrangeiro_box").toggle(toggle);
 
@@ -461,19 +460,21 @@ $(document).ready(function () {
                     $("#cpf_validation").show();
 
                     if (occurrencesInvalidCpf >= 1 && (previousCPF == cpf.value)) {
-                        $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
+                        // $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
+                        callModalError("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
 
                         startScanDocument();
                     } else {
                         occurrencesInvalidCpf = occurrencesInvalidCpf + 1;
                         previousCPF = cpf.value;
-                        $("#cpf").val("");
+                        // $("#cpf").val("");
                     }
                 } else {
                     $("#cpf_validation").text("");
                     $("#cpf_validation").hide();
 
                     previousCPF = "";
+                    occurrencesInvalidCpf = 0;
 
                     $("#user_submit").attr('disabled', false);
                 }
@@ -481,12 +482,39 @@ $(document).ready(function () {
         });
     };
 
+    var checkDocEstrangeiroRepeated = function (param) {
+
+        $.ajax({
+            type: "POST",
+            // url: "/api/usuarios/getUsuarioByDocEstrangeiroAPI",
+            url: "/api/usuarios/get_usuario_by_doc_estrangeiro",
+            data: JSON.stringify({
+                doc_estrangeiro: param.target.value
+            }),
+            // dataType: "json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", 1);
+            },
+            success: function (response) {
+                console.log(response);
+
+            }, error: function(error){
+                var msg = JSON.parse(error.responseText);
+                callModalError(msg.title, msg.errors);
+            }
+        });
+    }
+
     /**
      * Limpa campo de CPF ao cadastrar documento estrangeiro
      */
-    $("#doc_estrangeiro").on('keyup', function () {
-        $("#cpf").val(null);
-    });
+    $("#doc_estrangeiro")
+        .on("keyup", function() {
+            $("#cpf").val(null);
+        })
+        .on("blur", checkDocEstrangeiroRepeated);
 
     /**
      * Função que ativa as verificações de cpf repetido e se é válido

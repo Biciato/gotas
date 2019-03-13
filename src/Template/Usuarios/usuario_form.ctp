@@ -426,10 +426,10 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
 </div>
 
-<?php if (Configure::read('debug') == true) : ?>
-<?= $this->Html->script('scripts/usuarios/add'); ?>
-<?php else : ?>
-<?= $this->Html->script('scripts/usuarios/add.min'); ?>
-<?php endif; ?>
+<?php
+    $extension = Configure::read("debug") ? ""  : ".min";
+// $this->fetch('script');
+?>
 
-<?= $this->fetch('script'); ?>
+<script src="<?php echo "/webroot/js/scripts/usuarios/add".$extension.".js" ?>"></script>
+<link rel="stylesheet" href="<?= "/webroot/css/styles/usuarios/usuario_form".$extension.".css" ?>">

@@ -292,6 +292,9 @@ const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
 
 // Usuários
 const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
+const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
+const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
+const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro com este documento estrangeiro, informe um outro documento!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
@@ -302,6 +305,10 @@ const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
 const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
 
+// Títulos de mensagem
+
+const MESSAGE_GENERIC_ERROR = "Houve um erro!";
+const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
 #endregion
 
 #endregion

@@ -419,11 +419,11 @@ $(document).ready(function () {
     /**
      * Esconde e reseta as informações de Redes
      */
-    var hide_redes_input = function () {
+    var hideRedesInput = function () {
         $(".redes_input").hide();
     };
 
-    hide_redes_input();
+    hideRedesInput();
 
     /**
      * Mostra informações de redes
@@ -523,7 +523,7 @@ $(document).ready(function () {
         if (tipo_perfil !== undefined) {
             if (tipo_perfil == 0) {
                 if ($(data).val() < 1 || $(data).val() > 5) {
-                    hide_redes_input();
+                    hideRedesInput();
                     $(".redes_list").val(null);
                     $(".clientes_rede").val(null);
                 } else {

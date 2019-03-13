@@ -43,10 +43,3 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 <?= $this->Form->end() ?>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/usuarios/add'); ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/usuarios/add.min'); ?>
-<?php endif; ?>
-
-<?= $this->fetch('script'); ?>

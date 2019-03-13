@@ -1,0 +1,11 @@
+/**
+ * Arquivo de estilo para telas de cadastro de usuário
+ *
+ * @file webroot\css\styles\usuarios\usuario_form.css
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-03-12
+ */
+
+#doc_estrangeiro_box {
+    display: none;
+}
