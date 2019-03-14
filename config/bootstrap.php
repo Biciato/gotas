@@ -295,6 +295,7 @@ const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro com este documento estrangeiro, informe um outro documento!";
+const MESSAGE_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
@@ -309,6 +310,7 @@ const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível co
 
 const MESSAGE_GENERIC_ERROR = "Houve um erro!";
 const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
+const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
 #endregion
 
 #endregion

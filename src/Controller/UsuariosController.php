@@ -3604,9 +3604,9 @@ class UsuariosController extends AppController
             if (empty($documentoEstrangeiro)) {
                 ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
             }
-            $usuarios = $this->Usuarios->getUsuariosByDocumentoEstrangeiro($documentoEstrangeiro);
+            $usuario = $this->Usuarios->getUsuarioByDocumentoEstrangeiro($documentoEstrangeiro);
 
-            if (count($usuarios->execute()) > 0) {
+            if ($usuario) {
                 ResponseUtil::error("", "Aviso!", array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
             }
             ResponseUtil::success(0);
@@ -3955,6 +3955,15 @@ class UsuariosController extends AppController
         try {
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+
+                $id = !empty($data["id"]) ? $data["id"] : null;
+                $email = !empty($data["email"]) ? $data["email"] : null;
+                $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
+
+                if (empty($email)) {
+                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIOS_EMAIL_EMPTY));
+                }
+
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
                 if ($data['id'] != 0) {

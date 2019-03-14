@@ -70,7 +70,7 @@ class ResponseUtil
     public static function error(string $description, string $title, array $errors = array())
     {
         header("HTTP/1.0 406");
-
+        header('Content-Type: application/json');
         $arraySet = array(
             "title" => $title,
             "description" => $description,

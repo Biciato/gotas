@@ -263,9 +263,17 @@ $(document).ready(function () {
     changeProfileType($("#tipo_perfil"));
 
     $("#alternarEstrangeiro").click(function () {
-        var toggle = this.checked;
-        $("#cpf_box").toggle(!toggle);
-        $("#doc_estrangeiro_box").toggle(toggle);
+        if (this.checked) {
+            $("#cpf_box").hide();
+            $("#doc_estrangeiro_box").show();
+            $("#cpf").prop("required", false);
+            $("#doc_estrangeiro").prop("required", true);
+        } else {
+            $("#cpf_box").show();
+            $("#doc_estrangeiro_box").hide();
+            $("#cpf").prop("required", false);
+            $("#doc_estrangeiro").prop("required", true);
+        }
 
         // if (this.checked) {
         //     startScanDocument();
@@ -484,6 +492,8 @@ $(document).ready(function () {
 
     var checkDocEstrangeiroRepeated = function (param) {
 
+        callLoaderAnimation();
+
         $.ajax({
             type: "POST",
             // url: "/api/usuarios/getUsuarioByDocEstrangeiroAPI",
@@ -499,9 +509,13 @@ $(document).ready(function () {
             },
             success: function (response) {
                 console.log(response);
+                $("#user_submit").attr('disabled', false);
+                closeLoaderAnimation();
 
             }, error: function(error){
+                closeLoaderAnimation();
                 var msg = JSON.parse(error.responseText);
+                $("#user_submit").attr('disabled', true);
                 callModalError(msg.title, msg.errors);
             }
         });
@@ -555,65 +569,36 @@ $(document).ready(function () {
      * Verifica se há e-mail em uso
      */
     $("#email").on('blur', function () {
-        if (this.value.length > 0) {
+        $.ajax({
+            url: "/Usuarios/getUsuarioByEmail",
+            type: 'post',
+            data: JSON.stringify({
+                id: 0,
+                email: this.value
+            }),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", 1);
 
-            // verifica se o e-mail é válido
+                callLoaderAnimation();
+            },
+            success: function (data) {
+                if (data['user'] !== null) {
+                    callModalError('Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"');
+                    $("#user_submit").attr('disabled', true);
 
-            var email = this.value;
-
-            // verifica se email possui um @ e se não é o primeiro dígito
-
-            var contains_at = this.value.indexOf("@");
-
-            var contains_dot = getAllIndexes(this.value, ".");
-
-            // se tem arroba e tem um ponto no e-mail
-
-            var email_invalid = "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
-
-            if (contains_at == -1 || contains_dot.length == 0) {
-                callModalError(email_invalid);
-            } else {
-                // verifica se tem algum ponto APÓS o arroba
-
-                var found = false;
-                contains_dot.forEach(element => {
-                    if (element > contains_at) {
-                        found = true;
-                        // break;
-                    }
-                });
-
-                if (!found) {
-                    callModalError(email_invalid);
                 } else {
-                    $.ajax({
-                        url: "/Usuarios/getUsuarioByEmail",
-                        type: 'post',
-                        data: JSON.stringify({
-                            id: 0,
-                            email: this.value
-                        }),
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("Accept", "application/json");
-                            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-                        },
-                        success: function (data) {
-                            if (data['user'] !== null) {
-                                callModalError('Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"');
-                                $("#user_submit").attr('disabled', true);
-
-                            } else {
-                                $("#user_submit").attr('disabled', false);
-                            }
-                        },
-                        error: function (data) {
-                            console.log(data);
-                        }
-                    });
+                    $("#user_submit").attr('disabled', false);
                 }
+
+            },
+            error: function (error) {
+                callModalError(error.responseJSON.title, error.responseJSON.errors);
             }
-        }
+        }).done(function () {
+            closeLoaderAnimation();
+        });
     });
 
     $("#cpf").mask('###.###.###-##');

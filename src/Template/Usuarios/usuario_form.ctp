@@ -205,18 +205,39 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
             </div>
             <div class="form-group col-lg-6" >
                 <div id="cpf_box">
-                <?php
-                echo $this->Form->input('cpf', ['label' => 'CPF', "id" => "cpf"]);
-                ?>
+                    <label
+                        for="cpf">
+                        CPF*
+                    </label>
+                    <input
+                        type="text"
+                        id="cpf"
+                        class="form-control"
+                        required="required"
+                        placeholder="CPF..." />
                 </div>
                 <div id="doc_estrangeiro_box">
-                    <?= $this->Form->input('doc_estrangeiro', ['id' => 'doc_estrangeiro', 'label' => 'Documento de Identificação Estrangeira']) ?>
+                    <label for="doc_estrangeiro">Documento de Identificação Estrangeira*</label>
+                    <input
+                        type="text"
+                        name="doc_estrangeiro"
+                        id="doc_estrangeiro"
+                        class="form-control"
+                        placeholder="Documento Estrangeiro.."/>
                 </div>
 
             </div>
 
             <div class="form-group col-lg-6">
-                <?= $this->Form->input('email'); ?>
+                <label for="email">E-mail*</label>
+                <input
+                    type="text"
+                    name="email"
+                    required="required"
+                    id="email"
+                    class="form-control"
+                    placeholder="E-mail..."
+                    />
                 <span id="email_validation" class="text-danger validation-message">
             </div>
 
@@ -254,18 +275,30 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
             <div class="col-lg-5">
 
-                <?= $this->Form->control('nome'); ?>
+
+                <label for="nome">Nome*</label>
+                <input
+                    type="text"
+                    name="nome"
+                    required="required"
+                    placeholder="Nome..."
+                    id="nome"
+                    class="form-control">
             </div>
 
             <div class="col-lg-3">
-                <?= $this->Form->input('sexo', [
+                <?= $this->Form->input('sexo', array(
+                    "placeholder" => "Sexo...",
+                    "empty" => true,
+                    "required" => true,
                     'options' =>
-                    [
-                        '' => '',
+                    array(
+                        '2' => 'Não informar',
                         '1' => 'Masculino',
                         '0' => 'Feminino'
-                    ]
-                ]); ?>
+                        )
+                    )
+                ); ?>
             </div>
 
 

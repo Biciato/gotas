@@ -187,7 +187,7 @@ class UsuariosTable extends GenericTable
                 'sexo',
                 'inList',
                 [
-                    'rule' => ['inList', ['0', '1']],
+                    'rule' => ['inList', ['0', '1', '2']],
                     'message' => 'Por favor informe o sexo'
                 ]
             );
@@ -915,6 +915,38 @@ class UsuariosTable extends GenericTable
     }
 
     /**
+     * UsuariosTable::getUsuarioByDocumentoEstrangeiro
+     *
+     * Encontra usuario por Documento Estrangeiro
+     *
+     * @param string $docEstrangeiro  Documento Estrangeiro do usuário
+     * @param array  $whereConditions  Condições extras
+     *
+     * @author Gustavo Souza Gonçalves
+     * @since 2019-03-14
+     *
+     * @return entity\usuario $usuario
+     */
+    public function getUsuarioByDocumentoEstrangeiro(string $docEstrangeiro = null)
+    {
+        try {
+            $conditions = array(
+                "tipo_perfil" => PROFILE_TYPE_USER,
+                "doc_estrangeiro"  => $docEstrangeiro
+            );
+
+            return $this->find('all')
+                ->where($conditions)
+                ->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao consultar usuários: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    /**
      * Encontra usuario por Documento Estrangeiro
      *
      * @param string $doc_estrangeiro  Documento Estrangeiro do usuário
@@ -1269,13 +1301,13 @@ class UsuariosTable extends GenericTable
                 "Usuarios.ultima_tentativa_login"
             );
 
-            if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER){
+            if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER) {
                 $usuarios = $usuarios->group(array(
                     "ClienteHasUsuario.usuarios_id"
                 ));
             }
 
-            if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER) ) {
+            if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
 
                 $arrayTemp = array(
                     // "ClienteHasUsuario.tipo_perfil",
