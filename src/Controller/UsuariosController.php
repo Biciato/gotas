@@ -1808,7 +1808,7 @@ class UsuariosController extends AppController
         }
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        $usuarioLogadoTipoPerfil = 6;
+        $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
 
         $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil');
 

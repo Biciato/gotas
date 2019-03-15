@@ -428,27 +428,30 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                 </div>
             </div>
 
-            <?php if ($usuarioLogadoTipoPerfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
-            <div class="fields-is-final-customer ">
-                <?php else : ?>
-                <div>
-                    <?php endif; ?>
+            <?php if ($usuarioLogadoTipoPerfil != PROFILE_TYPE_WORKER) : ?>
+                <div class="fields-is-final-customer">
+            <?php else : ?>
+                <div class="">
+            <?php endif; ?>
 
-                    <?php if (!is_null($usuarioLogado)) : ?>
-                    <?= $this->Element('../Veiculos/veiculos_form'); ?>
+            <?php if (!is_null($usuarioLogado)) : ?>
 
+                <?= $this->Element('../Veiculos/veiculos_form'); ?>
+
+                <div class="form-group row">
                     <div class="col-lg-12">
                         <?= $this->Form->control('transportadora', ['type' => 'checkbox', 'id' => 'alternarTransportadora', 'label' => 'Marque se é de Transportadora', 'value' => 0]) ?>
                     </div>
-                    <br />
-                    <div class="form-group">
-                        <?php
-                        echo $this->Element('../Transportadoras/transportadoras_form');
-                        ?>
-                    </div>
-
-                    <?php endif; ?>
                 </div>
+                <br />
+                <div class="form-group">
+                    <?php
+                    echo $this->Element('../Transportadoras/transportadoras_form');
+                    ?>
+                </div>
+
+                <?php endif; ?>
+            </div>
         </fieldset>
         <div class="form-group row">
             <div class="col-lg-12 text-right">
