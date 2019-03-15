@@ -589,8 +589,8 @@ var preventEnterActionInput = function(ev) {
  *
  * @return void
  */
-var initializeDatePicker = function(campo) {
-    $("#" + campo).datepicker({
+var initializeDatePicker = function(campo, minDate, maxDate) {
+    var options = {
         minView: 2,
         maxView: 2,
         clearBtn: true,
@@ -601,7 +601,17 @@ var initializeDatePicker = function(campo) {
         language: "pt-BR",
         format: "dd/mm/yyyy",
         initialDate: new Date()
-    });
+    };
+
+    if (minDate != undefined){
+        options.minDate = minDate;
+    }
+
+    if (maxDate != undefined) {
+        options.maxDate = maxDate;
+    }
+
+    $("#" + campo).datepicker(options);
 
     $("#" + campo)
         .on("keyup", function(ev) {

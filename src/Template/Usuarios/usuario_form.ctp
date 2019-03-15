@@ -190,56 +190,59 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
     }
 
     ?>
+            <div class="form-group row">
 
-            <div class="col-lg-12">
+                <div class="col-lg-12">
 
-                <?= $this->Form->input('estrangeiro', ['type' => 'checkbox', 'id' => 'alternarEstrangeiro', 'label' => 'Selecione se o usuário for estrangeiro']) ?>
-                <span id="doc_estrangeiro_validation" class="text-danger validation-message"></span>
-
-
-
+                    <?= $this->Form->input('estrangeiro', ['type' => 'checkbox', 'id' => 'alternarEstrangeiro', 'label' => 'Selecione se o usuário for estrangeiro']) ?>
+                    <span id="doc_estrangeiro_validation" class="text-danger validation-message"></span>
+                </div>
             </div>
 
-            <div class="col-lg-12">
-                <span id="cpf_validation" class="text-danger validation-message"></span>
-            </div>
-            <div class="form-group col-lg-6" >
-                <div id="cpf_box">
-                    <label
-                        for="cpf">
-                        CPF*
-                    </label>
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <span id="cpf_validation" class="text-danger validation-message"></span>
+                </div>
+                <div class="form-group col-lg-6" >
+                    <div id="cpf_box">
+                        <label
+                            for="cpf">
+                            CPF*
+                        </label>
+                        <input
+                            name="cpf"
+                            type="text"
+                            id="cpf"
+                            class="form-control"
+                            required="required"
+                            placeholder="CPF..." />
+                    </div>
+                    <div id="doc_estrangeiro_box">
+                        <label for="doc_estrangeiro">Documento de Identificação Estrangeira*</label>
+                        <input
+                            type="text"
+                            name="doc_estrangeiro"
+                            id="doc_estrangeiro"
+                            class="form-control"
+                            placeholder="Documento Estrangeiro.."/>
+                    </div>
+
+                </div>
+
+                <div class="form-group col-lg-6">
+                    <label for="email">E-mail*</label>
                     <input
                         type="text"
-                        id="cpf"
-                        class="form-control"
+                        name="email"
                         required="required"
-                        placeholder="CPF..." />
-                </div>
-                <div id="doc_estrangeiro_box">
-                    <label for="doc_estrangeiro">Documento de Identificação Estrangeira*</label>
-                    <input
-                        type="text"
-                        name="doc_estrangeiro"
-                        id="doc_estrangeiro"
+                        id="email"
                         class="form-control"
-                        placeholder="Documento Estrangeiro.."/>
+                        placeholder="E-mail..."
+                        />
+                    <span id="email_validation" class="text-danger validation-message">
                 </div>
-
             </div>
 
-            <div class="form-group col-lg-6">
-                <label for="email">E-mail*</label>
-                <input
-                    type="text"
-                    name="email"
-                    required="required"
-                    id="email"
-                    class="form-control"
-                    placeholder="E-mail..."
-                    />
-                <span id="email_validation" class="text-danger validation-message">
-            </div>
 
 
             <div class="group-video-capture col-lg-12">
@@ -273,127 +276,156 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
 
             <?= $this->Form->hidden('doc_invalido', ['id' => 'doc_invalido']) ?>
 
-            <div class="col-lg-5">
+            <div class="form-group row">
+
+                <div class="col-lg-5">
 
 
-                <label for="nome">Nome*</label>
-                <input
-                    type="text"
-                    name="nome"
-                    required="required"
-                    placeholder="Nome..."
-                    id="nome"
-                    class="form-control">
-            </div>
+                    <label for="nome">Nome*</label>
+                    <input
+                        type="text"
+                        name="nome"
+                        required="required"
+                        placeholder="Nome..."
+                        id="nome"
+                        class="form-control">
+                </div>
 
-            <div class="col-lg-3">
-                <?= $this->Form->input('sexo', array(
-                    "placeholder" => "Sexo...",
-                    "empty" => true,
-                    "required" => true,
-                    'options' =>
-                    array(
-                        '2' => 'Não informar',
-                        '1' => 'Masculino',
-                        '0' => 'Feminino'
+                <div class="col-lg-3">
+                    <?= $this->Form->input('sexo', array(
+                        "placeholder" => "Sexo...",
+                        "empty" => true,
+                        "required" => true,
+                        'options' =>
+                        array(
+                            '2' => 'Não informar',
+                            '1' => 'Masculino',
+                            '0' => 'Feminino'
+                            )
                         )
-                    )
-                ); ?>
-            </div>
+                    ); ?>
+                </div>
 
-
-
-            <div class="col-lg-4">
-                <?= $this->Form->input(
-                    'data_nasc',
-                    [
-                        'class' => 'datepicker-input',
-                        'div' =>
+                <div class="col-lg-4">
+                    <?= $this->Form->input(
+                        'data_nasc',
                         [
-                            'class' => 'form-inline',
-                        ],
-                        'type' => 'text',
-                        'id' => 'data_nasc',
-                        'format' => 'd/m/Y',
-                        'default' => date('d/m/Y'),
-                        // 'value' => date('d/m/Y'),
-                        'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
-                        'label' => 'Data de Nascimento'
-                    ]
-                ); ?>
+                            'class' => 'datepicker-input',
+                            'div' =>
+                            [
+                                'class' => 'form-inline',
+                            ],
+                            'type' => 'text',
+                            'id' => 'data_nasc',
+                            'format' => 'd/m/Y',
+                            'default' => date('d/m/Y'),
+                            // 'value' => date('d/m/Y'),
+                            'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
+                            'label' => 'Data de Nascimento'
+                        ]
+                    ); ?>
+                </div>
             </div>
 
-            <div class="col-lg-3">
+            <div class="form-group row">
+                <div class="col-lg-3">
 
-                <?= $this->Form->input('necessidades_especiais', ['label' => 'Portador de Nec. Especiais? ', 'options' => [
-                    '' => '',
-                    1 => 'Sim',
-                    0 => 'Não',
-                ]]) ?>
-            </div>
-
-            <div class="col-lg-3">
-                <?= $this->Form->control('telefone'); ?>
-            </div>
-
-            <div class="col-lg-3">
-                <?= $this->Form->input('senha', ['type' => 'password', 'required' => true, 'autofocus' => true, 'maxLength' => 4]); ?>
-            </div>
-
-            <div class="col-lg-3">
-                <?= $this->Form->input('confirm_senha', ['type' => 'password', 'required' => true, 'label' => 'Confirmar Senha', 'maxLength' => 4]); ?>
-            </div>
-
-
-            <div class="col-lg-2">
-                <?= $this->Form->input(
-                    'cep',
-                    [
-                        'label' => 'CEP*',
-                        'id' => 'cep',
-                        'class' => 'cep',
-                        'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
-                    ]
-                );
-                ?>
-            </div>
-
-            <div class="col-lg-3">
-                <?= $this->Form->control('endereco', ['label' => 'Endereço', 'class' => 'endereco']); ?>
-            </div>
-
-            <div class="col-lg-2">
-                <?= $this->Form->control('endereco_numero', ['label' => 'Número', 'class' => 'numero']); ?>
-            </div>
-            <div class="col-lg-2">
-                <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
-            </div>
-
-            <div class="col-lg-3">
-
-                <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
-            </div>
-
-            <div class="col-lg-4">
-
-                <?= $this->Form->control('municipio', ['class' => 'municipio']); ?>
-            </div>
-
-            <div class="col-lg-4">
-                <?= $this->Form->input(
-                    'estado',
-                    [
+                    <?= $this->Form->input('necessidades_especiais', array(
+                        "type" => "select",
+                        'label' => 'Portador de Nec. Especiais?*',
                         'empty' => true,
-                        'type' => 'select',
-                        'options' => $this->Address->getStatesBrazil(),
-                        'class' => 'estado'
-                    ]
-                ); ?>
+                        "value" => -1,
+                        'required' => true,
+                        'placeholder' => "Necessidades Especiais...",
+                        'options' =>
+                            array(
+                                "1" => 'Sim',
+                                "0" => 'Não',
+                            ),
+                        )
+                    ) ?>
+                    </div>
 
+                    <div class="col-lg-3">
+                    <?= $this->Form->control('telefone'); ?>
+                    </div>
+
+                    <div class="col-lg-3">
+                    <label for="senha">Senha*</label>
+                    <input
+                        type="password"
+                        name="senha"
+                        required="true"
+                        maxLength="4"
+                        id="senha"
+                        class="form-control"/>
+                    </div>
+
+                    <div class="col-lg-3">
+                    <label for="confirm_senha">Confirmar Senha*</label>
+                    <input
+                        type="password"
+                        name="confirm_senha"
+                        required="true"
+                        maxLength="4"
+                        id="confirm_senha"
+                        class="form-control"/>
+                    </div>
             </div>
 
-            <div class="col-lg-4">
-                <?= $this->Form->control('pais', ['class' => 'pais']); ?>
+
+            <div class="form-group row">
+                <div class="col-lg-2">
+                    <?= $this->Form->input(
+                        'cep',
+                        [
+                            'label' => 'CEP',
+                            'id' => 'cep',
+                            'class' => 'cep',
+                            'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
+                        ]
+                    );
+                    ?>
+                </div>
+
+                <div class="col-lg-3">
+                    <?= $this->Form->control('endereco', ['label' => 'Endereço', 'class' => 'endereco']); ?>
+                </div>
+
+                <div class="col-lg-2">
+                    <?= $this->Form->control('endereco_numero', ['label' => 'Número', 'class' => 'numero']); ?>
+                </div>
+                <div class="col-lg-2">
+                    <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
+                </div>
+
+                <div class="col-lg-3">
+
+                    <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <?= $this->Form->control('municipio', ['class' => 'municipio']); ?>
+                </div>
+
+                <div class="col-lg-4">
+                    <?= $this->Form->input(
+                        'estado',
+                        [
+                            'empty' => true,
+                            'type' => 'select',
+                            'options' => $this->Address->getStatesBrazil(),
+                            'class' => 'estado'
+                        ]
+                    ); ?>
+
+                </div>
+
+                <div class="col-lg-4">
+                        <?= $this->Form->control('pais', ['class' => 'pais']); ?>
+                </div>
             </div>
 
             <?php if ($usuarioLogadoTipoPerfil != (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
@@ -418,41 +450,43 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                     <?php endif; ?>
                 </div>
         </fieldset>
-        <div class="col-lg-12 text-right">
+        <div class="form-group row">
+            <div class="col-lg-12 text-right">
 
-            <div style="display: inline-flex;" class="form-add-buttons">
-                <div class="sendDiv">
-                    <div class="col-lg-12 text-right">
-                        <button type="submit" class="btn btn-primary botao-confirmar" id="user_submit">
-                            <i class="fa fa-save"></i>
-                            Salvar
-                        </button>
+                <div style="display: inline-flex;" class="form-add-buttons">
+                    <div class="sendDiv">
+                        <div class="col-lg-12 text-right">
+                            <button type="submit" class="btn btn-primary botao-confirmar" id="user_submit">
+                                <i class="fa fa-save"></i>
+                                Salvar
+                            </button>
 
-                        <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?>
-                        <a href="/usuarios/index/" class="btn btn-danger botao-cancelar">
-                            <i class="fa fa-window-close"></i>
-                            Cancelar
-                        </a>
-                        <?php  ?>
-                        <?php elseif ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
-                        <a href="/" class="btn btn-danger botao-cancelar">
-                            <i class="fa fa-window-close"></i>
-                            Cancelar
-                        </a>
-                        <?php endif; ?>
-                        <!-- <?= $this->Form->button(
-                                    __(
-                                        '{0} Salvar',
-                                        $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-                                    ),
-                                    [
-                                        'id' => 'user_submit',
-                                        'escape' => false
-                                    ]
-                                ) ?> -->
+                            <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?>
+                            <a href="/usuarios/index/" class="btn btn-danger botao-cancelar">
+                                <i class="fa fa-window-close"></i>
+                                Cancelar
+                            </a>
+                            <?php  ?>
+                            <?php elseif ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+                            <a href="/" class="btn btn-danger botao-cancelar">
+                                <i class="fa fa-window-close"></i>
+                                Cancelar
+                            </a>
+                            <?php endif; ?>
+                            <!-- <?= $this->Form->button(
+                                        __(
+                                            '{0} Salvar',
+                                            $this->Html->tag('i', '', ['class' => 'fa fa-save'])
+                                        ),
+                                        [
+                                            'id' => 'user_submit',
+                                            'escape' => false
+                                        ]
+                                    ) ?> -->
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
     </div>

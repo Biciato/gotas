@@ -815,14 +815,9 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-
             $usuarioData = $data;
-
-            // DebugUtil::print($usuarioData, 1, 1);
-
             $cliente = null;
 
-            // return;
             if (isset($this->usuarioLogado)) {
 
                 $cliente_has_usuario =

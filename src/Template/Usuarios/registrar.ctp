@@ -34,7 +34,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <?php else : ?>
 
 <div class="col-lg-12">
+    <?= $this->Form->create($usuario); ?>
     <?= $this->Element('../Usuarios/usuario_form') ?>
+    <?= $this->Form->end(); ?>
 </div>
 
 <?php endif; ?>

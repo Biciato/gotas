@@ -193,6 +193,17 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
+            ->integer("necessidades_especiais")
+            ->add(
+                "necessidades_especiais",
+                "inList" ,
+                array(
+                    "rule" => array("inList", array(0, 1)),
+                    "message" => "Informe se possui necessidades especiais"
+                )
+            );
+
+        $validator
             ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
             ->allowEmpty('data_nasc');
 
@@ -319,6 +330,17 @@ class UsuariosTable extends GenericTable
                     'rule' => ['inList', ['0', '1']],
                     'message' => 'Por favor informe o sexo'
                 ]
+            );
+
+        $validator
+            ->integer("necessidades_especiais")
+            ->add(
+                "necessidades_especiais",
+                "inList" ,
+                array(
+                    "rule" => array("inList", array(0, 1)),
+                    "message" => "Informe se possui necessidades especiais"
+                )
             );
 
         $validator
