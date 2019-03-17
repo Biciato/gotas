@@ -10,14 +10,15 @@
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use App\Custom\RTI\DebugUtil;
 
 $show_menu = isset($show_menu) ? $show_menu : true;
-
 $show_tipo_perfil = isset($show_tipo_perfil) ? $show_tipo_perfil : true;
-
 $show_veiculos = isset($show_veiculos) ? $show_veiculos : false;
-
 $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoPerfil : (int)Configure::read('profileTypes')['UserProfileType'];
+
+$listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $listaPerfisRedirecionarCancelar : array();
+
 ?>
 
 <?php if (isset($usuarioLogado)) : ?>
@@ -444,7 +445,7 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                     </div>
                 </div>
                 <br />
-                <div class="form-group">
+                <div class="form-group row">
                     <?php
                     echo $this->Element('../Transportadoras/transportadoras_form');
                     ?>
@@ -469,23 +470,18 @@ $usuarioLogadoTipoPerfil = isset($usuarioLogadoTipoPerfil) ? $usuarioLogadoTipoP
                                 <i class="fa fa-window-close"></i>
                                 Cancelar
                             </a>
-                            <?php  ?>
-                            <?php elseif ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["WorkerProfileType"]) : ?>
+                            <?php elseif (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL, PROFILE_TYPE_ADMIN_LOCAL))) : ?>
+                            <a href="/usuarios/meusClientes/" class="btn btn-danger botao-cancelar">
+                                <i class="fa fa-window-close"></i>
+                                Cancelar
+                            </a>
+                            <?php elseif ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_WORKER) : ?>
                             <a href="/" class="btn btn-danger botao-cancelar">
                                 <i class="fa fa-window-close"></i>
                                 Cancelar
                             </a>
                             <?php endif; ?>
-                            <!-- <?= $this->Form->button(
-                                        __(
-                                            '{0} Salvar',
-                                            $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-                                        ),
-                                        [
-                                            'id' => 'user_submit',
-                                            'escape' => false
-                                        ]
-                                    ) ?> -->
+
                         </div>
                     </div>
 

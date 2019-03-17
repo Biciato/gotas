@@ -811,6 +811,7 @@ class UsuariosController extends AppController
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         if ($this->request->is(['post', 'put'])) {
@@ -960,11 +961,15 @@ class UsuariosController extends AppController
 
         $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
 
-        $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
-        $this->set('_serialize', ['usuario', 'transportadora']);
-        $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
-        $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
-        $this->set('usuarioLogado', $this->usuarioLogado);
+        $arraySet = array(
+            "usuario",
+            "transportadoraPath",
+            "veiculoPath",
+            "usuarioLogado",
+        );
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
