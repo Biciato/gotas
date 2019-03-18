@@ -14,11 +14,31 @@ $(document).ready(function () {
     });
 
     $("#cnpj").mask('99.999.999/9999-99');
-    $("#tel-fixo").mask("(99)9999-9999");
-    $("#tel-celular").mask("(99)99999-9999");
-    $("#tel-fax").mask("(99)9999-9999");
     $("#cep").mask("99.999-999");
 
+    $("#tel-fixo")
+        .on("blur", function(){
+            $("#tel-fixo").mask("(99)9999-9999");
+        })
+        .on("keyup", function(event){
+            this.value = clearNumbers(event.target.value);
+        });
+    $("#tel-celular")
+        .on("blur", function(){
+            $("#tel-celular").mask("(99)99999-9999");
+        })
+        .on("keyup", function(event){
+            this.value = clearNumbers(event.target.value);
+        });
+    $("#tel-fax")
+        .on("blur", function(){
+            $("#tel-fax").mask("(99)9999-9999");
+        })
+        .on("keyup", function(event){
+        this.value = clearNumbers(event.target.value);
+    });
+
+    initializeTimePicker("horario");
     initializeDatePicker("data_nasc");
 
     var preencheQuadroHorarios = function () {

@@ -273,6 +273,10 @@ var callLoaderAnimation = function(text_info) {
     }
 };
 
+var clearNumbers = function(value){
+    return value.replace(/(\D+)/g, '');
+}
+
 /**
  * Fecha tela de loading
  */
@@ -324,6 +328,7 @@ var getCEP = function(parameter) {
                 type: "GET",
                 url: "https://viacep.com.br/ws/" + cep + "/json/",
                 complete: function(success) {
+                    closeLoaderAnimation();
                     console.log(success);
                     var dados = success.responseJSON;
                     $(".endereco").val(dados.logradouro);
@@ -336,12 +341,13 @@ var getCEP = function(parameter) {
                     //end if.
                     //CEP pesquisado não foi encontrado.
                     //limpa_formulário_cep();
+                    closeLoaderAnimation();
                     callModalError("CEP não encontrado.");
                     console.log(err);
                 }
             });
 
-            closeLoaderAnimation();
+
 
             // $.getJSON(
             //     "https://viacep.com.br/ws/" + cep + "/json/?callback=?",
@@ -677,7 +683,6 @@ var initializeDateTimePicker = function(
     $("#" + campo)
         .on("keyup", function(ev) {
             preventEnterActionInput(ev);
-            // defaultKeyUpDateTimePickerAction(campo, ev, this.value);
         })
         .on("keydown", function(ev) {
             preventEnterActionInput(ev);
@@ -706,6 +711,96 @@ var initializeDateTimePicker = function(
                     if (dataOculta.isValid()) {
                         dataOculta = moment(dataOculta).format(
                             "DD/MM/YYYY HH:mm"
+                        );
+                        $("#" + campo).val(dataOculta);
+                    }
+                }
+            }
+        });
+};
+
+/**
+ * home::initializeTimePicker
+ *
+ * Inicializa um campo como date picker
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-03-04
+ *
+ * @param {string} campo Campo a ser inicializado
+ * @param {string} campoOculto Campo oculto que será enviado ao server
+ *
+ * @return void
+ */
+var initializeTimePicker = function(
+    campo,
+    campoOculto,
+    inicializarCampo = false,
+    dataMaxima
+) {
+    console.log(dataMaxima);
+    // Seta todos os campos DateTimePicker para Português Brasil
+    moment.locale("pt-BR", {});
+    var options = {
+        locale: "pt-BR",
+        format: "HH:mm",
+        useCurrent: false
+        // format: "d/m/Y H:i",
+        // mask: "31/12/9999 23:59",
+        // value: moment().format("DD/MM/YYYY HH:mm"),
+        // step: 15,
+        // allowBlank: false
+    };
+
+    if (dataMaxima != undefined){
+        var format = "HH:mm";
+        var maxDate = moment(dataMaxima, format).format(format);
+        options.maxDate = maxDate;
+    }
+
+    $("#" + campo).datetimepicker(options);
+
+    if (inicializarCampo != undefined && inicializarCampo) {
+        var valor = moment().format("HH:mm");
+
+        $("#" + campo).data("DateTimePicker").date(valor);
+        if (campoOculto) {
+            valor = moment().format("HH:mm");
+            $("#" + campoOculto).val(valor);
+        }
+    }
+
+    $("#" + campo)
+        .on("keyup", function(ev) {
+            preventEnterActionInput(ev);
+        })
+        .on("keydown", function(ev) {
+            preventEnterActionInput(ev);
+        })
+        .on("change", function(ev) {
+            var value = ev.target.value;
+
+            if (value != undefined && value.length > 0) {
+                var valorEnviar = moment(value, "HH:mm").format(
+                    "HH:mm"
+                );
+                $("#" + campoOculto).val(valorEnviar);
+            }
+        })
+        .on("blur", function(ev) {
+            var value = ev.target.value;
+
+            if (value == "") {
+                var data = moment(value, "HH:mm", true);
+
+                if (!data.isValid()) {
+                    var dataOculta = $("#" + campoOculto).val();
+
+                    dataOculta = moment(dataOculta, "HH:mm", true);
+
+                    if (dataOculta.isValid()) {
+                        dataOculta = moment(dataOculta).format(
+                            "HH:mm"
                         );
                         $("#" + campo).val(dataOculta);
                     }

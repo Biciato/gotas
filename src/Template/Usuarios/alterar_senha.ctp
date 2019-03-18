@@ -14,6 +14,7 @@ use Cake\Routing\Router;
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
 $this->Breadcrumbs->add('Dados do Usuário', ['controller' => 'usuarios', 'action' => 'view', $usuario->id]);
+$this->Breadcrumbs->add('Alterar Senha', array(), array("class" => "active"));
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -34,7 +35,7 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
             <?= $this->Form->input(
                 'senha',
                 [
-                    "label" => "Nova Senha",
+                    "label" => "Nova Senha*",
                     'type' => 'password',
                     'required' => true,
                     'autofocus' => true,
@@ -45,7 +46,7 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
             <?= $this->Form->input(
                 'confirm_senha',
                 [
-                    "label" => "Confirmar Nova Senha",
+                    "label" => "Confirmar Nova Senha*",
                     'type' => 'password',
                     'required' => true,
                     'maxLength' => $max_length
@@ -54,13 +55,14 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
 
 
     </fieldset>
-    <?= $this->Form->button(__('{0} Salvar',
-        $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
 
-    ) ?>
+        <button type="submit" class="btn btn-primary botao-confirmar" id="user_submit">
+            <i class="fa fa-save"></i>
+            Salvar
+        </button>
+        <a onclick="window.history.go(-1); return false;" class="btn btn-danger botao-cancelar">
+            <i class="fa fa-window-close"></i>
+            Cancelar
+        </a>
     <?php echo $this->Form->end(); ?>
 </div>

@@ -17,28 +17,31 @@ use Cake\Core\Configure;
             id="nome_rede"
             class="form-control"
             value="<?= $rede['nome_rede'] ?>"
+            placeholder="Nome da Rede..."
             required
             />
     </div>
 
     <div class="col-lg-4">
-    <label for="quantidade_pontuacoes_usuarios_dia">Máx. Abast. Gotas Diárias p/ Usuário</label>
+    <label for="quantidade_pontuacoes_usuarios_dia">Máx. Abast. Gotas Diárias p/ Usuário*</label>
         <input type="number"
             min="1"
             max="365"
-            placeholder="3"
+            placeholder="Máx. Abast. Gotas Diárias p/ Usuário..."
             class="form-control"
             name="quantidade_pontuacoes_usuarios_dia"
+            required
             value="<?= $rede['quantidade_pontuacoes_usuarios_dia'] ?>" />
     </div>
     <div class="col-lg-4">
-        <label for="quantidade_consumo_usuarios_dia">Máximo de Compras Diárias p/ Usuário</label>
+        <label for="quantidade_consumo_usuarios_dia">Máximo de Compras Diárias p/ Usuário*</label>
         <input type="text"
             min="1"
             max="365"
-            placeholder="10"
+            placeholder="Máximo de Compras Diárias p/ Usuário*"
             class="form-control"
             name="quantidade_consumo_usuarios_dia"
+            required
             value="<?= $rede['quantidade_consumo_usuarios_dia'] ?>" />
 
     </div>
@@ -46,24 +49,31 @@ use Cake\Core\Configure;
 
 <div class="form-group row">
     <div class="col-lg-6">
-        <?= $this->Form->input("custo_referencia_gotas", array(
-            "label" => "Custo Referência Gotas (R$)",
-            "id" => "custo_referencia_gotas",
-            "type" => "text"
-        )); ?>
+    <label for="custo_referencia_gotas">Custo Referência Gotas (R$)*</label>
+    <input
+        type="text"
+        name="custo_referencia_gotas"
+        id="custo_referencia_gotas"
+        placeholder="Custo Referência Gotas (R$)..."
+        required="required"
+        value="<?= $rede["custo_referencia_gotas"]?>"
+        class="form-control"/>
+
     </div>
 
     <div class="col-lg-6">
-        <?= $this->Form->control(
-            "media_assiduidade_clientes",
-            array(
-                "label" => "Media de Assiduidade Clientes (Mês)",
-                "title" => "Utilizado para fins de relatório",
-                "type" => "number",
-                "min" => 1,
-                "max" => 30
-            )
-        ); ?>
+        <label for="media_assiduidade_clientes">Media de Assiduidade Clientes (Mês)*</label>
+        <input
+            type="number"
+            min="1"
+            max="30"
+            name="media_assiduidade_clientes"
+            required="required"
+            id="media_assiduidade_clientes"
+            class="form-control"
+            value="<?= $rede["media_assiduidade_clientes"]?>"
+            placeholder="Media de Assiduidade Clientes (Mês)" />
+
     </div>
 </div>
 

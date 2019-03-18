@@ -70,9 +70,10 @@ use Cake\Routing\Router;
                         'redes_id',
                         [
                             'type' => 'text',
+                            "id" => "redes_id",
                             'readonly' => true,
                             'value' => $redes->toArray(),
-                            'label' => 'Rede de destino'
+                            'label' => 'Rede de Destino*'
                         ]
                     );
                 } else {
@@ -80,11 +81,12 @@ use Cake\Routing\Router;
                         'redes_id',
                         [
                             'type' => 'select',
+                            "id" => "redes_id",
                             'class' => 'redes_list',
                             'options' => $redes,
                             'multiple' => false,
                             'empty' => true,
-                            'label' => 'Rede de destino'
+                            'label' => 'Rede de Destino*',
                         ]
                     );
 
@@ -212,7 +214,7 @@ use Cake\Routing\Router;
         <!-- telefone -->
         <div class="col-lg-4">
             <label for="telefone" id="label-telefone">Telefone*</label>
-            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required", )); ?>
+            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required" )); ?>
         </div>
         <!-- Senha -->
         <div class="col-lg-6">
@@ -258,7 +260,13 @@ use Cake\Routing\Router;
     <div class="col-lg-12 text-right">
         <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
 
-        <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> " class="btn btn-danger "> <i class="fa fa-window-close"></i> Cancelar</a>
+        <a
+            href="/usuarios/usuarios-rede/<?php echo $redesId; ?> "
+            class="btn btn-danger botao-cancelar">
+            <i class="fa fa-window-close">
+            </i>
+            Cancelar
+        </a>
     </div>
 
 </div>

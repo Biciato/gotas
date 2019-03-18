@@ -23,7 +23,7 @@ $show_reports = isset($show_reports) ? $show_reports : false;
             <?php if ($mode == 'details') : ?>
 
                 <li>
-                    <?= $this->Html->link(__("Usuários da Rede"), ['controller' => 'usuarios', 'action' => 'usuarios_rede', $redes_id]) ?>
+                    <?= $this->Html->link(__("Funcionários da Rede"), ['controller' => 'usuarios', 'action' => 'usuarios_rede', $redes_id]) ?>
                 </li>
 
                 <li>

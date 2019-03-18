@@ -139,6 +139,8 @@ $(document).ready(function () {
         $(".redes_input").hide();
         $(".redes_list").val(null);
         $(".clientes_rede").val(null);
+        $("#redes_id").prop("required", true);
+        $("#clientes_rede").prop("required", true);
 
     }
 
@@ -149,6 +151,8 @@ $(document).ready(function () {
      */
     var showRedesInput = function () {
         $(".redes_input").show();
+        $("#redes_id").prop("required", true);
+        $("#clientes_rede").prop("required", true);
     }
 
     /**
@@ -606,14 +610,14 @@ $(document).ready(function () {
     $("#telefone").on('focus', function () {
         $("#telefone").unmask("(99)99999-9999");
         $("#telefone").unmask("(99)9999-9999");
-    });
-
-    $("#telefone").on('blur', function () {
+    }).on('blur', function () {
         if (this.value.length == 10) {
             $("#telefone").mask("(99)9999-9999");
         } else {
             $("#telefone").mask("(99)99999-9999");
         }
+    }).on("keyup", function(event){
+        this.value = clearNumbers(event.target.value);
     });
 
     $("#cep").mask("99.999-999");

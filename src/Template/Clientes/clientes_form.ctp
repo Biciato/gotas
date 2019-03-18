@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 /**
  * @author   Gustavo Souza Gonçalves
@@ -18,28 +18,31 @@ use Cake\Routing\Router;
         <div class="form-group row">
 
             <div class="col-lg-6">
-                <?= $this->Form->input(
-                    'codigo_equipamento_rti',
-                    [
-                        'id' => 'codigo_equipamento_rti',
-                        'label' => 'Código Equipamento RTI',
-                        'title' => 'Código que será utilizado para impressão de senhas'
-                    ]
-                ); ?>
+                <label for="codigo_equipamento_rti">Código Equipamento RTI*</label>
+                <input type="text"
+                    maxLength="2"
+                    title="Código que será utilizado para impressão de senhas"
+                    placeholder="Código Equipamento RTI..."
+                    required="required"
+                    name="codigo_equipamento_rti"
+                    id="codigo_equipamento_rti"
+                    class="form-control"
+                    value="<?= $cliente["codigo_equipamento_rti"]?>">
             </div>
 
             <div class="col-lg-6">
-                <?= $this->Form->input(
-                    'tipo_unidade',
-                    [
+                <label for="tipo_unidade">Tipo Unidade*</label>
+                <?= $this->Form->input('tipo_unidade',
+                    array(
                         'type' => 'select',
-                        'options' =>
-                            [
-                            '' => '',
+                        'required',
+                        'empty' => true,
+                        'label' => false,
+                        'options' => array(
                             '0' => 'Loja',
                             '1' => 'Posto'
-                        ]
-                    ]
+                        )
+                    )
                 ); ?>
             </div>
 
@@ -47,82 +50,124 @@ use Cake\Routing\Router;
 
         <div class="form-group row">
             <div class="col-lg-4">
-                <?= $this->Form->input('nome_fantasia'); ?>
+                <label for="nome_fantasia">Nome Fantasia</label>
+                <input type="text"
+                    name="nome_fantasia"
+                    id="nome_fantasia"
+                    class="form-control"
+                    placeholder="Nome Fantasia..."
+                    value="<?= $cliente['nome_fantasia']?>">
             </div>
             <div class="col-lg-4">
-                <?= $this->Form->input('razao_social', ['label' => 'Razão Social*']); ?>
+                <label for="razao_social">Razão Social*</label>
+                <input type="text"
+                    name="razao_social"
+                    placeholder="Razão Social..."
+                    required="required"
+                    value="<?= $cliente["razao_social"]?>"
+                    class="form-control">
             </div>
             <div class="col-lg-4">
-                <?= $this->Form->input('cnpj', ['class' => 'form-control', 'id' => 'cnpj', 'label' => 'CNPJ*']); ?>
+                <label for="cnpj">CNPJ*</label>
+                <input type="text"
+                    name="cnpj"
+                    value="<?= $cliente['cnpj']?>"
+                    id="cnpj"
+                    class="form-control"
+                    required="required"
+                    placeholder="CNPJ...">
             </div>
         </div>
 
         <div class="form-group row">
             <div class='col-lg-2'>
-                <?= $this->Form->input(
-                    'cep',
-                    [
-                        'label' => 'CEP*',
-                        'id' => 'cep',
-                        'class' => 'cep',
-                        'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
-                    ]
-                ); ?>
+                <label for="cep">CEP*</label>
+                <input type="text"
+                    name="cep"
+                    required="required"
+                    id="cep"
+                    class="cep form-control"
+                    title='CEP do local do cliente (loja / posto)'
+                    value="<?= $cliente["cep"]?>"
+                    placeholder="CEP...">
             </div>
 
             <div class="col-lg-5" >
-                <?= $this->Form->input('endereco', ['label' => 'Endereço*', 'class' => 'endereco']); ?>
+                <label for="endereco">Endereço*</label>
+                <input type="text"
+                    name="endereco"
+                    placeholder="Endereço..."
+                    id="endereco"
+                    class="form-control endereco"
+                    required="required"
+                    value="<?= $cliente['endereco']?>">
             </div>
 
             <div class="col-lg-2">
-                <?= $this->Form->input('endereco_numero', ['class' => 'form-control endereco_numero', 'type' => 'text', 'label' => 'Número']); ?>
+                <label for="endereco_numero">Número</label>
+                <input type="text"
+                    name="endereco_numero"
+                    placeholder="Número..."
+                    id="endereco_numero"
+                    class="form-control endereco_numero"
+                    value="<?= $cliente['endereco_numero']?>">
             </div>
 
             <div class="col-lg-3">
-                <?= $this->Form->input('endereco_complemento', ['class' => 'form-control', 'label' => 'Complemento']); ?>
+                <label for="endereco_complemento">Complemento</label>
+                <input type="text"
+                    name="endereco_complemento"
+                    id="endereco_complemento"
+                    placeholder="Complemento..."
+                    class="form-control"
+                    value="<?= $cliente['endereco_complemento']?>">
             </div>
         </div>
 
         <div class="form-group row">
 
             <div class="col-lg-3">
-                <?= $this->Form->input('bairro', ['label' => 'Bairro', 'class' => 'bairro']); ?>
-
+                <label for="bairro">Bairro</label>
+                <input type="text"
+                    name="bairro"
+                    id="bairro"
+                    placeholder="Bairro..."
+                    class="form-control bairro"
+                    value="<?= $cliente['bairro']?>">
             </div>
             <div class="col-lg-3">
-                <?= $this->Form->input(
-                    'municipio',
-                    [
-                        'class' => 'municipio'
-                    ]
-                ); ?>
-
+                <label for="municipio">Município</label>
+                <input type="text"
+                    name="municipio"
+                    id="municipio"
+                    placeholder="Município..."
+                    class="form-control municipio"
+                    value="<?= $cliente['municipio']?>">
             </div>
             <div class="col-lg-3">
+                <label for="estado">Estado*</label>
                 <?= $this->Form->input(
                     'estado',
                     [
                         'type' => 'select',
                         'empty' => true,
-                        'label' => 'Estado*',
+                        'label' => false,
+                        'required' => 'required',
                         'class' => 'estado',
                         'title' => 'Informe o estado para configurar a importação de dados da SEFAZ',
-
                         'options' => $this->Address->getStatesBrazil()
                     ]
                 ); ?>
 
             </div>
             <div class="col-lg-3">
-                <?= $this->Form->input(
-                    'pais',
-                    [
-                        'label' => 'País',
-                        'id' => 'pais',
-                        'class' => 'pais'
-                    ]
-                ); ?>
-
+                <label for="pais">País</label>
+                <input type="text"
+                    name="pais"
+                    id="pais"
+                    placeholder="País..."
+                    class="form-control pais"
+                    value="<?= $cliente['pais']?>">
             </div>
         </div>
 
@@ -149,15 +194,36 @@ use Cake\Routing\Router;
         </div>
         <div class="form-group row">
             <div class="col-lg-4">
-            <?= $this->Form->input('tel_fixo'); ?>
+                <label for="tel_fixo">Telefone Fixo</label>
+                <input type="text"
+                    name="tel_fixo"
+                    placeholder="Telefone Fixo..."
+                    maxLength="10"
+                    id="tel-fixo"
+                    class="form-control"
+                    value="<?= $cliente['tel_fixo']?>">
             </div>
 
             <div class="col-lg-4">
-            <?= $this->Form->input('tel_fax'); ?>
+                <label for="tel_fax">Fax</label>
+                <input type="text"
+                    name="tel_fax"
+                    id="tel-fax"
+                    maxLength="10"
+                    placeholder="Fax..."
+                    class="form-control"
+                    value="<?= $cliente['tel_fax']?>">
             </div>
 
             <div class="col-lg-4">
-            <?= $this->Form->input('tel_celular'); ?>
+            <label for="tel_celular">Celular*</label>
+                <input type="text"
+                    name="tel_celular"
+                    id="tel-celular"
+                    placeholder="Celular..."
+                    maxLength="12"
+                    class="form-control"
+                    value="<?= $cliente['tel_celular']?>">
             </div>
         </div>
 
@@ -188,13 +254,14 @@ use Cake\Routing\Router;
                 id="quantidade_turnos" /> -->
         </div>
         <div class="col-lg-6">
-        <label for="inicio_turno">Primeiro Turno do Dia</label>
+        <label for="inicio_turno">Primeiro Turno do Dia*</label>
             <input type="time"
                 min="2"
                 max="4"
                 value="<?= $cliente["horario"] ?>"
                 class="form-control"
                 name="horario"
+                required="required"
                 id="horario" />
         </div>
 
