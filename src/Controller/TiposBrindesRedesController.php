@@ -80,7 +80,7 @@ class TiposBrindesRedesController extends AppController
             }
 
             /**
-             * Se for Admin RTI, busca pelo equipamento_rti. 
+             * Se for Admin RTI, busca pelo equipamento_rti.
              * Se não, busca por Produtos/Serviços
              */
 
@@ -183,7 +183,7 @@ class TiposBrindesRedesController extends AppController
 
                 /**
                  * Requisito perfil administrador rti / rede
-                 * Se o usuário que está cadastrando for administrador rti, o tipo de brinde é equipamento_rti. 
+                 * Se o usuário que está cadastrando for administrador rti, o tipo de brinde é equipamento_rti.
                  * Obrigatório: tipo principal e secundário devem estar preenchidos
                  * Mas se for administrador de rede, então é produtos/serviços.
                  */
@@ -202,7 +202,7 @@ class TiposBrindesRedesController extends AppController
                 }
 
                 /**
-                 * Valida se há outro tipo de brinde com mesmo nome e 
+                 * Valida se há outro tipo de brinde com mesmo nome e
                  * se também é brinde de Necessidades Especiais
                  */
                 $whereConditions = array();
@@ -302,7 +302,7 @@ class TiposBrindesRedesController extends AppController
         $rede = $sessaoUsuario["rede"];
 
         try {
-            $tiposBrindesRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($id);
+            $tipoBrinde = $this->TiposBrindesRedes->getTiposBrindesRedeById($id);
 
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $data = $this->request->getData();
@@ -367,18 +367,18 @@ class TiposBrindesRedesController extends AppController
                     return;
                 }
 
-                $tiposBrindesRede = $this->TiposBrindesRedes->patchEntity($tiposBrindesRede, $data);
+                $tipoBrinde = $this->TiposBrindesRedes->patchEntity($tipoBrinde, $data);
 
                 $brindeSave = $this->TiposBrindesRedes->saveTiposBrindesRedes(
-                    $tiposBrindesRede["redes_id"],
-                    $tiposBrindesRede["nome"],
-                    $tiposBrindesRede["equipamento_rti"],
-                    $tiposBrindesRede["brinde_necessidades_especiais"],
-                    $tiposBrindesRede["habilitado"],
-                    $tiposBrindesRede["atribuir_automatico"],
-                    $tiposBrindesRede["tipo_principal_codigo_brinde_default"],
-                    $tiposBrindesRede["tipo_secundario_codigo_brinde_default"],
-                    $tiposBrindesRede["id"]
+                    $tipoBrinde["redes_id"],
+                    $tipoBrinde["nome"],
+                    $tipoBrinde["equipamento_rti"],
+                    $tipoBrinde["brinde_necessidades_especiais"],
+                    $tipoBrinde["habilitado"],
+                    $tipoBrinde["atribuir_automatico"],
+                    $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                    $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+                    $tipoBrinde["id"]
                 );
 
                 if ($brindeSave) {
@@ -386,16 +386,14 @@ class TiposBrindesRedesController extends AppController
 
                     return $this->redirect(
                         array(
-                            'action' => 'configurarTiposBrindesRede', $tiposBrindesRede["redes_id"]
+                            'action' => 'configurarTiposBrindesRede', $tipoBrinde["redes_id"]
                         )
                     );
                 }
                 $this->Flash->error(__(Configure::read("messageSavedError")));
             }
 
-            $arraySet = [
-                "tiposBrindesRede"
-            ];
+            $arraySet = array("tipoBrinde");
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);

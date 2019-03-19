@@ -348,7 +348,14 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                     </div>
 
                     <div class="col-lg-3">
-                    <?= $this->Form->control('telefone'); ?>
+                        <label for="telefone">Telefone</label>
+                        <input type="telefone"
+                            name="telefone"
+                            id="telefone"
+                            placeholder="Telefone..."
+                            class="form-control"
+                            value="<?= $usuario['telefone']?>"
+                            >
                     </div>
 
                     <div class="col-lg-3">
@@ -445,11 +452,9 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                     </div>
                 </div>
                 <br />
-                <div class="form-group row">
-                    <?php
-                    echo $this->Element('../Transportadoras/transportadoras_form');
-                    ?>
-                </div>
+                <?php
+                echo $this->Element('../Transportadoras/transportadoras_form');
+                ?>
 
                 <?php endif; ?>
             </div>

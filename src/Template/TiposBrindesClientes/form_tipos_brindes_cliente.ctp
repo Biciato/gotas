@@ -35,18 +35,20 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
 
 <div class="form-group row">
 
-    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+    <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
 
         <?php if ($selectTiposBrindesEnabled) : ?>
             <div class="<?= $divisor ?>">
+                <label for="tipos_brindes_redes_id">Tipos de Brindes da Rede*</label>
                 <?= $this->Form->input(
                     'tipos_brindes_redes_id',
                     [
                         "id" => "tipos_brindes_redes_id",
                         "class" => "tipos_brindes_redes_id",
                         "type" => "select",
-                        "label" => "Tipos de Brindes da Rede",
-                        "empty" => "<Selecionar>",
+                        "label" => false,
+                        "required" => "required",
+                        "empty" => true,
                         "options" => $tiposBrindesRedes,
                         // "disabled" => $selectTiposBrindesEnabled
                     ]
@@ -54,27 +56,31 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
             </div>
         <?php endif; ?>
         <div class="<?= $divisor ?>">
-            <?= $this->Form->control(
-                'tipo_principal_codigo_brinde',
-                [
-                    "id" => 'tipo_principal_codigo_brinde',
-                    "type" => "text",
-                    "maxLength" => 1
-                ]
-            ); ?>
+            <label for="tipo_principal_codigo_brinde">Tipo Principal Codigo Brinde*</label>
+            <input type="text"
+                name="tipo_principal_codigo_brinde"
+                id="tipo_principal_codigo_brinde"
+                required="required"
+                maxLength="1"
+                placeholder="Tipo Principal Codigo Brinde..."
+                class="form-control"
+                value="<?= $tiposBrindesCliente['tipo_principal_codigo_brinde']?>"
+                />
         </div>
         <div class="<?= $divisor ?>">
-            <?= $this->Form->control(
-                'tipo_secundario_codigo_brinde',
-                [
-                    "id" => 'tipo_secundario_codigo_brinde',
-                    "type" => "text",
-                    "maxLength" => 2
-                ]
-            ); ?>
+            <label for="tipo_secundario_codigo_brinde">Tipo Secundário Codigo Brinde*</label>
+            <input type="text"
+                name="tipo_secundario_codigo_brinde"
+                id="tipo_secundario_codigo_brinde"
+                required="required"
+                maxLength="2"
+                placeholder="Tipo Secundario Codigo Brinde..."
+                class="form-control"
+                value="<?= $tiposBrindesCliente['tipo_secundario_codigo_brinde']?>"
+                />
         </div>
-    <?php else : ?> 
-        
+    <?php else : ?>
+
         <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
@@ -82,14 +88,15 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
                 "class" => "tipos_brindes_redes_id",
                 "type" => "select",
                 "label" => "Tipos de Brindes da Rede",
-                "empty" => "<Selecionar>",
+                "required" => "required",
+                "empty" => true,
                 "options" => $tiposBrindesRedes,
                 // "disabled" => $selectTiposBrindesEnabled
             ]
         ); ?>
-        
 
-    <?php endif; ?> 
+
+    <?php endif; ?>
 </div>
 
 <div class="form-group row">
@@ -98,27 +105,20 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
     </div>
 </div>
 
-<div class="form-group row">
-    <div class="col-lg-2">
-        <?= $this->Form->button(
-            __('{0} {1}', $this->Html->tag('i', '', ['class' => 'fa fa-save']), "Salvar"),
-            [
-                'class' => 'btn btn-primary btn-block',
-                'escape' => false
-                ]
-        ) ?>
-    </div>
-    <div class="col-lg-2">
+<div class="form-group row ">
+    <div class="col-lg-12 text-right">
+        <button type="submit"
+            class="btn btn-primary">
+            <i class="fa fa-save"></i>
+            Salvar
+        </button>
         <a href="<?= sprintf("/tipos-brindes-clientes/tipos-brindes-cliente/%s", $cliente["id"] ); ?>"
-            class="btn btn-danger btn-block botao-cancelar" > 
+            class="btn btn-danger  botao-cancelar" >
             <span class="fa fa-window-close"></span> Cancelar
         </a>
     </div>
 
 </div>
-
-
-
 
 <?php if (Configure::read("debug")) {
     echo $this->Html->script("scripts/tipos_brindes_clientes/form_tipos_brindes_clientes");

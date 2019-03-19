@@ -35,34 +35,27 @@ $arrayTiposBrindes = array($valorTipoBrinde => $arrayTiposBrindes[$valorTipoBrin
 <fieldset>
     <legend><?= __($title) ?></legend>
     <div class="form-group row">
-        <div class="col-lg-12"><?= $this->Form->control('nome'); ?></div>
+        <div class="col-lg-12">
+            <label for="nome">Nome*</label>
+            <input type="text"
+                name="nome"
+                id="nome"
+                required="required"
+                placeholder="Nome..."
+                class="form-control"
+                value="<?= $tipoBrinde['nome']?>">
+        </div>
     </div>
     <div class="form-group row">
         <div class="col-lg-12">
-
-            <!-- <?php echo $this->Form->input(
-                    "equipamento_rti",
-                    array(
-                        "type" => "select",
-                        "id" => "equipamento_rti",
-                        "class" => "equipamento_rti",
-                        "label" => "Tipo de Prestação de Serviços",
-                        "options" => $arrayTiposBrindes,
-                        "value" => $valorTipoBrinde,
-                        "disabled" => true,
-                        "default" => null,
-                        "required" => true
-                    )
-                ); ?> -->
-
-            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Tipo de Brinde Para Pessoas de Necessidades Especiais ?"]); ?>
-            <?= $this->Form->control('habilitado', ["label" => "Habilitado para Uso ? "]); ?>
+            <?= $this->Form->control('brinde_necessidades_especiais', ["label" => "Tipo de Brinde Para Pessoas de Necessidades Especiais?"]); ?>
+            <?= $this->Form->control('habilitado', ["label" => "Habilitado para Uso? "]); ?>
 
             <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?>
                 <?= $this->Form->control(
                     'atribuir_automatico',
                     [
-                        "label" => "Atribuir automaticamente na criação de nova unidade de rede ? ",
+                        "label" => "Atribuir automaticamente na criação de nova unidade de rede? ",
                         "id" => " atribuir_automatico ",
                         "class " => "atribuir-automatico "
                     ]
@@ -71,49 +64,46 @@ $arrayTiposBrindes = array($valorTipoBrinde => $arrayTiposBrindes[$valorTipoBrin
         </div>
     </div>
 
-    <?php if ($valorTipoBrinde == 1) : ?> 
+    <?php if ($valorTipoBrinde == 1) : ?>
 
     <div class="form-group row">
 
         <div class="col-lg-6">
-            <?= $this->Form->control(
-                "tipo_principal_codigo_brinde_default",
-                [
-                    "label" => "Tipo Principal Codigo Brinde",
-                    "id" => "tipo_principal_codigo_brinde_default",
-                    "class" => "tipo-principal-codigo-brinde-default",
-                    "type" => "number",
-                    "min" => 0,
-                    "max" => 9,
-                    "step" => 1,
-                    "required" => true
-                ]
-            ) ?>
+            <label for="tipo_principal_codigo_brinde_default">Tipo Principal Codigo Brinde</label>
+            <input type="number"
+                name="tipo_principal_codigo_brinde_default"
+                id="tipo_principal_codigo_brinde_default"
+                placeholder="Tipo Principal Codigo Brinde..."
+                min="0"
+                max="9"
+                step="1"
+                class="form-control tipo-principal-codigo-brinde-default"
+                value="<?= $tipoBrinde["tipo_principal_codigo_brinde_default"]?>"
+                >
+
         </div>
         <div class="col-lg-6">
-            <?= $this->Form->control(
-                "tipo_secundario_codigo_brinde_default",
-                [
-                    "label" => "Tipo Secundario Codigo Brinde",
-                    "id" => "tipo_secundario_codigo_brinde_default",
-                    "class" => "tipo-secundario-codigo-brinde-default",
-                    "type" => "number",
-                    "min" => 00,
-                    "max" => 99,
-                    "step" => 1,
-                    "required" => true,
-                ]
-            ) ?>
+            <label for="tipo_secundario_codigo_brinde_default">Tipo Secundário Codigo Brinde</label>
+            <input type="number"
+                name="tipo_secundario_codigo_brinde_default"
+                id="tipo_secundario_codigo_brinde_default"
+                placeholder="Tipo Secundário Codigo Brinde..."
+                min="0"
+                max="9"
+                step="1"
+                class="form-control tipo_secundario_codigo_brinde_default"
+                value="<?= $tipoBrinde["tipo_secundario_codigo_brinde_default"]?>"
+                >
         </div>
     </div>
 
-    <?php endif; ?> 
+    <?php endif; ?>
 
 </fieldset>
 <div class="col-lg-12 text-right">
         <button type="submit" class="btn btn-primary botao-confirmar"><span class="fa fa-save"></span> Salvar</button>
         <a href="/tipos-brindes-redes/configurar-tipos-brindes-rede/<?php echo $rede["id"] ?>" class="btn btn-danger botao-cancelar"><span class="fa fa-window-close"></span> Cancelar</a>
-        
+
 </div>
 <?= $this->Form->end() ?>
 

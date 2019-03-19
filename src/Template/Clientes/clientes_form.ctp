@@ -221,6 +221,7 @@ use Cake\Routing\Router;
                     name="tel_celular"
                     id="tel-celular"
                     placeholder="Celular..."
+                    required="required"
                     maxLength="12"
                     class="form-control"
                     value="<?= $cliente['tel_celular']?>">

@@ -272,4 +272,10 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
             <div class="col-lg-12 text-center text-uppercase"><span class="text-bold"> Não há dados de quadro de horários!</span></div>
         <?php endif; ?>
     </fieldset>
+
+    <div class="form-group row">
+        <div class="col-lg-12 text-right">
+            <a onclick="history.go(-1); return false;" class="btn btn-primary botao-cancelar"> <i class="fa fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
 </div>

@@ -1815,7 +1815,7 @@ class UsuariosController extends AppController
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
         $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil');
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);

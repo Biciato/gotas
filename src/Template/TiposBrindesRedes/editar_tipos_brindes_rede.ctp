@@ -22,7 +22,7 @@ $title = __("Editar Tipo de Brinde");
 // Navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Escolher Rede para Configurar Tipos de Brindes', array("controller" => "tiposBrindesRedes", "action" => "index"));
-$this->Breadcrumbs->add('Tipos de Brindes da Rede', array("controller" => "tiposBrindesRedes", "action" => "configurar_tipos_brindes_rede", $tiposBrindesRede["rede"]["id"]));
+$this->Breadcrumbs->add('Tipos de Brindes da Rede', array("controller" => "tiposBrindesRedes", "action" => "configurar_tipos_brindes_rede", $tipoBrinde["rede"]["id"]));
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
@@ -32,15 +32,12 @@ echo $this->element('../TiposBrindesRedes/left_menu')
 ?>
 <div class="redes form col-lg-9 col-md-8 columns content">
 
-    <?= $this->Form->create($tiposBrindesRede) ?>
+    <?= $this->Form->create($tipoBrinde) ?>
 
     <!-- Formulário de Tipo de Brindes -->
     <?= $this->element(
         "../TiposBrindesRedes/form_tipos_brindes_rede",
-        array(
-            "title" => $title,
-            "tipoBrinde" => $tiposBrindesRede
-        )
+        array("title" => $title)
     ) ?>
 
     <?= $this->Form->end() ?>

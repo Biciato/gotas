@@ -136,7 +136,7 @@ class TiposBrindesClientesController extends AppController
                 $data["clientes_id"] = $cliente["id"];
 
                 if ($equipamentoRTI) {
-                    // Verifica se já existe um tipo gravado anteriormente 
+                    // Verifica se já existe um tipo gravado anteriormente
 
                     $condicoes = array(
                         "clientes_id" => $clientesId,
@@ -267,7 +267,7 @@ class TiposBrindesClientesController extends AppController
 
                 $whereConditions = array(
                     "id != " => $id,
-                    "clientes_id != " => $tiposBrindesCliente["clientes_id"],
+                    "clientes_id = " => $tiposBrindesCliente["clientes_id"],
                     "tipo_principal_codigo_brinde" => $data["tipo_principal_codigo_brinde"],
                     "tipo_secundario_codigo_brinde" => $data["tipo_secundario_codigo_brinde"]
                 );

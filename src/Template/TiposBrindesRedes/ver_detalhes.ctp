@@ -39,4 +39,9 @@ echo $this->Breadcrumbs->render(
 <div class="tipos-brindes view col-lg-9 col-md-10 columns content">
     <legend><?= h($tiposBrindesRede->nome) ?></legend>
     <?= $this->Element("../TiposBrindesRedes/tabela_info_tipos_brindes_rede", ["tiposBrindesRede" => $tiposBrindesRede]) ?>
+    <div class="form-group row">
+        <div class="col-lg-12 text-right">
+            <a onclick="history.go(-1); return false;" class="btn btn-primary botao-cancelar"> <i class="fa fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
 </div>

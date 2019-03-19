@@ -16,88 +16,180 @@ if (!isset($transportadoraPath))
 
 <div class="transportadora">
 
-    <div class="col-lg-12">
-
-        <legend><?= __('Dados de Transportadora') ?></legend>
-
+    <div class="form-group row">
+        <div class="col-lg-12">
+            <legend><?= __('Dados de Transportadora') ?></legend>
+        </div>
     </div>
 
     <?= $this->Form->hidden($transportadoraPath . 'id', ['id' => 'id']) ?>
 
-    <div class="col-lg-12">
-        <span>Informe o CNPJ, se já existir, iremos trazer os dados previamente cadastrados</span>
+    <div class="form-group row">
+        <div class="col-lg-12">
+            <span>Informe o CNPJ, se já existir, iremos trazer os dados previamente cadastrados</span>
+        </div>
     </div>
-    <div class="col-lg-6">
-        <span id="cnpj_validation" class="text-danger validation-message"></span>
-        <?= $this->Form->control($transportadoraPath . 'cnpj', ['title' => 'teste', 'label' => 'CNPJ*', 'id' => 'cnpj']); ?>
-    </div>
-    <div class="row"></div>
-    <div class="col-lg-6">
+    <div class="form-group row">
 
-    <?= $this->Form->control($transportadoraPath . 'nome_fantasia', ['id' => 'nome_fantasia']); ?>
-    </div>
+        <div class="col-lg-4">
+            <span id="cnpj_validation" class="text-danger validation-message"></span>
+            <label for="cnpj">CNPJ*</label>
+            <input type="text"
+                name="<?= sprintf( "%s%s", $transportadoraPath , "cnpj") ?>"
+                id="<?= sprintf( "%s%s", $transportadoraPath , "cnpj") ?>"
+                required="required"
+                placeholder="CNPJ..."
+                class="form-control"
+                value="<?= $transportadora['cnpj']?>"
+                >
+        </div>
 
-    <div class="col-lg-6">
+        <div class="col-lg-4">
+            <label for="nome_fantasia">Nome Fantasia</label>
+            <input type="text"
+                name="<?= sprintf( "%s%s", $transportadoraPath , "nome_fantasia") ?>"
+                id="<?= sprintf( "%s%s", $transportadoraPath , "nome_fantasia") ?>"
+                placeholder="Nome Fantasia..."
+                class="form-control"
+                value="<?= $transportadora['nome_fantasia']?>"
+                >
+        </div>
 
-    <?= $this->Form->control($transportadoraPath . 'razao_social', ['id' => 'razao_social']); ?>
-    </div>
+        <div class="col-lg-4">
 
-    <div class="col-lg-3">
-
-        <?= $this->Form->control($transportadoraPath . 'cep', ['id' => 'cep', 'label' => 'CEP', 'class' => 'cep_transportadoras']); ?>
-    </div>
-    <div class="col-lg-4">
-
-        <?= $this->Form->control($transportadoraPath . 'endereco', ['id' => 'endereco', 'label' => 'Endereço', 'class' => 'endereco_transportadoras']); ?>
-    </div>
-
-    <div class="col-lg-2">
-
-        <?= $this->Form->control($transportadoraPath . 'endereco_numero', ['id' => 'numero', 'label' => 'Número', 'class' => 'endereco_numero_transportadoras']); ?>
-    </div>
-
-    <div class="col-lg-3">
-
-        <?= $this->Form->control($transportadoraPath . 'endereco_complemento', ['id' => 'endereco_complemento', 'label' => 'Complemento', 'class' => 'endereco_complemento_transportadoras']); ?>
-    </div>
-
-    <div class="col-lg-3">
-
-        <?= $this->Form->control($transportadoraPath . 'bairro', ['id' => 'bairro', 'class' => 'bairro_transportadoras']); ?>
-    </div>
-
-    <div class="col-lg-3">
-
-    <?= $this->Form->control($transportadoraPath . 'municipio', ['id' => 'municipio', 'class' => 'municipio_transportadoras']); ?>
+            <label for="razao_social">Razão Social*</label>
+            <input type="text"
+                name="<?= sprintf("%s%s", $transportadoraPath, "razao_social") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "razao_social") ?>"
+                required="required"
+                placeholder="Razão Social..."
+                class="form-control"
+                value="<?= $transportadora['razao_social']?>"
+                >
+        </div>
     </div>
 
 
-    <div class="col-lg-3">
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label for="cep">CEP</label>
+            <input type="cep"
+                name="<?= sprintf("%s%s", $transportadoraPath, "cep") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "cep") ?>"
+                placeholder="CEP..."
+                class="form-control cep_transportadoras"
+                value="<?= $transportadora['cep']?>"
+                >
+        </div>
+        <div class="col-lg-4">
 
-    <?= $this->Form->input(
-        $transportadoraPath . 'estado',
-        [
-            'id' => 'estado',
-            'empty' => true,
-            'class' => 'estado_transportadoras',
-            'type' => 'select',
-            'options' => $this->Address->getStatesBrazil(),
-        ]
-    ); ?>
+            <label for="endereco">Endereço</label>
+            <input type="endereco"
+                name="<?= sprintf("%s%s", $transportadoraPath, "endereco") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "endereco") ?>"
+                placeholder="Endereço..."
+                class="form-control endereco_transportadoras"
+                value="<?= $transportadora['endereco']?>"
+                >
+        </div>
+
+        <div class="col-lg-2">
+            <label for="endereco_numero">Número</label>
+            <input type="endereco_numero"
+                name="<?= sprintf("%s%s", $transportadoraPath, "endereco_numero") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "endereco_numero") ?>"
+                placeholder="Número..."
+                class="form-control endereco_numero_transportadoras"
+                value="<?= $transportadora['endereco_numero']?>"
+                >
+        </div>
+
+        <div class="col-lg-3">
+            <label for="endereco_complemento">Complemento</label>
+            <input type="endereco_complemento"
+                name="<?= sprintf("%s%s", $transportadoraPath, "endereco_complemento") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "endereco_complemento") ?>"
+                placeholder="Complemento..."
+                class="form-control endereco_complemento_transportadoras"
+                value="<?= $transportadora['endereco_complemento']?>"
+                >
+        </div>
+
     </div>
 
-    <div class="col-lg-3">
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label for="bairro">Bairro</label>
+            <input type="bairro"
+                name="<?= sprintf("%s%s", $transportadoraPath, "bairro") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "bairro") ?>"
+                placeholder="Bairro..."
+                class="form-control bairro_transportadoras"
+                value="<?= $transportadora['bairro']?>"
+                >
+        </div>
 
-        <?= $this->Form->input($transportadoraPath . 'pais', ['id' => 'pais', 'class' => 'pais_transportadoras', ]) ?>
+        <div class="col-lg-3">
+            <label for="municipio">Município</label>
+            <input type="municipio"
+                name="<?= sprintf("%s%s", $transportadoraPath, "municipio") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "municipio") ?>"
+                placeholder="Município..."
+                class="form-control municipio_transportadoras"
+                value="<?= $transportadora['municipio']?>"
+                >
+        </div>
+
+
+        <div class="col-lg-3">
+            <label for="estado">Estado</label>
+            <?= $this->Form->input(
+                $transportadoraPath . 'estado',
+                [
+                    'id' => 'estado',
+                    'empty' => true,
+                    'class' => 'estado_transportadoras',
+                    'type' => 'select',
+                    'label' => false,
+                    'options' => $this->Address->getStatesBrazil(),
+                ]
+            ); ?>
+        </div>
+
+        <div class="col-lg-3">
+            <label for="pais">País</label>
+            <input type="pais"
+                name="<?= sprintf("%s%s", $transportadoraPath, "pais") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "pais") ?>"
+                placeholder="País..."
+                class="form-control pais_transportadoras"
+                value="<?= $transportadora['pais']?>"
+                >
+        </div>
     </div>
-    <div class="col-lg-3">
 
-        <?= $this->Form->control($transportadoraPath . 'tel_fixo', ['id' => 'tel_fixo']); ?>
-    </div>
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label for="tel_fixo">Telefone Fixo</label>
+            <input type="tel_fixo"
+                name="<?= sprintf("%s%s", $transportadoraPath, "tel_fixo") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "tel_fixo") ?>"
+                placeholder="Telefone Fixo..."
+                class="form-control"
+                value="<?= $transportadora['tel_fixo']?>"
+                >
+        </div>
 
-    <div class="col-lg-3">
-
-        <?= $this->Form->control($transportadoraPath . 'tel_celular', ['id' => 'tel_celular']); ?>
+        <div class="col-lg-3">
+            <label for="tel_celular">Telefone Celular</label>
+            <input type="tel_celular"
+                name="<?= sprintf("%s%s", $transportadoraPath, "tel_celular") ?>"
+                id="<?= sprintf("%s%s", $transportadoraPath, "tel_celular") ?>"
+                placeholder="Telefone Celular..."
+                class="form-control"
+                value="<?= $transportadora['tel_celular']?>"
+                >
+        </div>
     </div>
 </div>
 
