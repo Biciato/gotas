@@ -365,6 +365,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                         name="senha"
                         required="true"
                         maxLength="4"
+                        placeholder="Senha..."
                         id="senha"
                         class="form-control"/>
                     </div>
@@ -375,6 +376,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                         type="password"
                         name="confirm_senha"
                         required="true"
+                        placeholder="Confirmar Senha..."
                         maxLength="4"
                         id="confirm_senha"
                         class="form-control"/>
@@ -384,38 +386,67 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
 
             <div class="form-group row">
                 <div class="col-lg-2">
-                    <?= $this->Form->input(
-                        'cep',
-                        [
-                            'label' => 'CEP',
-                            'id' => 'cep',
-                            'class' => 'cep',
-                            'title' => 'CEP do local do cliente. Digite-o para realizar a busca.'
-                        ]
-                    );
-                    ?>
+                    <label for="cep">CEP</label>
+                    <input type="text"
+                        name="cep"
+                        placeholder="CEP..."
+                        id="cep"
+                        class="form-control cep"
+                        value="<?= $usuario['cep']?>"
+                        >
+
                 </div>
 
                 <div class="col-lg-3">
-                    <?= $this->Form->control('endereco', ['label' => 'Endereço', 'class' => 'endereco']); ?>
+                    <label for="endereco">Endereço</label>
+                    <input type="text"
+                        name="endereco"
+                        id="endereco"
+                        class="form-control endereco"
+                        placeholder="Endereço..."
+                        value="<?= $usuario['endereco']?>">
+
                 </div>
 
                 <div class="col-lg-2">
-                    <?= $this->Form->control('endereco_numero', ['label' => 'Número', 'class' => 'numero']); ?>
+                    <label for="endereco_numero">Número</label>
+                    <input type="text"
+                        name="endereco_numero"
+                        id="endereco_numero"
+                        class="form-control numero"
+                        placeholder="Número..."
+                        value="<?= $usuario['endereco_numero']?>"/>
                 </div>
                 <div class="col-lg-2">
-                    <?= $this->Form->control('endereco_complemento', ['label' => 'Complemento', 'class' => 'complemento']); ?>
+                    <label for="endereco_complemento">Complemento</label>
+                    <input type="text"
+                        name="endereco_complemento"
+                        id="endereco_complemento"
+                        class="form-control complemento"
+                        placeholder="Complemento..."
+                        value="<?= $usuario['endereco_complemento']?>"/>
                 </div>
 
                 <div class="col-lg-3">
-
-                    <?= $this->Form->control('bairro', ['class' => 'bairro']); ?>
+                    <label for="bairro">Bairro</label>
+                    <input type="text"
+                        name="bairro"
+                        id="bairro"
+                        class="form-control bairro"
+                        placeholder="Bairro..."
+                        value="<?= $usuario['bairro']?>"/>
                 </div>
             </div>
 
             <div class="form-group row">
                 <div class="col-lg-4">
-                    <?= $this->Form->control('municipio', ['class' => 'municipio']); ?>
+                    <label for="municipio">Municipio</label>
+                    <input type="text"
+                        name="municipio"
+                        id="municipio"
+                        class="form-control municipio"
+                        placeholder="Municipio..."
+                        value="<?= $usuario['bairro']?>"/>
                 </div>
 
                 <div class="col-lg-4">
@@ -432,7 +463,13 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                 </div>
 
                 <div class="col-lg-4">
-                        <?= $this->Form->control('pais', ['class' => 'pais']); ?>
+                    <label for="pais">País</label>
+                    <input type="text"
+                        name="pais"
+                        id="pais"
+                        class="form-control pais"
+                        placeholder="País..."
+                        value="<?= $usuario['pais']?>"/>
                 </div>
             </div>
 

@@ -26,17 +26,41 @@ if (!isset($veiculoPath))
 
         <span class="text-danger validation-message col-lg-12" id="placa_validation"></span>
         <div class="col-lg-3">
-            <?= $this->Form->control($veiculoPath.'placa', ['id' => 'placa', 'label' => 'Placa']) ?>
+            <label for="placa">Placa</label>
+            <input type="text"
+                name="<?= sprintf("%s%s", $veiculoPath, "placa")?>"
+                id="<?= sprintf("%s%s", $veiculoPath, "placa")?>"
+                class="form-control placa"
+                placeholder="Placa..."
+                value="<?= $veiculo['placa']?>"/>
         </div>
         <div class="col-lg-3">
-            <?= $this->Form->control($veiculoPath.'modelo', ['id' => 'modelo', 'label' => 'Modelo']) ?>
+            <label for="modelo">Modelo</label>
+            <input type="text"
+                name="<?= sprintf("%s%s", $veiculoPath, "modelo")?>"
+                id="<?= sprintf("%s%s", $veiculoPath, "modelo")?>"
+                class="form-control modelo"
+                placeholder="Modelo..."
+                value="<?= $veiculo['modelo']?>"/>
         </div>
         <div class="col-lg-3">
+            <label for="fabricante">Fabricante</label>
+            <input type="text"
+                name="<?= sprintf("%s%s", $veiculoPath, "fabricante")?>"
+                id="<?= sprintf("%s%s", $veiculoPath, "fabricante")?>"
+                class="form-control fabricante"
+                placeholder="Fabricante..."
+                value="<?= $veiculo['fabricante']?>"/>
 
-            <?= $this->Form->control($veiculoPath.'fabricante', ['id' => 'fabricante', 'label' => 'Fabricante']) ?>
         </div>
         <div class="col-lg-3">
-            <?= $this->Form->input($veiculoPath.'ano', ['id' => 'ano', 'label' => 'Ano']) ?>
+            <label for="ano">Ano</label>
+            <input type="text"
+                name="<?= sprintf("%s%s", $veiculoPath, "ano")?>"
+                id="<?= sprintf("%s%s", $veiculoPath, "ano")?>"
+                class="form-control ano"
+                placeholder="Ano..."
+                value="<?= $veiculo['ano']?>"/>
         </div>
     </div>
 </div>

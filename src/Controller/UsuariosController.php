@@ -229,7 +229,7 @@ class UsuariosController extends AppController
         } else {
             $message = $result['message'];
             $recoverAccount = $result['actionNeeded'];
-            $status = $result["status"];
+            $status = isset($result["status"]) ? $result["status"] : 1;
             $usuario = null;
         }
 
@@ -963,8 +963,8 @@ class UsuariosController extends AppController
 
         $arraySet = array(
             "usuario",
-            "transportadoraPath",
-            "veiculoPath",
+            // "transportadoraPath",
+            // "veiculoPath",
             "usuarioLogado",
         );
 
@@ -1587,6 +1587,8 @@ class UsuariosController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
+        $transportadoraNomeProcura = 'TransportadorasHasUsuarios_Transportadoras_';
+        $veiculosNomeProcura = 'UsuariosHasVeiculos_Veiculos_';
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -1634,26 +1636,34 @@ class UsuariosController extends AppController
 
             $usuarioData = $data;
 
+            DebugUtil::printArray($usuarioData, 0);
+
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = $cliente["id"];
 
             $tipo_perfil = $data['tipo_perfil'];
 
-            if (isset($this->usuarioLogado)) {
-                $transportadoraData = null;
-                $veiculosData = null;
+            $transportadoraData = null;
+            $veiculosData = null;
 
-                if (isset($usuarioData['TransportadorasHasUsuarios'])) {
-                    $transportadoraData = $usuarioData['TransportadorasHasUsuarios']['Transportadoras'];
+            $transportadoraData = array();
+            $veiculosData = array();
+
+
+            foreach ($usuarioData as $key => $value) {
+                if (substr($key, 0, strlen($transportadoraNomeProcura)) == $transportadoraNomeProcura) {
+                    $newKey = substr($key, strlen($transportadoraNomeProcura));
+                    $transportadoraData[$newKey] = $value;
+                    unset($usuarioData[$key]);
                 }
 
-                if (isset($usuarioData['UsuariosHasVeiculos'])) {
-                    $veiculosData = $usuarioData['UsuariosHasVeiculos']['Veiculos'];
+                if (substr($key, 0, strlen($veiculosNomeProcura)) == $veiculosNomeProcura) {
+                    $newKey = substr($key, strlen($veiculosNomeProcura));
+                    $veiculosData[$newKey] = $value;
+                    unset($usuarioData[$key]);
                 }
             }
 
-            unset($usuarioData['TransportadorasHasUsuarios']);
-            unset($usuarioData['UsuariosHasVeiculos']);
             unset($usuarioData['transportadora']);
 
             if ($usuarioData['doc_invalido'] == true) {
@@ -1820,8 +1830,8 @@ class UsuariosController extends AppController
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
 
-        $this->set('transportadoraPath', 'TransportadorasHasUsuarios.Transportadoras.');
-        $this->set('veiculoPath', 'UsuariosHasVeiculos.Veiculos.');
+        $this->set('transportadoraPath', $transportadoraNomeProcura);
+        $this->set('veiculoPath', $veiculosNomeProcura);
     }
 
     /**

@@ -305,10 +305,17 @@ $(document).ready(function () {
     $("#alternarTransportadora").click(function () {
         if ($("#alternarTransportadora").is(":checked")) {
             $(".transportadora").show();
+            $(".transportadora .cnpj").attr("required", true);
+            $(".transportadora .razao_social").attr("required", true);
         } else {
             $(".transportadora").hide();
+            $(".transportadora .cnpj").attr("required", false);
+            $(".transportadora .razao_social").attr("required", false);
         }
     });
+    // Já começa desabilitado
+    $(".transportadora .cnpj").attr("required", false);
+    $(".transportadora .razao_social").attr("required", false);
 
     if ($("#alternarTransportadora").val() == 1) {
         $(".transportadora").show();

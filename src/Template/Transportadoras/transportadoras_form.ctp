@@ -39,7 +39,7 @@ if (!isset($transportadoraPath))
                 id="<?= sprintf( "%s%s", $transportadoraPath , "cnpj") ?>"
                 required="required"
                 placeholder="CNPJ..."
-                class="form-control"
+                class="form-control cnpj"
                 value="<?= $transportadora['cnpj']?>"
                 >
         </div>
@@ -63,7 +63,7 @@ if (!isset($transportadoraPath))
                 id="<?= sprintf("%s%s", $transportadoraPath, "razao_social") ?>"
                 required="required"
                 placeholder="Razão Social..."
-                class="form-control"
+                class="form-control razao_social"
                 value="<?= $transportadora['razao_social']?>"
                 >
         </div>
