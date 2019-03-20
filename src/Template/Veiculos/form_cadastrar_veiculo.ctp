@@ -10,52 +10,56 @@ $title = isset($title) ? $title : __('Adicionar Veículo');
         <legend><?= $title ?></legend>
             <div class="form-group row">
                 <div class="col-lg-3">
-                    <label for="placa">Placa:*</label>
-                    <input type="text" 
-                        name="placa" 
-                        class="form-control" 
-                        id="placa" 
-                        value="<?= $veiculo["placa"]?>" 
+                    <label for="placa">Placa*</label>
+                    <input type="text"
+                        name="placa"
+                        class="form-control"
+                        id="placa"
+                        placeholder="Placa..."
+                        value="<?= $veiculo["placa"]?>"
                         required />
                 </div>
                 <div class="col-lg-3">
-                    <label for="modelo">Modelo:*</label>
-                    <input type="text" 
-                        name="modelo" 
-                        class="form-control" 
-                        id="modelo" 
-                        value="<?= $veiculo["modelo"]?>" 
+                    <label for="modelo">Modelo*</label>
+                    <input type="text"
+                        name="modelo"
+                        class="form-control"
+                        id="modelo"
+                        placeholder="Modelo..."
+                        value="<?= $veiculo["modelo"]?>"
                         required />
                 </div>
                 <div class="col-lg-3">
-                    <label for="fabricante">Fabricante:*</label>
-                    <input type="text" 
-                        name="fabricante" 
-                        class="form-control" 
-                        id="fabricante" 
-                        value="<?= $veiculo["fabricante"]?>" 
+                    <label for="fabricante">Fabricante*</label>
+                    <input type="text"
+                        name="fabricante"
+                        class="form-control"
+                        id="fabricante"
+                        placeholder="Fabricante..."
+                        value="<?= $veiculo["fabricante"]?>"
                         required />
                 </div>
                 <div class="col-lg-3">
-                    <label for="ano">Ano:*</label>
-                    <input type="text" 
-                        name="ano" 
-                        class="form-control" 
-                        id="ano" 
-                        value="<?= $veiculo["ano"]?>" 
+                    <label for="ano">Ano*</label>
+                    <input type="text"
+                        name="ano"
+                        class="form-control"
+                        id="ano"
+                        placeholder="Ano..."
+                        value="<?= $veiculo["ano"]?>"
                         required />
                 </div>
             </div>
 
             <?= $this->Html->tag('span', '', ['class' => 'text-danger validation-message']) ?>
             <div class="col-lg-12 text-right">
-                <button type="submit" 
+                <button type="submit"
                     class="btn btn-primary save-button botao-confirmar">
                     <i class="fa fa-save"></i>
                     Salvar
                 </button>
-                
-                <a href="/" 
+
+                <a onclick="history.go(-1); return false;"
                     class="btn btn-danger botao-cancelar">
                     <i class="fa fa-window-close"></i>
                     Cancelar
@@ -70,7 +74,7 @@ $title = isset($title) ? $title : __('Adicionar Veículo');
             <?= $this->Form->control('ano', ['id' => 'ano', 'class' => 'frozen-input-data']); ?> -->
     </fieldset>
 
-  
+
     <?= $this->Form->end() ?>
 
 <?php if (Configure::read('debug') == true) : ?>

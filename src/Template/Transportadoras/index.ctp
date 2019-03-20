@@ -33,7 +33,7 @@ echo $this->Breadcrumbs->render(
                 <th scope="col"><?= $this->Paginator->sort('pais', ['label' => 'País']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tel_fixo', ['label' => 'Fixo']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tel_celular', ['label' => 'Celular']) ?></th>
-                
+
                 <th class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -63,7 +63,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Ver',
-                                'class' => 'btn btn-default btn-xs',
+                                'class' => 'btn btn-default btn-xs botao-navegacao-tabela',
                                 'escape' => false
                             ]
                         )
@@ -79,7 +79,7 @@ echo $this->Breadcrumbs->render(
                             ],
                             [
                                 'title' => 'Editar',
-                                'class' => 'btn btn-primary btn-xs',
+                                'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                                 'escape' => false
                             ]
                         )

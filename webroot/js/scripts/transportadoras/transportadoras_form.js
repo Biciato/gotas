@@ -4,35 +4,48 @@ $(document).ready(function () {
         $(".transportadora").hide();
     }
 
+
+    if (window.location.href.indexOf("edit") > 0){
+        $(".transportadora .cnpj").prop("readonly", true);
+        $(".transportadora .cnpj").attr("required", false);
+        $(".nome_fantasia").focus();
+
+    } else {
+        $(".cnpj").focus();
+    }
+
     var populateData = function (data) {
         if (data != undefined) {
             // $(".transportadora #cnpj").val(data.cnpj);
-            $(".transportadora #nome_fantasia").val(data.nome_fantasia);
-            $(".transportadora #razao_social").val(data.razao_social);
-            $(".transportadora #cep").val(data.cep);
-            $(".transportadora #endereco").val(data.endereco);
-            $(".transportadora #numero").val(data.endereco_numero);
-            $(".transportadora #endereco_complemento").val(data.endereco_complemento);
-            $(".transportadora #bairro").val(data.bairro);
-            $(".transportadora #municipio").val(data.municipio);
-            $(".transportadora #estado").val(data.estado);
-            $(".transportadora #pais").val(data.pais);
-            $(".transportadora #tel_fixo").val(data.tel_fixo);
-            $(".transportadora #tel_celular").val(data.tel_celular);
 
-            $(".transportadora #cnpj_validation").text('Registro localizado.');
+            $(".transportadora .nome_fantasia").val(data.nome_fantasia);
+            $(".transportadora .razao_social").val(data.razao_social);
+            $(".transportadora .cep_transportadoras").val(data.cep);
+            $(".transportadora .endereco_transportadoras").val(data.endereco);
+            $(".transportadora .endereco_numero_transportadoras").val(data.endereco_numero);
+            $(".transportadora .endereco_complemento_transportadoras").val(data.endereco_complemento);
+            $(".transportadora .bairro_transportadoras").val(data.bairro);
+            $(".transportadora .municipio_transportadoras").val(data.municipio);
+            $(".transportadora .estado_transportadoras").val(data.estado);
+            $(".transportadora .pais_transportadoras").val(data.pais);
+            $(".transportadora .tel_fixo").val(data.tel_fixo);
+            $(".transportadora .tel_celular").val(data.tel_celular);
+
+            // $(".transportadora #cnpj_validation").text('Registro localizado.');
         } else {
-            $(".transportadora #nome_fantasia").val(null);
-            $(".transportadora #razao_social").val(null);
-            $(".transportadora #endereco").val(null);
-            $(".transportadora #endereco_complemento").val(null);
-            $(".transportadora #bairro").val(null);
-            $(".transportadora #municipio").val(null);
-            $(".transportadora #estado").val(null);
-            $(".transportadora #pais").val(null);
-            $(".transportadora #tel_fixo").val(null);
-            $(".transportadora #tel_celular").val(null);
-            $(".transportadora #cnpj_validation").text('Registro não localizado, será adicionado novo registro.');
+            $(".transportadora .nome_fantasia").val(undefined);
+            $(".transportadora .razao_social").val(undefined);
+            $(".transportadora .cep_transportadoras").val(undefined);
+            $(".transportadora .endereco_transportadoras").val(undefined);
+            $(".transportadora .endereco_numero_transportadoras").val(undefined);
+            $(".transportadora .endereco_complemento_transportadoras").val(undefined);
+            $(".transportadora .bairro_transportadoras").val(undefined);
+            $(".transportadora .municipio_transportadoras").val(undefined);
+            $(".transportadora .estado_transportadoras").val(undefined);
+            $(".transportadora .pais_transportadoras").val(undefined);
+            $(".transportadora .tel_fixo").val(undefined);
+            $(".transportadora .tel_celular").val(undefined);
+            callModalError('Registro não localizado, será adicionado novo registro.');
         }
 
     }
@@ -42,12 +55,13 @@ $(document).ready(function () {
         getCEPTransportadora(this);
     });
 
-    $(".transportadora #cnpj").mask('99.999.999/9999-99');
+    $(".transportadora .cnpj").mask('99.999.999/9999-99');
     $(".transportadora #tel_fixo").mask('(99)9999-9999');
     $(".transportadora #tel_celular").mask('(99)99999-9999');
     $(".transportadora #cep").mask('99.999-999');
 
-    $("#cnpj").on('keyup', function () {
+    $(".transportadora .cnpj").on('blur', function () {
+        console.log("oi");
         if (this.value.length == 18) {
 
             callLoaderAnimation();
@@ -56,7 +70,7 @@ $(document).ready(function () {
                 url: '/api/transportadoras/get_transportadora_by_cnpj',
                 type: 'post',
                 data: JSON.stringify({
-                    cnpj: this.value
+                    cnpj: this.value.replace(/\D/g, '')
                 }),
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Accept", "application/json");

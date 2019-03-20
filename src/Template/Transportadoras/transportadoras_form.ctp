@@ -50,13 +50,12 @@ if (!isset($transportadoraPath))
                 name="<?= sprintf( "%s%s", $transportadoraPath , "nome_fantasia") ?>"
                 id="<?= sprintf( "%s%s", $transportadoraPath , "nome_fantasia") ?>"
                 placeholder="Nome Fantasia..."
-                class="form-control"
+                class="form-control nome_fantasia"
                 value="<?= $transportadora['nome_fantasia']?>"
                 >
         </div>
 
         <div class="col-lg-4">
-
             <label for="razao_social">Razão Social*</label>
             <input type="text"
                 name="<?= sprintf("%s%s", $transportadoraPath, "razao_social") ?>"
@@ -64,11 +63,9 @@ if (!isset($transportadoraPath))
                 required="required"
                 placeholder="Razão Social..."
                 class="form-control razao_social"
-                value="<?= $transportadora['razao_social']?>"
-                >
+                value="<?= $transportadora['razao_social']?>">
         </div>
     </div>
-
 
     <div class="form-group row">
         <div class="col-lg-3">
@@ -114,7 +111,6 @@ if (!isset($transportadoraPath))
                 value="<?= $transportadora['endereco_complemento']?>"
                 >
         </div>
-
     </div>
 
     <div class="form-group row">
@@ -149,6 +145,7 @@ if (!isset($transportadoraPath))
                     'id' => 'estado',
                     'empty' => true,
                     'class' => 'estado_transportadoras',
+                    'value' => $transportadora['estado'],
                     'type' => 'select',
                     'label' => false,
                     'options' => $this->Address->getStatesBrazil(),
@@ -163,8 +160,7 @@ if (!isset($transportadoraPath))
                 id="<?= sprintf("%s%s", $transportadoraPath, "pais") ?>"
                 placeholder="País..."
                 class="form-control pais_transportadoras"
-                value="<?= $transportadora['pais']?>"
-                >
+                value="<?= $transportadora['pais']?>">
         </div>
     </div>
 
@@ -175,7 +171,7 @@ if (!isset($transportadoraPath))
                 name="<?= sprintf("%s%s", $transportadoraPath, "tel_fixo") ?>"
                 id="<?= sprintf("%s%s", $transportadoraPath, "tel_fixo") ?>"
                 placeholder="Telefone Fixo..."
-                class="form-control"
+                class="form-control tel_fixo"
                 value="<?= $transportadora['tel_fixo']?>"
                 >
         </div>
@@ -186,7 +182,7 @@ if (!isset($transportadoraPath))
                 name="<?= sprintf("%s%s", $transportadoraPath, "tel_celular") ?>"
                 id="<?= sprintf("%s%s", $transportadoraPath, "tel_celular") ?>"
                 placeholder="Telefone Celular..."
-                class="form-control"
+                class="form-control tel_celular"
                 value="<?= $transportadora['tel_celular']?>"
                 >
         </div>

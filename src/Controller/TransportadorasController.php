@@ -603,18 +603,18 @@ class TransportadorasController extends AppController
 
                 $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
 
-                if (empty($cnpj)){
+                if (empty($cnpj)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageLoadDataWithError")),
                         "errors" => array(__(Configure::read("messageFieldEmptyDefault"), "CNPJ")),
                     );
-    
+
                     $arraySet = array("transportadora", "mensagem");
-    
+
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
-    
+
                     return;
                 }
 
@@ -625,12 +625,12 @@ class TransportadorasController extends AppController
                         "message" => __(Configure::read("messageLoadDataWithError")),
                         "errors" => array(__(Configure::read("messageFieldDigitsMinimum"), "CNPJ", 14)),
                     );
-    
+
                     $arraySet = array("transportadora", "mensagem");
-    
+
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
-    
+
                     return;
                 }
 

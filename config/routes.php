@@ -255,8 +255,8 @@ Router::scope("/api", function ($routes) {
     $routes->resources("Transportadoras", [
         "map" => [
             // utilizado pelo APP Mobile. Cuidado ao mexer
-            "getTransportadoraByCNPJ" => [
-                "action" => "getTransportadoraByCNPJ",
+            "getTransportadoraByCNPJAPI" => [
+                "action" => "getTransportadoraByCNPJAPI",
                 "method" => "POST",
                 "path" => "/get_transportadora_by_cnpj"
             ],

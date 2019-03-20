@@ -8,21 +8,23 @@
 <div class="transportadoras form col-lg-9 col-md-10 columns content">
     <?= $this->Form->create($transportadora) ?>
     <fieldset>
-    
-        <?= $this->element('../Transportadoras/transportadoras_form') ?>
-        
-    </fieldset>
-    <?= $this->Form->button(
-        __(
-            '{0} Salvar',
-            $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-        ),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
 
-    ) ?>
+        <?= $this->element('../Transportadoras/transportadoras_form') ?>
+
+    </fieldset>
+    <div class="col-lg-12 text-right">
+        <button type="submit"
+            class="btn btn-primary save-button botao-confirmar">
+            <i class="fa fa-save"></i>
+            Salvar
+        </button>
+
+        <a href="/transportadoras/index"
+            class="btn btn-danger botao-cancelar">
+            <i class="fa fa-window-close"></i>
+            Cancelar
+        </a>
+    </div>
     <?= $this->Form->end() ?>
 </div>
 
