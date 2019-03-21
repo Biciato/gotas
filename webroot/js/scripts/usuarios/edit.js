@@ -482,6 +482,8 @@ $(document).ready(function () {
             closeLoaderAnimation();
             var interval;
 
+            console.log('oi');
+
             interval = setInterval(function () {
                 if (
                     $("#clientes_rede").val() != "" &&
@@ -506,7 +508,7 @@ $(document).ready(function () {
         loadUnidadesRede(data);
     }
 
-    $("#tipo-perfil").on("change", function () {
+    $("#tipo_perfil").on("change", function () {
         changeProfileType(this);
     });
 
@@ -518,19 +520,37 @@ $(document).ready(function () {
     var changeProfileType = function (data) {
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-        var tipo_perfil = $(".usuarioLogadoTipoPerfil").val();
+        // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-        if (tipo_perfil !== undefined) {
-            if (tipo_perfil == 0) {
+        var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
+
+        var labelUnidadeRede = "Unidade da Rede*";
+
+        $(".clientes_rede").prop("required", true);
+        $("label[for=clientes_rede]").text(labelUnidadeRede);
+        // Gerente
+        var tipoPerfilSelecionado = $("#tipo_perfil").val();
+        if (tipoPerfilSelecionado >= 5) {
+            $("#telefone").attr("required", null);
+            $("#label-telefone").text("Telefone");
+        } else if (tipoPerfilSelecionado == 1){
+            $(".clientes_rede").prop("required", false);
+            $("label[for=clientes_rede]").text(labelUnidadeRede.substr(0, labelUnidadeRede.length -1));
+        } else {
+            $("#telefone").attr("required", true);
+            $("#label-telefone").text("Telefone*");
+        }
+
+        if (tipoPerfil !== undefined) {
+            if (tipoPerfil >= 0 && tipoPerfil <= 2) {
                 if ($(data).val() < 1 || $(data).val() > 5) {
                     hideRedesInput();
-                    $(".redes_list").val(null);
-                    $(".clientes_rede").val(null);
                 } else {
                     showRedesInput();
                 }
             }
         }
+
 
         if ($(data).val() != 5) {
             $("#senha").mask("AAAAAAAA");

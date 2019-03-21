@@ -1866,7 +1866,7 @@ class UsuariosController extends AppController
         $redesId = $rede["id"];
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 
-        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
             if (is_null($redesId) && isset($rede)) {
                 $redesId = $rede["id"];
@@ -1877,10 +1877,7 @@ class UsuariosController extends AppController
             }
         }
 
-        if (
-            $usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]
-        ) {
+        if ($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
         }
 
@@ -1902,10 +1899,7 @@ class UsuariosController extends AppController
 
             // Se quem está cadastrando é um  Administrador Comum >= Funcionário, pega o local onde o Funcionário está e vincula ao mesmo lugar.
 
-            if (
-                $usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_LOCAL
-                && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_WORKER
-            ) {
+            if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_LOCAL && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
                 $cliente = $this->request->session()->read('Rede.PontoAtendimento');
                 $data['clientes_id'] = $cliente["id"];
                 $clientes_id = $cliente["id"];
@@ -1943,9 +1937,9 @@ class UsuariosController extends AppController
             // $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
-            if ($usuario = $this->Usuarios->save($usuario)) {
+            if ($usuarioSave = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
+                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuarioSave['id'], $password_encrypt);
 
                 // a vinculação só será feita se não for um Admin RTI
                 if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
@@ -1965,7 +1959,7 @@ class UsuariosController extends AppController
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
                             $rede_has_cliente->id,
-                            $usuario->id
+                            $usuarioSave->id
                         );
                     }
 
@@ -1975,16 +1969,16 @@ class UsuariosController extends AppController
                      * será considerado equipe
                      */
 
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario["id"], true);
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true);
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
 
                 // se cadastrou um usuário, retorna à meus clientes,
                 // caso contrário, retorna à usuários da rede
-                if ($usuario['tipo_perfil'] == Configure::read('profileTypes')['UserProfileType']) {
+                if ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['UserProfileType']) {
                     return $this->redirect(['action' => 'meus_clientes']);
-                } else if ($usuario['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                } else if ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     return $this->redirect(['action' => 'index']);
                 } else {
                     if (isset($redesId)) {
@@ -2066,10 +2060,7 @@ class UsuariosController extends AppController
 
         $unidadesRede = array();
         $unidadeRedeId = 0;
-        if (
-            $this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminNetworkProfileType"]
-            && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]
-        ) {
+        if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $this->usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL) {
             $unidadesRede = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $usuarioLogado["id"]);
         } else {
             // $unidadesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);

@@ -19,18 +19,23 @@ use Cake\Routing\Router;
     </legend>
 
     <?= $this->Form->hidden('id', ['id' => 'usuarios_id']); ?>
-    <?= $this->Form->hidden('clientes_id', ['id' => 'clientes_id', 'value' => isset($clientes_id) ? $clientes_id : null]); ?>
+    <?= $this->Form->hidden('clientes_id', ['id' => 'clientes_id', 'value' => isset($clientesId) ? $clientesId : null]); ?>
     <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
 
     <div class="form-group row">
 
-        <?php if ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminDeveloperProfileType']) : ?>
+        <?php if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
             <div class='col-lg-4'>
                 <?php if (isset($redesId)) : ?>
+                    <label for="tipo_perfil">Tipo de Perfil*</label>
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
                         "empty" => "<Selecionar>",
+                        "placeholder" => "Tipo de Perfil...",
+                        "autofocus",
+                        "required" => "required",
+                        "label" => false,
                         'options' =>
                             array(
                             1 => 'Administradores de uma Rede',
@@ -42,10 +47,15 @@ use Cake\Routing\Router;
                     ]); ?>
                 <?php else : ?>
                     <div >
+                        <label for="tipo_perfil">Tipo de Perfil*</label>
                         <?= $this->Form->input('tipo_perfil', [
                             'type' => 'select',
                             'id' => 'tipo_perfil',
+                            "autofocus",
+                            "placeholder" => "Tipo de Perfil...",
+                            "label" => false,
                             "empty" => "<Selecionar>",
+                            "required" => "required",
                             'options' =>
                                 array(
                                 0 => 'Administradores da RTI / Desenvolvedor',
@@ -102,22 +112,26 @@ use Cake\Routing\Router;
                         'type' => 'select',
                         'id' => 'clientes_rede',
                         'class' => 'clientes_rede',
-                        'label' => 'Unidade da Rede',
+                        'label' => 'Unidade da Rede*',
                         "options" => $unidadesRede,
                         'value' => $unidadeRedeId
                     ]
                 )
                 ?>
             </div>
-            <?php elseif (($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminNetworkProfileType'])
+            <?php elseif (($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_NETWORK)
                 && ($usuarioLogado["id"] !== $usuario["id"])) : ?>
 
                 <div class='col-lg-6'>
                     <!-- Tipo Perfil -->
+                    <label for="tipo_perfil">Tipo de Perfil*</label>
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
-                        "empty" => "<Selecionar>",
+                        "autofocus",
+                        "required" => "required",
+                        "label" => false,
+                        "empty" => true,
                         'options' =>
                             [
                             1 => 'Administradores de uma Rede',
@@ -152,6 +166,7 @@ use Cake\Routing\Router;
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
                                 "empty" => "<Selecionar>",
+                                "autofocus",
                                 "value" => $usuario["tipo_perfil"],
                                 'options' =>
                                     [
@@ -183,6 +198,7 @@ use Cake\Routing\Router;
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
+                                "autofocus",
                                 "empty" => "<Selecionar>",
                                 "value" => $usuario["tipo_perfil"],
                                 'options' =>
@@ -198,70 +214,72 @@ use Cake\Routing\Router;
                     <?php endif; ?>
     </div>
 
-    <?php if ($mode == 'add') : ?>
 
     <div class="form-group row">
         <!-- Email -->
         <div class="col-lg-4">
-            <?= $this->Form->input('email', array("label" => "Email*")); ?>
+            <label for="email">E-mail*</label>
+            <input type="text"
+                name="email"
+                required="required"
+                id="email"
+                class="form-control email"
+                placeholder="E-mail..."
+                value="<?=$usuario['email']?>"
+                autofocus
+                >
                 <span id="email_validation" class="text-danger validation-message">
         </div>
         <!-- nome -->
         <div class="col-lg-4">
-
-            <?= $this->Form->control('nome', array("label" => "Nome*")); ?>
+            <label for="nome">Nome*</label>
+            <input type="text" placeholder="Nome" name="nome" id="nome" value="<?= $usuario['nome'] ?>" class="form-control" required/>
         </div>
         <!-- telefone -->
         <div class="col-lg-4">
             <label for="telefone" id="label-telefone">Telefone*</label>
-            <?= $this->Form->control('telefone', array("label" => false, "id" => "telefone", "required" )); ?>
-        </div>
-        <!-- Senha -->
-        <div class="col-lg-6">
-            <?= $this->Form->input('senha', array("label" => "Senha*", 'type' => 'password', 'required' => true, 'autofocus' => true)); ?>
-        </div>
-        <!-- Confirmar Senha -->
-        <div class="col-lg-6">
-            <?= $this->Form->input('confirm_senha', array("label" => "Confirmar Senha*", 'type' => 'password', 'required' => true)); ?>
+            <input type="text"
+                placeholder="Telefone"
+                name="telefone"
+                id="telefone"
+                value="<?= $usuario['telefone'] ?>"
+                class="form-control"
+                required/>
         </div>
     </div>
-
-    <?php else : ?>
-
-        <div class="row">
-            <div class="col-lg-4">
-                <!-- Email -->
-                <?= $this->Form->input('email'); ?>
-                    <span id="email_validation" class="text-danger validation-message">
-            </div>
-               <!-- nome -->
-            <div class="col-lg-4">
-                <label for="nome">Nome*</label>
-                <input type="text" placeholder="Nome" name="nome" id="nome" value="<?= $usuario['nome'] ?>" class="form-control" required/>
-            </div>
-                <!-- telefone -->
-            <div class="col-lg-4">
-                <label for="telefone" id="label-telefone">Telefone*</label>
-                <input type="text"
-                    placeholder="Telefone"
-                    name="telefone"
-                    id="telefone"
-                    value="<?= $usuario['telefone'] ?>"
+    <?php if ($mode == "add") : ?>
+        <div class="form-group row">
+            <!-- Senha -->
+            <div class="col-lg-6">
+                <label for="senha">Senha*</label>
+                <input type="password"
+                    placeholder="Senha..."
+                    name="senha"
+                    id="senha"
+                    value="<?= $usuario['senha'] ?>"
                     class="form-control"
                     required/>
-
             </div>
+            <div class="col-lg-6">
+            <!-- Confirmar Senha -->
+                <label for="confirm_senha">Confirmar Senha*</label>
+                <input type="password"
+                    placeholder="Confirmar Senha..."
+                    name="confirm_senha"
+                    id="confirm_senha"
+                    value="<?= $usuario['confirm_senha'] ?>"
+                    class="form-control"
+                    required/>
             </div>
-    <?php endif; ?>
-
+        </div>
+    <?php endif;?>
 
 </fieldset>
 <div class="form-group row">
     <div class="col-lg-12 text-right">
         <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
 
-        <a
-            href="/usuarios/usuarios-rede/<?php echo $redesId; ?> "
+        <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> "
             class="btn btn-danger botao-cancelar">
             <i class="fa fa-window-close">
             </i>
