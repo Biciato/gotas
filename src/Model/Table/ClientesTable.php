@@ -488,14 +488,13 @@ class ClientesTable extends GenericTable
      *
      * @param integer $redesId id da Rede
      * @param integer $usuariosId Id do usuário
-     * @param integer $tipoPerfil Tipo de perfil
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018/08/05
      *
      * @return App\Model\Entity\Clientes
      */
-    public function getClientesFromRelationshipRedesUsuarios(int $redesId, int $usuariosId, int $tipoPerfil)
+    public function getClientesFromRelationshipRedesUsuarios(int $redesId, int $usuariosId)
     {
         try {
             $options = array(
@@ -527,7 +526,6 @@ class ClientesTable extends GenericTable
                     array(
                         "RHC.redes_id" => $redesId,
                         "CHU.usuarios_id" => $usuariosId,
-                        "CHU.tipo_perfil" => $tipoPerfil
                     )
                 )
                 ->select(

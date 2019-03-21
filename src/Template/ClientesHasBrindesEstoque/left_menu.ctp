@@ -18,14 +18,16 @@ if (!isset($mode)) {
             <?= $this->Html->link(__('Menu'), []) ?>
         </li>
 
-        
+
         <?php if ($mode != 'editStock') : ?>
         <li>
             <?= $this->Html->link(__('Entrada de Estoque'), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'adicionar_estoque', $brindes_id]) ?>
         </li>
-        <li>
-            <?= $this->Html->link(__("Emissão Manual"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'venda_manual_estoque', $brindes_id]);?>
-        </li>
+        <!-- <li>
+            <?php
+            // @todo ajustar estilo
+            // echo  $this->Html->link(__("Emissão Manual"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'venda_manual_estoque', $brindes_id]);?>
+        </li> -->
         <?php endif; ?>
 
     </ul>

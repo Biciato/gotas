@@ -194,7 +194,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
         $clientes_id = $brinde->clientes_id;
 
-        $brinde_estoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $brindeEstoque = $this->ClientesHasBrindesEstoque->newEntity();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -204,9 +204,9 @@ class ClientesHasBrindesEstoqueController extends AppController
             $data['data'] = date('Y-m-d H:i:s');
             $data['tipo_operacao'] = Configure::read('stockOperationTypes')['addType'];
 
-            $brinde_estoque = $this->ClientesHasBrindesEstoque->patchEntity($brinde_estoque, $data);
+            $brindeEstoque = $this->ClientesHasBrindesEstoque->patchEntity($brindeEstoque, $data);
 
-            if ($this->ClientesHasBrindesEstoque->save($brinde_estoque)) {
+            if ($this->ClientesHasBrindesEstoque->save($brindeEstoque)) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
 
                 return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
@@ -217,7 +217,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
         $array_set = [
             'brinde',
-            'brinde_estoque',
+            'brindeEstoque',
             'brindes_id',
             'clientes_id'
         ];

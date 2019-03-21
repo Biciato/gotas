@@ -42,7 +42,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     ),
                     array(
                         'title' => 'Configurar',
-                        'class' => 'btn btn-primary btn-confirm',
+                        'class' => 'btn btn-primary btn-confirm botao-navegacao-tabela',
                         'escape' => false
                     )
                 );
@@ -81,7 +81,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 ),
                                 array(
                                     'title' => 'Configurar',
-                                    'class' => 'btn btn-xs btn-primary btn-confirm',
+                                    'class' => 'btn btn-xs btn-primary btn-confirm botao-navegacao-tabela',
                                     'escape' => false
                                 )
                             );

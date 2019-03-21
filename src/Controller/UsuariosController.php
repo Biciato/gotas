@@ -966,6 +966,8 @@ class UsuariosController extends AppController
             // "transportadoraPath",
             // "veiculoPath",
             "usuarioLogado",
+            "veiculo",
+            "transportadora"
         );
 
         $this->set(compact($arraySet));

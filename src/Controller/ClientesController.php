@@ -580,9 +580,8 @@ class ClientesController extends AppController
                 $clientesId = $this->request->session()->read('Rede.PontoAtendimento')["id"];
             }
             $cliente = $this->Clientes->getClienteById($clientesId);
-
             $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
-
+            $imagemExistente = !empty($rede["propaganda_img"]);
             $imagemOriginal = null;
 
             if (strlen($cliente["propaganda_img"]) > 0) {
@@ -655,7 +654,7 @@ class ClientesController extends AppController
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
 
-            $arraySet = array("cliente", "imagem", "usuarioLogado");
+            $arraySet = array("cliente", "imagem", "usuarioLogado", "imagemExistente");
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);

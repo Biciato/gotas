@@ -439,11 +439,9 @@ class RedesController extends AppController
                 $this->securityUtil->redirectUserNotAuthorized($this);
             }
             $rede = $this->request->session()->read('Rede.Grupo');
-
             $rede = $this->Redes->getRedeById($rede["id"]);
-
             $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $rede["propaganda_img"]);
-
+            $imagemExistente = !empty($rede["propaganda_img"]);
             $imagemOriginal = null;
 
             if (strlen($rede["propaganda_img"]) > 0) {
@@ -520,7 +518,8 @@ class RedesController extends AppController
 
             $arraySet = array(
                 "rede",
-                "imagem"
+                "imagem",
+                "imagemExistente"
             );
 
             $this->set(compact($arraySet));

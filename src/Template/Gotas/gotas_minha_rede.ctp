@@ -106,7 +106,7 @@ echo $this->Breadcrumbs->render(
                                                 $gota->id
                                             ],
                                             [
-                                                'class' => 'btn btn-primary btn-xs',
+                                                'class' => 'btn btn-primary btn-xs botao-navegacao-tabela',
                                                 'title' => 'Editar',
                                                 'escape' => false
                                             ]

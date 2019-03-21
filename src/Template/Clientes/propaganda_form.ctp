@@ -15,7 +15,7 @@ use Cake\Routing\Router;
 ?>
 
 <div class="col-lg-12">
-    <?= $this->Form->control('propaganda_link', ['label' => 'Link para Propaganda', "id" => "propaganda_link"]); ?>
+    <?= $this->Form->control('propaganda_link', ['label' => 'Link para Propaganda*', "id" => "propaganda_link", "required"]); ?>
 </div>
 
 <div class="col-lg-12">
@@ -23,14 +23,15 @@ use Cake\Routing\Router;
         'propaganda_img',
         [
             'type' => 'file',
-            'label' => 'Propaganda para Exibição',
+            'label' => 'Propaganda para Exibição*',
             "id" => "propaganda_img",
-            "accept" => ".png,.jpg"
+            "accept" => ".png,.jpg",
+            "required"
         ]
     ) ?>
 </div>
 
-<?php if (isset($imagem) && strlen($imagem) > 0) : ?>
+<?php if ($imagemExistente) : ?>
     <div class="col-lg-12">
 
     <?php echo $this->Form->label("Imagem Atualmente Alocada") ?>
@@ -82,14 +83,21 @@ use Cake\Routing\Router;
 </div>
 
 
-<div class="col-lg-12">
-    <?= $this->Form->button(
-        __('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
-    ) ?>
+<div class="form-group row ">
+    <div class="col-lg-12 text-right">
+        <button type="submit"
+            class="btn btn-primary botao-confirmar"
+            >
+            <span class="fa fa-save"></span>
+            Salvar
+        </button>
+        <a onclick="history.go(-1); return false;"
+            class="btn btn-danger botao-cancelar"
+            >
+            <span class="fa fa-window-close"></span>
+            Cancelar
+        </a>
+    </div>
 </div>
 
 

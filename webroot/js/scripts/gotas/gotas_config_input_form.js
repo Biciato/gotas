@@ -5,10 +5,17 @@
  * @
  *
  */
+'use strict';
 $(document).ready(function () {
     // $("#multiplicador_gota").mask("#.##");
     // $("#multiplicador_gota").maskMoney();
+    var originalValue = $("#multiplicador_gota").val();
+
     $("#multiplicador_gota").mask("###0.00", {reverse: true});
+
+    if (originalValue == 1000){
+        $("#multiplicador_gota").val("1000.00");
+    }
 
     var multiplicadorGotaKeyUp = function(element, value){
 

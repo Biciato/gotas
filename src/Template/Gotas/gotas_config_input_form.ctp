@@ -31,7 +31,8 @@ use Cake\Core\Configure;
                 array(
                     "label" => "Posto de Atendimento*",
                     "input" => "select",
-                    "empty" => "<Selecionar>",
+                    "empty" => true,
+                    "autofocus",
                     "options" => $unidades,
                     "value" => $unidadesId,
                     "required" => true
@@ -44,6 +45,7 @@ use Cake\Core\Configure;
                 type="text"
                 class="form-control"
                 name="nome_parametro"
+                placeholder="Nome do Parâmetro..."
                 id="nome_parametro"
                 required
                 />
@@ -55,6 +57,7 @@ use Cake\Core\Configure;
                 class="form-control"
                 name="multiplicador_gota"
                 id="multiplicador_gota"
+                placeholder="Multiplicador de Gotas..."
                 maxlength="7"
                 required
                 />

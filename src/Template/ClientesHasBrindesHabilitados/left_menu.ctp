@@ -41,7 +41,9 @@ $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
         <?php endif; ?>
         <?php if (!$brinde->brinde->equipamento_rti_shower) : ?>
         <li>
-            <?= $this->Html->link(__("Emissão Manual"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'venda_manual_estoque', $brinde->id]); ?>
+            <?php
+            // @todo ajustar estilo
+            // echo $this->Html->link(__("Emissão Manual"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'venda_manual_estoque', $brinde->id]); ?>
         </li>
         <?php endif; ?>
 

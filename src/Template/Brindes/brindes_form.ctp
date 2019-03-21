@@ -14,61 +14,67 @@ use Cake\Core\Configure;
 <?= $this->Form->hidden("edit-mode", ["id" => "edit_mode", "value" => $editMode]) ?>
 <div class="form-group row">
     <div class="col-lg-4">
+        <label for="tipos_brindes_redes_id">Tipo de Brinde*</label>
         <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
                 "type" => "select",
                 "id" => "tipos_brindes_redes_id",
-                "label" => "Tipo de Brinde*",
-                "empty" => "<Selecionar>",
+                "label" => false,
+                "required" => true,
+                "autofocus",
+                "empty" => true,
                 "options" => $tiposBrindesCliente
             ]
         ) ?>
     </div>
 
     <div class="col-lg-4">
-        <?= $this->Form->input('nome', array(
-            'id' => 'nome',
-            "label" => "Nome do Brinde*"
-        )); ?>
+        <label for="nome">Nome do Brinde*</label>
+        <input type="text"
+            name="nome"
+            required="required"
+            placeholder="Nome do Brinde..."
+            id="nome"
+            class="form-control"
+            value="<?= $brinde['nome']?>">
     </div>
 
     <div class="col-lg-4">
-
-        <?= $this->Form->input(
-            'tempo_uso_brinde',
-            [
-                'type' => 'number',
-                'id' => 'tempo_uso_brinde',
-                'label' => 'Tempo de Uso (minutos)*',
-                'title' => "Para Brindes que funcionam por tempo, informe valor em minutos",
-                'min' => 0,
-                'max' => 20,
-                'readonly' => false,
-                'required' => false
-            ]
-        ) ?>
+        <label for="nome">Tempo de Uso (minutos)*</label>
+        <input type="number"
+            name="tempo_uso_brinde"
+            id="tempo_uso_brinde"
+            required="required"
+            placeholder="Tempo de Uso (minutos)..."
+            class="form-control"
+            min="0"
+            max="20"
+            title="Para Brindes que funcionam por tempo, informe valor em minutos"
+            value="<?= $brinde['tempo_uso_brinde']?>">
     </div>
+</div>
 
+<div class="form-group row">
     <div class="col-lg-6">
-        <?= $this->Form->input(
-            'preco_padrao',
-            [
-                'type' => 'text',
-                'id' => 'preco_padrao',
-                'label' => 'Preço Padrão em Gotas*'
-            ]
-        ); ?>
+        <label for="preco_padrao">Preço Padrão em Gotas*</label>
+        <input type="text"
+            name="preco_padrao"
+            required="required"
+            placeholder="Preço Padrão em Gotas..."
+            id="preco_padrao"
+            class="form-control"
+            value="<?= $brinde['preco_padrao']?>">
     </div>
     <div class="col-lg-6">
-        <?= $this->Form->input(
-            'valor_moeda_venda_padrao',
-            [
-                'type' => 'text',
-                'id' => 'valor_moeda_venda_padrao',
-                'label' => 'Preço Padrão de Venda Avulsa (R$)*',
-            ]
-        ); ?>
+        <label for="valor_moeda_venda_padrao">Preço Padrão de Venda Avulsa (R$)*</label>
+        <input type="text"
+            name="valor_moeda_venda_padrao"
+            required="required"
+            placeholder="Preço Padrão de Venda Avulsa (R$)..."
+            id="valor_moeda_venda_padrao"
+            class="form-control"
+            value="<?= $brinde['valor_moeda_venda_padrao']?>">
     </div>
 </div>
 
@@ -160,23 +166,20 @@ if ($exibirImagemAtual) :
     </div>
 </div>
 
-<div class="form-group row">
-    <div class="col-lg-2">
-        <button type="submit" 
-            class="btn btn-primary btn-block botao-confirmar"
+<div class="form-group row ">
+    <div class="col-lg-12 text-right">
+        <button type="submit"
+            class="btn btn-primary botao-confirmar"
             >
             <span class="fa fa-save"></span>
             Salvar
         </button>
-    </div>
-    <div class="col-lg-2">
-        <a href="/brindes/brindes-minha-rede/" 
-            class="btn btn-danger btn-block botao-cancelar"
+        <a href="/brindes/brindes-minha-rede/"
+            class="btn btn-danger botao-cancelar"
             >
             <span class="fa fa-window-close"></span>
             Cancelar
         </a>
-    </div>
     </div>
 </div>
 

@@ -420,8 +420,9 @@ class CuponsController extends AppController
      */
     public function historicoBrindes()
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -430,7 +431,7 @@ class CuponsController extends AppController
 
         // pega a rede e as unidades que o usuário tem acesso
 
-        $rede = $this->request->session()->read('Rede.Grupo');
+        $rede = $sessaoUsuario["rede"];
 
         // Pega unidades que tem acesso
         $clientesIds = [];
@@ -465,7 +466,7 @@ class CuponsController extends AppController
             $data = $this->request->session()->read("QueryConditions");
         }
 
-        if (count($data) > 0) {
+        if (!empty($data) && count($data) > 0) {
 
             $unidadeSelecionado = strlen($data["unidadeSelecionado"]) > 0 ? $data["unidadeSelecionado"] : null;
             $brindeSelecionado = strlen($data["brindeSelecionado"]) > 0 ? $data["brindeSelecionado"] : null;

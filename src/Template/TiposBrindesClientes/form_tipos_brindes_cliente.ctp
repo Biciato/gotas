@@ -81,13 +81,14 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
         </div>
     <?php else : ?>
 
+        <label for="tipos_brindes_redes_id">Tipos de Brindes da Rede*</label>
         <?= $this->Form->input(
             'tipos_brindes_redes_id',
             [
                 "id" => "tipos_brindes_redes_id",
                 "class" => "tipos_brindes_redes_id",
                 "type" => "select",
-                "label" => "Tipos de Brindes da Rede",
+                "label" => false,
                 "required" => "required",
                 "empty" => true,
                 "options" => $tiposBrindesRedes,
@@ -108,8 +109,8 @@ $divisor = $selectTiposBrindesEnabled ? "col-lg-4" : "col-lg-6";
 <div class="form-group row ">
     <div class="col-lg-12 text-right">
         <button type="submit"
-            class="btn btn-primary">
-            <i class="fa fa-save"></i>
+            class="btn btn-primary botao-confirmar">
+            <i class="fa fa-save "></i>
             Salvar
         </button>
         <a href="<?= sprintf("/tipos-brindes-clientes/tipos-brindes-cliente/%s", $cliente["id"] ); ?>"

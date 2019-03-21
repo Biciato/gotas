@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/ClientesHasBrindesEstoque/adicionar_estoque.ctp
@@ -9,16 +9,18 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 // Menu de navegação
+
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
 if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
     $this->Breadcrumbs->add(
         'Escolher Unidade para Configurar os Brindes',
-        [
+        array(
             'controller' => 'clientes_has_brindes_habilitados',
             'action' => 'escolher_unidade_config_brinde'
-        ]
+        )
+
     );
 }
 
@@ -67,19 +69,21 @@ echo $this->Breadcrumbs->render(
         <legend><?= __('Adicionar Estoque para Brinde') ?></legend>
         <?= $this->element('../ClientesHasBrindesEstoque/brindes_estoque_form', ['required_tipo_operacao' => false, 'required_data' => false]) ?>
 
-        <div class='col-lg-12'>
-            <?= $this->Form->button(
-                __(
-                    '{0} Salvar',
-                    $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-                ),
-                [
-                    'class' => 'btn btn-primary',
-                    'escape' => false
-                ]
-
-            ) ?>
-        
+        <div class="form-group row ">
+            <div class="col-lg-12 text-right">
+                <button type="submit"
+                    class="btn btn-primary botao-confirmar"
+                    >
+                    <span class="fa fa-save"></span>
+                    Salvar
+                </button>
+                <a href="/clientesHasBrindesEstoque/gerenciarEstoque/<?= $brindes_id ?>"
+                    class="btn btn-danger botao-cancelar"
+                    >
+                    <span class="fa fa-window-close"></span>
+                    Cancelar
+                </a>
+            </div>
         </div>
     </fieldset>
     <?= $this->Form->end() ?>
