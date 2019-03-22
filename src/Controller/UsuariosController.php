@@ -808,6 +808,8 @@ class UsuariosController extends AppController
 
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioLogado = null;
+
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -963,6 +965,7 @@ class UsuariosController extends AppController
 
         $arraySet = array(
             "usuario",
+            "usuarioLogado",
             // "transportadoraPath",
             // "veiculoPath",
             "usuarioLogado",
