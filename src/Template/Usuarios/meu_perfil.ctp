@@ -92,7 +92,9 @@ use Cake\Core\Configure;
             <div class="col lg-3">
                 <span style="font-weight: bolder;">Foto de perfil</span>
                 <br />
-                <?= $this->Html->image(__("{0}{1}", Configure::read("imageUserProfilePathRead"), $usuario->foto_perfil), array("alt" => "foto perfil", "title" => "Foto atual")) ?>
+                <?php if (!empty($usuario["foto_perfil"])): ?>
+                    <?= $this->Html->image(__("{0}{1}", Configure::read("imageUserProfilePathRead"), $usuario->foto_perfil), array("alt" => "foto perfil", "title" => "Foto atual")) ?>
+                <?php endif; ?>
             </div>
         </div>
         <div class="form-group row">
