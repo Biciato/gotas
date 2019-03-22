@@ -30,9 +30,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']
-    || Configure::read('profileTypes')['AdminNetworkProfileType']
-    || Configure::read('profileTypes')['AdminRegionalProfileType'];
+$userIsAdmin = in_array($usuarioLogado['tipo_perfil'], array(PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL));
 ?>
 
 <?= $this->element(
@@ -134,7 +132,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                                     $usuario->id
                                 ],
                                 [
-                                    'class' => 'btn btn-xs btn-default ',
+                                    'class' => 'btn btn-xs btn-default botao-navegacao-tabela',
                                     'escape' => false,
                                     'title' => 'Ver detalhes'
 
@@ -144,7 +142,9 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                             <?php
 
                             // se é administrador da rede ou é regional e o tipo de perfil tem maior permissão
-                            if (($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_NETWORK) || ($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL || $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
+                            if (($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_NETWORK)
+                                || ($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL
+                                && $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
 
                                 echo $this->Html->link(
                                     __('{0}', $this->Html->tag('i', '', ['class' => 'fa fa-edit'])),
@@ -153,7 +153,7 @@ $userIsAdmin = $usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')[
                                         $usuario["id"]
                                     ],
                                     [
-                                        'class' => 'btn btn-xs btn-primary ',
+                                        'class' => 'btn btn-xs btn-primary botao-navegacao-tabela ',
                                         'escape' => false,
                                         'title' => 'Editar'
                                     ]

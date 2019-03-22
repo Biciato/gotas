@@ -31,7 +31,7 @@ use Cake\Routing\Router;
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
-                        "empty" => "<Selecionar>",
+                        "empty" => true,
                         "placeholder" => "Tipo de Perfil...",
                         "autofocus",
                         "required" => "required",
@@ -54,7 +54,7 @@ use Cake\Routing\Router;
                             "autofocus",
                             "placeholder" => "Tipo de Perfil...",
                             "label" => false,
-                            "empty" => "<Selecionar>",
+                            "empty" => true,
                             "required" => "required",
                             'options' =>
                                 array(
@@ -143,9 +143,7 @@ use Cake\Routing\Router;
                     ]); ?>
                 </div>
                 <div class='col-lg-6 '>
-
                     <?= $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']); ?>
-
                     <?= $this->Form->input(
                         'clientes_id',
                         [
@@ -159,14 +157,18 @@ use Cake\Routing\Router;
                     ); ?>
 
                 </div>
-                    <?php elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminRegionalProfileType']) : ?>
+                    <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_REGIONAL) : ?>
+
                         <div class="col-lg-6">
                             <!-- Tipo Perfil -->
+                            <label for="tipo_perfil">Tipo de Perfil*</label>
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
-                                "empty" => "<Selecionar>",
+                                "empty" => true,
+                                "label" => false,
                                 "autofocus",
+                                "required" => "required",
                                 "value" => $usuario["tipo_perfil"],
                                 'options' =>
                                     [
@@ -184,22 +186,25 @@ use Cake\Routing\Router;
                                     'type' => 'select',
                                     'id' => 'clientes_rede',
                                     'class' => 'clientes_rede',
-                                    'label' => 'Unidade da Rede',
-                                    "empty" => "<Selecionar>",
+                                    'label' => 'Unidade da Rede*',
+                                    "empty" => true,
                                     "options" => $unidadesRede,
-                                    "required" => true,
+                                    "required" => "required",
                                     "value" => $unidadeRedeId
                                 ]
                             ); ?>
                         </div>
-                    <?php elseif ($usuarioLogadoTipoPerfil == Configure::read('profileTypes')['AdminLocalProfileType']) : ?>
+                    <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_LOCAL) : ?>
                         <div class="col-lg-12">
                             <!-- Tipo Perfil -->
+                            <label for="tipo_perfil">Tipo de Perfil*</label>
                             <?= $this->Form->input('tipo_perfil', [
                                 'type' => 'select',
                                 'id' => 'tipo_perfil',
+                                "label" => false,
+                                "required" => "required",
                                 "autofocus",
-                                "empty" => "<Selecionar>",
+                                "empty" => true,
                                 "value" => $usuario["tipo_perfil"],
                                 'options' =>
                                     array(

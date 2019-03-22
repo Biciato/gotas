@@ -94,7 +94,7 @@ $redes_id = isset($redes_id) ? $redes_id : null;
                     [
                         'controller' => 'usuarios',
                         'action' => 'alterar_senha',
-                        $usuario->id
+                        $usuario["id"]
                     ]
                 ) ?>
             </li>

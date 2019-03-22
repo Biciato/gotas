@@ -2025,20 +2025,20 @@ class UsuariosController extends AppController
      */
     public function editarOperador(int $usuarios_id = null)
     {
-        $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
+        $sessaoUsuario = $this->getSessionUserVariables();
 
-        $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
-
-        // DebugUtil::print($usuario);
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        // DebugUtil::printArray($sessaoUsuario);
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read('Rede.Grupo');
+        $usuario = $this->Usuarios->getUsuarioById($usuarios_id);
+        $usuario["cliente_has_usuario"] = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarios_id, true);
+        $rede = $sessaoUsuario["rede"];
 
         $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
             [
@@ -2143,6 +2143,7 @@ class UsuariosController extends AppController
             }
         }
 
+        $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
         $arraySet = array(
             'usuario',
             'rede',
@@ -2154,7 +2155,6 @@ class UsuariosController extends AppController
             'usuarioLogadoTipoPerfil',
             "usuarioLogado"
         );
-        $usuarioLogadoTipoPerfil = $this->usuarioLogado['tipo_perfil'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -2414,6 +2414,9 @@ class UsuariosController extends AppController
     public function alterarSenha($id = null)
     {
         try {
+            if (empty($id)) {
+                return $this->redirect(array("controller" => "pages", "action" => "display"));
+            }
             $usuario = $this->Usuarios->get($id);
 
             if ($this->request->is('get')) {
@@ -2483,25 +2486,22 @@ class UsuariosController extends AppController
      */
     public function usuariosRede(int $redesId = null)
     {
-        $rede = $this->request->session()->read("Rede.Grupo");
-
-        if (!empty($rede)) {
-            $redesId = $rede["id"];
-        }
-
-        $cliente = $this->request->session()->read('Rede.PontoAtendimento');
-        $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
-
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $this->usuarioLogado;
         }
 
-        $clientesIds = array();
+        if (!empty($rede)) {
+            $redesId = $rede["id"];
+        }
 
+        $clientesIds = array();
         $conditions = array();
 
         // se for developer / rti / rede, mostra todas as unidades da rede

@@ -49,7 +49,7 @@ echo $this->Breadcrumbs->render(
         'update_password' => true,
         'mode' => 'view',
         'usuario' => $usuario,
-        'cadastrar_veiculos' => true
+        'cadastrar_veiculos' => $usuario["tipo_perfil"] == PROFILE_TYPE_USER
     ]
 ) ?>
 <div class="usuarios view col-lg-9 col-md-10">
