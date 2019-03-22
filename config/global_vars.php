@@ -5,13 +5,10 @@
  */
 
 use Cake\Core\Configure;
-use Cake\Routing\Router;
+
 require_once("definitions.php");
 
 // const SITE_ADDRESS = 'https://40.71.26.138/',
-// const SITE_ADDRESS = 'https://www.rtibrindes.com.br/',
-// const SITE_ADDRESS = "https://www.rtibrindes.local/";
-// const WEBROOT_ADDRESS = self::SITE_ADDRESS + "webroot";
 
 $debug = Configure::read("debug");
 
