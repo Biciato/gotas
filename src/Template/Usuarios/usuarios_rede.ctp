@@ -141,9 +141,10 @@ $userIsAdmin = in_array($usuarioLogado['tipo_perfil'], array(PROFILE_TYPE_ADMIN_
                             ?>
                             <?php
 
-                            // se é administrador da rede ou é regional e o tipo de perfil tem maior permissão
+                            // se é administrador da rede ou é menor que o adm. local
+                            // e o tipo de perfil tem maior permissão
                             if (($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_NETWORK)
-                                || ($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL
+                                || ($usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_MANAGER
                                 && $usuarioLogado['tipo_perfil'] < $usuario->tipo_perfil)) {
 
                                 echo $this->Html->link(

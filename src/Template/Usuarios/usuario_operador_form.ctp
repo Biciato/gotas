@@ -26,8 +26,19 @@ use Cake\Routing\Router;
 
         <?php if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
             <div class='col-lg-4'>
-                <?php if (isset($redesId)) : ?>
                     <label for="tipo_perfil">Tipo de Perfil*</label>
+                    <?php
+                    $listaPerfis = array();
+
+                    if (isset($redesId)){
+                        $listaPerfis[0] = "Administradores da RTI / Desenvolvedor";
+                    }
+
+                    $listaPerfis[1] = ['Administradores de uma Rede'];
+                    $listaPerfis[3] = ['Administrador'];
+                    $listaPerfis[4] = ['Gerente'];
+                    $listaPerfis[5] = ['Funcionário'];
+                    ?>
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
@@ -36,39 +47,10 @@ use Cake\Routing\Router;
                         "autofocus",
                         "required" => "required",
                         "label" => false,
-                        'options' =>
-                            array(
-                            1 => 'Administradores de uma Rede',
-                            3 => 'Administrador',
-                            4 => 'Gerente',
-                            5 => 'Funcionário'
-                            ),
+                        'options' =>$listaPerfis,
                         'attributes' => array("autofocus")
                     ]); ?>
-                <?php else : ?>
-                    <div >
-                        <label for="tipo_perfil">Tipo de Perfil*</label>
-                        <?= $this->Form->input('tipo_perfil', [
-                            'type' => 'select',
-                            'id' => 'tipo_perfil',
-                            "autofocus",
-                            "placeholder" => "Tipo de Perfil...",
-                            "label" => false,
-                            "empty" => true,
-                            "required" => "required",
-                            'options' =>
-                                array(
-                                0 => 'Administradores da RTI / Desenvolvedor',
-                                1 => 'Administradores de uma Rede',
-                                3 => 'Administrador',
-                                4 => 'Gerente',
-                                5 => 'Funcionário'
-                            ),
-                            'attributes' => array("autofocus")
-                        ]); ?>
-                    </div>
 
-                <?php endif; ?>
                 <!-- Deve exibir todas as Redes e Unidades -->
 
                 <!-- ?> -->
@@ -215,7 +197,7 @@ use Cake\Routing\Router;
                         </div>
                     <?php elseif ($usuarioLogadoTipoPerfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>
                         <!-- Tipo Perfil -->
-                        <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => '5']) ?>
+                        <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_WORKER]) ?>
                     <?php endif; ?>
     </div>
 
@@ -242,14 +224,26 @@ use Cake\Routing\Router;
         </div>
         <!-- telefone -->
         <div class="col-lg-4">
-            <label for="telefone" id="label-telefone">Telefone*</label>
-            <input type="text"
-                placeholder="Telefone"
-                name="telefone"
-                id="telefone"
-                value="<?= $usuario['telefone'] ?>"
-                class="form-control"
-                required/>
+            <?php if ($usuario["tipo_perfil"] != PROFILE_TYPE_WORKER): ?>
+                <label for="telefone" id="label-telefone">Telefone*</label>
+                <input type="text"
+                    placeholder="Telefone"
+                    name="telefone"
+                    id="telefone"
+                    value="<?= $usuario['telefone'] ?>"
+                    class="form-control"
+                    required="required"
+                    />
+            <?php else: ?>
+                <label for="telefone" id="label-telefone">Telefone</label>
+                <input type="text"
+                    placeholder="Telefone"
+                    name="telefone"
+                    id="telefone"
+                    value="<?= $usuario['telefone'] ?>"
+                    class="form-control"
+                    />
+            <?php endif;?>
         </div>
     </div>
     <?php if ($mode == "add") : ?>

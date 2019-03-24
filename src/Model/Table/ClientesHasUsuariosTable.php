@@ -377,8 +377,7 @@ class ClientesHasUsuariosTable extends Table
                             //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
                             // ]
                         ]
-                    )->select(array("clientes_id"))
-                    ;
+                    )->select(array("clientes_id"));
 
                 $clientesIds = [];
                 foreach ($clientesHasUsuariosList as $key => $value) {
@@ -738,23 +737,21 @@ class ClientesHasUsuariosTable extends Table
      * @param int $id Id do registro
      * @param int $clientesId Id do cliente
      * @param int $usuariosId Id do Usuário
-     * @param int $tipoPerfil Tipo de Perfil
      *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
-    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId, int $tipoPerfil)
+    public function updateClienteHasUsuarioRelationship(int $id, int $clientesId, int $usuariosId)
     {
         try {
 
             return $this->updateAll(
-                [
+                array(
                     'clientes_id' => $clientesId,
-                    'usuarios_id' => $usuariosId,
-                    'tipo_perfil' => $tipoPerfil
-                ],
-                [
+                    'usuarios_id' => $usuariosId
+                ),
+                array(
                     'id' => $id
-                ]
+                )
             );
         } catch (\Exception $e) {
             $trace = $e->getTrace();

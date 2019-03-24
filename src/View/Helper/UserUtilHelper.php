@@ -37,10 +37,13 @@ class UserUtilHelper extends Helper
      **/
     public function getGenderType($param)
     {
-        if (strlen($param) == 0) {
+        if (empty($param) && !isset($param)) {
             return "";
         }
 
+        if ($param == 2){
+            return "Nâo informado";
+        }
         if ($param == 1) {
             return "Masculino";
         } else {

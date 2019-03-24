@@ -265,7 +265,6 @@ class ClientesController extends AppController
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
-
     }
 
     /**
@@ -354,7 +353,6 @@ class ClientesController extends AppController
                             $cliente->rede_has_cliente->redes_id
                         ]
                     );
-
                 }
                 $this->Flash->error(__('O registro não pode ser atualizado.'));
 
@@ -370,7 +368,6 @@ class ClientesController extends AppController
             Log::write('error', $stringError);
 
             $this->Flash->error($stringError);
-
         }
     }
 
@@ -496,11 +493,11 @@ class ClientesController extends AppController
             }
             $usuarios
                 = $this->Usuarios->getUsuariosAssociatedWithClient(
-                $cliente,
-                $profileTypes['ManagerProfileType'],
-                $profileTypes['WorkerProfileType'],
-                $conditions
-            );
+                    $cliente,
+                    $profileTypes['ManagerProfileType'],
+                    $profileTypes['WorkerProfileType'],
+                    $conditions
+                );
 
             $this->paginate(
                 $usuarios,
@@ -635,21 +632,11 @@ class ClientesController extends AppController
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                    if ($this->usuarioLogado["tipo_perfil"] >= Configure::read("profileTypes")["AdminDeveloperProfileType"]
-                        && $this->usuarioLogado["tipo_perfil"] <= Configure::read("profileTypes")["AdminRegionalProfileType"]) {
-
-                        return $this->redirect(
-                            array(
-                                "controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'
-                            )
-                        );
-                    } else if ($this->user_logged["tipo_perfil"] >= Configure::read("profileTypes")["AdminLocalProfileType"]) {
-                        return $this->redirect(
-                            array(
-                                // "controller" => "Pages", 'action' => 'display'
-                                "controller" => "Clientes", 'action' => 'configurarPropaganda'
-                            )
-                        );
+                    if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_DEVELOPER
+                        && $this->usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL) {
+                        return $this->redirect(array("controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'));
+                    } else if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_LOCAL) {
+                        return $this->redirect(array("controller" => "Pages", 'action' => 'display'));
                     }
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
@@ -660,7 +647,6 @@ class ClientesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");

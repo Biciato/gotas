@@ -33,7 +33,7 @@ $divComboBoxBrindes = $compraGotas ? "col-lg-4" : "col-lg-6";
                     'type' => 'select',
                     'id' => 'lista_brindes',
                     'class' => 'form-control list-gifts',
-                    'label' => 'Brinde',
+                    'label' => 'Brinde*',
                     "empty" => "<Selecionar>",
                     'required' => true
                 )
@@ -62,7 +62,8 @@ $divComboBoxBrindes = $compraGotas ? "col-lg-4" : "col-lg-6";
             <label for="current_password">Senha do usuário:*</label>
             <input type="password"
                 class="current_password form-control"
-                required id="current_password"
+                required
+                id="current_password"
                 />
 
         </div>

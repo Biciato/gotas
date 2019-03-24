@@ -66,7 +66,7 @@ echo $this->Breadcrumbs->render(
                 <td><?= h($usuario->nome) ?></td>
                 <td><?= h($this->NumberFormat->formatNumberToCPF($usuario->cpf)) ?></td>
                 <td><?= h($usuario->doc_estrangeiro) ?></td>
-                <td><?= h($this->UserUtil->getGenderType($usuario->sexo)) ?></td>
+                <td><?= h($this->UserUtil->getGenderType((string)$usuario["sexo"])) ?></td>
                 <td><?= h(isset($usuario->data_nasc) ? $usuario->data_nasc->format('d/m/Y') : "") ?></td>
                 <td><?= h($usuario->email) ?></td>
                 <td class="actions" style="white-space:nowrap">

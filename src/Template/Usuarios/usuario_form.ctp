@@ -512,7 +512,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                                 <i class="fa fa-window-close"></i>
                                 Cancelar
                             </a>
-                            <?php elseif (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL, PROFILE_TYPE_ADMIN_LOCAL))) : ?>
+                            <?php elseif (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER))) : ?>
                             <a href="/usuarios/meusClientes/" class="btn btn-danger botao-cancelar">
                                 <i class="fa fa-window-close"></i>
                                 Cancelar

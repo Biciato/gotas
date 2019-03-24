@@ -86,7 +86,7 @@ $senhaObrigatoriaEdicao = isset($senhaObrigatoriaEdicao) ? $senhaObrigatoriaEdic
             <?= $this->Form->input('sexo', [
                 'options' =>
                 [
-                    '' => '',
+                    '2' => 'Não informar',
                     '1' => 'Masculino',
                     '0' => 'Feminino'
                 ]
@@ -199,6 +199,7 @@ $senhaObrigatoriaEdicao = isset($senhaObrigatoriaEdicao) ? $senhaObrigatoriaEdic
                     name="senha"
                     maxlength="4"
                     id="senha"
+                    placeholder="Senha de Confirmação do Usuário..."
                     class="form-control"
                     title="Informe a senha do usuário para continuar">
             </div>

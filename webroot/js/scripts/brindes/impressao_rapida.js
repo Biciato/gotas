@@ -3,11 +3,18 @@
  * @author Gustavo Souza Gonçalves
  * @date 04/02/2018
  * @
- * 
+ *
  */
 
 
 $(document).ready(function () {
+
+    // Definição de regra: parâmetro deve ser required
+    $("label[for=parametro").text("Parãmetro*");
+    $("#parametro").prop("required", true);
+
+    $("#print_gift").addClass("botao-confirmar");
+
     $("#impressao-rapida-escolha-btn").on('click', function () {
         $("#impressao-rapida-escolha").show('500');
     });

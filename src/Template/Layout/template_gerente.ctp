@@ -21,7 +21,7 @@
  */
 use Cake\Core\Configure;
 
-$titlePage = 'GOTAS - Gestor';
+$titlePage = 'GOTAS - Gerente';
 
 ?>
 <!DOCTYPE html>

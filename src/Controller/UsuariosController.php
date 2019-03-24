@@ -488,6 +488,7 @@ class UsuariosController extends AppController
             $rede = $this->request->session()->read('Rede.Grupo');
             $usuario = $this->Usuarios->get($id, array('contain' => []));
 
+            $usuario["sexo"] = isset($usuario["sexo"]) ? $usuario["sexo"] : -1;
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
                 $senhaUsuario = $data["senha"];
@@ -2125,7 +2126,7 @@ class UsuariosController extends AppController
                      */
 
                     if ($usuario["tipo_perfil"] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) {
-                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, $clientesId, $usuario["id"], $usuario["tipo_perfil"]);
+                        $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario["id"], $clientesId, $usuario["id"]);
                     }
                 }
 

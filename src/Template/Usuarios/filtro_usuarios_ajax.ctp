@@ -45,6 +45,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
             [
                 'id' => 'parametro',
                 'label' => 'Parâmetro',
+                'placeholder' => 'Parâmetro...',
                 'class' => 'form-control col-lg-5 parametro'
             ]
         ) ?>

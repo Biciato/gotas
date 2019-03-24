@@ -327,7 +327,7 @@ class UsuariosTable extends GenericTable
                 'sexo',
                 'inList',
                 [
-                    'rule' => ['inList', ['0', '1']],
+                    'rule' => ['inList', [0, 1, 2]],
                     'message' => 'Por favor informe o sexo'
                 ]
             );
@@ -474,7 +474,7 @@ class UsuariosTable extends GenericTable
             ->requirePresence('sexo', 'create')
             ->notEmpty('sexo', 'Por favor informe o sexo')
             ->add('sexo', 'inList', [
-                'rule' => ['inList', ['0', '1']],
+                'rule' => ['inList', [0, 1, 2]],
                 'message' => 'Por favor informe o sexo'
             ]);
 
