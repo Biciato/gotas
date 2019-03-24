@@ -104,7 +104,8 @@ if (isset($filter_redes) && $filter_redes) {
                                         'type' => 'text',
                                         'id' => 'nome',
                                         'label' => 'Nome',
-                                        'class' => 'form-control col-lg-2'
+                                        'class' => 'form-control col-lg-2',
+                                        'placeholder' => "Nome..."
                                     ]
                                 ) ?>
                             </div>
@@ -115,7 +116,8 @@ if (isset($filter_redes) && $filter_redes) {
                                         'type' => 'text',
                                         'id' => 'email',
                                         'label' => 'Email',
-                                        'class' => 'form-control col-lg-2'
+                                        'class' => 'form-control col-lg-2',
+                                        'placeholder' => "E-mail..."
                                     ]
                                 ) ?>
                             </div>
@@ -128,7 +130,8 @@ if (isset($filter_redes) && $filter_redes) {
                                         'type' => 'text',
                                         'id' => 'cpf',
                                         'label' => 'CPF',
-                                        'class' => 'form-control col-lg-2'
+                                        'class' => 'form-control col-lg-2',
+                                        'placeholder' => "CPF..."
                                     ]
                                 ) ?>
                             </div>
@@ -168,7 +171,7 @@ if (isset($filter_redes) && $filter_redes) {
 
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <button type="submit" 
+                                <button type="submit"
                                     class="btn btn-primary save-button botao-pesquisar">
                                     <i class="fa fa-search"></i>
                                     Pesquisar

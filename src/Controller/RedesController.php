@@ -516,10 +516,13 @@ class RedesController extends AppController
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
 
+            $propaganda = $rede;
+
             $arraySet = array(
                 "rede",
                 "imagem",
-                "imagemExistente"
+                "imagemExistente",
+                "propaganda"
             );
 
             $this->set(compact($arraySet));

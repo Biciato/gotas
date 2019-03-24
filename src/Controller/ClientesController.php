@@ -563,8 +563,11 @@ class ClientesController extends AppController
     public function configurarPropaganda(int $clientesId = null)
     {
         try {
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+            $sessaoUsuario = $this->getSessionUserVariables();
+
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
@@ -576,9 +579,7 @@ class ClientesController extends AppController
                 $this->securityUtil->redirectUserNotAuthorized($this);
             }
 
-            if (is_null($clientesId)) {
-                $clientesId = $this->request->session()->read('Rede.PontoAtendimento')["id"];
-            }
+            $clientesId = empty($clientesId) ? $sessaoUsuario["cliente"]["id"] : $clientesId;
             $cliente = $this->Clientes->getClienteById($clientesId);
             $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
             $imagemExistente = !empty($rede["propaganda_img"]);
@@ -654,7 +655,8 @@ class ClientesController extends AppController
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
 
-            $arraySet = array("cliente", "imagem", "usuarioLogado", "imagemExistente");
+            $propaganda = $cliente;
+            $arraySet = array("cliente", "imagem", "usuarioLogado", "imagemExistente", "propaganda");
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);

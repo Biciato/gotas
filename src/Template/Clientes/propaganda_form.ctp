@@ -15,7 +15,15 @@ use Cake\Routing\Router;
 ?>
 
 <div class="col-lg-12">
-    <?= $this->Form->control('propaganda_link', ['label' => 'Link para Propaganda*', "id" => "propaganda_link", "required"]); ?>
+    <label for="propaganda_link">Link para Propaganda*</label>
+    <input type="text"
+        name="propaganda_link"
+        required="required"
+        placeholder="Link para Propaganda..."
+        id="propaganda_link"
+        class="form-control"
+        value="<?= $propaganda['propaganda_link']?>"
+        >
 </div>
 
 <div class="col-lg-12">
@@ -26,7 +34,7 @@ use Cake\Routing\Router;
             'label' => 'Propaganda para Exibição*',
             "id" => "propaganda_img",
             "accept" => ".png,.jpg",
-            "required"
+
         ]
     ) ?>
 </div>

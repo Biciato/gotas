@@ -259,7 +259,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             // DebugUtil::printArray($clientesId);
 
-            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
                 $requerAutorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
             }
 
@@ -282,7 +282,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 if ($requerAutorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
                     $matrizId = $brindeHabilitado->brinde->clientes_id;
 
-                    $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, (int)Configure::read('profileTypes')['AdminNetworkProfileType']);
+                    $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, PROFILE_TYPE_ADMIN_NETWORK);
 
                     foreach ($usuarios as $key => $usuario) {
                         $url = Router::url(
