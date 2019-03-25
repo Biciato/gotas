@@ -441,7 +441,8 @@ $(document).ready(function () {
         callLoaderAnimation("Verificando CPF...");
 
         $.ajax({
-            url: "/api/usuarios/getUsuarioByCPF",
+            url: "/api/usuarios/get_usuario_by_cpf",
+            // url: "/usuarios/getUsuarioByCPF",
             type: 'POST',
             data: JSON.stringify({
                 id: 0,
@@ -450,6 +451,7 @@ $(document).ready(function () {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr.setRequestHeader("IsMobile", true);
             },
             success: function (data) {
                 console.log(data);
@@ -457,6 +459,7 @@ $(document).ready(function () {
             error: function (data) {
                 console.log(data);
                 closeLoaderAnimation();
+                callModalError(data.responseJSON.mensagem.message);
 
             }
         }).done(function (result) {
@@ -467,37 +470,38 @@ $(document).ready(function () {
                 $("#cpf_validation").show();
                 $("#user_submit").attr('disabled', true);
 
-            } else {
-
-                var isValid = checkCPFIsValid(cleanIdentity(cpf.value));
-
-                $("#cpf_validation").text("");
-                $("#cpf_validation").hide();
-                if (!isValid) {
-                    $("#user_submit").attr('disabled', true);
-                    $("#cpf_validation").text("CPF não é válido!");
-                    $("#cpf_validation").show();
-
-                    if (occurrencesInvalidCpf >= 1 && (previousCPF == cpf.value)) {
-                        // $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
-                        callModalError("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
-
-                        startScanDocument();
-                    } else {
-                        occurrencesInvalidCpf = occurrencesInvalidCpf + 1;
-                        previousCPF = cpf.value;
-                        // $("#cpf").val("");
-                    }
-                } else {
-                    $("#cpf_validation").text("");
-                    $("#cpf_validation").hide();
-
-                    previousCPF = "";
-                    occurrencesInvalidCpf = 0;
-
-                    $("#user_submit").attr('disabled', false);
-                }
             }
+            // } else {
+
+            //     var isValid = checkCPFIsValid(cleanIdentity(cpf.value));
+
+            //     $("#cpf_validation").text("");
+            //     $("#cpf_validation").hide();
+            //     if (!isValid) {
+            //         $("#user_submit").attr('disabled', true);
+            //         $("#cpf_validation").text("CPF não é válido!");
+            //         $("#cpf_validation").show();
+
+            //         if (occurrencesInvalidCpf >= 1 && (previousCPF == cpf.value)) {
+            //             // $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
+            //             callModalError("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
+
+            //             startScanDocument();
+            //         } else {
+            //             occurrencesInvalidCpf = occurrencesInvalidCpf + 1;
+            //             previousCPF = cpf.value;
+            //             // $("#cpf").val("");
+            //         }
+            //     } else {
+            //         $("#cpf_validation").text("");
+            //         $("#cpf_validation").hide();
+
+            //         previousCPF = "";
+            //         occurrencesInvalidCpf = 0;
+
+            //         $("#user_submit").attr('disabled', false);
+            //     }
+            // }
         });
     };
 

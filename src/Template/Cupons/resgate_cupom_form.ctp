@@ -20,7 +20,9 @@ use Cake\Routing\Router;
                 'type' => 'text',
                 'class' => 'pdf-417-code',
                 'max' => 14,
-                'label' => 'Informe Código de Leitura',
+                'label' => 'Informe Código de Leitura*',
+                'placeholder' => 'Informe Código de Leitura...',
+                "required" => true,
                 'autocomplete' => 'off'
             ]) ?>
 

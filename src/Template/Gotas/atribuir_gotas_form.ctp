@@ -81,7 +81,9 @@ use Cake\Core\Configure;
                 [
                     // 'type' => 'text',
                     'type' => 'password',
-                    'label' => 'QR Code',
+                    'label' => 'QR Code*',
+                    'placeholder' => 'QR Code...',
+                    "required" => "required",
                     'id' => 'qr_code_reader',
                     'class' => 'qr_code_reader',
                     // 'autocomplete' => 'off'
@@ -355,9 +357,13 @@ use Cake\Core\Configure;
 </div>
 
 <div>
-    <?= $this->element('../Gotas/gotas_input_form_com_ocr') ?>
     <?php
-    // echo $this->element('../Gotas/gotas_input_form_sem_ocr');
+
+    if ($estado_funcionario != "MG"){
+        echo $this->element('../Gotas/gotas_input_form_com_ocr');
+    } else {
+        echo $this->element('../Gotas/gotas_input_form_sem_ocr');
+    }
     ?>
 </div>
 
@@ -369,8 +375,8 @@ $debug = Configure::read('debug');
 $extensionJs = $debug ? ".js" : ".min.js";
 $extensionCss = $debug ? ".css" : ".min.css";
 
-echo $this->Html->css("styles/gotas/gotas_input_form_sem_ocr" . $extensionCss);
-echo $this->Html->script("scripts/gotas/gotas_input_form_sem_ocr" . $extensionJs);
+// echo $this->Html->css("styles/gotas/gotas_input_form_sem_ocr" . $extensionCss);
+// echo $this->Html->script("scripts/gotas/gotas_input_form_sem_ocr" . $extensionJs);
 
 if (Configure::read('debug')) : ?>
 <?= $this->Html->css('styles/gotas/atribuir_gotas_form') ?>

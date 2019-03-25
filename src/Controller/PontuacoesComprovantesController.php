@@ -2008,6 +2008,22 @@ class PontuacoesComprovantesController extends AppController
          * index: indice do registro na url
          */
 
+        if (empty($url) || strlen($url) == 0){
+            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $status = 0;
+            $errors = array("QR Code não informado!");
+
+            $result = array(
+                "status" => $status,
+                "message" => $errorMessage,
+                "errors" => $errors,
+                "data" => array()
+            );
+
+            // Retorna Array contendo erros de validações
+            return $result;
+        }
+
         $arrayConsistency = array();
 
         // Tratamento de url para assegurar que é HTTPS

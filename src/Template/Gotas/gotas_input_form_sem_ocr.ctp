@@ -11,7 +11,7 @@
   use Cake\Core\Configure;
 ?>
 
-    <div class="col-lg-9 gotas-camera-manual-insert">
+    <!-- <div class="col-lg-9 gotas-camera-manual-insert">
         <div class="col-lg-12">
             <h4 class="col-lg-11">
                 <?= __('Inserção Manual de Gotas') ?>
@@ -118,7 +118,7 @@
             <span>Esta tabela é a representação de todas as informações que serão enviadas ao servidor, ao apertar o botão <button class="btn btn-primary"><span class="fa fa-save"> Salvar</span></button>
             </span>
         </div>
-    </div>
+    </div> -->
 
 <?php if (Configure::read('debug') == true) : ?>
     <?= $this->Html->script('scripts/gotas/gotas_input_form_sem_ocr') ?>

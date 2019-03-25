@@ -7,17 +7,20 @@
 
 $(document).ready(function () {
 
-    $("#placa").on('keyup', function () {
+    $(".placa").on('keyup', function () {
         $(this).val($(this).val().toUpperCase());
     });
 
-    $("#placa").mask("AAA9999", {
+    $(".placa").mask("AAA9B99", {
         'translation': {
             A: {
                 pattern: /[A-Za-z]/
             },
             9: {
                 pattern: /[0-9]/
+            },
+            B: {
+                pattern: /\D*/
             }
         },
         onKeyPress: function (value, event) {
@@ -25,7 +28,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#placa").on('blur', function () {
+    $(".placa").on('blur', function () {
         var data = {
             placa: $(this).val()
         }
@@ -72,7 +75,7 @@ $(document).ready(function () {
             $(".validation-message").text("Veículo existente, será vinculado à este usuário.");
 
             $(".frozen-input-data").attr('disabled', true);
-            $("#placa").val(data.placa);
+            $(".placa").val(data.placa);
             $("#modelo").val(data.modelo);
             $("#fabricante").val(data.fabricante);
             $("#ano").val(data.ano);

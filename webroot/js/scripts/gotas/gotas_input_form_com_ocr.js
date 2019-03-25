@@ -3,7 +3,7 @@
  * @author Gustavo Souza Gonçalves
  * @date 13/09/2017
  * @
- * 
+ *
  */
 $(document).ready(function () {
 
@@ -320,7 +320,7 @@ $(document).ready(function () {
      * Configura botão de salvar
      */
     $(".gotas-instascan-manual-insert .save-receipt-button").on('click', function () {
-        // verifica primeiro se registro já existe. 
+        // verifica primeiro se registro já existe.
         // se não existir, executa a função passada via parâmetro
         checkTaxCouponRepeated(saveReceipt);
 
@@ -388,4 +388,30 @@ $(document).ready(function () {
             }
         });
     }
+
+    $(".capture-receipt-snapshot").on("click", function() {
+        canvas = $("#canvas-instascan-gotas")[0];
+
+        var video = $(".video-receipt-capture-container .video-cam")[0];
+
+        var height = canvas.height;
+        var width = canvas.width;
+
+        var canvasContext = canvas.getContext("2d");
+        canvasContext.drawImage(video, 0, 0, width, height);
+
+        $(".video-receipt-capture-container").hide();
+        $(".video-receipt-captured-region").fadeIn(500);
+
+        stopScanDocument();
+    });
+
+    $(".store-receipt").on("click", function() {
+        var canvas = $("#canvas-instascan-gotas")[0];
+        var img = canvas.toDataURL("image/jpeg");
+
+        var items = arrayParametrosGravar.get();
+
+        saveReceipt(img, items);
+    });
 });

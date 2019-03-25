@@ -15,13 +15,16 @@ $(document).ready(function () {
             $(".veiculos #placa_validation").text('Registro não localizado, será adicionado novo registro.');
         }
     }
-    $("#placa").mask("AAA9999", {
+    $(".placa").mask("AAA9B99", {
         'translation': {
             A: {
                 pattern: /[A-Za-z]/
             },
             9: {
                 pattern: /[0-9]/
+            },
+            B: {
+                pattern: /\D*/
             }
         },
         onKeyPress: function (value, event) {
@@ -29,7 +32,7 @@ $(document).ready(function () {
         }
     });
     $("#ano").mask("9999");
-    $("#placa").on('keyup', function () {
+    $(".placa").on('keyup', function () {
         if (this.value.length == 7) {
 
             callLoaderAnimation();

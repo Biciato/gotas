@@ -11,6 +11,13 @@ $(document).ready(function() {
 
     // ------------------- Inicialização de campos na tela -------------------
 
+    // region Campos Obrigatórios
+
+    $("label[for=parametro]").text("Parâmetro*");
+    $("#parametro").prop("required", true);
+
+    // endregion
+
     $("#parametro").focus();
 
     resetLayout();
@@ -110,64 +117,7 @@ $(document).ready(function() {
         $(".gotas-camera-manual-insert").fadeIn(500);
     };
 
-    /**
-     * Inicia gravação de câmera para captura de imagem
-     */
-    // var startScanCapture = function (regionCapture, videoElement, canvasElement) {
-    var startScanCapture = function(regionCapture, videoElement) {
-        $("." + regionCapture).show();
 
-        video = null;
-        video = document.querySelector("#" + videoElement);
-
-        navigator.getUserMedia =
-            navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia ||
-            navigator.oGetUserMedia;
-
-        var hdConstraints = {
-            video: {
-                optional: [
-                    {
-                        minWidth: 320
-                    },
-                    {
-                        minWidth: 640
-                    },
-                    {
-                        minWidth: 1024
-                    },
-                    {
-                        minWidth: 1280
-                    },
-                    {
-                        minWidth: 1920
-                    },
-                    {
-                        minWidth: 2560
-                    }
-                ]
-            },
-            audio: false
-        };
-
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia(hdConstraints, handleVideo, videoError);
-        }
-
-        function handleVideo(stream) {
-            window.localStream = stream;
-            // video.src = window.URL.createObjectURL(stream);
-            video.srcObject = stream;
-            video.play();
-        }
-
-        function videoError(e) {
-            // do something
-        }
-    };
 
     /**
      * Interrompe captura da Webcam
@@ -375,6 +325,12 @@ $(document).ready(function() {
      * @param {string} url
      */
     var checkURLConsistency = function(url) {
+
+        if (url === undefined || url.toString().length == 0){
+            callModalError("Campo QR CODE não informado!");
+            return false;
+        }
+
         /**
          * Regras:
          * Key: nome da chave;

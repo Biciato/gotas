@@ -10,13 +10,16 @@ $(document).ready(function () {
     // Métodos de inicialização
     // ------------------------------------------------------------------
 
-    $("#placa").mask("AAA9999", {
+    $(".placa").mask("AAA9B99", {
         'translation': {
             A: {
                 pattern: /[A-Za-z]/
             },
             9: {
                 pattern: /[0-9]/
+            },
+            B: {
+                pattern: /\D*/
             }
         },
         onKeyPress: function (value, event) {

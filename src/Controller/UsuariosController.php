@@ -3929,6 +3929,20 @@ class UsuariosController extends AppController
                 $data = $this->request->getData();
 
                 // DebugUtil::print($data);
+
+                $cpf = empty($data["cpf"]) ? null : $data["cpf"];
+
+                if (empty($cpf)){
+                    return ResponseUtil::errorAPI(MESSAGE_USUARIOS_CPF_EMPTY, array());
+                }
+
+                $result = NumberUtil::validarCPF($data["cpf"]);
+
+                if ($result["status"] == 0){
+                    return ResponseUtil::errorAPI($result["message"], array());
+                }
+
+
                 $user = $this->Usuarios->getUsuarioByCPF($data['cpf']);
 
                 if ($data['id'] != 0) {

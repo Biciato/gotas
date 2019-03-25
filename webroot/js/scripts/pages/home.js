@@ -2,6 +2,8 @@
  * Classe javascript para ações de uso comum
  */
 $(document).ready(function() {
+
+
     $(".botao-confirmar").on("click", function(e) {
         var form = e.target.form;
 
@@ -664,7 +666,8 @@ var initializeDateTimePicker = function(
 
     if (dataMaxima != undefined){
         var format = "DD/MM/YYYY HH:mm";
-        var maxDate = moment(dataMaxima, format).format(format);
+        var formatUS = "MM-DD-YYYY HH:mm";
+        var maxDate = moment(dataMaxima, format).format(formatUS);
         options.maxDate = maxDate;
     }
 
@@ -968,4 +971,90 @@ var resetRedeemTab = function() {
     popularDadosCupomResgate(null);
 
     $(".pdf-417-code").val(null);
+};
+
+var video = null;
+/**
+ * Inicia gravação de câmera para captura de imagem
+ */
+// var startScanCapture = function (regionCapture, videoElement, canvasElement) {
+var startScanCapture = function(regionCapture, videoElement) {
+    $("." + regionCapture).show();
+
+    video = null;
+    video = document.querySelector("#" + videoElement);
+
+    navigator.getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia ||
+        navigator.oGetUserMedia;
+
+    var hdConstraints = {
+        video: {
+            optional: [
+                {
+                    minWidth: 320
+                },
+                {
+                    minWidth: 640
+                },
+                {
+                    minWidth: 1024
+                },
+                {
+                    minWidth: 1280
+                },
+                {
+                    minWidth: 1920
+                },
+                {
+                    minWidth: 2560
+                }
+            ]
+        },
+        audio: false
+    };
+
+    if (navigator.getUserMedia) {
+        navigator.getUserMedia(hdConstraints, handleVideo, videoError);
+    }
+
+    function handleVideo(stream) {
+        window.localStream = stream;
+        // video.src = window.URL.createObjectURL(stream);
+        video.srcObject = stream;
+        video.play();
+    }
+
+    function videoError(e) {
+        // do something
+    }
+};
+
+
+/**
+ * Interrompe captura da Webcam
+ */
+var stopCamRecording = function() {
+    var interval = 0;
+    var retries = 0;
+    interval = setInterval(function() {
+        if (window.localStream !== undefined) {
+            window.localStream.getVideoTracks()[0].stop();
+        }
+        clearInterval(interval);
+
+        // necessário aguardar pelo menos 1 segundo para evitar efeito de imagem escurecida
+    }, 1000);
+};
+
+/**
+ * Oculta região de captura de imagem e interrompe o dispositivo webcam
+ */
+var stopScanDocument = function() {
+    stopCamRecording();
+
+    $(".group-video-capture").hide();
 };
