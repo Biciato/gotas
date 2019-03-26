@@ -314,9 +314,9 @@ Configure::write(
         // Mensagens de Usuários
         'messageUsuarioRegistrationClienteNotNull' => 'Se o usuário não for Administrador de Rede, ele deverá ser alocado em uma Unidade da Rede!',
 
-        "messageUsuarioCPFNotValidInvalidSize" => "Tamanho do CPF errado, esperado 11 dígitos! {0}",
+        "messageUsuarioCPFNotValidInvalidSize" => "Tamanho do CPF errado, esperado 11 dígitos!",
 
-        "messageUsuarioCPFNotValidInvalidNumber" => "CPF Informado não é válido! {0}",
+        "messageUsuarioCPFNotValidInvalidNumber" => "CPF Informado não é válido!",
         "messageUsuarioProfileDocumentNotFoundError" => "Atenção! Para usar o sistema, é necessário ter um CPF ou Documento Estrangeiro cadastrado! Complete seu perfil.",
         "messageUsuarioSenhaDoesntMatch" => "Senha não confere!",
         "messageUsuarioSenhaInvalid" => "Senha inválida!",

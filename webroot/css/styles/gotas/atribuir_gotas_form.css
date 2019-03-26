@@ -10,3 +10,16 @@
     -moz-text-security:circle;
      text-security:circle;
 }
+
+.video-cam-container {
+    height: 80vh;
+}
+.video-cam-container-row .video-cam {
+    transform: rotate(270deg) scale(0.55);
+}
+
+
+.video-receipt-captured-row .captured-cam {
+    transform: rotate(270deg) scale(0.55);
+
+}

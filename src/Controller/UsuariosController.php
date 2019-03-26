@@ -3928,7 +3928,7 @@ class UsuariosController extends AppController
             if ($this->request->is(['post', 'put', 'ajax'])) {
                 $data = $this->request->getData();
 
-                // DebugUtil::print($data);
+                // DebugUtil::printArray($data);
 
                 $cpf = empty($data["cpf"]) ? null : $data["cpf"];
 
@@ -3941,7 +3941,6 @@ class UsuariosController extends AppController
                 if ($result["status"] == 0){
                     return ResponseUtil::errorAPI($result["message"], array());
                 }
-
 
                 $user = $this->Usuarios->getUsuarioByCPF($data['cpf']);
 

@@ -454,10 +454,10 @@ $(document).ready(function () {
                 xhr.setRequestHeader("IsMobile", true);
             },
             success: function (data) {
-                console.log(data);
+                // console.log(data);
             },
             error: function (data) {
-                console.log(data);
+                // console.log(data);
                 closeLoaderAnimation();
                 callModalError(data.responseJSON.mensagem.message);
 
@@ -466,12 +466,13 @@ $(document).ready(function () {
             closeLoaderAnimation();
             if (result !== undefined && result.user !== null) {
 
-                $("#cpf_validation").text("Este CPF já está em uso.");
-                $("#cpf_validation").show();
+                callModalError("Este CPF já está em uso!");
                 $("#user_submit").attr('disabled', true);
 
+            // }
+            } else {
+                $("#user_submit").attr("disabled", false);
             }
-            // } else {
 
             //     var isValid = checkCPFIsValid(cleanIdentity(cpf.value));
 
@@ -553,31 +554,9 @@ $(document).ready(function () {
 
         if (this.value.length == 14) {
 
-            var result = checkCPFRepeated();
-
-            if (result) {
-                var cpf = cleanIdentity(this.value);
-                checkCPFIsValid(cpf);
-            }
+            checkCPFRepeated();
 
         };
-    });
-
-    /**
-     * Função que ativa as verificações de cpf repetido e se é válido
-     */
-    $("#cpf").on('blur', function () {
-        if (!imageStored) {
-            if (this.value.length == 14) {
-
-                var result = checkCPFRepeated();
-
-                if (result) {
-                    var cpf = cleanIdentity(this.value);
-                    checkCPFIsValid(cpf);
-                }
-            }
-        }
     });
 
     /**

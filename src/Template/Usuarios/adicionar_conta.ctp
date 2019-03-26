@@ -31,9 +31,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 
 <?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/usuarios/add'); ?>
+    <?php // echo $this->Html->script('scripts/usuarios/add'); ?>
 <?php else : ?>
-    <?= $this->Html->script('scripts/usuarios/add.min'); ?>
+    <?php //echo $this->Html->script('scripts/usuarios/add.min'); ?>
 <?php endif; ?>
 
-<?= $this->fetch('script'); ?>
+<?php //echo $this->fetch('script'); ?>

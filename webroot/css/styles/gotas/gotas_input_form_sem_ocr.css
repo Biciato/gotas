@@ -17,8 +17,9 @@
 }
 
 .video-cam-container video {
-    margin-top: 140px;
+    margin-top: 240px;
     zoom: 0.50;
+    width: 100%;
 }
 
 .video-cam-container canvas {

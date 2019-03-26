@@ -72,6 +72,21 @@
     width: 100px;
 }
 
+.video-gotas-snapshot {
+    text-align: center;
+}
+
+.video-gotas-snapshot .btn {
+    margin: 5px auto;
+    display: block;
+    width: 130px;
+    padding: 10px;
+}
+
+.video-gotas-snapshot div span {
+    vertical-align: super;
+}
+
 .buttons-region {
     text-align: center;
 }
