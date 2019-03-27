@@ -667,7 +667,8 @@ var initializeDateTimePicker = function(
     if (dataMaxima != undefined){
         var format = "DD/MM/YYYY HH:mm";
         var formatUS = "MM-DD-YYYY HH:mm";
-        var maxDate = moment(dataMaxima, format).format(formatUS);
+        // var maxDate = moment(dataMaxima, format).format(formatUS);
+        var maxDate = moment(dataMaxima, format);
         options.maxDate = maxDate;
     }
 
@@ -1058,3 +1059,125 @@ var stopScanDocument = function() {
 
     $(".group-video-capture").hide();
 };
+
+
+// Array de parâmetros de gotas populados (para gravar no BD)
+var arrayParametrosGravar = {
+array: [],
+get: function() {
+    return this.array;
+},
+set: function(array) {
+    this.array = array;
+},
+add: function(item) {
+    this.array.push(item);
+},
+remove: function(key) {
+    var arrayToRemove = [];
+
+    $.each(this.array, function(index, value) {
+        if (value.key != key) {
+            arrayToRemove.push(value);
+        }
+    });
+
+    this.array = arrayToRemove;
+},
+clear: function() {
+    this.array = [];
+}
+};
+
+// Array de gotas (parâmetros)
+var arrayGotas = {
+array: [],
+get: function() {
+    return this.array;
+},
+findByKey: function(key) {
+    var item = $.grep(this.array, function(value, index) {
+        if (value.gotas_id == key) return value;
+    });
+
+    return item[0];
+},
+set: function(array) {
+    this.array = array;
+}
+};
+  /**
+     * Salva os registros
+     */
+    var saveReceipt = function(image) {
+        var data = [];
+
+        $.each(arrayParametrosGravar.get(), function(index, value) {
+            value.clientes_id = $("#clientes_id").val();
+            value.usuarios_id = $("#usuarios_id").val();
+
+            var chave_nfe = $(".gotas-camera-manual-insert #chave_nfe").val();
+
+            while (chave_nfe.indexOf(" ") != -1) {
+                chave_nfe = chave_nfe.replace(" ", "");
+            }
+
+            value.chave_nfe = chave_nfe;
+
+            value.nome_img = $("#image_name").val();
+            value.estado_nfe = $("#estado_funcionario").val();
+
+            data.push(value);
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/PontuacoesComprovantes/saveManualReceipt",
+            data: JSON.stringify({
+                data: data,
+                image: image,
+                data_processamento: $("#data_processamento_save").val()
+            }),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader(
+                    "Content-Type",
+                    "application/json; charset=UTF-8"
+                );
+
+                callLoaderAnimation();
+            },
+            error: function(response) {
+                console.log(response);
+                closeLoaderAnimation();
+            }
+        }).done(function(result) {
+            console.log(result);
+            if (result.success) {
+                //success
+                var content = prepareContentPontuacoesDisplay(result.data);
+
+                callModalSave(content);
+
+                // callModalSave();
+
+                $(".gotas-camera-manual-insert #chave_nfe").val(null);
+                $(".gotas-camera-manual-insert #list_parametros").val(0);
+                $(".gotas-camera-manual-insert #list_parametros").change();
+
+                $(".gotas-camera-manual-insert #quantidade_input").val(null);
+                arrayParametrosGravar.clear();
+
+                updateTableParametrosGravar();
+
+                resetLayout();
+
+                closeLoaderAnimation();
+            } else {
+                // erro
+                callModalError("Houve um erro no processamento.");
+
+                closeLoaderAnimation();
+            }
+        });
+    };

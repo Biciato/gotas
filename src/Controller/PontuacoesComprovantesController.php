@@ -1165,6 +1165,16 @@ class PontuacoesComprovantesController extends AppController
                         $conteudo = $this->sefazUtil->getUrlSefazByState($estado_nfe) . $chave_nfe;
                     }
 
+                    $chaveNFEIndex = strpos($chave_nfe, "chNFe=");
+                    if ($chaveNFEIndex > 0){
+                        $chave_nfe = substr($chave_nfe, $chaveNFEIndex + strlen("chNFe="));
+                    }
+
+                    $chaveNFEIndex = strpos($chave_nfe, "nVersao=");
+                    if ($chaveNFEIndex > 0){
+                        $chave_nfe = substr($chave_nfe, 0, 44);
+                    }
+
                     // na forma manual, eu ja tenho o id de gotas que preciso
                     $gotas_id = $data['gotas_id'];
 
@@ -1695,7 +1705,7 @@ class PontuacoesComprovantesController extends AppController
                             $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
                         }
 
-                        Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacoesComprovantes, "resumo" => $resumo));
+                        Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacoes_comprovantes, "resumo" => $resumo));
                         return;
                     } else {
                         // Retorna o que veio de erro

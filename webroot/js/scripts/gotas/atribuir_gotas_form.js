@@ -32,6 +32,10 @@ $(document).ready(function() {
 
     $(".user-btn-proceed").prop("disabled", true);
 
+    // ------------------------------- Propriedades -------------------------------
+
+
+
     // ------------------------------- Funções -------------------------------
 
     /**
@@ -51,6 +55,17 @@ $(document).ready(function() {
             exibeContainerCupomMG();
         }
     });
+
+    /**
+     *
+     */
+    var initializeSelectClicks = function() {
+        $(".gotas-camera-manual-insert .select-button").on("click", function() {
+            var key = parseInt($(this)[0].attributes["value"].value);
+            arrayParametrosGravar.remove(key);
+            updateTableParametrosGravar();
+        });
+    };
 
     // ------------------------- Funções Estendidas -------------------------
 
@@ -91,17 +106,15 @@ $(document).ready(function() {
     // ----------------------- Funções Compartilhadas -----------------------
 
     var startQRCodeCapture = function() {
-        $(".group-capture-qr-code").show();
+        // $(".group-capture-qr-code").show();
         $(".video-gotas-scanning-container").show();
-
         $(".qr_code_reader").focus();
-
         $(".qr_code_reader").val(null);
     };
 
     var stopQRCodeCapture = function() {
         $(".video-gotas-scanning-container").hide();
-        $(".group-capture-qr-code").hide();
+        // $(".group-capture-qr-code").hide();
     };
 
     var exibeContainerCupomMG = function() {
@@ -111,7 +124,7 @@ $(document).ready(function() {
             "data_processamento",
             "data_processamento_save",
             true,
-            moment(new Date()).format("DD/MM/YYYY HH:mm")
+            moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
         );
         // $(".gotas-camera-manual-insert #data_processamento").val(data);
         $(".gotas-camera-manual-insert").fadeIn(500);
@@ -516,6 +529,243 @@ $(document).ready(function() {
         return arrayErrors.length > 0;
     };
 
+       /**
+     * Verifica por cupom repetido
+     *
+     * @param {function} function_execute Função à ser executada no final
+     */
+    var checkTaxCouponRepeated = function(function_execute) {
+        var chave_nfe = $(".gotas-camera-manual-insert #chave_nfe").val();
+        var chave_nfe_original = chave_nfe;
+
+
+        var data = {
+            chave_nfe: chave_nfe,
+            estado_nfe: $("#estado_funcionario").val(),
+            clientes_id: $("#clientes_id").val()
+        };
+
+        callLoaderAnimation();
+
+        $.ajax({
+            type: "POST",
+            url: "/PontuacoesComprovantes/findTaxCoupon",
+            data: JSON.stringify(data),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader(
+                    "Content-Type",
+                    "application/json; charset=UTF-8"
+                );
+            },
+            error: function(response) {
+                console.log(response);
+                closeLoaderAnimation();
+            }
+        }).done(function(result) {
+            closeLoaderAnimation();
+
+            if (result.found) {
+                callModalError(
+                    "Este registro já foi importado previamente, não sendo possível a importação!"
+                );
+
+                $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr("disabled", true);
+                $(".gotas-camera-manual-insert #list_parametros").val(null);
+                $(".gotas-camera-manual-insert #list_parametros").attr(
+                    "disabled",
+                    true
+                );
+                $(".gotas-camera-manual-insert #list_parametros").change();
+            } else {
+                $(".gotas-camera-manual-insert #list_parametros").attr(
+                    "disabled",
+                    false
+                );
+
+                $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr("disabled", false);
+
+                if (function_execute !== undefined) {
+                    function_execute();
+                }
+            }
+        });
+    };
+
+    var buscaParametrosDisponiveis = function(){
+        callLoaderAnimation();
+
+        $.ajax({
+            type: "post",
+            url: "/Gotas/getGotasByCliente",
+            data: JSON.stringify({
+                clientes_id: $("#clientes_id").val()
+            }),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader(
+                    "Content-Type",
+                    "application/json; charset=UTF-8"
+                );
+            },
+            error: function(response) {
+                console.log(response);
+                closeLoaderAnimation();
+            }
+        }).done(function(result) {
+            closeLoaderAnimation();
+
+            if (result.gotas !== undefined && result.gotas.length > 0) {
+                arrayGotas.set(result.gotas);
+                $(".gotas-camera-manual-insert #list_parametros").append(
+                    $("<option>")
+                );
+
+                $.each(result.gotas, function(index, value) {
+                    $(".gotas-camera-manual-insert #list_parametros").append(
+                        $("<option>", {
+                            value: value.gotas_id,
+                            text: value.nome_parametro
+                        })
+                    );
+                });
+
+
+            } else {
+                callModalError(
+                    "Não há gotas configuradas para o estabelecimento, não será possível realizar a <strong>Atribuição de Gotas!</strong>. <br /> \
+                Comunique seu gestor"
+                );
+            }
+        });
+    }
+
+    $(".gotas-camera-manual-insert #list_parametros").on("change", function() {
+        if ($(".gotas-camera-manual-insert #list_parametros").val() !== "") {
+            $(".gotas-camera-manual-insert .add-parameter").prop("disabled", false);
+            $(".gotas-camera-manual-insert #quantidade_input").prop("disabled", false);
+        } else {
+            $(".gotas-camera-manual-insert .add-parameter").prop("disabled", true);
+            $(".gotas-camera-manual-insert #quantidade_input").prop("disabled", true);
+        }
+    });
+
+    /**
+     * Atualiza tabela de dados à enviar via POST ao banco
+     */
+    var updateTableParametrosGravar = function() {
+        $(".gotas-camera-manual-insert .gotas-products-table >tbody").html("");
+
+        if (arrayParametrosGravar.get().length > 0) {
+            $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").prop(
+                "disabled",
+                false
+            );
+        } else {
+            $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").prop(
+                "disabled",
+                true
+            );
+        }
+
+        $.each(arrayParametrosGravar.get(), function(index, value) {
+            var html =
+                $("<tr><td>" +
+                value.nome_parametro +
+                "</td><td>" +
+                value.quantidade_multiplicador_exibicao +
+                "</td><td>" +
+                "<div class='btn btn-danger btn-xs select-button' value='" +
+                value.key +
+                "'><i class='fa fa-trash text-danger' title='Remover'></i></div>" +
+                "</td></tr>");
+
+            $(".gotas-camera-manual-insert .gotas-products-table ").append(
+                html
+            );
+        });
+
+        initializeSelectClicks();
+    };
+
+    $(".manual-input").click(function(){
+        $(".video-gotas-scanning-container").hide();
+        // wip
+        $(".gotas-camera-manual-insert").fadeIn(500);
+
+        // Configura comportamento de campos do form
+
+        // Lista de seleção de parâmetros
+        $(".gotas-camera-manual-insert #list_parametros").prop("disabled", true);
+
+        $(".gotas-camera-manual-insert label[for=chave_nfe]").text("Chave NFE");
+
+        $(".gotas-camera-manual-insert #chave_nfe").css("-webkit-text-security", "disc");
+        $(".gotas-camera-manual-insert #chave_nfe").css("-moz-text-security", "circle");
+        $(".gotas-camera-manual-insert #chave_nfe").css("text-security", "circle");
+
+        $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").attr("disabled", true);
+
+        // Máscara para quantidade
+        $(".gotas-camera-manual-insert #quantidade_input").mask("####.###", {
+            reverse: true
+        });
+
+        // trata se valor for inferior à 1
+        $(".gotas-camera-manual-insert #quantidade_input").on("blur", function() {
+            if (this.value.indexOf(".") == -1) {
+                var sufix = "";
+                if (this.value <= 999) {
+                    sufix = ".000";
+                }
+                this.value = this.value + sufix;
+            }
+        });
+        $(".gotas-camera-manual-insert #chave_nfe").on("keyup", function(e){
+            if(e.keyCode == 13) {
+                // verifica se o qr code já foi inserido. se não foi, busca os parâmetros disponíveis
+
+                $(".gotas-camera-manual-insert #list_parametros").empty();
+
+                if (!checkTaxCouponRepeated(buscaParametrosDisponiveis)){
+                    // Configura botão de adicionar parâmetro
+                    $(".gotas-camera-manual-insert .add-parameter").prop("disabled", true);
+
+                    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").unbind("click");
+                    $(".gotas-camera-manual-insert .user-btn-proceed-picture-mg").on("click", function(){
+                        $(".gotas-camera-manual-insert").hide();
+                        manualInstascanReceipt();
+                    });
+
+                    $(".gotas-camera-manual-insert .add-parameter").unbind("click");
+                    $(".gotas-camera-manual-insert .add-parameter").on("click", function() {
+                        var key = $(".gotas-camera-manual-insert #list_parametros").val();
+
+                        var item = arrayGotas.findByKey(key);
+
+                        var itemToAdd = {
+                            key: arrayParametrosGravar.get().length,
+                            id: item.id,
+                            gotas_id: item.gotas_id,
+                            nome_parametro: item.nome_parametro,
+                            quantidade_multiplicador: parseFloat(
+                                $(".gotas-camera-manual-insert #quantidade_input").val()
+                            ),
+                            quantidade_multiplicador_exibicao: $(
+                                ".gotas-camera-manual-insert #quantidade_input"
+                            ).val()
+                        };
+
+                        arrayParametrosGravar.add(itemToAdd);
+
+                        updateTableParametrosGravar();
+                    });
+                }
+
+            }
+        })
+    });
+
     /**
      * Captura imagem da webcam para QR Code e exibe layout de processamento
      */
@@ -536,20 +786,31 @@ $(document).ready(function() {
         );
     };
 
-    // $(".capture-receipt-snapshot").on('click', function () {
-    //     canvas = $("#canvas-instascan-gotas")[0];
+    $(".capture-receipt-snapshot").on('click', function () {
+        canvas = $("#canvas-instascan-gotas")[0];
 
-    //     var height = canvas.height;
-    //     var width = canvas.width;
+        var height = canvas.height;
+        var width = canvas.width;
+        var video = $(".video-receipt-capture-container .video-cam")[0];
+        var canvasContext = canvas.getContext('2d');
+        canvasContext.drawImage(video, 0, 0, width, height);
 
-    //     var canvasContext = canvas.getContext('2d');
-    //     canvasContext.drawImage(video, 0, 0, width, height);
+        $(".video-receipt-capture-container").hide();
+        $(".video-receipt-captured-region").fadeIn(500);
 
-    //     $(".video-receipt-capture-container").hide();
-    //     $(".video-receipt-captured-region").fadeIn(500);
+        stopScanDocument();
+    });
 
-    //     stopScanDocument();
-    // });
+
+
+    $(".store-receipt").on("click", function() {
+        var canvas = $("#canvas-instascan-gotas")[0];
+        var img = canvas.toDataURL("image/jpeg");
+
+        var items = arrayParametrosGravar.get();
+
+        saveReceipt(img, items);
+    });
 
     /**
      * Exibe área de captura caso o operador queira tirar nova foto do documento
@@ -724,7 +985,7 @@ var resetLayout = function() {
         "data_processamento",
         "data_processamento_save",
         true,
-        moment(new Date()).format("DD/MM/YYYY HH:mm")
+        moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
     );
 
     // reset para filtro de estados com qr code

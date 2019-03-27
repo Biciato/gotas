@@ -94,8 +94,8 @@ use Cake\Core\Configure;
 
         <div class="col-lg-2 vertical-align">
             <div class="video-gotas-snapshot">
-                <div class="btn btn-primary take-scanner-snapshot ">
-                    <div class="fa fa-2x fa-camera"> </div>
+                <div class="btn btn-primary manual-input ">
+                    <div class="fa fa-2x fa-edit"> </div>
                     <span>Manual </span>
                 </div>
             </div>
@@ -360,7 +360,7 @@ use Cake\Core\Configure;
     <?php
 
     if ($estado_funcionario != "MG"){
-        echo $this->element('../Gotas/gotas_input_form_com_ocr');
+        // echo $this->element('../Gotas/gotas_input_form_com_ocr');
     } else {
         echo $this->element('../Gotas/gotas_input_form_sem_ocr');
     }
