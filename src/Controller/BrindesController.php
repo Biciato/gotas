@@ -260,6 +260,9 @@ class BrindesController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $cliente = $sessaoUsuario["cliente"];
         $rede = $sessaoUsuario["rede"];
+        $brinde = $this->Brindes->newEntity();
+
+        $brinde['brinde_isento'] = 1;
 
         try {
             $clientesId = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
@@ -278,7 +281,6 @@ class BrindesController extends AppController
                 return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
             }
 
-            $brinde = $this->Brindes->newEntity();
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
             $tiposBrindesCliente = $tiposBrindesCliente->toArray();
@@ -311,6 +313,8 @@ class BrindesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                DebugUtil::printArray($data);
 
                 $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
                 $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;

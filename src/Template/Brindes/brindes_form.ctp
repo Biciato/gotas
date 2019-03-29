@@ -55,6 +55,51 @@ use Cake\Core\Configure;
     </div>
 </div>
 
+
+<div class="form-group row">
+    <div class="col-lg-6">
+        <input type="checkbox"
+            name="brinde_isento"
+            id="brinde_isento"
+            value="<?= $brinde['brinde_isento']?>">
+        <label for="brinde_isento">
+            Brinde Isento?
+        </label>
+    </div>
+
+    <div class="col-lg-6">
+        <input type="checkbox"
+            name="brinde_desconto"
+            id="brinde_desconto"
+            value="<?= $brinde['brinde_desconto']?>" />
+        <label for="brinde_isento">
+            Brinde com Desconto?
+        </label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-6">
+        <input type="checkbox"
+            name="tipo_venda_gotas"
+            id="tipo_venda_gotas"
+            value="<?= $brinde['tipo_venda_gotas']?>" />
+        <label for="tipo_venda_gotas">
+            Brinde Vendido em Gotas?
+        </label>
+    </div>
+
+    <div class="col-lg-6">
+        <input type="checkbox"
+            name="tipo_venda_reais"
+            id="tipo_venda_reais"
+            value="<?= $brinde['tipo_venda_reais']?>" />
+        <label for="tipo_venda_reais">
+            Brinde Vendido em Reais?
+        </label>
+    </div>
+</div>
+
 <div class="form-group row">
     <div class="col-lg-6">
         <label for="preco_padrao">Preço Padrão em Gotas*</label>
@@ -78,8 +123,8 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<!-- Conferir o por que o botão está ficando desalinhado -->
-<div class="form-group">
+
+<div class="form-group ">
     <div class="col-lg-12">
         <?= $this->Form->input(
             'ilimitado',
