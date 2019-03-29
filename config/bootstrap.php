@@ -262,6 +262,17 @@ const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação
 
 #region Entidades
 
+// Brindes
+
+const TYPE_SELL_FREE = 0;
+const TYPE_SELL_FREE_TEXT = "Isento";
+const TYPE_SELL_DISCOUNT = 1;
+const TYPE_SELL_DISCOUNT_TEXT = "Com Desconto";
+const TYPE_SELL_CURRENCY_OR_POINTS = 2;
+const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
+
+
+
 // Clientes
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";

@@ -30,6 +30,73 @@ $(document).ready(function () {
 
     var nome = $("#nome").val();
 
+    // Tipo de Venda
+
+    $(".tipo-venda").on("change", function(e){
+
+        var selecionado = this.value;
+
+        switch (selecionado) {
+            case "Isento": {
+
+                setRequiredPrecoPadraoGotas(false);
+                setRequiredPrecoPadraoReais(false);
+
+                break;
+            }
+            case "Com Desconto":{
+                setRequiredPrecoPadraoGotas(true);
+                setRequiredPrecoPadraoReais(true);
+                break;
+            }
+            case "Gotas ou Reais" : {
+                // validatePrecoGotasReaisOnFormSubmit(true);
+                break;
+            }
+            default: {
+
+                break;
+            }
+        }
+
+    });
+
+    /**
+     * Define obrigatoriedades de campos de preço em gotas
+     *
+     * @param {bool} True / False
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-29
+     *
+     */
+    var setRequiredPrecoPadraoGotas = function(value){
+        var label = "Preço Padrão em Gotas";
+        $("#preco_padrao").attr("required", false);
+        if (value){
+            $("label[for=preco_padrao]").text(label + "*");
+            $("#preco_padrao").attr("required", true);
+        }
+    };
+
+    /**
+     * Define obrigatoriedades de campos de preço em reais
+     *
+     * @param {bool} True / False
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-29
+     *
+     */
+    var setRequiredPrecoPadraoReais = function(value){
+        var label = "Preço Padrão em Reais";
+        $("#valor_moeda_venda_padrao").attr("required", false);
+        if (value){
+            $("label[for=valor_moeda_venda_padrao]").text(label + "*");
+            $("#valor_moeda_venda_padrao").attr("required", true);
+        }
+    };
+
     var equipamentoRTIPadrao = $("#tipos_brindes_redes_id").val();
     /**
      * Verifica se está em edição e se o brinde sendo editado é banho.

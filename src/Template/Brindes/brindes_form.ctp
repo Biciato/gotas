@@ -55,7 +55,27 @@ use Cake\Core\Configure;
     </div>
 </div>
 
+<div class="form-group row">
+    <div class="col-lg-12">
+        <?= $this->Form->input("tipo_venda",
+            array(
+                "id" => "tipo_venda",
+                "value" => $brinde['tipo_venda'],
+                "required" => "required",
+                "class" => "tipo-venda",
+                "empty" => true,
+                "options" => array(
+                    TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
+                    TYPE_SELL_DISCOUNT_TEXT => TYPE_SELL_DISCOUNT_TEXT,
+                    TYPE_SELL_CURRENCY_OR_POINTS_TEXT => TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                )
+            )
+        )
+        ;?>
+    </div>
+</div>
 
+<!--
 <div class="form-group row">
     <div class="col-lg-6">
         <input type="checkbox"
@@ -98,7 +118,7 @@ use Cake\Core\Configure;
             Brinde Vendido em Reais?
         </label>
     </div>
-</div>
+</div> -->
 
 <div class="form-group row">
     <div class="col-lg-6">
