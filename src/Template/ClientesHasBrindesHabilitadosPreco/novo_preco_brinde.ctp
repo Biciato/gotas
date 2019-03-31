@@ -54,8 +54,17 @@ echo $this->element(
         <legend><?= __('Adicionar novo preço para {0}', $brindeHabilitado->brinde->nome) ?></legend>
         <?= $this->element('../ClientesHasBrindesHabilitadosPreco/novo_preco_form') ?>
     </fieldset>
-    <?= $this->Form->button(__('{0} Salvar', $this->Html->tag('i', '', ['class' => 'fa fa-save'])), ['escape' => false]) ?>
-    <?= $this->Form->end() ?>
+    <div class="form-group row">
+        <div class="col-lg-12 text-right">
+            <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
+            <a href="/clientesHasBrindesHabilitados/configurarBrinde/<?= $brindesId?>"
+                class="btn btn-danger botao-cancelar">
+                <i class="fa fa-window-close">
+                </i>
+                Cancelar
+            </a>
+        </div>
+    </div>
 </div>
 
 

@@ -241,7 +241,6 @@ class BrindesController extends AppController
         } catch (\Exception $e) {
             $this->Flash->error("Houve um erro: " . $e->getMessage());
             return $this->redirect(array("controller" => "Brindes", "action" => "brindes_minha_rede", $rede["id"]));
-
         }
     }
 
@@ -252,8 +251,8 @@ class BrindesController extends AppController
      */
     public function adicionarBrindeRede()
     {
+        $arraySet = array("editMode", "brinde", "clientesId", "tiposBrindesCliente");
         $editMode = 0;
-
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -280,7 +279,6 @@ class BrindesController extends AppController
             if (!$temAcesso) {
                 return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
             }
-
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
             $tiposBrindesCliente = $tiposBrindesCliente->toArray();
@@ -313,18 +311,37 @@ class BrindesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+                $errors = array();
 
-                DebugUtil::printArray($data);
+                // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
+                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))){
+                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
 
-                $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
+                }
+                // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))){
+                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+                }
+
                 $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
 
                 if (empty($tiposBrindesRedesId)) {
-
-                    $this->Flash->error("É necessário selecionar um tipo de brinde!");
-
-                    return $this->redirect(array("controller" => "brindes", "action" => "adicionarBrindeRede"));
+                    $errors[] = "É necessário selecionar um tipo de brinde!";
                 }
+
+                if (count($errors) > 0){
+
+                    foreach ($errors as $error) {
+                        $this->Flash->error($error);
+                    }
+
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
+
+                    return;
+                }
+
+                $brinde = $this->Brindes->patchEntity($brinde, $data);
 
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
 
@@ -336,7 +353,7 @@ class BrindesController extends AppController
                     $brinde["ilimitado"] = $data["ilimitado"];
                 }
 
-                $brinde->preco_padrao = (float)$data['preco_padrao'];
+                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
 
                 if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"])) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -381,11 +398,11 @@ class BrindesController extends AppController
                                 // Não tem estoque, criar novo registro vazio
                                 $result
                                     = $this->ClientesHasBrindesEstoque->addEstoque(
-                                    $clienteHasBrindeHabilitado->id,
-                                    $this->usuarioLogado['id'],
-                                    0,
-                                    0
-                                );
+                                        $clienteHasBrindeHabilitado->id,
+                                        $this->usuarioLogado['id'],
+                                        0,
+                                        0
+                                    );
                             }
                         }
 
@@ -421,12 +438,6 @@ class BrindesController extends AppController
                     $this->Flash->error(__(Configure::read('messageSavedError')));
                 }
             }
-            $arraySet = array(
-                "editMode",
-                "brinde",
-                "clientesId",
-                "tiposBrindesCliente"
-            );
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
@@ -453,7 +464,17 @@ class BrindesController extends AppController
      */
     public function editarBrindeRede($id = null)
     {
+        $arraySet = array(
+            "editMode",
+            "brinde",
+            "imagemOriginal",
+            "clientes",
+            "tiposBrindesCliente"
+        );
         $brinde = $this->Brindes->get($id);
+
+        $brinde["preco_padrao"] = number_format($brinde["preco_padrao"], 2);
+        $brinde["valor_moeda_venda_padrao"] = number_format($brinde["valor_moeda_venda_padrao"], 2);
 
         $editMode = 1;
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -495,6 +516,36 @@ class BrindesController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
+            $errors = array();
+
+            // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
+            if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))){
+                $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+
+            }
+            // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+            if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))){
+                $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+            }
+
+            $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+
+            if (empty($tiposBrindesRedesId)) {
+                $errors[] = "É necessário selecionar um tipo de brinde!";
+            }
+
+            if (count($errors) > 0){
+
+                foreach ($errors as $error) {
+                    $this->Flash->error($error);
+                }
+
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
+
             $brindeCheck = $this->Brindes->findBrindesByConditions(
                 $rede["id"],
                 array(),
@@ -523,7 +574,7 @@ class BrindesController extends AppController
 
                 // Preserva o id base de tipos brindes
                 $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
-                $brinde->preco_padrao = (float)$data['preco_padrao'];
+                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
 
                 if ($enviouNovaImagem) {
                     $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
@@ -545,13 +596,7 @@ class BrindesController extends AppController
             }
         }
 
-        $arraySet = array(
-            "editMode",
-            "brinde",
-            "imagemOriginal",
-            "clientes",
-            "tiposBrindesCliente"
-        );
+
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -771,7 +816,6 @@ class BrindesController extends AppController
                 } else {
                     $whereConditions[] = ['brindes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
@@ -779,7 +823,6 @@ class BrindesController extends AppController
                 } else {
                     $whereConditions[] = ['brindes.audit_insert >= ' => $dataInicial];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinal > $dataHoje) {
@@ -788,11 +831,9 @@ class BrindesController extends AppController
                     $whereConditions[] = ['brindes.audit_insert <= ' => $dataFinal];
                 }
             }
-
-
         }
 
-         // Monta o Array para apresentar em tela
+        // Monta o Array para apresentar em tela
         $redes = array();
 
         foreach ($redesArrayIds as $key => $value) {
@@ -838,7 +879,6 @@ class BrindesController extends AppController
         ];
 
         $this->set(compact($arraySet));
-
     }
 
     /**
@@ -933,11 +973,11 @@ class BrindesController extends AppController
             foreach ($brindesHabilitadosCliente as $brindeHabilitadoCliente) {
                 $brindeHabilitadoCliente["brinde"]["nome_img"] =
                     __(
-                    "{0}{1}{2}",
-                    Configure::read("webrootAddress"),
-                    Configure::read("imageGiftPathRead"),
-                    $brindeHabilitadoCliente["brinde"]["nome_img"]
-                );
+                        "{0}{1}{2}",
+                        Configure::read("webrootAddress"),
+                        Configure::read("imageGiftPathRead"),
+                        $brindeHabilitadoCliente["brinde"]["nome_img"]
+                    );
 
                 $nome = $brindeHabilitadoCliente["brinde"]["nome"];
                 $isBrindeShower = $brindeHabilitadoCliente["tipos_brindes_redes_id"] >= 1 && $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;

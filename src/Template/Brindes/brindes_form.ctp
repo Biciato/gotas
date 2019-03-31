@@ -57,12 +57,15 @@ use Cake\Core\Configure;
 
 <div class="form-group row">
     <div class="col-lg-12">
+        <label for="tipo_venda">Tipo de Venda*</label>
         <?= $this->Form->input("tipo_venda",
             array(
                 "id" => "tipo_venda",
                 "value" => $brinde['tipo_venda'],
                 "required" => "required",
                 "class" => "tipo-venda",
+                "readonly" => $editMode == 1 ? 'readonly' : '',
+                "label" => false,
                 "empty" => true,
                 "options" => array(
                     TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
@@ -74,51 +77,6 @@ use Cake\Core\Configure;
         ;?>
     </div>
 </div>
-
-<!--
-<div class="form-group row">
-    <div class="col-lg-6">
-        <input type="checkbox"
-            name="brinde_isento"
-            id="brinde_isento"
-            value="<?= $brinde['brinde_isento']?>">
-        <label for="brinde_isento">
-            Brinde Isento?
-        </label>
-    </div>
-
-    <div class="col-lg-6">
-        <input type="checkbox"
-            name="brinde_desconto"
-            id="brinde_desconto"
-            value="<?= $brinde['brinde_desconto']?>" />
-        <label for="brinde_isento">
-            Brinde com Desconto?
-        </label>
-    </div>
-</div>
-
-<div class="form-group row">
-    <div class="col-lg-6">
-        <input type="checkbox"
-            name="tipo_venda_gotas"
-            id="tipo_venda_gotas"
-            value="<?= $brinde['tipo_venda_gotas']?>" />
-        <label for="tipo_venda_gotas">
-            Brinde Vendido em Gotas?
-        </label>
-    </div>
-
-    <div class="col-lg-6">
-        <input type="checkbox"
-            name="tipo_venda_reais"
-            id="tipo_venda_reais"
-            value="<?= $brinde['tipo_venda_reais']?>" />
-        <label for="tipo_venda_reais">
-            Brinde Vendido em Reais?
-        </label>
-    </div>
-</div> -->
 
 <div class="form-group row">
     <div class="col-lg-6">

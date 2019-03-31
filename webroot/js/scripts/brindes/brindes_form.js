@@ -1,9 +1,42 @@
+'use strict';
+
 $(document).ready(function () {
 
-    $("#preco_padrao").maskMoney({ clearIncomplete: true });
-    $("#preco_padrao").attr("maxlength", 10);
-    $("#valor_moeda_venda_padrao").maskMoney({ clearIncomplete: true });
-    $("#valor_moeda_venda_padrao").attr("maxlength", 10);
+    // ------------ FUNÇÕES ------------
+
+
+    /**
+     * brindes_form::validarForm
+     *
+     * Remove validação padrão, e adiciona comportamento específico da tela.
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-31
+     */
+    var validarForm = function (value) {
+        $(".botao-confirmar").unbind("click");
+
+        if (value) {
+
+            $(".botao-confirmar").on("click", function (e) {
+                var form = e.target.form;
+
+                // remove mascara dos campos de valor, e se valor for 0, limpa.
+                defineFormatoPrecosVenda(false);
+                verificaPreenchimentoCamposPreco();
+                // form é válido?
+                if (form.checkValidity()) {
+                    callLoaderAnimation();
+
+                } else {
+                    // return false;
+                    defineFormatoPrecosVenda(true);
+                }
+            });
+        } else {
+            validacaoGenericaForm();
+        }
+    }
 
     var tipoBrindeSelecionado = $("#tipos_brindes_redes_id option:selected");
 
@@ -32,25 +65,26 @@ $(document).ready(function () {
 
     // Tipo de Venda
 
-    $(".tipo-venda").on("change", function(e){
+    $(".tipo-venda").on("change", function (e) {
 
         var selecionado = this.value;
 
         switch (selecionado) {
             case "Isento": {
 
-                setRequiredPrecoPadraoGotas(false);
-                setRequiredPrecoPadraoReais(false);
-
+                defineObrigatorioPrecoPadraoGotas(false);
+                defineObrigatorioPrecoPadraoAvulso(false);
+                validarForm(false);
                 break;
             }
-            case "Com Desconto":{
-                setRequiredPrecoPadraoGotas(true);
-                setRequiredPrecoPadraoReais(true);
+            case "Com Desconto": {
+                defineObrigatorioPrecoPadraoGotas(true);
+                defineObrigatorioPrecoPadraoAvulso(true);
+                validarForm(false);
                 break;
             }
-            case "Gotas ou Reais" : {
-                // validatePrecoGotasReaisOnFormSubmit(true);
+            case "Gotas ou Reais": {
+                validarForm(true);
                 break;
             }
             default: {
@@ -58,8 +92,8 @@ $(document).ready(function () {
                 break;
             }
         }
+    }).change();
 
-    });
 
     /**
      * Define obrigatoriedades de campos de preço em gotas
@@ -70,10 +104,11 @@ $(document).ready(function () {
      * @since 2019-03-29
      *
      */
-    var setRequiredPrecoPadraoGotas = function(value){
+    var defineObrigatorioPrecoPadraoGotas = function (value) {
         var label = "Preço Padrão em Gotas";
         $("#preco_padrao").attr("required", false);
-        if (value){
+        $("label[for=preco_padrao]").text(label);
+        if (value) {
             $("label[for=preco_padrao]").text(label + "*");
             $("#preco_padrao").attr("required", true);
         }
@@ -88,14 +123,68 @@ $(document).ready(function () {
      * @since 2019-03-29
      *
      */
-    var setRequiredPrecoPadraoReais = function(value){
-        var label = "Preço Padrão em Reais";
+    var defineObrigatorioPrecoPadraoAvulso = function (value) {
+        var label = "Preço Padrão de Venda Avulsa (R$)";
         $("#valor_moeda_venda_padrao").attr("required", false);
-        if (value){
+        $("label[for=valor_moeda_venda_padrao]").text(label);
+        if (value) {
             $("label[for=valor_moeda_venda_padrao]").text(label + "*");
             $("#valor_moeda_venda_padrao").attr("required", true);
         }
     };
+
+    var defineFormatoPrecosVenda = function (value) {
+        if (value) {
+            $("#preco_padrao").on("focus", function(){
+                $("#preco_padrao").maskMoney({ clearIncomplete: true });
+                $("#preco_padrao").attr("maxlength", 10);
+            });
+
+            $("#valor_moeda_venda_padrao").on("focus", function(){
+                $("#valor_moeda_venda_padrao").maskMoney({ clearIncomplete: true });
+                $("#valor_moeda_venda_padrao").attr("maxlength", 10);
+            });
+        } else {
+            $("#preco_padrao").maskMoney('destroy');
+            $("#preco_padrao").attr("maxlength", 10);
+            $("#valor_moeda_venda_padrao").maskMoney('destroy');
+            $("#valor_moeda_venda_padrao").attr("maxlength", 10);
+        }
+    };
+
+    defineFormatoPrecosVenda(true);
+
+    /**
+     * brindes_form::verificaPreenchimentoCamposPreco
+     *
+     * Verifica se o preenchimento de campos está de acordo com a regra no submit
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-30
+     *
+     * @return void
+     */
+    var verificaPreenchimentoCamposPreco = function(){
+        var valorGotas = $("#preco_padrao").val();
+
+        if (parseFloat(valorGotas) == 0 || valorGotas.length == 0) {
+            $("#preco_padrao").val(null);
+            $("#valor_moeda_venda_padrao").attr("required", true);
+        } else {
+            $("#valor_moeda_venda_padrao").attr("required", false);
+        }
+
+        var valorMoeda = $("#valor_moeda_venda_padrao").val();
+
+        if (parseFloat(valorMoeda) == 0 || valorMoeda.length == 0) {
+            $("#valor_moeda_venda_padrao").val(null);
+            $("#preco_padrao").attr("required", true);
+        } else {
+            $("#preco_padrao").attr("required", false);
+        }
+
+        // defineFormatoPrecosVenda(true);
+    }
 
     var equipamentoRTIPadrao = $("#tipos_brindes_redes_id").val();
     /**
@@ -105,14 +194,14 @@ $(document).ready(function () {
     if (editMode == 1 && equipamentoRTIPadrao <= 4) {
         $("#nome").attr("readonly", true);
         $("#tipos_brindes_redes_id").attr("readonly", true);
-        $("#tipos_brindes_redes_id").attr("disabled", true);
+        // $("#tipos_brindes_redes_id").attr("disabled", true);
 
         $("#ilimitado").attr("checked", true);
         $("#ilimitado").attr("disabled", true);
     } else if (editMode == 1) {
         $("#nome").attr("readonly", false);
         $("#tipos_brindes_redes_id").attr("readonly", true);
-        $("#tipos_brindes_redes_id").attr("disabled", true);
+        // $("#tipos_brindes_redes_id").attr("disabled", true);
     }
 
     $("#tipos_brindes_redes_id").on("change", function (obj) {
@@ -263,4 +352,6 @@ $(document).ready(function () {
         $("#crop-y2").val(c.scaleY);
         console.log(c);
     };
+
+
 });

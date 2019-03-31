@@ -28,9 +28,11 @@ $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
         </li>
     <?php if ($mode == 'updateGiftPrice') : ?>
 
-        <li>
-            <?= $this->Html->link(__('Atualizar Preço de Brinde'), ['controller' => 'ClientesHasBrindesHabilitadosPreco', 'action' => 'novo_preco_brinde', $brinde->id]) ?>
-        </li>
+        <?php if ($brinde["brinde"]['tipo_venda'] != TYPE_SELL_FREE_TEXT): ?>
+            <li>
+                <?= $this->Html->link(__('Atualizar Preço de Brinde'), ['controller' => 'ClientesHasBrindesHabilitadosPreco', 'action' => 'novo_preco_brinde', $brinde->id]) ?>
+            </li>
+        <?php endif;?>
         <li>
             <?= $this->Html->link(__('Configurar Tipo de Emissão'), ['controller' => 'ClientesHasBrindesHabilitados', 'action' => 'configurar_tipo_emissao', $brinde->id]) ?>
         </li>
@@ -46,8 +48,6 @@ $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
             // echo $this->Html->link(__("Emissão Manual"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'venda_manual_estoque', $brinde->id]); ?>
         </li>
         <?php endif; ?>
-
-
 
     <?php elseif ($mode == 'activatedGifts') : ?>
 
@@ -74,9 +74,5 @@ $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
         ]
     ) ?>
     </ul>
-
-
-
-
 
 </nav>

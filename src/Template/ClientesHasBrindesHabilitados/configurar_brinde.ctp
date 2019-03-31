@@ -71,9 +71,10 @@ echo $this->Breadcrumbs->render(
             <?php endif; ?>
         </tr>
 
-        <?php
-            // debug($cliente_has_brinde_habilitado) ;
-        ?>
+        <tr>
+            <th scope="row">Tipo de Venda</th>
+            <td><?= $cliente_has_brinde_habilitado["brinde"]["tipo_venda"]?></td>
+        </tr>
         <tr>
             <th scope="row"><?= __('Preço Atual (em Gotas)') ?></th>
             <td><?=
@@ -83,7 +84,7 @@ echo $this->Breadcrumbs->render(
         </tr>
         <tr>
             <th scope="row"><?= __('Preço Atual (R$ / Venda Avulsa)') ?></th>
-            <td><?=
+            <td>R$ <?=
                 is_null($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual) ? "0,00" :
                     $this->Number->precision($cliente_has_brinde_habilitado->brinde_habilitado_preco_atual->valor_moeda_venda, 2)
                 ?></td>

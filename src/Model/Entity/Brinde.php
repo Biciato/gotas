@@ -11,7 +11,9 @@ use Cake\ORM\Entity;
  * @property int $clientes_id
  * @property string $nome
  * @property int $ilimitado
+ * @property string $tipo_venda
  * @property float $preco_padrao
+ * @property decimal $valor_moeda_venda_padrao
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *

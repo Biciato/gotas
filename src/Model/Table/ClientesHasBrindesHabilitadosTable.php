@@ -291,6 +291,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                         "Brindes.tempo_uso_brinde",
                         "Brindes.ilimitado",
                         "Brindes.habilitado",
+                        "Brindes.tipo_venda",
                         "Brindes.preco_padrao",
                         "Brindes.valor_moeda_venda_padrao",
                         "Brindes.nome_img",

@@ -44,29 +44,6 @@ class BrindesTable extends GenericTable
      */
 
     /**
-     * Method get of brinde table property
-     *
-     * @return [Cake\ORM\Table] Table object
-     */
-    private function _getBrindeTable()
-    {
-        if (is_null($this->brindeTable)) {
-            $this->_setBrindeTable();
-        }
-        return $this->brindeTable;
-    }
-
-    /**
-     * Method set of brinde table property
-     *
-     * @return void
-     */
-    private function _setBrindeTable()
-    {
-        $this->brindeTable = TableRegistry::get('Brindes');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -138,6 +115,18 @@ class BrindesTable extends GenericTable
             ->integer('ilimitado')
             ->requirePresence('ilimitado', 'create')
             ->notEmpty('ilimitado');
+
+        $validator
+            ->scalar("tipo_venda", "create")
+            ->add(
+                "tipo_venda",
+                "inList",
+                array(
+                    "rule" => array("inList", array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT)),
+                    "message" => "É necessário selecionar um Tipo de Venda",
+                    "allowEmpty" => false
+                )
+            )->notEmpty("tipo_venda");
 
         $validator
             ->decimal('preco_padrao')
@@ -212,18 +201,21 @@ class BrindesTable extends GenericTable
             $brindeSave["tempo_uso_brinde"] = !empty($brinde["tempo_uso_brinde"]) ? $brinde["tempo_uso_brinde"] : null;
             $brindeSave["ilimitado"] = $brinde["ilimitado"];
             $brindeSave["habilitado"] = empty($brinde["habilitado"]) ? true : $brinde["habilitado"];
-            $brindeSave["preco_padrao"] = $brinde["preco_padrao"];
-            $brindeSave["valor_moeda_venda_padrao"] = $brinde["valor_moeda_venda_padrao"];
+            $brindeSave["tipo_venda"] = $brinde["tipo_venda"];
+            $brindeSave["preco_padrao"] = !empty($brinde["preco_padrao"]) ? $brinde["preco_padrao"] : null;
+            $brindeSave["valor_moeda_venda_padrao"] = !empty($brinde["valor_moeda_venda_padrao"]) ? $brinde["valor_moeda_venda_padrao"] : null;
             $brindeSave["nome_img"] = $brinde["nome_img"];
 
             return $this->save($brindeSave);
         } catch (\Exception $e) {
-            $stringError = __(Configure::read("messageSavedError") . $e->getMessage());
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao gravar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
+
             throw new Exception($stringError);
         }
-
     }
 
     #endregion
@@ -334,7 +326,7 @@ class BrindesTable extends GenericTable
                 $whereConditions[] = array("preco_padrao" => $precoPadrao);
             }
 
-            $brindesQuery = $this->_getBrindeTable()->find("all")
+            $brindesQuery = $this->find("all")
                 ->where($whereConditions)
                 ->select(["id"]);
 
@@ -353,7 +345,6 @@ class BrindesTable extends GenericTable
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
-
     }
 
     /**
@@ -367,7 +358,6 @@ class BrindesTable extends GenericTable
     {
         try {
             return $this->get($brindes_id);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -445,7 +435,6 @@ class BrindesTable extends GenericTable
                     )
                 )
                 ->first();
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao gravar registro: " . $e->getMessage());
@@ -473,7 +462,7 @@ class BrindesTable extends GenericTable
                 ->join(
                     array(
                         "ClientesHasBrindesHabilitados" =>
-                            array(
+                        array(
                             "table" => "clientes_has_brindes_habilitados",
                             "type" => "LEFT",
                             "conditions" => "Brindes.id = ClientesHasBrindesHabilitados.brindes_id"
@@ -481,7 +470,6 @@ class BrindesTable extends GenericTable
                     )
                 )
                 ->where(['ClientesHasBrindesHabilitados.clientes_id in ' => $clientes_ids]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -520,9 +508,9 @@ class BrindesTable extends GenericTable
 
             array_push($clientes_conditions, ['ClientesHasBrindesHabilitados.clientes_id' => $clientes_id]);
 
-            $brindes = $this->_getBrindeTable()->find('all')->where($matriz_conditions);
+            $brindes = $this->find('all')->where($matriz_conditions);
 
-            $brindes_cliente = $this->_getBrindeTable()->ClientesHasBrindesHabilitados->find('all')->where($clientes_conditions)->contain(['Brindes']);
+            $brindes_cliente = $this->ClientesHasBrindesHabilitados->find('all')->where($clientes_conditions)->contain(['Brindes']);
 
             $arrayToReturn = $brindes->toArray();
 
@@ -539,7 +527,6 @@ class BrindesTable extends GenericTable
             }
 
             return $arrayToReturn;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -609,7 +596,7 @@ class BrindesTable extends GenericTable
     {
 
         try {
-            return $this->_getBrindeTable()
+            return $this
                 ->deleteAll(['clientes_id in' => $clientes_ids]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();

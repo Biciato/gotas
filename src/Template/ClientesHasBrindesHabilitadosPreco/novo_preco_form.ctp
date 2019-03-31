@@ -14,59 +14,63 @@ use App\Custom\RTI\DebugUtil;
 
 <div class="form-group row">
     <div class="col-lg-6">
-        <legend>Preço em Gotas (Via troca de pontos)</legend>
+
         <div class="col-lg-12">
-            <?= $this->Form->input(
-                "preco",
-                [
-                    "label" => "Preço Atual: ",
-                    "value" => $ultimoPrecoAutorizadoGotas["preco"],
-                    "id" => "preco_atual",
-                    "readonly" => true,
-                    "type" => "text"
-                ]
-            );
-            ?>
+            <h4>Preço em Gotas (Troca de Pontos)</h4>
         </div>
-        <div class="col-lg-12">
-            <?= $this->Form->input(
-                "preco",
-                [
-                    "type" => "text",
-                    "label" => "Preço (em gotas):",
-                    "id" => "preco",
-                    "required" => true
-                ]
-            ); ?>
+        <div class="col-lg-6">
+            <label for="preco_atual">Preço Atual</label>
+            <input type="text"
+                name="preco_atual"
+                id="preco_atual"
+                class="form-control"
+                placeholder="Preço Atual..."
+                readonly="true"
+                value="<?= $ultimoPrecoAutorizadoGotas['preco']?>">
+
         </div>
+        <div class="col-lg-6">
+            <label for="preco">Preço (em gotas)</label>
+            <input type="text"
+                name="preco"
+                id="preco"
+                class="form-control"
+                placeholder="Preço (em gotas)..."
+                value="<?= $novoPreco['preco']?>">
+        </div>
+
     </div>
     <div class="col-lg-6">
-        <legend>Preço em Moeda (Para venda avulsa)</legend>
         <div class="col-lg-12">
-            <?= $this->Form->input(
-                "preco_atual_moeda",
-                [
-                    "label" => "Preço Atual: ",
-                    "value" => is_null($ultimoPrecoAutorizadoVendaAvulsa) ? 0 : $ultimoPrecoAutorizadoVendaAvulsa->valor_moeda_venda,
-                    "id" => "preco_atual_moeda",
-                    "readonly" => true
-                ]
-            );
-            ?>
+            <h4>Preço em Moeda (Para venda avulsa)</h4>
         </div>
-        <div class="col-lg-12">
-            <?= $this->Form->input(
-                "valor_moeda_venda",
-                [
-                    "type" => "decimal",
-                    "label" => "Preço (R$ / venda avulsa):",
-                    "id" => "valor_moeda_venda",
-                    "required" => true
-                ]
-            ); ?>
+        <div class="col-lg-6">
+            <label for="preco_atual_moeda">Preço Atual</label>
+            <input type="text"
+                name="preco_atual_moeda"
+                id="preco_atual_moeda"
+                class="form-control"
+                placeholder="Preço Atual..."
+                readonly="true"
+                value="<?= $ultimoPrecoAutorizadoGotas['valor_moeda_venda']?>">
+        </div>
+        <div class="col-lg-6">
+            <label for="valor_moeda_venda">Preço (R$ / venda avulsa)</label>
+            <input type="text"
+                name="valor_moeda_venda"
+                id="valor_moeda_venda"
+                class="form-control"
+                placeholder="Preço (R$ / venda avulsa)..."
+                value="<?= $novoPreco['valor_moeda_venda']?>">
+
         </div>
     </div>
 </div>
+
+<input type="hidden"
+    name="tipo_venda"
+    id="tipo_venda"
+    value="<?= $tipoVenda?>">
 
 
 <?php if (Configure::read("debug") == true) : ?>

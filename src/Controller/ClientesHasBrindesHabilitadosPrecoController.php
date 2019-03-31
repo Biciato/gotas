@@ -153,6 +153,8 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      */
     public function novoPrecoBrinde($brindesId)
     {
+        $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa", "tipoVenda");
+
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
@@ -161,50 +163,54 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
         }
 
         $rede = $this->request->session()->read("Rede.Grupo");
-
         // $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
-
         $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
+        $tipoVenda = $brindeHabilitado["brinde"]["tipo_venda"];
+        $clientesId = $brindeHabilitado->clientes_id;
+        $cliente = $this->Clientes->getClienteById($clientesId);
 
         // pega último preço autorizado
         $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
-        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, (int)Configure::read('giftApprovalStatus')['Allowed']);
 
         // Pega último preco de venda avulsa autorizado
+        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, (int)Configure::read('giftApprovalStatus')['Allowed']);
 
-        $clientesId = $brindeHabilitado->clientes_id;
-
-        $cliente = $this->Clientes->getClienteById($clientesId);
-
-
-        if ($this->request->is(['post', 'put'])) {
+        if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
-
             $preco = $data["preco"];
             $valorMoedaVenda = $data["valor_moeda_venda"];
+            $errors = array();
 
-            $message = null;
-            $errorFound = false;
+            // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
+            if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty($preco) || empty($valorMoedaVenda))) {
+                $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+            }
+            // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+            if (($tipoVenda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($preco) && empty($valorMoedaVenda))) {
+                $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+            }
             if (empty($preco) && empty($valorMoedaVenda)) {
-                $message = "É necessário informar valor para Preço (em gotas) ou Preço (Venda avulsa)";
-                $errorFound = true;
-
-            } else if (empty($valorMoedaVenda) && (!empty($preco) && ($preco == $ultimoPrecoAutorizadoGotas["preco"]))) {
-                $message = "Este preço de gotas já foi utilizado anteriormente. Especifique outro valor para cadastro!";
-                $errorFound = true;
-
-            } else if (empty($preco) && (!empty($valorMoedaVenda) && ($valorMoedaVenda == $ultimoPrecoAutorizadoVendaAvulsa["valor_venda_moeda"]))) {
+                $errors[] = "É necessário informar valor para Preço (em gotas) ou Preço (Venda avulsa)";
+            }
+            if (empty($valorMoedaVenda) && (!empty($preco) && ($preco == $ultimoPrecoAutorizadoGotas["preco"]))) {
+                $errors[] = "Este preço de gotas já foi utilizado anteriormente. Especifique outro valor para cadastro!";
+            }
+            if (empty($preco) && (!empty($valorMoedaVenda) && ($valorMoedaVenda == $ultimoPrecoAutorizadoVendaAvulsa["valor_venda_moeda"]))) {
                 $message = "Este preço de venda avulsa já foi utilizado anteriormente. Especifique outro valor para cadastro!";
-                $errorFound = true;
             }
 
-            // DebugUtil::print($data);
-            if ($errorFound) {
-                $this->Flash->error($message);
+            if (count($errors) > 0) {
 
-                return $this->redirect(array("action" => "novo_preco_brinde", $brindesId));
+                foreach ($errors as $error) {
+                    $this->Flash->error($error);
+                }
+
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
             }
 
             $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
@@ -212,9 +218,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             // verifica se o brinde tem algum preço aguardando autorização.
 
             $ultimoPreco = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId);
-
-            // echo __LINE__;
-            // DebugUtil::print($ultimoPreco);
 
             /**
              * verifica se houve um último preço para atualizar os dados
@@ -235,7 +238,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
                     } else {
 
-                    //caso contrário, atualiza ele para negado
+                        //caso contrário, atualiza ele para negado
                         $ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['Denied'];
 
                         $this->ClientesHasBrindesHabilitadosPreco->save($ultimoPreco);
@@ -312,7 +315,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
         $ultimoPrecoAutorizadoGotas["preco"] = empty($ultimoPrecoAutorizadoGotas["preco"]) ? 0 : $ultimoPrecoAutorizadoGotas["preco"];
 
-        $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa");
         $this->set(compact([$arraySet]));
         $this->set('_serialize', [$arraySet]);
     }
@@ -342,12 +344,12 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $clientes_ids = [];
 
-                    // Pega unidades que tem acesso
+            // Pega unidades que tem acesso
 
             $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id']);
 
             foreach ($unidades_ids as $key => $value) {
-                            // $clientes_ids[] = $value['clientes_id'];
+                // $clientes_ids[] = $value['clientes_id'];
                 $clientes_ids[] = $key;
             }
 
@@ -470,7 +472,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
                 $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
 
-            // Data de Criação Início e Fim
+                // Data de Criação Início e Fim
                 if (strlen($data['auditInsertInicio']) > 0 && strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataInicial > $dataFinal) {
@@ -480,7 +482,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     } else {
                         $whereConditions[] = ['brindes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-
                 } else if (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
@@ -488,7 +489,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     } else {
                         $whereConditions[] = ['brindes.audit_insert >= ' => $dataInicial];
                     }
-
                 } else if (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
@@ -566,7 +566,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
             ];
 
             $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -599,7 +598,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
                     $data = $this->request->getData();
 
-                // status autorização
+                    // status autorização
 
                     if (strlen($data['statusAutorizacao']) > 0) {
                         $whereConditions[] = ['status_autorizacao' => (int)$data['statusAutorizacao']];
@@ -609,7 +608,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
                     $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
 
-                // Data de Criação Início e Fim
+                    // Data de Criação Início e Fim
                     if (strlen($data['auditInsertInicio']) > 0 && strlen($data['auditInsertFim']) > 0) {
 
                         if ($dataInicial > $dataFinal) {
@@ -619,7 +618,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         } else {
                             $whereConditions[] = ['ClientesHasBrindesHabilitadosPreco.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                         }
-
                     } else if (strlen($data['auditInsertInicio']) > 0) {
 
                         if ($dataInicial > $dataHoje) {
@@ -627,7 +625,6 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         } else {
                             $whereConditions[] = ['ClientesHasBrindesHabilitadosPreco.audit_insert >= ' => $dataInicial];
                         }
-
                     } else if (strlen($data['auditInsertFim']) > 0) {
 
                         if ($dataFinal > $dataHoje) {

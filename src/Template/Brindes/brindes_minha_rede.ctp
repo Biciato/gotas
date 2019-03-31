@@ -34,6 +34,7 @@ echo $this->Breadcrumbs->render(
                 <th><?= $this->Paginator->sort('nome') ?></th>
                 <th><?= $this->Paginator->sort('tempo_uso_brinde', array("label" => "Tempo de Uso")) ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
+                <th><?= $this->Paginator->sort('tipo_venda') ?></th>
                 <th><?= $this->Paginator->sort('preco_padrao') ?></th>
                 <th><?= $this->Paginator->sort('valor_moeda_venda_padrao') ?></th>
                 <th><?= __("Status") ?></th>
@@ -50,6 +51,7 @@ echo $this->Breadcrumbs->render(
                     <td><?= h($brinde->nome) ?></td>
                     <td><?= h($brinde->tempo_uso_brinde) ?></td>
                     <td><?= $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
+                    <td><?= $brinde->tipo_venda ?></td>
                     <td><?= $this->Number->precision($brinde->preco_padrao, 2) ?></td>
                     <td><?= $this->Number->precision($brinde->valor_moeda_venda_padrao, 2) ?></td>
                     <td><?= $this->Boolean->convertEnabledToString($brinde->habilitado) ?></td>
