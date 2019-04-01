@@ -14,6 +14,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Brindes Controller
@@ -950,8 +951,12 @@ class BrindesController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-
             $clientes_id = $data['clientes_id'];
+            $tipoTransacao = !empty($data['tipo_transacao']) ? $data['tipo_transacao'] : null;
+
+            if (empty($tipoTransacao)){
+                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Transação não definida!"));
+            }
 
             $resultado = $this->ClientesHasBrindesHabilitados->getBrindesPorClienteId(
                 $clientes_id,
@@ -961,12 +966,11 @@ class BrindesController extends AppController
                 0,
                 array(),
                 array(),
-                array()
+                array(),
+                $tipoTransacao
             );
 
             $brindesHabilitadosCliente = $resultado["brindes"]["data"];
-
-            // DebugUtil::print($resultado);
 
             $brindesTemp = array();
 

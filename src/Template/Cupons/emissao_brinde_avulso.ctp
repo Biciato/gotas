@@ -23,8 +23,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <legend>Emissão de Venda Avulsa</legend>
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
-
         <input type="hidden" id="venda_avulsa" class="venda_avulsa" value="true" />
+        <input type="hidden" name="tipo_transacao" id="tipo_transacao" class="tipo-transacao" readonly="readonly" value="Dinheiro">
 
         <!-- Id de Usuários -->
         <?= $this->Form->text(

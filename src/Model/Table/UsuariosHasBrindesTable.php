@@ -98,9 +98,12 @@ class UsuariosHasBrindesTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->numeric('preco')
-            ->requirePresence('preco', 'create')
-            ->notEmpty('preco');
+            ->numeric('preco_gotas')
+            ->allowEmpty("preco_gotas");
+
+            $validator
+            ->numeric('preco_reais')
+            ->allowEmpty("preco_reais");
 
         $validator
             ->dateTime('audit_insert')
@@ -146,7 +149,8 @@ class UsuariosHasBrindesTable extends GenericTable
      * @param int $clientesId Id da Unidade da Rede
      * @param int $brindesHabilitadosId
      * @param float $quantidade
-     * @param float $preco
+     * @param float $precoGotas
+     * @param float $precoReais
      * @param string $tipoVenda Tipo de Venda ("Gotas", "Dinheiro")
      * @param int $cuponsId
      *
@@ -155,22 +159,20 @@ class UsuariosHasBrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\UsuariosHasBrinde $usuarioHasBrinde
      **/
-    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $preco, string $tipoVenda, int $cuponsId = null)
+    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $precoGotas, float $precoReais, string $tipoVenda, int $cuponsId = null)
     {
         try {
             $brindeUsuario = $this->newEntity();
 
             $brindeUsuario["redes_id"] = $redesId;
             $brindeUsuario["clientes_id"] = $clientesId;
-
             $brindeUsuario["usuarios_id"] = $usuariosId;
             $brindeUsuario["clientes_has_brindes_habilitados_id"] = $brindesHabilitadosId;
             $brindeUsuario["quantidade"] = (int)$quantidade;
-            $brindeUsuario["preco"] = $preco * $quantidade;
+            $brindeUsuario["preco_gotas"] = !empty($precoGotas) && $precoGotas > 0 ? $precoGotas * $quantidade : 0;
+            $brindeUsuario["preco_reais"] = !empty($precoReais) && $precoReais > 0 ? $precoReais * $quantidade : 0;
             $brindeUsuario["tipo_venda"] = $tipoVenda;
             $brindeUsuario["data"] = date('Y-m-d H:i:s');
-
-
             $brindeUsuario["cupons_id"] = $cuponsId;
 
             return $this->save($brindeUsuario);

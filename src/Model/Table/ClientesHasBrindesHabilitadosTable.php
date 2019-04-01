@@ -102,7 +102,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 // 'joinType' => 'inner',
                 'strategy' => 'select',
                 'conditions' =>
-                    array(
+                array(
                     'status_autorizacao' => 1,
                     "preco IS NOT NULL"
                 ),
@@ -452,8 +452,18 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      *
      * @param int  $clientes_id Id de CLiente
      * @param int $tiposBrindesClientesIds Ids de Tipo
+     * @param array $whereConditionsBrindes
+     * @param float $precoMin
+     * @param float $precoMax
+     * @param array $orderConditionsBrindes
+     * @param array $paginationConditionsBrindes
+     * @param array $filterTiposBrindesClientesColumns
+     * @param string $tipoTransacao
      *
-     * @return App\Model\Entity\ClientesHasBrindesHabilitado
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-30-07
+     *
+     * @return App\Model\Entity\ClientesHasBrindesHabilitados[] Lista de Brindes Habilitados no cliente
      */
     public function getBrindesPorClienteId(
         int $clientesId,
@@ -463,7 +473,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         float $precoMax = null,
         array $orderConditionsBrindes = array(),
         array $paginationConditionsBrindes = array(),
-        array $filterTiposBrindesClientesColumns = array()
+        array $filterTiposBrindesClientesColumns = array(),
+        string $tipoTransacao = TRANSACTION_TYPE_POINTS
     ) {
         try {
             // Verifica se ordenação ordena algum campo de preço do brinde
@@ -514,23 +525,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $brindesTable = TableRegistry::get("Brindes");
             $brindes = $brindesTable->findBrindes($whereConditionsBrindes, false);
 
-            // DebugUtil::print($brindes->toArray());
-
             if (sizeof($orderConditionsBrindes) > 0) {
                 $brindes = $brindes->order($orderConditionsBrindes);
             }
 
-            // DebugUtil::print($brindes->toArray());
-
-            // $count = $brindes->count();
-
-            // if (sizeof($paginationConditionsBrindes) > 0) {
-            // $brindes = $brindes;
-                // ->limit($limite)
-                // ->page($paginaAtual);
-            // }
-
-            // $brindesIdsQuery = $brindes->select(['id', 'nome_img'])->toArray();
             $brindesIdsQuery = $brindes->select(['id'])->toArray();
 
             // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
@@ -558,8 +556,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 $brindesIds[] = $brinde["id"];
             }
 
-            // DebugUtil::print($brindesIds);
-
             $clientesBrindesHabilitadosWhereConditions = array();
 
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.tipo_codigo_barras IS NOT NULL');
@@ -586,8 +582,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $clientesBrindesHabilitados = array();
 
-            $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
-
             $count = 0;
 
             foreach ($brindesIds as $key => $brindeId) {
@@ -606,16 +600,14 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 if (!empty($clientesBrindesHabilitado) && ($clientesBrindesHabilitado["tipos_brindes_clientes_id"] != 0)) {
 
                     $clientesBrindesHabilitado["brinde"] = $brinde;
+                    $whereConditionsPreco = array(
+                        'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
+                        'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
+                    );
 
                     $clientesBrindesHabilitado['brinde_habilitado_preco_atual'] = $brindeHabilitadoPrecoTable
                         ->find('all')
-                        ->where(
-                            array(
-                                'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
-                                'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
-                            )
-
-                        )
+                        ->where($whereConditionsPreco)
                         ->order(['id' => 'DESC'])
                         ->first();
 
@@ -638,8 +630,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     $podeAdicionar = false;
 
                     if ($precoMin > 0 && $precoMax > 0) {
-                        if ($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
-                            && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax) {
+                        if (
+                            $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] >= $precoMin
+                            && $brindeHabilitado["brinde_habilitado_preco_atual"]["preco"] <= $precoMax
+                        ) {
                             $podeAdicionar = true;
                         } else $count -= 1;
                     } else if ($precoMin > 0) {
@@ -675,6 +669,25 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 });
             }
 
+            // Remover indevidos
+            $clientesBrindesHabilitadosRemove = array();
+            foreach ($clientesBrindesHabilitadosReturn as $brindeHabilitado) {
+                if (($tipoTransacao == TRANSACTION_TYPE_POINTS && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"]))
+                    || ($tipoTransacao == TRANSACTION_TYPE_CURRENCY && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["valor_moeda_venda"]))) {
+                    $clientesBrindesHabilitadosRemove[] = $brindeHabilitado;
+                }
+            }
+            foreach($clientesBrindesHabilitadosRemove as $remove){
+                $key = array_search($remove, $clientesBrindesHabilitadosReturn);
+
+                if ($key !== false) {
+                    $count -= 1;
+                    unset($clientesBrindesHabilitadosReturn[$key]);
+                }
+            }
+
+            reset($clientesBrindesHabilitadosReturn);
+
             if (sizeof($clientesBrindesHabilitadosReturn) > 0) {
                 $clientesBrindesHabilitados = $clientesBrindesHabilitadosReturn;
 
@@ -699,7 +712,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             return $retorno;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao obter brindes de unidade: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
@@ -798,7 +811,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                 ->contain(
                     [
                         'Brindes' =>
-                            [
+                        [
                             'strategy' => 'join',
                             'queryBuilder' => function ($q) use ($clientes_ids) {
                                 return $q->where(

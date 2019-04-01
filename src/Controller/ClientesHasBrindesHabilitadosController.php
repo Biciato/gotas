@@ -784,7 +784,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                                     $cupom["usuarios_id"],
                                     $cupom->clientes_has_brindes_habilitados_id,
                                     $cupom->quantidade,
-                                    $cupom->valor_pago,
+                                    $cupom["valor_pago_gotas"],
+                                    $cupom["valor_pago_reais"],
                                     TYPE_PAYMENT_POINTS,
                                     $cupom->id
                                 );
@@ -987,6 +988,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                $tipoTransacao = !empty($data["tipo_transacao"]) ? $data["tipo_transacao"] : TRANSACTION_TYPE_POINTS;
                 $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
 
                 $precoMin = isset($data["preco_min"]) ? (float)$data["preco_min"] : null;
@@ -1057,7 +1059,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $precoMax,
                     $orderConditions,
                     $paginationConditions,
-                    $filterTiposBrindesClientesColumns
+                    $filterTiposBrindesClientesColumns,
+                    $tipoTransacao
                 );
 
                 // DebugUtil::printArray($resultado);
@@ -1067,7 +1070,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $messageString = __("Não foi possível obter dados de brindes da unidade selecionada!");
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

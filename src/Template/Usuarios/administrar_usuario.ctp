@@ -103,7 +103,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <table class="table table-striped table-hover">
 
     <thead>
-        <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.RedesHasCliente.Redes.nome', ['label' => 'Rede']) ?></th>
+        <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.RedesHasCliente.Rede.nome', ['label' => 'Rede']) ?></th>
         <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.nome_fantasia', ['label' => 'Loja/Posto']) ?></th>
         <th><?= $this->Paginator->sort('tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
         <th><?= $this->Paginator->sort('nome') ?></th>
@@ -122,10 +122,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     </thead>
 
     <tbody>
-
-
         <?php foreach ($usuarios as $key => $usuario) : ?>
-
             <tr>
                 <td><?= h($usuario["cliente_has_usuario"]["cliente"]["redes_has_cliente"]["rede"]["nome_rede"]) ?></td>
                 <td><?= h($usuario["cliente_has_usuario"]["cliente"]["nome_fantasia"]) ?></td>

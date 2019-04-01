@@ -892,9 +892,7 @@ var popularDadosCupomResgate = function (data) {
             formatDateTimeToDate(usuario.data_nasc)
         );
 
-        $(
-            ".impressao-resgate-cupom-canhoto-impressao #print_data_emissao"
-        ).text(data_hora);
+        $(".impressao-resgate-cupom-canhoto-impressao #print_data_emissao").text(data_hora);
         $(".impressao-resgate-cupom-canhoto-impressao .usuario-final").text(
             usuario.nome
         );

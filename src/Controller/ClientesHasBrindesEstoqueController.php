@@ -264,6 +264,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                 $data['preco'] = str_replace(',', '.', $data['preco']);
             }
 
+            // @todo @gustavosg Ajustar!
             $totalPontosAGastar = $data['quantidade'] * (float)$data['preco'];
 
             $usuario = null;

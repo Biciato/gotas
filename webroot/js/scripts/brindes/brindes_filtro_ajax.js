@@ -81,7 +81,8 @@ $(document).ready(function () {
             type: 'POST',
             data: JSON.stringify({
                 parametro_brinde: $("#parametro_brinde").val(),
-                clientes_id: $("#clientes_id").val()
+                clientes_id: $("#clientes_id").val(),
+                tipo_transacao: $("#tipo_transacao").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -89,7 +90,7 @@ $(document).ready(function () {
             },
             error: function (e) {
                 console.log(e);
-                closeLoaderAnimation();
+                callModalError(e.responseJSON.mensagem.message, e.responseJSON.mensagem.errors);
 
             },
             success: function (e) {
@@ -141,6 +142,7 @@ $(document).ready(function () {
 
         }).fail(function (e) {
             console.log("error");
+
         }).always(function (e) {
             console.log("complete");
         });

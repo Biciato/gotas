@@ -271,8 +271,6 @@ const TYPE_SELL_DISCOUNT_TEXT = "Com Desconto";
 const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
 
-
-
 // Clientes
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
@@ -296,6 +294,8 @@ const MESSAGE_COUPON_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!
 const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
 const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
 
+const TRANSACTION_TYPE_CURRENCY = "Dinheiro";
+const TRANSACTION_TYPE_POINTS = "Gotas";
 
 // Redes
 

@@ -58,6 +58,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 <?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false)); ?>
 
+<input type="hidden" name="tipo_transacao" id="tipo_transacao" class="tipo-transacao" readonly="readonly" value="Gotas">
+
 <?php if (Configure::read('debug') == true) : ?>
 <?= $this->Html->script('scripts/brindes/impressao_rapida') ?>
 <?= $this->Html->css('styles/brindes/impressao_rapida') ?>

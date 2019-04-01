@@ -2516,7 +2516,7 @@ class CuponsController extends AppController
             return $retorno;
         }
 
-        // Verifica se o brinde em questão está com brinde zerado.
+        // Verifica se o brinde em questão está com preço zerado.
 
         $preco = $vendaAvulsa ?
             $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] : $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
