@@ -659,7 +659,7 @@ class CuponsController extends AppController
     }
 
     /**
-     * Prepara dados para extraão de array de cupons
+     * Prepara dados para extração de array de cupons
      *
      * @param \App\Model\Entity\Cupom $cupons
      * @return void
@@ -685,7 +685,8 @@ class CuponsController extends AppController
                 $produto = null;
                 $produto['qte'] = $value->quantidade;
                 $produto['nome'] = $value->clientes_has_brindes_habilitado->brinde->nome;
-                $produto['valor_pago'] = $value->valor_pago;
+                $produto['valor_pago_gotas'] = $value->valor_pago_gotas;
+                $produto['valor_pago_reais'] = $value->valor_pago_reais;
 
                 $produtos[] = $produto;
             }
@@ -901,13 +902,17 @@ class CuponsController extends AppController
                         foreach ($cuponsAnterioresArray as $anterior) {
                             $resgatados = $anterior["resgatado"] ? $resgatados + 1 : $resgatados;
 
-                            if ($anterior["tipo_venda"]) {
-                                $totalDinheiro += $anterior["valor_pago"];
-                                $totalCompras += 1;
-                            } else {
-                                $totalGotas += $anterior["valor_pago"];
-                                $totalBrindes += 1;
-                            }
+                            $totalDinheiro += $anterior["valor_pago_reais"];
+                            $totalGotas += $anterior["valor_pago"];
+
+                            // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                            $totalCompras += ($anterior["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
+                                || ($anterior["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($anterior["valor_pago_reais"])))
+                                ? 1 : 0;
+                            // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                            $totalBrindes += ($anterior["tipo_venda"] == TYPE_SELL_FREE_TEXT
+                                || ($anterior["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($anterior["valor_pago_gotas"])))
+                                ? 1 : 0;
 
                             $usados = $anterior["usado"] ? $usados + 1 : $usados;
                         }
@@ -966,13 +971,17 @@ class CuponsController extends AppController
                     foreach ($cuponsAtuaisArray as $atual) {
                         $resgatados = $atual["resgatado"] ? $resgatados + 1 : $resgatados;
 
-                        if ($atual["tipo_venda"]) {
-                            $totalDinheiro += $atual["valor_pago"];
-                            $totalCompras += 1;
-                        } else {
-                            $totalGotas += $atual["valor_pago"];
-                            $totalBrindes += 1;
-                        }
+                        $totalDinheiro += $atual["valor_pago_reais"];
+                        $totalGotas += $atual["valor_pago"];
+
+                        // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                        $totalCompras += ($atual["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
+                            || ($atual["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($atual["valor_pago_reais"])))
+                            ? 1 : 0;
+                        // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                        $totalBrindes += ($atual["tipo_venda"] == TYPE_SELL_FREE_TEXT
+                            || ($atual["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($atual["valor_pago_gotas"])))
+                            ? 1 : 0;
 
                         $usados = $atual["usado"] ? $usados + 1 : $usados;
                     }
@@ -1636,7 +1645,8 @@ class CuponsController extends AppController
                                 $cupom->clientes_id,
                                 $cupom->usuarios_id,
                                 $cupom->clientes_has_brindes_habilitados_id,
-                                $cupom->valor_pago,
+                                $cupom->valor_pago_gotas,
+                                $cupom->valor_pago_reais,
                                 $this->Auth->user()["id"],
                                 true
                             );

@@ -206,9 +206,9 @@ class PontuacoesTable extends GenericTable
      * @param int   $clientesId            Id de cliente
      * @param int   $usuariosId            Id de usuário
      * @param int   $brindesHabilitadosId  Id do brinde habilitado
-     * @param float $quantidadePontos      Quantidade de pontos
+     * @param float $quantidadePontos      Quantidade de pontos em gotas
+     * @param float $quantidadePontos      Valor Pago em reais
      * @param int   $funcionariosId        Id de funcionário (opcional)
-     * @param int   $tipoVenda             Tipo de venda (True = Gotas / false = Dinheiro)
      *
      * @return boolean Resultado de inserção
      */
@@ -216,19 +216,16 @@ class PontuacoesTable extends GenericTable
         int $clientesId,
         int $usuariosId,
         int $brindesHabilitadosId,
-        float $quantidadePontos,
-        int $funcionariosId = null,
-        bool $tipoVenda = true
+        float $quantidadePontosGotas,
+        float $quantidadePontosReais,
+        int $funcionariosId = null
     ) {
+        // @todo ver onde este método é usado e ajustar a chamada
         try {
             $pontuacao = $this->newEntity();
 
-            if ($tipoVenda) {
-                $pontuacao->quantidade_gotas = $quantidadePontos;
-            } else {
-                $pontuacao->valor_moeda_venda = $quantidadePontos;
-            }
-
+            $pontuacao->quantidade_gotas = $quantidadePontosGotas;
+            $pontuacao->valor_moeda_venda = $quantidadePontosReais;
             $pontuacao->clientes_id = $clientesId;
             $pontuacao->usuarios_id = $usuariosId;
             $pontuacao->clientes_has_brindes_habilitados_id = $brindesHabilitadosId;
@@ -238,7 +235,7 @@ class PontuacoesTable extends GenericTable
 
             return $this->save($pontuacao);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);

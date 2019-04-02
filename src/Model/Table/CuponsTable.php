@@ -206,12 +206,16 @@ class CuponsTable extends GenericTable
      * @param int $usuariosId Id de Usuário
      * @param float $valorPago Valor Pago
      * @param int $quantidade Quantidade Solicitada
-     * @param int $tipoVenda Tipo de Venda (0 = Gotas, 1 = Dinheiro)
+     * @param int $tipoVenda Tipo de Venda ('Isento', 'Com Desconto', 'Gotas ou Reais')
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPago, int $quantidade, int $tipoVenda = 0)
+    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPago, int $quantidade, string $tipoVenda = 'Gotas ou Reais')
     {
+        // @todo Gustavo Verificar onde chama este método, ajustar:
+        // 1 - tipo Venda
+        // 2 - valorPago => (reais e gotas)
+
         try {
             $cupom = $this->_getCuponsTable()->newEntity();
 
