@@ -127,8 +127,12 @@ class CuponsTable extends GenericTable
             ->notEmpty('tipo_secundario_codigo_brinde');
 
         $validator
-            ->decimal('valor_pago')
-            ->allowEmpty('valor_pago');
+            ->decimal('valor_pago_gotas')
+            ->allowEmpty('valor_pago_gotas');
+
+        $validator
+            ->decimal('valor_pago_reais')
+            ->allowEmpty('valor_pago_reais');
 
         $validator
             ->integer('tipo_venda')
@@ -204,13 +208,14 @@ class CuponsTable extends GenericTable
      * @param int $clientesId Id de Cliente
      * @param int $funcionariosId Id de Funcionário
      * @param int $usuariosId Id de Usuário
-     * @param float $valorPago Valor Pago
+     * @param float $valorPagoGotas Valor Pago em Gotas
+     * @param float $valorPagoReais Valor Pago em Reais
      * @param int $quantidade Quantidade Solicitada
      * @param int $tipoVenda Tipo de Venda ('Isento', 'Com Desconto', 'Gotas ou Reais')
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPago, int $quantidade, string $tipoVenda = 'Gotas ou Reais')
+    public function addCupomForUsuario(int $clientesHasBrindesHabilitadosId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPagoGotas = null, float $valorPagoReais = null, int $quantidade, string $tipoVenda = TYPE_SELL_CURRENCY_OR_POINTS_TEXT)
     {
         // @todo Gustavo Verificar onde chama este método, ajustar:
         // 1 - tipo Venda
@@ -291,7 +296,9 @@ class CuponsTable extends GenericTable
             $cupom["usuarios_id"] = $usuariosId;
             $cupom["tipo_principal_codigo_brinde"] = $tipoPrincipalCodigoBrinde;
             $cupom["tipo_secundario_codigo_brinde"] = $tipoSecundarioCodigoBrinde;
-            $cupom["valor_pago"] = $valorPago;
+            // @todo gustavo ajustar
+            $cupom["valor_pago_gotas"] = $valorPago;
+            $cupom["valor_pago_reais"] = $valorPago;
             $cupom["senha"] = $qteSenhas + 1;
             $cupom["data"] = $data;
             $cupom["quantidade"] = $quantidade;

@@ -903,7 +903,7 @@ class CuponsController extends AppController
                             $resgatados = $anterior["resgatado"] ? $resgatados + 1 : $resgatados;
 
                             $totalDinheiro += $anterior["valor_pago_reais"];
-                            $totalGotas += $anterior["valor_pago"];
+                            $totalGotas += $anterior["valor_pago_gotas"];
 
                             // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                             $totalCompras += ($anterior["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
@@ -972,7 +972,7 @@ class CuponsController extends AppController
                         $resgatados = $atual["resgatado"] ? $resgatados + 1 : $resgatados;
 
                         $totalDinheiro += $atual["valor_pago_reais"];
-                        $totalGotas += $atual["valor_pago"];
+                        $totalGotas += $atual["valor_pago_gotas"];
 
                         // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                         $totalCompras += ($atual["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
@@ -1778,7 +1778,8 @@ class CuponsController extends AppController
 
                 // DebugUtil::print($cupons);
                 // Verifica se este cupom já foi usado
-                $somaTotal = 0;
+                $somaTotalGotas = 0;
+                $somaTotalReais = 0;
                 $dadosCupons = array();
 
                 $verificado = false;
@@ -1787,11 +1788,12 @@ class CuponsController extends AppController
 
                     $dadoCupom = array();
 
-                    $somaTotal += (float)$cupom["valor_pago"];
+                    $somaTotalGotas += (float)$cupom["valor_pago_gotas"];
 
                     $dadoCupom["nome_brinde"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome"];
                     $dadoCupom["quantidade"] = $cupom["quantidade"];
-                    $dadoCupom["preco_brinde"] = (float)$cupom["valor_pago"];
+                    $dadoCupom["preco_brinde_gotas"] = (float)$cupom["valor_pago_gotas"];
+                    $dadoCupom["preco_brinde_reais"] = (float)$cupom["valor_pago_reais"];
                     // imagem brinde
                     $dadoCupom["nome_img_completo"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome_img_completo"];
                     $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
@@ -1885,11 +1887,13 @@ class CuponsController extends AppController
 
                         // adiciona novo registro de pontuação
 
+                        // @todo conferir
                         $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                             $cupom->clientes_id,
                             $cupom->usuarios_id,
                             $cupom->clientes_has_brindes_habilitados_id,
-                            $cupom->valor_pago,
+                            $cupom->valor_pago_gotas,
+                            $cupom->valor_pago_reais,
                             $this->Auth->user()["id"],
                             true
                         );
@@ -2247,11 +2251,14 @@ class CuponsController extends AppController
 
                 // Valor pago à compra
                 if (isset($data["valor_pago_min"]) && isset($data["valor_pago_max"])) {
-                    $whereConditions[] = ["Cupons.valor_pago BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'"];
+                    $whereConditions[] = array("Cupons.valor_pago_gotas BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'");
+                    $whereConditions[] = array("Cupons.valor_pago_reais BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'");
                 } elseif (isset($data["valor_pago_min"])) {
-                    $whereConditions[] = ["Cupons.valor_pago >= " => $data["valor_pago_min"]];
+                    $whereConditions[] = array("Cupons.valor_pago_gotas >= " => $data["valor_pago_min"]);
+                    $whereConditions[] = array("Cupons.valor_pago_reais >= " => $data["valor_pago_min"]);
                 } elseif (isset($data["valor_pago_max"])) {
-                    $whereConditions[] = ["Cupons.valor_pago <= " => $data["valor_pago_max"]];
+                    $whereConditions[] = array("Cupons.valor_pago_gotas <= " => $data["valor_pago_max"]);
+                    $whereConditions[] = array("Cupons.valor_pago_reais <= " => $data["valor_pago_max"]);
                 }
 
                 if (isset($data["data_inicio"]) && isset($data["data_fim"])) {
