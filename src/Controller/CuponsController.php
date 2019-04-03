@@ -2338,6 +2338,7 @@ class CuponsController extends AppController
      */
     private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
     {
+        // @todo Gustavo: Este método precisa ser revisado para se adequar à 'Forma de Pagamento ao Adquirir um Brinde'
         $retorno = array();
         $mensagem = array();
         $dados_impressao = array();
@@ -2352,11 +2353,10 @@ class CuponsController extends AppController
         $retornoCompras = 0;
 
         // Validação acontecerá somente se for usuário identificado
-        if ($usuariosId != 0) {
+        if (!empty($usuariosId)) {
 
             $retornoCompras = $this->UsuariosHasBrindes->checkNumberRescuesUsuarioRede($rede["id"], $usuariosId);
 
-            // if ($retornoCompras >= $rede["limite_compras_usuario_dia"]){
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(

@@ -34,7 +34,8 @@ use Cake\Routing\Router;
 				<tr>
 					<td>Qtd.</td>
 					<td>Descricao.</td>
-					<td>Valor</td>
+					<td>Gotas</td>
+					<td>Reais</td>
 				</tr>
 			</thead>
 			<tbody>
@@ -48,7 +49,10 @@ use Cake\Routing\Router;
 								<?= $produto['nome'] ?>
 							</td>
 							<td>
-								<?= $produto['valor_pago'] ?>
+								<?= $produto['valor_pago_gotas'] ?>
+							</td>
+							<td>
+								<?= $produto['valor_pago_reais'] ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>

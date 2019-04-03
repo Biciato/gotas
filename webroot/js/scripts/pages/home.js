@@ -854,7 +854,8 @@ var popularDadosCupomResgate = function (data) {
         var rows = [];
 
         $.each(data, function (index, value) {
-            var valorPago = value.valor_pago;
+            var valorPagoGotas = value.valor_pago_gotas;
+            var valorPagoReais = value.valor_pago_reais;
             var tipoMoeda = value.tipo_venda == 0 ? "Gotas:" : "R$";
 
             data_hora = value.data;
@@ -863,10 +864,10 @@ var popularDadosCupomResgate = function (data) {
             usuario = value.usuario;
             brinde_habilitado = value.clientes_has_brindes_habilitado;
 
-            valorPago =
-                valorPago.toString().indexOf(",") < 0
-                    ? tipoMoeda + valorPago + ",00"
-                    : tipoMoeda + valorPago;
+            valorPagoReais =
+                valorPagoReais.toString().indexOf(",") < 0
+                    ? tipoMoeda + valorPagoReais + ",00"
+                    : tipoMoeda + valorPagoReais;
 
             var row =
                 "<tr><td>" +
@@ -874,7 +875,9 @@ var popularDadosCupomResgate = function (data) {
                 "</td><td>" +
                 brinde_habilitado.brinde.nome +
                 "</td><td>" +
-                valorPago +
+                valorPagoGotas +
+                "</td><td>" +
+                valorPagoReais +
                 "</td></tr>";
             rows.push(row);
         });

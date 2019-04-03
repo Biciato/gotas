@@ -156,7 +156,9 @@ echo $this->Breadcrumbs->render(
                         <th>
                             <?= $this->Paginator->sort('tipo_banho', ['label' => 'Tipo de Banho']) ?></th>
                         <th>
-                            <?= $this->Paginator->sort('valor_pago', ['label' => 'Valor Pago']) ?></th>
+                            <?= $this->Paginator->sort('valor_pago_gotas', ['label' => 'Valor Gotas']) ?></th>
+                        <th>
+                            <?= $this->Paginator->sort('valor_pago_reais', ['label' => 'Valor Reais']) ?></th>
                         <th>
                             <?= $this->Paginator->sort('data', ['label' => 'Data Impressão ']) ?></th>
 
@@ -182,7 +184,10 @@ echo $this->Breadcrumbs->render(
                             <?= h($this->Tickets->getTicketShowerType($cupom->tipo_banho)) ?>
                         </td>
                         <td>
-                            <?= h($this->Number->precision($cupom->valor_pago, 2)); ?>
+                            <?= h($this->Number->precision($cupom["valor_pago_gotas"], 2)); ?>
+                        </td>
+                        <td>
+                            <?= h($this->Number->precision($cupom["valor_pago_reais"], 2)); ?>
                         </td>
                         <td>
                             <?= h($cupom->data->format('d/m/Y H:i:s')) ?>

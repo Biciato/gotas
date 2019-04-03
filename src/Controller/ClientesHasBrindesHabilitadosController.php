@@ -711,6 +711,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
      *
      * @param  int $brindes_habilitados_id Id de brindes habilitados
      * @return void
+     *
+     * @deprecated 1.0
+     *
      */
     public function resgatarBrinde(int $brindes_habilitados_id)
     {

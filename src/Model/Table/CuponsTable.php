@@ -296,9 +296,8 @@ class CuponsTable extends GenericTable
             $cupom["usuarios_id"] = $usuariosId;
             $cupom["tipo_principal_codigo_brinde"] = $tipoPrincipalCodigoBrinde;
             $cupom["tipo_secundario_codigo_brinde"] = $tipoSecundarioCodigoBrinde;
-            // @todo gustavo ajustar
-            $cupom["valor_pago_gotas"] = $valorPago;
-            $cupom["valor_pago_reais"] = $valorPago;
+            $cupom["valor_pago_gotas"] = $valorPagoGotas;
+            $cupom["valor_pago_reais"] = $valorPagoReais;
             $cupom["senha"] = $qteSenhas + 1;
             $cupom["data"] = $data;
             $cupom["quantidade"] = $quantidade;
@@ -349,7 +348,8 @@ class CuponsTable extends GenericTable
 
             $cupom = $this->_getCuponsTable()->save($cupom);
             $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
-            $cupom["valor_pago"] = Number::precision($cupom["valor_pago"], 2);
+            $cupom["valor_pago_gotas"] = Number::precision($cupom["valor_pago_gotas"], 2);
+            $cupom["valor_pago_reais"] = Number::precision($cupom["valor_pago_reais"], 2);
             return $cupom;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -376,28 +376,29 @@ class CuponsTable extends GenericTable
         try {
             $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
 
-            $usuarios_table = TableRegistry::get('Usuarios');
+            $usuariosTable = TableRegistry::get('Usuarios');
 
-            $usuario = $usuarios_table->getUsuarioById($usuarios_id);
+            $usuario = $usuariosTable->getUsuarioById($usuarios_id);
 
             // verifica se ja teve um cupom com essa sequencia. se sim, gera outro cupom
 
-            while ($this->_getCuponsTable()->getCupomByCupomEmitido($cupomEmitido)) {
+            while ($this->getCupomByCupomEmitido($cupomEmitido)) {
                 $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
             }
 
-            $cupom = $this->_getCuponsTable()->newEntity();
+            $cupom = $this->newEntity();
 
             $cupom->clientes_has_brindes_habilitados_id = $brinde_habilitado->id;
             $cupom->clientes_id = $brinde_habilitado->clientes_id;
             $cupom->usuarios_id = $usuario->id;
-            $cupom->valor_pago = $brinde_habilitado->brinde_habilitado_preco_atual->preco * $quantidade;
+            $cupom->valor_pago_gotas = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
+            $cupom->valor_pago_reais = $brinde_habilitado->brinde_habilitado_preco_atual->valor_moeda_venda;
             $cupom->cupom_emitido = $cupomEmitido;
             $cupom->resgatado = false;
             $cupom->data = date("Y-m-d H:i:s");
             $cupom->quantidade = $quantidade;
 
-            return $this->_getCuponsTable()->save($cupom);
+            return $this->save($cupom);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -539,7 +540,8 @@ class CuponsTable extends GenericTable
                 "Cupons.usuarios_id",
                 "Cupons.tipo_principal_codigo_brinde",
                 "Cupons.tipo_secundario_codigo_brinde",
-                "Cupons.valor_pago",
+                "Cupons.valor_pago_gotas",
+                "Cupons.valor_pago_reais",
                 "Cupons.tipo_venda",
                 "Cupons.senha",
                 "Cupons.cupom_emitido",
@@ -562,7 +564,8 @@ class CuponsTable extends GenericTable
                 "usuarios_id" => $value["usuarios_id"],
                 "tipo_principal_codigo_brinde" => $value["tipo_principal_codigo_brinde"],
                 "tipo_secundario_codigo_brinde" => $value["tipo_secundario_codigo_brinde"],
-                "valor_pago" => $value["valor_pago"],
+                "valor_pago_gotas" => $value["valor_pago_gotas"],
+                "valor_pago_reais" => $value["valor_pago_reais"],
                 "tipo_venda" => $value["tipo_venda"],
                 "senha" => $value["senha"],
                 "cupom_emitido" => $value["cupom_emitido"],
@@ -605,7 +608,8 @@ class CuponsTable extends GenericTable
                 "Cupons.usuarios_id",
                 "Cupons.tipo_principal_codigo_brinde",
                 "Cupons.tipo_secundario_codigo_brinde",
-                "Cupons.valor_pago",
+                "Cupons.valor_pago_gotas",
+                "Cupons.valor_pago_reais",
                 "Cupons.tipo_venda",
                 "Cupons.senha",
                 "Cupons.cupom_emitido",
@@ -823,7 +827,8 @@ class CuponsTable extends GenericTable
             }
 
             $whereConditions[] = array("Usuarios.nome LIKE '%{$nomeUsuarios}%'");
-            $whereConditions[] = array("Cupons.valor_pago BETWEEN '{$valorMinimo}' AND '{$valorMaximo}'");
+            $whereConditions[] = array("Cupons.valor_pago_gotas BETWEEN '{$valorMinimo}' AND '{$valorMaximo}'");
+            $whereConditions[] = array("Cupons.valor_pago_reais BETWEEN '{$valorMinimo}' AND '{$valorMaximo}'");
             $whereConditions[] = array("Cupons.data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
 
             $cupons = $this->_getCuponsTable()->find('all')

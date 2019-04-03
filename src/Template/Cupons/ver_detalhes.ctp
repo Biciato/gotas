@@ -25,7 +25,7 @@ echo $this->Breadcrumbs->render(
 
 ?>
 
-<?= $this->element('../UsuariosHasBrindes/left_menu') ?> 
+<?= $this->element('../UsuariosHasBrindes/left_menu') ?>
 
 <div class="redes form col-lg-9 col-md-8 columns content">
 
@@ -47,9 +47,15 @@ echo $this->Breadcrumbs->render(
                 </td>
             <tr>
             </tr>
-                <th scope="row"><?= __("Valor Pago") ?></th>
+                <th scope="row"><?= __("Valor Pago em Gotas") ?></th>
                 <td>
-                    <?= $this->Number->precision($cupom->valor_pago, 2) ?>
+                    <?= $this->Number->precision($cupom->valor_pago_gotas, 2) ?>
+                </td>
+            <tr>
+            </tr>
+                <th scope="row"><?= __("Valor Pago em Reais") ?></th>
+                <td>
+                    <?= $this->Number->precision($cupom->valor_pago_reais, 2) ?>
                 </td>
             <tr>
             </tr>
@@ -58,13 +64,13 @@ echo $this->Breadcrumbs->render(
                     <?= $cupom->data->format('d/m/Y H:i:s') ?>
                 </td>
             </tr>
-            
+
             <tr>
                 <th scope="row"><?= __("Cupom Resgatado?") ?></th>
                 <td><?= $this->Boolean->convertBooleanToString($cupom->resgatado) ?></td>
             </tr>
 
-            <?php if (!$cupom->restatado) : ?> 
+            <?php if (!$cupom->restatado) : ?>
                 <tr>
                     <th scope="row"><?= __("Reimprimir?") ?></th>
                     <td>
@@ -88,11 +94,11 @@ echo $this->Breadcrumbs->render(
                 </tr>
             <?php endif; ?>
 
-                
+
         </thead>
         <tbody>
-            
-                
+
+
             </tr>
 
         </tbody>
