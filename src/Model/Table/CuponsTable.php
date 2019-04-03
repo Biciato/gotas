@@ -135,8 +135,17 @@ class CuponsTable extends GenericTable
             ->allowEmpty('valor_pago_reais');
 
         $validator
-            ->integer('tipo_venda')
-            ->notEmpty('tipo_venda');
+            ->notEmpty("tipo_venda");
+            // ->scalar("tipo_venda", "create")
+            // ->add(
+            //     "tipo_venda",
+            //     "inList",
+            //     array(
+            //         "rule" => array("inList", array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT)),
+            //         "message" => "É necessário selecionar um Tipo de Venda",
+            //         "allowEmpty" => false
+            //     )
+            // )->notEmpty("tipo_venda");
 
         $validator
             ->integer('senha')
@@ -515,7 +524,7 @@ class CuponsTable extends GenericTable
         $whereConditions[] = array("Cupons.resgatado" => $resgatado);
         $whereConditions[] = array("Cupons.usado" => $usado);
 
-        if (isset($equipamentoRTI) && is_bool($equipamentoRTI)){
+        if (isset($equipamentoRTI) && is_bool($equipamentoRTI)) {
             $whereConditions[] = array("TipoBrindeRede.equipamento_rti" => $equipamentoRTI);
         }
 
@@ -699,8 +708,7 @@ class CuponsTable extends GenericTable
                     )
                 )
                 ->where($whereConditions)
-                ->select($selectArray)
-                ;
+                ->select($selectArray);
 
             $dataTodosCupons = $cupons->toArray();
 

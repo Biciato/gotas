@@ -1102,12 +1102,11 @@ class CuponsController extends AppController
     public function imprimeBrindeAjax()
     {
         try {
-
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuarioLogado = $sessaoUsuario["usuarioLogado"];
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
-
+                Log::write("debug", $data);
                 // Validação de Dados
                 $errors = array();
                 if (empty($data["brindes_id"])) {
@@ -1115,6 +1114,10 @@ class CuponsController extends AppController
                 }
                 if (empty($data["clientes_id"])) {
                     $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
+                }
+                if (empty($data['tipo_transacao']) || !in_array($data['tipo_transacao'], array(TRANSACTION_TYPE_CURRENCY, TRANSACTION_TYPE_POINTS))) {
+                    // Evita se o usuário alterar diretamente no html de conitnuar e submeter
+                    $errors[] = __("É necessário informar o tipo de transação!");
                 }
 
                 if (count($errors) > 0) {
@@ -1136,6 +1139,7 @@ class CuponsController extends AppController
                 // $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : 1;
                 // Definido pelo Samuel, cliente só pode retirar 1 por vez
                 $quantidade = 1;
+                $tipoTransacao = $data["tipo_transacao"];
                 $funcionariosId = isset($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : $usuarioLogado["id"];
                 $senhaAtual = isset($data["current_password"]) ? $data["current_password"] : "";
 
@@ -1145,6 +1149,7 @@ class CuponsController extends AppController
                     $clientesId,
                     (float)$quantidade,
                     $funcionariosId,
+                    $tipoTransacao,
                     $vendaAvulsa,
                     $senhaAtual,
                     false
@@ -2116,17 +2121,22 @@ class CuponsController extends AppController
             Log::write("info", $data);
             // Validação de dados
             $errors = array();
+
             if (empty($data["brindes_id"])) {
                 $errors[] = __("É necessário selecionar um brinde para resgatar pontos!");
             }
+
             if (empty($data["clientes_id"])) {
                 $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
             }
 
+            if (empty($data['tipo_transacao']) || !in_array($data['tipo_transacao'], array(TRANSACTION_TYPE_CURRENCY, TRANSACTION_TYPE_POINTS))){
+                // Evita se o usuário alterar diretamente no html de conitnuar e submeter
+                $errors[] = __("É necessário informar o tipo de transação!");
+            }
+
             if (count($errors) > 0) {
-
                 $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
-
                 $arraySet = array("mensagem");
                 $this->set(compact($arraySet));
                 $this->set("_serialize", $arraySet);
@@ -2143,6 +2153,7 @@ class CuponsController extends AppController
             // Definido pelo Samuel, cliente só pode retirar 1 por vez
             $quantidade = 1;
             $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
+            $tipoTransacao = $data["tipo_transacao"];
 
             $retorno = $this->trataCompraCupom(
                 $brindesId,
@@ -2150,6 +2161,7 @@ class CuponsController extends AppController
                 $clientesId,
                 $quantidade,
                 $funcionario["id"],
+                $tipoTransacao,
                 false,
                 "",
                 true
@@ -2327,6 +2339,7 @@ class CuponsController extends AppController
      * @param float $quantidade Quantidade do brinde
      * @param integer $funcionariosId Id de Funcionários
      *              (se a compra via dash de funcionário)
+     * @param string $tipoTransacao Tipo de Moeda (se é Gotas ou Reais)
      * @param bool $vendaAvulsa Indica se é usuário avulso no sistema
      * @param string $senhaAtualUsuario Senha atual do usuário (quando via Web)
      * @param bool $usoViaMobile Via Mobile ou via Web (Uso via mobile não pede confirmação de senha)
@@ -2336,7 +2349,7 @@ class CuponsController extends AppController
      *
      * @return array $dados Tratados
      */
-    private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, bool $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
+    private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoTransacao = "",  $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
     {
         // @todo Gustavo: Este método precisa ser revisado para se adequar à 'Forma de Pagamento ao Adquirir um Brinde'
         $retorno = array();
