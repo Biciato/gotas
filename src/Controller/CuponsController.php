@@ -2130,7 +2130,7 @@ class CuponsController extends AppController
                 $errors[] = __("É necessário selecionar uma unidade de atendimento para resgatar pontos!");
             }
 
-            if (empty($data['tipo_transacao']) || !in_array($data['tipo_transacao'], array(TRANSACTION_TYPE_CURRENCY, TRANSACTION_TYPE_POINTS))){
+            if (empty($data['tipo_transacao']) || !in_array($data['tipo_transacao'], array(TRANSACTION_TYPE_CURRENCY, TRANSACTION_TYPE_POINTS))) {
                 // Evita se o usuário alterar diretamente no html de conitnuar e submeter
                 $errors[] = __("É necessário informar o tipo de transação!");
             }
@@ -2419,40 +2419,116 @@ class CuponsController extends AppController
 
         $brindeSelecionado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindesIdClientesId($brindesId, $clientesId);
 
-        // DebugUtil::print($brindeSelecionado);
-        // Se for equipamento RTI, a quantidade máxima é 1
-        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"] == Configure::read("serviceTypes")["rti"]) {
-            $quantidade = 1;
-        } elseif (empty($quantidade)) {
-            $message = "É necessário especificar uma quantidade mínima de brindes para resgatar!";
+        // Se não encontrado brinde, retorna msg erro com vazio.
+        if (empty($brindeSelecionado)) {
+
             $mensagem = array(
                 "status" => false,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array($message),
+                "errors" => array(__(Configure::read("messageClienteDoesNotHaveBrinde")))
             );
 
-            $arraySet = array(
-                "mensagem"
-            );
+            $arraySet = array("mensagem");
 
             $retorno = array(
                 "arraySet" => $arraySet,
                 "mensagem" => $mensagem,
                 "ticket" => null,
+                "status" => null,
                 "cliente" => null,
                 "usuario" => null,
                 "tempo" => null,
-                "tipo_emissao_codigo_barras" => null
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
             );
             return $retorno;
         }
 
-        if ($vendaAvulsa) {
-            if (empty($usuariosId) || $usuariosId == 0) {
-                $usuario = $this->Usuarios->getUsuariosByProfileType(PROFILE_TYPE_DUMMY_USER, 1);
+        DebugUtil::printArray($brindeSelecionado);
+        $tipoVendaBrinde = $brindeSelecionado["brinde"]["tipo_venda"];
+
+        $precoGotas = 0;
+        $precoReais = 0;
+        if ($tipoVendaBrinde == TYPE_SELL_FREE_TEXT) {
+            // Se Isento
+            $precoGotas = 0;
+            $precoReais = 0;
+        } elseif ($tipoVendaBrinde == TYPE_SELL_DISCOUNT_TEXT) {
+            // Se brinde com desconto
+            $precoGotas = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
+            $precoReais = $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"];
+        } else {
+            // Se brinde = cobrança normal
+            if ($tipoTransacao == TRANSACTION_TYPE_CURRENCY) {
+                $precoReais = $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"];
             } else {
-                $usuario = $this->Usuarios->getUsuarioById($usuariosId);
+                $precoGotas = $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
             }
+        }
+        // Verifica se o brinde em questão está com preço zerado.
+
+        // @todo continuar daqui
+        if (empty($preco)) {
+            $mensagem = array(
+                "status" => false,
+                "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                "errors" => array(__("O brinde escolhido não está com seu preço configurado!"))
+            );
+
+            $arraySet = array("mensagem");
+
+            $retorno = array(
+                "arraySet" => $arraySet,
+                "mensagem" => $mensagem,
+                "ticket" => null,
+                "status" => null,
+                "cliente" => null,
+                "usuario" => null,
+                "tempo" => null,
+                "tipo_emissao_codigo_barras" => null,
+                "is_brinde_smart_shower" => null,
+            );
+
+            return $retorno;
+        }
+        $mensagem = array(
+            "status" => false,
+            "message" => "",
+            "errors" => array(__(""))
+        );
+
+        // DebugUtil::print($brindeSelecionado);
+        // Se for equipamento RTI, a quantidade máxima é 1
+        if ($brindeSelecionado["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"] == Configure::read("serviceTypes")["rti"]) {
+            $quantidade = 1;
+        }
+        // Desativado por enquanto, isto é uma situação que até então não irá acontecer
+        // elseif (empty($quantidade)) {
+        //     $message = "É necessário especificar uma quantidade mínima de brindes para resgatar!";
+        //     $mensagem = array(
+        //         "status" => false,
+        //         "message" => Configure::read("messageOperationFailureDuringProcessing"),
+        //         "errors" => array($message),
+        //     );
+
+        //     $arraySet = array(
+        //         "mensagem"
+        //     );
+
+        //     $retorno = array(
+        //         "arraySet" => $arraySet,
+        //         "mensagem" => $mensagem,
+        //         "ticket" => null,
+        //         "cliente" => null,
+        //         "usuario" => null,
+        //         "tempo" => null,
+        //         "tipo_emissao_codigo_barras" => null
+        //     );
+        //     return $retorno;
+        // }
+
+        if (($vendaAvulsa) && (empty($usuariosId))) {
+            $usuario = $this->Usuarios->getUsuariosByProfileType(PROFILE_TYPE_DUMMY_USER, 1);
         } else {
             $usuario = $this->Usuarios->getUsuarioById($usuariosId);
         }
@@ -2510,7 +2586,7 @@ class CuponsController extends AppController
         if ($vendaAvulsa) {
             $usuario["pontuacoes"] = 0;
         } else {
-            $usuario = $this->Usuarios->getUsuarioById($usuariosId);
+            // $usuario = $this->Usuarios->getUsuarioById($usuariosId);
             $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
                 $usuariosId,
                 $rede["id"],
@@ -2521,64 +2597,6 @@ class CuponsController extends AppController
         }
 
 
-        // Se não encontrado, retorna vazio.
-        if (empty($brindeSelecionado)) {
-
-            $mensagem = array(
-                "status" => false,
-                "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__(Configure::read("messageClienteDoesNotHaveBrinde")))
-            );
-
-            $arraySet = array("mensagem");
-
-            $retorno = array(
-                "arraySet" => $arraySet,
-                "mensagem" => $mensagem,
-                "ticket" => null,
-                "status" => null,
-                "cliente" => null,
-                "usuario" => null,
-                "tempo" => null,
-                "tipo_emissao_codigo_barras" => null,
-                "is_brinde_smart_shower" => null,
-            );
-            return $retorno;
-        }
-
-        // Verifica se o brinde em questão está com preço zerado.
-
-        $preco = $vendaAvulsa ?
-            $brindeSelecionado["brinde_habilitado_preco_atual"]["valor_moeda_venda"] : $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"];
-
-        if (empty($preco)) {
-            $mensagem = array(
-                "status" => false,
-                "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(__("O brinde escolhido não está com seu preço configurado!"))
-            );
-
-            $arraySet = array("mensagem");
-
-            $retorno = array(
-                "arraySet" => $arraySet,
-                "mensagem" => $mensagem,
-                "ticket" => null,
-                "status" => null,
-                "cliente" => null,
-                "usuario" => null,
-                "tempo" => null,
-                "tipo_emissao_codigo_barras" => null,
-                "is_brinde_smart_shower" => null,
-            );
-
-            return $retorno;
-        }
-        $mensagem = array(
-            "status" => false,
-            "message" => "",
-            "errors" => array(__(""))
-        );
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
         if (($usuario->pontuacoes >= $brindeSelecionado["brinde_habilitado_preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
