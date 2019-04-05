@@ -301,6 +301,10 @@ const TRANSACTION_TYPE_POINTS = "Gotas";
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
 
+// Tipos de Brindes de Clientes
+
+const MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND = "O estabelecimento selecionado não possui tipo de brinde definido. Defina antes de continuar!";
+
 // Usuários
 const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";

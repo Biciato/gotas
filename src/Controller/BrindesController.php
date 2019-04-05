@@ -282,6 +282,14 @@ class BrindesController extends AppController
             }
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
+
+            if (empty($tiposBrindesCliente)){
+                // Redireciona para a tela de tipo de brindes dos clientes para configuração
+
+                $this->Flash->error(MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND);
+                return $this->redirect(sprintf("tiposBrindesClientes/adicionarTiposBrindesCliente/%s", $clientesId[0]));
+            }
+
             $tiposBrindesCliente = $tiposBrindesCliente->toArray();
             $tiposBrindesClienteTemp = array();
 
