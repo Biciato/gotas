@@ -2466,6 +2466,17 @@ class CuponsController extends AppController
             }
         }
         // Verifica se o brinde em questão está com preço zerado.
+        /**
+         * Apesar desta situação ser difícil de acontecer, pois o FrontEnd possui restrições, devo verificar da seguinte forma:
+         * 1 - Isento:
+         * Não precisa de preço
+         * 2 - Com Desconto;
+         * Os dois preços precisam estar configurados
+         * 3 - Gotas ou Reais
+         * Aqui depende da transação. Se tiver como Dinheiro, então o campo 'valor_moeda_venda' não pode estar vazio.
+         * Caso contrário, o campo 'preco'
+         */
+
 
         // @todo continuar daqui
         if (empty($preco)) {
