@@ -149,7 +149,7 @@ class TiposBrindesClientesTable extends GenericTable
      * ---------------------------------------------------------------
      */
 
-     /* -------------------------- Read ----------------------------- */
+    /* -------------------------- Read ----------------------------- */
 
     /**
      * TiposBrindesClientesTable::findTiposBrindesClientes
@@ -408,13 +408,18 @@ class TiposBrindesClientesTable extends GenericTable
         try {
             $tipoBrindesIds = array();
             $tipoBrindesJaUsadosQuery = $this->findTiposBrindesClientes(["clientes_id in " => [$clientesId]]);
+            $tipoBrindesJaUsadosQuery = $tipoBrindesJaUsadosQuery->toArray();
 
             $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
             $redeCliente = $redesHasClientesTable->getRedesHasClientesById($clientesId);
 
-            foreach ($tipoBrindesJaUsadosQuery->toArray() as $tipoBrindesClienteJaUsado) {
-                $tipoBrindesIds[] = $tipoBrindesClienteJaUsado["tipos_brindes_redes_id"];
+            if (empty($tipoBrindesJaUsadosQuery)) {
+                $tipoBrindesIds[] = 0;
+            } else {
+                foreach ($tipoBrindesJaUsadosQuery as $tipoBrindesClienteJaUsado) {
+                    $tipoBrindesIds[] = $tipoBrindesClienteJaUsado["tipos_brindes_redes_id"];
+                }
             }
 
             $tipoBrindes = $this->TipoBrindeRede->find('all');
@@ -435,13 +440,12 @@ class TiposBrindesClientesTable extends GenericTable
 
             return $tipoBrindes;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $stringError = __("Erro ao obter tipo de brindes do cliente disponíveis: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
         }
-
     }
 
     /**
@@ -583,7 +587,6 @@ class TiposBrindesClientesTable extends GenericTable
             $itemSave["habilitado"] = $habilitado;
 
             return $this->_getTiposBrindesClientesTable()->save($itemSave);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -598,12 +601,12 @@ class TiposBrindesClientesTable extends GenericTable
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-11-25
-     * 
-     * Altera todos os Tipos de Brindes de Cliente de cliente 
-     * 
+     *
+     * Altera todos os Tipos de Brindes de Cliente de cliente
+     *
      * @param integer $clienteAntigoId Id do cliente antigo
      * @param integer $clienteNovoId Id do cliente novo
-     * 
+     *
      * @return bool
      */
     public function setTiposBrindesToMainCliente(int $clienteAntigoId, int $clienteNovoId)
@@ -684,14 +687,14 @@ class TiposBrindesClientesTable extends GenericTable
 
     /**
      * TiposBrindesClientesTable::deleteAllTiposBrindesClientesByRedesId
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018/11/25
-     * 
+     *
      * Remove todos os tipos de brindes de clientes pelo id de rede
      *
      * @param integer $redesId Id da Rede
-     * 
+     *
      * @return bool status remoção
      */
     public function deleteAllTiposBrindesClientesByRedesId(int $redesId)
