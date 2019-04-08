@@ -104,13 +104,16 @@ $(document).ready(function () {
         if (this.value == 'cpf') {
             $(".user-query-region .parametro").mask('999.999.999-99');
         } else if (this.value == 'placa') {
-            $(".user-query-region .parametro").mask("AAA9999", {
+            $(".user-query-region .parametro").mask("AAA9B99", {
                 'translation': {
                     A: {
                         pattern: /[A-Za-z]/
                     },
                     9: {
                         pattern: /[0-9]/
+                    },
+                    B: {
+                        pattern: /\D*/
                     }
                 },
                 onKeyPress: function (value, event) {

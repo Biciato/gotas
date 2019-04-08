@@ -237,8 +237,7 @@ require_once("definitions.php");
 
 // Constantes
 
-const TYPE_PAYMENT_POINTS = "Gotas";
-const TYPE_PAYMENT_MONEY = "Dinheiro";
+
 
 const DATA_TYPE_MESSAGE_JSON = "json";
 const DATA_TYPE_MESSAGE_XML = "xml";
@@ -270,6 +269,7 @@ const TYPE_SELL_DISCOUNT = 1;
 const TYPE_SELL_DISCOUNT_TEXT = "Com Desconto";
 const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
+const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado corretamente!";
 
 // Clientes
 
@@ -293,9 +293,10 @@ const MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode 
 const MESSAGE_COUPON_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
 const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
 const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
+const MESSAGE_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
 
-const TRANSACTION_TYPE_CURRENCY = "Dinheiro";
-const TRANSACTION_TYPE_POINTS = "Gotas";
+const TYPE_PAYMENT_POINTS = "Gotas";
+const TYPE_PAYMENT_MONEY = "Dinheiro";
 
 // Redes
 

@@ -657,6 +657,7 @@ class CuponsTable extends GenericTable
                 "Brindes.tipos_brindes_redes_id",
                 "Brindes.nome",
                 "Brindes.tempo_uso_brinde",
+                "Brindes.tipo_venda",
                 "Brindes.ilimitado",
                 "Brindes.habilitado",
                 "Brindes.preco_padrao",

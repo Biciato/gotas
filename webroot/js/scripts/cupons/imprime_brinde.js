@@ -458,7 +458,7 @@ $(document).ready(function() {
                 funcionarios_id: $("#funcionarios_id").val(),
                 usuarios_id: $(".usuarios_id").val(),
                 quantidade: 1,
-                tipo_transacao: $(".tipo-transacao").val(),
+                tipo_pagamento: $(".tipo-pagamento").val(),
                 venda_avulsa: $(".venda_avulsa").val(),
                 current_password: $("#current_password").val(),
                 _Token: document.cookie.substr(

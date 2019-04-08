@@ -960,9 +960,9 @@ class BrindesController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
             $clientes_id = $data['clientes_id'];
-            $tipoTransacao = !empty($data['tipo_transacao']) ? $data['tipo_transacao'] : null;
+            $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
 
-            if (empty($tipoTransacao)){
+            if (empty($tipoPagamento)){
                 ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Transação não definida!"));
             }
 
@@ -975,7 +975,8 @@ class BrindesController extends AppController
                 array(),
                 array(),
                 array(),
-                $tipoTransacao
+                $tipoPagamento,
+                array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_FREE_TEXT)
             );
 
             $brindesHabilitadosCliente = $resultado["brindes"]["data"];
@@ -1018,6 +1019,8 @@ class BrindesController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+
+        return;
     }
 
     /**

@@ -856,7 +856,7 @@ var popularDadosCupomResgate = function (data) {
         $.each(data, function (index, value) {
             var valorPagoGotas = value.valor_pago_gotas;
             var valorPagoReais = value.valor_pago_reais;
-            var tipoTransacao = "R$";
+            var tipoPagamento = "R$";
 
             data_hora = value.data;
             unidade_funcionario_id = value.unidade_funcionario_id;
@@ -866,8 +866,8 @@ var popularDadosCupomResgate = function (data) {
 
             valorPagoReais =
                 valorPagoReais.toString().indexOf(",") < 0
-                    ? tipoTransacao + valorPagoReais + ",00"
-                    : tipoTransacao + valorPagoReais;
+                    ? tipoPagamento + valorPagoReais + ",00"
+                    : tipoPagamento + valorPagoReais;
 
             var row =
                 "<tr><td>" +

@@ -151,7 +151,7 @@ class UsuariosHasBrindesTable extends GenericTable
      * @param float $quantidade
      * @param float $precoGotas
      * @param float $precoReais
-     * @param string $tipoVenda Tipo de Venda ("Gotas", "Dinheiro")
+     * @param string $tipoPagamento Tipo de Pagamento ("Gotas", "Dinheiro")
      * @param int $cuponsId
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -159,7 +159,7 @@ class UsuariosHasBrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\UsuariosHasBrinde $usuarioHasBrinde
      **/
-    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $precoGotas, float $precoReais, string $tipoVenda, int $cuponsId = null)
+    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $precoGotas, float $precoReais, string $tipoPagamento, int $cuponsId = null)
     {
         try {
             $brindeUsuario = $this->newEntity();
@@ -171,7 +171,7 @@ class UsuariosHasBrindesTable extends GenericTable
             $brindeUsuario["quantidade"] = (int)$quantidade;
             $brindeUsuario["preco_gotas"] = !empty($precoGotas) && $precoGotas > 0 ? $precoGotas * $quantidade : 0;
             $brindeUsuario["preco_reais"] = !empty($precoReais) && $precoReais > 0 ? $precoReais * $quantidade : 0;
-            $brindeUsuario["tipo_venda"] = $tipoVenda;
+            $brindeUsuario["tipo_pagamento"] = $tipoPagamento;
             $brindeUsuario["data"] = date('Y-m-d H:i:s');
             $brindeUsuario["cupons_id"] = $cuponsId;
 

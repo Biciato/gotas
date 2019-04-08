@@ -82,7 +82,7 @@ $(document).ready(function () {
             data: JSON.stringify({
                 parametro_brinde: $("#parametro_brinde").val(),
                 clientes_id: $("#clientes_id").val(),
-                tipo_transacao: $("#tipo_transacao").val()
+                tipo_pagamento: $("#tipo_pagamento").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -127,7 +127,7 @@ $(document).ready(function () {
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                            text: "Tipo de Venda: " + value.brinde.tipo_venda + " / Brinde: " +  value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
                         }));
                     }
 

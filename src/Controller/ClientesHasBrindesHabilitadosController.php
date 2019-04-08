@@ -991,7 +991,9 @@ class ClientesHasBrindesHabilitadosController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
-                $tipoTransacao = !empty($data["tipo_transacao"]) ? $data["tipo_transacao"] : TRANSACTION_TYPE_POINTS;
+                // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
+                // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
+                $tipoPagamento = TYPE_PAYMENT_POINTS;
                 $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
 
                 $precoMin = isset($data["preco_min"]) ? (float)$data["preco_min"] : null;
@@ -1063,7 +1065,8 @@ class ClientesHasBrindesHabilitadosController extends AppController
                     $orderConditions,
                     $paginationConditions,
                     $filterTiposBrindesClientesColumns,
-                    $tipoTransacao
+                    $tipoPagamento,
+                    array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT)
                 );
 
                 // DebugUtil::printArray($resultado);

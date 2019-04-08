@@ -302,7 +302,7 @@ class TiposBrindesRedesTable extends GenericTable
                 "habilitado" => 1
             );
 
-            $tipoBrindesRedesQuery = $this->_getTiposBrindesRedesTable()->find("all")
+            $tipoBrindesRedesQuery = $this->find("all")
                 ->where($whereConditions)
                 ->select(
                     array(

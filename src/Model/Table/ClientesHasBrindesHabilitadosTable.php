@@ -11,6 +11,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * ClientesHasBrindesHabilitados Model
@@ -458,7 +459,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
      * @param array $orderConditionsBrindes
      * @param array $paginationConditionsBrindes
      * @param array $filterTiposBrindesClientesColumns
-     * @param string $tipoTransacao
+     * @param string $tipoPagamento
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-30-07
@@ -474,7 +475,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
         array $orderConditionsBrindes = array(),
         array $paginationConditionsBrindes = array(),
         array $filterTiposBrindesClientesColumns = array(),
-        string $tipoTransacao = TRANSACTION_TYPE_POINTS
+        string $tipoPagamento = TYPE_PAYMENT_POINTS,
+        array $tiposVenda = array()
     ) {
         try {
             // Verifica se ordenação ordena algum campo de preço do brinde
@@ -563,6 +565,10 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.habilitado' => 1);
             $clientesBrindesHabilitadosWhereConditions[] = array('ClientesHasBrindesHabilitados.clientes_id' => $clientesId);
 
+            if (!empty($tiposVenda)) {
+                $clientesBrindesHabilitadosWhereConditions[] = array("Brindes.tipo_venda IN " => $tiposVenda);
+            }
+
             if (isset($tiposBrindesClientesIds) && sizeof($tiposBrindesClientesIds) > 0) {
                 $clientesBrindesHabilitadosWhereConditions[] = array("ClientesHasBrindesHabilitados.tipos_brindes_clientes_id in " => $tiposBrindesClientesIds);
             }
@@ -614,9 +620,6 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     $count = $count + 1;
                     $clientesBrindesHabilitados[] = $clientesBrindesHabilitado;
                 }
-                // else {
-                // $count -= 1;
-                // }
             }
 
             $clientesBrindesHabilitadosReturn = array();
@@ -672,8 +675,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
             // Remover indevidos
             $clientesBrindesHabilitadosRemove = array();
             foreach ($clientesBrindesHabilitadosReturn as $brindeHabilitado) {
-                if (($tipoTransacao == TRANSACTION_TYPE_POINTS && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"]))
-                    || ($tipoTransacao == TRANSACTION_TYPE_CURRENCY && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["valor_moeda_venda"]))) {
+                if (($tipoPagamento == TYPE_PAYMENT_POINTS && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["preco"]))
+                    || ($tipoPagamento == TYPE_PAYMENT_MONEY && empty($brindeHabilitado["brinde_habilitado_preco_atual"]["valor_moeda_venda"]))) {
                     $clientesBrindesHabilitadosRemove[] = $brindeHabilitado;
                 }
             }

@@ -224,14 +224,14 @@ class PontuacoesTable extends GenericTable
         try {
             $pontuacao = $this->newEntity();
 
-            $pontuacao->quantidade_gotas = $quantidadePontosGotas;
-            $pontuacao->valor_moeda_venda = $quantidadePontosReais;
-            $pontuacao->clientes_id = $clientesId;
-            $pontuacao->usuarios_id = $usuariosId;
-            $pontuacao->clientes_has_brindes_habilitados_id = $brindesHabilitadosId;
-            $pontuacao->utilizado = Configure::read('dropletsUsageStatus')['FullyUsed'];
-            $pontuacao->data = date('Y-m-d H:i:s');
-            $pontuacao->funcionarios_id = $funcionariosId;
+            $pontuacao["quantidade_gotas"] = $quantidadePontosGotas;
+            $pontuacao["valor_moeda_venda"] = $quantidadePontosReais;
+            $pontuacao["clientes_id"] = $clientesId;
+            $pontuacao["usuarios_id"] = $usuariosId;
+            $pontuacao["clientes_has_brindes_habilitados_id"] = $brindesHabilitadosId;
+            $pontuacao["utilizado"] = Configure::read('dropletsUsageStatus')['FullyUsed'];
+            $pontuacao["data"] = date('Y-m-d H:i:s');
+            $pontuacao["funcionarios_id"] = $funcionariosId;
 
             return $this->save($pontuacao);
         } catch (\Exception $e) {
