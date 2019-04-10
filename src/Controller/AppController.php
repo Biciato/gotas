@@ -141,37 +141,7 @@ class AppController extends Controller
         // Seta encoding de JSON para não fazer escape
         $this->set("_jsonOptions", JSON_UNESCAPED_UNICODE);
 
-        $url = $this->request->here;
-
-        $isMobile = $this->request->header('IsMobile');
-
-        if (!$isMobile) {
-            $userAuthenticated = $this->request->session()->read("Auth.User");
-
-            $urlPages = array(
-                "/pages",
-                "/usuarios/login",
-                "/usuarios/registrar",
-                "/usuarios/esqueci-minha-senha",
-                "/usuarios/resetar-minha-senha",
-            );
-
-            $found = 0;
-            foreach ($urlPages as $page) {
-                $indexFound = strpos($url, $page) !== false;
-
-                if ($indexFound) {
-                    $found = true;
-                    break;
-                }
-            }
-
-            if (!$userAuthenticated && (!$found)) {
-                $this->response = $this->redirect(['controller' => 'Pages', 'action' => 'display']);
-                $this->response->send();
-                die();
-            }
-        }
+        $this->checkAuthentication();
 
         $this->set('project_name', 'GOTAS');
         $this->viewBuilder()->theme('TwitterBootstrap');
@@ -254,12 +224,46 @@ class AppController extends Controller
 
         $this->_initializeUtils();
 
+        $this->checkAuthentication();
+
         $this->_setUserTemplatePath();
 
         // $this->Security->requireSecure();
     }
 
+    private function checkAuthentication(){
+        $url = $this->request->here;
 
+        $isMobile = $this->request->header('IsMobile');
+
+        if (!$isMobile) {
+            $userAuthenticated = $this->request->session()->read("Auth.User");
+
+            $urlPages = array(
+                "/pages",
+                "/usuarios/login",
+                "/usuarios/registrar",
+                "/usuarios/esqueci-minha-senha",
+                "/usuarios/resetar-minha-senha",
+            );
+
+            $found = 0;
+            foreach ($urlPages as $page) {
+                $indexFound = strpos($url, $page) !== false;
+
+                if ($indexFound) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$userAuthenticated && (!$found)) {
+                $this->response = $this->redirect(['controller' => 'Pages', 'action' => 'display']);
+                $this->response->send();
+                die();
+            }
+        }
+    }
 
     /**
      * Inicializa as classes de utilidades

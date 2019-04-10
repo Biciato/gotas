@@ -283,7 +283,7 @@ class BrindesController extends AppController
 
             $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
 
-            if (empty($tiposBrindesCliente)){
+            if (empty($tiposBrindesCliente)) {
                 // Redireciona para a tela de tipo de brindes dos clientes para configuração
 
                 $this->Flash->error(MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND);
@@ -323,12 +323,11 @@ class BrindesController extends AppController
                 $errors = array();
 
                 // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))){
+                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
                     $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
-
                 }
                 // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))){
+                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
                     $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
                 }
 
@@ -338,7 +337,7 @@ class BrindesController extends AppController
                     $errors[] = "É necessário selecionar um tipo de brinde!";
                 }
 
-                if (count($errors) > 0){
+                if (count($errors) > 0) {
 
                     foreach ($errors as $error) {
                         $this->Flash->error($error);
@@ -528,12 +527,11 @@ class BrindesController extends AppController
             $errors = array();
 
             // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-            if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))){
+            if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
                 $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
-
             }
             // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-            if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))){
+            if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
                 $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
             }
 
@@ -543,7 +541,7 @@ class BrindesController extends AppController
                 $errors[] = "É necessário selecionar um tipo de brinde!";
             }
 
-            if (count($errors) > 0){
+            if (count($errors) > 0) {
 
                 foreach ($errors as $error) {
                     $this->Flash->error($error);
@@ -692,10 +690,15 @@ class BrindesController extends AppController
 
         $rede = $this->request->session()->read('Rede.Grupo');
 
+        if (empty($rede)) {
+            // Melhorar sistemática
+            $this->Flash->error("Você não tem permissão para visualizar esta tela!");
+            return $this->redirect(array("controller" => "Pages", "action" => "display"));
+        }
         // Pega unidades que tem acesso
         $clientes_ids = [];
 
-        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
+        $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
         foreach ($unidades_ids as $key => $value) {
             $clientes_ids[] = $key;
@@ -962,7 +965,7 @@ class BrindesController extends AppController
             $clientes_id = $data['clientes_id'];
             $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
 
-            if (empty($tipoPagamento)){
+            if (empty($tipoPagamento)) {
                 ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Transação não definida!"));
             }
 
