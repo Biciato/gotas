@@ -28,16 +28,19 @@ use Cake\Routing\Router;
             <div class='col-lg-4'>
                     <label for="tipo_perfil">Tipo de Perfil*</label>
                     <?php
-                    $listaPerfis = array();
+                   $listaPerfis = array();
+                   $perfis = array();
 
-                    if (isset($redesId)){
-                        $listaPerfis[0] = "Administradores da RTI / Desenvolvedor";
-                    }
+                   if (isset($redesId)){
+                       // $listaPerfis[] = array(0 => "Administradores da RTI / Desenvolvedor");
+                       $perfis[0] = "Administradores da RTI / Desenvolvedor";
+                   }
 
-                    $listaPerfis[1] = ['Administradores de uma Rede'];
-                    $listaPerfis[3] = ['Administrador'];
-                    $listaPerfis[4] = ['Gerente'];
-                    $listaPerfis[5] = ['Funcionário'];
+                   $perfis[1] = 'Administradores de uma Rede';
+                   $perfis[3] = 'Administrador';
+                   $perfis[4] = 'Gerente';
+                   $perfis[5] = 'Funcionário';
+                   $listaPerfis = $perfis;
                     ?>
                     <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
