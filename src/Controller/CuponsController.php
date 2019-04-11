@@ -1730,11 +1730,11 @@ class CuponsController extends AppController
                 $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($funcionarioId, $tipoPerfil);
 
                 $clienteId = 0;
-                // if (count($clientesUsuariosIds) > 0) {
-                //     $clienteId = $clientesUsuariosIds[0];
-                // }
+                if (count($clientesUsuariosIds) > 0) {
+                    $clienteId = $clientesUsuariosIds[0];
+                }
 
-                $clienteId = 2;
+                // $clienteId = 2;
 
                 $todasUnidadesRedesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clienteId);
 
