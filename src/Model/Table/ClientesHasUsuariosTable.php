@@ -611,6 +611,7 @@ class ClientesHasUsuariosTable extends Table
             }
 
             $clientesHasUsuarios = $this->find('all')
+            ->contain("Usuarios")
                 ->where($whereConditions);
 
             $clientesIds = [];
