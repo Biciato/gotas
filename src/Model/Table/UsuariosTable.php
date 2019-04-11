@@ -87,7 +87,8 @@ class UsuariosTable extends GenericTable
             [
                 'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
-                "joinType" => "INNER"
+                // "joinType" => "INNER"
+                "joinType" => "LEFT"
 
             ]
         );
@@ -1325,7 +1326,8 @@ class UsuariosTable extends GenericTable
 
             if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER) {
                 $usuarios = $usuarios->group(array(
-                    "ClienteHasUsuario.usuarios_id"
+                    // "ClienteHasUsuario.usuarios_id"
+                    "Usuarios.id"
                 ));
             }
 
