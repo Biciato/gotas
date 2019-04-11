@@ -22,6 +22,7 @@ use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\ORM\TableRegistry;
 use ReCaptcha\Response;
+use App\Custom\RTI\ImageUtil;
 
 /**
  * Usuarios Controller
