@@ -87,7 +87,8 @@ class UsuariosTable extends GenericTable
             [
                 'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
-                "joinType" => "INNER"
+                // "joinType" => "INNER"
+                "joinType" => "LEFT"
 
             ]
         );
