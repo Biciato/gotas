@@ -814,9 +814,12 @@ class RedesHasClientesController extends AppController
                 $whereConditions = array();
 
                 $whereConditions[] = array(
+                    "Clientes.ativado" => 1,
+                    "Redes.ativado" => 1,
                     "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
                     "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
                 );
+
 
                 // DebugUtil::printArray($whereConditions);
 
