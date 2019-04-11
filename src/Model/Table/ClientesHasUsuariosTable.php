@@ -621,8 +621,9 @@ class ClientesHasUsuariosTable extends Table
 
             return $clientesIds;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTraceAsString()();
+            // $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 
