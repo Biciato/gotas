@@ -209,7 +209,7 @@ class RedesTable extends GenericTable
 
             return $redes;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao realizar pesquisa: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
@@ -510,30 +510,16 @@ class RedesTable extends GenericTable
                     array(
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
-                        'RedesHasClientes.Clientes.ClientesHasBrindesHabilitados.Brindes'
+                        'RedesHasClientes.Clientes.Brindes'
                     )
                 )
                 ->first();
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao obter dados: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            $error = ['success' => false, 'message' => $stringError];
-
-            throw new \Exception($stringError);
-
-            return $error;
+            Log::write('error', $trace);
         }
     }
 

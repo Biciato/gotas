@@ -132,7 +132,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                                 'Remover Unidade ',
                                 $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
                             ),
-                            '#',    
+                            '#',
                             [
                                 'title' => 'Deletar',
                                 'class' => 'text-danger bg-danger',
@@ -175,7 +175,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                     </li>
 
                     <li>
-                        <?= $this->Html->link("Configurar Tipos de Brindes", ['controller' => 'tiposBrindesClientes', 'action' => 'tipos_brindes_cliente', $cliente->id]); ?>
+                        <?= $this->Html->link("Configurações IHM", ['controller' => 'brindes', 'action' => 'rti_brindes_cliente', $cliente->id]); ?>
                     </li>
                 <?php endif; ?>
             </li>

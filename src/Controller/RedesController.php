@@ -93,17 +93,14 @@ class RedesController extends AppController
             $this->set('_serialize', ['rede', 'redes_has_clientes', 'imagem']);
 
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $message = __("Erro ao exibir detalhes de Rede : {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+            $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());
             Log::write('error', $message);
+            Log::write("error", $trace);
 
             $this->Flash->error($message);
 
-            return $this->redirect(
-                [
-                    'controller' => 'redes', 'action' => 'ver_detalhes', $id
-                ]
-            );
+
         }
     }
 
