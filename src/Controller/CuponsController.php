@@ -1714,6 +1714,7 @@ class CuponsController extends AppController
                 // Validação de funcionário logado
                 $funcionarioId = $this->Auth->user()["id"];
 
+
                 $tipoPerfil = $this->Auth->user()["tipo_perfil"];
                 $funcionario["nome"] = $this->Auth->user()["nome"];
 
@@ -1741,12 +1742,14 @@ class CuponsController extends AppController
                     return;
                 }
 
-                $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($this->Auth->user()["id"], $tipoPerfil);
+                $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($funcionarioId, $tipoPerfil);
 
                 $clienteId = 0;
                 if (count($clientesUsuariosIds) > 0) {
                     $clienteId = $clientesUsuariosIds[0];
                 }
+
+                // $clienteId = 2;
 
                 $todasUnidadesRedesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clienteId);
 
