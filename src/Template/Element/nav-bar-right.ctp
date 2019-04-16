@@ -52,10 +52,10 @@ if (empty($usuarioLogado)) {
 
                         <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'index']) ?>
                     </li>
-                    <li role="separator" class="divider"></li>
-                    <li>
+                    <!-- <li role="separator" class="divider"></li> -->
+                    <!-- <li>
                         <?php echo $this->Html->link('Tipos de Brindes', ['controller' => 'TiposBrindesRedes', 'action' => 'index']) ?>
-                    </li>
+                    </li> -->
 
                     <li role="separator" class="divider"></li>
 

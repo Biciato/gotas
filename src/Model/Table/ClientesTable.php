@@ -119,13 +119,22 @@ class ClientesTable extends GenericTable
             ]
         );
 
+        // $this->hasMany(
+        //     'ClientesHasBrindesHabilitados',
+        //     [
+        //         'className' => 'ClientesHasBrindesHabilitados',
+        //         'foreignKey' => 'clientes_id',
+        //         'join' => 'INNER'
+        //     ]
+        // );
+
         $this->hasMany(
-            'ClientesHasBrindesHabilitados',
-            [
-                'className' => 'ClientesHasBrindesHabilitados',
-                'foreignKey' => 'clientes_id',
-                'join' => 'INNER'
-            ]
+            "Brindes",
+            array(
+                "className" => "Brindes",
+                "foreignKey" => "clientes_id",
+                "join" => "LEFT"
+            )
         );
 
         $this->hasMany(
