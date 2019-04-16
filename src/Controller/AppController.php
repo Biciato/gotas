@@ -254,6 +254,9 @@ class AppController extends Controller
         $this->response->header('Access-Control-Allow-Headers', 'X-Requested-With');
         $this->response->header('Access-Control-Allow-Headers', 'Content-Type, x-xsrf-token');
         $this->response->header('Access-Control-Allow-Headers', 'Accept');
+        $this->response->header('Access-Control-Allow-Headers', 'Origin');
+        $this->response->header('Access-Control-Allow-Headers', 'Authorization');
+        // Access-Control-Allow-Headers: accept, origin, authorization, content-type
         $this->response->header('Access-Control-Max-Age', '172800');
         $this->response->header('Access-Control-Allow-Credentials', true);
 
