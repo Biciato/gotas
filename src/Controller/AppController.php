@@ -231,6 +231,9 @@ class AppController extends Controller
         //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
         //     }
         // }
+
+        $this->setCorsHeaders();
+
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])) {
             $this->set('_serialize', true);
@@ -257,6 +260,11 @@ class AppController extends Controller
         $this->_initializeUtils();
 
         $this->_setUserTemplatePath();
+        if ($this->request->is('options')) {
+            $this->setCorsHeaders();
+            return $this->response;
+        }
+
 
         // $this->Security->requireSecure();
     }
@@ -537,6 +545,17 @@ class AppController extends Controller
         if (Configure::read("environmentMode") == "development") {
             ConnectionManager::alias("devel", "default");
         }
+    }
+
+    private function setCorsHeaders() {
+        $this->response->cors($this->request)
+            ->allowOrigin(['*'])
+            ->allowMethods(['*'])
+            ->allowHeaders(['x-xsrf-token', 'Origin', 'Content-Type', 'X-Auth-Token'])
+            ->allowCredentials(['true'])
+            ->exposeHeaders(['Link'])
+            ->maxAge(300)
+            ->build();
     }
 
 }
