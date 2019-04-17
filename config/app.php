@@ -259,9 +259,9 @@ return [
             //'port' => 'non_standard_port_number',
             'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
-            'database' => 'rti_gotas',
+            // 'database' => 'rti_gotas',
+            'database' => __DATABASE__,
             // 'database' => 'rti_gotas_devel',
-
             'encoding' => 'utf8',
             // 'timezone' => 'America/Sao_Paulo',
             //  'timezone' => 'UTC',
