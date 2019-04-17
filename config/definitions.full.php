@@ -22,3 +22,4 @@ const __HOST__ = "sistema.gotas.local";
 // Branch Devel -> Servidor local
 // const __SERVER__ = "https://sistema-devel.gotas.local/";
 const __SERVER__ = "https://" . __HOST__ . "/";
+const __DATABASE__ = "rti_gotas";

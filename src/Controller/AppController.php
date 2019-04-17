@@ -28,6 +28,7 @@ use App\Custom\RTI\Security;
 use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
 use App\Custom\RTI\DebugUtil;
+use Cake\Log\Log;
 
 /**
  * Application Controller
@@ -74,7 +75,7 @@ class AppController extends Controller
             [
                 'authError' => 'Você não tem permissão para acessar o local solicitado.',
                 'allowedActions' =>
-                    [
+                [
                     'controller' => 'pages',
                     'action' => 'index', 'display'
                 ],
@@ -180,32 +181,15 @@ class AppController extends Controller
      */
     public function beforeRender(Event $event)
     {
-        // $user = $this->Auth->user();
+        // Trata resposta iOS
+        if ($this->request->is('options')) {
+            exit(0);
+        }
 
-        // if (!empty($user)) {
-        //     $user = $this->Usuarios->get($user["id"]);
-        // }
-
-        // $getRequest = $this->request->is('get');
-
-        // if ($getRequest && (!empty($user))
-        //     && ($user["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"])
-        //     && (empty($user["cpf"]) == 1 && empty($user["doc_estrangeiro"] == 1))) {
-        //     $controllerAtual = $this->request->getParam("controller");
-        //     $actionAtual = $this->request->getParam("action");
-        //     $urlDestino = Router::url(array("controller" => "Usuarios", "action" => "editar"));
-
-        //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
-        //     if ($urlAtual != $urlDestino) {
-        //         $this->Flash->error(Configure::read("messageUsuarioProfileDocumentNotFoundError"));
-        //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
-        //     }
-        // }
-
-        // $this->setCorsHeaders();
-
-        if (!array_key_exists('_serialize', $this->viewVars) &&
-            in_array($this->response->type(), ['application/json', 'application/xml'])) {
+        if (
+            !array_key_exists('_serialize', $this->viewVars) &&
+            in_array($this->response->type(), ['application/json', 'application/xml'])
+        ) {
             $this->set('_serialize', true);
         }
     }
@@ -218,34 +202,26 @@ class AppController extends Controller
      **/
     public function beforeFilter(Event $event)
     {
-        //  parent::beforeFilter();
-        $this->response->header('Access-Control-Allow-Origin', '*');
-        $this->response->header('Access-Control-Allow-Methods', '*');
-        $this->response->header('Access-Control-Allow-Headers', 'X-Requested-With');
-        $this->response->header('Access-Control-Allow-Headers', 'Content-Type, x-xsrf-token');
-        // $this->response->header('Access-Control-Allow-Headers', 'Accept');
-        // $this->response->header('Access-Control-Allow-Headers', 'Origin');
-        // $this->response->header('Access-Control-Allow-Headers', 'Authorization');
-        // Access-Control-Allow-Headers: accept, origin, authorization, content-type
-        $this->response->header('Access-Control-Max-Age', '172800');
-        // $this->response->header('Access-Control-Allow-Credentials', true);
+        // parent::beforeFilter($event);
 
         $this->_initializeUtils();
+        $this->_setUserTemplatePath();
+
+        // Trata resposta iOS
+        if ($this->request->is('options')) {
+            exit(0);
+        }
 
         $this->checkAuthentication();
-
-        $this->_setUserTemplatePath();
-        // if ($this->request->is('options')) {
-        //     $this->setCorsHeaders();
-        //     return $this->response;
-        // }
-
 
         // $this->Security->requireSecure();
     }
 
-    private function checkAuthentication(){
+    private function checkAuthentication()
+    {
         $url = $this->request->here;
+
+        // $this->setCorsHeaders();
 
         $isMobile = $this->request->header('IsMobile');
 
@@ -344,17 +320,13 @@ class AppController extends Controller
             } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
                 $this->viewBuilder()->setLayout('template_gerente');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'dashboard_gerente']);
-
             } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
                 $this->viewBuilder()->setLayout('template_funcionario');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardFuncionario']);
-
             } else {
                 $this->viewBuilder()->setLayout('template_usuario');
                 Router::connect('/', ['controller' => 'pages', 'action' => 'DashboardUsuario']);
-
             }
-
         } else {
             $this->viewBuilder()->setLayout('template_usuario');
         }
@@ -535,7 +507,6 @@ class AppController extends Controller
     public function cleanNumberAndLetters($value)
     {
         return preg_replace('/[^A-Za-z0-9?!]/', "", $value);
-
     }
 
     /**
@@ -553,16 +524,4 @@ class AppController extends Controller
             ConnectionManager::alias("devel", "default");
         }
     }
-
-    private function setCorsHeaders() {
-        $this->response->cors($this->request)
-            ->allowOrigin(['*'])
-            ->allowMethods(['*'])
-            ->allowHeaders(['x-xsrf-token', 'Origin', 'Content-Type', 'X-Auth-Token'])
-            ->allowCredentials(['true'])
-            ->exposeHeaders(['Link'])
-            ->maxAge(300)
-            ->build();
-    }
-
 }
