@@ -201,6 +201,9 @@ class AppController extends Controller
         //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
         //     }
         // }
+
+        // $this->setCorsHeaders();
+
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])) {
             $this->set('_serialize', true);
@@ -220,15 +223,23 @@ class AppController extends Controller
         $this->response->header('Access-Control-Allow-Methods', '*');
         $this->response->header('Access-Control-Allow-Headers', 'X-Requested-With');
         $this->response->header('Access-Control-Allow-Headers', 'Content-Type, x-xsrf-token');
+        // $this->response->header('Access-Control-Allow-Headers', 'Accept');
+        // $this->response->header('Access-Control-Allow-Headers', 'Origin');
+        // $this->response->header('Access-Control-Allow-Headers', 'Authorization');
+        // Access-Control-Allow-Headers: accept, origin, authorization, content-type
         $this->response->header('Access-Control-Max-Age', '172800');
-        $this->response->header('Access-Control-Allow-Origin', '*');
-        $this->response->header('Access-Control-Allow-Credentials', true);
+        // $this->response->header('Access-Control-Allow-Credentials', true);
 
         $this->_initializeUtils();
 
         $this->checkAuthentication();
 
         $this->_setUserTemplatePath();
+        // if ($this->request->is('options')) {
+        //     $this->setCorsHeaders();
+        //     return $this->response;
+        // }
+
 
         // $this->Security->requireSecure();
     }
@@ -541,6 +552,17 @@ class AppController extends Controller
         if (Configure::read("environmentMode") == "development") {
             ConnectionManager::alias("devel", "default");
         }
+    }
+
+    private function setCorsHeaders() {
+        $this->response->cors($this->request)
+            ->allowOrigin(['*'])
+            ->allowMethods(['*'])
+            ->allowHeaders(['x-xsrf-token', 'Origin', 'Content-Type', 'X-Auth-Token'])
+            ->allowCredentials(['true'])
+            ->exposeHeaders(['Link'])
+            ->maxAge(300)
+            ->build();
     }
 
 }
