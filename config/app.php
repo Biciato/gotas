@@ -262,7 +262,6 @@ return [
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,
             // 'database' => 'rti_gotas_devel',
-
             'encoding' => 'utf8',
             // 'timezone' => 'America/Sao_Paulo',
             //  'timezone' => 'UTC',

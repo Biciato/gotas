@@ -1221,7 +1221,17 @@ class UsuariosController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
-            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $senha = !empty($data["senha"]) ? $data["senha"] : null;
+
+            if (empty($email) || empty($senha)) {
+                // Retorna mensagem de erro se campos estiverem vazios
+                $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+
+                return ResponseUtil::errorAPI($message);
+            }
+
+            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
