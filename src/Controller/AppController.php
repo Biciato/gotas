@@ -232,7 +232,7 @@ class AppController extends Controller
         //     }
         // }
 
-        $this->setCorsHeaders();
+        // $this->setCorsHeaders();
 
         if (!array_key_exists('_serialize', $this->viewVars) &&
             in_array($this->response->type(), ['application/json', 'application/xml'])) {
@@ -253,20 +253,20 @@ class AppController extends Controller
         $this->response->header('Access-Control-Allow-Methods', '*');
         $this->response->header('Access-Control-Allow-Headers', 'X-Requested-With');
         $this->response->header('Access-Control-Allow-Headers', 'Content-Type, x-xsrf-token');
-        $this->response->header('Access-Control-Allow-Headers', 'Accept');
-        $this->response->header('Access-Control-Allow-Headers', 'Origin');
-        $this->response->header('Access-Control-Allow-Headers', 'Authorization');
+        // $this->response->header('Access-Control-Allow-Headers', 'Accept');
+        // $this->response->header('Access-Control-Allow-Headers', 'Origin');
+        // $this->response->header('Access-Control-Allow-Headers', 'Authorization');
         // Access-Control-Allow-Headers: accept, origin, authorization, content-type
         $this->response->header('Access-Control-Max-Age', '172800');
-        $this->response->header('Access-Control-Allow-Credentials', true);
+        // $this->response->header('Access-Control-Allow-Credentials', true);
 
         $this->_initializeUtils();
 
         $this->_setUserTemplatePath();
-        if ($this->request->is('options')) {
-            $this->setCorsHeaders();
-            return $this->response;
-        }
+        // if ($this->request->is('options')) {
+        //     $this->setCorsHeaders();
+        //     return $this->response;
+        // }
 
 
         // $this->Security->requireSecure();
