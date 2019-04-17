@@ -332,6 +332,6 @@ const PROFILE_TYPE_DUMMY_WORKER = 998;
 const PROFILE_TYPE_DUMMY_USER = 999;
 
 
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit(0);
-}
+// if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+//     exit(0);
+// }
