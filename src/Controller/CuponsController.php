@@ -2939,14 +2939,19 @@ class CuponsController extends AppController
      */
     private function processarCupom($cupons)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $funcionario = $this->usuarioLogado;
+
+        if (empty($funcionario)){
+            $funcionario = $this->Usuarios->getFuncionarioFicticio();
+        }
 
         // checagem de cupons
 
@@ -2991,8 +2996,7 @@ class CuponsController extends AppController
                 ]
             );
 
-            $encontrou_usuario = false;
-
+            $encontrouUsuario = false;
             $unidades_id = 0;
 
             foreach ($clientes_has_usuarios as $key => $value) {
@@ -3008,14 +3012,18 @@ class CuponsController extends AppController
                 if ($clientes_id == $value->clientes_id) {
 
                     $unidade_funcionario_id = $clientes_id;
-                    $encontrou_usuario = true;
+                    $encontrouUsuario = true;
                     break;
                 }
             }
 
+            if ($funcionario["tipo_perfil"] == PROFILE_TYPE_DUMMY_WORKER) {
+                $encontrouUsuario = true;
+            }
+
             // se não encontrou o brinde na unidade, ou não encontrou o usuário
 
-            if (!$encontrou_cupom || !$encontrou_usuario) {
+            if (!$encontrou_cupom || !$encontrouUsuario) {
                 return [
                     'status' => false,
                     'message' => __("Cupom pertencente à outra rede, não é possível importar dados!")
