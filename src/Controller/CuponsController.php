@@ -2939,6 +2939,7 @@ class CuponsController extends AppController
      */
     private function processarCupom($cupons)
     {
+        // @todo gustavosg é bom revisar este processo
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -2949,7 +2950,7 @@ class CuponsController extends AppController
 
         $funcionario = $this->usuarioLogado;
 
-        if (empty($funcionario)){
+        if (empty($funcionario)) {
             $funcionario = $this->Usuarios->getFuncionarioFicticio();
         }
 
@@ -2969,8 +2970,8 @@ class CuponsController extends AppController
 
             // verifica se o cupom pertence à rede que o funcionário está logado
 
-            $clientes_id = $cupons[0]->clientes_id;
-            $clientes_has_brindes_habilitados_id = $cupons[0]->clientes_has_brindes_habilitados_id;
+            $clientes_id = $cupons[0]["clientes_id"];
+            $clientesHasBrindesHabilitadosId = $cupons[0]->clientes_has_brindes_habilitados_id;
 
             // pega a rede e procura todas as unidades
 
@@ -2989,36 +2990,42 @@ class CuponsController extends AppController
             }
 
             // agora procura o funcionário dentro da rede
-
-            $clientes_has_usuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                [
-                    'ClientesHasUsuarios.usuarios_id' => $funcionario['id']
-                ]
-            );
-
-            $encontrouUsuario = false;
-            $unidades_id = 0;
-
-            foreach ($clientes_has_usuarios as $key => $value) {
-                $unidades_id = $value->clientes_id;
-            }
-
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidades_id);
-
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
-
-            $unidade_funcionario_id = 0;
-            foreach ($redes_has_clientes as $key => $value) {
-                if ($clientes_id == $value->clientes_id) {
-
-                    $unidade_funcionario_id = $clientes_id;
-                    $encontrouUsuario = true;
-                    break;
-                }
-            }
-
             if ($funcionario["tipo_perfil"] == PROFILE_TYPE_DUMMY_WORKER) {
+
+                // Se não estiver autenticado, ele estará fazendo o processo via celular
+                // então não tem como localizar, pois não há funcionario autenticado.
+                // O funcionário será o mesmo do cupom
                 $encontrouUsuario = true;
+                $unidade_funcionario_id = $clientes_id;
+
+            } else {
+
+                $clientesHasUsuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                    [
+                        'ClientesHasUsuarios.usuarios_id' => $funcionario['id']
+                    ]
+                );
+
+                $encontrouUsuario = false;
+                $unidadesId = 0;
+
+                foreach ($clientesHasUsuarios as $key => $value) {
+                    $unidadesId = $value->clientes_id;
+                }
+
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidadesId);
+
+                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente->redes_id);
+
+                $unidade_funcionario_id = 0;
+                foreach ($redesHasClientes as $key => $value) {
+                    if ($clientes_id == $value->clientes_id) {
+
+                        $unidade_funcionario_id = $clientes_id;
+                        $encontrouUsuario = true;
+                        break;
+                    }
+                }
             }
 
             // se não encontrou o brinde na unidade, ou não encontrou o usuário
@@ -3032,13 +3039,13 @@ class CuponsController extends AppController
 
             // Se o brinde não for ilimitado, verifica se ele possui estoque suficiente
 
-            $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clientes_has_brindes_habilitados_id);
+            $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clientesHasBrindesHabilitadosId);
 
             if (!$brindeHabilitado->brinde->ilimitado) {
 
                 // verifica se a unidade que vai fazer o saque tem estoque
 
-                $quantidade_atual_brinde = $this->ClientesHasBrindesEstoque->getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id);
+                $quantidade_atual_brinde = $this->ClientesHasBrindesEstoque->getEstoqueAtualForBrindeId($clientesHasBrindesHabilitadosId);
 
                 $resultado_final = $quantidade_atual_brinde - $cupons[0]->quantidade;
 
