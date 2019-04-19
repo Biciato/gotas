@@ -2904,14 +2904,20 @@ class CuponsController extends AppController
      */
     private function processarCupom($cupons)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        // @todo gustavosg é bom revisar este processo
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $funcionario = $this->usuarioLogado;
+
+        if (empty($funcionario)) {
+            $funcionario = $this->Usuarios->getFuncionarioFicticio();
+        }
 
         // checagem de cupons
 
@@ -2929,8 +2935,8 @@ class CuponsController extends AppController
 
             // verifica se o cupom pertence à rede que o funcionário está logado
 
-            $clientes_id = $cupons[0]->clientes_id;
-            $clientes_has_brindes_habilitados_id = $cupons[0]->clientes_has_brindes_habilitados_id;
+            $clientes_id = $cupons[0]["clientes_id"];
+            $clientesHasBrindesHabilitadosId = $cupons[0]->clientes_has_brindes_habilitados_id;
 
             // pega a rede e procura todas as unidades
 
@@ -2949,38 +2955,47 @@ class CuponsController extends AppController
             }
 
             // agora procura o funcionário dentro da rede
+            if ($funcionario["tipo_perfil"] == PROFILE_TYPE_DUMMY_WORKER) {
 
-            $clientes_has_usuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                [
-                    'ClientesHasUsuarios.usuarios_id' => $funcionario['id']
-                ]
-            );
+                // Se não estiver autenticado, ele estará fazendo o processo via celular
+                // então não tem como localizar, pois não há funcionario autenticado.
+                // O funcionário será o mesmo do cupom
+                $encontrouUsuario = true;
+                $unidade_funcionario_id = $clientes_id;
 
-            $encontrou_usuario = false;
+            } else {
 
-            $unidades_id = 0;
+                $clientesHasUsuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                    [
+                        'ClientesHasUsuarios.usuarios_id' => $funcionario['id']
+                    ]
+                );
 
-            foreach ($clientes_has_usuarios as $key => $value) {
-                $unidades_id = $value->clientes_id;
-            }
+                $encontrouUsuario = false;
+                $unidadesId = 0;
 
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidades_id);
+                foreach ($clientesHasUsuarios as $key => $value) {
+                    $unidadesId = $value->clientes_id;
+                }
 
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente->redes_id);
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidadesId);
 
-            $unidade_funcionario_id = 0;
-            foreach ($redes_has_clientes as $key => $value) {
-                if ($clientes_id == $value->clientes_id) {
+                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente->redes_id);
 
-                    $unidade_funcionario_id = $clientes_id;
-                    $encontrou_usuario = true;
-                    break;
+                $unidade_funcionario_id = 0;
+                foreach ($redesHasClientes as $key => $value) {
+                    if ($clientes_id == $value->clientes_id) {
+
+                        $unidade_funcionario_id = $clientes_id;
+                        $encontrouUsuario = true;
+                        break;
+                    }
                 }
             }
 
             // se não encontrou o brinde na unidade, ou não encontrou o usuário
 
-            if (!$encontrou_cupom || !$encontrou_usuario) {
+            if (!$encontrou_cupom || !$encontrouUsuario) {
                 return [
                     'status' => false,
                     'message' => __("Cupom pertencente à outra rede, não é possível importar dados!")
@@ -2989,13 +3004,13 @@ class CuponsController extends AppController
 
             // Se o brinde não for ilimitado, verifica se ele possui estoque suficiente
 
-            $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clientes_has_brindes_habilitados_id);
+            $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clientesHasBrindesHabilitadosId);
 
             if (!$brindeHabilitado->brinde->ilimitado) {
 
                 // verifica se a unidade que vai fazer o saque tem estoque
 
-                $quantidade_atual_brinde = $this->ClientesHasBrindesEstoque->getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id);
+                $quantidade_atual_brinde = $this->ClientesHasBrindesEstoque->getEstoqueAtualForBrindeId($clientesHasBrindesHabilitadosId);
 
                 $resultado_final = $quantidade_atual_brinde - $cupons[0]->quantidade;
 
