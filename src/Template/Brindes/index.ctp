@@ -1,22 +1,30 @@
-<?php 
+<?php
 
 /**
- * @deprecated 1.0
+ * @author   Gustavo Souza Gonçalves
+ * @file     src\Template\Brindes\index.ctp
+ *
+ * @since     2019-04-20
+ *
+ * Arquivo que exibe brindes do cliente
  */
+use Cake\Core\Configure;
 
-?> 
+// @todo menu
+?>
+
+<div class="col-lg-12">
+
+
+</div>
+
 
 <div class="row">
-<nav class="col-md-2" id="actions-sidebar">
-    <ul class="nav nav-pills nav-stacked">
-        <li class="active"><a><?= __('Ações') ?></a></li>
-        <li><?= $this->Html->link(__('Novo {0}', ['Brinde']), ['action' => 'add']) ?></li>
-        
-    </ul>
-</nav>
-<div class="brindes index col-md-10 columns content">
+<?= $this->element("../Brindes/left_menu", array("mode" => "add")) ?>
+<div class="brindes index col-lg-9 columns content">
     <h3>Brindes</h3>
 
+    <?php echo $this->element("../Brindes/brindes_filtro", array("controller" => "brindes", "action" => "index", $clientesId)) ?>
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -24,7 +32,7 @@
                 <th><?= $this->Paginator->sort('nome') ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
                 <th><?= $this->Paginator->sort('preco_padrao') ?></th>
-                
+
                 <th class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -38,7 +46,7 @@
                 <td><?= h($brinde->nome) ?></td>
                 <td><?= $this->Number->format($brinde->ilimitado) ?></td>
                 <td><?= $this->Number->format($brinde->preco_padrao) ?></td>
-                
+
                 <td class="actions" style="white-space:nowrap">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $brinde->id], ['class' => 'btn btn-default btn-xs']) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $brinde->id], ['class' => 'btn btn-primary btn-xs']) ?>

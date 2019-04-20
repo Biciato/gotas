@@ -175,7 +175,7 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                     </li>
 
                     <li>
-                        <?= $this->Html->link("Configurações IHM", ['controller' => 'brindes', 'action' => 'rti_brindes_cliente', $cliente->id]); ?>
+                        <?= $this->Html->link("Configurações IHM", ['controller' => 'brindes', 'action' => 'index', $cliente["id"]]); ?>
                     </li>
                 <?php endif; ?>
             </li>

@@ -43,15 +43,15 @@ class BrindesController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function index()
+    public function index($clientesId)
     {
+        $arraySet = array("clientesId", "brindes");
+
         $this->paginate = [
             'contain' => ['Clientes']
         ];
         $brindes = $this->paginate($this->Brindes);
-
-        $this->set(compact('brindes'));
-        $this->set('_serialize', ['brindes']);
+        $this->set(compact($arraySet));
     }
 
     /**

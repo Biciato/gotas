@@ -3,8 +3,6 @@
  */
 $(document).ready(function () {
 
-
-
     validacaoGenericaForm();
 
     $(".botao-pesquisar").on("click", function () {
@@ -18,6 +16,7 @@ $(document).ready(function () {
     $(".botao-navegacao-tabela").on("click", function () {
         callLoaderAnimation();
     });
+
 
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
@@ -198,6 +197,13 @@ $(document).ready(function () {
     $(".cep").on("blur", function () {
         getCEP(this);
     });
+
+    // reseta o form
+
+    $(".reset-form").on("click", function(e){
+        var form = this.closest("form");
+        form.reset();
+    })
 });
 
 /**
