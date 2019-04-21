@@ -9,8 +9,19 @@
  * Arquivo que exibe brindes do cliente
  */
 use Cake\Core\Configure;
+use Cake\Routing\Router;
+use App\Custom\RTI\DateTimeUtil;
+use Cake\I18n\Number;
 
-// @todo menu
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+$this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+$this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+$this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+$this->Breadcrumbs->add('Detalhes da Unidade', [], ['class' => 'active']);
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 ?>
 
 <div class="col-lg-12">
@@ -28,10 +39,11 @@ use Cake\Core\Configure;
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th><?= $this->Paginator->sort('clientes_id') ?></th>
                 <th><?= $this->Paginator->sort('nome') ?></th>
                 <th><?= $this->Paginator->sort('ilimitado') ?></th>
-                <th><?= $this->Paginator->sort('preco_padrao') ?></th>
+                <th><?= $this->Paginator->sort('preco_padrao', array("label" => "Preço Gotas")) ?></th>
+                <th><?= $this->Paginator->sort('valor_moeda_venda_padrao', array("label" => "Preço Reais")) ?></th>
+                <th><?= $this->Paginator->sort('audit_insert', array("Label" => "Data Criação")) ?></th>
 
                 <th class="actions">
                     <?= __('Ações') ?>
@@ -42,13 +54,14 @@ use Cake\Core\Configure;
         <tbody>
             <?php foreach ($brindes as $brinde) : ?>
             <tr>
-                <td><?= $brinde->has('cliente') ? $this->Html->link($brinde->cliente->id, ['controller' => 'Clientes', 'action' => 'view', $brinde->cliente->id]) : '' ?></td>
-                <td><?= h($brinde->nome) ?></td>
-                <td><?= $this->Number->format($brinde->ilimitado) ?></td>
-                <td><?= $this->Number->format($brinde->preco_padrao) ?></td>
+                <td><?php echo h($brinde->nome) ?></td>
+                <td><?php echo $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
+                <td><?php echo Number::precision($brinde->preco_padrao, 2) ?></td>
+                <td><?php echo Number::currency($brinde->valor_moeda_venda_padrao) ?></td>
+                <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
 
                 <td class="actions" style="white-space:nowrap">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $brinde->id], ['class' => 'btn btn-default btn-xs']) ?>
+                    <a href="<?php echo sprintf('/brindes/view/%s', $brinde['id'])?>" class="btn btn-default btn-xs"><i class="fa fa-info-circle" title="Ver detalhes"></i></a>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $brinde->id], ['class' => 'btn btn-primary btn-xs']) ?>
                     <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $brinde->id], ['confirm' => __('Are you sure you want to delete # {0}?', $brinde->id), 'class' => 'btn btn-danger btn-xs']) ?>
                 </td>

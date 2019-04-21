@@ -51,6 +51,25 @@ class DateTimeUtil
     }
 
     /**
+     * Converte formato Data Hora para padrão PT-BR
+     *
+     * @param string $datetime DataHora a ser convertida em formato PT-BR
+     *
+     * @return datetime object
+     */
+    public static function convertDateTimeToLocal(string $datetime)
+    {
+        if (empty($datetime)){
+            return "";
+        }
+
+        $format = "d/m/Y H:i:s";
+        $time = strtotime($datetime);
+
+        return date($format, $time);
+    }
+
+    /**
      * Converte formato Data para padrão UTC
      *
      * @param  string   $date   Data a ser convertida

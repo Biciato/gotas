@@ -85,7 +85,10 @@ use Cake\Core\Configure;
                                 Pesquisar
                             </button>
 
-                            <a href="#" class="btn btn-danger reset-form"><i class="fa fa-window-close"></i> Limpar</a>
+                            <button type="button" class="btn btn-danger reset-form">
+                                <span class="fa fa-window-close"></span>
+                                Limpar
+                            </button>
                         </div>
 
                     </div>

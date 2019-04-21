@@ -45,7 +45,11 @@ class BrindesController extends AppController
      */
     public function index($clientesId)
     {
-        $arraySet = array("clientesId", "brindes");
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+        $redesId = $rede["redes_id"];
+        $arraySet = array("redesId", "clientesId", "brindes");
 
         $this->paginate = [
             'contain' => ['Clientes']
