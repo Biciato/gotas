@@ -263,6 +263,10 @@ const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação
 
 // Brindes
 
+const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
+const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
+
+
 const TYPE_SELL_FREE = 0;
 const TYPE_SELL_FREE_TEXT = "Isento";
 const TYPE_SELL_DISCOUNT = 1;

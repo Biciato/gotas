@@ -13,6 +13,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 
+// @TODO Não será mais usado
 /**
  * ClientesHasBrindesHabilitados Model
  *

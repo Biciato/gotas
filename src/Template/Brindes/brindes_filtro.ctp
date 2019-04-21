@@ -23,23 +23,23 @@ use Cake\Core\Configure;
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
 
-                    <?= $this->Form->create('Post', ['url' => ['controller' => $controller, 'action' => $action]]) ?>
+                    <?= $this->Form->create('Post', ['url' => ['controller' => $controller, 'action' => $action, $id]]) ?>
 
                     <div class="form-group row">
                         <div class="col-lg-4">
-                            <?= $this->Form->input(
-                                "nome",
-                                array(
-                                    "id" => "nome",
-                                    "type" => "text",
-                                    "class" => "input-control",
-                                    "label" => "Nome"
-                                )
-                            );
-                            ?>
+                            <label for="nome">Nome:</label>
+                            <input
+                                type="text"
+                                name="nome"
+                                class="input-control form-control"
+                                value="<?php echo $dataPost['nome']?>"
+                                placeholder="Nome"
+                            />
+
+
                         </div>
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-2">
                             <?= $this->Form->input(
                                 "ilimitado",
                                 array(
@@ -51,18 +51,7 @@ use Cake\Core\Configure;
                             ); ?>
                         </div>
 
-                        <div class="col-lg-4">
-                            <label for="preco_padrao">Preço em Gotas:</label>
-                            <input type="text" name="preco_padrao" class="input-control form-control" id="preco_padrao" />
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-lg-4">
-                            <label for="preco_reais">Preço em Reais:</label>
-                            <input type="text" name="preco_reais" class="input-control form-control" id="preco_reais" />
-                        </div>
-
-                        <div class="col-lg-4">
+                        <div class="col-lg-2">
                             <label for="habilitado">Habilitado:</label>
                             <?= $this->Form->input(
                                 "habilitado",
@@ -76,6 +65,92 @@ use Cake\Core\Configure;
                                 )
                             ); ?>
                         </div>
+
+                        <div class="col-lg-2">
+                            <label for="preco_padrao_min">Preço Mín. Gotas:</label>
+                            <input
+                                type="text"
+                                name="preco_padrao_min"
+                                class="input-control form-control"
+                                id="preco_padrao_min"
+                            />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="preco_padrao_max">Preço Máx. Gotas:</label>
+                            <input
+                                type="text"
+                                name="preco_padrao_max"
+                                class="input-control form-control"
+                                id="preco_padrao_max"
+                            />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-2">
+                            <label for="preco_reais_min">Preço Min. Reais:</label>
+                            <input
+                                type="text"
+                                name="preco_reais_min"
+                                id="preco_reais_min"
+                                class="input-control form-control"
+                                placeholder="Preço Mínimo em Reais"
+                                />
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="preco_reais_max">Preço max. Reais:</label>
+                            <input
+                                type="text"
+                                name="preco_reais_max"
+                                id="preco_reais_max"
+                                class="input-control form-control"
+                                placeholder="Preço Máximo em Reais"
+                            />
+                        </div>
+
+
+
+                        <div class="col-lg-2">
+                            <label for="tipo_venda">Tipo de Venda:</label>
+                            <?= $this->Form->input(
+                                "tipo_venda",
+                                array(
+                                    "id" => "tipo_venda",
+                                    "type" => "select",
+                                    "label" => false,
+                                    "class" => "input-control",
+                                    "empty" => "<Todos>",
+                                    "options" =>
+                                    array(
+                                        TYPE_SELL_FREE_TEXT,
+                                        TYPE_SELL_DISCOUNT_TEXT,
+                                        TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                                    )
+                                )
+                            ); ?>
+                        </div>
+
+                        <?php if ($tipoPerfil <= PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
+                            <div class="col-lg-2">
+                                <label for="tipo_equipamento">Tipo de Equipamento:</label>
+                                <?= $this->Form->input(
+                                    "tipo_equipamento",
+                                    array(
+                                        "id" => "tipo_equipamento",
+                                        "type" => "select",
+                                        "label" => false,
+                                        "class" => "input-control",
+                                        "empty" => "<Todos>",
+                                        "options" => array(
+                                            TYPE_EQUIPMENT_RTI,
+                                            TYPE_EQUIPMENT_PRODUCT_SERVICES
+                                        )
+                                    )
+                                );
+                                ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group row">

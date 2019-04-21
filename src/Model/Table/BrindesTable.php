@@ -236,26 +236,53 @@ class BrindesTable extends GenericTable
 
      * @return \App\Model\Entity\Brindes $brinde
      */
-    public function findBrindes(array $where_parameters = [], bool $useContain = true, array $containConditions = array(), array $selectFields = array())
+    public function findBrindes(int $clientesId = 0, string $nome = null, int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, $tipoCodigoBarras = null, float $precoPadrao = null, $valorMoedaVendaPadrao = null)
     {
         try {
 
-            if (sizeof($containConditions) == 0 && $useContain) {
-                $containConditions = array("Clientes");
+            $where = array();
+
+            if (!empty($clientesId)) {
+                $where[] = array("clientes_id" => $clientesId);
             }
+
+            if (!empty($nome)) {
+                $where[] = array("nome" => $nome);
+            }
+
+            if (!empty($tempoUsoBrindeMin)){
+                $where[] = array("tempo_uso_brinde >= " => $tempoUsoBrindeMin);
+            }
+
+            if (!empty($tempoUsoBrindeMax)){
+                $where[] = array("tempo_uso_brinde <= " => $tempoUsoBrindeMax);
+            }
+
+            if (isset($ilimitado)){
+                $where[] = array("ilimitado" => $ilimitado);
+            }
+
+            if (!empty($tipoEquipamento)){
+                $where[] = array("tipo_equipamento" => $tipoEquipamento);
+            }
+
+            if (!empty($tipoCodigoBarras)){
+                $where[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
+            }
+
+            if (isset($precoPadrao)){
+                $where[] = array("preco_padrao" => $precoPadrao);
+            }
+
+            if (isset($valorMoedaVendaPadrao)){
+                $where[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
+            }
+
+            $whereConditions = $where;
 
             $brindes = $this->find('all')
-                ->where($where_parameters);
-
-            if (sizeof($containConditions) == 0 && $useContain) {
-                $brindes = $brindes->contain('Clientes');
-            } else if ($useContain) {
-                $brindes = $brindes->contain($containConditions);
-            }
-
-            if (sizeof($selectFields) > 0) {
-                $brindes = $brindes->select($selectFields);
-            }
+            ->contain(array("Clientes"))
+            ->where($whereConditions);
 
             return $brindes;
         } catch (\Exception $e) {

@@ -11,6 +11,8 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
+// @TODO Reestruturar Table
+
 /**
  * ClientesHasBrindesHabilitadosPreco Model
  *

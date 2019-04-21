@@ -45,16 +45,50 @@ class BrindesController extends AppController
      */
     public function index($clientesId)
     {
+        $arraySet = array("redesId", "clientesId", "brindes", "usuario", "dataPost");
         $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-        $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
-        $redesId = $rede["redes_id"];
-        $arraySet = array("redesId", "clientesId", "brindes");
+        if ($usuarioAdministrar){
+            $this->usuarioLogado = $usuarioAdministrar;
+        }
 
-        $this->paginate = [
-            'contain' => ['Clientes']
-        ];
-        $brindes = $this->paginate($this->Brindes);
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+        $redesId = $rede["id"];
+
+        if (empty($redesId)){
+            $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+            $redesId = $rede["redes_id"];
+        }
+
+        $nome = null;
+        $tempoUsoBrindeMin = null;
+        $tempoUsoBrindeMax = null;
+        $ilimitado = null;
+        $tipoEquipamento = null;
+        $tipoCodigoBarras = null;
+        $precoPadrao = null;
+        $valorMoedaVendaPadrao = null;
+
+        if ($this->request->is('post')){
+            $dataPost = $this->request->getData();
+
+            $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
+            $tempoUsoBrindeMin = !empty($dataPost["tempo_uso_brinde_min"]) ? $dataPost["tempo_uso_brinde_min"] : null;
+            $tempoUsoBrindeMax = !empty($dataPost["tempo_uso_brinde_max"]) ? $dataPost["tempo_uso_brinde_max"] : null;
+            $ilimitado = !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null;
+            $tipoEquipamento = !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null;
+            $tipoCodigoBarras = !empty($dataPost["tipo_codigo_barras"]) ? $dataPost["tipo_codigo_barras"] : null;
+            $precoPadrao = !empty($dataPost["preco_padrao"]) ? $dataPost["preco_padrao"] : null;
+            $valorMoedaVendaPadrao = !empty($dataPost["valor_moeda_venda_padrao"]) ? $dataPost["valor_moeda_venda_padrao"] : null;
+
+        }
+
+        $brindes = $this->Brindes->findBrindes($clientesId, $nome, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadrao, $valorMoedaVendaPadrao);
+        $brindes = $this->paginate($brindes, array("limit" => 10));
         $this->set(compact($arraySet));
     }
 
