@@ -237,22 +237,33 @@ class BrindesTable extends GenericTable
     /**
      * Procura brindes conforme filtros
      *
-     * @param array $where_parameters Parametros de pesquisa
-     * @param boolean $useContain Usar contain
-     * @param array $containConditions Condições do contain
-     * @param array $selectFields Campos de seleção
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do posto/loja
+     * @param string $nome Nome do Brinde
+     * @param integer $tempoUsoBrindeMin Tempo Uso Brinde Minimo
+     * @param integer $tempoUsoBrindeMax Tempo Uso Brinde Maximo
+     * @param integer $ilimitado Ilimitado
+     * @param string $tipoEquipamento Tipo Equipamento
+     * @param string $tipoCodigoBarras Tipo Codigo Barras
+     * @param float $precoPadraoMin Preco Padrao Minimo
+     * @param float $precoPadraoMax Preco Padrao Maximo
+     * @param float $valorMoedaVendaPadraoMin Valor Moeda Venda Padrao Minimo
+     * @param float $valorMoedaVendaPadraoMax Valor Moeda Venda Padrao Maximo
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     *
-     * @date 01/07/2017
+     * @since 2017-07-01
 
-     * @return \App\Model\Entity\Brindes $brinde
+     * @return \App\Model\Entity\Brindes[] $brindes
      */
-    public function findBrindes(int $clientesId = 0, string $nome = null, int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, $tipoCodigoBarras = null, float $precoPadrao = null, $valorMoedaVendaPadrao = null)
-    {
+
+    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null) {
         try {
 
             $where = array();
+
+            if (!empty($redesId)){
+                $where[] = array("RedesHasClientes.redes_id" => $redesId);
+            }
 
             if (!empty($clientesId)) {
                 $where[] = array("clientes_id" => $clientesId);
@@ -292,8 +303,14 @@ class BrindesTable extends GenericTable
 
             $whereConditions = $where;
 
+            $contains = array("Clientes");
+
+            if (!empty($redesId)) {
+                $contains = array("Clientes.RedesHasClientes");
+            }
+
             $brindes = $this->find('all')
-                ->contain(array("Clientes"))
+                ->contain($contains)
                 ->where($whereConditions);
 
             return $brindes;
@@ -377,7 +394,7 @@ class BrindesTable extends GenericTable
 
             return $brindesIds;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $stringError = __("Erro ao obter ids de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
@@ -414,7 +431,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes $brinde
      * @author
      **/
-    public function findBrindesByConditions($redesId = null, $clientesIds = array(), $id = null, $nome = null, int $tiposBrindesRedesId = null, int $tempoUsoBrinde = null, bool $ilimitado = null, bool $habilitado = null, float $precoPadrao = null, float $valorMoedaVendaPadrao = null, string $nomeImg = null)
+    public function findBrindesByConditions($redesId = null, $clientesIds = array(), $id = null, $nome = null, int $codigoPrimario = null, int $tempoUsoBrinde = null, bool $ilimitado = null, bool $habilitado = null, float $precoPadrao = null, float $valorMoedaVendaPadrao = null, string $nomeImg = null)
     {
         try {
 
@@ -433,8 +450,8 @@ class BrindesTable extends GenericTable
                 $whereConditions[] = array("Clientes.id IN " => $redesId);
             }
 
-            if ($tiposBrindesRedesId > 0) {
-                $whereConditions[] = array("Brindes.tipos_brindes_redes_id" => $tiposBrindesRedesId);
+            if (!empty($codigoPrimario)) {
+                $whereConditions[] = array("Brindes.codigo_primario" => $codigoPrimario);
             }
 
             if ($tempoUsoBrinde > 0) {
@@ -475,10 +492,11 @@ class BrindesTable extends GenericTable
                 )
                 ->first();
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao gravar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
+            Log::write("error", $trace);
 
             return $stringError;
         }

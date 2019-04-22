@@ -1,16 +1,10 @@
 <?php
 namespace App\Model\Table;
 
-use ArrayObject;
-use Cake\Event\Event;
 use Cake\Log\Log;
-use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
-// @TODO Reestruturar Table
 
 /**
  * ClientesHasBrindesEstoque Model
@@ -25,45 +19,13 @@ use Cake\Validation\Validator;
  * @method \App\Model\Entity\BrindesEstoque patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method \App\Model\Entity\BrindesEstoque[] patchEntities($entities, array $data, array $options = [])
  * @method \App\Model\Entity\BrindesEstoque findOrCreate($search, callable $callback = null, $options = [])
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-01-22
+ *
  */
-class ClientesHasBrindesEstoqueTable extends GenericTable
+class BrindesEstoqueTable extends GenericTable
 {
-
-    /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $clientesHasBrindesEstoqueTable = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of brinde table property
-     *
-     * @return (Cake\ORM\Table) Table object
-     */
-    private function _getClientesHasBrindesEstoqueTable()
-    {
-        if (is_null($this->clientesHasBrindesEstoqueTable)) {
-            $this->_setClientesHasBrindesEstoqueTable();
-        }
-        return $this->clientesHasBrindesEstoqueTable;
-    }
-
-    /**
-     * Method set of brinde table property
-     *
-     * @return void
-     */
-    private function _setClientesHasBrindesEstoqueTable()
-    {
-        $this->clientesHasBrindesEstoqueTable = TableRegistry::get('ClientesHasBrindesEstoque');
-    }
 
     /**
      * Initialize method
@@ -76,7 +38,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     {
         parent::initialize($config);
 
-        $this->setTable('clientes_has_brindes_estoque');
+        $this->setTable('brindes_estoque');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
@@ -93,15 +55,6 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
                 'foreignKey' => 'usuarios_id'
             ]
         );
-
-        $this->belongsTo(
-            'ClientesHasBrindesHabilitados',
-            [
-                'className' => 'ClientesHasBrindesHabilitados',
-                'foreignKey' => 'id',
-                'joinType' => 'INNER'
-            ]
-        );
     }
 
     /**
@@ -114,6 +67,14 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     {
         $validator
             ->allowEmpty('id', 'create');
+
+        $validator
+            ->notEmpty("brindes_id", "Campo BRINDES_ID não informado!")
+            ->integer("brindes_id");
+
+        $validator
+            ->allowEmpty("usuarios_id")
+            ->integer("usuarios_id");
 
         $validator
             ->integer('quantidade')
@@ -167,7 +128,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     /**
      * Adiciona estoque para Clientes Has Brindes Estoque
      *
-     * @param int $clientesHasBrindesHabilitadosId
+     * @param int $brindesId
      * @param int $usuariosId
      * @param int $quantidade
      * @param int $tipoOperacao (0: Entrada estoque, 1: Saída tipo Brinde, 2: Saída tipo Venda, 3: Devolução)
@@ -175,7 +136,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
      *
      * @return void
      **/
-    public function addEstoque($clientesHasBrindesHabilitadosId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
+    public function addEstoque($brindesId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
     {
         try {
             $estoque = null;
@@ -186,14 +147,13 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
                 $estoque = $this->get($id);
             }
 
-            $estoque["clientes_has_brindes_habilitados_id"] = $clientesHasBrindesHabilitadosId;
+            $estoque["brindes_id"] = $brindesId;
             $estoque["usuarios_id"] = $usuariosId;
             $estoque["quantidade"] = $quantidade;
             $estoque["tipo_operacao"] = $tipoOperacao;
             $estoque["data"] = date("Y-m-d H:i:s");
 
             return $this->save($estoque);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
@@ -205,52 +165,83 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     #region Read
 
     /**
-     * Get one Brinde Habilitado For Cliente using Brindes Id
+     * BrindesEstoqueTable::getEstoqueForBrinde
      *
-     * @param int $clientes_has_brindes_habilitados_id Id de Brinde Habilitado
+     * Obtem Estoque do Brinde
      *
-     * @return (entity\ClientesHasBrindesHabilitados) $entity
-     **/
-    public function getEstoqueForBrindeId($clientes_has_brindes_habilitados_id, $quantidade = null, array $whereConditions = [], int $qteRegistros = 10)
+     * @param int $brindesId Id de Brinde
+     * @param int $usuariosId Id do Usuário da transação
+     * @param int $quantidadeMin Quantidade Minima
+     * @param int $quantidadeMax Quantidade Maxima
+     * @param string $dataMin Data Mínima
+     * @param string $dataMax Data Máxima
+     * @param integer $qteRegistros Quantidade de Registros à serem pesquisados
+     * @param integer $orderBy Ordenação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-22
+     *
+     * @return App\Model\Entity\BrindesEstoque $brindesEstoques
+     *
+     */
+    public function getEstoqueForBrinde(int $brindesId, int $usuariosId = null, int $quantidadeMin = null, int $quantidadeMax = null, string $tipoOperacao = null, string $dataMin = null,  string $dataMax = null, int $qteRegistros = 10, string $orderBy = null)
     {
         try {
 
             $conditions = [];
 
-            array_push($conditions, ['clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id]);
+            $conditions[] = array("BrindesEstoque.brindes_id" => $brindesId);
 
-            foreach ($whereConditions as $key => $value) {
-                $conditions[] = $value;
+            if (!empty($usuariosId)) {
+                $conditions[] = array("BrindesEstoque.usuarios_id" => $usuariosId);
             }
 
-            if (!is_null($quantidade)) {
-                array_push($conditions, ['quantidade' => $quantidade]);
+            if (!empty($quantidadeMin)) {
+                $conditions[] = array("BrindesEstoque.quantidade_min >= " => $quantidadeMin);
             }
 
-            $estoque = $this->_getClientesHasBrindesEstoqueTable()->find('all')
+            if (!empty($quantidadeMax)) {
+                $conditions[] = array("BrindesEstoque.quantidade_max <=" => $quantidadeMax);
+            }
+
+            if (!empty($tipoOperacao)) {
+                $conditions[] = array("BrindesEstoque.tipo_operacao" => $tipoOperacao);
+            }
+
+            if (!empty($dataMin)) {
+                $conditions[] = array("BrindesEstoque.data >= " => $dataMin);
+            }
+
+            if (!empty($dataMax)) {
+                $conditions[] = array("BrindesEstoque.data <= " => $dataMax);
+            }
+
+            $estoque = $this->find('all')
                 ->contain(['Usuarios'])
                 ->where($conditions);
 
             $apenasUm = false;
 
-            if (!is_null($quantidade)) {
-                $apenasUm = true;
-                $estoque = $estoque->first();
-            }
-            if (!is_null($estoque) && !$apenasUm) {
-                if (!is_null($qteRegistros)) {
+            if (!empty($qteRegistros)) {
+                if ($qteRegistros == 1) {
+                    $estoque = $estoque->first();
+                } else {
                     $estoque = $estoque->limit($qteRegistros);
                 }
             }
 
+            if (!empty($orderBy)) {
+                $estoque->order(array("BrindesEstoque.id" => $orderBy));
+            }
+
             return $estoque;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+
+            $stringError = __("Erro ao obter estoque de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write('error', $trace);
         }
     }
 
@@ -264,13 +255,12 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     public function getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id)
     {
         try {
-            $query = $this->_getClientesHasBrindesEstoqueTable()->find();
+            $query = $this->_getBrindesEstoqueTable()->find();
 
             $queryResult = $query->select(['sum' => $query->func()->sum('quantidade')])
                 ->where(['clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id])->first();
 
             return $queryResult['sum'];
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
@@ -294,7 +284,6 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
         $left = $this->getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id);
 
         return ['enough' => $left > $checkout_ammount, 'left' => $left];
-
     }
 
     #region Update
@@ -312,7 +301,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
     {
         try {
 
-            $clientes_has_brindes_habilitados_id = $this->_getClientesHasBrindesEstoqueTable()->ClientesHasBrindesHabilitados->find('all')
+            $clientes_has_brindes_habilitados_id = $this->_getBrindesEstoqueTable()->ClientesHasBrindesHabilitados->find('all')
                 ->where(['clientes_id in' => $clientes_ids])->select(['id']);
 
             $clientes_has_brindes_habilitados_ids = [];
@@ -322,7 +311,7 @@ class ClientesHasBrindesEstoqueTable extends GenericTable
             }
 
             if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
-                return $this->_getClientesHasBrindesEstoqueTable()
+                return $this->_getBrindesEstoqueTable()
                     ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
             } else {
                 return true;

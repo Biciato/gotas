@@ -266,6 +266,15 @@ const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação
 const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
 const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 
+const MESSAGE_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MESSAGE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
+
+const TYPE_OPERATION_INITIALIZE = "Criação";
+const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";
+const TYPE_OPERATION_SELL_BRINDE = "Saída Brinde";
+const TYPE_OPERATION_SELL_CURRENCY = "Saída Venda";
+const TYPE_OPERATION_REDEEM = "Retornado";
+
 
 const TYPE_SELL_FREE = 0;
 const TYPE_SELL_FREE_TEXT = "Isento";

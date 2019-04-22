@@ -460,7 +460,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                 if (!$brinde["ilimitado"]) {
                     $estoque = $this->ClientesHasBrindesEstoque
-                        ->getEstoqueForBrindeId(
+                        ->getEstoqueForBrinde(
                             $clienteHasBrindeHabilitado->id,
                             0
                         );

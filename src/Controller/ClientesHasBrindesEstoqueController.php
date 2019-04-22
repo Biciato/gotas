@@ -561,7 +561,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             $cliente = $this->Clientes->getClienteById($brinde->clientes_id);
 
-            $historicoEstoqueBrinde = $this->ClientesHasBrindesEstoque->getEstoqueForBrindeId($clientesHasBrindesHabilitadoId, null, $whereConditions, $qteRegistros);
+            $historicoEstoqueBrinde = $this->ClientesHasBrindesEstoque->getEstoqueForBrinde($clientesHasBrindesHabilitadoId, null, $whereConditions, $qteRegistros);
         }
 
         $arraySet = [

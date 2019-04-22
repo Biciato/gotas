@@ -1632,7 +1632,7 @@ class CuponsController extends AppController
                     foreach ($cupons->toArray() as $key => $cupom) {
                         $cliente_has_brinde_estoque = $this
                             ->ClientesHasBrindesEstoque
-                            ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                            ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
 
                         $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
                             $cupom->clientes_has_brindes_habilitados_id,
@@ -1873,7 +1873,7 @@ class CuponsController extends AppController
 
                     $cliente_has_brinde_estoque = $this
                         ->ClientesHasBrindesEstoque
-                        ->getEstoqueForBrindeId($cupom->clientes_has_brindes_habilitados_id);
+                        ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
 
                     $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
                         $cupom->clientes_has_brindes_habilitados_id,

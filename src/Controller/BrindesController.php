@@ -52,7 +52,7 @@ class BrindesController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $dataPost = array();
 
-        if ($usuarioAdministrar){
+        if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
@@ -60,7 +60,7 @@ class BrindesController extends AppController
         $rede = $sessaoUsuario["rede"];
         $redesId = $rede["id"];
 
-        if (empty($redesId)){
+        if (empty($redesId)) {
             $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
             $redesId = $rede["redes_id"];
         }
@@ -71,10 +71,12 @@ class BrindesController extends AppController
         $ilimitado = null;
         $tipoEquipamento = null;
         $tipoCodigoBarras = null;
-        $precoPadrao = null;
-        $valorMoedaVendaPadrao = null;
+        $precoPadraoMin = null;
+        $precoPadraoMax = null;
+        $valorMoedaVendaPadraoMin = null;
+        $valorMoedaVendaPadraoMax = null;
 
-        if ($this->request->is('post')){
+        if ($this->request->is('post')) {
             $dataPost = $this->request->getData();
 
             $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
@@ -83,12 +85,13 @@ class BrindesController extends AppController
             $ilimitado = !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null;
             $tipoEquipamento = !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null;
             $tipoCodigoBarras = !empty($dataPost["tipo_codigo_barras"]) ? $dataPost["tipo_codigo_barras"] : null;
-            $precoPadrao = !empty($dataPost["preco_padrao"]) ? $dataPost["preco_padrao"] : null;
-            $valorMoedaVendaPadrao = !empty($dataPost["valor_moeda_venda_padrao"]) ? $dataPost["valor_moeda_venda_padrao"] : null;
-
+            $precoPadraoMin = !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null;
+            $precoPadraoMax = !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null;
+            $valorMoedaVendaPadraoMin = !empty($dataPost["valor_moeda_venda_padrao_min"]) ? $dataPost["valor_moeda_venda_padrao_min"] : null;
+            $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
         }
 
-        $brindes = $this->Brindes->findBrindes($clientesId, $nome, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadrao, $valorMoedaVendaPadrao);
+        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
         $this->set(compact($arraySet));
     }
@@ -128,7 +131,7 @@ class BrindesController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $cliente = $sessaoUsuario["cliente"];
 
-        if ($usuarioAdministrar){
+        if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
@@ -162,6 +165,12 @@ class BrindesController extends AppController
                 $data = $this->request->getData();
                 $errors = array();
 
+                // Trata tipo de equipamento
+
+                if ($this->usuarioLogado["tipo_perfil"] !=  PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    $brinde["tipo_equipamento"] = TYPE_EQUIPMENT_PRODUCT_SERVICES;
+                }
+
                 // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
                 if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
                     $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
@@ -171,10 +180,16 @@ class BrindesController extends AppController
                     $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
                 }
 
-                $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+                $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
+                $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
 
-                if (empty($tiposBrindesRedesId)) {
-                    $errors[] = "É necessário selecionar um tipo de brinde!";
+                if (empty($tipoEquipamento)) {
+                    $errors[] = MESSAGE_TYPE_EQUIPMENT_EMPTY;
+                }
+
+                if ($tipoEquipamento == TYPE_EQUIPMENT_RTI && empty($codigoPrimario)) {
+                    $errors[] = MESSAGE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -189,13 +204,8 @@ class BrindesController extends AppController
                     return;
                 }
 
-                $brinde = $this->Brindes->patchEntity($brinde, $data);
 
-                // Se o brinde for do tipo SMART SHOWER, é ilimitado
-
-                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
-
-                if ($tipoBrindeRede["equipamento_rti"]) {
+                if ($codigoPrimario > 0 && $codigoPrimario < 5) {
                     $brinde["ilimitado"] = 1;
                 } else {
                     $brinde["ilimitado"] = $data["ilimitado"];
@@ -203,7 +213,8 @@ class BrindesController extends AppController
 
                 $brinde["preco_padrao"] = (float)$data['preco_padrao'];
 
-                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"])) {
+                $brindeCheck = $this->Brindes->findBrindesByConditions($rede["id"], array($clientesId), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"]);
+                if ($brindeCheck) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
                     $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
@@ -213,20 +224,13 @@ class BrindesController extends AppController
                     }
 
                     $brinde["clientes_id"] = $clientesId;
+
+                    $brinde = $this->Brindes->patchEntity($brinde, $data);
                     $brinde = $this->Brindes->saveBrinde($brinde);
 
                     $errors = $brinde->errors();
-                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
-                        $clientesId,
-                        $data["tipos_brindes_redes_id"]
-                    );
-
-                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0) {
-                        $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
-                    }
 
                     if ($brinde) {
-                        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado($clientesId, $brinde->id, $tiposBrindesClienteSelecionadoId);
 
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
@@ -236,26 +240,22 @@ class BrindesController extends AppController
                          */
 
                         if (!$brinde["ilimitado"]) {
-                            $estoque = $this->ClientesHasBrindesEstoque
-                                ->getEstoqueForBrindeId(
-                                    $clienteHasBrindeHabilitado->id,
+                            $estoque = $this->BrindesEstoque
+                                ->getEstoqueForBrinde(
+                                    $brinde["id"],
                                     0
                                 );
 
                             if (is_null($estoque)) {
                                 // Não tem estoque, criar novo registro vazio
                                 $result
-                                    = $this->ClientesHasBrindesEstoque->addEstoque(
-                                        $clienteHasBrindeHabilitado->id,
-                                        $this->usuarioLogado['id'],
-                                        0,
-                                        0
-                                    );
+                                    = $this->ClientesHasBrindesEstoque->addEstoque($brinde["id"], $this->usuarioLogado["id"], 0, 0, TYPE_OPERATION_INITIALIZE, null, null, 0, null);
                             }
                         }
 
+                        // @todo CONTINUAR
                         // brinde habilitado, então cadastra novo preço
-                        if ($clienteHasBrindeHabilitado) {
+                        if ($brinde) {
                             $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
                                 $clienteHasBrindeHabilitado["id"],
                                 $clientesId,
@@ -327,6 +327,8 @@ class BrindesController extends AppController
      * Método para brindes da rede (mostra os brindes que a rede possui)
      *
      * @return \Cake\Http\Response|void
+     *
+     * @deprecated 1.0 esta action não será mais utilizada.
      */
     public function brindesMinhaRede($param = null)
     {
@@ -392,7 +394,7 @@ class BrindesController extends AppController
 
         array_push($conditions, ['clientes_id ' => $unidadesIds]);
 
-        $brindes = $this->Brindes->findBrindes($conditions);
+        // $brindes = $this->Brindes->findBrindes($conditions);
         $brindes = $this->paginate($brindes, ['limit' => 10]);
         $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"])->toArray();
 
@@ -773,6 +775,8 @@ class BrindesController extends AppController
      * Relatóriod de Brindes de cada Rede
      *
      * @return \Cake\Http\Response|void
+     *
+     * @deprecated 1.0
      */
     public function relatorioBrindesRedes()
     {

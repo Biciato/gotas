@@ -7,6 +7,7 @@
  */
 
 use Cake\Core\Configure;
+use Cake\I18n\Number;
 
 ?>
 
@@ -25,49 +26,54 @@ use Cake\Core\Configure;
     </div>
 
     <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
-    <div class="col-lg-3">
-        <label for="tipo_equipamento">Tipo de Equipamento</label>
-        <?= $this->Form->input("tipo_equipamento",
-            array(
-                "id" => "tipo_equipamento",
-                "value" => !empty($brinde["tipo_equipamento"]) ? $brinde['tipo_equipamento'] : 0,
-                "required" => "required",
-                "class" => "tipo-equipamento",
-                "readonly" => $editMode == 1 ? 'readonly' : '',
-                "label" => false,
-                "empty" => true,
-                "options" => array(
-                    TYPE_EQUIPMENT_PRODUCT_SERVICES => TYPE_EQUIPMENT_PRODUCT_SERVICES,
-                    TYPE_EQUIPMENT_RTI => TYPE_EQUIPMENT_RTI
+        <div class="col-lg-3">
+            <label for="tipo_equipamento">Tipo de Equipamento*</label>
+            <?= $this->Form->input("tipo_equipamento",
+                array(
+                    "id" => "tipo_equipamento",
+                    "value" => !empty($brinde["tipo_equipamento"]) ? $brinde['tipo_equipamento'] : 0,
+                    "required" => "required",
+                    "class" => "tipo-equipamento",
+                    "readonly" => $editMode == 1 ? 'readonly' : '',
+                    "label" => false,
+                    "empty" => true,
+                    "options" => array(
+                        TYPE_EQUIPMENT_PRODUCT_SERVICES => TYPE_EQUIPMENT_PRODUCT_SERVICES,
+                        TYPE_EQUIPMENT_RTI => TYPE_EQUIPMENT_RTI
+                    )
                 )
             )
-        )
-        ;?>
-    </div>
-    <div class="col-lg-3">
-        <label for="código_primario">Código Primário</label>
-        <input type="number"
-            name="codigo_primario"
-            id="codigo_primario"
-            class="form-control"
-            required="false"
-            min="1"
-            max="99"
-            title="Código Primario de Equipamento RTI"
-            placeHolder="Código Primario de Equipamento RTI"
-            value="<?= $brinde["codigo_primario"]?>"
-            >
-    </div>
+            ;?>
+        </div>
+        <div class="col-lg-2">
+            <label for="codigo_primario">Código Primário*</label>
+            <input type="number"
+                name="codigo_primario"
+                id="codigo_primario"
+                class="form-control codigo-primario"
+                required="false"
+                min="1"
+                max="99"
+                title="Código Primario de Equipamento RTI"
+                placeHolder="Código Primario..."
+                value="<?= $brinde["codigo_primario"]?>"
+                >
+        </div>
+    <?php else: ?>
+        <input type="hidden"
+            name="tipo_equipamento"
+            id="tipo_equipamento"
+            value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES?>" >
     <?php endif;?>
 
-    <div class="col-lg-3">
-        <label for="nome">Tempo de Uso (minutos)*</label>
+    <div class="col-lg-4">
+        <label for="tempo_uso_brinde">Tempo (minutos) / Cód. Secundário* </label>
         <input type="number"
             name="tempo_uso_brinde"
             id="tempo_uso_brinde"
             required="required"
             placeholder="Tempo de Uso (minutos)..."
-            class="form-control"
+            class="form-control tempo-uso-brinde"
             min="0"
             max="20"
             title="Para Brindes que funcionam por tempo, informe valor em minutos"
@@ -77,7 +83,7 @@ use Cake\Core\Configure;
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-3">
+    <div class="col-lg-2">
         <label for="ilimitado">Ilimitado*</label>
         <?= $this->Form->input("ilimitado",
             array(
@@ -95,7 +101,7 @@ use Cake\Core\Configure;
         )
         ;?>
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-2">
         <label for="habilitado">Habilitado*</label>
         <?= $this->Form->input("habilitado",
             array(
@@ -105,7 +111,6 @@ use Cake\Core\Configure;
                 "class" => "habilitado",
                 "readonly" => $editMode == 1 ? 'readonly' : '',
                 "label" => false,
-                "empty" => true,
                 "options" => array(
                     1 => "Sim",
                     0 => "Não",
@@ -114,7 +119,7 @@ use Cake\Core\Configure;
         )
         ;?>
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-2">
         <label for="tipo_venda">Tipo de Venda*</label>
         <?= $this->Form->input("tipo_venda",
             array(
@@ -135,7 +140,7 @@ use Cake\Core\Configure;
         ;?>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <label for="preco_padrao">Preço Padrão Gotas*</label>
         <input type="text"
             name="preco_padrao"
@@ -145,33 +150,15 @@ use Cake\Core\Configure;
             class="form-control"
             value="<?= $brinde['preco_padrao']?>">
     </div>
-    <div class="col-lg-4">
-        <label for="valor_moeda_venda_padrao">Preço Padrão de Venda Avulsa (R$)*</label>
+    <div class="col-lg-3">
+        <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
         <input type="text"
             name="valor_moeda_venda_padrao"
             required="required"
             placeholder="Preço Padrão de Venda Avulsa (R$)..."
             id="valor_moeda_venda_padrao"
             class="form-control"
-            value="<?= $brinde['valor_moeda_venda_padrao']?>">
-    </div>
-</div>
-
-
-<div class="form-group ">
-    <div class="col-lg-12">
-        <?= $this->Form->input(
-            'ilimitado',
-            [
-                'type' => 'checkbox',
-                'id' => 'ilimitado',
-                'label' => false,
-                'required' => false
-            ]
-        ); ?>
-        <label for="ilimitado" class="form-check-label">
-            Estoque de Brinde Ilimitado?
-        </label>
+            value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2)?>">
     </div>
 </div>
 
@@ -248,14 +235,13 @@ if ($exibirImagemAtual) :
 <div class="form-group row ">
     <div class="col-lg-12 text-right">
         <button type="submit"
-            class="btn btn-primary botao-confirmar"
-            >
-            <span class="fa fa-save"></span>
+            class="btn btn-primary botao-confirmar">
+            <span class="fa fa-save">
+            </span>
             Salvar
         </button>
         <a href="/brindes/brindes-minha-rede/"
-            class="btn btn-danger botao-cancelar"
-            >
+            class="btn btn-danger botao-cancelar">
             <span class="fa fa-window-close"></span>
             Cancelar
         </a>

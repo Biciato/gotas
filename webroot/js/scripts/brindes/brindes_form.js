@@ -38,29 +38,40 @@ $(document).ready(function () {
         }
     }
 
-    var tipoBrindeSelecionado = $("#tipos_brindes_redes_id option:selected");
 
-    if (tipoBrindeSelecionado.length > 0) {
-        tipoBrindeSelecionado = tipoBrindeSelecionado[0];
+    /**
+     * brindes_form.js::tipo-equipamento-onchange
+     *
+     * Define obrigatoriedade de campos 'Código Brinde' e 'Tempo Uso brinde' se equipamento = RTI
+     *
+     * @param Object {value} Valor a ser validado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-22
+     *
+     * @return void
+     */
+    var tipoEquipamentoOnChange = function (value) {
+        var obrigatorio = false;
+        var labelCodigoPrimario = "Código Primário";
+        var labelTempoUsoBrinde = "Tempo (minutos) / Cód. Secundário";
+
+        if (value == "Equipamento RTI") {
+            obrigatorio = true;
+            labelCodigoPrimario += "*";
+            labelTempoUsoBrinde += "*";
+        }
+        $(".codigo-primario").attr("required", obrigatorio);
+        $("label[for=codigo_primario]").text(labelCodigoPrimario);
+        $(".tempo-uso-brinde").attr("required", obrigatorio);
+        $("label[for=tempo_uso_brinde]").text(labelTempoUsoBrinde);
     }
-
-    // Obriga o campo a ser obrigatório se for brinde smart shower
-    var obrigatorio = jQuery("option:selected", this).data("obrigatorio");
-    if (obrigatorio) {
-        $("#tempo_uso_brinde").attr("required", obrigatorio);
-    } else {
-        $("#tempo_uso_brinde").removeAttr("required");
-    }
-
-    var tipoPrincipal = jQuery("option:selected", this).data("tipo-principal-codigo-brinde");
-
-    var marcarIlimitado = tipoPrincipal >= 1 && tipoPrincipal <= 4;
-    $("#ilimitado").attr("checked", marcarIlimitado);
-    $("#ilimitado").attr("disabled", marcarIlimitado);
+    $(".tipo-equipamento").on("change", function (e) {
+        tipoEquipamentoOnChange(e.target.value);
+    }).change();
 
 
     var editMode = $("#edit_mode").val();
-
     var nome = $("#nome").val();
 
     // Tipo de Venda
@@ -135,12 +146,12 @@ $(document).ready(function () {
 
     var defineFormatoPrecosVenda = function (value) {
         if (value) {
-            $("#preco_padrao").on("focus", function(){
+            $("#preco_padrao").on("focus", function () {
                 $("#preco_padrao").maskMoney({ clearIncomplete: true });
                 $("#preco_padrao").attr("maxlength", 10);
             });
 
-            $("#valor_moeda_venda_padrao").on("focus", function(){
+            $("#valor_moeda_venda_padrao").on("focus", function () {
                 $("#valor_moeda_venda_padrao").maskMoney({ clearIncomplete: true });
                 $("#valor_moeda_venda_padrao").attr("maxlength", 10);
             });
@@ -164,7 +175,7 @@ $(document).ready(function () {
      *
      * @return void
      */
-    var verificaPreenchimentoCamposPreco = function(){
+    var verificaPreenchimentoCamposPreco = function () {
         var valorGotas = $("#preco_padrao").val();
 
         if (parseFloat(valorGotas) == 0 || valorGotas.length == 0) {
