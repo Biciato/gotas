@@ -32,7 +32,7 @@ use Cake\Core\Configure;
                                 type="text"
                                 name="nome"
                                 class="input-control form-control"
-                                value="<?php echo $dataPost['nome']?>"
+                                value="<?php echo !empty($dataPost['nome']) ? $dataPost["nome"] : null ?>"
                                 placeholder="Nome"
                             />
 
@@ -46,6 +46,7 @@ use Cake\Core\Configure;
                                     "id" => "ilimitado",
                                     "type" => "select",
                                     "empty" => "<Todos>",
+                                    "value" => !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null,
                                     "options" => Configure::read("yesNoArray")
                                 )
                             ); ?>
@@ -60,6 +61,7 @@ use Cake\Core\Configure;
                                     "type" => "select",
                                     "label" => false,
                                     "class" => "input-control",
+                                    "value" => !empty($dataPost["habilitado"]) ? $dataPost["habilitado"] : null,
                                     "empty" => "<Todos>",
                                     "options" => Configure::read("yesNoArray")
                                 )
@@ -73,6 +75,9 @@ use Cake\Core\Configure;
                                 name="preco_padrao_min"
                                 class="input-control form-control"
                                 id="preco_padrao_min"
+                                placeholder="Preço Mínimo em Gotas"
+                                value="<?php echo !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null?>"
+
                             />
                         </div>
 
@@ -83,11 +88,14 @@ use Cake\Core\Configure;
                                 name="preco_padrao_max"
                                 class="input-control form-control"
                                 id="preco_padrao_max"
+                                placeholder="Preço Máximo em Gotas"
+                                value="<?php echo !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null?>"
+
                             />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <label for="preco_reais_min">Preço Min. Reais:</label>
                             <input
                                 type="text"
@@ -95,10 +103,12 @@ use Cake\Core\Configure;
                                 id="preco_reais_min"
                                 class="input-control form-control"
                                 placeholder="Preço Mínimo em Reais"
+                                value="<?php echo !empty($dataPost["preco_reais_min"]) ? $dataPost["preco_reais_min"] : null?>"
+
                                 />
                         </div>
 
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <label for="preco_reais_max">Preço max. Reais:</label>
                             <input
                                 type="text"
@@ -106,12 +116,11 @@ use Cake\Core\Configure;
                                 id="preco_reais_max"
                                 class="input-control form-control"
                                 placeholder="Preço Máximo em Reais"
+                                value="<?php echo !empty($dataPost["preco_reais_max"]) ? $dataPost["preco_reais_max"] : null?>"
                             />
                         </div>
 
-
-
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <label for="tipo_venda">Tipo de Venda:</label>
                             <?= $this->Form->input(
                                 "tipo_venda",
@@ -121,6 +130,7 @@ use Cake\Core\Configure;
                                     "label" => false,
                                     "class" => "input-control",
                                     "empty" => "<Todos>",
+                                    "value" => !empty($dataPost["tipo_venda"]) ? $dataPost["tipo_venda"] : null,
                                     "options" =>
                                     array(
                                         TYPE_SELL_FREE_TEXT,
@@ -132,7 +142,7 @@ use Cake\Core\Configure;
                         </div>
 
                         <?php if ($tipoPerfil <= PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
-                            <div class="col-lg-2">
+                            <div class="col-lg-3">
                                 <label for="tipo_equipamento">Tipo de Equipamento:</label>
                                 <?= $this->Form->input(
                                     "tipo_equipamento",
@@ -142,6 +152,8 @@ use Cake\Core\Configure;
                                         "label" => false,
                                         "class" => "input-control",
                                         "empty" => "<Todos>",
+                                        "value" => !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null,
+
                                         "options" => array(
                                             TYPE_EQUIPMENT_RTI,
                                             TYPE_EQUIPMENT_PRODUCT_SERVICES

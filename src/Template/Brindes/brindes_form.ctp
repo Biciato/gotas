@@ -13,23 +13,7 @@ use Cake\Core\Configure;
 <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
 <?= $this->Form->hidden("edit-mode", ["id" => "edit_mode", "value" => $editMode]) ?>
 <div class="form-group row">
-    <div class="col-lg-4">
-        <label for="tipos_brindes_redes_id">Tipo de Brinde*</label>
-        <?= $this->Form->input(
-            'tipos_brindes_redes_id',
-            [
-                "type" => "select",
-                "id" => "tipos_brindes_redes_id",
-                "label" => false,
-                "required" => true,
-                "autofocus",
-                "empty" => true,
-                "options" => $tiposBrindesCliente
-            ]
-        ) ?>
-    </div>
-
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <label for="nome">Nome do Brinde*</label>
         <input type="text"
             name="nome"
@@ -40,7 +24,43 @@ use Cake\Core\Configure;
             value="<?= $brinde['nome']?>">
     </div>
 
-    <div class="col-lg-4">
+    <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
+    <div class="col-lg-3">
+        <label for="tipo_equipamento">Tipo de Equipamento</label>
+        <?= $this->Form->input("tipo_equipamento",
+            array(
+                "id" => "tipo_equipamento",
+                "value" => !empty($brinde["tipo_equipamento"]) ? $brinde['tipo_equipamento'] : 0,
+                "required" => "required",
+                "class" => "tipo-equipamento",
+                "readonly" => $editMode == 1 ? 'readonly' : '',
+                "label" => false,
+                "empty" => true,
+                "options" => array(
+                    TYPE_EQUIPMENT_PRODUCT_SERVICES => TYPE_EQUIPMENT_PRODUCT_SERVICES,
+                    TYPE_EQUIPMENT_RTI => TYPE_EQUIPMENT_RTI
+                )
+            )
+        )
+        ;?>
+    </div>
+    <div class="col-lg-3">
+        <label for="código_primario">Código Primário</label>
+        <input type="number"
+            name="codigo_primario"
+            id="codigo_primario"
+            class="form-control"
+            required="false"
+            min="1"
+            max="99"
+            title="Código Primario de Equipamento RTI"
+            placeHolder="Código Primario de Equipamento RTI"
+            value="<?= $brinde["codigo_primario"]?>"
+            >
+    </div>
+    <?php endif;?>
+
+    <div class="col-lg-3">
         <label for="nome">Tempo de Uso (minutos)*</label>
         <input type="number"
             name="tempo_uso_brinde"
@@ -53,10 +73,48 @@ use Cake\Core\Configure;
             title="Para Brindes que funcionam por tempo, informe valor em minutos"
             value="<?= $brinde['tempo_uso_brinde']?>">
     </div>
+
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-12">
+    <div class="col-lg-3">
+        <label for="ilimitado">Ilimitado*</label>
+        <?= $this->Form->input("ilimitado",
+            array(
+                "id" => "ilimitado",
+                "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
+                "required" => "required",
+                "class" => "ilimitado",
+                "readonly" => $editMode == 1 ? 'readonly' : '',
+                "label" => false,
+                "options" => array(
+                    1 => "Sim",
+                    0 => "Não",
+                )
+            )
+        )
+        ;?>
+    </div>
+    <div class="col-lg-3">
+        <label for="habilitado">Habilitado*</label>
+        <?= $this->Form->input("habilitado",
+            array(
+                "id" => "habilitado",
+                "value" => $brinde['habilitado'],
+                "required" => "required",
+                "class" => "habilitado",
+                "readonly" => $editMode == 1 ? 'readonly' : '',
+                "label" => false,
+                "empty" => true,
+                "options" => array(
+                    1 => "Sim",
+                    0 => "Não",
+                )
+            )
+        )
+        ;?>
+    </div>
+    <div class="col-lg-3">
         <label for="tipo_venda">Tipo de Venda*</label>
         <?= $this->Form->input("tipo_venda",
             array(
@@ -76,11 +134,9 @@ use Cake\Core\Configure;
         )
         ;?>
     </div>
-</div>
 
-<div class="form-group row">
-    <div class="col-lg-6">
-        <label for="preco_padrao">Preço Padrão em Gotas*</label>
+    <div class="col-lg-4">
+        <label for="preco_padrao">Preço Padrão Gotas*</label>
         <input type="text"
             name="preco_padrao"
             required="required"
@@ -89,7 +145,7 @@ use Cake\Core\Configure;
             class="form-control"
             value="<?= $brinde['preco_padrao']?>">
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <label for="valor_moeda_venda_padrao">Preço Padrão de Venda Avulsa (R$)*</label>
         <input type="text"
             name="valor_moeda_venda_padrao"

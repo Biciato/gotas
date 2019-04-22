@@ -15,7 +15,7 @@ $clientesId = isset($clientesId) ? $clientesId : null;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
 $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
 
-
+$textoBrinde = $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "IHM" : "Brinde";
 ?>
 
 <nav class="col-lg-3 col-md-4" id="actions-sidebar">
@@ -24,7 +24,7 @@ $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
 
 		<?php if ($mode == 'add' || $mode == 'edit') : ?>
 
-		<li><?= $this->Html->link(__('Novo {0}', ['Brinde']), ['action' => 'adicionar_brinde_rede', $clientesId]) ?></li>
+		<li><?= $this->Html->link(__('Novo {0}', [$textoBrinde]), ['action' => 'adicionar', $clientesId]) ?></li>
 
 		<?php endif; ?>
 

@@ -105,16 +105,28 @@ class BrindesTable extends GenericTable
             ->notEmpty('nome');
 
         $validator
-            ->boolean('equipamento_rti_shower');
+            ->integer('codigo_primario')
+            ->allowEmpty("codigo_primario");
 
         $validator
-            ->integer("tipos_brindes_redes_id")
-            ->requirePresence("tipos_brindes_redes_id", true);
+            ->scalar("tipo_equipamento", "create")
+            ->add(
+                "tipo_equipamento",
+                "inList",
+                array(
+                    "rule" => array("inList", array(TYPE_EQUIPMENT_PRODUCT_SERVICES, TYPE_EQUIPMENT_RTI)),
+                    "message" => "É necessário selecionar um Tipo de Equipamento",
+                    "allowEmpty" => false
+                )
+            )->notEmpty("tipo_equipamento");
 
         $validator
             ->integer('ilimitado')
             ->requirePresence('ilimitado', 'create')
             ->notEmpty('ilimitado');
+
+        $validator
+            ->integer("habilitado");
 
         $validator
             ->scalar("tipo_venda", "create")
@@ -250,39 +262,39 @@ class BrindesTable extends GenericTable
                 $where[] = array("nome" => $nome);
             }
 
-            if (!empty($tempoUsoBrindeMin)){
+            if (!empty($tempoUsoBrindeMin)) {
                 $where[] = array("tempo_uso_brinde >= " => $tempoUsoBrindeMin);
             }
 
-            if (!empty($tempoUsoBrindeMax)){
+            if (!empty($tempoUsoBrindeMax)) {
                 $where[] = array("tempo_uso_brinde <= " => $tempoUsoBrindeMax);
             }
 
-            if (isset($ilimitado)){
+            if (isset($ilimitado)) {
                 $where[] = array("ilimitado" => $ilimitado);
             }
 
-            if (!empty($tipoEquipamento)){
+            if (!empty($tipoEquipamento)) {
                 $where[] = array("tipo_equipamento" => $tipoEquipamento);
             }
 
-            if (!empty($tipoCodigoBarras)){
+            if (!empty($tipoCodigoBarras)) {
                 $where[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
             }
 
-            if (isset($precoPadrao)){
+            if (isset($precoPadrao)) {
                 $where[] = array("preco_padrao" => $precoPadrao);
             }
 
-            if (isset($valorMoedaVendaPadrao)){
+            if (isset($valorMoedaVendaPadrao)) {
                 $where[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
             }
 
             $whereConditions = $where;
 
             $brindes = $this->find('all')
-            ->contain(array("Clientes"))
-            ->where($whereConditions);
+                ->contain(array("Clientes"))
+                ->where($whereConditions);
 
             return $brindes;
         } catch (\Exception $e) {

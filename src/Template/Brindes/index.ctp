@@ -14,10 +14,21 @@ use App\Custom\RTI\DateTimeUtil;
 use Cake\I18n\Number;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-$this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
-$this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
-$this->Breadcrumbs->add('Detalhes da Unidade', [], ['class' => 'active']);
+
+$title = "";
+if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
+
+    $title = "Configurações IHM";
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+    $this->Breadcrumbs->add($title, [], ['class' => 'active']);
+} else {
+    $title = "Cadastro de Brindes";
+
+    $this->Breadcrumbs->add($title, [], ['class' => 'active']);
+
+}
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -33,7 +44,7 @@ echo $this->Breadcrumbs->render(
 <div class="row">
     <?= $this->element("../Brindes/left_menu", array("mode" => "add")) ?>
     <div class="brindes index col-lg-9 columns content">
-        <h3>Brindes</h3>
+        <h3><?php echo $title ?></h3>
 
         <?php echo $this->element(
             "../Brindes/brindes_filtro",

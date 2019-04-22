@@ -50,6 +50,7 @@ class BrindesController extends AppController
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $dataPost = array();
 
         if ($usuarioAdministrar){
             $this->usuarioLogado = $usuarioAdministrar;
@@ -117,21 +118,189 @@ class BrindesController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
-    public function add()
+    public function adicionar($clientesId)
     {
-        $brinde = $this->Brindes->newEntity();
-        if ($this->request->is('post')) {
-            $brinde = $this->Brindes->patchEntity($brinde, $this->request->getData());
-            if ($this->Brindes->save($brinde)) {
-                $this->Flash->success(__('The brinde has been saved.'));
+        $arraySet = array("editMode", "brinde", "clientesId");
+        $editMode = 0;
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The brinde could not be saved. Please, try again.'));
+        if ($usuarioAdministrar){
+            $this->usuarioLogado = $usuarioAdministrar;
         }
-        $clientes = $this->Brindes->Clientes->find('list', ['limit' => 200]);
-        $this->set(compact('brinde', 'clientes'));
-        $this->set('_serialize', ['brinde']);
+
+        $rede = $sessaoUsuario["rede"];
+        $brinde = $this->Brindes->newEntity();
+
+        $brinde['brinde_isento'] = 1;
+
+        try {
+            // verifica se usuário é pelo menos administrador.
+
+            if ($this->usuarioLogado['tipo_perfil'] > PROFILE_TYPE_ADMIN_LOCAL) {
+                $this->securityUtil->redirectUserNotAuthorized($this);
+            }
+            // Verifica permissão do usuário na rede / unidade da rede
+
+            if ($usuarioLogado["tipo_perfil"] > PROFILE_TYPE_ADMIN_DEVELOPER) {
+                $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+
+                // Se não tem acesso, redireciona
+                if (!$temAcesso) {
+                    return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
+                }
+            }
+
+            if (strlen($brinde->nome_img) > 0) {
+                $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
+            }
+
+            if ($this->request->is('post')) {
+                $data = $this->request->getData();
+                $errors = array();
+
+                // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
+                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
+                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+                }
+                // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
+                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+                }
+
+                $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+
+                if (empty($tiposBrindesRedesId)) {
+                    $errors[] = "É necessário selecionar um tipo de brinde!";
+                }
+
+                if (count($errors) > 0) {
+
+                    foreach ($errors as $error) {
+                        $this->Flash->error($error);
+                    }
+
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
+
+                    return;
+                }
+
+                $brinde = $this->Brindes->patchEntity($brinde, $data);
+
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+
+                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
+
+                if ($tipoBrindeRede["equipamento_rti"]) {
+                    $brinde["ilimitado"] = 1;
+                } else {
+                    $brinde["ilimitado"] = $data["ilimitado"];
+                }
+
+                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
+
+                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"])) {
+                    $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
+                } else {
+                    $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
+
+                    if ($enviouNovaImagem) {
+                        $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
+                    }
+
+                    $brinde["clientes_id"] = $clientesId;
+                    $brinde = $this->Brindes->saveBrinde($brinde);
+
+                    $errors = $brinde->errors();
+                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
+                        $clientesId,
+                        $data["tipos_brindes_redes_id"]
+                    );
+
+                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0) {
+                        $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
+                    }
+
+                    if ($brinde) {
+                        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado($clientesId, $brinde->id, $tiposBrindesClienteSelecionadoId);
+
+                        /* estoque só deve ser criado nas seguintes situações.
+                         * 1 - O Brinde está sendo vinculado a um cadastro de loja
+                         *  no sistema (Isto é, se ele não foi anteriormente )
+                         * 2 - Não é ilimitado
+                         * 3 - Se não houver cadastro anterior
+                         */
+
+                        if (!$brinde["ilimitado"]) {
+                            $estoque = $this->ClientesHasBrindesEstoque
+                                ->getEstoqueForBrindeId(
+                                    $clienteHasBrindeHabilitado->id,
+                                    0
+                                );
+
+                            if (is_null($estoque)) {
+                                // Não tem estoque, criar novo registro vazio
+                                $result
+                                    = $this->ClientesHasBrindesEstoque->addEstoque(
+                                        $clienteHasBrindeHabilitado->id,
+                                        $this->usuarioLogado['id'],
+                                        0,
+                                        0
+                                    );
+                            }
+                        }
+
+                        // brinde habilitado, então cadastra novo preço
+                        if ($clienteHasBrindeHabilitado) {
+                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                                $clienteHasBrindeHabilitado["id"],
+                                $clientesId,
+                                (int)Configure::read('giftApprovalStatus')['Allowed'],
+                                $brinde["preco_padrao"],
+                                $brinde["valor_moeda_venda_padrao"]
+                            );
+                        }
+
+                        if ($brindesHabilitadosPreco) {
+                            $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                            if (empty($clienteHasBrindeHabilitado["tipo_codigo_barras"])) {
+
+                                $this->Flash->error(Configure::read("messageBrindeBarcodeNotConfigured"));
+                                return $this->redirect(
+                                    array(
+                                        "controller" => "clientesHasBrindesHabilitados",
+                                        "action" => 'configurarBrinde',
+                                        $clienteHasBrindeHabilitado["id"]
+                                    )
+                                );
+                            }
+
+                            return $this->redirect(['action' => 'brindes_minha_rede']);
+                        }
+                    }
+                    $this->Flash->error(__(Configure::read('messageSavedError')));
+                }
+            }
+
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
+        } catch (\Exception $e) {
+            $this->Flash->error($e->getMessage());
+
+            $messageString = __("Não foi possível gravar um novo Brinde!");
+
+            $trace = $e->getTrace();
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
     }
 
     /**
@@ -283,223 +452,7 @@ class BrindesController extends AppController
         }
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function adicionarBrindeRede()
-    {
-        $arraySet = array("editMode", "brinde", "clientesId", "tiposBrindesCliente");
-        $editMode = 0;
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $cliente = $sessaoUsuario["cliente"];
-        $rede = $sessaoUsuario["rede"];
-        $brinde = $this->Brindes->newEntity();
 
-        $brinde['brinde_isento'] = 1;
-
-        try {
-            $clientesId = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
-
-            // verifica se usuário é pelo menos administrador.
-
-            if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminLocalProfileType']) {
-                $this->securityUtil->redirectUserNotAuthorized($this);
-            }
-            // Verifica permissão do usuário na rede / unidade da rede
-
-            $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
-
-            // Se não tem acesso, redireciona
-            if (!$temAcesso) {
-                return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
-            }
-
-            $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente($clientesId);
-
-            if (empty($tiposBrindesCliente)) {
-                // Redireciona para a tela de tipo de brindes dos clientes para configuração
-
-                $this->Flash->error(MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND);
-                return $this->redirect(sprintf("tiposBrindesClientes/adicionarTiposBrindesCliente/%s", $clientesId[0]));
-            }
-
-            $tiposBrindesCliente = $tiposBrindesCliente->toArray();
-            $tiposBrindesClienteTemp = array();
-
-            foreach ($tiposBrindesCliente as $tipoBrinde) {
-                $tipo = array(
-                    "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
-                    "value" => $tipoBrinde["id"],
-                    "id" => "tipos_brindes_redes_id",
-                    "data-obrigatorio" => $tipoBrinde["obrigatorio"],
-                    "data-tipo-principal-codigo-brinde" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
-                    "data-tipo-secundario-codigo-brinde" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
-                );
-                $tiposBrindesClienteTemp[] = $tipo;
-            }
-            $tiposBrindesCliente = $tiposBrindesClienteTemp;
-
-            // Obtem a matriz pois o Brinde é atribuído sempre para a matriz
-            $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede["id"]);
-
-            if (empty($redeHasCliente)) {
-                throw new Exception("Matriz de Rede não foi encontrada!");
-            }
-            $clientesId = $redeHasCliente["clientes_id"];
-
-            if (strlen($brinde->nome_img) > 0) {
-                $imagemOriginal = __("{0}{1}", Configure::read("imageGiftPath"), $brinde->nome_img);
-            }
-
-            if ($this->request->is('post')) {
-                $data = $this->request->getData();
-                $errors = array();
-
-                // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
-                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
-                }
-                // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
-                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
-                }
-
-                $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
-
-                if (empty($tiposBrindesRedesId)) {
-                    $errors[] = "É necessário selecionar um tipo de brinde!";
-                }
-
-                if (count($errors) > 0) {
-
-                    foreach ($errors as $error) {
-                        $this->Flash->error($error);
-                    }
-
-                    $this->set(compact($arraySet));
-                    $this->set('_serialize', $arraySet);
-
-                    return;
-                }
-
-                $brinde = $this->Brindes->patchEntity($brinde, $data);
-
-                // Se o brinde for do tipo SMART SHOWER, é ilimitado
-
-                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
-
-                if ($tipoBrindeRede["equipamento_rti"]) {
-                    $brinde["ilimitado"] = 1;
-                } else {
-                    $brinde["ilimitado"] = $data["ilimitado"];
-                }
-
-                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
-
-                if ($this->Brindes->findBrindesByConditions($rede["id"], array(), null, $brinde['nome'], $brinde["tipos_brindes_redes_id"], $brinde["tempo_uso_brinde"])) {
-                    $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
-                } else {
-                    $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
-
-                    if ($enviouNovaImagem) {
-                        $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
-                    }
-
-                    $brinde["clientes_id"] = $clientesId;
-                    $brinde = $this->Brindes->saveBrinde($brinde);
-
-                    $errors = $brinde->errors();
-                    $tiposBrindesClienteSelecionadoId = $this->TiposBrindesClientes->findTiposBrindesClienteByClientesIdTiposBrindesRedesId(
-                        $clientesId,
-                        $data["tipos_brindes_redes_id"]
-                    );
-
-                    if (sizeof($tiposBrindesClienteSelecionadoId) > 0) {
-                        $tiposBrindesClienteSelecionadoId = $tiposBrindesClienteSelecionadoId[0];
-                    }
-
-                    if ($brinde) {
-                        $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->addClienteHasBrindeHabilitado($clientesId, $brinde->id, $tiposBrindesClienteSelecionadoId);
-
-                        /* estoque só deve ser criado nas seguintes situações.
-                         * 1 - O Brinde está sendo vinculado a um cadastro de loja
-                         *  no sistema (Isto é, se ele não foi anteriormente )
-                         * 2 - Não é ilimitado
-                         * 3 - Se não houver cadastro anterior
-                         */
-
-                        if (!$brinde["ilimitado"]) {
-                            $estoque = $this->ClientesHasBrindesEstoque
-                                ->getEstoqueForBrindeId(
-                                    $clienteHasBrindeHabilitado->id,
-                                    0
-                                );
-
-                            if (is_null($estoque)) {
-                                // Não tem estoque, criar novo registro vazio
-                                $result
-                                    = $this->ClientesHasBrindesEstoque->addEstoque(
-                                        $clienteHasBrindeHabilitado->id,
-                                        $this->usuarioLogado['id'],
-                                        0,
-                                        0
-                                    );
-                            }
-                        }
-
-                        // brinde habilitado, então cadastra novo preço
-                        if ($clienteHasBrindeHabilitado) {
-                            $brindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
-                                $clienteHasBrindeHabilitado["id"],
-                                $clientesId,
-                                (int)Configure::read('giftApprovalStatus')['Allowed'],
-                                $brinde["preco_padrao"],
-                                $brinde["valor_moeda_venda_padrao"]
-                            );
-                        }
-
-                        if ($brindesHabilitadosPreco) {
-                            $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
-                            if (empty($clienteHasBrindeHabilitado["tipo_codigo_barras"])) {
-
-                                $this->Flash->error(Configure::read("messageBrindeBarcodeNotConfigured"));
-                                return $this->redirect(
-                                    array(
-                                        "controller" => "clientesHasBrindesHabilitados",
-                                        "action" => 'configurarBrinde',
-                                        $clienteHasBrindeHabilitado["id"]
-                                    )
-                                );
-                            }
-
-                            return $this->redirect(['action' => 'brindes_minha_rede']);
-                        }
-                    }
-                    $this->Flash->error(__(Configure::read('messageSavedError')));
-                }
-            }
-
-            $this->set(compact($arraySet));
-            $this->set('_serialize', $arraySet);
-        } catch (\Exception $e) {
-            $this->Flash->error($e->getMessage());
-
-            $messageString = __("Não foi possível gravar um novo Brinde!");
-
-            $trace = $e->getTrace();
-            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
-            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
-        }
-    }
 
     /**
      * Edit method
