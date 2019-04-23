@@ -53,8 +53,8 @@ $(document).ready(function () {
      */
     var tipoEquipamentoOnChange = function (value) {
         var obrigatorio = false;
-        var labelCodigoPrimario = "Código Primário";
-        var labelTempoUsoBrinde = "Tempo (minutos) / Cód. Secundário";
+        var labelCodigoPrimario = $("label[for=codigo_primario]").text().replace("*", "");
+        var labelTempoUsoBrinde = $("label[for=tempo_uso_brinde]").text().replace("*", "");
 
         if (value == "Equipamento RTI") {
             obrigatorio = true;
@@ -116,7 +116,9 @@ $(document).ready(function () {
      *
      */
     var defineObrigatorioPrecoPadraoGotas = function (value) {
-        var label = "Preço Padrão em Gotas";
+        // var label = "Preço Padrão Gotas";
+        var label = $("label[for=preco_padrao]").text();
+        label = label.replace("*", "");
         $("#preco_padrao").attr("required", false);
         $("label[for=preco_padrao]").text(label);
         if (value) {
@@ -135,7 +137,9 @@ $(document).ready(function () {
      *
      */
     var defineObrigatorioPrecoPadraoAvulso = function (value) {
-        var label = "Preço Padrão de Venda Avulsa (R$)";
+        // var label = "Preço Padrão Venda Avulsa (R$)";
+        var label = $("label[for=valor_moeda_venda_padrao]").text();
+        label = label.replace("*", "");
         $("#valor_moeda_venda_padrao").attr("required", false);
         $("label[for=valor_moeda_venda_padrao]").text(label);
         if (value) {
@@ -315,11 +319,9 @@ $(document).ready(function () {
 
                     var arquivos = null;
 
-                    if (
-                        result.arquivos != undefined &&
-                        result.arquivos.filesUploaded != undefined &&
-                        result.arquivos.filesUploaded.length > 0
-                    ) {
+                    if (result.arquivos != undefined && result.arquivos.filesUploaded != undefined && result.arquivos.filesUploaded.length > 0) {
+                        var arquivo = null;
+
                         result.arquivos.filesUploaded.forEach(element => {
                             arquivo = element;
                         });

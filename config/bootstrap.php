@@ -263,6 +263,9 @@ const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação
 
 // Brindes
 
+const TYPE_BARCODE_QRCODE = "QRCode";
+const TYPE_BARCODE_CODE128 = 'Code128';
+const TYPE_BARCODE_PDF417 = 'PDF417';
 const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
 const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 

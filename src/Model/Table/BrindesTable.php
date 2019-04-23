@@ -256,12 +256,13 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null) {
+    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null)
+    {
         try {
 
             $where = array();
 
-            if (!empty($redesId)){
+            if (!empty($redesId)) {
                 $where[] = array("RedesHasClientes.redes_id" => $redesId);
             }
 
@@ -273,11 +274,11 @@ class BrindesTable extends GenericTable
                 $where[] = array("nome" => $nome);
             }
 
-            if (!empty($tempoUsoBrindeMin)) {
+            if (!empty($tempoUsoBrindeMin) && !empty($tempoUsoBrindeMax)) {
+                $where[] = array("tempo_uso_brinde BETWEEN '{$tempoUsoBrindeMin}' AND '{$tempoUsoBrindeMax}' ");
+            } else if (!empty($tempoUsoBrindeMin)) {
                 $where[] = array("tempo_uso_brinde >= " => $tempoUsoBrindeMin);
-            }
-
-            if (!empty($tempoUsoBrindeMax)) {
+            } else if (!empty($tempoUsoBrindeMax)) {
                 $where[] = array("tempo_uso_brinde <= " => $tempoUsoBrindeMax);
             }
 
@@ -293,16 +294,23 @@ class BrindesTable extends GenericTable
                 $where[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
             }
 
-            if (isset($precoPadrao)) {
-                $where[] = array("preco_padrao" => $precoPadrao);
+            if (!empty($precoPadraoMin) && !empty($precoPadraoMax)) {
+                $where[] = array("preco_padrao BETWEEN '{$precoPadraoMin}' AND '{$precoPadraoMax}' ");
+            } else if (!empty($precoPadraoMin)) {
+                $where[] = array("preco_padrao >= " => $precoPadraoMin);
+            } else if (!empty($precoPadraoMax)) {
+                $where[] = array("preco_padrao <= " => $precoPadraoMax);
             }
 
-            if (isset($valorMoedaVendaPadrao)) {
-                $where[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
+            if (!empty($valorMoedaPrecoMin) && !empty($valorMoedaPrecoMax)) {
+                $where[] = array("valor_moeda_venda_padrao BETWEEN '{$valorMoedaPrecoMin}' AND '{$valorMoedaPrecoMax}' ");
+            } else if (!empty($valorMoedaPrecoMin)) {
+                $where[] = array("valor_moeda_venda_padrao >= " => $valorMoedaPrecoMin);
+            } else if (!empty($valorMoedaPrecoMax)) {
+                $where[] = array("valor_moeda_venda_padrao <= " => $valorMoedaPrecoMax);
             }
 
             $whereConditions = $where;
-
             $contains = array("Clientes");
 
             if (!empty($redesId)) {
