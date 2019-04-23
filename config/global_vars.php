@@ -67,9 +67,8 @@ Configure::write(
             [
             "Brindes",
             "Clientes",
-            "ClientesHasBrindesEstoque",
-            "ClientesHasBrindesHabilitados",
-            "ClientesHasBrindesHabilitadosPreco",
+            "BrindesEstoque",
+            "BrindesPrecos",
             "ClientesHasUsuarios",
             "ClientesHasQuadroHorario",
             "Cupons",

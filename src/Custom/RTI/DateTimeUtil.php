@@ -66,7 +66,10 @@ class DateTimeUtil
         $format = "d/m/Y H:i:s";
         $time = strtotime($datetime);
 
-        return date($format, $time);
+        // return date($format, $time);
+        // $dateCreated = date_create_from_format("Y-m-d H:i:s", $datetime);
+        // return date_format($dateCreated, "d/m/Y H:i:s");
+        return $datetime;
     }
 
     /**

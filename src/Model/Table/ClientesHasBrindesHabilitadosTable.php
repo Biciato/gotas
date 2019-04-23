@@ -608,7 +608,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
                     $clientesBrindesHabilitado["brinde"] = $brinde;
                     $whereConditionsPreco = array(
-                        'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed'],
+                        'status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
                         'clientes_has_brindes_habilitados_id' => $clientesBrindesHabilitado["id"]
                     );
 

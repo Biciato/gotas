@@ -172,10 +172,10 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
         $cliente = $this->Clientes->getClienteById($clientesId);
 
         // pega último preço autorizado
-        $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => (int)Configure::read('giftApprovalStatus')['Allowed']]);
+        $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AUTHORIZED]);
 
         // Pega último preco de venda avulsa autorizado
-        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, (int)Configure::read('giftApprovalStatus')['Allowed']);
+        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
 
         if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
@@ -230,7 +230,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * Caso esteja pendente e for alguém com permissão
                  * maior que Administrador Local, não permite continuar
                  */
-                if ($ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
+                if ($ultimoPreco->status_autorizacao == STATUS_AUTHORIZATION_PRICE_AWAITING) {
                     if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
 
                         $this->Flash->error("Este brinde já possui um preço pendente de autorização. Não será possível cadastrar um novo até que o anterior seja autorizado ou negado!");
@@ -239,7 +239,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     } else {
 
                         //caso contrário, atualiza ele para negado
-                        $ultimoPreco->status_autorizacao == (int)Configure::read('giftApprovalStatus')['Denied'];
+                        $ultimoPreco->status_autorizacao == STATUS_AUTHORIZATION_PRICE_DENIED;
 
                         $this->ClientesHasBrindesHabilitadosPreco->save($ultimoPreco);
                     }
@@ -258,15 +258,15 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
              * for fora da matriz.
              */
 
-            $requerAutorizacao = Configure::read('giftApprovalStatus')['Allowed'];
+            $requerAutorizacao = STATUS_AUTHORIZATION_PRICE_AUTHORIZED;
 
             // DebugUtil::printArray($clientesId);
 
             if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
-                $requerAutorizacao = (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'];
+                $requerAutorizacao = STATUS_AUTHORIZATION_PRICE_AWAITING;
             }
 
-            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindePreco(
                 $brindesId,
                 $clientesId,
                 $requerAutorizacao,
@@ -282,7 +282,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                  * Se o preço é diferente, envia um e-mail para cada administrador
                  * da rede daquela rede informando à respeito da alteração do preço
                  */
-                if ($requerAutorizacao == (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization']) {
+                if ($requerAutorizacao == STATUS_AUTHORIZATION_PRICE_AWAITING) {
                     $matrizId = $brindeHabilitado->brinde->clientes_id;
 
                     $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, PROFILE_TYPE_ADMIN_NETWORK);
@@ -408,9 +408,9 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $preco_autorizar = $this->ClientesHasBrindesHabilitadosPreco->getPrecoBrindeById($clientes_has_brindes_habilitados_preco_id);
 
                 if ($status) {
-                    $preco_autorizar->status_autorizacao = Configure::read('giftApprovalStatus')['Allowed'];
+                    $preco_autorizar->status_autorizacao = STATUS_AUTHORIZATION_PRICE_AUTHORIZED;
                 } else {
-                    $preco_autorizar->status_autorizacao = Configure::read('giftApprovalStatus')['Denied'];
+                    $preco_autorizar->status_autorizacao = STATUS_AUTHORIZATION_PRICE_DENIED;
                 }
 
                 if ($this->ClientesHasBrindesHabilitadosPreco->save($preco_autorizar)) {

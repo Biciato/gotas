@@ -1,69 +1,28 @@
 <?php
 namespace App\Model\Table;
 
-use ArrayObject;
-use Cake\Event\Event;
 use Cake\Log\Log;
 use Cake\Core\Configure;
-use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
-// @TODO Reestruturar Table
 
 /**
- * ClientesHasBrindesHabilitadosPreco Model
+ * BrindesPrecos Model
  *
  * @property \App\Model\Table\ClientesHasBrindesHabilitadosTable|\Cake\ORM\Association\BelongsTo $ClientesHasBrindesHabilitados
  *
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco get($primaryKey, $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\BrindesPrecos get($primaryKey, $options = [])
+ * @method \App\Model\Entity\BrindesPrecos newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\BrindesPrecos[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\BrindesPrecos|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\BrindesPrecos patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\BrindesPrecos[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\BrindesPrecos findOrCreate($search, callable $callback = null, $options = [])
  */
-class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
+class BrindesPrecosTable extends GenericTable
 {
-
-    /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $clientesHasBrindesHabilitadosPrecoTable = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of brinde table property
-     *
-     * @return (Cake\ORM\Table) Table object
-     */
-    private function _getClientesHasBrindesHabilitadosPrecoTable()
-    {
-        if (is_null($this->clientesHasBrindesHabilitadosPrecoTable)) {
-            $this->_setClientesHasBrindesHabilitadosPrecoTable();
-        }
-        return $this->clientesHasBrindesHabilitadosPrecoTable;
-    }
-
-    /**
-     * Method set of brinde table property
-     *
-     * @return void
-     */
-    private function _setClientesHasBrindesHabilitadosPrecoTable()
-    {
-        $this->clientesHasBrindesHabilitadosPrecoTable = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-    }
 
     /**
      * Initialize method
@@ -75,12 +34,12 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     {
         parent::initialize($config);
 
-        $this->setTable('clientes_has_brindes_habilitados_preco');
+        $this->setTable('brindes_precos');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('ClientesHasBrindesHabilitados', [
-            'foreignKey' => 'clientes_has_brindes_habilitados_id',
+        $this->belongsTo('Brindes', [
+            'foreignKey' => 'brindes_id',
             'joinType' => 'INNER'
         ]);
 
@@ -103,11 +62,17 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
             ->allowEmpty('id', 'create');
 
         $validator
+            ->integer("brindes_id");
+
+        $validator
+            ->integer("clientes_id");
+
+        $validator
             ->decimal('preco')
             ->requirePresence("preco", "create")
             ->notEmpty('preco');
 
-            $validator
+        $validator
             ->decimal('valor_moeda_venda')
             ->requirePresence("valor_moeda_venda", "create")
             ->notEmpty('valor_moeda_venda');
@@ -140,7 +105,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['clientes_has_brindes_habilitados_id'], 'ClientesHasBrindesHabilitados'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
 
         return $rules;
@@ -161,11 +126,11 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     #region Create
 
     /**
-     * ClientesHasBrindesHabilitadosPrecoTable::addBrindeHabilitadoPreco
+     * BrindesPrecosTable::addBrindePreco
      *
      * Adiciona um preço para brinde habilitado
      *
-     * @param int $clientesHasBrindesHabilitadosId
+     * @param int $brindesId
      * @param int $clientesId
      * @param int $precoPadrao
      * @param int $valorMoedaVenda
@@ -173,28 +138,27 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 01/09/2017
      *
-     * @return (entity\ClientesHasBrindesHabilitadosPreco) $entity
+     * @return (entity\BrindesPrecos) $entity
      **/
-    public function addBrindeHabilitadoPreco(int $clientesHasBrindesHabilitadosId, int $clientesId, int $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
+    public function addBrindePreco(int $brindesId, int $clientesId, string $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
     {
         try {
-            $brindeHabilitadoPreco = $this->newEntity();
+            $brindeSave = $this->newEntity();
 
-            $brindeHabilitadoPreco->clientes_has_brindes_habilitados_id = $clientesHasBrindesHabilitadosId;
-            $brindeHabilitadoPreco->clientes_id = $clientesId;
-            $brindeHabilitadoPreco->preco = $precoPadrao;
-            $brindeHabilitadoPreco->valor_moeda_venda = $valorMoedaVenda;
-            $brindeHabilitadoPreco->status_autorizacao = $statusAutorizacao;
-            $brindeHabilitadoPreco->data_preco = date('Y-m-d H:i:s');
+            $brindeSave["brindes_id"] = $brindesId;
+            $brindeSave["clientes_id"] = $clientesId;
+            $brindeSave["preco"] = $precoPadrao;
+            $brindeSave["valor_moeda_venda"] = $valorMoedaVenda;
+            $brindeSave["status_autorizacao"] = $statusAutorizacao;
+            $brindeSave["data_preco"] = date('Y-m-d H:i:s');
 
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->save($brindeHabilitadoPreco);
+            return $this->save($brindeSave);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao inserir registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao inserir registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -209,7 +173,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     public function getPrecoBrindeById($id)
     {
         try {
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->get($id);
+            return $this->get($id);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
@@ -223,11 +187,11 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     /**
      * Obtem todos os preços para o brinde habilitado id
      *
-     * @param int $clientesHasBrindesHabilitadosId Id de brinde habilitado
+     * @param int $brindesId Id de brinde habilitado
      *
      * @return entity $preco
      **/
-    public function getAllPrecoForBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $whereConditions = [], int $qteRegistros = null)
+    public function getAllPrecoForBrindeHabilitadoId(int $brindesId, array $whereConditions = [], int $qteRegistros = null)
     {
         try {
 
@@ -237,9 +201,9 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
                 $conditionsSql[] = $value;
             }
 
-            $conditionsSql[] = ['clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId];
+            $conditionsSql[] = ['clientes_has_brindes_habilitados_id' => $brindesId];
 
-            $data = $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+            $data = $this->find('all')
                 ->where($conditionsSql)
                 ->contain(['ClientesHasBrindesHabilitados']);
 
@@ -262,11 +226,11 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     /**
      * Obtem último Preço para Brinde Habilitado
      *
-     * @param int $clientesHasBrindesHabilitadosId Id de clientes has brindes habilitados
+     * @param int $brindesId Id de clientes has brindes habilitados
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, array $where_conditions = [])
+    public function getUltimoPrecoBrindeHabilitadoId(int $brindesId, array $where_conditions = [])
     {
         try {
 
@@ -276,11 +240,11 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
                 array_push($conditions, $value);
             }
 
-            array_push($conditions, ['clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId]);
+            array_push($conditions, ['clientes_has_brindes_habilitados_id' => $brindesId]);
 
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+            return $this->find('all')
                 ->where($conditions)
-                ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
+                ->order(['BrindesPrecos.id' => 'desc'])
                 ->contain(['ClientesHasBrindesHabilitados'])->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -295,22 +259,22 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     /**
      * Obtem último Preço para Brinde Habilitado
      *
-     * @param int $clientesHasBrindesHabilitadosId Id de clientes has brindes habilitados
+     * @param int $brindesId Id de clientes has brindes habilitados
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $clientesHasBrindesHabilitadosId, int $statusAutorizacao)
+    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $brindesId, int $statusAutorizacao)
     {
         try {
 
             $conditions = array();
 
-            $conditions[] = array('clientes_has_brindes_habilitados_id' => $clientesHasBrindesHabilitadosId);
+            $conditions[] = array('clientes_has_brindes_habilitados_id' => $brindesId);
             $conditions[] = array('status_autorizacao' => $statusAutorizacao);
 
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+            return $this->find('all')
                 ->where($conditions)
-                ->order(['ClientesHasBrindesHabilitadosPreco.id' => 'desc'])
+                ->order(['BrindesPrecos.id' => 'desc'])
                 ->contain(['ClientesHasBrindesHabilitados'])
                 ->select(array(
                     "id",
@@ -338,11 +302,11 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
     public function getPrecoAwaitingAuthorizationByClientesId(array $array_clientes_id = [])
     {
         try {
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()->find('all')
+            return $this->find('all')
                 ->where(
                     [
-                        'status_autorizacao' => (int)Configure::read('giftApprovalStatus')['AwaitingAuthorization'],
-                        'ClientesHasBrindesHabilitadosPreco.clientes_id IN' => $array_clientes_id
+                        'status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AWAITING,
+                        'BrindesPrecos.clientes_id IN' => $array_clientes_id
                     ]
                 )
                 ->order(
@@ -375,7 +339,7 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      *
      * @return boolean
      */
-    public function setClientesHasBrindesHabilitadosPrecoToMainCliente(int $clientes_id, int $matriz_id)
+    public function setBrindesPrecosToMainCliente(int $clientes_id, int $matriz_id)
     {
         try {
             return $this->updateAll(
@@ -415,10 +379,10 @@ class ClientesHasBrindesHabilitadosPrecoTable extends GenericTable
      *
      * @return boolean
      */
-    public function deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds(array $clientes_ids)
+    public function deleteAllBrindesPrecosByClientesIds(array $clientes_ids)
     {
         try {
-            return $this->_getClientesHasBrindesHabilitadosPrecoTable()
+            return $this
                 ->deleteAll(
                     [
                         'clientes_id in' => $clientes_ids

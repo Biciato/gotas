@@ -200,9 +200,13 @@ $(document).ready(function () {
 
     // reseta o form
 
-    $(".reset-form").on("click", function(e){
+    $(".reset-form").on("click", function (e) {
         var form = this.closest("form");
-        form.reset();
+        $(':input', form)
+            .not(':button, :submit, :reset, :hidden')
+            .val('')
+            .prop('checked', false)
+            .prop('selected', false);
     })
 });
 

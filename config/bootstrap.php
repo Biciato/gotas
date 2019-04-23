@@ -103,8 +103,8 @@ if (Configure::read('debug')) {
  * Set server timezone to UTC. You can change it to another timezone of your
  * choice but using UTC makes time calculations / conversions easier.
  */
-// date_default_timezone_set('UTC');
-date_default_timezone_set('America/Sao_Paulo');
+date_default_timezone_set('UTC');
+// date_default_timezone_set('America/Sao_Paulo');
 
 /*
  * Configure the mbstring extension to use the correct encoding.
@@ -268,6 +268,9 @@ const TYPE_BARCODE_CODE128 = 'Code128';
 const TYPE_BARCODE_PDF417 = 'PDF417';
 const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
 const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
+const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
+const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
+const STATUS_AUTHORIZATION_PRICE_DENIED = "Negado";
 
 const MESSAGE_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
 const MESSAGE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";

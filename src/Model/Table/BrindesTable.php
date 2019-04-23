@@ -208,13 +208,14 @@ class BrindesTable extends GenericTable
             }
 
             $brindeSave["clientes_id"] = $brinde["clientes_id"];
-            $brindeSave["tipos_brindes_redes_id"] = $brinde["tipos_brindes_redes_id"];
             $brindeSave["nome"] = $brinde["nome"];
+            $brindeSave["codigo_primario"] = $brinde["codigo_primario"];
             $brindeSave["tempo_uso_brinde"] = !empty($brinde["tempo_uso_brinde"]) ? $brinde["tempo_uso_brinde"] : null;
             $brindeSave["ilimitado"] = $brinde["ilimitado"];
             $brindeSave["habilitado"] = empty($brinde["habilitado"]) ? true : $brinde["habilitado"];
             $brindeSave["tipo_venda"] = $brinde["tipo_venda"];
-            $brindeSave["preco_padrao"] = !empty($brinde["preco_padrao"]) ? $brinde["preco_padrao"] : null;
+            $brindeSave["tipo_codigo_barras"] = $brinde["tipo_codigo_barras"];
+            $brindeSave["preco_padrao"] = !empty($brinde["preco_padrao"]) ? $brinde["preco_padrao"] : 0;
             $brindeSave["valor_moeda_venda_padrao"] = !empty($brinde["valor_moeda_venda_padrao"]) ? $brinde["valor_moeda_venda_padrao"] : null;
             $brindeSave["nome_img"] = $brinde["nome_img"];
 
@@ -268,6 +269,10 @@ class BrindesTable extends GenericTable
 
             if (!empty($clientesId)) {
                 $where[] = array("clientes_id" => $clientesId);
+            }
+
+            if (!empty($codigoPrimario)) {
+                $where[] = array("Brindes.codigo_primario" => $codigoPrimario);
             }
 
             if (!empty($nome)) {

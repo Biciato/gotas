@@ -5,7 +5,7 @@ use Cake\ORM\Entity;
 use Cake\I18n\Number;
 
 /**
- * BrindesHabilitadosPreco Entity
+ * BrindesPreco Entity
  *
  * @property int $id
  * @property int $brindes_habilitados_id
@@ -16,7 +16,7 @@ use Cake\I18n\Number;
  *
  * @property \App\Model\Entity\BrindesHabilitado $brindes_habilitado
  */
-class ClientesHasBrindesHabilitadosPreco extends Entity
+class BrindesPreco extends Entity
 {
 
     /**

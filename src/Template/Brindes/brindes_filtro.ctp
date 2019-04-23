@@ -120,7 +120,7 @@ use Cake\Core\Configure;
                             />
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="tipo_venda">Tipo de Venda:</label>
                             <?= $this->Form->input(
                                 "tipo_venda",
@@ -142,8 +142,19 @@ use Cake\Core\Configure;
                         </div>
 
                         <?php if ($tipoPerfil <= PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
-                            <div class="col-lg-3">
-                                <label for="tipo_equipamento">Tipo de Equipamento:</label>
+                            <div class="col-lg-2">
+                                <label for="codigo_primario">Cód. Primário:</label>
+                                <input type="number"
+                                    name="codigo_primario"
+                                    placeholder="Código Primário"
+                                    title="Código Primário"
+                                    id="codigo_primario"
+                                    class="form-control codigo-primario"
+                                    value="<?php echo !empty($dataPost['codigo_primario']) ? $dataPost['codigo_primario'] : null?>"
+                                    >
+                            </div>
+                            <div class="col-lg-2">
+                                <label for="tipo_equipamento">Equipamento:</label>
                                 <?= $this->Form->input(
                                     "tipo_equipamento",
                                     array(

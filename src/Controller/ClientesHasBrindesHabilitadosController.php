@@ -474,10 +474,10 @@ class ClientesHasBrindesHabilitadosController extends AppController
                 $precos = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($clienteHasBrindeHabilitado->id);
 
                 if (!isset($precos)) {
-                    $this->ClientesHasBrindesHabilitadosPreco->addBrindeHabilitadoPreco(
+                    $this->ClientesHasBrindesHabilitadosPreco->addBrindePreco(
                         $clienteHasBrindeHabilitado["id"],
                         $clientesId,
-                        (int)Configure::read('giftApprovalStatus')['Allowed'],
+                        STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
                         $brinde["preco_padrao"],
                         $brinde["valor_moeda_venda"]
                     );

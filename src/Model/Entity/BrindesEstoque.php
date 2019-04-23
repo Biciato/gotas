@@ -4,7 +4,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * ClientesHasBrindesEstoque Entity
+ * BrindesEstoque Entity
  *
  * @property int $id
  * @property int $brindes_id
@@ -18,7 +18,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Brinde $brinde
  * @property \App\Model\Entity\Usuario $usuario
  */
-class ClientesHasBrindesEstoque extends Entity
+class BrindesEstoque extends Entity
 {
 
     /**
