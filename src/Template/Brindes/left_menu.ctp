@@ -15,7 +15,8 @@ $clientesId = isset($clientesId) ? $clientesId : null;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
 $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
 
-$manage = !empty($manage) ? $manage : false;
+$manageStock = !empty($manageStock) ? $manageStock : false;
+$managePrice = !empty($managePrice) ? $managePrice : false;
 
 $textoBrinde = $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "IHM" : "Brinde";
 ?>
@@ -30,12 +31,24 @@ $textoBrinde = $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "
 
         <?php endif; ?>
 
-        <?php if ($manage): ?>
+        <?php if ($manageStock): ?>
 
 		<li>
-            <a href="<?php echo sprintf("/brindesEstoque/alterarPrecoBrinde/%s", $brinde['id'])?>">
-            <?php echo sprintf("Alterar Preços do %s", $textoBrinde) ?>
-        </a>
+            <a href="<?php echo sprintf("/brindesEstoque/adicionarEstoque/%s", $brinde['id'])?>">
+                <i class="fa fa-shopping-cart"></i>
+                Adicionar Estoque
+            </a>
+		</li>
+
+        <?php endif;?>
+        <?php if ($managePrice): ?>
+
+		<li>
+            <a href="<?php echo sprintf("/brindesPrecos/atualizarPreco/%s", $brinde['id'])?>">
+                <i class="fa fa-money"></i>
+                Atualizar Preço
+            </a>
+		</li>
 
         <?php endif;?>
 

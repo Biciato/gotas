@@ -230,7 +230,7 @@ class BrindesPrecosTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoBrindeHabilitadoId(int $brindesId, array $where_conditions = [])
+    public function getUltimoPrecoBrindeId(int $brindesId, array $where_conditions = [])
     {
         try {
 
@@ -263,7 +263,7 @@ class BrindesPrecosTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $brindesId, int $statusAutorizacao)
+    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $brindesId, string $statusAutorizacao)
     {
         try {
 

@@ -251,9 +251,8 @@ Time::setToStringFormat('HH:ii:ss'); // For any mutable DateTime
 FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss'); // For any immutable DateTime
 // Date::setToStringFormat(\IntlDateFormatter::SHORT); // For any mutable Date
 // FrozenDate::setToStringFormat(\IntlDateFormatter::MEDIUM); // For any immutable Date
+
 // Constantes
-
-
 
 const DATA_TYPE_MESSAGE_JSON = "json";
 const DATA_TYPE_MESSAGE_XML = "xml";
@@ -270,7 +269,7 @@ const JOB_STATUS_END = "Finalizando...";
 #region Comuns ao Sistema
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
-const MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT = "Senha de confirmação do usuário não confere com a do cadastro! Tente novamente!";
+const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
 
 
 #endregion

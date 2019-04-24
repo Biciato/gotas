@@ -1,7 +1,12 @@
 <?php
 
 /**
- * @var \App\View\AppView $this
+ * @author   Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @file     src\Template\BrindesPrecos\atualizar_preco.ctp
+ *
+ * @since     2019-04-24
+ *
+ * Arquivo que exibe formulário para atualizar o preço do brinde
  */
 
 use Cake\Core\Configure;
@@ -10,32 +15,31 @@ use Cake\Routing\Router;
 // Menu de navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
+$titleBrindesIndex = "";
+$title = "";
+if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
-    $this->Breadcrumbs->add(
-        'Escolher Unidade para Configurar os Brindes',
-        [
-            'controller' => 'clientes_has_brindes_habilitados',
-            'action' => 'escolher_unidade_config_brinde'
-        ]
-    );
+    $titleBrindesIndex = "Configurações IHM";
+    $title = sprintf("Informações do IHM %s", $brinde["nome"]);
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+} else {
+    $titleBrindesIndex = "Cadastro de Brindes";
+    $title = sprintf("Informações do Brinde %s", $brinde["nome"]);
+
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
 }
 
-$this->Breadcrumbs->add(
-    'Configurar um Brinde de Unidade',
-    [
-        'controller' => 'clientes_has_brindes_habilitados',
-        'action' => 'configurar_brindes_unidade', $clientesId
-    ]
-);
+$this->Breadcrumbs->add("Informações do Brinde", array("controller" => "brindes", "action" => "view", $brinde["id"]), array());
 
-$this->Breadcrumbs->add('Configurar Brinde', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindesId]);
-
-$this->Breadcrumbs->add(__('Novo Preço de Brinde'), [], ['class' => 'active']);
+// 'class' => 'active'
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
+
 
 // menu esquerdo
 echo $this->element(

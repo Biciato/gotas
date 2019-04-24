@@ -16,22 +16,14 @@ use App\Custom\RTI\DebugUtil;
 use Cake\I18n\Number;
 
 /**
- * ClientesHasBrindesHabilitadosPreco Controller
+ * BrindesPrecos Controller
  *
- * @property \App\Model\Table\ClientesHasBrindesHabilitadosPrecoTable $ClientesHasBrindesHabilitadosPreco
+ * @property \App\Model\Table\BrindesPrecosTable $BrindesPrecos
  *
- * @method \App\Model\Entity\ClientesHasBrindesHabilitadosPreco[] paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\BrindesPrecos[] paginate($object = null, array $settings = [])
  */
-class ClientesHasBrindesHabilitadosPrecoController extends AppController
+class BrindesPrecosController extends AppController
 {
-    /**
-     * ------------------------------------------------------------
-     * Fields
-     * ------------------------------------------------------------
-     */
-    protected $usuarioLogado = null;
-
-
     /**
      * ------------------------------------------------------------
      * Métodos Comuns
@@ -48,7 +40,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
         $this->paginate = [
             'contain' => ['BrindesHabilitados']
         ];
-        $clientes_has_brindes_habilitados_precos = $this->paginate($this->ClientesHasBrindesHabilitadosPreco);
+        $clientes_has_brindes_habilitados_precos = $this->paginate($this->BrindesPrecos);
 
         $this->set(compact('clientes_has_brindes_habilitados_precos'));
         $this->set('_serialize', ['clientes_has_brindes_habilitados_precos']);
@@ -63,12 +55,12 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      */
     public function view($id = null)
     {
-        $clientesHasBrindesHabilitadosPreco
-            = $this->ClientesHasBrindesHabilitadosPreco
+        $BrindesPrecos
+            = $this->BrindesPrecos
             ->get($id, ['contain' => ['BrindesHabilitados']]);
 
-        $this->set('clientesHasBrindesHabilitadosPreco', $clientesHasBrindesHabilitadosPreco);
-        $this->set('_serialize', ['clientesHasBrindesHabilitadosPreco']);
+        $this->set('BrindesPrecos', $BrindesPrecos);
+        $this->set('_serialize', ['BrindesPrecos']);
     }
 
     /**
@@ -78,19 +70,19 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      */
     public function add()
     {
-        $clientesHasBrindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
+        $BrindesPrecos = $this->BrindesPrecos->newEntity();
         if ($this->request->is('post')) {
-            $clientesHasBrindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($clientesHasBrindesHabilitadosPreco, $this->request->getData());
-            if ($this->ClientesHasBrindesHabilitadosPreco->save($clientesHasBrindesHabilitadosPreco)) {
+            $BrindesPrecos = $this->BrindesPrecos->patchEntity($BrindesPrecos, $this->request->getData());
+            if ($this->BrindesPrecos->save($BrindesPrecos)) {
                 $this->Flash->success(__('The brindes habilitados preco has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The brindes habilitados preco could not be saved. Please, try again.'));
         }
-        $brindesHabilitados = $this->ClientesHasBrindesHabilitadosPreco->BrindesHabilitados->find('list', ['limit' => 200]);
-        $this->set(compact('clientesHasBrindesHabilitadosPreco', 'brindesHabilitados'));
-        $this->set('_serialize', ['clientesHasBrindesHabilitadosPreco']);
+        $brindesHabilitados = $this->BrindesPrecos->BrindesHabilitados->find('list', ['limit' => 200]);
+        $this->set(compact('BrindesPrecos', 'brindesHabilitados'));
+        $this->set('_serialize', ['BrindesPrecos']);
     }
 
     /**
@@ -102,20 +94,20 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      */
     public function edit($id = null)
     {
-        $clientesHasBrindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco
+        $BrindesPrecos = $this->BrindesPrecos
             ->get($id, ['contain' => []]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $clientesHasBrindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($clientesHasBrindesHabilitadosPreco, $this->request->getData());
-            if ($this->ClientesHasBrindesHabilitadosPreco->save($clientesHasBrindesHabilitadosPreco)) {
+            $BrindesPrecos = $this->BrindesPrecos->patchEntity($BrindesPrecos, $this->request->getData());
+            if ($this->BrindesPrecos->save($BrindesPrecos)) {
                 $this->Flash->success(__('The brindes habilitados preco has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The brindes habilitados preco could not be saved. Please, try again.'));
         }
-        $brindesHabilitados = $this->ClientesHasBrindesHabilitadosPreco->BrindesHabilitados->find('list', ['limit' => 200]);
-        $this->set(compact('clientesHasBrindesHabilitadosPreco', 'brindesHabilitados'));
-        $this->set('_serialize', ['clientesHasBrindesHabilitadosPreco']);
+        $brindesHabilitados = $this->BrindesPrecos->BrindesHabilitados->find('list', ['limit' => 200]);
+        $this->set(compact('BrindesPrecos', 'brindesHabilitados'));
+        $this->set('_serialize', ['BrindesPrecos']);
     }
 
     /**
@@ -128,8 +120,8 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $clientesHasBrindesHabilitadosPreco = $this->ClientesHasBrindesHabilitadosPreco->get($id);
-        if ($this->ClientesHasBrindesHabilitadosPreco->delete($clientesHasBrindesHabilitadosPreco)) {
+        $BrindesPrecos = $this->BrindesPrecos->get($id);
+        if ($this->BrindesPrecos->delete($BrindesPrecos)) {
             $this->Flash->success(__('The brindes habilitados preco has been deleted.'));
         } else {
             $this->Flash->error(__('The brindes habilitados preco could not be deleted. Please, try again.'));
@@ -151,31 +143,60 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
      *
      * @return \Cake\Http\Response|null Redirects to giftsDetails on success, renders view otherwize
      */
-    public function novoPrecoBrinde($brindesId)
+    public function atualizarPreco($brindesId)
     {
         $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa", "tipoVenda");
 
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
 
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $rede = $this->request->session()->read("Rede.Grupo");
-        // $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
 
-        $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->newEntity();
-        $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
-        $tipoVenda = $brindeHabilitado["brinde"]["tipo_venda"];
-        $clientesId = $brindeHabilitado->clientes_id;
-        $cliente = $this->Clientes->getClienteById($clientesId);
+        $brinde = $this->Brindes->getBrindesById($brindesId);
+
+        $error = false;
+        $errors = array();
+        if (empty($brinde)) {
+            $errors[] = "Brinde não existe!";
+        }
+
+        if (!$brinde["habilitado"]) {
+            $errors[] = "Brinde desabilitado, não é possível atualizar preço!";
+        }
+
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                $this->Flash->error($error);
+            }
+
+            return $this->redirect(sprintf("/brindes/view/%s", $brindesId));
+        }
+
+        $clientesId = $brinde["clientes_id"];
+
+        if (empty($rede)) {
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+            $cliente = $redeHasCliente["cliente"];
+            $rede = $redeHasCliente["rede"];
+        }
+
+        $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
+        $tipoVenda = $brinde["tipo_venda"];
+
+        $novoPreco = $this->BrindesPrecos->newEntity();
 
         // pega último preço autorizado
-        $ultimoPrecoAutorizadoGotas = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId, ['status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AUTHORIZED]);
+        $ultimoPrecoAutorizadoGotas = $this->BrindesPrecos->getUltimoPrecoBrindeId($brindesId, array("status_autorizacao" => STATUS_AUTHORIZATION_PRICE_AUTHORIZED));
 
         // Pega último preco de venda avulsa autorizado
-        $ultimoPrecoAutorizadoVendaAvulsa = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+        $ultimoPrecoAutorizadoVendaAvulsa = $this->BrindesPrecos->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
 
         if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
@@ -213,11 +234,11 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 return;
             }
 
-            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->patchEntity($novoPreco, $data);
+            $novoPreco = $this->BrindesPrecos->patchEntity($novoPreco, $data);
 
             // verifica se o brinde tem algum preço aguardando autorização.
 
-            $ultimoPreco = $this->ClientesHasBrindesHabilitadosPreco->getUltimoPrecoBrindeHabilitadoId($brindesId);
+            $ultimoPreco = $this->BrindesPrecos->getUltimoPrecoBrindeId($brindesId);
 
             /**
              * verifica se houve um último preço para atualizar os dados
@@ -241,7 +262,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         //caso contrário, atualiza ele para negado
                         $ultimoPreco->status_autorizacao == STATUS_AUTHORIZATION_PRICE_DENIED;
 
-                        $this->ClientesHasBrindesHabilitadosPreco->save($ultimoPreco);
+                        $this->BrindesPrecos->save($ultimoPreco);
                     }
                 }
             }
@@ -266,7 +287,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                 $requerAutorizacao = STATUS_AUTHORIZATION_PRICE_AWAITING;
             }
 
-            $novoPreco = $this->ClientesHasBrindesHabilitadosPreco->addBrindePreco(
+            $novoPreco = $this->BrindesPrecos->addBrindePreco(
                 $brindesId,
                 $clientesId,
                 $requerAutorizacao,
@@ -355,7 +376,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
             $conditions = [];
 
-            $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientes_ids);
+            $brindes_aguardando_autorizacao = $this->BrindesPrecos->getPrecoAwaitingAuthorizationByClientesId($clientes_ids);
 
             $this->paginate($brindes_aguardando_autorizacao, ['limit' => 10]);
 
@@ -405,7 +426,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
     {
         try {
             if ($this->request->is(['post', 'put'])) {
-                $preco_autorizar = $this->ClientesHasBrindesHabilitadosPreco->getPrecoBrindeById($clientes_has_brindes_habilitados_preco_id);
+                $preco_autorizar = $this->BrindesPrecos->getPrecoBrindeById($clientes_has_brindes_habilitados_preco_id);
 
                 if ($status) {
                     $preco_autorizar->status_autorizacao = STATUS_AUTHORIZATION_PRICE_AUTHORIZED;
@@ -413,14 +434,14 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                     $preco_autorizar->status_autorizacao = STATUS_AUTHORIZATION_PRICE_DENIED;
                 }
 
-                if ($this->ClientesHasBrindesHabilitadosPreco->save($preco_autorizar)) {
+                if ($this->BrindesPrecos->save($preco_autorizar)) {
                     if ($status) {
                         $this->Flash->success(Configure::read('messageAllowGiftPrice'));
                     } else {
                         $this->Flash->success(Configure::read('messageDenyGiftPrice'));
                     }
 
-                    return $this->redirect(['controller' => 'ClientesHasBrindesHabilitadosPreco', 'action' => 'brindesAguardandoAprovacao']);
+                    return $this->redirect(['controller' => 'BrindesPrecos', 'action' => 'brindesAguardandoAprovacao']);
                 }
             }
         } catch (\Exception $e) {
@@ -616,21 +637,21 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
                         } else if ($dataInicial > $dataHoje) {
                             $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                         } else {
-                            $whereConditions[] = ['ClientesHasBrindesHabilitadosPreco.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
+                            $whereConditions[] = ['BrindesPrecos.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                         }
                     } else if (strlen($data['auditInsertInicio']) > 0) {
 
                         if ($dataInicial > $dataHoje) {
                             $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                         } else {
-                            $whereConditions[] = ['ClientesHasBrindesHabilitadosPreco.audit_insert >= ' => $dataInicial];
+                            $whereConditions[] = ['BrindesPrecos.audit_insert >= ' => $dataInicial];
                         }
                     } else if (strlen($data['auditInsertFim']) > 0) {
 
                         if ($dataFinal > $dataHoje) {
                             $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
                         } else {
-                            $whereConditions[] = ['ClientesHasBrindesHabilitadosPreco.audit_insert <= ' => $dataFinal];
+                            $whereConditions[] = ['BrindesPrecos.audit_insert <= ' => $dataFinal];
                         }
                     }
                 }
@@ -639,7 +660,7 @@ class ClientesHasBrindesHabilitadosPrecoController extends AppController
 
                 $cliente = $this->Clientes->getClienteById($brinde->clientes_id);
 
-                $historicoPrecoBrinde = $this->ClientesHasBrindesHabilitadosPreco->getAllPrecoForBrindeHabilitadoId($clientesHasBrindesHabilitadoId, $whereConditions, $qteRegistros);
+                $historicoPrecoBrinde = $this->BrindesPrecos->getAllPrecoForBrindeHabilitadoId($clientesHasBrindesHabilitadoId, $whereConditions, $qteRegistros);
             }
 
             $arraySet = [

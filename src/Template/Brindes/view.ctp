@@ -35,9 +35,11 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
+$managePrice = $brinde["tipo_venda"] == TYPE_SELL_FREE_TEXT;
+$manageStock = !$brinde["ilimitado"];
 ?>
 
-<?= $this->element("../Brindes/left_menu", array("manage" => 1)) ?>
+<?= $this->element("../Brindes/left_menu", array("managePrice" => $managePrice, "manageStock" => $manageStock)) ?>
 <div class="brindes form col-lg-9 col-md-10 columns content">
     <legend><?= $title ?></legend>
     <?= $this->Form->create($brinde) ?>

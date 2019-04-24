@@ -498,7 +498,7 @@ class UsuariosController extends AppController
                     $result = ((new DefaultPasswordHasher)->check($senhaUsuario, $usuario->senha));
 
                     if (!$result) {
-                        $this->Flash->error(MESSAGE_USUARIO_MANAGED_LOGIN_PASSWORD_INCORRECT);
+                        $this->Flash->error(MESSAGE_USUARIO_PASSWORD_INCORRECT);
                         $this->set(compact($arraySet));
                         $this->set('_serialize', $arraySet);
                         return;
