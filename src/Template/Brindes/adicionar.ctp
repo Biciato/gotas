@@ -11,22 +11,37 @@ use Cake\Routing\Router;
 
 // Navegação
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-$this->Breadcrumbs->add('Brindes da Minha Rede', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']);
-$this->Breadcrumbs->add('Cadastrar Brinde', [], ['class' => 'active']);
-echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
-?>
 
-<nav class="col-lg-3 col-md-2" id="actions-sidebar">
-    <ul class="nav nav-pills nav-stacked">
-        <li class="active"><a><?= __('Ações') ?></a></li>
-    </ul>
-</nav>
+$titleBrindesIndex = "";
+$title = "";
+if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
+
+    $titleBrindesIndex = "Configurações de IHM";
+    $title = "Cadastrar IHM";
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+} else {
+    $titleBrindesIndex = "Configurações de Brindes";
+    $title = "Adicionar IHM";
+
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+}
+
+$this->Breadcrumbs->add($title, array(), array('class' => 'active'));
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
+?>
+<?= $this->element("../Brindes/left_menu", array("mode" => "add")) ?>
 <div class="brindes form col-lg-9 col-md-10 columns content">
-    <legend><?= 'Cadastrar Brinde' ?></legend>
+    <legend><?= $title ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
         <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, 'clientesId' => $clientesId]); ?>
     </fieldset>
-    
+
     <?= $this->Form->end() ?>
 </div>

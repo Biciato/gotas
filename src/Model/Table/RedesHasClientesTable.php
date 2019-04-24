@@ -31,42 +31,6 @@ use App\Custom\RTI\DebugUtil;
 class RedesHasClientesTable extends GenericTable
 {
     /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $redes_has_clientes_table = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of Redes table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getRedesHasClientesTable()
-    {
-        if (is_null($this->redes_has_clientes_table)) {
-            $this->_setRedesHasClientesTable();
-        }
-        return $this->redes_has_clientes_table;
-    }
-
-    /**
-     * Method set of Redes table property
-     *
-     * @return void
-     */
-    private function _setRedesHasClientesTable()
-    {
-        $this->redes_has_clientes_table = TableRegistry::get('Redes_Has_Clientes');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -172,7 +136,7 @@ class RedesHasClientesTable extends GenericTable
     public function findMatrizOfRedesByRedesId(int $redesId)
     {
         try {
-            return $this->_getRedesHasClientesTable()->find('all')
+            return $this->find('all')
                 ->where(
                     array(
                         'redes_has_clientes.redes_id' => $redesId,
@@ -251,7 +215,7 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesById(int $id)
     {
         try {
-            // return $this->_getRedesHasClientesTable()->find('all')
+            // return $this->find('all')
             //     ->where(['redes_has_clientes.id' => $id])
             return $this->find('all')
                 ->where(['RedesHasClientes.id' => $id])
@@ -294,7 +258,7 @@ class RedesHasClientesTable extends GenericTable
     {
         try {
 
-            $result = $this->_getRedesHasClientesTable()->find('all')
+            $result = $this->find('all')
                 ->where(
                     [
                         'redes_id' => $redesId,
@@ -334,14 +298,14 @@ class RedesHasClientesTable extends GenericTable
         try {
 
             // pega o id da rede que pertence a unidade
-            $redesId = $this->_getRedesHasClientesTable()->find('all')
+            $redesId = $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->first()
                 ->redes_id;
 
             // pega todos os ids de unidades que pertencem à rede
 
-            $unidadesIds = $this->_getRedesHasClientesTable()->find('all')
+            $unidadesIds = $this->find('all')
                 ->where(['redes_id' => $redesId])
                 ->select(['clientes_id']);
 
@@ -373,7 +337,7 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesByClientesId(int $clientes_id)
     {
         try {
-            return $this->_getRedesHasClientesTable()->find('all')
+            return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->contain(['Redes', 'Clientes'])->first();
 
@@ -406,7 +370,7 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesByClientesIds(array $clientes_ids)
     {
         try {
-            return $this->_getRedesHasClientesTable()->find('all')
+            return $this->find('all')
                 ->where(['clientes_id in' => $clientes_ids])
                 ->distinct(['redes_id'])
                 ->select(['redes_id']);
@@ -488,7 +452,7 @@ class RedesHasClientesTable extends GenericTable
                 $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
             }
 
-            $redesHasClientes = $this->_getRedesHasClientesTable()->find('all')
+            $redesHasClientes = $this->find('all')
                 ->where($whereCondition)
                 ->contain(['Redes', 'Clientes']);
 
@@ -529,7 +493,7 @@ class RedesHasClientesTable extends GenericTable
         try {
 
             return
-                $this->_getRedesHasClientesTable()->deleteAll(['clientes_id in' => $clientes_ids]);
+                $this->deleteAll(['clientes_id in' => $clientes_ids]);
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

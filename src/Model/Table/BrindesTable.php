@@ -423,10 +423,10 @@ class BrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\Brindes $brinde
      **/
-    public function getBrindesById($brindes_id)
+    public function getBrindesById($brindesId)
     {
         try {
-            return $this->get($brindes_id);
+            return $this->get($brindesId);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

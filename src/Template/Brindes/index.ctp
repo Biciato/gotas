@@ -27,7 +27,6 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $title = "Cadastro de Brindes";
 
     $this->Breadcrumbs->add($title, [], ['class' => 'active']);
-
 }
 
 echo $this->Breadcrumbs->render(
@@ -88,9 +87,46 @@ echo $this->Breadcrumbs->render(
                         <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
 
                         <td class="actions" style="white-space:nowrap">
-                            <a href="<?php echo sprintf('/brindes/view/%s', $brinde['id']) ?>" class="btn btn-default btn-xs"><i class="fa fa-info-circle" title="Ver detalhes"></i></a>
-                            <?= $this->Html->link(__('Edit'), ['action' => 'edit', $brinde->id], ['class' => 'btn btn-primary btn-xs']) ?>
-                            <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $brinde->id], ['confirm' => __('Are you sure you want to delete # {0}?', $brinde->id), 'class' => 'btn btn-danger btn-xs']) ?>
+                            <a href="<?php echo sprintf('/brindes/view/%s', $brinde['id']) ?>" class="btn btn-primary btn-xs botao-navegacao-tabela">
+                                <i class="fa fa-cogs" title="Configurar"></i>
+                            </a>
+                            <a href="<?php echo sprintf('/brindes/editar/%s', $brinde['id']) ?>" class="btn btn-primary btn-xs botao-navegacao-tabela">
+                                <i class="fa fa-edit" title="Editar"></i>
+                            </a>
+                            <?php if ($brinde["habilitado"]) : ?>
+                                <a href="#"
+                                    class="btn btn-xs btn-primary btn-danger"
+                                    title="Desabilitar"
+                                    data-toggle="modal"
+                                    data-target="#modal-confirm-with-message"
+                                    data-message="<?php echo sprintf(MESSAGE_DISABLE_QUESTION, $brinde["nome"])?>"
+                                    data-action="<?php echo sprintf("/brindesEstoque/alterarEstadoBrinde/%s", $brinde["id"])?>"
+                                    >
+                                    <i class="fa fa-power-off"></i>
+                                </a>
+                            <?php else : ?>
+                                <a href="#"
+                                    class="btn btn-xs btn-primary btn-confirm"
+                                    title="Habilitar"
+                                    data-toggle="modal"
+                                    data-target="#modal-confirm-with-message"
+                                    data-message="<?php echo sprintf(MESSAGE_ENABLE_QUESTION, $brinde["nome"])?>"
+                                    data-action="<?php echo sprintf("/brindesEstoque/alterarEstadoBrinde/%s", $brinde["id"])?>"
+                                    >
+                                    <i class="fa fa-power-off"></i>
+                                </a>
+
+                            <?php endif; ?>
+                            <a href="#"
+                                    class="btn btn-xs btn-primary btn-danger"
+                                    title="Apagar"
+                                    data-toggle="modal"
+                                    data-target="#modal-confirm-with-message"
+                                    data-message="<?php echo sprintf(MESSAGE_DELETE_QUESTION, $brinde["nome"])?>"
+                                    data-action="<?php echo sprintf("/brindes/delete/%s", $brinde["id"])?>"
+                                    >
+                                    <i class="fa fa-trash"></i>
+                                </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

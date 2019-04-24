@@ -29,7 +29,7 @@ use Cake\I18n\Number;
                 "id" => "tipo_codigo_barras",
                 "value" => $brinde["tipo_codigo_barras"],
                 "required" => "required",
-                "class" => "tipo-equipamento",
+                "class" => "tipo-codigo-barras",
                 "readonly" => $editMode == 1 ? 'readonly' : '',
                 "label" => false,
                 "selected" => TYPE_BARCODE_QRCODE,
@@ -41,10 +41,6 @@ use Cake\I18n\Number;
             )
         ); ?>
     </div>
-
-
-
-
 </div>
 
 <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>

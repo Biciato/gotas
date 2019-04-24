@@ -107,15 +107,16 @@ class BrindesController extends AppController
      */
     public function view($id = null)
     {
-        $brinde = $this->Brindes->get(
-            $id,
-            [
-                'contain' => ['Clientes']
-            ]
-        );
+        $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode");
+        $brinde = $this->Brindes->getBrindesById($id);
+        $clientesId = $brinde["clientes_id"];
+        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+        $redesId = $redeHasCliente["rede"]["redes_id"];
+        $editMode = 1;
+        $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
 
-        $this->set('brinde', $brinde);
-        $this->set('_serialize', ['brinde']);
+        $this->set(compact($arraySet));
+        // $this->set('_serialize', ['brinde']);
     }
 
     /**
@@ -125,7 +126,7 @@ class BrindesController extends AppController
      */
     public function adicionar($clientesId)
     {
-        $arraySet = array("editMode", "brinde", "clientesId", "textoCodigoSecundario");
+        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario");
         $editMode = 0;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -140,6 +141,14 @@ class BrindesController extends AppController
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
 
         $rede = $sessaoUsuario["rede"];
+
+        if (empty($rede)) {
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+            $rede = $redeHasCliente["rede"];
+        }
+
+        $redesId = $rede["id"];
+
         $brinde = $this->Brindes->newEntity();
 
         try {

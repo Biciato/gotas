@@ -67,6 +67,10 @@ use Cake\Mailer\Email;
 use Cake\Network\Request;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
+use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
+use Cake\Chronos\Date;
+use Cake\I18n\FrozenDate;
 
 /*
  * Read configuration file and inject configuration into various
@@ -235,6 +239,18 @@ Plugin::load('ADmad/SocialAuth', ['bootstrap' => true, 'routes' => true]);
 // Carrega arquivo de constantes específico por estação
 require_once("definitions.php");
 
+Cake\I18n\Date::setToStringFormat('yyyy-MM-dd');
+Cake\I18n\FrozenDate::setToStringFormat('yyyy-MM-dd');
+
+\Cake\Database\Type::build('date')
+    ->useImmutable()
+    ->useLocaleParser()
+    ->setLocaleFormat('yyyy-MM-dd');
+
+Time::setToStringFormat('HH:ii:ss'); // For any mutable DateTime
+FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss'); // For any immutable DateTime
+// Date::setToStringFormat(\IntlDateFormatter::SHORT); // For any mutable Date
+// FrozenDate::setToStringFormat(\IntlDateFormatter::MEDIUM); // For any immutable Date
 // Constantes
 
 
@@ -336,6 +352,13 @@ const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
+
+// Mensagens de Questionamento e Avisos
+const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
+const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
+const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
+const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro {0} ?';
+const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
 
 // Mensagens de processamento
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";

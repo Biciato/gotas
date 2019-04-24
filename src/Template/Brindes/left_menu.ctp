@@ -15,6 +15,8 @@ $clientesId = isset($clientesId) ? $clientesId : null;
 $show_reports_admin_rti = isset($show_reports_admin_rti) ? $show_reports_admin_rti : false;
 $show_reports_admin = isset($show_reports_admin) ? $show_reports_admin : false;
 
+$manage = !empty($manage) ? $manage : false;
+
 $textoBrinde = $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "IHM" : "Brinde";
 ?>
 
@@ -26,7 +28,16 @@ $textoBrinde = $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "
 
 		<li><?= $this->Html->link(__('Novo {0}', [$textoBrinde]), ['action' => 'adicionar', $clientesId]) ?></li>
 
-		<?php endif; ?>
+        <?php endif; ?>
+
+        <?php if ($manage): ?>
+
+		<li>
+            <a href="<?php echo sprintf("/brindesEstoque/alterarPrecoBrinde/%s", $brinde['id'])?>">
+            <?php echo sprintf("Alterar Preços do %s", $textoBrinde) ?>
+        </a>
+
+        <?php endif;?>
 
     <li class="active">
         <?= $this->Html->link(__('Relatórios'), []) ?>
