@@ -276,6 +276,9 @@ const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente n
 
 #region Entidades
 
+// Genérica
+const MESSAGE_ID_EMPTY = "Campo ID não informado!";
+
 // Brindes
 
 const TYPE_BARCODE_QRCODE = "QRCode";

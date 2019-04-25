@@ -9,46 +9,26 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 // Menu de navegação
-
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['AdminRegionalProfileType']) {
+$titleBrindesIndex = "";
+$title = "";
+if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
-    $this->Breadcrumbs->add(
-        'Escolher Unidade para Configurar os Brindes',
-        array(
-            'controller' => 'clientes_has_brindes_habilitados',
-            'action' => 'escolher_unidade_config_brinde'
-        )
+    $titleBrindesIndex = "Configurações IHM";
+    $title = sprintf("Informações do IHM %s", $brinde["nome"]);
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+} else {
+    $titleBrindesIndex = "Cadastro de Brindes";
+    $title = sprintf("Informações do Brinde %s", $brinde["nome"]);
 
-    );
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
 }
 
-$this->Breadcrumbs->add(
-    'Configurar um Brinde de Unidade',
-    [
-        'controller' => 'clientes_has_brindes_habilitados',
-        'action' => 'configurar_brindes_unidade', $clientes_id
-    ]
-);
-
-$this->Breadcrumbs->add(
-    'Configurar Brinde',
-    [
-        'controller' => 'clientes_has_brindes_habilitados',
-        'action' => 'configurar_brinde',
-        $brindes_id
-    ]
-);
-
-$this->Breadcrumbs->add(
-    __('Gerenciar Estoque'),
-    [
-        'controller' => 'clientes_has_brindes_habilitados',
-        'action' => 'gerenciar_estoque', $brindes_id
-    ]
-);
-
+$this->Breadcrumbs->add("Informações do Brinde", array("controller" => "brindes", "action" => "view", $brinde["id"]), array());
 $this->Breadcrumbs->add(__('Adicionar Estoque de Brinde'), [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
@@ -57,7 +37,7 @@ echo $this->Breadcrumbs->render(
 ?>
 
 <?= $this->element(
-    '../ClientesHasBrindesEstoque/left_menu',
+    '../BrindesEstoque/left_menu',
     [
         'mode' => 'editStock',
     ]
@@ -67,24 +47,7 @@ echo $this->Breadcrumbs->render(
     <?= $this->Form->create($brinde_estoque) ?>
     <fieldset>
         <legend><?= __('Adicionar Estoque para Brinde') ?></legend>
-        <?= $this->element('../ClientesHasBrindesEstoque/brindes_estoque_form', ['required_tipo_operacao' => false, 'required_data' => false]) ?>
-
-        <div class="form-group row ">
-            <div class="col-lg-12 text-right">
-                <button type="submit"
-                    class="btn btn-primary botao-confirmar"
-                    >
-                    <span class="fa fa-save"></span>
-                    Salvar
-                </button>
-                <a href="/clientesHasBrindesEstoque/gerenciarEstoque/<?= $brindes_id ?>"
-                    class="btn btn-danger botao-cancelar"
-                    >
-                    <span class="fa fa-window-close"></span>
-                    Cancelar
-                </a>
-            </div>
-        </div>
+        <?= $this->element('../BrindesEstoque/brindes_estoque_form', ['required_tipo_operacao' => false, 'required_data' => false]) ?>
     </fieldset>
     <?= $this->Form->end() ?>
 </div>

@@ -71,6 +71,23 @@ class BrindesTable extends GenericTable
             ]
         );
 
+        $this->hasOne(
+            "PrecoAtual",
+            array(
+                "className" => "BrindesPrecos",
+                "foreignKey" => "brindes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT,
+                "strategy" => "select",
+                "conditions" => array(
+                    "PrecoAtual.status_autorizacao" => STATUS_AUTHORIZATION_PRICE_AUTHORIZED
+                ),
+                "ORDER" => array(
+                    "data" => "DESC"
+                ),
+                "limit" => 1
+            )
+        );
+
         $this->hasMany(
             'BrindesNaoHabilitados',
             [
@@ -316,7 +333,7 @@ class BrindesTable extends GenericTable
             }
 
             $whereConditions = $where;
-            $contains = array("Clientes");
+            $contains = array("Clientes", "PrecoAtual");
 
             if (!empty($redesId)) {
                 $contains = array("Clientes.RedesHasClientes");

@@ -67,18 +67,5 @@ echo $this->Breadcrumbs->render(
 
     </fieldset>
 
-    <div class="col-lg-12">
-    <?= $this->Form->button(
-        __(
-            '{0} Salvar',
-            $this->Html->tag('i', '', ['class' => 'fa fa-save'])
-        ),
-        [
-            'class' => 'btn btn-primary',
-            'escape' => false
-        ]
-
-    ) ?>
-    </div>
     <?= $this->Form->end() ?>
 </div>

@@ -297,6 +297,173 @@ class BrindesController extends AppController
         }
     }
 
+      /**
+     * Edit method
+     *
+     * @param string|null $id Brinde id.
+     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+    public function editar($id = null)
+    {
+        $arraySet = array(
+            "editMode",
+            "brinde",
+            "imagemOriginal",
+            "clientes",
+            "tiposBrindesCliente"
+        );
+        $brinde = $this->Brindes->get($id);
+
+        $brinde["preco_padrao"] = number_format($brinde["preco_padrao"], 2);
+        $brinde["valor_moeda_venda_padrao"] = number_format($brinde["valor_moeda_venda_padrao"], 2);
+
+        $editMode = 1;
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+        $tiposBrindesRedesId = $brinde["tipos_brindes_redes_id"];
+        $imagemOriginal = null;
+        $imagemOriginalDisco = null;
+
+        if (strlen($brinde["nome_img"]) > 0) {
+            $imagemOriginal = __("{0}{1}{2}{3}", Configure::read("appAddress"), "webroot", Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
+            $imagemOriginalDisco = __("{0}{1}{2}", WWW_ROOT, Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
+        }
+
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+        }
+
+        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente(array($cliente["id"]));
+        $tiposBrindesCliente = $tiposBrindesCliente->toArray();
+        $tiposBrindesClienteTemp = array();
+
+        foreach ($tiposBrindesCliente as $tipoBrinde) {
+            $tipo = array(
+                "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
+                "value" => $tipoBrinde["id"],
+                "id" => "tipos_brindes_redes_id",
+                "data-obrigatorio" => $tipoBrinde["obrigatorio"],
+                "data-tipo-principal-codigo-brinde" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
+                "data-tipo-secundario-codigo-brinde" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
+            );
+            $tiposBrindesClienteTemp[] = $tipo;
+        }
+        $tiposBrindesCliente = $tiposBrindesClienteTemp;
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+
+            $errors = array();
+
+            // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
+            if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
+                $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+            }
+            // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+            if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
+                $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+            }
+
+            $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
+
+            if (empty($tiposBrindesRedesId)) {
+                $errors[] = "É necessário selecionar um tipo de brinde!";
+            }
+
+            if (count($errors) > 0) {
+
+                foreach ($errors as $error) {
+                    $this->Flash->error($error);
+                }
+
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
+
+            $brindeCheck = $this->Brindes->findBrindesByConditions(
+                $rede["id"],
+                array(),
+                null,
+                $brinde['nome'],
+                $brinde["tipos_brindes_redes_id"],
+                $brinde["tempo_uso_brinde"],
+                $brinde["ilimitado"]
+            );
+
+            if ($brindeCheck["id"] != $id) {
+                $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
+            } else {
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+
+                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
+                if ($tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4) {
+                    $brinde["ilimitado"] = 1;
+                } else {
+                    $brinde["ilimitado"] = $data["ilimitado"];
+                }
+
+                $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
+
+                $brinde = $this->Brindes->patchEntity($brinde, $data);
+
+                // Preserva o id base de tipos brindes
+                $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
+                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
+
+                if ($enviouNovaImagem) {
+                    $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
+                }
+
+                if ($this->Brindes->saveBrinde($brinde)) {
+                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                    // Se mandou imagem nova
+                    if ($enviouNovaImagem && strlen($imagemOriginalDisco) > 0) {
+                        // Apaga o arquivo do disco
+                        $deleteStatus = unlink($imagemOriginalDisco);
+                        Log::write("info", "Excluiu imagem: {$deleteStatus}");
+                    }
+
+                    return $this->redirect(['action' => 'brindes_minha_rede']);
+                }
+                $this->Flash->error(__(Configure::read('messageSavedError')));
+            }
+        }
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    public function alterarHabilitacaoBrinde()
+    {
+        $arraySet = array();
+        if ($this->request->is(array("post"))) {
+            $data = $this->request->getData();
+
+            $brindesId = !empty($data["id"]) ? $data["id"] : null;
+
+            if (empty($brindesId)) {
+                $errors[] = MESSAGE_ID_EMPTY;
+            }
+
+            if (count($errors) > 0) {
+                foreach ($errors as  $error) {
+                    $this->Flash->error($error);
+
+
+                    return $this->set(compact($arraySet));
+                }
+            }
+        }
+    }
+
     /**
      * Delete method
      *
@@ -450,151 +617,7 @@ class BrindesController extends AppController
 
 
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Brinde id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function editarBrindeRede($id = null)
-    {
-        $arraySet = array(
-            "editMode",
-            "brinde",
-            "imagemOriginal",
-            "clientes",
-            "tiposBrindesCliente"
-        );
-        $brinde = $this->Brindes->get($id);
 
-        $brinde["preco_padrao"] = number_format($brinde["preco_padrao"], 2);
-        $brinde["valor_moeda_venda_padrao"] = number_format($brinde["valor_moeda_venda_padrao"], 2);
-
-        $editMode = 1;
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $cliente = $sessaoUsuario["cliente"];
-        $rede = $sessaoUsuario["rede"];
-        $tiposBrindesRedesId = $brinde["tipos_brindes_redes_id"];
-        $imagemOriginal = null;
-        $imagemOriginalDisco = null;
-
-        if (strlen($brinde["nome_img"]) > 0) {
-            $imagemOriginal = __("{0}{1}{2}{3}", Configure::read("appAddress"), "webroot", Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
-            $imagemOriginalDisco = __("{0}{1}{2}", WWW_ROOT, Configure::read("imageGiftPathRead"), $brinde["nome_img"]);
-        }
-
-        if ($usuarioAdministrador) {
-            $this->usuarioLogado = $usuarioAdministrar;
-        }
-
-        $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesHabilitadosCliente(array($cliente["id"]));
-        $tiposBrindesCliente = $tiposBrindesCliente->toArray();
-        $tiposBrindesClienteTemp = array();
-
-        foreach ($tiposBrindesCliente as $tipoBrinde) {
-            $tipo = array(
-                "text" => $tipoBrinde["brinde_necessidades_especiais"] ? __("{0} {1}", $tipoBrinde["nome"], "PNE") : $tipoBrinde["nome"],
-                "value" => $tipoBrinde["id"],
-                "id" => "tipos_brindes_redes_id",
-                "data-obrigatorio" => $tipoBrinde["obrigatorio"],
-                "data-tipo-principal-codigo-brinde" => $tipoBrinde["tipo_principal_codigo_brinde_default"],
-                "data-tipo-secundario-codigo-brinde" => $tipoBrinde["tipo_secundario_codigo_brinde_default"],
-            );
-            $tiposBrindesClienteTemp[] = $tipo;
-        }
-        $tiposBrindesCliente = $tiposBrindesClienteTemp;
-
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
-
-            $errors = array();
-
-            // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-            if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
-                $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
-            }
-            // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-            if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
-                $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
-            }
-
-            $tiposBrindesRedesId = !empty($data["tipos_brindes_redes_id"]) ? $data["tipos_brindes_redes_id"] : null;
-
-            if (empty($tiposBrindesRedesId)) {
-                $errors[] = "É necessário selecionar um tipo de brinde!";
-            }
-
-            if (count($errors) > 0) {
-
-                foreach ($errors as $error) {
-                    $this->Flash->error($error);
-                }
-
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
-
-                return;
-            }
-
-            $brindeCheck = $this->Brindes->findBrindesByConditions(
-                $rede["id"],
-                array(),
-                null,
-                $brinde['nome'],
-                $brinde["tipos_brindes_redes_id"],
-                $brinde["tempo_uso_brinde"],
-                $brinde["ilimitado"]
-            );
-
-            if ($brindeCheck["id"] != $id) {
-                $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
-            } else {
-                // Se o brinde for do tipo SMART SHOWER, é ilimitado
-
-                $tipoBrindeRede = $this->TiposBrindesRedes->getTiposBrindesRedeById($tiposBrindesRedesId);
-                if ($tipoBrindeRede["tipo_principal_codigo_brinde_default"] >= 1 && $tipoBrindeRede["tipo_principal_codigo_brinde_default"] <= 4) {
-                    $brinde["ilimitado"] = 1;
-                } else {
-                    $brinde["ilimitado"] = $data["ilimitado"];
-                }
-
-                $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
-
-                $brinde = $this->Brindes->patchEntity($brinde, $data);
-
-                // Preserva o id base de tipos brindes
-                $brinde["tipos_brindes_redes_id"] = $tiposBrindesRedesId;
-                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
-
-                if ($enviouNovaImagem) {
-                    $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
-                }
-
-                if ($this->Brindes->saveBrinde($brinde)) {
-                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
-
-                    // Se mandou imagem nova
-                    if ($enviouNovaImagem && strlen($imagemOriginalDisco) > 0) {
-                        // Apaga o arquivo do disco
-                        $deleteStatus = unlink($imagemOriginalDisco);
-                        Log::write("info", "Excluiu imagem: {$deleteStatus}");
-                    }
-
-                    return $this->redirect(['action' => 'brindes_minha_rede']);
-                }
-                $this->Flash->error(__(Configure::read('messageSavedError')));
-            }
-        }
-
-
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
 
     /**
      * Ativar brinde na loja
