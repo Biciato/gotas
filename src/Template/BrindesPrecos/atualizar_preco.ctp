@@ -33,6 +33,7 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 }
 
 $this->Breadcrumbs->add("Informações do Brinde", array("controller" => "brindes", "action" => "view", $brinde["id"]), array());
+$this->Breadcrumbs->add("Atualizar Preço", array(), array("class" => "active"));
 
 // 'class' => 'active'
 
@@ -43,7 +44,7 @@ echo $this->Breadcrumbs->render(
 
 // menu esquerdo
 echo $this->element(
-    '../ClientesHasBrindesHabilitadosPreco/left_menu',
+    '../BrindesPrecos/left_menu',
     [
         'brindes_id' => $brindesId,
         'go_back_url' => [
@@ -55,8 +56,8 @@ echo $this->element(
 <div class="clientesHasBrindesHabilitados form col-lg-9 col-md-8 columns content">
     <?= $this->Form->create($novoPreco) ?>
     <fieldset>
-        <legend><?= __('Adicionar novo preço para {0}', $brindeHabilitado->brinde->nome) ?></legend>
-        <?= $this->element('../ClientesHasBrindesHabilitadosPreco/novo_preco_form') ?>
+        <legend><?= __('Adicionar novo preço para {0}', $brinde->nome) ?></legend>
+        <?= $this->element('../BrindesPrecos/novo_preco_form') ?>
     </fieldset>
     <div class="form-group row">
         <div class="col-lg-12 text-right">

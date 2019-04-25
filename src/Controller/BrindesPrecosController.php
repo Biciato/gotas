@@ -145,7 +145,7 @@ class BrindesPrecosController extends AppController
      */
     public function atualizarPreco($brindesId)
     {
-        $arraySet = array('novoPreco', 'brindesId', 'brindeHabilitado', 'clientesId', 'ultimoPrecoAutorizadoGotas', "ultimoPrecoAutorizadoVendaAvulsa", "tipoVenda");
+        $arraySet = array( 'brindesId', 'brinde', 'clientesId', "redesId",'novoPreco', "tipoVenda", "ultimoPreco");
 
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -186,17 +186,15 @@ class BrindesPrecosController extends AppController
             $cliente = $redeHasCliente["cliente"];
             $rede = $redeHasCliente["rede"];
         }
+        $redesId = $rede["id"];
 
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
         $tipoVenda = $brinde["tipo_venda"];
 
         $novoPreco = $this->BrindesPrecos->newEntity();
 
-        // pega último preço autorizado
-        $ultimoPrecoAutorizadoGotas = $this->BrindesPrecos->getUltimoPrecoBrindeId($brindesId, array("status_autorizacao" => STATUS_AUTHORIZATION_PRICE_AUTHORIZED));
-
-        // Pega último preco de venda avulsa autorizado
-        $ultimoPrecoAutorizadoVendaAvulsa = $this->BrindesPrecos->getUltimoPrecoVendaAvulsaBrindeHabilitadoId($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+        // Pega último preco autorizado
+        $ultimoPreco = $this->BrindesPrecos->getUltimoPrecoBrinde($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
 
         if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
@@ -218,7 +216,7 @@ class BrindesPrecosController extends AppController
             if (empty($valorMoedaVenda) && (!empty($preco) && ($preco == $ultimoPrecoAutorizadoGotas["preco"]))) {
                 $errors[] = "Este preço de gotas já foi utilizado anteriormente. Especifique outro valor para cadastro!";
             }
-            if (empty($preco) && (!empty($valorMoedaVenda) && ($valorMoedaVenda == $ultimoPrecoAutorizadoVendaAvulsa["valor_venda_moeda"]))) {
+            if (empty($preco) && (!empty($valorMoedaVenda) && ($valorMoedaVenda == $ultimoPreco["valor_venda_moeda"]))) {
                 $message = "Este preço de venda avulsa já foi utilizado anteriormente. Especifique outro valor para cadastro!";
             }
 
@@ -238,7 +236,7 @@ class BrindesPrecosController extends AppController
 
             // verifica se o brinde tem algum preço aguardando autorização.
 
-            $ultimoPreco = $this->BrindesPrecos->getUltimoPrecoBrindeId($brindesId);
+            $ultimoPreco = $this->BrindesPrecos->getUltimoPrecoBrinde($brindesId);
 
             /**
              * verifica se houve um último preço para atualizar os dados
@@ -251,16 +249,16 @@ class BrindesPrecosController extends AppController
                  * Caso esteja pendente e for alguém com permissão
                  * maior que Administrador Local, não permite continuar
                  */
-                if ($ultimoPreco->status_autorizacao == STATUS_AUTHORIZATION_PRICE_AWAITING) {
-                    if ($this->usuarioLogado['tipo_perfil'] > Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                if ($ultimoPreco["status_autorizacao"] == STATUS_AUTHORIZATION_PRICE_AWAITING) {
+                    if ($this->usuarioLogado['tipo_perfil'] > PROFILE_TYPE_ADMIN_REGIONAL) {
 
                         $this->Flash->error("Este brinde já possui um preço pendente de autorização. Não será possível cadastrar um novo até que o anterior seja autorizado ou negado!");
 
-                        return $this->redirect(['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'novo_preco_brinde', $brindesId]);
+                        return $this->redirect(['controller' => 'brindesPrecos', 'action' => 'atualizarPreco', $brindesId]);
                     } else {
 
                         //caso contrário, atualiza ele para negado
-                        $ultimoPreco->status_autorizacao == STATUS_AUTHORIZATION_PRICE_DENIED;
+                        $ultimoPreco["status_autorizacao"] == STATUS_AUTHORIZATION_PRICE_DENIED;
 
                         $this->BrindesPrecos->save($ultimoPreco);
                     }
@@ -279,18 +277,12 @@ class BrindesPrecosController extends AppController
              * for fora da matriz.
              */
 
-            $requerAutorizacao = STATUS_AUTHORIZATION_PRICE_AUTHORIZED;
 
-            // DebugUtil::printArray($clientesId);
-
-            if (!($cliente->matriz) && ($brindeHabilitado->brinde->preco_padrao != $novoPreco->preco) && $this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
-                $requerAutorizacao = STATUS_AUTHORIZATION_PRICE_AWAITING;
-            }
 
             $novoPreco = $this->BrindesPrecos->addBrindePreco(
                 $brindesId,
                 $clientesId,
-                $requerAutorizacao,
+                STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
                 $novoPreco["preco"],
                 $novoPreco["valor_moeda_venda"]
             );
@@ -299,36 +291,38 @@ class BrindesPrecosController extends AppController
             if ($novoPreco) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
 
+                return $this->redirect(['controller' => 'brindes', 'action' => 'view', $brindesId]);
+
+                // @warning Desativado por enquanto, ver com Samuel como ficará no futuro
                 /**
                  * Se o preço é diferente, envia um e-mail para cada administrador
                  * da rede daquela rede informando à respeito da alteração do preço
                  */
-                if ($requerAutorizacao == STATUS_AUTHORIZATION_PRICE_AWAITING) {
-                    $matrizId = $brindeHabilitado->brinde->clientes_id;
+                // if ($requerAutorizacao == STATUS_AUTHORIZATION_PRICE_AWAITING) {
+                //     $matrizId = $brinde->clientes_id;
 
-                    $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, PROFILE_TYPE_ADMIN_NETWORK);
+                //     $usuarios = $this->ClientesHasUsuarios->getAllUsersByClienteId($matrizId, PROFILE_TYPE_ADMIN_NETWORK);
 
-                    foreach ($usuarios as $key => $usuario) {
-                        $url = Router::url(
-                            [
-                                'controller' => 'clientes_has_brindes_habilitados',
-                                'action' => 'detalhes_brinde',
-                                $brindeHabilitado->id
-                            ]
-                        );
+                //     foreach ($usuarios as $key => $usuario) {
+                //         $url = Router::url(
+                //             [
+                //                 'controller' => 'clientes_has_brindes_habilitados',
+                //                 'action' => 'detalhes_brinde',
+                //                 $brindeHabilitado->id
+                //             ]
+                //         );
 
-                        $fullUrl = Configure::read('appAddress') . $url;
+                //         $fullUrl = Configure::read('appAddress') . $url;
 
-                        $adminName = $usuario->nome;
+                //         $adminName = $usuario->nome;
 
-                        $content['full_url'] = $fullUrl;
-                        $content['admin_name'] = $adminName;
+                //         $content['full_url'] = $fullUrl;
+                //         $content['admin_name'] = $adminName;
 
-                        $this->emailUtil->sendMail('price_update_gift', $usuario, 'Preço de Brinde Aguardando Autorização', $content);
-                    }
-                }
+                //         $this->emailUtil->sendMail('price_update_gift', $usuario, 'Preço de Brinde Aguardando Autorização', $content);
+                //     }
+                // }
 
-                return $this->redirect(['controller' => 'clientesHasBrindesHabilitados', 'action' => 'configurar_brinde', $brindesId]);
             }
 
             $this->Flash->error(Configure::read('messageSavedError'));

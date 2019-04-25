@@ -268,7 +268,7 @@ class BrindesTable extends GenericTable
             }
 
             if (!empty($clientesId)) {
-                $where[] = array("clientes_id" => $clientesId);
+                $where[] = array("Brindes.clientes_id" => $clientesId);
             }
 
             if (!empty($codigoPrimario)) {
@@ -307,12 +307,12 @@ class BrindesTable extends GenericTable
                 $where[] = array("preco_padrao <= " => $precoPadraoMax);
             }
 
-            if (!empty($valorMoedaPrecoMin) && !empty($valorMoedaPrecoMax)) {
-                $where[] = array("valor_moeda_venda_padrao BETWEEN '{$valorMoedaPrecoMin}' AND '{$valorMoedaPrecoMax}' ");
-            } else if (!empty($valorMoedaPrecoMin)) {
-                $where[] = array("valor_moeda_venda_padrao >= " => $valorMoedaPrecoMin);
-            } else if (!empty($valorMoedaPrecoMax)) {
-                $where[] = array("valor_moeda_venda_padrao <= " => $valorMoedaPrecoMax);
+            if (!empty($valorMoedaVendaPadraoMin) && !empty($valorMoedaVendaPadraoMax)) {
+                $where[] = array("valor_moeda_venda_padrao BETWEEN '{$valorMoedaVendaPadraoMin}' AND '{$valorMoedaVendaPadraoMax}' ");
+            } else if (!empty($valorMoedaVendaPadraoMin)) {
+                $where[] = array("valor_moeda_venda_padrao >= " => $valorMoedaVendaPadraoMin);
+            } else if (!empty($valorMoedaVendaPadraoMax)) {
+                $where[] = array("valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
             }
 
             $whereConditions = $where;

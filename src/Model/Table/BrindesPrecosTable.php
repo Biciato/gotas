@@ -230,65 +230,35 @@ class BrindesPrecosTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoBrindeId(int $brindesId, array $where_conditions = [])
-    {
-        try {
-
-            $conditions = [];
-
-            foreach ($where_conditions as $key => $value) {
-                array_push($conditions, $value);
-            }
-
-            array_push($conditions, ['clientes_has_brindes_habilitados_id' => $brindesId]);
-
-            return $this->find('all')
-                ->where($conditions)
-                ->order(['BrindesPrecos.id' => 'desc'])
-                ->contain(['ClientesHasBrindesHabilitados'])->first();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-    /**
-     * Obtem último Preço para Brinde Habilitado
-     *
-     * @param int $brindesId Id de clientes has brindes habilitados
-     *
-     * @return entity $preco
-     **/
-    public function getUltimoPrecoVendaAvulsaBrindeHabilitadoId(int $brindesId, string $statusAutorizacao)
+    public function getUltimoPrecoBrinde(int $brindesId, string $statusAutorizacao = "")
     {
         try {
 
             $conditions = array();
 
-            $conditions[] = array('clientes_has_brindes_habilitados_id' => $brindesId);
-            $conditions[] = array('status_autorizacao' => $statusAutorizacao);
+            $conditions[] = array('brindes_id' => $brindesId);
+            if (!empty($statusAutorizacao)) {
+                $conditions[] = array('status_autorizacao' => $statusAutorizacao);
+            }
 
             return $this->find('all')
                 ->where($conditions)
-                ->order(['BrindesPrecos.id' => 'desc'])
-                ->contain(['ClientesHasBrindesHabilitados'])
+                ->order(array('BrindesPrecos.id' => 'desc'))
+                ->contain(array("Brindes"))
                 ->select(array(
                     "id",
+                    "preco",
                     "valor_moeda_venda",
                     "status_autorizacao",
                     "data_preco",
                 ))->first();
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            return $stringError;
+            Log::write('error', $trace);
         }
     }
 
@@ -407,6 +377,4 @@ class BrindesPrecosTable extends GenericTable
             return $error;
         }
     }
-
-
 }

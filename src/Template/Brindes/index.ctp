@@ -64,8 +64,6 @@ echo $this->Breadcrumbs->render(
                     <th><?= $this->Paginator->sort('habilitado') ?></th>
                     <th><?= $this->Paginator->sort('tipo_equipamento', array("label" => "Equipamento")) ?></th>
                     <th><?= $this->Paginator->sort('tipo_codigo_barras', array("label" => "Código de Barras")) ?></th>
-                    <th><?= $this->Paginator->sort('preco_padrao', array("label" => "Preço Gotas")) ?></th>
-                    <th><?= $this->Paginator->sort('valor_moeda_venda_padrao', array("label" => "Preço Reais")) ?></th>
                     <th><?= $this->Paginator->sort('audit_insert', array("Label" => "Data Criação")) ?></th>
 
                     <th class="actions">
@@ -82,8 +80,6 @@ echo $this->Breadcrumbs->render(
                         <td><?php echo $this->Boolean->convertBooleanToString($brinde["habilitado"]) ?></td>
                         <td><?php echo $brinde["tipo_equipamento"] ?></td>
                         <td><?php echo $brinde["tipo_codigo_barras"] ?></td>
-                        <td><?php echo Number::precision($brinde->preco_padrao, 2) ?></td>
-                        <td><?php echo Number::currency($brinde->valor_moeda_venda_padrao) ?></td>
                         <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
 
                         <td class="actions" style="white-space:nowrap">

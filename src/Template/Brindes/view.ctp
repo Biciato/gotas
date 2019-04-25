@@ -46,7 +46,7 @@ $manageStock = !$brinde["ilimitado"];
     <fieldset>
         <div class="form-group row">
             <div class="col-lg-6">
-                <label for="nome">Nome*</label>
+                <label for="nome">Nome</label>
                 <input type="text"
                     name="nome"
                     required="required"
@@ -58,7 +58,7 @@ $manageStock = !$brinde["ilimitado"];
             </div>
 
             <div class="col-lg-6">
-                <label for="tipo_codigo_barras">Código de Barras*</label>
+                <label for="tipo_codigo_barras">Código de Barras</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
                     array(
@@ -82,7 +82,7 @@ $manageStock = !$brinde["ilimitado"];
         <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
             <div class="form-group row">
                 <div class="col-lg-4">
-                    <label for="tipo_equipamento">Tipo de Equipamento*</label>
+                    <label for="tipo_equipamento">Tipo de Equipamento</label>
                     <?= $this->Form->input(
                         "tipo_equipamento",
                         array(
@@ -101,7 +101,7 @@ $manageStock = !$brinde["ilimitado"];
                     ); ?>
                 </div>
                 <div class="col-lg-4">
-                    <label for="codigo_primario">Código Primário*</label>
+                    <label for="codigo_primario">Código Primário</label>
                     <input type="number"
                         name="codigo_primario"
                         id="codigo_primario"
@@ -135,7 +135,7 @@ $manageStock = !$brinde["ilimitado"];
 
         <div class="form-group row">
             <div class="col-lg-2">
-                <label for="ilimitado">Ilimitado*</label>
+                <label for="ilimitado">Ilimitado</label>
                 <?= $this->Form->input(
                     "ilimitado",
                     array(
@@ -153,7 +153,7 @@ $manageStock = !$brinde["ilimitado"];
                 ); ?>
             </div>
             <div class="col-lg-2">
-                <label for="habilitado">Habilitado*</label>
+                <label for="habilitado">Habilitado</label>
                 <?= $this->Form->input(
                     "habilitado",
                     array(
@@ -171,7 +171,7 @@ $manageStock = !$brinde["ilimitado"];
                 ); ?>
             </div>
             <div class="col-lg-2">
-                <label for="tipo_venda">Tipo de Venda*</label>
+                <label for="tipo_venda">Tipo de Venda</label>
                 <?= $this->Form->input(
                     "tipo_venda",
                     array(
@@ -192,7 +192,7 @@ $manageStock = !$brinde["ilimitado"];
             </div>
 
             <div class="col-lg-3">
-                <label for="preco_padrao">Preço Padrão Gotas*</label>
+                <label for="preco_padrao">Preço Padrão Gotas</label>
                 <input type="text"
                     name="preco_padrao"
                     required="required"
@@ -203,7 +203,7 @@ $manageStock = !$brinde["ilimitado"];
                     value="<?= $brinde['preco_padrao'] ?>">
             </div>
             <div class="col-lg-3">
-                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
+                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
                 <input type="text"
                     name="valor_moeda_venda_padrao"
                     required="required"
@@ -212,6 +212,31 @@ $manageStock = !$brinde["ilimitado"];
                     id="valor_moeda_venda_padrao"
                     class="form-control"
                     value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-lg-3">
+                <label for="preco_atual_gotas">Preço Atual Gotas</label>
+                <input type="text"
+                    name="preco_atual_gotas"
+                    id="preco_atual_gotas"
+                    class="form-control preco-atual-gotas"
+                    readonly
+                    value="<?php echo Number::precision($precoAtualBrinde['preco'], 2)?>"
+                    placeholder="Preço Atual Gotas..."
+                    >
+            </div>
+            <div class="col-lg-3">
+            <label for="preco_atual_valor_moeda">Preço Atual Venda Avulsa</label>
+                <input type="text"
+                    name="preco_atual_gotas"
+                    id="preco_atual_gotas"
+                    class="form-control preco-atual-gotas"
+                    readonly
+                    value="<?php echo Number::currency($precoAtualBrinde['valor_moeda_venda'])?>"
+                    placeholder="Preço Atual Venda Avulsa..."
+                    >
             </div>
         </div>
 

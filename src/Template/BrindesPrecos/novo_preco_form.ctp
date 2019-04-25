@@ -26,7 +26,7 @@ use App\Custom\RTI\DebugUtil;
                 class="form-control"
                 placeholder="Preço Atual..."
                 readonly="true"
-                value="<?= $ultimoPrecoAutorizadoGotas['preco']?>">
+                value="<?= $ultimoPreco['preco']?>">
 
         </div>
         <div class="col-lg-6">
@@ -52,7 +52,7 @@ use App\Custom\RTI\DebugUtil;
                 class="form-control"
                 placeholder="Preço Atual..."
                 readonly="true"
-                value="<?= $ultimoPrecoAutorizadoGotas['valor_moeda_venda']?>">
+                value="<?= $ultimoPreco['valor_moeda_venda']?>">
         </div>
         <div class="col-lg-6">
             <label for="valor_moeda_venda">Preço (R$ / venda avulsa)</label>
@@ -74,9 +74,9 @@ use App\Custom\RTI\DebugUtil;
 
 
 <?php if (Configure::read("debug") == true) : ?>
-    <?= $this->Html->script("scripts/clientes_has_brindes_habilitados_preco/preco_brinde_form") ?>
+    <?= $this->Html->script("scripts/brindesPrecos/preco_brinde_form") ?>
 <?php else : ?>
-    <?= $this->Html->script("scripts/clientes_has_brindes_habilitados_preco/preco_brinde_form.min") ?>
+    <?= $this->Html->script("scripts/brindesPrecos/preco_brinde_form.min") ?>
 <?php endif; ?>
 
 <?= $this->fetch("script") ?>

@@ -95,6 +95,8 @@ class BrindesController extends AppController
 
         $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
+
+        // DebugUtil::print($brindes);
         $this->set(compact($arraySet));
     }
 
@@ -107,13 +109,14 @@ class BrindesController extends AppController
      */
     public function view($id = null)
     {
-        $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode");
+        $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde");
         $brinde = $this->Brindes->getBrindesById($id);
         $clientesId = $brinde["clientes_id"];
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $redesId = $redeHasCliente["rede"]["redes_id"];
         $editMode = 1;
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
+        $precoAtualBrinde = $this->BrindesPrecos->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
 
         $this->set(compact($arraySet));
         // $this->set('_serialize', ['brinde']);
