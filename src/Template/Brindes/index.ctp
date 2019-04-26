@@ -101,7 +101,7 @@ echo $this->Breadcrumbs->render(
                                     data-toggle="modal"
                                     data-target="#modal-confirm-with-message"
                                     data-message="<?php echo sprintf(MESSAGE_DISABLE_QUESTION, $brinde["nome"])?>"
-                                    data-action="<?php echo sprintf("/brindesEstoque/alterarEstadoBrinde/%s", $brinde["id"])?>"
+                                    data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"])?>"
                                     >
                                     <i class="fa fa-power-off"></i>
                                 </a>
@@ -112,7 +112,7 @@ echo $this->Breadcrumbs->render(
                                     data-toggle="modal"
                                     data-target="#modal-confirm-with-message"
                                     data-message="<?php echo sprintf(MESSAGE_ENABLE_QUESTION, $brinde["nome"])?>"
-                                    data-action="<?php echo sprintf("/brindesEstoque/alterarEstadoBrinde/%s", $brinde["id"])?>"
+                                    data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"])?>"
                                     >
                                     <i class="fa fa-power-off"></i>
                                 </a>

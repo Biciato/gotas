@@ -65,17 +65,17 @@ class BrindesTable extends GenericTable
         // );
 
         $this->hasOne(
-            "EntradaTotal",
+            "TotalEntrada",
             array(
                 "className" => "BrindesEstoque",
                 "foreignKey" => "brindes_id",
                 "joinType" => Query::JOIN_TYPE_LEFT,
                 "strategy" => "select",
                 "fields" => array(
-                    "qteEntrada" => "SUM(EntradaTotal.quantidade)"
+                    "qteEntrada" => "SUM(TotalEntrada.quantidade)"
                 ),
                 "conditions" => array(
-                    "EntradaTotal.tipo_operacao" => TYPE_OPERATION_ADD_STOCK
+                    "TotalEntrada.tipo_operacao" => TYPE_OPERATION_ADD_STOCK
                 )
 
             )
@@ -91,10 +91,11 @@ class BrindesTable extends GenericTable
                 "conditions" => array(
                     "PrecoAtual.status_autorizacao" => STATUS_AUTHORIZATION_PRICE_AUTHORIZED
                 ),
-                "ORDER" => array(
+                "sort" => array(
                     "data" => "DESC"
                 ),
-                "limit" => 1
+                "limit" => 1,
+
             )
         );
 
@@ -457,6 +458,7 @@ class BrindesTable extends GenericTable
                 ->where(array("id" => $brindesId))
                 ->contain(
                     array(
+                        "TotalEntrada",
                         // "EntradaTotal"
                         //  =>
                         // array(
@@ -654,6 +656,67 @@ class BrindesTable extends GenericTable
     #endregion
 
     #region Update
+
+    public function updateBrinde(int $id, int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg)
+    {
+        try {
+            $brindeSave = $this->get($id);
+
+            $brindeSave["id"] = $id;
+            $brindeSave["clientes_id"] = $clientesId;
+            $brindeSave["nome"] = $nome;
+            $brindeSave["codigo_primario"] = $codigoPrimario;
+            $brindeSave["tempo_uso_brinde"] = $tempoUsoBrinde;
+            $brindeSave["ilimitado"] = $ilimitado;
+            $brindeSave["habilitado"] = $habilitado;
+            $brindeSave["tipo_equipamento"] = $tipoEquipamento;
+            $brindeSave["tipo_venda"] = $tipoVenda;
+            $brindeSave["tipo_codigo_barras"] = $tipoCodigoBarras;
+            $brindeSave["preco_padrao"] = $precoPadrao;
+            $brindeSave["valor_moeda_venda_padrao"] = $valorMoedaVendaPadrao;
+            $brindeSave["nome_img"] = $nomeImg;
+
+            return $this->save($brindeSave);
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao gravar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            throw new Exception($stringError);
+        }
+    }
+    /**
+     * BrindesTable::updateEnabledStatusBrinde
+     *
+     * Altera estado de habilitado do brinde
+     *
+     * @param integer $id Id do Brinde
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-26
+     *
+     * @return \App\Model\Entity\Brinde Brinde
+     */
+    public function updateEnabledStatusBrinde(int $id)
+    {
+        try {
+            $brinde = $this->get($id);
+
+            $changeEnabled = !$brinde["habilitado"];
+            $brinde["habilitado"] = $changeEnabled;
+
+            return $this->save($brinde);
+        } catch (\Exception $e) {
+
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao gravar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
 
     /**
      * Define todos os preços de brindes habilitados de um cliente para a matriz

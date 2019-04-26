@@ -249,11 +249,13 @@ class BrindesEstoqueTable extends GenericTable
      * @param int $clientes_has_brindes_habilitados_id
 
      * @return int sum of brinde stock
+     *
+     * @deprecated 1.0
      **/
     public function getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id)
     {
         try {
-            $query = $this->_getBrindesEstoqueTable()->find();
+            $query = $this->find();
 
             $queryResult = $query->select(['sum' => $query->func()->sum('quantidade')])
                 ->where(['clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id])->first();
@@ -303,7 +305,7 @@ class BrindesEstoqueTable extends GenericTable
     {
         try {
 
-            $clientes_has_brindes_habilitados_id = $this->_getBrindesEstoqueTable()->ClientesHasBrindesHabilitados->find('all')
+            $clientes_has_brindes_habilitados_id = $this->ClientesHasBrindesHabilitados->find('all')
                 ->where(['clientes_id in' => $clientes_ids])->select(['id']);
 
             $clientes_has_brindes_habilitados_ids = [];
@@ -313,7 +315,7 @@ class BrindesEstoqueTable extends GenericTable
             }
 
             if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
-                return $this->_getBrindesEstoqueTable()
+                return $this
                     ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
             } else {
                 return true;

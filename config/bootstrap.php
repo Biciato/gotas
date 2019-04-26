@@ -263,6 +263,11 @@ const JOB_STATUS_INIT = "Inicializando...";
 const JOB_STATUS_END = "Finalizando...";
 
 
+#region Caminhos
+
+const PATH_IMAGES_BRINDES = "img/redes/";
+
+#endregion
 
 #region Mensagens
 
@@ -277,6 +282,7 @@ const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente n
 #region Entidades
 
 // Genérica
+const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const TYPE_BARCODE_QRCODE = "QRCode";
 const TYPE_BARCODE_CODE128 = 'Code128';
@@ -362,6 +368,8 @@ const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
 const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
 const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro {0} ?';
 const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
+const MESSAGE_SAVED_ERROR = "Não foi possível gravar o registro!";
+const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
 
 // Mensagens de processamento
 const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
