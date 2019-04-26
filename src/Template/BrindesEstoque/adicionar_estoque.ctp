@@ -18,7 +18,7 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $titleBrindesIndex = "Configurações IHM";
     $title = sprintf("Informações do IHM %s", $brinde["nome"]);
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $rede["id"]));
     $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
     $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
 } else {
@@ -44,7 +44,7 @@ echo $this->Breadcrumbs->render(
 ) ?>
 
 <div class="brindesEstoque form col-lg-9 col-md-10 columns content">
-    <?= $this->Form->create($brinde_estoque) ?>
+    <?= $this->Form->create($brindeEstoque) ?>
     <fieldset>
         <legend><?= __('Adicionar Estoque para Brinde') ?></legend>
         <?= $this->element('../BrindesEstoque/brindes_estoque_form', ['required_tipo_operacao' => false, 'required_data' => false]) ?>

@@ -408,7 +408,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
         // verifica se o cliente tem o brinde habilitado
         $clienteHasBrindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoByBrindeClienteId($brindesId, $clientesId);
 
-        $brinde = $this->Brindes->getBrindesById($brindesId);
+        $brinde = $this->Brindes->getBrindeById($brindesId);
 
         $tiposBrindesCliente = $this->TiposBrindesClientes->getTiposBrindesClientesByTiposBrindesRedes($brinde["tipos_brindes_redes_id"], $clientesId);
 
@@ -454,7 +454,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
                  * 3 - Se não houver cadastro anterior
                  */
                 $brinde
-                    = $this->Brindes->getBrindesById(
+                    = $this->Brindes->getBrindeById(
                     $clienteHasBrindeHabilitado->brindes_id
                 );
 
@@ -467,7 +467,7 @@ class ClientesHasBrindesHabilitadosController extends AppController
 
                     if (is_null($estoque)) {
                         // Não tem estoque, criar novo registro vazio
-                        $this->ClientesHasBrindesEstoque->addEstoque($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
+                        $this->ClientesHasBrindesEstoque->addBrindeEstoque($clienteHasBrindeHabilitado->id, $this->usuarioLogado['id'], 0, 0);
                     }
                 }
                     // brinde habilitado, verificar se já tem preço. Se não tiver, cadastra

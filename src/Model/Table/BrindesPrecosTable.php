@@ -83,7 +83,7 @@ class BrindesPrecosTable extends GenericTable
             ->notEmpty('data_preco');
 
         $validator
-            ->integer('status_autorizacao');
+            ->notEmpty('status_autorizacao');
 
         $validator
             ->dateTime('audit_insert')
@@ -132,6 +132,7 @@ class BrindesPrecosTable extends GenericTable
      *
      * @param int $brindesId
      * @param int $clientesId
+     * @param int $usuariosId
      * @param int $precoPadrao
      * @param int $valorMoedaVenda
      *
@@ -140,13 +141,14 @@ class BrindesPrecosTable extends GenericTable
      *
      * @return (entity\BrindesPrecos) $entity
      **/
-    public function addBrindePreco(int $brindesId, int $clientesId, string $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
+    public function addBrindePreco(int $brindesId, int $clientesId, int $usuariosId, string $statusAutorizacao, float $precoPadrao = null, float $valorMoedaVenda = null)
     {
         try {
             $brindeSave = $this->newEntity();
 
             $brindeSave["brindes_id"] = $brindesId;
             $brindeSave["clientes_id"] = $clientesId;
+            $brindeSave["usuarios_id"] = $usuariosId;
             $brindeSave["preco"] = $precoPadrao;
             $brindeSave["valor_moeda_venda"] = $valorMoedaVenda;
             $brindeSave["status_autorizacao"] = $statusAutorizacao;

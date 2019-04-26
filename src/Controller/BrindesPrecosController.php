@@ -159,7 +159,7 @@ class BrindesPrecosController extends AppController
         $cliente = $sessaoUsuario["cliente"];
         $rede = $sessaoUsuario["rede"];
 
-        $brinde = $this->Brindes->getBrindesById($brindesId);
+        $brinde = $this->Brindes->getBrindeById($brindesId);
 
         $error = false;
         $errors = array();
@@ -269,19 +269,10 @@ class BrindesPrecosController extends AppController
             $novoPreco["preco"] = (float)$data['preco'] != 0 ? (float)$data["preco"] : null;
             $novoPreco["valor_moeda_venda"] = (float)$data['valor_moeda_venda'] != 0 ? (float)$data["valor_moeda_venda"] : null;
 
-            // DebugUtil::print($novoPreco);
-
-            /*
-             * Preco deve ser alertado aos Administradores da Rede caso
-             * quem alterou tiver um perfil de administrador comum e
-             * for fora da matriz.
-             */
-
-
-
             $novoPreco = $this->BrindesPrecos->addBrindePreco(
                 $brindesId,
                 $clientesId,
+                $this->usuarioLogado["id"],
                 STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
                 $novoPreco["preco"],
                 $novoPreco["valor_moeda_venda"]
@@ -294,6 +285,12 @@ class BrindesPrecosController extends AppController
                 return $this->redirect(['controller' => 'brindes', 'action' => 'view', $brindesId]);
 
                 // @warning Desativado por enquanto, ver com Samuel como ficará no futuro
+
+                /**
+                * Preco deve ser alertado aos Administradores da Rede caso
+                * quem alterou tiver um perfil de administrador comum e
+                * for fora da matriz.
+                */
                 /**
                  * Se o preço é diferente, envia um e-mail para cada administrador
                  * da rede daquela rede informando à respeito da alteração do preço

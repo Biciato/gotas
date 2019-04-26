@@ -872,7 +872,7 @@
 			"brindeAguardandoAutorizacao",
 			"col-md",
 			"col-lg",
-			"getBrindesById(",
+			"getBrindeById(",
 			"Log::write('error', $stringError);",
 			"usuarios",
 			"Usuarios",

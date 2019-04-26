@@ -278,20 +278,21 @@ const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente n
 
 // Genérica
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
-
-// Brindes
-
 const TYPE_BARCODE_QRCODE = "QRCode";
 const TYPE_BARCODE_CODE128 = 'Code128';
 const TYPE_BARCODE_PDF417 = 'PDF417';
+
+// Brindes
+
 const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
 const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
 const STATUS_AUTHORIZATION_PRICE_DENIED = "Negado";
 
-const MESSAGE_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
-const MESSAGE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
+const MESSAGE_BRINDES_ESTOQUE_QUANTITY_EMPTY = "Campo QUANTIDADE não informado!";
+const MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
 
 const TYPE_OPERATION_INITIALIZE = "Criação";
 const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";

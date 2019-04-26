@@ -602,7 +602,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
                     ->first();
 
                 $brindeHabilitadoPrecoTable = TableRegistry::get('ClientesHasBrindesHabilitadosPreco');
-                $brinde = $brindesTable->getBrindesById($brindeId);
+                $brinde = $brindesTable->getBrindeById($brindeId);
 
                 if (!empty($clientesBrindesHabilitado) && ($clientesBrindesHabilitado["tipos_brindes_clientes_id"] != 0)) {
 

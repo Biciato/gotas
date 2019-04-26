@@ -126,26 +126,24 @@ class BrindesEstoqueTable extends GenericTable
     #region Create
 
     /**
+     * BrindesEstoqueTable::addBrindeEstoque
+     *
      * Adiciona estoque para Clientes Has Brindes Estoque
      *
-     * @param int $brindesId
-     * @param int $usuariosId
-     * @param int $quantidade
-     * @param int $tipoOperacao (0: Entrada estoque, 1: Saída tipo Brinde, 2: Saída tipo Venda, 3: Devolução)
-     * @param int $id clientesHasBrindesEstoqueId
+     * @param int $brindesId Id de Brinde
+     * @param int $usuariosId Id de Usuário
+     * @param int $quantidade Quantidade
+     * @param string $tipoOperacao Operação ('Criação','Adicionado ao Estoque','Saída Brinde','Saída Venda','Retornado')
      *
-     * @return void
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-26
+     *
+     * @return \App\Model\Entity\BrindesEstoque $estoque
      **/
-    public function addEstoque($brindesId, $usuariosId, $quantidade, $tipoOperacao, $id = null)
+    public function addBrindeEstoque($brindesId, $usuariosId, $quantidade, $tipoOperacao)
     {
         try {
-            $estoque = null;
-
-            if (is_null($id)) {
-                $estoque = $this->newEntity();
-            } else {
-                $estoque = $this->get($id);
-            }
+            $estoque = $this->newEntity();
 
             $estoque["brindes_id"] = $brindesId;
             $estoque["usuarios_id"] = $usuariosId;
@@ -155,10 +153,10 @@ class BrindesEstoqueTable extends GenericTable
 
             return $this->save($estoque);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registros: {0} em: {1}", $e->getMessage(), $trace[1]);
-
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao salvar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
             Log::write('error', $stringError);
+            Log::write('error', $trace);
         }
     }
 
@@ -286,7 +284,11 @@ class BrindesEstoqueTable extends GenericTable
         return ['enough' => $left > $checkout_ammount, 'left' => $left];
     }
 
+    #endregion
+
     #region Update
+
+    #endregion
 
     #region Delete
 
@@ -335,4 +337,6 @@ class BrindesEstoqueTable extends GenericTable
             return $error;
         }
     }
+
+    #endregion
 }

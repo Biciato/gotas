@@ -216,6 +216,58 @@ $manageStock = !$brinde["ilimitado"];
         </div>
 
         <div class="form-group row">
+            <div class="col-lg-2">
+                <label for="qte_total_entrada">Total Entrada</label>
+                <input type="text"
+                    readonly="readonly"
+                    id="qte_total_entrada"
+                    name="qte_total_entrada"
+                    value="<?php echo $brinde["total_entrada"]?>"
+                    placeholder="Estoque Total Entrada..."
+                    class="form-control"/>
+            </div>
+            <div class="col-lg-2">
+                <label for="qte_total_entrada">Total Saída Brinde</label>
+                <input type="text"
+                    readonly="readonly"
+                    id="qte_total_entrada"
+                    name="qte_total_entrada"
+                    value="<?php echo $brinde["total_entrada"]?>"
+                    placeholder="Estoque Total Entrada..."
+                    class="form-control"/>
+            </div>
+            <div class="col-lg-2">
+                <label for="qte_total_entrada">Total Saída Venda</label>
+                <input type="text"
+                    readonly="readonly"
+                    id="qte_total_entrada"
+                    name="qte_total_entrada"
+                    value="<?php echo $brinde["total_entrada"]?>"
+                    placeholder="Estoque Total Entrada..."
+                    class="form-control"/>
+            </div>
+            <div class="col-lg-2">
+                <label for="qte_total_entrada">Total Retornado</label>
+                <input type="text"
+                    readonly="readonly"
+                    id="qte_total_entrada"
+                    name="qte_total_entrada"
+                    value="<?php echo $brinde["total_entrada"]?>"
+                    placeholder="Estoque Total Entrada..."
+                    class="form-control"/>
+            </div>
+            <div class="col-lg-2">
+                <label for="qte_total_entrada">Estoque Total Entrada</label>
+                <input type="text"
+                    readonly="readonly"
+                    id="qte_total_entrada"
+                    name="qte_total_entrada"
+                    value="<?php echo $brinde["total_entrada"]?>"
+                    placeholder="Estoque Total Entrada..."
+                    class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
             <div class="col-lg-3">
                 <label for="preco_atual_gotas">Preço Atual Gotas</label>
                 <input type="text"
@@ -223,7 +275,7 @@ $manageStock = !$brinde["ilimitado"];
                     id="preco_atual_gotas"
                     class="form-control preco-atual-gotas"
                     readonly
-                    value="<?php echo Number::precision($precoAtualBrinde['preco'], 2)?>"
+                    value="<?php echo Number::precision($brinde["preco_atual"]['preco'], 2)?>"
                     placeholder="Preço Atual Gotas..."
                     >
             </div>
@@ -234,7 +286,7 @@ $manageStock = !$brinde["ilimitado"];
                     id="preco_atual_gotas"
                     class="form-control preco-atual-gotas"
                     readonly
-                    value="<?php echo Number::currency($precoAtualBrinde['valor_moeda_venda'])?>"
+                    value="<?php echo Number::currency($brinde["preco_atual"]['valor_moeda_venda'])?>"
                     placeholder="Preço Atual Venda Avulsa..."
                     >
             </div>

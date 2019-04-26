@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/ClientesHasBrindesEstoque/brindes_estoque_form.ctp
+ * @file     src/Template/BrindesEstoque/brindes_estoque_form.ctp
  * @date     09/08/2017
  */
 
@@ -10,16 +10,14 @@ use Cake\I18n\Number;
 
 $required_tipo_operacao = is_null($required_tipo_operacao) ? true : $required_tipo_operacao;
 $required_data = is_null($required_data) ? true : $required_data;
-
 $brinde = isset($brinde) ? $brinde : null;
-
 
 if (!is_null($brinde)) {
     ?>
 
     <div class="form-group row">
         <div class='col-lg-4'>
-            <?= $this->Form->input('nome', ['readonly' => true, 'value' => $brinde->brinde->nome, 'label' => 'Brinde Selecionado']); ?>
+            <?= $this->Form->input('nome', ['readonly' => true, 'value' => $brinde["nome"], 'label' => 'Brinde Selecionado']); ?>
         </div>
         <div class='col-lg-4'>
             <?= $this->Form->input('preco', ['readonly' => true, 'value' => Number::precision($brinde["preco_atual"]["preco"], 2), 'label' => 'Preço (em gotas):']); ?>
@@ -41,7 +39,7 @@ if (!is_null($brinde)) {
                 <span class="fa fa-save"></span>
                 Salvar
             </button>
-            <a href="/BrindesEstoque/gerenciarEstoque/<?= $brindes_id ?>" class="btn btn-danger botao-cancelar">
+            <a href="/Brindes/view/<?= $brinde["id"] ?>" class="btn btn-danger botao-cancelar">
                 <span class="fa fa-window-close"></span>
                 Cancelar
             </a>

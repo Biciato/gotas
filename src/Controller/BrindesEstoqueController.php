@@ -14,13 +14,13 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\DebugUtil;
 
 /**
- * ClientesHasBrindesEstoque Controller
+ * BrindesEstoque Controller
  *
- * @property \App\Model\Table\ClientesHasBrindesEstoqueTable $ClientesHasBrindesEstoque
+ * @property \App\Model\Table\BrindesEstoqueTable $BrindesEstoque
  *
- * @method \App\Model\Entity\ClientesHasBrindesEstoque[] paginate($object = null, array $settings = [])
+ * @method \App\Model\Entity\BrindesEstoque[] paginate($object = null, array $settings = [])
  */
-class ClientesHasBrindesEstoqueController extends AppController
+class BrindesEstoqueController extends AppController
 {
     /**
      * ------------------------------------------------------------
@@ -46,10 +46,10 @@ class ClientesHasBrindesEstoqueController extends AppController
         $this->paginate = [
             'contain' => ['Brindes', 'Usuarios']
         ];
-        $clientesHasBrindesEstoque = $this->paginate($this->ClientesHasBrindesEstoque);
+        $BrindesEstoque = $this->paginate($this->BrindesEstoque);
 
-        $this->set(compact('clientesHasBrindesEstoque'));
-        $this->set('_serialize', ['clientesHasBrindesEstoque']);
+        $this->set(compact('BrindesEstoque'));
+        $this->set('_serialize', ['BrindesEstoque']);
     }
 
     /**
@@ -61,12 +61,12 @@ class ClientesHasBrindesEstoqueController extends AppController
      */
     public function view($id = null)
     {
-        $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->get($id, [
+        $BrindesEstoque = $this->BrindesEstoque->get($id, [
             'contain' => ['Brindes', 'Usuarios']
         ]);
 
-        $this->set('clientesHasBrindesEstoque', $clientesHasBrindesEstoque);
-        $this->set('_serialize', ['clientesHasBrindesEstoque']);
+        $this->set('BrindesEstoque', $BrindesEstoque);
+        $this->set('_serialize', ['BrindesEstoque']);
     }
 
     /**
@@ -76,20 +76,20 @@ class ClientesHasBrindesEstoqueController extends AppController
      */
     public function add()
     {
-        $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $BrindesEstoque = $this->BrindesEstoque->newEntity();
         if ($this->request->is('post')) {
-            $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->patchEntity($clientesHasBrindesEstoque, $this->request->getData());
-            if ($this->ClientesHasBrindesEstoque->save($clientesHasBrindesEstoque)) {
+            $BrindesEstoque = $this->BrindesEstoque->patchEntity($BrindesEstoque, $this->request->getData());
+            if ($this->BrindesEstoque->save($BrindesEstoque)) {
                 $this->Flash->success(__('The brindes estoque has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The brindes estoque could not be saved. Please, try again.'));
         }
-        $brindes = $this->ClientesHasBrindesEstoque->Brindes->find('list', ['limit' => 200]);
-        $usuarios = $this->ClientesHasBrindesEstoque->Usuarios->find('list', ['limit' => 200]);
-        $this->set(compact('clientesHasBrindesEstoque', 'brindes', 'usuarios'));
-        $this->set('_serialize', ['clientesHasBrindesEstoque']);
+        $brindes = $this->BrindesEstoque->Brindes->find('list', ['limit' => 200]);
+        $usuarios = $this->BrindesEstoque->Usuarios->find('list', ['limit' => 200]);
+        $this->set(compact('BrindesEstoque', 'brindes', 'usuarios'));
+        $this->set('_serialize', ['BrindesEstoque']);
     }
 
     /**
@@ -101,22 +101,22 @@ class ClientesHasBrindesEstoqueController extends AppController
      */
     public function edit($id = null)
     {
-        $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->get($id, [
+        $BrindesEstoque = $this->BrindesEstoque->get($id, [
             'contain' => []
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->patchEntity($clientesHasBrindesEstoque, $this->request->getData());
-            if ($this->ClientesHasBrindesEstoque->save($clientesHasBrindesEstoque)) {
+            $BrindesEstoque = $this->BrindesEstoque->patchEntity($BrindesEstoque, $this->request->getData());
+            if ($this->BrindesEstoque->save($BrindesEstoque)) {
                 $this->Flash->success(__('The brindes estoque has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The brindes estoque could not be saved. Please, try again.'));
         }
-        $brindes = $this->ClientesHasBrindesEstoque->Brindes->find('list', ['limit' => 200]);
-        $usuarios = $this->ClientesHasBrindesEstoque->Usuarios->find('list', ['limit' => 200]);
-        $this->set(compact('clientesHasBrindesEstoque', 'brindes', 'usuarios'));
-        $this->set('_serialize', ['clientesHasBrindesEstoque']);
+        $brindes = $this->BrindesEstoque->Brindes->find('list', ['limit' => 200]);
+        $usuarios = $this->BrindesEstoque->Usuarios->find('list', ['limit' => 200]);
+        $this->set(compact('BrindesEstoque', 'brindes', 'usuarios'));
+        $this->set('_serialize', ['BrindesEstoque']);
     }
 
     /**
@@ -129,8 +129,8 @@ class ClientesHasBrindesEstoqueController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $clientesHasBrindesEstoque = $this->ClientesHasBrindesEstoque->get($id);
-        if ($this->ClientesHasBrindesEstoque->delete($clientesHasBrindesEstoque)) {
+        $BrindesEstoque = $this->BrindesEstoque->get($id);
+        if ($this->BrindesEstoque->delete($BrindesEstoque)) {
             $this->Flash->success(__('The brindes estoque has been deleted.'));
         } else {
             $this->Flash->error(__('The brindes estoque could not be deleted. Please, try again.'));
@@ -177,53 +177,58 @@ class ClientesHasBrindesEstoqueController extends AppController
     /**
      * Action para adicionar estoque para Brinde
      *
-     * @param int $brindes_id Id do Brinde
+     * @param int $id Id do Brinde
      *
      * @return \Cake\Http\Response|void
      **/
-    public function adicionarEstoque($brindes_id)
+    public function adicionarEstoque($id)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $arraySet = array('brinde', 'brindeEstoque', 'brindes_id', 'clientesId');
+        $brinde = $this->Brindes->getBrindeById($id);
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
-        if ($usuarioAdministrador) {
+        if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindes_id);
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
 
-        $clientes_id = $brinde->clientes_id;
+        if (empty($rede)) {
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($brinde["clientes_id"]);
+            $rede = $redeHasCliente["rede"];
+            $cliente = $redeHasCliente["cliente"];
+        }
+        $clientesId = $cliente["id"];
 
-        $brindeEstoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $brindeEstoque = $this->BrindesEstoque->newEntity();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $data['clientes_has_brindes_habilitados_id'] = $brinde->id;
-            $data['usuarios_id'] = $this->usuarioLogado['id'];
-            $data['data'] = date('Y-m-d H:i:s');
-            $data['tipo_operacao'] = Configure::read('stockOperationTypes')['addType'];
+            $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : null;
+            if (empty($quantidade)) {
+                $this->Flash->error(MESSAGE_BRINDES_ESTOQUE_QUANTITY_EMPTY);
 
-            $brindeEstoque = $this->ClientesHasBrindesEstoque->patchEntity($brindeEstoque, $data);
+                $this->set(compact($arraySet));
+                return;
+            }
 
-            if ($this->ClientesHasBrindesEstoque->save($brindeEstoque)) {
+            $brindeSave = $this->BrindesEstoque->addBrindeEstoque($brinde["id"], $this->usuarioLogado["id"], $quantidade, TYPE_OPERATION_ADD_STOCK);
+
+            if ($brindeSave) {
                 $this->Flash->success(Configure::read('messageSavedSuccess'));
 
-                return $this->redirect(['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar_brinde', $brindes_id]);
+                return $this->redirect(['controller' => 'brindes', 'action' => 'view', $id]);
             }
 
             $this->Flash->error(Configure::read('messageSavedError'));
         }
 
-        $array_set = [
-            'brinde',
-            'brindeEstoque',
-            'brindes_id',
-            'clientes_id'
-        ];
-
-        $this->set(compact([$array_set]));
-        $this->set('_serialize', [$array_set]);
+        $this->set(compact([$arraySet]));
+        // $this->set('_serialize', [$array_set]);
     }
 
     /**
@@ -248,7 +253,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
         $clientes_id = $brinde->clientes_id;
 
-        $brindeEstoque = $this->ClientesHasBrindesEstoque->newEntity();
+        $brindeEstoque = $this->BrindesEstoque->newEntity();
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
@@ -279,7 +284,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             // verificar se tem estoque suficiente na loja em questão
 
-            $estoqueAtual = $this->ClientesHasBrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindesId, $data['quantidade']);
+            $estoqueAtual = $this->BrindesEstoque->checkBrindeHasEstoqueByBrindesHabilitadosId($brindesId, $data['quantidade']);
 
             $possuiEstoque = $estoqueAtual["enough"] == true || $brinde["brinde"]["ilimitado"];
 
@@ -292,10 +297,10 @@ class ClientesHasBrindesEstoqueController extends AppController
                 // Pegar soma de pontuações do usuário para saber se ele tem saldo
                 $usuario->pontuacoes
                     = $this->Pontuacoes->getSumPontuacoesOfUsuario(
-                    $usuario['id'],
-                    $rede["id"],
-                    $array_clientes_id
-                );
+                        $usuario['id'],
+                        $rede["id"],
+                        $array_clientes_id
+                    );
 
                 if ($usuario->pontuacoes < $totalPontosAGastar) {
                     $this->Flash->error(__("Usuário com saldo insuficiente. Usuário possui {0} gotas, e o valor necessário de gotas é de {1}.", $usuario->pontuacoes, $totalPontosAGastar));
@@ -303,7 +308,7 @@ class ClientesHasBrindesEstoqueController extends AppController
                     //usuário possui pontuação suficiente, cliente tem brinde suficiente, iniciar as transações
 
                     // Diminuir estoque do cliente
-                    $brindeEstoque = $this->ClientesHasBrindesEstoque->addEstoque(
+                    $brindeEstoque = $this->BrindesEstoque->addBrindeEstoque(
                         $brinde->id,
                         $usuario->id,
                         $data['quantidade'],
@@ -313,14 +318,14 @@ class ClientesHasBrindesEstoqueController extends AppController
                     // adicionar brinde resgatado no cadastro do usuário
                     $brindeUsuario
                         = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                        $rede["id"],
-                        $clientes_id,
-                        $usuario["id"],
-                        $brinde->id,
-                        $data['quantidade'],
-                        $totalPontosAGastar,
-                        TYPE_PAYMENT_POINTS
-                    );
+                            $rede["id"],
+                            $clientes_id,
+                            $usuario["id"],
+                            $brinde->id,
+                            $data['quantidade'],
+                            $totalPontosAGastar,
+                            TYPE_PAYMENT_POINTS
+                        );
 
                     // salvar pontuação do usuário
                     $pontos = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
@@ -401,7 +406,6 @@ class ClientesHasBrindesEstoqueController extends AppController
                 } else {
                     $whereConditions[] = ['brindes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
@@ -409,7 +413,6 @@ class ClientesHasBrindesEstoqueController extends AppController
                 } else {
                     $whereConditions[] = ['brindes.audit_insert >= ' => $dataInicial];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinal > $dataHoje) {
@@ -420,7 +423,7 @@ class ClientesHasBrindesEstoqueController extends AppController
             }
         }
 
-         // Monta o Array para apresentar em tela
+        // Monta o Array para apresentar em tela
         $redes = array();
 
         // este relatório não precisa mostrar os brindes RTI Shower
@@ -536,23 +539,21 @@ class ClientesHasBrindesEstoqueController extends AppController
                     } else if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
-                        $whereConditions[] = ['ClientesHasBrindesEstoque.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
+                        $whereConditions[] = ['BrindesEstoque.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-
                 } else if (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
-                        $whereConditions[] = ['ClientesHasBrindesEstoque.audit_insert >= ' => $dataInicial];
+                        $whereConditions[] = ['BrindesEstoque.audit_insert >= ' => $dataInicial];
                     }
-
                 } else if (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
                     } else {
-                        $whereConditions[] = ['ClientesHasBrindesEstoque.audit_insert <= ' => $dataFinal];
+                        $whereConditions[] = ['BrindesEstoque.audit_insert <= ' => $dataFinal];
                     }
                 }
             }
@@ -561,7 +562,7 @@ class ClientesHasBrindesEstoqueController extends AppController
 
             $cliente = $this->Clientes->getClienteById($brinde->clientes_id);
 
-            $historicoEstoqueBrinde = $this->ClientesHasBrindesEstoque->getEstoqueForBrinde($clientesHasBrindesHabilitadoId, null, $whereConditions, $qteRegistros);
+            $historicoEstoqueBrinde = $this->BrindesEstoque->getEstoqueForBrinde($clientesHasBrindesHabilitadoId, null, $whereConditions, $qteRegistros);
         }
 
         $arraySet = [

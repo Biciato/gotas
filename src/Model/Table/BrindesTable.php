@@ -32,13 +32,6 @@ class BrindesTable extends GenericTable
 
     /**
      * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $brindeTable = null;
-
-    /**
-     * -------------------------------------------------------------
      * Properties
      * -------------------------------------------------------------
      */
@@ -63,12 +56,29 @@ class BrindesTable extends GenericTable
             'joinType' => 'INNER'
         ]);
 
-        $this->hasMany(
-            'ClientesHasBrindesHabilitados',
-            [
-                'foreignKey' => 'brindes_id',
-                'joinType' => 'INNER'
-            ]
+        // $this->hasMany(
+        //     'ClientesHasBrindesHabilitados',
+        //     [
+        //         'foreignKey' => 'brindes_id',
+        //         'joinType' => 'INNER'
+        //     ]
+        // );
+
+        $this->hasOne(
+            "EntradaTotal",
+            array(
+                "className" => "BrindesEstoque",
+                "foreignKey" => "brindes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT,
+                "strategy" => "select",
+                "fields" => array(
+                    "qteEntrada" => "SUM(EntradaTotal.quantidade)"
+                ),
+                "conditions" => array(
+                    "EntradaTotal.tipo_operacao" => TYPE_OPERATION_ADD_STOCK
+                )
+
+            )
         );
 
         $this->hasOne(
@@ -218,7 +228,7 @@ class BrindesTable extends GenericTable
             $brindeSave = null;
 
             if (isset($brinde["id"]) && $brinde["id"] > 0) {
-                $brindeSave = $this->getBrindesById($brinde["id"]);
+                $brindeSave = $this->getBrindeById($brinde["id"]);
             } else {
                 $brinde = gettype($brinde) == "object" ? $brinde->toArray() : $brinde;
                 $brindeSave = new Brinde($brinde);
@@ -440,15 +450,32 @@ class BrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\Brindes $brinde
      **/
-    public function getBrindesById($brindesId)
+    public function getBrindeById($brindesId)
     {
         try {
-            return $this->get($brindesId);
+            return $this->find("all")
+                ->where(array("id" => $brindesId))
+                ->contain(
+                    array(
+                        // "EntradaTotal"
+                        //  =>
+                        // array(
+                        //     "select" => array("SUM(EntradaTotal.quantidade)")
+                        // )
+                        // ,
+                        "PrecoAtual"
+                    )
+                )
+                ->select($this)
+
+                ->first();
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTraceAsString();
+
+            $stringError = __("Erro ao obter ids de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
             // $this->Flash->error($stringError);
         }

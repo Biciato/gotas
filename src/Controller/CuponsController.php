@@ -1634,7 +1634,7 @@ class CuponsController extends AppController
                             ->ClientesHasBrindesEstoque
                             ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
 
-                        $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
+                        $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque(
                             $cupom->clientes_has_brindes_habilitados_id,
                             $cupom->usuarios_id,
                             $cupom->quantidade,
@@ -1875,7 +1875,7 @@ class CuponsController extends AppController
                         ->ClientesHasBrindesEstoque
                         ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
 
-                    $estoque = $this->ClientesHasBrindesEstoque->addEstoque(
+                    $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque(
                         $cupom->clientes_has_brindes_habilitados_id,
                         $cupom->usuarios_id,
                         $cupom->quantidade,
@@ -2084,7 +2084,7 @@ class CuponsController extends AppController
                         "quantidade" => $quantidade,
                         "nome" => $itemCupom["clientes_has_brindes_habilitado"]["brinde"]["nome"]
                     );
-                    $devolucao = $this->ClientesHasBrindesEstoque->addEstoque($clientesBrindesHabilitadosId, $usuarioLogado["id"], $quantidade, STOCK_OPERATION_TYPES_RETURN_TYPE);
+                    $devolucao = $this->ClientesHasBrindesEstoque->addBrindeEstoque($clientesBrindesHabilitadosId, $usuarioLogado["id"], $quantidade, STOCK_OPERATION_TYPES_RETURN_TYPE);
                 }
             }
             $retorno = array(
@@ -2740,7 +2740,7 @@ class CuponsController extends AppController
 
                 // efetua saida na tabela de estoque
 
-                $estoque = $this->ClientesHasBrindesEstoque->addEstoque($brindeSelecionado["id"], $usuario["id"], $quantidade, Configure::read("stockOperationTypes")["sellTypeSale"]);
+                $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque($brindeSelecionado["id"], $usuario["id"], $quantidade, Configure::read("stockOperationTypes")["sellTypeSale"]);
 
                 // atribui uso de pontuações ao usuário se o Brinde não for Isento
                 if ($tipoVendaBrinde != TYPE_SELL_FREE_TEXT) {

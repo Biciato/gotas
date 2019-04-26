@@ -110,13 +110,16 @@ class BrindesController extends AppController
     public function view($id = null)
     {
         $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde");
-        $brinde = $this->Brindes->getBrindesById($id);
+        $brinde = $this->Brindes->getBrindeById($id);
+        // DebugUtil::print($brinde);
         $clientesId = $brinde["clientes_id"];
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $redesId = $redeHasCliente["rede"]["redes_id"];
         $editMode = 1;
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
-        $precoAtualBrinde = $this->BrindesPrecos->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+        // $precoAtualBrinde = $this->BrindesPrecos->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+        $precoAtualBrinde = $brinde["preco_atual"];
+
 
         $this->set(compact($arraySet));
         // $this->set('_serialize', ['brinde']);
@@ -200,11 +203,11 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
 
                 if (empty($tipoEquipamento)) {
-                    $errors[] = MESSAGE_TYPE_EQUIPMENT_EMPTY;
+                    $errors[] = MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_EMPTY;
                 }
 
                 if ($tipoEquipamento == TYPE_EQUIPMENT_RTI && empty($codigoPrimario)) {
-                    $errors[] = MESSAGE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
+                    $errors[] = MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -259,13 +262,14 @@ class BrindesController extends AppController
                         if (!$brinde["ilimitado"]) {
                             // Brinde Novo, cadastra estoque
                             $result
-                                = $this->BrindesEstoque->addEstoque($brinde["id"], $this->usuarioLogado["id"], 0, 0, TYPE_OPERATION_INITIALIZE, null, null, 0, null);
+                                = $this->BrindesEstoque->addBrindeEstoque($brinde["id"], $this->usuarioLogado["id"], 0, 0, TYPE_OPERATION_INITIALIZE, null, null, 0, null);
                         }
 
                         // cadastra novo preço
                         $brindePrecoSave = $this->BrindesPrecos->addBrindePreco(
                             $brinde["id"],
                             $clientesId,
+                            $this->usuarioLogado["id"],
                             STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
                             $brinde["preco_padrao"],
                             $brinde["valor_moeda_venda_padrao"]
