@@ -87,7 +87,7 @@ use Cake\I18n\Number;
                 "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
                 "required" => "required",
                 "class" => "ilimitado",
-                "readonly" => $editMode == 1 ? 'readonly' : '',
+                // "readonly" => $editMode == 1 ? 'readonly' : '',
                 "label" => false,
                 "options" => array(
                     1 => "Sim",
@@ -137,11 +137,24 @@ use Cake\I18n\Number;
 
     <div class="col-lg-3">
         <label for="preco_padrao">Preço Padrão Gotas*</label>
-        <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
+        <input type="text"
+            name="preco_padrao"
+            required="required"
+            placeholder="Preço Padrão em Gotas..."
+            id="preco_padrao"
+            class="form-control"
+            value="<?= $brinde['preco_padrao'] ?>">
     </div>
     <div class="col-lg-3">
         <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
-        <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
+        <input type="text"
+            name="valor_moeda_venda_padrao"
+            required="required"
+            placeholder="Preço Padrão de Venda Avulsa (R$)..."
+            id="valor_moeda_venda_padrao"
+            class="form-control"
+            value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>"
+        >
     </div>
 </div>
 

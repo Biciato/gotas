@@ -29,7 +29,7 @@
     <legend><?= 'Editar Brinde' ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
-        <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, "imagemOriginal" => $imagemOriginal]); ?>
+        <?= $this->element('../Brindes/brindes_form', ['brinde' => $brinde, "imagemOriginal" => $brinde["nome_img_completo"]]); ?>
     </fieldset>
 
     <?= $this->Form->end() ?>

@@ -74,37 +74,6 @@ $(document).ready(function () {
     var editMode = $("#edit_mode").val();
     var nome = $("#nome").val();
 
-    // Tipo de Venda
-
-    $(".tipo-venda").on("change", function (e) {
-
-        var selecionado = this.value;
-
-        switch (selecionado) {
-            case "Isento": {
-
-                defineObrigatorioPrecoPadraoGotas(false);
-                defineObrigatorioPrecoPadraoAvulso(false);
-                validarForm(false);
-                break;
-            }
-            case "Com Desconto": {
-                defineObrigatorioPrecoPadraoGotas(true);
-                defineObrigatorioPrecoPadraoAvulso(true);
-                validarForm(false);
-                break;
-            }
-            case "Gotas ou Reais": {
-                validarForm(true);
-                break;
-            }
-            default: {
-
-                break;
-            }
-        }
-    }).change();
-
 
     /**
      * Define obrigatoriedades de campos de preço em gotas
@@ -147,6 +116,41 @@ $(document).ready(function () {
             $("#valor_moeda_venda_padrao").attr("required", true);
         }
     };
+
+    // Tipo de Venda
+
+    $(".tipo-venda").on("change", function (e) {
+
+        console.log(this.value);
+        var selecionado = this.value;
+
+        switch (selecionado) {
+            case "Isento": {
+
+                defineObrigatorioPrecoPadraoGotas(false);
+                defineObrigatorioPrecoPadraoAvulso(false);
+                validarForm(false);
+                break;
+            }
+            case "Com Desconto": {
+                defineObrigatorioPrecoPadraoGotas(true);
+                defineObrigatorioPrecoPadraoAvulso(true);
+                validarForm(false);
+                break;
+            }
+            case "Gotas ou Reais": {
+                validarForm(true);
+                break;
+            }
+            default: {
+
+                break;
+            }
+        }
+    }).change();
+
+
+
 
     var defineFormatoPrecosVenda = function (value) {
         if (value) {

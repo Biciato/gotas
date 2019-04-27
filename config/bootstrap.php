@@ -265,7 +265,8 @@ const JOB_STATUS_END = "Finalizando...";
 
 #region Caminhos
 
-const PATH_IMAGES_BRINDES = "img/redes/";
+const PATH_IMAGES_BRINDES = "img/brindes/";
+const PATH_IMAGES_CLIENTES = "img/clientes/";
 
 #endregion
 
@@ -295,10 +296,12 @@ const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
 const STATUS_AUTHORIZATION_PRICE_DENIED = "Negado";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
 
+// Brindes Estoque
 const MESSAGE_BRINDES_ESTOQUE_QUANTITY_EMPTY = "Campo QUANTIDADE não informado!";
-const MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
-const MESSAGE_BRINDES_ESTOQUE_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
 
 const TYPE_OPERATION_INITIALIZE = "Criação";
 const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";

@@ -657,7 +657,7 @@ class BrindesTable extends GenericTable
 
     #region Update
 
-    public function updateBrinde(int $id, int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg)
+    public function updateBrinde(int $id, int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg = null)
     {
         try {
             $brindeSave = $this->get($id);
