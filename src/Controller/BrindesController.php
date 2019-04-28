@@ -97,7 +97,6 @@ class BrindesController extends AppController
         $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
 
-        // DebugUtil::print($brindes);
         $this->set(compact($arraySet));
     }
 
@@ -112,7 +111,7 @@ class BrindesController extends AppController
     {
         $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde");
         $brinde = $this->Brindes->getBrindeById($id);
-        // DebugUtil::print($brinde);
+
         $clientesId = $brinde["clientes_id"];
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $redesId = $redeHasCliente["rede"]["redes_id"];
@@ -120,9 +119,9 @@ class BrindesController extends AppController
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
         // $precoAtualBrinde = $this->BrindesPrecos->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
         $precoAtualBrinde = $brinde["preco_atual"];
+        // $brinde["estoque"] = $this->BrindesEstoque->getActualStockForBrindesEstoque($id);
 
         $this->set(compact($arraySet));
-        // $this->set('_serialize', ['brinde']);
     }
 
     /**
@@ -315,10 +314,7 @@ class BrindesController extends AppController
         }
 
         $brinde = $this->Brindes->getBrindeById($id);
-
         $imagemOriginal = sprintf("%s%s", PATH_IMAGES_BRINDES , $brinde["nome_img"]);
-        // echo $imagemOriginal;
-
 
         try {
             if (empty($brinde)) {
@@ -326,9 +322,9 @@ class BrindesController extends AppController
             }
         } catch (\Throwable $th) {
 
-            $trace = $e->getTraceAsString();
+            $trace = $th->getTraceAsString();
             $messageString = __($th->getMessage());
-            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $th->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             $this->Flash->error($messageString);
             Log::write("error", $messageStringDebug);
@@ -378,11 +374,11 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
-                $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : null;
-                $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : null;
-                $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : null;
-                $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : null;
-                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
+                $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
+                $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
+                $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
+                $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
+                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
                 $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
                 $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
@@ -526,14 +522,14 @@ class BrindesController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $brinde = $this->Brindes->get($id);
-        if ($this->Brindes->delete($brinde)) {
-            $this->Flash->success(__('The brinde has been deleted.'));
+        $brinde = $this->Brindes->getBrindeById($id);
+        if ($this->Brindes->deleteBrinde($id)) {
+            $this->Flash->success(MESSAGE_DELETE_SUCCESS);
         } else {
-            $this->Flash->error(__('The brinde could not be deleted. Please, try again.'));
+            $this->Flash->error(MESSAGE_DELETE_ERROR);
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(sprintf("/Brindes/index/%s", $brinde["clientes_id"]));
     }
 
     /**

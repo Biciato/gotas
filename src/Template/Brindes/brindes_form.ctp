@@ -54,7 +54,7 @@ use Cake\I18n\Number;
                     "value" => !empty($brinde["tipo_equipamento"]) ? $brinde['tipo_equipamento'] : 0,
                     "required" => "required",
                     "class" => "tipo-equipamento",
-                    "readonly" => $editMode == 1 ? 'readonly' : '',
+                    // "readonly" => $editMode == 1 ? 'readonly' : '',
                     "label" => false,
                     "empty" => true,
                     "options" => array(
@@ -122,8 +122,9 @@ use Cake\I18n\Number;
                 "id" => "tipo_venda",
                 "value" => $brinde['tipo_venda'],
                 "required" => "required",
-                "class" => "tipo-venda",
-                "readonly" => $editMode == 1 ? 'readonly' : '',
+                "class" => "tipo-venda disabled",
+                "disabled",
+                // "readonly" => $editMode == 1 ? 'readonly' : '',
                 "label" => false,
                 "empty" => true,
                 "options" => array(

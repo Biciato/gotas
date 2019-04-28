@@ -244,12 +244,73 @@ class BrindesEstoqueTable extends GenericTable
     }
 
     /**
+     * BrindesEstoqueTable::getActualStockForBrindesEstoque
+     *
+     * Obtem estoques do brinde
+     *
+     * @param integer $id Id do brinde
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-27
+     *
+     * @return array(entrada, saida_brinde, saida_venda, devolucao, estoque_atual)
+     */
+    public function getActualStockForBrindesEstoque(int $id)
+    {
+        try {
+            // Cálculo de estoque do item
+            $queryEntrada = $this->find();
+            $querySaidaBrinde = $this->find();
+            $querySaidaVenda = $this->find();
+            $queryDevolucao = $this->find();
+
+            $resultEntrada = $queryEntrada->select([
+                'sum' => $queryEntrada->func()->sum('quantidade')
+            ])->where(['tipo_operacao' => TYPE_OPERATION_ADD_STOCK, 'brindes_id' => $id])->first();
+
+            $resultSaidaBrinde = $querySaidaBrinde->select([
+                'sum' => $querySaidaBrinde->func()->sum('quantidade')
+            ])->where(['tipo_operacao' => TYPE_OPERATION_SELL_BRINDE, 'brindes_id' => $id])->first();
+
+            $resultSaidaVenda = $querySaidaVenda->select([
+                'sum' => $querySaidaVenda->func()->sum('quantidade')
+            ])->where(['tipo_operacao' => TYPE_OPERATION_SELL_CURRENCY, 'brindes_id' => $id])->first();
+
+            $resultDevolucao = $queryDevolucao->select([
+                'sum' => $queryDevolucao->func()->sum('quantidade')
+            ])->where(['tipo_operacao' => TYPE_OPERATION_RETURN, 'brindes_id' => $id])->first();
+
+
+            $entrada = is_null($resultEntrada['sum']) ? 0 : $resultEntrada['sum'];
+            $saidaBrinde = is_null($resultSaidaBrinde['sum']) ? 0 : $resultSaidaBrinde['sum'];
+            $saidaVenda = is_null($resultSaidaVenda['sum']) ? 0 : $resultSaidaVenda['sum'];
+            $devolucao = is_null($resultDevolucao['sum']) ? 0 : $resultDevolucao['sum'];
+
+            $estoque = ($entrada + $devolucao) - ($saidaBrinde + $saidaVenda);
+
+            $brinde["entrada"] = $entrada;
+            $brinde["saida_brinde"] = $saidaBrinde;
+            $brinde["saida_venda"] = $saidaVenda;
+            $brinde["devolucao"] = $devolucao;
+            $brinde["estoque_atual"] = $estoque;
+            return $brinde;
+        } catch (\Throwable $th) {
+            $trace = $th->getTraceAsString();
+
+            $stringError = __("Erro ao obter estoque de brindes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $th->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+    /**
      * Get total sum of brindes stock
      *
      * @param int $clientes_has_brindes_habilitados_id
 
      * @return int sum of brinde stock
      *
+     * @todo Deverá ser reescrevido o retorno, ou utilizar um novo método
      * @deprecated 1.0
      **/
     public function getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id)

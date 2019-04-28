@@ -13,6 +13,7 @@ use App\Custom\RTI\DebugUtil;
 use Aura\Intl\Exception;
 use Cake\Core\Configure;
 use App\Model\Entity\Brinde;
+use Cake\Database\Expression\QueryExpression;
 
 /**
  * Brindes Model
@@ -56,31 +57,6 @@ class BrindesTable extends GenericTable
             'joinType' => 'INNER'
         ]);
 
-        // $this->hasMany(
-        //     'ClientesHasBrindesHabilitados',
-        //     [
-        //         'foreignKey' => 'brindes_id',
-        //         'joinType' => 'INNER'
-        //     ]
-        // );
-
-        $this->hasOne(
-            "TotalEntrada",
-            array(
-                "className" => "BrindesEstoque",
-                "foreignKey" => "brindes_id",
-                "joinType" => Query::JOIN_TYPE_LEFT,
-                "strategy" => "select",
-                "fields" => array(
-                    "qteEntrada" => "SUM(TotalEntrada.quantidade)"
-                ),
-                "conditions" => array(
-                    "TotalEntrada.tipo_operacao" => TYPE_OPERATION_ADD_STOCK
-                )
-
-            )
-        );
-
         $this->hasOne(
             "PrecoAtual",
             array(
@@ -100,19 +76,11 @@ class BrindesTable extends GenericTable
         );
 
         $this->hasMany(
-            'BrindesNaoHabilitados',
-            [
-                'className' => 'ClientesHasBrindesHabilitados',
-                'foreignKey' => 'clientes_id',
-                'strategy' => 'select'
-            ]
-        );
-
-        $this->belongsTo(
-            "TipoBrindeRede",
+            "BrindesEstoque",
             array(
-                "className" => "TiposBrindesRedes",
-                "foreignKey" => "tipos_brindes_redes_id"
+                "className" => "BrindesEstoque",
+                "foreignKey" => "brindes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
     }
@@ -343,6 +311,9 @@ class BrindesTable extends GenericTable
                 $where[] = array("valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
             }
 
+            // Só mostra os registros não apagados
+            $where[] = array("Brindes.apagado" => 'Não');
+
             $whereConditions = $where;
             $contains = array("Clientes", "PrecoAtual");
 
@@ -356,12 +327,13 @@ class BrindesTable extends GenericTable
 
             return $brindes;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
 
-            $this->Flash->error($stringError);
+            throw new Exception($stringError);
         }
     }
 
@@ -454,23 +426,14 @@ class BrindesTable extends GenericTable
     public function getBrindeById($brindesId)
     {
         try {
-            return $this->find("all")
-                ->where(array("id" => $brindesId))
-                ->contain(
-                    array(
-                        "TotalEntrada",
-                        // "EntradaTotal"
-                        //  =>
-                        // array(
-                        //     "select" => array("SUM(EntradaTotal.quantidade)")
-                        // )
-                        // ,
-                        "PrecoAtual"
-                    )
-                )
-                ->select($this)
 
+            $brinde = $this->find("all")
+                ->where(array("Brindes.id" => $brindesId))
+                ->contain(array("PrecoAtual"))
                 ->first();
+            $estoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($brindesId);
+            $brinde["estoque"] = $estoque;
+            return $brinde;
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
 
@@ -478,8 +441,6 @@ class BrindesTable extends GenericTable
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
-
-            // $this->Flash->error($stringError);
         }
     }
 
@@ -657,6 +618,24 @@ class BrindesTable extends GenericTable
 
     #region Update
 
+    /**
+     * Undocumented function
+     *
+     * @param integer $id
+     * @param integer $clientesId
+     * @param string $nome
+     * @param integer $codigoPrimario
+     * @param integer $tempoUsoBrinde
+     * @param boolean $ilimitado
+     * @param boolean $habilitado
+     * @param string $tipoEquipamento
+     * @param string $tipoVenda
+     * @param string $tipoCodigoBarras
+     * @param float $precoPadrao
+     * @param float $valorMoedaVendaPadrao
+     * @param string $nomeImg
+     * @return void
+     */
     public function updateBrinde(int $id, int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg = null)
     {
         try {
@@ -761,6 +740,32 @@ class BrindesTable extends GenericTable
     #endregion
 
     #region Delete
+
+    /**
+     * 'Deleta' um Brinde
+     *
+     * @param integer $id Id do Brinde
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-28
+     *
+     *
+     * @return true/false
+     */
+    public function deleteBrinde(int $id)
+    {
+        try {
+            return $this
+                ->updateAll(array("apagado" => STRING_YES), array("id" => $id));
+        } catch (\Exception $e) {
+
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao deletar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
 
     /**
      * Apaga todos os brindes de um cliente

@@ -289,6 +289,10 @@ const TYPE_BARCODE_QRCODE = "QRCode";
 const TYPE_BARCODE_CODE128 = 'Code128';
 const TYPE_BARCODE_PDF417 = 'PDF417';
 
+const STRING_YES = 'Sim';
+const STRING_NO = 'Não';
+
+
 // Brindes
 
 const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
@@ -307,7 +311,7 @@ const TYPE_OPERATION_INITIALIZE = "Criação";
 const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";
 const TYPE_OPERATION_SELL_BRINDE = "Saída Brinde";
 const TYPE_OPERATION_SELL_CURRENCY = "Saída Venda";
-const TYPE_OPERATION_REDEEM = "Retornado";
+const TYPE_OPERATION_RETURN = "Retornado";
 
 
 const TYPE_SELL_FREE = 0;
@@ -369,7 +373,7 @@ const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
 const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
 const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
-const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro {0} ?';
+const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
 const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
 const MESSAGE_SAVED_ERROR = "Não foi possível gravar o registro!";
 const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";

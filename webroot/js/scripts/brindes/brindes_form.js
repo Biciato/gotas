@@ -65,7 +65,7 @@ $(document).ready(function () {
         $("label[for=codigo_primario]").text(labelCodigoPrimario);
         $(".tempo-uso-brinde").attr("required", obrigatorio);
         $("label[for=tempo_uso_brinde]").text(labelTempoUsoBrinde);
-    }
+    };
     $(".tipo-equipamento").on("change", function (e) {
         tipoEquipamentoOnChange(e.target.value);
     }).change();
