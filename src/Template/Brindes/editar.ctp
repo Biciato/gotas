@@ -1,23 +1,38 @@
 <?php
 /**
-  * @author   Gustavo Souza Gonçalves
-  * @file     src/Template/Pontuacoes/editar_brinde_rede.ctp
-  * @date     18/08/2017
-  */
+ * @author   Gustavo Souza Gonçalves
+ * @file     src/Template/Pontuacoes/editar_brinde_rede.ctp
+ * @date     18/08/2017
+ */
 
-  use Cake\Core\Configure;
-  use Cake\Routing\Router;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 
-  $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
+// Navegação
+$this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-  $this->Breadcrumbs->add('Brindes da Minha Rede', ['controller' => 'brindes', 'action' => 'brindes_minha_rede']);
+$titleBrindesIndex = "";
+$title = "";
+if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
-  $this->Breadcrumbs->add('Edição de Brinde', [], ['class' => 'active']);
+    $titleBrindesIndex = "Configurações de IHM";
+    $title = "Cadastrar IHM";
+    $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
+    $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
+    $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+} else {
+    $titleBrindesIndex = "Configurações de Brindes";
+    $title = "Adicionar IHM";
 
-  echo $this->Breadcrumbs->render(
-      ['class' => 'breadcrumb']
-  );
+    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+}
 
+$this->Breadcrumbs->add($title, array(), array('class' => 'active'));
+
+echo $this->Breadcrumbs->render(
+    ['class' => 'breadcrumb']
+);
 ?>
 
 <nav class="col-lg-3 col-md-2 columns" id="actions-sidebar">
@@ -34,4 +49,4 @@
 
     <?= $this->Form->end() ?>
 </div>
-<?= $this->fetch('script')?>
+<?= $this->fetch('script') ?>

@@ -16,19 +16,16 @@ if (!is_null($brinde)) {
     ?>
 
     <div class="form-group row">
-        <div class='col-lg-4'>
+        <div class='col-lg-6'>
             <?= $this->Form->input('nome', ['readonly' => true, 'value' => $brinde["nome"], 'label' => 'Brinde Selecionado']); ?>
         </div>
-        <div class='col-lg-4'>
-            <?= $this->Form->input('preco', ['readonly' => true, 'value' => Number::precision($brinde["preco_atual"]["preco"], 2), 'label' => 'Preço (em gotas):']); ?>
-        </div>
-        <div class='col-lg-4'>
-            <?= $this->Form->input('estoque', ['readonly' => true, 'value' => Number::precision($brinde["estoque"][0], 2), 'label' => 'Estoque Atual:']); ?>
+        <div class='col-lg-6'>
+            <?= $this->Form->input('estoque', ['readonly' => true, 'value' => Number::precision($brinde["estoque"]["estoque_atual"], 2), 'label' => 'Estoque Atual:']); ?>
         </div>
     </div>
     <div class="form-group row">
         <div class='col-lg-12'>
-            <label for="quantidade">Quantidade*</label>
+            <label for="quantidade">Quantidade à Adicionar*</label>
             <input type="number" name="quantidade" min="0" max="10000000" step="null" required="required" placeholder="Quantidade..." id="quantidade" class="form-control" value="<?= $brindeEstoque['quantidade'] ?>">
         </div>
     </div>
