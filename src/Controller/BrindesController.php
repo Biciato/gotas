@@ -129,7 +129,7 @@ class BrindesController extends AppController
         }
 
         $brinde = $this->Brindes->getBrindeById($id);
-        $imagem = sprintf("%s%s",PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
+        $imagem = sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
 
         $clientesId = $brinde["clientes_id"];
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
@@ -221,11 +221,11 @@ class BrindesController extends AppController
                 }
 
                 // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($data['preco_padrao']) || empty($data['valor_moeda_venda_padrao']))) {
+                if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($precoPadrao) || empty($valorMoedaVendaPadrao))) {
                     $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
                 }
                 // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
+                if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($precoPadrao) && empty($valorMoedaVendaPadrao))) {
                     $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
                 }
 
@@ -960,7 +960,7 @@ class BrindesController extends AppController
 
             // @todo @gustavosg AJUSTAR
             // $brindes = $this->Brindes->findBrindes(
-                // $arrayWhereConditions
+            // $arrayWhereConditions
             // );
 
             $redeItem['brindes'] = $brindes;
