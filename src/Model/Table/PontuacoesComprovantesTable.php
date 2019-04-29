@@ -462,7 +462,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $pontuacoesComprovantesTodas = $pontuacoesComprovantesQuery->toArray();
             $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -486,7 +486,7 @@ class PontuacoesComprovantesTable extends GenericTable
 
             $pontuacoesComprovantesAtual = $pontuacoesComprovantesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($pontuacoesComprovantesTodas, $pontuacoesComprovantesAtual, "pontuacoes_comprovantes", $paginationConditions);
 
             /**
              * A pesquisa de pontuação deverá retornar as seguintes condições:

@@ -19,6 +19,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Clientes Model
@@ -410,7 +411,7 @@ class ClientesTable extends GenericTable
             $clientesTodos = $clientesQuery->toArray();
             $clientesAtual = $clientesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -438,7 +439,7 @@ class ClientesTable extends GenericTable
 
             $clientesAtual = $clientesAtualTemp;
 
-            $retorno = $this->prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($clientesTodos, $clientesAtual, "clientes", $paginationConditions);
 
             $retorno["resumo_gotas"] = $resumo_gotas;
 

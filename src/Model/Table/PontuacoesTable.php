@@ -12,6 +12,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use \DateTime;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Pontuacoes Model
@@ -1271,7 +1272,7 @@ class PontuacoesTable extends GenericTable
 
             // DebugUtil::printArray($todasPontuacoes);
 
-            $retorno = $this->prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "pontuacoes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($todasPontuacoes, $pontuacoesAtual, "pontuacoes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;

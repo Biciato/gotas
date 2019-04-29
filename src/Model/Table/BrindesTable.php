@@ -51,11 +51,15 @@ class BrindesTable extends GenericTable
         $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
-        // relacionamento de brindes com matriz
-        $this->belongsTo('Clientes', [
-            'foreignKey' => 'clientes_id',
-            'joinType' => 'INNER'
-        ]);
+        // relacionamento de brindes com posto
+        $this->belongsTo(
+            'Cliente',
+            array(
+                "className" => "Clientes",
+                'foreignKey' => 'clientes_id',
+                'joinType' => 'INNER'
+            )
+        );
 
         $this->hasOne(
             "PrecoAtual",
@@ -234,11 +238,13 @@ class BrindesTable extends GenericTable
      * @param integer $tempoUsoBrindeMax Tempo Uso Brinde Maximo
      * @param integer $ilimitado Ilimitado
      * @param string $tipoEquipamento Tipo Equipamento
+     * @param string $tipoVenda Tipo de Venda
      * @param string $tipoCodigoBarras Tipo Codigo Barras
      * @param float $precoPadraoMin Preco Padrao Minimo
      * @param float $precoPadraoMax Preco Padrao Maximo
      * @param float $valorMoedaVendaPadraoMin Valor Moeda Venda Padrao Minimo
      * @param float $valorMoedaVendaPadraoMax Valor Moeda Venda Padrao Maximo
+     * @param array $orderBy Array de Ordenação
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2017-07-01
@@ -246,7 +252,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null)
+    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoVenda = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, array $orderBy = array())
     {
         try {
 
@@ -265,58 +271,64 @@ class BrindesTable extends GenericTable
             }
 
             if (!empty($nome)) {
-                $where[] = array("nome" => $nome);
+                // $where[] = array("nome LIKE '%{$nome}%'");
+                $where[] = array("Brindes.nome = '{$nome}'");
             }
 
             if (!empty($tempoUsoBrindeMin) && !empty($tempoUsoBrindeMax)) {
-                $where[] = array("tempo_uso_brinde BETWEEN '{$tempoUsoBrindeMin}' AND '{$tempoUsoBrindeMax}' ");
+                $where[] = array("Brindes.tempo_uso_brinde BETWEEN '{$tempoUsoBrindeMin}' AND '{$tempoUsoBrindeMax}' ");
             } else if (!empty($tempoUsoBrindeMin)) {
-                $where[] = array("tempo_uso_brinde >= " => $tempoUsoBrindeMin);
+                $where[] = array("Brindes.tempo_uso_brinde >= " => $tempoUsoBrindeMin);
             } else if (!empty($tempoUsoBrindeMax)) {
-                $where[] = array("tempo_uso_brinde <= " => $tempoUsoBrindeMax);
+                $where[] = array("Brindes.tempo_uso_brinde <= " => $tempoUsoBrindeMax);
             }
 
             if (isset($ilimitado)) {
-                $where[] = array("ilimitado" => $ilimitado);
+                $where[] = array("Brindes.ilimitado" => $ilimitado);
             }
 
             if (!empty($tipoEquipamento)) {
-                $where[] = array("tipo_equipamento" => $tipoEquipamento);
+                $where[] = array("Brindes.tipo_equipamento" => $tipoEquipamento);
             }
 
             if (!empty($tipoCodigoBarras)) {
-                $where[] = array("tipo_codigo_barras" => $tipoCodigoBarras);
+                $where[] = array("Brindes.tipo_codigo_barras" => $tipoCodigoBarras);
             }
 
             if (!empty($precoPadraoMin) && !empty($precoPadraoMax)) {
-                $where[] = array("preco_padrao BETWEEN '{$precoPadraoMin}' AND '{$precoPadraoMax}' ");
+                $where[] = array("Brindes.preco_padrao BETWEEN '{$precoPadraoMin}' AND '{$precoPadraoMax}' ");
             } else if (!empty($precoPadraoMin)) {
-                $where[] = array("preco_padrao >= " => $precoPadraoMin);
+                $where[] = array("Brindes.preco_padrao >= " => $precoPadraoMin);
             } else if (!empty($precoPadraoMax)) {
-                $where[] = array("preco_padrao <= " => $precoPadraoMax);
+                $where[] = array("Brindes.preco_padrao <= " => $precoPadraoMax);
             }
 
             if (!empty($valorMoedaVendaPadraoMin) && !empty($valorMoedaVendaPadraoMax)) {
-                $where[] = array("valor_moeda_venda_padrao BETWEEN '{$valorMoedaVendaPadraoMin}' AND '{$valorMoedaVendaPadraoMax}' ");
+                $where[] = array("Brindes.valor_moeda_venda_padrao BETWEEN '{$valorMoedaVendaPadraoMin}' AND '{$valorMoedaVendaPadraoMax}' ");
             } else if (!empty($valorMoedaVendaPadraoMin)) {
-                $where[] = array("valor_moeda_venda_padrao >= " => $valorMoedaVendaPadraoMin);
+                $where[] = array("Brindes.valor_moeda_venda_padrao >= " => $valorMoedaVendaPadraoMin);
             } else if (!empty($valorMoedaVendaPadraoMax)) {
-                $where[] = array("valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
+                $where[] = array("Brindes.valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
             }
 
             // Só mostra os registros não apagados
             $where[] = array("Brindes.apagado" => 'Não');
 
             $whereConditions = $where;
-            $contains = array("Clientes", "PrecoAtual");
+            $contains = array("PrecoAtual");
+            // $contains = array("Cliente", "PrecoAtual");
 
-            if (!empty($redesId)) {
-                $contains = array("Clientes.RedesHasClientes");
-            }
+            // if (!empty($redesId)) {
+            //     $contains = array("Cliente.RedesHasClientes");
+            // }
 
             $brindes = $this->find('all')
                 ->contain($contains)
                 ->where($whereConditions);
+
+            if (count($orderBy) > 0) {
+                $brindes = $brindes->order($orderBy);
+            }
 
             return $brindes;
         } catch (\Exception $e) {
@@ -460,7 +472,7 @@ class BrindesTable extends GenericTable
             }
 
             if (sizeof($clientesIds) > 0) {
-                $whereConditions[] = array("Clientes.id IN " => $redesId);
+                $whereConditions[] = array("Cliente.id IN " => $redesId);
             }
 
             if (!empty($codigoPrimario)) {
@@ -488,7 +500,7 @@ class BrindesTable extends GenericTable
 
             return $this->find('all')
                 ->where($whereConditions)
-                ->contain('Clientes.RedesHasClientes.Redes')
+                ->contain('Cliente.RedesHasClientes.Redes')
                 ->select(
                     array(
                         "id",

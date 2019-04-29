@@ -12,6 +12,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
 use Cake\I18n\Number;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Cupons Model
@@ -714,7 +715,7 @@ class CuponsTable extends GenericTable
 
             $count = $cupons->count();
 
-            $retorno = $this->prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -729,7 +730,7 @@ class CuponsTable extends GenericTable
                     ->page($paginationConditions["page"]);
             }
 
-            $retorno = $this->prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
 
             return $retorno;
         } catch (\Exception $e) {

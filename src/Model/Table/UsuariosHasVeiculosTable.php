@@ -11,6 +11,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * UsuariosHasVeiculos Model
@@ -361,7 +362,7 @@ class UsuariosHasVeiculosTable extends GenericTable
             $veiculosTodos = $veiculosTodosQuery->toArray();
             $veiculosAtual = $veiculosTodosQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", array());
+            $retorno = ResponseUtil::prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", array());
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -379,7 +380,7 @@ class UsuariosHasVeiculosTable extends GenericTable
 
             $veiculosAtual = $veiculosTodosQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($veiculosTodos, $veiculosAtual, "veiculos", $paginationConditions);
 
             return $retorno;
         } catch (\Exception $e) {

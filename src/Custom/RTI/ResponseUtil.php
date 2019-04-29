@@ -143,7 +143,7 @@ class ResponseUtil
         $arraySet = array();
         $arraySet["mensagem"] = $mensagem;
 
-        if (sizeof($data) > 0) {
+        if (count($data) > 0) {
             foreach ($arrayKeys as $key => $item) {
                 $arraySet[$item] = $data[$item];
             }
@@ -151,5 +151,114 @@ class ResponseUtil
 
         echo json_encode($arraySet);
         die();
+    }
+
+    /**
+     * Prepara array de retorno em caso de consulta via paginação
+     *
+     * @param array $totalData Array de Dados
+     * @param array $currentData Dados Atuais
+     * @param string $stringLabelReturn Nome do índice de retorno
+     * @param array $pagination Array de Paginação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @data 08/07/2018
+     *
+     * @return array $dados
+     */
+    public static function prepareReturnDataPagination(array $totalData, array $currentData = array(), string $stringLabelReturn = null, array $pagination = array())
+    {
+        if (empty($stringLabelReturn)) {
+            $stringLabelReturn = "data";
+        }
+
+        $retorno = array();
+        $count = count($totalData);
+
+        // DebugUtil::printArray($totalData);
+        // DebugUtil::printArray($currentData);
+
+        // Retorna mensagem de que não retornou dados se for page 1. Se for page 2, apenas não exibe.
+        if (count($totalData) == 0) {
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => 0,
+                    "message" => Configure::read("messageQueryNoDataToReturn"),
+                    "errors" => array()
+                ),
+                $stringLabelReturn => array(
+                    "count" => 0,
+                    "page_count" => 0,
+                    "data" => array()
+                ),
+            );
+
+            if (count($pagination) > 0) {
+                if ($pagination["page"] == 1) {
+                    $retorno = array(
+                        $stringLabelReturn => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        ),
+                        "mensagem" => array(
+                            "status" => 0,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        )
+                    );
+                } else {
+                    $retorno = array(
+                        "mensagem" => array(
+                            "status" => 0,
+                            "message" => Configure::read("messageQueryNoDataToReturn"),
+                            "errors" => array()
+                        ),
+                        $stringLabelReturn => array(
+                            "count" => 0,
+                            "page_count" => 0,
+                            "data" => array()
+                        )
+
+                    );
+                }
+            }
+        } else {
+            // se tem dados, mas a página atual não tem, é fim de paginação também
+            // DebugUtil::printArray($currentData);
+
+            if (count($currentData) == 0) {
+                $retorno = array(
+                    "mensagem" => array(
+                        "status" => 0,
+                        "message" => Configure::read("messageQueryPaginationEnd"),
+                        "errors" => array()
+                    ),
+                    $stringLabelReturn => array(
+                        "count" => 0,
+                        "page_count" => 0,
+                        "data" => array()
+                    )
+
+                );
+            } else {
+                // DebugUtil::printArray($totalData);
+                $retorno = array(
+                    $stringLabelReturn => array(
+                        "count" => count($totalData),
+                        "page_count" => count($currentData),
+                        "data" => $currentData
+                    ),
+                    "mensagem" => array(
+                        "status" => count($totalData) > 0 ? 1 : 0,
+                        "message" => count($totalData) > 0 ? Configure::read("messageLoadDataWithSuccess") : Configure::read("messageQueryNoDataToReturn"),
+                        "errors" => array()
+                    ),
+                );
+            }
+        }
+
+        // DebugUtil::printArray($retorno);
+        return $retorno;
     }
 }

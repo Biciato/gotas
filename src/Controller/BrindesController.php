@@ -33,11 +33,7 @@ class BrindesController extends AppController
      */
     protected $usuarioLogado = null;
 
-    /**
-     * ------------------------------------------------------------
-     * Métodos Comuns
-     * ------------------------------------------------------------
-     */
+    #region Actions
 
     /**
      * Index method
@@ -80,6 +76,7 @@ class BrindesController extends AppController
         $tempoUsoBrindeMax = null;
         $ilimitado = null;
         $tipoEquipamento = null;
+        $tipoVenda = null;
         $tipoCodigoBarras = null;
         $precoPadraoMin = null;
         $precoPadraoMax = null;
@@ -95,6 +92,7 @@ class BrindesController extends AppController
             $tempoUsoBrindeMax = !empty($dataPost["tempo_uso_brinde_max"]) ? $dataPost["tempo_uso_brinde_max"] : null;
             $ilimitado = !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null;
             $tipoEquipamento = !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null;
+            $tipoVenda = !empty($dataPost["tipo_venda"]) ? $dataPost["tipo_venda"] : null;
             $tipoCodigoBarras = !empty($dataPost["tipo_codigo_barras"]) ? $dataPost["tipo_codigo_barras"] : null;
             $precoPadraoMin = !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null;
             $precoPadraoMax = !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null;
@@ -102,7 +100,7 @@ class BrindesController extends AppController
             $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
         }
 
-        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
 
         $this->set(compact($arraySet));
@@ -213,6 +211,7 @@ class BrindesController extends AppController
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
+                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
@@ -264,7 +263,7 @@ class BrindesController extends AppController
                 $precoPadrao = (float)$precoPadrao;
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome,
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras);
                 if ($brindeCheck->first()) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
@@ -326,7 +325,7 @@ class BrindesController extends AppController
     }
 
     /**
-     * Add method
+     * Action de Adicionar
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
@@ -406,11 +405,11 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
+                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
                 $precoPadrao = !empty($data["preco_padrao"]) ? (float)$data["preco_padrao"] : 0;
                 $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float)$data["valor_moeda_venda_padrao"] : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
@@ -458,7 +457,7 @@ class BrindesController extends AppController
                 }
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome, mas com outro Id
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras);
                 $brindeCheck = $brindeCheck->first();
                 if ($brindeCheck && $brindeCheck["id"] != $brinde["id"]) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -516,6 +515,26 @@ class BrindesController extends AppController
     }
 
     /**
+     * Action de remover
+     *
+     * @param string|null $id Brinde id.
+     * @return \Cake\Http\Response|null Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function delete($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $brinde = $this->Brindes->getBrindeById($id);
+        if ($this->Brindes->deleteBrinde($id)) {
+            $this->Flash->success(MESSAGE_DELETE_SUCCESS);
+        } else {
+            $this->Flash->error(MESSAGE_DELETE_ERROR);
+        }
+
+        return $this->redirect(sprintf("/Brindes/index/%s", $brinde["clientes_id"]));
+    }
+
+     /**
      * BrindesController::alterarEstadoBrinde
      *
      * Altera estado do Brinde
@@ -558,31 +577,9 @@ class BrindesController extends AppController
     }
 
     /**
-     * Delete method
-     *
-     * @param string|null $id Brinde id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $brinde = $this->Brindes->getBrindeById($id);
-        if ($this->Brindes->deleteBrinde($id)) {
-            $this->Flash->success(MESSAGE_DELETE_SUCCESS);
-        } else {
-            $this->Flash->error(MESSAGE_DELETE_ERROR);
-        }
-
-        return $this->redirect(sprintf("/Brindes/index/%s", $brinde["clientes_id"]));
-    }
-
-    /**
      * Método para brindes da rede (mostra os brindes que a rede possui)
      *
      * @return \Cake\Http\Response|void
-     *
-     * @deprecated 1.0 esta action não será mais utilizada.
      */
     public function escolherPostoConfigurarBrinde($param = null)
     {
@@ -647,6 +644,8 @@ class BrindesController extends AppController
     /**
      * Metodo par ver os detalhes de um brinde da rede
      *
+     * @deprecated 1.0
+     *
      * @param string|null $id Brinde id.
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
@@ -693,66 +692,6 @@ class BrindesController extends AppController
             $this->Flash->error("Houve um erro: " . $e->getMessage());
             return $this->redirect(array("controller" => "Brindes", "action" => "brindes_minha_rede", $rede["id"]));
         }
-    }
-
-
-
-
-
-    /**
-     * Ativar brinde na loja
-     *
-     * @param int $id Id do brinde
-     *
-     * @return void
-     **/
-    public function ativarBrinde(int $id)
-    {
-        $this->_alterarEstadoBrinde($id, true);
-    }
-
-    /**
-     * Desativar brinde na loja
-     *
-     * @param int $id Id do brinde
-     *
-     * @return void
-     **/
-    public function desativarBrinde($id)
-    {
-        $this->_alterarEstadoBrinde($id, false);
-    }
-
-    /**
-     * Altera estado do Brinde
-     *
-     * @param int     $id     Id do Brinde
-     * @param boolean $status Estado de alteração
-     *
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     */
-    private function _alterarEstadoBrinde($id, $status)
-    {
-        $this->request->allowMethod(['post']);
-
-        $brinde = $this->Brindes->get($id);
-        $brinde->habilitado = $status;
-
-        if ($this->Brindes->save($brinde)) {
-            if ($status) {
-                $this->Flash->success(__(Configure::read('messageEnableSuccess')));
-            } else {
-                $this->Flash->success(__(Configure::read('messageDisableSuccess')));
-            }
-        } else {
-            if ($status) {
-                $this->Flash->success(__(Configure::read('messageEnableError')));
-            } else {
-                $this->Flash->success(__(Configure::read('messageDisableError')));
-            }
-        }
-
-        return $this->redirect(['action' => 'brindes_minha_rede']);
     }
 
     /**
@@ -849,7 +788,7 @@ class BrindesController extends AppController
         $imagemOrigem = __("{0}{1}", Configure::read("imageGiftPathTemp"), $data["img-upload"]);
         $imagemDestino = __("{0}{1}", Configure::read("imageGiftPath"), $data["img-upload"]);
 
-        // TODO: NÃO MUDAR!
+        // TODO: NÃO MUDAR! O Crop Width e Height são fixos para a API
         $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
         // Se imagem foi redimensionada, move e atribui o nome para gravação
@@ -862,11 +801,7 @@ class BrindesController extends AppController
         return $nomeImagem;
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Relatórios de Admin RTI
-     * ------------------------------------------------------------
-     */
+    #region Action de Relatórios
 
     /**
      * Relatóriod de Brindes de cada Rede
@@ -986,11 +921,9 @@ class BrindesController extends AppController
         $this->set(compact($arraySet));
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Ajax Methods
-     * ------------------------------------------------------------
-     */
+    #endregion
+
+    #region Ajax Methods
 
     /**
      * BrindesController::enviaImagemBrinde
@@ -1119,11 +1052,140 @@ class BrindesController extends AppController
         return;
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Métodos Comuns
-     * ------------------------------------------------------------
+    #endregion
+
+    #region REST Services
+
+      /**
+     * Brindes::getBrindesUnidadeAPI
+     *
+     * Obtem todos os Brindes de uma Unidade
+     *
+     * @param $clientes_id Id da unidade que deseja adquirir o brinde
+     * @param $tipos_brindes_redes_id Id do tipo de brinde da rede que deseja filtrar
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 23/04/2018
+     *
+     * @return json Brindes Habilitados
      */
+    public function getBrindesUnidadeAPI()
+    {
+        $mensagem = array();
+        $brindes = null;
+        $count = 0;
+        $redesId = 0;
+
+        try {
+            if ($this->request->is(['post'])) {
+                $data = $this->request->getData();
+                // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
+                // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
+                $tipoPagamento = TYPE_PAYMENT_POINTS;
+                $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
+                $nome = !empty($data["nome"]) ? $data["nome"] : null;
+                // $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
+                $tipoVenda = TYPE_SELL_FREE_TEXT;
+
+                $precoMin = isset($data["preco_min"]) ? (float)$data["preco_min"] : null;
+                $precoMax = isset($data["preco_max"]) ? (float)$data["preco_max"] : null;
+
+                if (empty($clientesId)) {
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                        "errors" => array("É necessário informar um Ponto de Atendimento para obter os brindes do Ponto de Atendimento!")
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+
+                $whereConditionsBrindes = array();
+
+                if (!empty($nome)) {
+                    $whereConditionsBrindes[] = array("Brindes.nome like '%{$data["nome"]}%'");
+                }
+
+                $orderConditions = array();
+                $pagination = array();
+
+                if (isset($data["order_by"])) {
+                    $orderConditions = $data["order_by"];
+                }
+
+                if (isset($data["pagination"])) {
+                    $pagination = $data["pagination"];
+
+                    if ($pagination["page"] < 1) {
+                        $pagination["page"] = 1;
+                    }
+                }
+
+                $resultado = $this->Brindes->findBrindes(
+                    $redesId,
+                    $clientesId,
+                    $nome,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    $tipoVenda,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    $orderConditions
+                );
+
+                $todosBrindes = $resultado;
+                $brindesAtuais = $resultado;
+                if (count($pagination) > 0){
+                    $brindesAtuais = $brindesAtuais->limit($pagination["limit"])->page($pagination["page"]);
+                }
+
+                $todosBrindes = $todosBrindes->toArray();
+                $brindesAtuais = $brindesAtuais->toArray();
+                $resultado = ResponseUtil::prepareReturnDataPagination($todosBrindes, $brindesAtuais, "brindes", $pagination);
+
+                // DebugUtil::printArray($resultado);
+
+                $mensagem = $resultado["mensagem"];
+                $brindes = $resultado["brindes"];
+
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+
+            $messageString = __("Não foi possível obter dados de brindes da unidade selecionada!");
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+
+            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
+        }
+
+        $arraySet = array(
+            'mensagem',
+            'brindes',
+        );
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    #endregion
+
+    #region Métodos Comuns
 
     /**
      * BeforeRender callback
@@ -1164,4 +1226,6 @@ class BrindesController extends AppController
     {
         parent::initialize();
     }
+
+    #endregion
 }

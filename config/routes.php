@@ -96,7 +96,7 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
-        "ClientesHasBrindesHabilitados",
+        "Brindes",
         [
             "map" => [
                 // utilizado pelo APP Mobile. Cuidado ao mexer

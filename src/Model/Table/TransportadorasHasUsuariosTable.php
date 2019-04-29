@@ -10,6 +10,7 @@ use Cake\Log\Log;
 use App\Model\Entity;
 use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * TransportadorasHasUsuarios Model
@@ -382,7 +383,7 @@ class TransportadorasHasUsuariosTable extends GenericTable
             $transportadorasTodas = $transportadorasQuery->toArray();
             $transportadorasAtual = $transportadorasQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
+            $retorno = ResponseUtil::prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -399,7 +400,7 @@ class TransportadorasHasUsuariosTable extends GenericTable
 
             $transportadorasAtual = $transportadorasQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
+            $retorno = ResponseUtil::prepareReturnDataPagination($transportadorasTodas, $transportadorasAtual, "transportadoras", array());
 
             return $retorno;
         } catch (\Exception $e) {

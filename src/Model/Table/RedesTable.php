@@ -13,6 +13,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Redes Model
@@ -404,7 +405,7 @@ class RedesTable extends GenericTable
             $redesTodas = $redesQuery->toArray();
             $redesAtual = $redesQuery->toArray();
 
-            $retorno = $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
+            $retorno = ResponseUtil::prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
 
             if ($retorno["mensagem"]["status"] == 0) {
                 return $retorno;
@@ -421,7 +422,7 @@ class RedesTable extends GenericTable
 
             $redesAtual = $redesQuery->toArray();
 
-            return $this->prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
+            return ResponseUtil::prepareReturnDataPagination($redesTodas, $redesAtual, "redes", $paginationConditions);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
