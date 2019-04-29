@@ -61,11 +61,24 @@ class RedesHasClientesTable extends GenericTable
             ]
         );
 
+        $this->hasOne(
+            "Cliente",
+            array(
+                "className" => "Clientes",
+                "foreignKey" => "id",
+                "joinType" => Query::JOIN_TYPE_INNER,
+                "conditions" => array(
+                    "RedesHasClientes.clientes_id = Cliente.id"
+                )
+            )
+        );
+
         $this->belongsTo(
             'Clientes',
             [
-                'foreignKey' => 'clientes_id',
-                'joinType' => 'INNER'
+                "className" => "Clientes",
+                'foreignKey' => 'id',
+                'joinType' => Query::JOIN_TYPE_LEFT
             ]
         );
 
@@ -145,7 +158,6 @@ class RedesHasClientesTable extends GenericTable
                 )
                 ->contain(array('Redes', 'Clientes'))
                 ->first();
-
         } catch (\Exception $e) {
             // TODO: Corrigir catch
             $trace = $e->getTrace();
@@ -159,6 +171,61 @@ class RedesHasClientesTable extends GenericTable
             }
 
             $stringError = __("Erro ao obter registro: {0}, em {1}", $e->getMessage(), $object['file']);
+
+            Log::write('error', $stringError);
+
+            return ['success' => false, 'message' => $stringError];
+        }
+    }
+
+    /**
+     * RedesHasClientes::findRedesHasClientes
+     *
+     * Localiza dados de relacionamento conforme parametros
+     *
+     * @param integer $redesId
+     * @param array $clientesIds
+     * @param string $nomeFantasia
+     * @param string $razaoSocial
+     * @param string $cnpj
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-04-28
+     *
+     * @return \App\Model\Entity\RedesHasClientes[] Redes Has Clientes
+     */
+    public function findRedesHasClientes(int $redesId, array $clientesIds = array(), string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
+    {
+        try {
+            $whereCondition = array();
+
+            $whereCondition[] = array('redes_id' => $redesId);
+
+            if (!empty($nomeFantasia)) {
+                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
+            }
+
+            if (!empty($razaoSocial)) {
+                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
+            }
+
+            if (!empty($cnpj)) {
+                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
+            }
+
+            if (count($clientesIds) > 0) {
+                $whereCondition[] = array("RedesHasClientes.clientes_id IN " => $clientesIds);
+            }
+
+            $redesHasClientes = $this->find('all')
+                ->where($whereCondition)
+                ->contain(['Redes', 'Clientes']);
+
+            return $redesHasClientes;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
@@ -191,7 +258,6 @@ class RedesHasClientesTable extends GenericTable
             }
 
             return $clientesIds;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -221,7 +287,6 @@ class RedesHasClientesTable extends GenericTable
                 ->where(['RedesHasClientes.id' => $id])
                 ->contain(['Redes', 'Clientes'])
                 ->first();
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -266,7 +331,6 @@ class RedesHasClientesTable extends GenericTable
                 );
 
             return $result;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -312,7 +376,6 @@ class RedesHasClientesTable extends GenericTable
             $unidadesIds = $this->retrieveColumnsQueryAsArray($unidadesIds, ['clientes_id']);
 
             return $unidadesIds;
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -340,7 +403,6 @@ class RedesHasClientesTable extends GenericTable
             return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
                 ->contain(['Redes', 'Clientes'])->first();
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -374,7 +436,6 @@ class RedesHasClientesTable extends GenericTable
                 ->where(['clientes_id in' => $clientes_ids])
                 ->distinct(['redes_id'])
                 ->select(['redes_id']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -414,62 +475,12 @@ class RedesHasClientesTable extends GenericTable
             return $this->find('all')
                 ->where($whereCondition)
                 ->contain(['Redes', 'Clientes']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
             Log::write('error', $e->getTraceAsString());
-
-        }
-    }
-
-    /**
-     * Obtem todos os clientes e a rede pelo id da rede
-     *
-     * @param int   $redesId     Id de Redes
-     * @param array $clientes_ids Ids de clientes
-     *
-     * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
-     */
-    public function getClientesFromRedesIdAndParams(int $redesId, string $nomeFantasia = null, string $razaoSocial = null, string $cnpj = null)
-    {
-        try {
-            $whereCondition = array();
-
-            $whereCondition[] = array('redes_id' => $redesId);
-
-            if (!empty($nomeFantasia)) {
-                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
-            }
-
-            if (!empty($razaoSocial)) {
-                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
-            }
-
-            if (!empty($cnpj)) {
-                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
-            }
-
-            $redesHasClientes = $this->find('all')
-                ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
-
-            // if (sizeof($selectList) > 0) {
-            //     $redesHasClientes = $redesHasClientes->select($selectList);
-            // }
-
-            return $redesHasClientes;
-
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-
-            return ['success' => false, 'message' => $stringError];
         }
     }
 
@@ -494,7 +505,6 @@ class RedesHasClientesTable extends GenericTable
 
             return
                 $this->deleteAll(['clientes_id in' => $clientes_ids]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

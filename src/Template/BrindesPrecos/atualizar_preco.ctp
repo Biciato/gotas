@@ -17,6 +17,7 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 
 $titleBrindesIndex = "";
 $title = "";
+$titleCurrentPage = "Atualizar Preço";
 if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
     $titleBrindesIndex = "Configurações IHM";
@@ -25,15 +26,18 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
     $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
     $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+}  else if (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL))) {
+    $title = "Cadastro de Brindes";
+    $this->Breadcrumbs->add("Selecionar Unidade Para Configurar Brindes", array("controller" => "brindes", "action" => "escolherPostoConfigurarBrinde"));
+    $this->Breadcrumbs->add($title, array("controller" => "brindes", "action" => "index", $clientesId), ['class' => 'active']);
 } else {
-    $titleBrindesIndex = "Cadastro de Brindes";
-    $title = sprintf("Informações do Brinde %s", $brinde["nome"]);
-
-    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+    $title = "Cadastro de Brindes";
+    $this->Breadcrumbs->add($title, array("controller" => "brindes", "action" => "index", $clientesId), ['class' => 'active']);
 }
 
+
 $this->Breadcrumbs->add("Informações do Brinde", array("controller" => "brindes", "action" => "view", $brinde["id"]), array());
-$this->Breadcrumbs->add("Atualizar Preço", array(), array("class" => "active"));
+$this->Breadcrumbs->add($titleCurrentPage, array(), array("class" => "active"));
 
 // 'class' => 'active'
 
@@ -56,7 +60,7 @@ echo $this->element(
 <div class="clientesHasBrindesHabilitados form col-lg-9 col-md-8 columns content">
     <?= $this->Form->create($novoPreco) ?>
     <fieldset>
-        <legend><?= __('Adicionar novo preço para {0}', $brinde->nome) ?></legend>
+        <legend><?= $titleCurrentPage ?></legend>
         <?= $this->element('../BrindesPrecos/novo_preco_form') ?>
     </fieldset>
     <div class="form-group row">

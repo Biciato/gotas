@@ -71,19 +71,20 @@ class RedesController extends AppController
             $nomeFantasia = null;
             $razaoSocial = null;
             $cnpj = null;
+            $clientesIds = array();
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
-                $nomeFantasia = !empty($data["nomeFantasia"]) ? $data["nomeFantasia"] : null;
-                $razaoSocial = !empty($data["razaoSocial"]) ? $data["razaoSocial"] : null;
+                $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+                $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
                 $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
 
                 // debug($data);
                 // die();
             }
 
-            $redes_has_clientes = $this->RedesHasClientes->getClientesFromRedesIdAndParams($id, $nomeFantasia, $razaoSocial, $cnpj);
+            $redes_has_clientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
             // $redes_has_clientes = $rede["redes_has_clientes"];
 
             // $this->paginate($rede["redes_has_clientes"], ['limit' => 10]);

@@ -191,29 +191,22 @@ class BrindesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-12-02
      */
-    public function saveBrinde(\App\Model\Entity\Brinde $brinde)
+    public function insertBrinde(int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg = null)
     {
         try {
-            $brindeSave = null;
+            $brindeSave = $this->newEntity();
 
-            if (isset($brinde["id"]) && $brinde["id"] > 0) {
-                $brindeSave = $this->getBrindeById($brinde["id"]);
-            } else {
-                $brinde = gettype($brinde) == "object" ? $brinde->toArray() : $brinde;
-                $brindeSave = new Brinde($brinde);
-            }
-
-            $brindeSave["clientes_id"] = $brinde["clientes_id"];
-            $brindeSave["nome"] = $brinde["nome"];
-            $brindeSave["codigo_primario"] = $brinde["codigo_primario"];
-            $brindeSave["tempo_uso_brinde"] = !empty($brinde["tempo_uso_brinde"]) ? $brinde["tempo_uso_brinde"] : null;
-            $brindeSave["ilimitado"] = $brinde["ilimitado"];
-            $brindeSave["habilitado"] = empty($brinde["habilitado"]) ? true : $brinde["habilitado"];
-            $brindeSave["tipo_venda"] = $brinde["tipo_venda"];
-            $brindeSave["tipo_codigo_barras"] = $brinde["tipo_codigo_barras"];
-            $brindeSave["preco_padrao"] = !empty($brinde["preco_padrao"]) ? $brinde["preco_padrao"] : 0;
-            $brindeSave["valor_moeda_venda_padrao"] = !empty($brinde["valor_moeda_venda_padrao"]) ? $brinde["valor_moeda_venda_padrao"] : null;
-            $brindeSave["nome_img"] = $brinde["nome_img"];
+            $brindeSave["clientes_id"] = $clientesId;
+            $brindeSave["nome"] = $nome;
+            $brindeSave["codigo_primario"] = $codigoPrimario;
+            $brindeSave["tempo_uso_brinde"] = $tempoUsoBrinde;
+            $brindeSave["ilimitado"] = $ilimitado;
+            $brindeSave["habilitado"] = $habilitado;
+            $brindeSave["tipo_venda"] = $tipoVenda;
+            $brindeSave["tipo_codigo_barras"] = $tipoCodigoBarras;
+            $brindeSave["preco_padrao"] = $precoPadrao;
+            $brindeSave["valor_moeda_venda_padrao"] = $valorMoedaVendaPadrao;
+            $brindeSave["nome_img"] = $nomeImg;
 
             return $this->save($brindeSave);
         } catch (\Exception $e) {

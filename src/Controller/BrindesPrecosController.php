@@ -145,7 +145,7 @@ class BrindesPrecosController extends AppController
      */
     public function atualizarPreco($brindesId)
     {
-        $arraySet = array( 'brindesId', 'brinde', 'clientesId', "redesId",'novoPreco', "tipoVenda", "ultimoPreco");
+        $arraySet = array( 'brindesId', 'brinde', 'clientesId', "redesId",'novoPreco', "tipoVenda", "ultimoPreco", "ultimoPrecoAtualizadoGotas");
 
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -195,15 +195,16 @@ class BrindesPrecosController extends AppController
 
         // Pega último preco autorizado
         $ultimoPreco = $this->BrindesPrecos->getUltimoPrecoBrinde($brindesId, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+        $ultimoPrecoAutorizadoGotas = null;
 
         if ($this->request->is(array('post', 'put'))) {
             $data = $this->request->getData();
-            $preco = $data["preco"];
-            $valorMoedaVenda = $data["valor_moeda_venda"];
+            $preco = !empty($data["preco"]) ? (float)$data["preco"] : 0;
+            $valorMoedaVenda = !empty($data["valor_moeda_venda"]) ? (float)$data["valor_moeda_venda"] : 0;
             $errors = array();
 
             // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-            if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty($preco) || empty($valorMoedaVenda))) {
+            if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty((float)$preco) || empty((float)$valorMoedaVenda))) {
                 $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
             }
             // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios

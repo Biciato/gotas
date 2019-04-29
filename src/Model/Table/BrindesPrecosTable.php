@@ -267,37 +267,29 @@ class BrindesPrecosTable extends GenericTable
     /**
      * Obtem preço aguardando autorização
      *
-     * @param array $array_clientes_id Lista de array de ids
+     * @param array $arrayClientesId Lista de array de ids
      *
      * @return array $preços lista de registros
      */
-    public function getPrecoAwaitingAuthorizationByClientesId(array $array_clientes_id = [])
+    public function getPrecoAwaitingAuthorizationByClientesId(array $arrayClientesId = [])
     {
         try {
             return $this->find('all')
                 ->where(
-                    [
-                        'status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AWAITING,
-                        'BrindesPrecos.clientes_id IN' => $array_clientes_id
-                    ]
+                    array(
+                        'BrindesPrecos.status_autorizacao' => STATUS_AUTHORIZATION_PRICE_AWAITING,
+                        'BrindesPrecos.clientes_id IN' => $arrayClientesId
+                    )
                 )
-                ->order(
-                    [
-                        'data_preco' => 'desc'
-                    ]
-                )
-                ->contain(
-                    [
-                        'Clientes', 'ClientesHasBrindesHabilitados', 'ClientesHasBrindesHabilitados.Brindes'
-                    ]
-                );
+                ->order(array('data_preco' => 'desc'))
+                ->contain(array('Clientes', 'Brindes'));
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+
+            $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
+            Log::write('error', $trace);
         }
     }
 

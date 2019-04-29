@@ -194,7 +194,7 @@ class PagesController extends AppController
             }
 
             if (count($clientesIds) > 0) {
-                $brindes_aguardando_autorizacao = $this->ClientesHasBrindesHabilitadosPreco->getPrecoAwaitingAuthorizationByClientesId($clientesIds);
+                $brindes_aguardando_autorizacao = $this->BrindesPrecos->getPrecoAwaitingAuthorizationByClientesId($clientesIds);
             }
 
             $clientes_id = null;

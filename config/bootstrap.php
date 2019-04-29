@@ -265,6 +265,7 @@ const JOB_STATUS_END = "Finalizando...";
 
 #region Caminhos
 
+const PATH_IMAGES_READ_BRINDES = "/img/brindes/";
 const PATH_IMAGES_BRINDES = "img/brindes/";
 const PATH_IMAGES_CLIENTES = "img/clientes/";
 

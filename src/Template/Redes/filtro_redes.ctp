@@ -10,7 +10,7 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $listOptions = array(
-    'nome_rede' => 'Nome da Rede'    
+    'nome_rede' => 'Nome da Rede'
 );
 ?>
 
@@ -33,16 +33,16 @@ $listOptions = array(
                 ]) ?>
                 <div class="form-group row">
                     <div class="col-lg-3">
-                    
+
                     <?= $this->Form->input('opcoes', [
                         'type' => 'select',
                         'id' => 'opcoes',
                         'label' => 'Pesquisar por',
                         'options' => $listOptions,
-                        'class' => 'form-control col-lg-2'                        
+                        'class' => 'form-control col-lg-2'
                     ]) ?>
                     </div>
-                    
+
                     <div class="col-lg-9">
                     <?= $this->Form->input(
                         'parametro',
@@ -59,7 +59,7 @@ $listOptions = array(
                 <div class="form-group row ">
 
                     <div class="col-lg-2 pull-right">
-                        <button type="submit" 
+                        <button type="submit"
                             class="btn btn-primary btn-block botao-pesquisar">
                             <span class="fa fa-search"></span>
                             Pesquisar
@@ -72,14 +72,5 @@ $listOptions = array(
             </div>
         </div>
     </div>
-    
+
 </div>
-
-
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/clientes/filtro_clientes') ?>
-<?php else : ?> 
-    <?= $this->Html->script('scripts/clientes/filtro_clientes.min') ?>
-<?php endif; ?>
-
-<?= $this->fetch('script') ?>

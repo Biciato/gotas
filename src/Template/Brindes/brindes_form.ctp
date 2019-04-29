@@ -123,7 +123,7 @@ use Cake\I18n\Number;
                 "value" => $brinde['tipo_venda'],
                 "required" => "required",
                 "class" => "tipo-venda disabled",
-                "disabled",
+                // "disabled",
                 // "readonly" => $editMode == 1 ? 'readonly' : '',
                 "label" => false,
                 "empty" => true,

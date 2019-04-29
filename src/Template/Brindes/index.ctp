@@ -23,9 +23,12 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
     $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
     $this->Breadcrumbs->add($title, [], ['class' => 'active']);
+} else if (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL))) {
+    $title = "Cadastro de Brindes";
+    $this->Breadcrumbs->add("Selecionar Unidade Para Configurar Brindes", array("controller" => "brindes", "action" => "escolherPostoConfigurarBrinde"));
+    $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 } else {
     $title = "Cadastro de Brindes";
-
     $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 }
 

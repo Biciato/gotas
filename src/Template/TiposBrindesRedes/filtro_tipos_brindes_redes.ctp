@@ -68,7 +68,7 @@ $qteRegistros = [
                             ]
                         ) ?>
                     </div>
-                  
+
                     <div class="col-lg-4">
                         <?= $this->Form->input(
                             'atribuir_automatico',
@@ -114,11 +114,11 @@ $qteRegistros = [
 
                 </div>
                 <div class="form-group row">
-                
+
                     <div class="col-lg-2 pull-right">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="btn btn-primary btn-block botao-confirmar">
-                                <span class="fa fa-search"></span> 
+                                <span class="fa fa-search"></span>
                                 Pesquisar
                         </button>
                     </div>
@@ -131,11 +131,3 @@ $qteRegistros = [
 
 </div>
 
-
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/clientes/filtro_clientes') ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/clientes/filtro_clientes.min') ?>
-<?php endif; ?>
-
-<?= $this->fetch('script') ?>

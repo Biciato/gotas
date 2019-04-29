@@ -45,7 +45,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
 
     /**
      * Method get of Redes table property
-     * 
+     *
      * @return Cake\ORM\Table Table object
      */
     private function _getRedesHasClientesAdministradoresTable()
@@ -58,7 +58,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
 
     /**
      * Method set of Redes table property
-     * 
+     *
      * @return void
      */
     private function _setRedesHasClientesAdministradoresTable()
@@ -132,20 +132,19 @@ class RedesHasClientesAdministradoresTable extends GenericTable
     /**
      * Grava novo administrador de uma rede
      *
-     * @param int $redes_has_clientes_id Id de Redes Has Usuários
-     * @param int $usuarios_id           Id de Usuário
-     * 
+     * @param int $redesHasClientesId Id de Redes Has Usuários
+     * @param int $usuariosId           Id de Usuário
+     *
      * @return \App\Model\Entity\RedesHasClientesAdministradores $redes_has_clientes_administradores
      */
-    public function addRedesHasClientesAdministradores(int $redes_has_clientes_id, int $usuarios_id)
+    public function addRedesHasClientesAdministradores(int $redesHasClientesId, int $usuariosId)
     {
         try {
-            $redes_has_clientes_administradores = $this->_getRedesHasClientesAdministradoresTable()->newEntity();
+            $redesHasClientesAdministradores = $this->newEntity();
+            $redesHasClientesAdministradores["redes_has_clientes_id"] = $redesHasClientesId;
+            $redesHasClientesAdministradores["usuarios_id"] = $usuariosId;
 
-            $redes_has_clientes_administradores->redes_has_clientes_id = $redes_has_clientes_id;
-            $redes_has_clientes_administradores->usuarios_id = $usuarios_id;
-
-            return $this->_getRedesHasClientesAdministradoresTable()->save($redes_has_clientes_administradores);
+            return $this->save($redesHasClientesAdministradores);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -171,13 +170,13 @@ class RedesHasClientesAdministradoresTable extends GenericTable
      * Obtem o vínculo de ligação de um usuário com a rede pelo id de usuário
      *
      * @param int $redes_id Id de Redes
-     * 
+     *
      * @return \App\Model\Entity\RedesHasClientes $redes_has_clientes[] Array
      */
     public function getRedesHasClientesAdministradorByUsuariosId(int $usuarios_id)
     {
         try {
-            return $this->_getRedesHasClientesAdministradoresTable()->find('all')
+            return $this->find('all')
                 ->where(['usuarios_id' => $usuarios_id])
                 ->contain(['RedesHasClientes.Redes', 'RedesHasClientes.Clientes'])->first();
 
@@ -202,7 +201,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
 
     #region Update
 
-    
+
 
     #region Delete
 
@@ -218,7 +217,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
     {
         try {
 
-            return $this->_getRedesHasClientesAdministradoresTable()
+            return $this
                 ->deleteAll(['redes_has_clientes_id in' => $rede_has_cliente_ids]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();

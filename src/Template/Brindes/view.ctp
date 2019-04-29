@@ -22,11 +22,13 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $this->Breadcrumbs->add('Detalhes da Rede', array('controller' => 'redes', 'action' => 'verDetalhes', $redesId));
     $this->Breadcrumbs->add('Detalhes da Unidade', array("controller" => "clientes", "action" => "verDetalhes", $clientesId), ['class' => 'active']);
     $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+} else if (in_array($usuarioLogado["tipo_perfil"], array(PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL))) {
+    $title = "Cadastro de Brindes";
+    $this->Breadcrumbs->add("Selecionar Unidade Para Configurar Brindes", array("controller" => "brindes", "action" => "escolherPostoConfigurarBrinde"));
+    $this->Breadcrumbs->add($title, array("controller" => "brindes", "action" => "index", $clientesId), ['class' => 'active']);
 } else {
-    $titleBrindesIndex = "Cadastro de Brindes";
-    $title = sprintf("Informações do Brinde %s", $brinde["nome"]);
-
-    $this->Breadcrumbs->add($titleBrindesIndex, array("controller" => "brindes", "action" => "index", $clientesId), array());
+    $title = "Cadastro de Brindes";
+    $this->Breadcrumbs->add($title, array("controller" => "brindes", "action" => "index", $clientesId), ['class' => 'active']);
 }
 
 $this->Breadcrumbs->add("Informações do Brinde", array(), array('class' => 'active'));
@@ -35,26 +37,27 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-$managePrice = $brinde["tipo_venda"] == TYPE_SELL_FREE_TEXT;
+$managePrice = $brinde["tipo_venda"] != TYPE_SELL_FREE_TEXT;
 $manageStock = !$brinde["ilimitado"];
 ?>
 
 <?= $this->element("../Brindes/left_menu", array("managePrice" => $managePrice, "manageStock" => $manageStock)) ?>
 <div class="brindes form col-lg-9 col-md-10 columns content">
-    <legend><?= $title ?></legend>
+    <legend><?= "Informações do Brinde" ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
         <div class="form-group row">
             <div class="col-lg-6">
                 <label for="nome">Nome</label>
                 <input type="text"
-                    name="nome"
-                    required="required"
-                    readonly="readonly"
-                    placeholder="Nome..."
-                    id="nome"
-                    class="form-control"
-                    value="<?= $brinde['nome'] ?>">
+                name="nome"
+                disabled
+                required="required"
+                readonly="readonly"
+                placeholder="Nome..."
+                id="nome"
+                class="form-control"
+                value="<?= $brinde['nome'] ?>">
             </div>
 
             <div class="col-lg-6">
@@ -66,6 +69,7 @@ $manageStock = !$brinde["ilimitado"];
                         "value" => $brinde["tipo_codigo_barras"],
                         "required" => "required",
                         "class" => "tipo-codigo-barras",
+                        "disabled",
                         "readonly" => "readonly",
                         "label" => false,
                         "selected" => TYPE_BARCODE_QRCODE,
@@ -89,6 +93,7 @@ $manageStock = !$brinde["ilimitado"];
                             "id" => "tipo_equipamento",
                             "value" => !empty($brinde["tipo_equipamento"]) ? $brinde['tipo_equipamento'] : 0,
                             "required" => "required",
+                            "disabled",
                             "class" => "tipo-equipamento",
                             "readonly" => $editMode == 1 ? 'readonly' : '',
                             "label" => false,
@@ -107,6 +112,7 @@ $manageStock = !$brinde["ilimitado"];
                         id="codigo_primario"
                         class="form-control codigo-primario"
                         required="false"
+                        disabled
                         readonly="readonly"
                         min="1"
                         max="99"
@@ -126,11 +132,16 @@ $manageStock = !$brinde["ilimitado"];
                         min="0"
                         max="20"
                         titleBrindesIndex="Para Brindes que funcionam por tempo, informe valor em minutos"
-                        value="<?= $brinde['tempo_uso_brinde'] ?>">
+                        value="<?= $brinde['tempo_uso_brinde'] ?>"
+                        >
                 </div>
             </div>
         <?php else : ?>
-            <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
+            <input type="hidden"
+                name="tipo_equipamento"
+                id="tipo_equipamento"
+                value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>"
+            >
         <?php endif; ?>
 
         <div class="form-group row">
@@ -142,6 +153,7 @@ $manageStock = !$brinde["ilimitado"];
                         "id" => "ilimitado",
                         "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
                         "required" => "required",
+                        "disabled",
                         "class" => "ilimitado",
                         "readonly" => $editMode == 1 ? 'readonly' : '',
                         "label" => false,
@@ -161,6 +173,7 @@ $manageStock = !$brinde["ilimitado"];
                         "value" => $brinde['habilitado'],
                         "required" => "required",
                         "class" => "habilitado",
+                        "disabled",
                         "readonly" => $editMode == 1 ? 'readonly' : '',
                         "label" => false,
                         "options" => array(
@@ -179,6 +192,7 @@ $manageStock = !$brinde["ilimitado"];
                         "value" => $brinde['tipo_venda'],
                         "required" => "required",
                         "class" => "tipo-venda",
+                        "disabled",
                         "readonly" => $editMode == 1 ? 'readonly' : '',
                         "label" => false,
                         "empty" => true,
@@ -194,13 +208,14 @@ $manageStock = !$brinde["ilimitado"];
             <div class="col-lg-3">
                 <label for="preco_padrao">Preço Padrão Gotas</label>
                 <input type="text"
-                    name="preco_padrao"
-                    required="required"
-                    placeholder="Preço Padrão em Gotas..."
-                    id="preco_padrao"
-                    class="form-control"
-                    readonly="readonly"
-                    value="<?= $brinde['preco_padrao'] ?>">
+                name="preco_padrao"
+                required="required"
+                placeholder="Preço Padrão em Gotas..."
+                disabled
+                id="preco_padrao"
+                class="form-control"
+                readonly="readonly"
+                value="<?= $brinde['preco_padrao'] ?>">
             </div>
             <div class="col-lg-3">
                 <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
@@ -208,6 +223,7 @@ $manageStock = !$brinde["ilimitado"];
                     name="valor_moeda_venda_padrao"
                     required="required"
                     readonly="readonly"
+                    disabled
                     placeholder="Preço Padrão de Venda Avulsa (R$)..."
                     id="valor_moeda_venda_padrao"
                     class="form-control"
@@ -220,95 +236,107 @@ $manageStock = !$brinde["ilimitado"];
                 <label for="qte_total_entrada">Total Entrada</label>
                 <input type="text"
                     readonly="readonly"
+                    class="form-control"
+                    disabled
                     id="qte_total_entrada"
                     name="qte_total_entrada"
-                    value="<?php echo $brinde["estoque"]["entrada"]?>"
+                    value="<?php echo $brinde["estoque"]["entrada"] ?>"
                     placeholder="Estoque Total Entrada..."
-                    class="form-control"/>
+                />
             </div>
             <div class="col-lg-2">
                 <label for="qte_total_saida_brinde">Total Saída Brinde</label>
                 <input type="text"
                     readonly="readonly"
+                    disabled
                     id="qte_total_saida_brinde"
                     name="qte_total_saida_brinde"
-                    value="<?php echo $brinde["estoque"]["saida_brinde"]?>"
+                    value="<?php echo $brinde["estoque"]["saida_brinde"] ?>"
                     placeholder="Estoque Total Entrada..."
-                    class="form-control"/>
+                    class="form-control"
+                />
             </div>
             <div class="col-lg-2">
                 <label for="qte_total_saida_venda">Total Saída Venda</label>
                 <input type="text"
+                    disabled
                     readonly="readonly"
                     id="qte_total_saida_venda"
                     name="qte_total_saida_venda"
-                    value="<?php echo $brinde["estoque"]["saida_venda"]?>"
+                    value="<?php echo $brinde["estoque"]["saida_venda"] ?>"
                     placeholder="Estoque Total Entrada..."
-                    class="form-control"/>
+                    class="form-control"
+                />
             </div>
             <div class="col-lg-2">
                 <label for="qte_total_devolucao">Total Retornado</label>
                 <input type="text"
                     readonly="readonly"
+                    disabled
                     id="qte_total_devolucao"
+                    class="form-control"
                     name="qte_total_devolucao"
-                    value="<?php echo $brinde["estoque"]["devolucao"]?>"
+                    value="<?php echo $brinde["estoque"]["devolucao"] ?>"
                     placeholder="Estoque Total Entrada..."
-                    class="form-control"/>
+                />
             </div>
             <div class="col-lg-2">
                 <label for="qte_estoque_atual">Estoque Atual</label>
                 <input type="text"
                     readonly="readonly"
+                    disabled
                     id="qte_estoque_atual"
                     name="qte_estoque_atual"
-                    value="<?php echo $brinde["estoque"]["estoque_atual"]?>"
+                    value="<?php echo $brinde["estoque"]["estoque_atual"] ?>"
                     placeholder="Estoque Total Entrada..."
-                    class="form-control"/>
+                    class="form-control"
+                />
             </div>
         </div>
         <div class="form-group row">
             <div class="col-lg-3">
                 <label for="preco_atual_gotas">Preço Atual Gotas</label>
                 <input type="text"
+                    disabled
                     name="preco_atual_gotas"
                     id="preco_atual_gotas"
                     class="form-control preco-atual-gotas"
                     readonly
-                    value="<?php echo Number::precision($brinde["preco_atual"]['preco'], 2)?>"
+                    value="<?php echo Number::precision($brinde["preco_atual"]['preco'], 2) ?>"
                     placeholder="Preço Atual Gotas..."
-                    >
+                >
             </div>
             <div class="col-lg-3">
-            <label for="preco_atual_valor_moeda">Preço Atual Venda Avulsa</label>
+                <label for="preco_atual_valor_moeda">Preço Atual Venda Avulsa</label>
                 <input type="text"
                     name="preco_atual_gotas"
+                    disabled
                     id="preco_atual_gotas"
                     class="form-control preco-atual-gotas"
                     readonly
-                    value="<?php echo Number::currency($brinde["preco_atual"]['valor_moeda_venda'])?>"
+                    value="<?php echo Number::currency($brinde["preco_atual"]['valor_moeda_venda']) ?>"
                     placeholder="Preço Atual Venda Avulsa..."
-                    >
+                >
             </div>
         </div>
 
-        <?php
-
-        $exibirImagemAtual = isset($imagemOriginal) ? true : false;
-
-        if ($exibirImagemAtual) :
-            ?>
-
+        <?php if (strlen($brinde["nome_img"]) > 0) : ?>
             <div class="form-group row">
                 <div class="col-lg-12">
-                    <label>Imagem Atual do Brinde</label>
-                    <div><img src="<?= $imagemOriginal ?>" alt="Imagem do Brinde" class="imagem-brinde"></div>
+                    <label for="imagem">
+                    Imagem Atual do Brinde
+                </label>
+                <br />
+                <img src="<?= $imagem ?>"
+                    disabled
+                    alt="Imagem do Brinde"
+                    name="imagem"
+                    width="400px"
+                    height="300px"
+                >
                 </div>
             </div>
-
         <?php endif; ?>
-
-
     </fieldset>
 
     <?= $this->Form->end() ?>

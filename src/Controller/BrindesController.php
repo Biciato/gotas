@@ -109,8 +109,27 @@ class BrindesController extends AppController
      */
     public function view($id = null)
     {
-        $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde");
+        $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde", "imagem");
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+        }
+
+        $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
+        $redesId = $rede["id"];
+
+        if (empty($redesId)) {
+            $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+            $redesId = $rede["redes_id"];
+        }
+
         $brinde = $this->Brindes->getBrindeById($id);
+        $imagem = sprintf("%s%s",PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
 
         $clientesId = $brinde["clientes_id"];
         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
@@ -165,7 +184,7 @@ class BrindesController extends AppController
             // Verifica permissão do usuário na rede / unidade da rede
 
             if ($usuarioLogado["tipo_perfil"] > PROFILE_TYPE_ADMIN_DEVELOPER) {
-                $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+                $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array($clientesId), $rede["id"]);
 
                 // Se não tem acesso, redireciona
                 if (!$temAcesso) {
@@ -182,6 +201,19 @@ class BrindesController extends AppController
                 $errors = array();
                 $data["clientes_id"] = $clientesId;
 
+                $nome = !empty($data["nome"]) ? $data["nome"] : null;
+                $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
+                // Se o brinde for do tipo SMART SHOWER, é ilimitado
+                $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
+                $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
+                $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
+                $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
+                $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
+                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float)$data["preco_padrao"] : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float)$data["valor_moeda_venda_padrao"] : 0;
+                $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
+
                 // Trata tipo de equipamento
 
                 if ($this->usuarioLogado["tipo_perfil"] !=  PROFILE_TYPE_ADMIN_DEVELOPER) {
@@ -196,10 +228,6 @@ class BrindesController extends AppController
                 if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($data['preco_padrao']) && empty($data['valor_moeda_venda_padrao']))) {
                     $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
                 }
-
-                // Se o brinde for do tipo SMART SHOWER, é ilimitado
-                $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
-                $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
 
                 if (empty($tipoEquipamento)) {
                     $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY;
@@ -222,28 +250,23 @@ class BrindesController extends AppController
                 }
 
                 if ($codigoPrimario > 0 && $codigoPrimario < 5) {
-                    $brinde["ilimitado"] = 1;
-                } else {
-                    $brinde["ilimitado"] = $data["ilimitado"];
+                    $ilimitado = 1;
                 }
 
-                $brinde["preco_padrao"] = (float)$data['preco_padrao'];
+                $precoPadrao = (float)$precoPadrao;
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome,
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $data["nome"], $data["codigo_primario"], $data["tempo_uso_brinde"], $data["tempo_uso_brinde"], $data["ilimitado"], $data["tipo_equipamento"], $data["tipo_codigo_barras"]);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoCodigoBarras);
                 if ($brindeCheck->first()) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
                     $enviouNovaImagem = isset($data["img-upload"]) && strlen($data["img-upload"]) > 0;
 
                     if ($enviouNovaImagem) {
-                        $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
+                        $nomeImg = $this->_preparaImagemBrindeParaGravacao($data);
                     }
 
-                    $brinde["clientes_id"] = $clientesId;
-
-                    $brinde = $this->Brindes->patchEntity($brinde, $data);
-                    $brinde = $this->Brindes->saveBrinde($brinde);
+                    $brinde = $this->Brindes->insertBrinde($clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $ilimitado, $habilitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadrao, $valorMoedaVendaPadrao, $nomeImg);
                     $errors = $brinde->errors();
 
                     if ($brinde) {
@@ -267,8 +290,8 @@ class BrindesController extends AppController
                             $clientesId,
                             $this->usuarioLogado["id"],
                             STATUS_AUTHORIZATION_PRICE_AUTHORIZED,
-                            $brinde["preco_padrao"],
-                            $brinde["valor_moeda_venda_padrao"]
+                            $precoPadrao,
+                            $valorMoedaVendaPadrao
                         );
                     }
 
@@ -301,7 +324,7 @@ class BrindesController extends AppController
      */
     public function editar($id)
     {
-        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "imagemOriginal");
+        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "imagemOriginal", "imagemExibicao");
         $editMode = 1;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -314,7 +337,8 @@ class BrindesController extends AppController
         }
 
         $brinde = $this->Brindes->getBrindeById($id);
-        $imagemOriginal = sprintf("%s%s", PATH_IMAGES_BRINDES , $brinde["nome_img"]);
+        $imagemExibicao = sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
+        $imagemOriginal = sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde["nome_img"]);
 
         try {
             if (empty($brinde)) {
@@ -355,7 +379,7 @@ class BrindesController extends AppController
             // Verifica permissão do usuário na rede / unidade da rede
 
             if ($usuarioLogado["tipo_perfil"] > PROFILE_TYPE_ADMIN_DEVELOPER) {
-                $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, $clientesId, $rede["id"]);
+                $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array($clientesId), $rede["id"]);
 
                 // Se não tem acesso, redireciona
                 if (!$temAcesso) {
@@ -379,8 +403,8 @@ class BrindesController extends AppController
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float)$data["preco_padrao"] : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float)$data["valor_moeda_venda_padrao"] : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
@@ -438,14 +462,27 @@ class BrindesController extends AppController
                             $imagemRemover = __("{0}{1}", PATH_IMAGES_BRINDES,  $brinde["nome_img"]);
                             unlink($imagemOriginal);
                         }
-                        $brinde["nome_img"] = $this->_preparaImagemBrindeParaGravacao($data);
+                        $nomeImg = $this->_preparaImagemBrindeParaGravacao($data);
                     }
 
                     $brinde["clientes_id"] = $clientesId;
 
                     // $brinde = $this->Brindes->patchEntity($brinde, $data);
-                    $brinde = $this->Brindes->updateBrinde($id, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $ilimitado, $habilitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadrao
-                , $valorMoedaVendaPadrao, $nomeImg);
+                    $brinde = $this->Brindes->updateBrinde(
+                        $id,
+                        $clientesId,
+                        $nome,
+                        $codigoPrimario,
+                        $tempoUsoBrinde,
+                        $ilimitado,
+                        $habilitado,
+                        $tipoEquipamento,
+                        $tipoVenda,
+                        $tipoCodigoBarras,
+                        $precoPadrao,
+                        $valorMoedaVendaPadrao,
+                        $nomeImg
+                    );
                     $errors = $brinde->errors();
 
                     if ($brinde) {
@@ -539,7 +576,7 @@ class BrindesController extends AppController
      *
      * @deprecated 1.0 esta action não será mais utilizada.
      */
-    public function brindesMinhaRede($param = null)
+    public function escolherPostoConfigurarBrinde($param = null)
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -550,64 +587,51 @@ class BrindesController extends AppController
 
         $temAcesso = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
         // Se não tem acesso, redireciona
         if (!$temAcesso) {
             return $this->securityUtil->redirectUserNotAuthorized($this, $this->usuarioLogado);
         }
 
-        $clientes_ids = [];
+        $clientesIds = array();
 
-        // pega a matriz da rede
+        if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_REGIONAL) {
+            $redesHasClientesAdmin = $this->RedesHasClientesAdministradores->getRedesHasClientesAdministradorByUsuariosId($usuarioLogado["id"]);
 
-        $redesHasClientes = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
-        $unidadesIds = $redesHasClientes["clientes_id"];
+            $redesHasClientesAdmin = $redesHasClientesAdmin->toArray();
+            foreach ($redesHasClientesAdmin["redes_has_cliente"]["clientes"] as $cliente) {
+                $clientesIds[] = $cliente["id"];
+            }
+        } elseif ($usuarioLogado["tipo_perfil"] > PROFILE_TYPE_ADMIN_REGIONAL) {
+            $clientesIds[] = $cliente["id"];
+        }
 
-        $conditions = [];
+        $nomeFantasia = null;
+        $razaoSocial = null;
+        $cnpj = null;
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
-            $nome = !empty($data["nome"]) ? $data["nome"] : null;
-            $ilimitado = strlen($data["ilimitado"]) > 0 ? $data["ilimitado"] : null;
-            $precoPadrao = !empty($data["preco_padrao"]) ? $data["preco_padrao"] : null;
-            $valorMoedaVendaPadrao = strlen($data["valor_moeda_venda_padrao"]) > 0 ? $data["valor_moeda_venda_padrao"] : null;
-            $habilitado = strlen($data["habilitado"]) > 0 ? $data["habilitado"] : null;
-
-            $conditions[] = array("nome like '%{$nome}%'");
-
-            if (strlen($ilimitado) > 0) {
-                $conditions[] = array("ilimitado" => $ilimitado);
-            }
-
-            if ($precoPadrao > 0) {
-                $conditions[] = array("preco_padrao" => (float)$precoPadrao);
-            }
-
-            if (strlen($valorMoedaVendaPadrao) > 0) {
-                if ($valorMoedaVendaPadrao == "0,00") {
-                    $conditions[] = array(
-                        "OR" => array(
-                            "valor_moeda_venda_padrao IS NULL",
-                            "valor_moeda_venda_padrao " => $valorMoedaVendaPadrao
-                        )
-                    );
-                } else {
-                    $conditions[] = array("valor_moeda_venda_padrao" => $valorMoedaVendaPadrao);
-                }
-            }
-
-            if (strlen($habilitado) > 0) {
-                $conditions[] = array("habilitado" => $habilitado);
-            }
+            $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
+            $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
+            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
         }
 
-        array_push($conditions, ['clientes_id ' => $unidadesIds]);
+        $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($rede["id"], $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
 
-        // $brindes = $this->Brindes->findBrindes($conditions);
-        $brindes = $this->paginate($brindes, ['limit' => 10]);
-        $unidadesIds = $this->Clientes->getClientesListByRedesId($rede["id"])->toArray();
+        $clientes = array();
+        foreach ($redesHasClientes as $redeHasCliente) {
+            $clientes[] = $redeHasCliente["cliente"];
+        }
 
-        $arraySet = array('brindes', 'unidadesIds', 'cliente', "rede");
+        // $clientes = $this->paginate($clientes, ['limit' => 10]);
+
+        $arraySet = array('brindes', 'unidadesIds', 'cliente', "rede", "clientes");
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -934,9 +958,10 @@ class BrindesController extends AppController
                 'clientes_id in ' => $unidades_ids
             ];
 
-            $brindes = $this->Brindes->findBrindes(
-                $arrayWhereConditions
-            );
+            // @todo @gustavosg AJUSTAR
+            // $brindes = $this->Brindes->findBrindes(
+                // $arrayWhereConditions
+            // );
 
             $redeItem['brindes'] = $brindes;
 

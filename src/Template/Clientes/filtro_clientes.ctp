@@ -47,9 +47,9 @@
                 <div class="form-group row">
                     <div class="col-lg-4">
                         <?= $this->Form->input(
-                            'nomeFantasia',
+                            'nome_fantasia',
                             [
-                                'id' => 'nomeFantasia',
+                                'id' => 'nome_fantasia',
                                 'label' => 'Nome Fantasia',
                                 'class' => 'form-control col-lg-5'
                             ]
@@ -57,9 +57,9 @@
                     </div>
                     <div class="col-lg-4">
                         <?= $this->Form->input(
-                            'razaoSocial',
+                            'razao_social',
                             [
-                                'id' => 'razaoSocial',
+                                'id' => 'razao_social',
                                 'label' => 'Razão Social',
                                 'class' => 'form-control col-lg-5'
                             ]

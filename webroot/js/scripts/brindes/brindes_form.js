@@ -4,7 +4,6 @@ $(document).ready(function () {
 
     // ------------ FUNÇÕES ------------
 
-
     /**
      * brindes_form::validarForm
      *
