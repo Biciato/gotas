@@ -325,6 +325,8 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado corretamente!";
 
 // Clientes
 
+const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimento à gerenciar!";
+
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 const MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS = "Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!";

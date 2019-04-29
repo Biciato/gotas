@@ -276,9 +276,9 @@ if (empty($usuarioLogado)) {
                     }
                 } ?>
 
-                    <li>
-                        <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?>
-                    </li>
+                    <!-- <li> -->
+                        <!-- <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?> -->
+                    <!-- </li> -->
 
                     <li role="separator" class="divider" />
 
@@ -341,11 +341,9 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                     </li>
                     <li role="separator" class="divider"></li>
 
-                    <!-- <li>
-                                                        <?php echo $this->Html->link('Brindes Habilitados da Loja', ['controller' => 'clientesHasBrindesHabilitados', 'action' => 'meus_brindes_ativados']) ?>
-                                                    </li> -->
+
                     <li>
-                        <?php echo $this->Html->link('Configurar Brindes no Ponto de Atendimento', ['controller' => 'clientes_has_brindes_habilitados', 'action' => 'configurar-brindes-unidade', $clienteGerenciado->id]) ?>
+                        <a href="/brindes/index">Cadastro de Brindes</a>
                     </li>
 
                     <li>

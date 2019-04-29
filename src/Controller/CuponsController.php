@@ -454,7 +454,8 @@ class CuponsController extends AppController
         $dataFimPesquisa = date($date);
         $dataInicioPesquisa = date($date, strtotime("-30 day"));
 
-        $brindes = $this->Brindes->getBrindesByClientes($clientesIds)->find("list");
+        $brindes = $this->Brindes->findBrindes($rede["id"]);
+        // $brindes = $this->Brindes->getBrindesByClientes($clientesIds)->find("list");
 
         $data = array();
 
@@ -506,10 +507,12 @@ class CuponsController extends AppController
             $clientesIds[] = (int)$unidadeSelecionado;
         }
 
-        $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
+        $cupons = array();
+        // @todo ajustar
+        // $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
 
         // Paginação
-        $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
+        // $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
         $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
         $this->set(compact($arraySet));

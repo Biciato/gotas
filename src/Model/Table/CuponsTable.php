@@ -83,8 +83,8 @@ class CuponsTable extends GenericTable
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('ClientesHasBrindesHabilitados', [
-            'foreignKey' => 'clientes_has_brindes_habilitados_id',
+        $this->belongsTo('Brindes', [
+            'foreignKey' => 'brindes_id',
             'joinType' => 'INNER'
         ]);
         $this->belongsTo('Clientes', [
@@ -195,7 +195,7 @@ class CuponsTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['clientes_has_brindes_habilitados_id'], 'ClientesHasBrindesHabilitados'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
         $rules->add($rules->existsIn(['usuarios_id'], 'Usuarios'));
 
@@ -445,9 +445,8 @@ class CuponsTable extends GenericTable
                     $whereConditions
                 )->contain(
                     array(
-                        'ClientesHasBrindesHabilitados',
+                        'Brindes',
                         'Clientes',
-                        'ClientesHasBrindesHabilitados.Brindes.TipoBrindeRede',
                         'Usuarios'
                     )
                 )->first();
@@ -487,9 +486,8 @@ class CuponsTable extends GenericTable
                 ->where($whereConditions)
                 ->contain(
                     array(
-                        "ClientesHasBrindesHabilitados.TiposBrindesClientes.TipoBrindeRede",
                         "Clientes.RedeHasCliente",
-                        "ClientesHasBrindesHabilitados.Brindes",
+                        "Brindes",
                         "Usuarios"
                     )
                 );
@@ -534,7 +532,8 @@ class CuponsTable extends GenericTable
         $cupons = $this->find("all")
             ->contain(
                 array(
-                    "ClientesHasBrindesHabilitados.TiposBrindesClientes.TipoBrindeRede.Rede",
+                    "Brindes",
+                    "Clientes.RedesHasClientes.Rede",
                     "Usuarios"
                 )
             )
@@ -845,8 +844,7 @@ class CuponsTable extends GenericTable
                     $whereConditions
                 )
                 ->contain(
-                    ['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'ClientesHasBrindesHabilitados.Brindes']
-                    // ['ClientesHasBrindesHabilitados', 'Clientes', 'Usuarios', 'Brindes']
+                    array('Brindes', 'Clientes', 'Usuarios')
                 );
 
             return $cupons;

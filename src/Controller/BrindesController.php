@@ -44,7 +44,7 @@ class BrindesController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function index($clientesId)
+    public function index($clientesId = null)
     {
         $arraySet = array("redesId", "clientesId", "brindes", "usuario", "dataPost");
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -58,8 +58,16 @@ class BrindesController extends AppController
         }
 
         $cliente = $sessaoUsuario["cliente"];
+
         $rede = $sessaoUsuario["rede"];
         $redesId = $rede["id"];
+
+        if (empty($clientesId) && empty($cliente)) {
+            $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
+            return $this->redirect("/");
+        }
+
+        $clientesId = $cliente["id"];
 
         if (empty($redesId)) {
             $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
