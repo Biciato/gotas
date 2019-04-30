@@ -8,7 +8,7 @@ use Cake\Core\Configure;
     Isto deverá ser portado para o template principal depois da mudança para AngularJS
 -->
 
-<div class="loading">
+<div class="loading ">
         <img src="/img/icons/loading.gif" alt="">
 
         <p class="text-center">

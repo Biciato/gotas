@@ -252,7 +252,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, string $tipoVenda = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, array $orderBy = array())
+    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, array $orderBy = array())
     {
         try {
 
@@ -289,6 +289,11 @@ class BrindesTable extends GenericTable
 
             if (!empty($tipoEquipamento)) {
                 $where[] = array("Brindes.tipo_equipamento" => $tipoEquipamento);
+            }
+
+            if (count($tiposVendas) > 0 ) {
+                $tiposVendas = implode("','", $tiposVendas);
+                $where[] = array("Brindes.tipo_venda IN ('{$tiposVendas}')");
             }
 
             if (!empty($tipoCodigoBarras)) {

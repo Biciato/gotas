@@ -118,6 +118,7 @@ echo $this->Html->meta('icon');
 
 <!-- Início Estilos -->
 <!-- <link href="/webroot/app/css/site.css" rel="stylesheet" > -->
+<link rel="stylesheet" href="/webroot/css/styles/common/loader.css">
 
 <!-- <link href="/webroot/app/css/main.css" rel="stylesheet" />
 <link href="/webroot/app/css/site.css" rel="stylesheet" /> -->

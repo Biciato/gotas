@@ -39,75 +39,75 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
 
     <div class="col-lg-9 col-md-10 columns">
 
-<?php else : ?>
-    <div class="col-lg-9 col-md-10 columns">
-<?php endif; ?>
+    <?php else : ?>
+        <div class="col-lg-9 col-md-10 columns">
+        <?php endif; ?>
 
         <div class="container-emissao-cupom">
             <legend><?= __("Emissão de Cupom") ?></legend>
 
             <?= $this->Form->create(); ?>
-                <div class="row">
-                    <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
-                </div>
+            <div class="row">
+                <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
+            </div>
 
-                <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
+            <input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Gotas">
+            <input type="hidden" name="tipo_venda" id="tipo_venda" class="tipo-pagamento" readonly="readonly" value="<?php echo implode(",", array(TYPE_SELL_FREE_TEXT)) ?>">
 
-                <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
+            <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
-                <div class="gifts-query-region">
+            <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
 
-                    <div class="col-lg-12 text-right">
-                        <button type="button"
-                            id="print_gift"
-                            class="print-gift-shower
-                            btn btn-primary" >
-                            <i class="fa fa-print"></i>
-                            Imprimir
-                        </button>
+            <div class="gifts-query-region">
 
-                        <button type="button"
-                            class="print-gift-cancel btn btn-default" id="print-gift-cancel">
+                <div class="col-lg-12 text-right">
+                    <button type="button" id="print_gift" class="print-gift-shower
+                            btn btn-primary">
+                        <i class="fa fa-print"></i>
+                        Imprimir
+                    </button>
+
+                    <button type="button" class="print-gift-cancel btn btn-default" id="print-gift-cancel">
                         <i class="fa fa-trash"></i>
                         Limpar
-                        </button>
+                    </button>
 
-                        <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
-                        <?= $this->Html->tag('/div') ?>
-                    </div>
+                    <?= $this->Html->tag('div', '', ['class' => 'text-danger validation-message', 'id' => 'print-validation']) ?>
+                    <?= $this->Html->tag('/div') ?>
                 </div>
+            </div>
 
             <?= $this->Form->end(); ?>
 
-    <!-- Confirmação cupom -->
-    <?php
-        echo $this->element("../Cupons/confirmacao_emissao_cupom");
-    ?>
+            <!-- Confirmação cupom -->
+            <?php
+            echo $this->element("../Cupons/confirmacao_emissao_cupom");
+            ?>
 
-    <!-- Confirmação canhoto -->
-    <?php
-        echo $this->element("../Cupons/confirmacao_canhoto");
-    ?>
+            <!-- Confirmação canhoto -->
+            <?php
+            echo $this->element("../Cupons/confirmacao_canhoto");
+            ?>
         </div>
 
-</div>
+    </div>
 
-<?php
-echo $this->element('../Cupons/impressao_brinde_layout');
-?>
+    <?php
+    echo $this->element('../Cupons/impressao_brinde_layout');
+    ?>
 
-<?php
-echo $this->element("../Cupons/impressao_canhoto_layout");
-?>
+    <?php
+    echo $this->element("../Cupons/impressao_canhoto_layout");
+    ?>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
-    <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
-    <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
-<?php endif; ?>
+    <?php if (Configure::read('debug') == true) : ?>
+        <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
+        <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
+    <?php else : ?>
+        <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
+        <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
+    <?php endif; ?>
 
 
-<?= $this->fetch('script') ?>
-<?= $this->fetch('css') ?>
+    <?= $this->fetch('script') ?>
+    <?= $this->fetch('css') ?>

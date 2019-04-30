@@ -24,7 +24,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <input type="hidden" id="restrict_query" class="restrict_query" value="<?php $restrict_query ?>" />
         <input type="hidden" id="venda_avulsa" class="venda_avulsa" value="true" />
-        <input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Dinheiro">
+        <input type="hidden" name="tipo_venda" id="tipo_venda" class="tipo-pagamento" readonly="readonly" value="<?= array(TYPE_SELL_FREE_TEXT) ?>">
 
         <!-- Id de Usuários -->
         <?= $this->Form->text(

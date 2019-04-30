@@ -100,7 +100,7 @@ class BrindesController extends AppController
             $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
         }
 
-        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
 
         $this->set(compact($arraySet));
@@ -263,7 +263,7 @@ class BrindesController extends AppController
                 $precoPadrao = (float)$precoPadrao;
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome,
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
                 if ($brindeCheck->first()) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
@@ -457,7 +457,7 @@ class BrindesController extends AppController
                 }
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome, mas com outro Id
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
                 $brindeCheck = $brindeCheck->first();
                 if ($brindeCheck && $brindeCheck["id"] != $brinde["id"]) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -534,7 +534,7 @@ class BrindesController extends AppController
         return $this->redirect(sprintf("/Brindes/index/%s", $brinde["clientes_id"]));
     }
 
-     /**
+    /**
      * BrindesController::alterarEstadoBrinde
      *
      * Altera estado do Brinde
@@ -988,63 +988,24 @@ class BrindesController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-            $clientes_id = $data['clientes_id'];
-            $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
+            $clientesId = !empty($data["clientes_id"]) ? (int)$data['clientes_id'] : null;
+            $tipoVenda = !empty($data['tipo_venda']) ? explode(",", $data['tipo_venda']) : null;
 
-            if (empty($tipoPagamento)) {
-                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Transação não definida!"));
+            if (empty($clientesId)) {
+                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MESSAGE_BRINDES_CLIENTES_ID_REQUIRED));
             }
 
-            $resultado = $this->ClientesHasBrindesHabilitados->getBrindesPorClienteId(
-                $clientes_id,
-                array(),
-                array(),
-                0,
-                0,
-                array(),
-                array(),
-                array(),
-                $tipoPagamento,
-                array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_FREE_TEXT)
-            );
-
-            $brindesHabilitadosCliente = $resultado["brindes"]["data"];
-
-            $brindesTemp = array();
-
-            foreach ($brindesHabilitadosCliente as $brindeHabilitadoCliente) {
-                $brindeHabilitadoCliente["brinde"]["nome_img"] =
-                    __(
-                        "{0}{1}{2}",
-                        Configure::read("webrootAddress"),
-                        Configure::read("imageGiftPathRead"),
-                        $brindeHabilitadoCliente["brinde"]["nome_img"]
-                    );
-
-                $nome = $brindeHabilitadoCliente["brinde"]["nome"];
-                $isBrindeShower = $brindeHabilitadoCliente["tipos_brindes_redes_id"] >= 1 && $brindeHabilitadoCliente["tipos_brindes_redes_id"] <= 4;
-
-                if ($isBrindeShower) {
-                    $nome = __("{0} ({1} minutos)", $nome, $brindeHabilitadoCliente["brinde"]["tempo_uso_brinde"]);
-                }
-
-                if ($brindeHabilitadoCliente["tipos_brindes_cliente"]["tipos_brindes_rede"]["brinde_necessidades_especiais"]) {
-                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome . " (PNE)";
-                } else {
-                    $brindeHabilitadoCliente["brinde"]["nome_brinde_detalhado"] = $nome;
-                }
-
-                $brindesTemp[] = $brindeHabilitadoCliente;
+            if (empty($tipoVenda)) {
+                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Tipo de Venda não definida!"));
             }
 
-            $brindes = $brindesTemp;
+            $resultado = $this->Brindes->findBrindes(0, $clientesId, null, null, null, null, null, null, $tipoVenda);
+
+            $brindes = $resultado->toArray();
             $count = sizeof($brindes);
         }
 
-        $arraySet = [
-            'brindes',
-            'count'
-        ];
+        $arraySet = array('brindes', 'count');
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
@@ -1056,7 +1017,7 @@ class BrindesController extends AppController
 
     #region REST Services
 
-      /**
+    /**
      * Brindes::getBrindesUnidadeAPI
      *
      * Obtem todos os Brindes de uma Unidade
@@ -1137,7 +1098,7 @@ class BrindesController extends AppController
                     null,
                     null,
                     null,
-                    $tipoVenda,
+                    array($tipoVenda),
                     null,
                     null,
                     null,
@@ -1148,7 +1109,7 @@ class BrindesController extends AppController
 
                 $todosBrindes = $resultado;
                 $brindesAtuais = $resultado;
-                if (count($pagination) > 0){
+                if (count($pagination) > 0) {
                     $brindesAtuais = $brindesAtuais->limit($pagination["limit"])->page($pagination["page"]);
                 }
 
@@ -1160,7 +1121,6 @@ class BrindesController extends AppController
 
                 $mensagem = $resultado["mensagem"];
                 $brindes = $resultado["brindes"];
-
             }
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();

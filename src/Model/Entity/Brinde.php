@@ -3,6 +3,7 @@ namespace App\Model\Entity;
 
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Brinde Entity
@@ -36,7 +37,7 @@ class Brinde extends Entity
         'id' => false
     ];
 
-    protected $_virtual = array("nome_img_completo");
+    protected $_virtual = array("nome_img_completo", "nome_brinde_detalhado");
 
     protected function _getNomeImgCompleto()
     {
@@ -46,5 +47,24 @@ class Brinde extends Entity
 
         return null;
     }
-}
-;
+
+    protected function _getNomeBrindeDetalhado()
+    {
+        $codigoPrimario = $this->_properties["codigo_primario"];
+        $nome = $this->_properties["nome"];
+
+        if (empty($nome)) {
+            return "";
+        }
+
+        if (empty($codigoPrimario)) {
+            return $nome;
+        }
+        if ($codigoPrimario == 2 || $codigoPrimario == 4) {
+            $nomeCompleto = sprintf("%s (%s)", $nome, "PNE");
+            return $nomeCompleto;
+        }
+
+        return $nome;
+    }
+};

@@ -19,15 +19,15 @@ $(document).ready(function () {
                 }
             });
 
-            var brindeSelecionado = brindePesquisa[0];
+            var brinde = brindePesquisa[0];
 
-            $(".gift-image").attr('src', brindeSelecionado.brinde.nome_img);
-            $("#brindes_id").val(brindeSelecionado.brindes_id);
-            if (brindeSelecionado.brinde_habilitado_preco_atual == null) {
-                callModalError("Nâo há preço configurado para brinde " + brindeSelecionado.brinde.nome);
+            $(".gift-image").attr('src', brinde.nome_img_completo);
+            $("#brindes_id").val(brinde.id);
+            if (brinde.preco_atual == null) {
+                callModalError("Nâo há preço configurado para brinde " + brinde.nome);
                 $(".print-gift-shower").attr('disabled', true);
             } else {
-                $("#preco_banho").val(brindeSelecionado.brinde_habilitado_preco_atual.preco);
+                $("#preco_banho").val(brinde.preco_atual.preco);
                 $(".print-gift-shower").attr('disabled', false);
             }
         } else {
@@ -58,7 +58,7 @@ $(document).ready(function () {
     //         $("#brindes_id").val(data.id);
     //         $("#brindes_nome").val(data.brinde.nome);
     //         $("#tempo_uso_brinde").val(data.brinde.tempo_uso_brinde);
-    //         $("#preco_banho").val(data.brinde_habilitado_preco_atual.preco);
+    //         $("#preco_banho").val(data.preco_atual.preco);
 
     //         $(".gifts-result").show();
     //         $(".gifts-result-table").hide();
@@ -82,7 +82,7 @@ $(document).ready(function () {
             data: JSON.stringify({
                 parametro_brinde: $("#parametro_brinde").val(),
                 clientes_id: $("#clientes_id").val(),
-                tipo_pagamento: $("#tipo_pagamento").val()
+                tipo_venda: $("#tipo_venda").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -102,6 +102,7 @@ $(document).ready(function () {
         }).done(function (result) {
 
             closeLoaderAnimation();
+            console.log(result);
 
             if (result.brindes !== null && result.brindes.length > 0) {
 
@@ -113,21 +114,20 @@ $(document).ready(function () {
 
                 $.each(result.brindes, function (index, value) {
 
-                    if (value.brinde_habilitado_preco_atual == null) {
+                    if (value.preco_atual == null) {
                         brindeSemPreco = true;
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: value.brinde.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
+                            text: value.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
                         }));
-                    }
-                    else {
+                    } else {
 
-                        var valorAvulso = (value.brinde_habilitado_preco_atual.valor_moeda_venda_formatado != null) ? value.brinde_habilitado_preco_atual.valor_moeda_venda_formatado : 0;
-                        var valorGotas = (value.brinde_habilitado_preco_atual.preco != null) ? parseFloat(value.brinde_habilitado_preco_atual.preco) : 0;
+                        var valorAvulso = (value.preco_atual.valor_moeda_venda_formatado != null) ? value.preco_atual.valor_moeda_venda_formatado : 0;
+                        var valorGotas = (value.preco_atual.preco != null) ? parseFloat(value.preco_atual.preco) : 0;
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: "Tipo de Venda: " + value.brinde.tipo_venda + " / Brinde: " +  value.brinde.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                            text: "Tipo de Venda: " + value.tipo_venda + " / Brinde: " +  value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
                         }));
                     }
 

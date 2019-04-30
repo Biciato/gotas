@@ -56,9 +56,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     ]
 ) ?>
 
+
 <?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false)); ?>
 
-<input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Gotas">
 
 <?php if (Configure::read('debug') == true) : ?>
 <?= $this->Html->script('scripts/brindes/impressao_rapida') ?>
