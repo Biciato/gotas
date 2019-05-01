@@ -127,7 +127,7 @@ $(document).ready(function () {
 
                         $(".list-gifts").append($('<option>', {
                             value: value.id,
-                            text: "Tipo de Venda: " + value.tipo_venda + " / Brinde: " +  value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                            text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
                         }));
                     }
 

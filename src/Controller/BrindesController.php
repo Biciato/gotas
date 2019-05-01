@@ -63,9 +63,11 @@ class BrindesController extends AppController
             return $this->redirect("/");
         }
 
-        $clientesId = $cliente["id"];
-
         if (empty($redesId)) {
+            if (empty($clientesId)) {
+                $clientesId = $cliente["id"];
+            }
+
             $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
             $redesId = $rede["redes_id"];
         }
@@ -100,7 +102,11 @@ class BrindesController extends AppController
             $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
         }
 
-        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+        if (empty($tipoVenda)) {
+            $tipoVenda = array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT);
+        }
+
+        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
         $brindes = $this->paginate($brindes, array("limit" => 10));
 
         $this->set(compact($arraySet));
@@ -116,6 +122,7 @@ class BrindesController extends AppController
     public function view($id = null)
     {
         $arraySet = array("brinde", "clientesId", "redesId", "textoCodigoSecundario", "editMode", "precoAtualBrinde", "imagem");
+        $brinde = $this->Brindes->getBrindeById($id);
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -128,13 +135,13 @@ class BrindesController extends AppController
         $cliente = $sessaoUsuario["cliente"];
         $rede = $sessaoUsuario["rede"];
         $redesId = $rede["id"];
+        $clientesId = $brinde["clientes_id"];
 
         if (empty($redesId)) {
             $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
             $redesId = $rede["redes_id"];
         }
 
-        $brinde = $this->Brindes->getBrindeById($id);
         $imagem = sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
 
         $clientesId = $brinde["clientes_id"];

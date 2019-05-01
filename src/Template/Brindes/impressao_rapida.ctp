@@ -57,6 +57,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ) ?>
 
 
+<input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Gotas">
+<input type="hidden" name="tipo_venda" id="tipo_venda" class="tipo-pagamento" readonly="readonly" value="<?php echo implode(",", array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT)) ?>">
 <?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false)); ?>
 
 

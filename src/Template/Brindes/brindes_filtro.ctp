@@ -133,9 +133,9 @@ use Cake\Core\Configure;
                                     "value" => !empty($dataPost["tipo_venda"]) ? $dataPost["tipo_venda"] : null,
                                     "options" =>
                                     array(
-                                        TYPE_SELL_FREE_TEXT,
-                                        TYPE_SELL_DISCOUNT_TEXT,
-                                        TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                                        TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
+                                        TYPE_SELL_DISCOUNT_TEXT => TYPE_SELL_DISCOUNT_TEXT,
+                                        TYPE_SELL_CURRENCY_OR_POINTS_TEXT => TYPE_SELL_CURRENCY_OR_POINTS_TEXT
                                     )
                                 )
                             ); ?>

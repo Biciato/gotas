@@ -52,6 +52,15 @@ class BrindesTable extends GenericTable
         $this->setPrimaryKey('id');
 
         // relacionamento de brindes com posto
+        $this->belongsToMany(
+            "Clientes",
+            array(
+                "className" => "Clientes",
+                "foreignKey" => "clientes_id",
+                "joinType" => Query::JOIN_TYPE_INNER
+            )
+        );
+
         $this->belongsTo(
             'Cliente',
             array(
@@ -291,7 +300,7 @@ class BrindesTable extends GenericTable
                 $where[] = array("Brindes.tipo_equipamento" => $tipoEquipamento);
             }
 
-            if (count($tiposVendas) > 0 ) {
+            if (count($tiposVendas) > 0) {
                 $tiposVendas = implode("','", $tiposVendas);
                 $where[] = array("Brindes.tipo_venda IN ('{$tiposVendas}')");
             }

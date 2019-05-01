@@ -51,8 +51,7 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
                 <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
             </div>
 
-            <input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Gotas">
-            <input type="hidden" name="tipo_venda" id="tipo_venda" class="tipo-pagamento" readonly="readonly" value="<?php echo implode(",", array(TYPE_SELL_FREE_TEXT)) ?>">
+
 
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
