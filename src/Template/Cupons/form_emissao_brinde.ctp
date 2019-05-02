@@ -23,7 +23,7 @@ if ($show_breadcrumbs) {
 $showMenu = isset($showMenu) ? $showMenu : true;
 
 $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "pages", "action" => "display") : $urlRedirectConfirmacao;
-
+$tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
 ?>
 
 <?php if ($showMenu) : ?>
@@ -51,11 +51,9 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
                 <?php echo $this->element("../Usuarios/filtro_usuarios_ajax", array("isVendaAvulsa" => 0)) ?>
             </div>
 
-
-
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
 
-            <?= $this->element('../Brindes/brindes_filtro_ajax') ?>
+            <?= $this->element('../Brindes/brindes_filtro_ajax', array('mostrarCheckboxDesconto' => $tipoPagamento)) ?>
 
             <div class="gifts-query-region">
 

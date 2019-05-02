@@ -57,10 +57,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 ) ?>
 
 
-<input type="hidden" name="tipo_pagamento" id="tipo_pagamento" class="tipo-pagamento" readonly="readonly" value="Gotas">
-<input type="hidden" name="tipo_venda" id="tipo_venda" class="tipo-pagamento" readonly="readonly" value="<?php echo implode(",", array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT)) ?>">
-<?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false)); ?>
-
+<input type="hidden" name="tipo_pagamento" id="tipo-pagamento" class="tipo-pagamento" readonly="readonly" value="<?= TYPE_PAYMENT_POINTS?>">
+<input type="hidden" name="tipo_venda" id="tipo-venda" class="tipo-venda" readonly="readonly" value="<?php echo implode(",", array(TYPE_SELL_CURRENCY_OR_POINTS_TEXT)) ?>">
+<?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false, "tipoPagamento" => TYPE_PAYMENT_POINTS)); ?>
 
 <?php if (Configure::read('debug') == true) : ?>
 <?= $this->Html->script('scripts/brindes/impressao_rapida') ?>

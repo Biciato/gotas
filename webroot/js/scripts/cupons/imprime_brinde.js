@@ -457,7 +457,6 @@ $(document).ready(function() {
                 clientes_id: $("#clientes_id").val(),
                 funcionarios_id: $("#funcionarios_id").val(),
                 usuarios_id: $(".usuarios_id").val(),
-                quantidade: 1,
                 tipo_pagamento: $(".tipo-pagamento").val(),
                 venda_avulsa: $(".venda_avulsa").val(),
                 current_password: $("#current_password").val(),

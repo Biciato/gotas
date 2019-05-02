@@ -73,7 +73,7 @@ $(document).ready(function () {
 
     // };
 
-    var searchBrinde = function () {
+    var searchBrinde = function (desconto) {
 
         callLoaderAnimation();
         $.ajax({
@@ -82,7 +82,9 @@ $(document).ready(function () {
             data: JSON.stringify({
                 parametro_brinde: $("#parametro_brinde").val(),
                 clientes_id: $("#clientes_id").val(),
-                tipo_venda: $("#tipo_venda").val()
+                tipo_pagamento: $(".tipo-pagamento").val(),
+                tipo_venda: $(".tipo-venda").val(),
+                desconto: desconto
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -103,6 +105,8 @@ $(document).ready(function () {
 
             closeLoaderAnimation();
             console.log(result);
+            $(".list-gifts").empty();
+            $(".list-gifts").append("<option>&ltSelecionar&gt</option>");
 
             if (result.brindes !== null && result.brindes.length > 0) {
 
@@ -112,23 +116,34 @@ $(document).ready(function () {
 
                 var isVendaAvulsa = $(".venda_avulsa").val();
 
+
                 $.each(result.brindes, function (index, value) {
 
                     if (value.preco_atual == null) {
                         brindeSemPreco = true;
-                        $(".list-gifts").append($('<option>', {
-                            value: value.id,
-                            text: value.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
-                        }));
+                        // $(".list-gifts").append($('<option>', {
+                        //     value: value.id,
+                        //     text: value.nome_brinde_detalhado + " - Preço: <NÃO CONFIGURADO>"
+                        // }));
                     } else {
 
                         var valorAvulso = (value.preco_atual.valor_moeda_venda_formatado != null) ? value.preco_atual.valor_moeda_venda_formatado : 0;
                         var valorGotas = (value.preco_atual.preco != null) ? parseFloat(value.preco_atual.preco) : 0;
 
-                        $(".list-gifts").append($('<option>', {
-                            value: value.id,
-                            text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
-                        }));
+                        if (desconto){
+                            $(".list-gifts").append($('<option>', {
+                                value: value.id,
+                                text: value.nome_brinde_detalhado + " - Gotas: " + valorGotas + " - Reais: " + valorAvulso
+                            }));
+
+                        } else {
+                            $(".list-gifts").append($('<option>', {
+                                value: value.id,
+                                text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                            }));
+
+                        }
+
                     }
 
                 });
@@ -147,6 +162,12 @@ $(document).ready(function () {
             console.log("complete");
         });
     };
+
+    $(".habilita-brindes-desconto").on("change", function () {
+        var desconto = $(".habilita-brindes-desconto").prop("checked");
+        $(".tipo-venda").val("Com Desconto");
+        searchBrinde(desconto);
+    });
 
     searchBrinde();
 

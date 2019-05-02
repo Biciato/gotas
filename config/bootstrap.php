@@ -296,6 +296,7 @@ const STRING_NO = 'Não';
 
 // Brindes
 
+const MESSAGE_CLIENTE_DOES_NOT_HAVE_BRINDE = "O posto/loja selecionado(a) não possui o brinde desejado!";
 const MESSAGE_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
 const MESSAGE_BRINDES_CLIENTES_ID_REQUIRED = "Necessário informar o Posto de Atendimento!";
 const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
@@ -323,7 +324,7 @@ const TYPE_SELL_DISCOUNT = 1;
 const TYPE_SELL_DISCOUNT_TEXT = "Com Desconto";
 const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
-const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado corretamente!";
+const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 // Clientes
 

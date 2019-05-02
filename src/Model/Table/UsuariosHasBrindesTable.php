@@ -147,7 +147,7 @@ class UsuariosHasBrindesTable extends GenericTable
      * @param int $usuariosId
      * @param int $redesId Id da rede
      * @param int $clientesId Id da Unidade da Rede
-     * @param int $brindesHabilitadosId
+     * @param int $brindesId
      * @param float $quantidade
      * @param float $precoGotas
      * @param float $precoReais
@@ -159,7 +159,7 @@ class UsuariosHasBrindesTable extends GenericTable
      *
      * @return \App\Model\Entity\UsuariosHasBrinde $usuarioHasBrinde
      **/
-    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesHabilitadosId, float $quantidade, float $precoGotas, float $precoReais, string $tipoPagamento, int $cuponsId = null)
+    public function addUsuarioHasBrindes(int $redesId, int $clientesId, int $usuariosId, int $brindesId, float $quantidade, float $precoGotas, float $precoReais, string $tipoPagamento, int $cuponsId = null)
     {
         try {
             $brindeUsuario = $this->newEntity();
@@ -167,7 +167,7 @@ class UsuariosHasBrindesTable extends GenericTable
             $brindeUsuario["redes_id"] = $redesId;
             $brindeUsuario["clientes_id"] = $clientesId;
             $brindeUsuario["usuarios_id"] = $usuariosId;
-            $brindeUsuario["clientes_has_brindes_habilitados_id"] = $brindesHabilitadosId;
+            $brindeUsuario["brindes_id"] = $brindesId;
             $brindeUsuario["quantidade"] = (int)$quantidade;
             $brindeUsuario["preco_gotas"] = !empty($precoGotas) && $precoGotas > 0 ? $precoGotas * $quantidade : 0;
             $brindeUsuario["preco_reais"] = !empty($precoReais) && $precoReais > 0 ? $precoReais * $quantidade : 0;
@@ -177,7 +177,7 @@ class UsuariosHasBrindesTable extends GenericTable
 
             return $this->save($brindeUsuario);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao salvar brinde de usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);

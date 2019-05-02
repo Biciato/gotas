@@ -4177,16 +4177,13 @@ class UsuariosController extends AppController
                 $this->set("_serialize", $arraySet);
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $messageString = __("Erro ao pesquisar usuário!");
 
             $errors = $trace;
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
 
             $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
         }
     }
 

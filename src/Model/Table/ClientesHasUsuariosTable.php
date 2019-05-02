@@ -174,7 +174,8 @@ class ClientesHasUsuariosTable extends Table
         try {
             return $this->find('all')
                 ->where($where_conditions)
-                ->contain(['Cliente', 'Usuario']);
+                ->contain(['Cliente', 'Usuario'])
+                ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);

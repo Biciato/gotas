@@ -954,7 +954,8 @@ class RedesController extends AppController
                 $unidadesIds[] = $value->clientes_id;
             }
 
-            $brindes = $this->Brindes->getBrindesByClientes($unidadesIds);
+            // @todo usar o findBrindes
+            // $brindes = $this->Brindes->getBrindesByClientes($unidadesIds);
 
             $rede['brindes'] = $brindes;
 

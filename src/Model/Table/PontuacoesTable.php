@@ -94,7 +94,7 @@ class PontuacoesTable extends GenericTable
         $this->belongsTo(
             'ClientesHasBrindesHabilitados',
             [
-                'foreignKey' => 'clientes_has_brindes_habilitados_id'
+                'foreignKey' => 'brindes_id'
             ]
         );
 
@@ -187,7 +187,7 @@ class PontuacoesTable extends GenericTable
     {
         $rules->add($rules->existsIn(['usuarios_id'], 'Usuarios'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
-        $rules->add($rules->existsIn(['clientes_has_brindes_habilitados_id'], 'ClientesHasBrindesHabilitados'));
+        $rules->add($rules->existsIn(['brindes_id'], 'ClientesHasBrindesHabilitados'));
         $rules->add($rules->existsIn(['gotas_id'], 'Gotas'));
 
         return $rules;
@@ -229,7 +229,7 @@ class PontuacoesTable extends GenericTable
             $pontuacao["valor_moeda_venda"] = $quantidadePontosReais;
             $pontuacao["clientes_id"] = $clientesId;
             $pontuacao["usuarios_id"] = $usuariosId;
-            $pontuacao["clientes_has_brindes_habilitados_id"] = $brindesHabilitadosId;
+            $pontuacao["brindes_id"] = $brindesHabilitadosId;
             $pontuacao["utilizado"] = Configure::read('dropletsUsageStatus')['FullyUsed'];
             $pontuacao["data"] = date('Y-m-d H:i:s');
             $pontuacao["funcionarios_id"] = $funcionariosId;
@@ -478,19 +478,19 @@ class PontuacoesTable extends GenericTable
      * @param int   $usuarios_id          Id de usuário
      * @param array $clientes_id          Array Id de cliente
      * @param int   $how_many             Quantidade de registros à retornar
-     * @param int   $ultimo_id_processado Ultimo Id Processado
+     * @param int   $ultimoIdProcessado Ultimo Id Processado
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 2018/05/14
      *
      * @return array @pontuacoes Lista de pontuações
      */
-    public function getPontuacoesPendentesForUsuario(int $usuarios_id, array $clientes_id = [], int $how_many = 10, int $ultimo_id_processado = null)
+    public function getPontuacoesPendentesForUsuario(int $usuarios_id, array $clientes_id = [], int $how_many = 10, int $ultimoIdProcessado = null)
     {
         try {
             $conditions = [];
 
-            $pontuacoes_comprovantes_invalidated
+            $pontuacoesComprovantesInvalidated
                 = $this->PontuacoesComprovantes
                 ->find('all')
                 ->select(['id'])
@@ -503,18 +503,18 @@ class PontuacoesTable extends GenericTable
                 )->toArray();
 
 
-            $pontuacoes_comprovantes_invalidated_ids = [];
-            foreach ($pontuacoes_comprovantes_invalidated as $key => $value) {
-                array_push($pontuacoes_comprovantes_invalidated_ids, $value['id']);
+            $pontuacoesComprovantesInvalidatedIds = [];
+            foreach ($pontuacoesComprovantesInvalidated as $key => $value) {
+                array_push($pontuacoesComprovantesInvalidatedIds, $value['id']);
             }
 
-            if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+            if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                 array_push(
                     $conditions,
                     [
                         'OR' =>
                         [
-                            'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                            'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                             'pontuacoes_comprovante_id IS NULL'
                         ]
                     ]
@@ -525,8 +525,8 @@ class PontuacoesTable extends GenericTable
             array_push($conditions, ['usuarios_id' => $usuarios_id]);
             array_push($conditions, ['utilizado != ' => Configure::read('dropletsUsageStatus')['FullyUsed']]);
 
-            if (!is_null($ultimo_id_processado)) {
-                array_push($conditions, ['id >= ' => (int)$ultimo_id_processado]);
+            if (!is_null($ultimoIdProcessado)) {
+                array_push($conditions, ['id >= ' => (int)$ultimoIdProcessado]);
             }
 
             $result = $this
@@ -603,7 +603,7 @@ class PontuacoesTable extends GenericTable
 
             // Obtem os ids de clientes da rede selecionada
             if (!empty($redesId) && $redesId > 0) {
-                $redeHasClienteTable = TableRegistry::get("RedesHasClientes");
+                $redeHasClienteTable = $this->Clientes->RedesHasClientes;
 
                 $redeHasClientesQuery = $redeHasClienteTable->getAllRedesHasClientesIdsByRedesId($redesId);
 
@@ -626,7 +626,7 @@ class PontuacoesTable extends GenericTable
 
                 // Primeiro, pega todos os comprovantes que não foram invalidados
 
-                $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
+                $pontuacoesComprovantesTable = $this->PontuacoesComprovantes;
                 $pontuacoesComprovantesValidosQuery = $pontuacoesComprovantesTable->find('all')
                     ->where(
                         [
@@ -664,7 +664,7 @@ class PontuacoesTable extends GenericTable
                     [
                         "clientes_id in " => $clientesIds,
                         "usuarios_id" => $usuariosId,
-                        "clientes_has_brindes_habilitados_id IS NOT NULL"
+                        "brindes_id IS NOT NULL"
                     ]
                 );
 
@@ -709,6 +709,7 @@ class PontuacoesTable extends GenericTable
                 );
             }
 
+            // @todo retirar lógica de dentro desta consulta e só retornar o array de resumo_gotas
             $retorno = array(
                 "mensagem" => $mensagem,
                 "resumo_gotas" =>
@@ -823,7 +824,7 @@ class PontuacoesTable extends GenericTable
                     [
                         'Pontuacoes.usuarios_id' => $usuarios_id,
                         'Pontuacoes.clientes_id IN ' => $clientes_id,
-                        'Pontuacoes.clientes_has_brindes_habilitados_id is null',
+                        'Pontuacoes.brindes_id is null',
                         'Pontuacoes.expirado' => 0
 
                     ]
@@ -890,22 +891,22 @@ class PontuacoesTable extends GenericTable
         try {
             // pegar os ids de comprovantes que foram invalidados pelo admin
 
-            $pontuacoes_comprovantes_invalidated
+            $pontuacoesComprovantesInvalidated
                 = $this->PontuacoesComprovantes
                 ->find('all')
                 ->select(['id'])
                 ->where(
-                    [
+                    array(
                         'usuarios_id' => $usuarios_id,
                         'clientes_id IN ' => $clientes_id,
                         'registro_invalido' => true
-                    ]
+                    )
                 )->toArray();
 
 
-            $pontuacoes_comprovantes_invalidated_ids = [];
-            foreach ($pontuacoes_comprovantes_invalidated as $key => $value) {
-                array_push($pontuacoes_comprovantes_invalidated_ids, $value['id']);
+            $pontuacoesComprovantesInvalidatedIds = [];
+            foreach ($pontuacoesComprovantesInvalidated as $key => $value) {
+                array_push($pontuacoesComprovantesInvalidatedIds, $value['id']);
             }
 
             $conditions = [];
@@ -913,64 +914,63 @@ class PontuacoesTable extends GenericTable
             array_push($conditions, ['usuarios_id' => $usuarios_id]);
             array_push($conditions, ['clientes_id IN' => $clientes_id]);
 
-            $partial_conditions = $conditions;
+            $partialConditions = $conditions;
 
-            array_push($partial_conditions, ['utilizado' => Configure::read('dropletsUsageStatus')['ParcialUsed']]);
+            array_push($partialConditions, ['utilizado' => Configure::read('dropletsUsageStatus')['ParcialUsed']]);
 
-            if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+            if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                 array_push(
-                    $partial_conditions,
-                    [
+                    $partialConditions,
+                    array(
                         'OR' =>
-                        [
-                            'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                        array(
+                            'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                             'pontuacoes_comprovante_id IS NULL'
-                        ]
-
-                    ]
+                        )
+                    )
                 );
             }
             // verifica se o usuário tem alguma pontuacao parcialmente usada
 
-            $last_pontuacao_partially_used = $this->find('all')
-                ->where($partial_conditions)->first();
+            $lastPontuacaoPartiallyUsed = $this->find('all')
+                ->where($partialConditions)->first();
 
             $difference = null;
 
             // se encontrou a última pontuacao parcialmente usada
-            if ($last_pontuacao_partially_used) {
+            if ($lastPontuacaoPartiallyUsed) {
                 // pega a soma até a pontuacao parcialmente usada
 
-                $last_pontuacao_conditions = $conditions;
+                $lastPontuacaoConditions = $conditions;
 
                 array_push(
-                    $last_pontuacao_conditions,
+                    $lastPontuacaoConditions,
                     [
-                        'id <= ' => $last_pontuacao_partially_used->id
+                        'id <= ' => $lastPontuacaoPartiallyUsed->id
                     ]
                 );
 
                 array_push(
-                    $last_pontuacao_conditions,
+                    $lastPontuacaoConditions,
                     [
-                        'clientes_has_brindes_habilitados_id IS NULL'
+                        'brindes_id IS NULL'
                     ]
                 );
 
-                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                     array_push(
-                        $last_pontuacao_conditions,
+                        $lastPontuacaoConditions,
                         [
                             'OR' =>
                             [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
                         ]
                     );
                 }
 
-                $sum_pontuacoes_partially_used = $this->find('all')
+                $sumPontuacoesPartiallyUsed = $this->find('all')
                     ->select(
                         [
                             'sum'
@@ -980,35 +980,35 @@ class PontuacoesTable extends GenericTable
                                 ->sum('quantidade_gotas')
                         ]
                     )
-                    ->where($last_pontuacao_conditions)
+                    ->where($lastPontuacaoConditions)
                     ->first();
 
 
                 // pega a soma de pontuações já usadas na 'emissão' de brindes
 
-                $fully_pontuacoes_with_brinde_used_conditions = $conditions;
+                $fullyPontuacoesWithBrindeUsedConditions = $conditions;
 
                 array_push(
-                    $fully_pontuacoes_with_brinde_used_conditions,
+                    $fullyPontuacoesWithBrindeUsedConditions,
                     [
-                        'clientes_has_brindes_habilitados_id IS NOT NULL'
+                        'brindes_id IS NOT NULL'
                     ]
                 );
 
-                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                     array_push(
-                        $fully_pontuacoes_with_brinde_used_conditions,
+                        $fullyPontuacoesWithBrindeUsedConditions,
                         [
                             'OR' =>
                             [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
                         ]
                     );
                 }
 
-                $sum_pontuacoes_with_brinde_fully_used
+                $sumPontuacoesWithBrindeFullyUsed
                     = $this
                     ->find('all')
                     ->select(
@@ -1020,43 +1020,43 @@ class PontuacoesTable extends GenericTable
                                 ->sum('quantidade_gotas')
                         ]
                     )
-                    ->where($fully_pontuacoes_with_brinde_used_conditions)
+                    ->where($fullyPontuacoesWithBrindeUsedConditions)
                     ->first();
 
-                $difference = $sum_pontuacoes_with_brinde_fully_used->sum - $sum_pontuacoes_partially_used->sum;
+                $difference = $sumPontuacoesWithBrindeFullyUsed->sum - $sumPontuacoesPartiallyUsed->sum;
             } else {
                 // não encontrou o último pendente. então devo pegar o último que foi
                 // usado totalmente (código 2) mas que não tem brinde vinculado
 
-                $conditions_pontuacoes_fully_used = $conditions;
+                $conditionsPontuacoesFullyUsed = $conditions;
 
                 array_push(
-                    $conditions_pontuacoes_fully_used,
+                    $conditionsPontuacoesFullyUsed,
                     [
-                        'clientes_has_brindes_habilitados_id IS NULL'
+                        'brindes_id IS NULL'
                     ]
                 );
                 array_push(
-                    $conditions_pontuacoes_fully_used,
+                    $conditionsPontuacoesFullyUsed,
                     [
                         'utilizado' => Configure::read('dropletsUsageStatus')['FullyUsed']
                     ]
                 );
 
-                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                     array_push(
-                        $conditions_pontuacoes_fully_used,
+                        $conditionsPontuacoesFullyUsed,
                         [
                             'OR' =>
                             [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
                         ]
                     );
                 }
 
-                $sum_pontuacoes_fully_used
+                $sumPontuacoesFullyUsed
                     = $this
                     ->find('all')
                     ->select(
@@ -1068,36 +1068,36 @@ class PontuacoesTable extends GenericTable
                                 ->sum('quantidade_gotas')
                         ]
                     )
-                    ->where($conditions_pontuacoes_fully_used)
+                    ->where($conditionsPontuacoesFullyUsed)
                     ->first();
 
-                $sum_pontuacoes_fully_used['sum'] = is_null($sum_pontuacoes_fully_used['sum']) ? 0 : $sum_pontuacoes_fully_used['sum'];
+                $sumPontuacoesFullyUsed['sum'] = is_null($sumPontuacoesFullyUsed['sum']) ? 0 : $sumPontuacoesFullyUsed['sum'];
 
                 // pega a soma de pontuações já usadas na 'emissão' de brindes
 
-                $fully_pontuacoes_with_brinde_used_conditions = $conditions;
+                $fullyPontuacoesWithBrindeUsedConditions = $conditions;
 
                 array_push(
-                    $fully_pontuacoes_with_brinde_used_conditions,
+                    $fullyPontuacoesWithBrindeUsedConditions,
                     [
-                        'clientes_has_brindes_habilitados_id IS NOT NULL'
+                        'brindes_id IS NOT NULL'
                     ]
                 );
 
-                if (count($pontuacoes_comprovantes_invalidated_ids) > 0) {
+                if (count($pontuacoesComprovantesInvalidatedIds) > 0) {
                     array_push(
-                        $fully_pontuacoes_with_brinde_used_conditions,
+                        $fullyPontuacoesWithBrindeUsedConditions,
                         [
                             'OR' =>
                             [
-                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoes_comprovantes_invalidated_ids,
+                                'pontuacoes_comprovante_id NOT IN ' => $pontuacoesComprovantesInvalidatedIds,
                                 'pontuacoes_comprovante_id IS NULL'
                             ]
                         ]
                     );
                 }
 
-                $sum_pontuacoes_with_brinde_fully_used
+                $sumPontuacoesWithBrindeFullyUsed
                     = $this
                     ->find('all')
                     ->select(
@@ -1109,15 +1109,15 @@ class PontuacoesTable extends GenericTable
                                 ->sum('quantidade_gotas')
                         ]
                     )
-                    ->where($fully_pontuacoes_with_brinde_used_conditions)
+                    ->where($fullyPontuacoesWithBrindeUsedConditions)
                     ->first();
 
-                $sum_pontuacoes_with_brinde_fully_used['sum']
-                    = is_null($sum_pontuacoes_with_brinde_fully_used['sum'])
+                $sumPontuacoesWithBrindeFullyUsed['sum']
+                    = is_null($sumPontuacoesWithBrindeFullyUsed['sum'])
                     ? 0
-                    : $sum_pontuacoes_with_brinde_fully_used['sum'];
+                    : $sumPontuacoesWithBrindeFullyUsed['sum'];
 
-                $difference = $sum_pontuacoes_with_brinde_fully_used->sum - $sum_pontuacoes_fully_used->sum;
+                $difference = $sumPontuacoesWithBrindeFullyUsed->sum - $sumPontuacoesFullyUsed->sum;
             }
 
             return $difference;
@@ -1232,12 +1232,12 @@ class PontuacoesTable extends GenericTable
                     $whereConditions[] = array(
                         "OR" =>
                         array(
-                            "clientes_has_brindes_habilitados_id in " => $clientesBrindesHabilitadosIds,
-                            "clientes_has_brindes_habilitados_id IS NULL"
+                            "brindes_id in " => $clientesBrindesHabilitadosIds,
+                            "brindes_id IS NULL"
                         )
                     );
                 } else {
-                    $whereConditions[] = array("clientes_has_brindes_habilitados_id IS NULL");
+                    $whereConditions[] = array("brindes_id IS NULL");
                 }
             }
 
@@ -1311,12 +1311,12 @@ class PontuacoesTable extends GenericTable
                         $pontuacao["tipo_operacao"] = 1;
                         $pontuacoesRetorno[] = $pontuacao;
                     }
-                } else if (!empty($pontuacao["clientes_has_brindes_habilitados_id"]) && $isBrinde) {
+                } else if (!empty($pontuacao["brindes_id"]) && $isBrinde) {
 
                     $clienteBrindeHabilitado = $clientesHasBrindesHabilitadosTable->find("all")
                         ->where(
                             array(
-                                "id" => $pontuacao["clientes_has_brindes_habilitados_id"],
+                                "id" => $pontuacao["brindes_id"],
                                 "habilitado" => 1
                             )
                         )->first();

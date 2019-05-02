@@ -996,7 +996,9 @@ class BrindesController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
             $clientesId = !empty($data["clientes_id"]) ? (int)$data['clientes_id'] : null;
-            $tipoVenda = !empty($data['tipo_venda']) ? explode(",", $data['tipo_venda']) : null;
+            $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
+            $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
+            $desconto = !empty($data['desconto']) ? $data["desconto"] : false;
 
             if (empty($clientesId)) {
                 ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MESSAGE_BRINDES_CLIENTES_ID_REQUIRED));
@@ -1006,9 +1008,12 @@ class BrindesController extends AppController
                 ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Tipo de Venda não definida!"));
             }
 
-            $resultado = $this->Brindes->findBrindes(0, $clientesId, null, null, null, null, null, null, $tipoVenda);
+            if (!in_array($tipoPagamento, array(TYPE_PAYMENT_POINTS, TYPE_PAYMENT_MONEY))) {
+                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array("Erro! Tipo de Operacao não definida!"));
+            }
 
-            $brindes = $resultado->toArray();
+            $brindes = $this->Brindes->getBrindesSell($clientesId, $tipoVenda, $tipoPagamento);
+
             $count = sizeof($brindes);
         }
 
