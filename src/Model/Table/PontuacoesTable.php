@@ -76,25 +76,17 @@ class PontuacoesTable extends GenericTable
         );
 
         $this->belongsTo(
-            'BrindesHabilitados',
-            [
-                'foreignKey' => 'brindes_habilitados_id',
-                'joinType' => 'INNER'
-            ]
-        );
+            "Brindes",
+            array("className" => "Brindes")
+        )
+            ->setForeignKey("brindes_id")
+            ->setJoinType(Query::JOIN_TYPE_INNER);
 
         $this->belongsTo(
             'Gotas',
             [
                 'foreignKey' => 'gotas_id',
                 'joinType' => 'INNER'
-            ]
-        );
-
-        $this->belongsTo(
-            'ClientesHasBrindesHabilitados',
-            [
-                'foreignKey' => 'brindes_id'
             ]
         );
 
@@ -187,7 +179,7 @@ class PontuacoesTable extends GenericTable
     {
         $rules->add($rules->existsIn(['usuarios_id'], 'Usuarios'));
         $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
-        $rules->add($rules->existsIn(['brindes_id'], 'ClientesHasBrindesHabilitados'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
         $rules->add($rules->existsIn(['gotas_id'], 'Gotas'));
 
         return $rules;
@@ -1195,9 +1187,8 @@ class PontuacoesTable extends GenericTable
         try {
 
             $pontuacoesComprovantesTable = TableRegistry::get("PontuacoesComprovantes");
-            $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
-            $brindesTable = TableRegistry::get("Brindes");
-            $gotasTable = TableRegistry::get("Gotas");
+            $brindesTable = $this->Brindes;
+            $gotasTable = $this->Gotas;
 
             $whereConditions = array(
                 "usuarios_id" => $usuariosId
@@ -1228,7 +1219,8 @@ class PontuacoesTable extends GenericTable
 
                 // Se não achar o brinde, não tem problema, pois o nome do parâmetro é o mesmo para gotas
                 if (count($brindesIds) > 0) {
-                    $clientesBrindesHabilitadosIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
+                    // @todo ajustar
+                    $clientesBrindesHabilitadosIds = $brindesTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
                     $whereConditions[] = array(
                         "OR" =>
                         array(
@@ -1313,7 +1305,7 @@ class PontuacoesTable extends GenericTable
                     }
                 } else if (!empty($pontuacao["brindes_id"]) && $isBrinde) {
 
-                    $clienteBrindeHabilitado = $clientesHasBrindesHabilitadosTable->find("all")
+                    $clienteBrindeHabilitado = $brindesTable->find("all")
                         ->where(
                             array(
                                 "id" => $pontuacao["brindes_id"],
@@ -1328,7 +1320,7 @@ class PontuacoesTable extends GenericTable
 
                     $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["tipo_operacao"] = 0;
-                    $pontuacao["clientes_has_brindes_habilitados"] = $clienteBrindeHabilitado;
+                    $pontuacao["brindes_id"] = $clienteBrindeHabilitado;
                     $pontuacoesRetorno[] = $pontuacao;
                 }
             }

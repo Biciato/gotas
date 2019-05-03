@@ -2561,6 +2561,7 @@ class CuponsController extends AppController
 
         if (($vendaAvulsa) && (empty($usuariosId))) {
             $usuario = $this->Usuarios->getUsuariosByProfileType(PROFILE_TYPE_DUMMY_USER, 1);
+            $usuariosId = $usuario["id"];
         } else {
             $usuario = $this->Usuarios->getUsuarioById($usuariosId);
         }

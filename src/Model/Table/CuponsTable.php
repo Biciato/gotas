@@ -279,9 +279,10 @@ class CuponsTable extends GenericTable
                 ->where(
                     array(
                         "clientes_id" => $clientesId,
-                        "DATE_FORMAT(data, '%Y-%m-%d') = " => date('Y-m-d')
+                        "DATE(data)" => date('Y-m-d')
                     )
                 )->first()['senha'];
+
 
             // Processo de Gravação
             $cupom["brindes_id"] = $brindesId;
@@ -370,10 +371,6 @@ class CuponsTable extends GenericTable
         try {
             $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
 
-            $usuariosTable = TableRegistry::get('Usuarios');
-
-            $usuario = $usuariosTable->getUsuarioById($usuarios_id);
-
             // verifica se ja teve um cupom com essa sequencia. se sim, gera outro cupom
 
             while ($this->getCupomByCupomEmitido($cupomEmitido)) {
@@ -384,9 +381,9 @@ class CuponsTable extends GenericTable
 
             $cupom->brindes_id = $brinde_habilitado->id;
             $cupom->clientes_id = $brinde_habilitado->clientes_id;
-            $cupom->usuarios_id = $usuario->id;
-            $cupom->valor_pago_gotas = $brinde_habilitado->brinde_habilitado_preco_atual->preco;
-            $cupom->valor_pago_reais = $brinde_habilitado->brinde_habilitado_preco_atual->valor_moeda_venda;
+            $cupom->usuarios_id = $usuarios_id;
+            $cupom->valor_pago_gotas = $brinde_habilitado->preco_atual->preco;
+            $cupom->valor_pago_reais = $brinde_habilitado->preco_atual->valor_moeda_venda;
             $cupom->cupom_emitido = $cupomEmitido;
             $cupom->resgatado = false;
             $cupom->data = date("Y-m-d H:i:s");

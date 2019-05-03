@@ -203,12 +203,11 @@ class BrindesPrecosTable extends GenericTable
                 $conditionsSql[] = $value;
             }
 
-            $conditionsSql[] = ['clientes_has_brindes_habilitados_id' => $brindesId];
+            $conditionsSql[] = ['brindes_id' => $brindesId];
 
             $data = $this->find('all')
                 ->where($conditionsSql)
-                ->contain(['ClientesHasBrindesHabilitados']);
-
+                ->contain(array("Brindes"));
 
             if (!is_null($qteRegistros)) {
                 $data = $data->limit($qteRegistros);
@@ -216,7 +215,8 @@ class BrindesPrecosTable extends GenericTable
 
             return $data;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            // @todo ajustar
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao obter registro: {0} em: {1}", $e->getMessage(), $trace[1]);
 
             Log::write('error', $stringError);

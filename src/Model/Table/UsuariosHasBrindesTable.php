@@ -80,8 +80,8 @@ class UsuariosHasBrindesTable extends GenericTable
             'foreignKey' => 'usuarios_id',
             'joinType' => 'INNER'
         ]);
-        $this->belongsTo('ClientesHasBrindesHabilitados', [
-            'foreignKey' => 'clientes_has_brindes_habilitados_id',
+        $this->belongsTo('Brindes', [
+            'foreignKey' => 'brindes_id',
             'joinType' => 'INNER'
         ]);
     }
@@ -126,7 +126,7 @@ class UsuariosHasBrindesTable extends GenericTable
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->existsIn(['usuarios_id'], 'Usuarios'));
-        $rules->add($rules->existsIn(['clientes_has_brindes_habilitados_id'], 'ClientesHasBrindesHabilitados'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
 
         return $rules;
     }
