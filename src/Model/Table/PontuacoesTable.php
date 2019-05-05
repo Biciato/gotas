@@ -1218,19 +1218,19 @@ class PontuacoesTable extends GenericTable
                 $brindesIds = $brindesTable->getBrindesIds(null, array(), null, $brindesNome);
 
                 // Se não achar o brinde, não tem problema, pois o nome do parâmetro é o mesmo para gotas
-                if (count($brindesIds) > 0) {
-                    // @todo ajustar
-                    $clientesBrindesHabilitadosIds = $brindesTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
-                    $whereConditions[] = array(
-                        "OR" =>
-                        array(
-                            "brindes_id in " => $clientesBrindesHabilitadosIds,
-                            "brindes_id IS NULL"
-                        )
-                    );
-                } else {
-                    $whereConditions[] = array("brindes_id IS NULL");
-                }
+                // if (count($brindesIds) > 0) {
+                //     // @todo ajustar
+                //     $clientesBrindesHabilitadosIds = $brindesTable->getBrindesHabilitadosIds($brindesIds, $clientesIds);
+                //     $whereConditions[] = array(
+                //         "OR" =>
+                //         array(
+                //             "brindes_id in " => $clientesBrindesHabilitadosIds,
+                //             "brindes_id IS NULL"
+                //         )
+                //     );
+                // } else {
+                //     $whereConditions[] = array("brindes_id IS NULL");
+                // }
             }
 
             // DebugUtil::print($whereConditions);
@@ -1278,7 +1278,6 @@ class PontuacoesTable extends GenericTable
                 $isBrinde = true;
             }
 
-
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
 
@@ -1292,15 +1291,19 @@ class PontuacoesTable extends GenericTable
                             )
                         )->first();
 
+                    $gota = null;
                     if (!empty($gotasNomeParametro) && strlen($gotasNomeParametro) > 0) {
                         $gota = $gotasTable->getGotasByIdNome($pontuacao["gotas_id"], $gotasNomeParametro);
-                    } else {
+                    } elseif (!empty($pontuacao["gotas_id"])) {
                         $gota = $gotasTable->getGotasById($pontuacao["gotas_id"]);
                     }
                     if (!empty($gota)) {
                         $pontuacao["gotas"] = $gota;
                         $pontuacao["pontuacoes_comprovante"] = $comprovante;
-                        $pontuacao["tipo_operacao"] = 1;
+                        $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_IN;
+                        $pontuacoesRetorno[] = $pontuacao;
+                    } else {
+                        $pontuacao["gotas"] = null;
                         $pontuacoesRetorno[] = $pontuacao;
                     }
                 } else if (!empty($pontuacao["brindes_id"]) && $isBrinde) {
@@ -1319,7 +1322,8 @@ class PontuacoesTable extends GenericTable
                         )->first();
 
                     $clienteBrindeHabilitado["brinde"] = $brinde;
-                    $pontuacao["tipo_operacao"] = 0;
+                    $pontuacao["gotas"] = null;
+                    $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_OUT;
                     $pontuacao["brindes_id"] = $clienteBrindeHabilitado;
                     $pontuacoesRetorno[] = $pontuacao;
                 }

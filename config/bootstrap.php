@@ -356,6 +356,11 @@ const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser 
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
 
+// Pontuações
+
+CONST PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
+CONST PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
+
 // Redes
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";

@@ -116,12 +116,11 @@ class UsuariosController extends AppController
                         'ClientesHasUsuarios.usuarios_id' => $usuario['id']
                     )
                 );
-                $clienteHasUsuario = $clienteHasUsuario->toArray();
                 $cliente = null;
 
                 // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
-                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER && sizeof($clienteHasUsuario) > 0) {
-                    $cliente = $clienteHasUsuario[0]->cliente;
+                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ) {
+                    $cliente = $clienteHasUsuario["cliente"];
 
                     // verifica se a unidade está ativa. Se está, a rede também está
                     if (!$cliente["ativado"]) {
