@@ -32,8 +32,7 @@ $(document).ready(function () {
      */
     $(".resgatar-cupom").on('click', function () {
         var data = {
-            cupom_emitido: $(".cupom_emitido").val(),
-            unidade_funcionario_id: $(".unidade-funcionario-id").val(),
+            cupom_emitido: $(".cupom_emitido").val()
         };
 
         callLoaderAnimation();
@@ -91,7 +90,9 @@ $(document).ready(function () {
                 console.log(response);
             },
             error: function (response) {
-                console.log(response);
+                callModalError(response.responseJSON.title);
+                // error, arrayContent;
+                // console.log(response);
                 closeLoaderAnimation();
             }
         }).done(function (result) {

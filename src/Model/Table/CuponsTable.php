@@ -474,12 +474,12 @@ class CuponsTable extends GenericTable
                     )
                 );
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao consultar cupom: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Detalhes: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $trace);
 
             Log::write('error', $stringError);
 
-            return $stringError;
+            throw new \Exception($stringError);
         }
     }
 
@@ -871,9 +871,12 @@ class CuponsTable extends GenericTable
             return $cupom;
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao realizar pesquisa de PontuacoesComprovantes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Detalhes: ]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $trace);
+            $stringError = __("Erro ao gravar cupom: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Detalhes: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $trace);
 
             Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            throw new \Exception($stringError);
         }
     }
 

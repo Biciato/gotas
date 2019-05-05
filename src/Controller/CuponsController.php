@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use \DateTime;
+use \Exception;
 use App\Controller\AppController;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\Security;
@@ -1144,7 +1145,7 @@ class CuponsController extends AppController
                 }
                 if (empty($tipoPagamento) || !in_array($tipoPagamento, array(TYPE_PAYMENT_MONEY, TYPE_PAYMENT_POINTS))) {
                     // Evita se o usuário alterar diretamente no html de conitnuar e submeter
-                    $errors[] = __(MESSAGE_TYPE_PAYMENT_REQUIRED);
+                    $errors[] = __(MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED);
                 }
 
                 if (count($errors) > 0) {
@@ -1628,49 +1629,53 @@ class CuponsController extends AppController
      */
     public function resgatarCupomAjax()
     {
+        $arraySet = array('status', 'error');
         try {
             $status = false;
             $error = __("{0} {1}", Configure::read('messageRedeemCouponError'), Configure::read('callSupport'));
 
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                $funcionariosId = $this->Auth->user()["id"];
 
-                $cupom_emitido = $data['cupom_emitido'];
-                $unidade_funcionario_id = $data['unidade_funcionario_id'];
+                $cupomEmitido = $data['cupom_emitido'];
 
-                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
 
                 if (!$cupons) {
                     $status = false;
-                    $error = __("{0}", Configure::read('messageRecordNotFound'));
-                } else {
-                    foreach ($cupons->toArray() as $key => $cupom) {
-                        $cliente_has_brinde_estoque = $this
-                            ->ClientesHasBrindesEstoque
-                            ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
+                    $error = __("{0}", MESSAGE_RECORD_NOT_FOUND);
 
-                        $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque(
-                            $cupom->clientes_has_brindes_habilitados_id,
-                            $cupom->usuarios_id,
-                            $cupom->quantidade,
-                            (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                    $this->set(compact($arraySet));
+                    return;
+                }
+                foreach ($cupons->toArray() as $key => $cupom) {
+                    $brindesEstoque = $this
+                        ->BrindesEstoque
+                        ->getEstoqueForBrinde($cupom["brindes_id"]);
+
+                    // $brindeSave = $this->BrindesEstoque->addBrindeEstoque($brinde["id"], $this->usuarioLogado["id"], $quantidade, TYPE_OPERATION_ADD_STOCK);
+                    $estoque = $this->BrindesEstoque->addBrindeEstoque(
+                        $cupom["brindes_id"],
+                        $cupom["usuarios_id"],
+                        $cupom["quantidade"],
+                        (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                    );
+
+                    // diminuiu estoque, considera o item do cupom como resgatado
+                    if ($estoque) {
+                        $cupom_save = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+
+                        // adiciona novo registro de pontuação
+                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                            $cupom["clientes_id"],
+                            $cupom["usuarios_id"],
+                            $cupom["brindes_id"],
+                            $cupom["valor_pago_gotas"],
+                            $cupom["valor_pago_reais"],
+                            $funcionariosId,
+                            true
                         );
-
-                        // diminuiu estoque, considera o item do cupom como resgatado
-                        if ($estoque) {
-                            $cupom_save = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
-
-                            // adiciona novo registro de pontuação
-                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                                $cupom->clientes_id,
-                                $cupom->usuarios_id,
-                                $cupom->clientes_has_brindes_habilitados_id,
-                                $cupom->valor_pago_gotas,
-                                $cupom->valor_pago_reais,
-                                $this->Auth->user()["id"],
-                                true
-                            );
-                        }
                     }
                 }
 
@@ -1679,15 +1684,10 @@ class CuponsController extends AppController
                 $error = null;
             }
 
-            $arraySet = [
-                'status',
-                'error'
-            ];
-
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao resgatar cupom: {0}", $e->getMessage());
 
             // @todo gustavosg melhorar log
@@ -1888,10 +1888,10 @@ class CuponsController extends AppController
 
                     $cliente_has_brinde_estoque = $this
                         ->ClientesHasBrindesEstoque
-                        ->getEstoqueForBrinde($cupom->clientes_has_brindes_habilitados_id);
+                        ->getEstoqueForBrinde($cupom->brindes_id);
 
                     $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque(
-                        $cupom->clientes_has_brindes_habilitados_id,
+                        $cupom->brindes_id,
                         $cupom->usuarios_id,
                         $cupom->quantidade,
                         (int)Configure::read('stockOperationTypes')['sellTypeGift']
@@ -1914,7 +1914,7 @@ class CuponsController extends AppController
                         $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
                             $cupom->clientes_id,
                             $cupom->usuarios_id,
-                            $cupom->clientes_has_brindes_habilitados_id,
+                            $cupom->brindes_id,
                             $cupom->valor_pago_gotas,
                             $cupom->valor_pago_reais,
                             $this->Auth->user()["id"],
@@ -1982,19 +1982,19 @@ class CuponsController extends AppController
             $confirmacao = !empty($data["confirmar"]) ? $data["confirmar"] : 0;
 
             if (empty($cupomEmitido)) {
-                $errors = array(MESSAGE_COUPON_PRINTED_EMPTY);
+                $errors = array(MESSAGE_CUPOM_PRINTED_EMPTY);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
             }
 
             $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido, 0);
 
             if (empty($cupom)) {
-                $errors = array(MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED);
+                $errors = array(MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
             }
 
             if (empty($cupomEmitido)) {
-                $errors = array(MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST);
+                $errors = array(MESSAGE_CUPOM_PRINTED_DOES_NOT_EXIST);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
             }
 
@@ -2035,7 +2035,7 @@ class CuponsController extends AppController
                     // 1 - O usuário que está tentando estornar é do tipo funcionário e não está na lista
                     // 2 - É outro usuário
 
-                    $errors = array(MESSAGE_COUPON_ANOTHER_NETWORK);
+                    $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
 
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
                 }
@@ -2053,7 +2053,7 @@ class CuponsController extends AppController
                 // Se o cupom já tiver sido resgatado e usado, não é possível estorno
 
                 if ($cupom["resgatado"] && $cupom["usado"]) {
-                    $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
+                    $errors = array(MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED);
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
                 } else {
                     return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
@@ -2081,7 +2081,7 @@ class CuponsController extends AppController
         $tipoBrindeRede = $cupom["clientes_has_brindes_habilitado"]["brinde"]["tipo_brinde_rede"];
 
         if ($tipoBrindeRede["equipamento_rti"]) {
-            $errors = array(MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED);
+            $errors = array(MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED);
             return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
         } else {
             $brindesCupomEstornados = array();
@@ -2110,7 +2110,7 @@ class CuponsController extends AppController
 
             // Se teve ou não teve registro, retorna informando que foi cancelado, pois
             // o registro terá sido removido e se teve, estoque foi adicionado
-            return ResponseUtil::successAPI(MESSAGE_COUPON_PRINTED_CANCELLED, $retorno);
+            return ResponseUtil::successAPI(MESSAGE_CUPOM_PRINTED_CANCELLED, $retorno);
         }
     }
 
@@ -2152,7 +2152,7 @@ class CuponsController extends AppController
 
             if (empty($data['tipo_pagamento']) || !in_array($data['tipo_pagamento'], array(TYPE_PAYMENT_MONEY, TYPE_PAYMENT_POINTS))) {
                 // Evita se o usuário alterar diretamente no html de conitnuar e submeter
-                $errors[] = __(MESSAGE_TYPE_PAYMENT_REQUIRED);
+                $errors[] = __(MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED);
             }
 
             if (count($errors) > 0) {
@@ -2933,116 +2933,133 @@ class CuponsController extends AppController
             $funcionario = $this->Usuarios->getFuncionarioFicticio();
         }
 
+        $funcionariosId = $funcionario["id"];
+
         // checagem de cupons
 
+        $clientesVendaId = 0;
+        try {
+            $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(array('ClientesHasUsuarios.usuarios_id' => $funcionariosId));
+
+            $clientesVendaId = $clienteHasUsuario["clientes_id"];
+
+            if (empty($clientesVendaId)) {
+                throw new Exception("Este funcionário não está vinculado à um posto de atendimento!");
+            }
+        } catch (\Throwable $th) {
+            $trace = $th->getTraceAsString();
+            $message = $th->getMessage();
+            $stringError = __("Erro ao buscar Posto de Atendimento: {0}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $message, __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+
+            ResponseUtil::error($stringError, $message);
+        }
+
+        $cuponsRetorno = array();
         if (count($cupons) > 0) {
-            // verifica se o cupom já foi resgatado
+            foreach ($cupons as $cupom) {
+                # code...
+                // verifica se o cupom já foi resgatado
 
-            if ($cupons[0]->resgatado) {
-                $result = [
-                    'status' => false,
-                    'message' => __("Cupom já foi resgatado, não é possível novo resgate!")
-                ];
+                if ($cupom["resgatado"]) {
 
-                return $result;
-            }
+                    // Qualquer cupom resgatado do código signifca que o cupom inteiro já foi resgatado
+                    $result = array(
+                        'status' => false,
+                        'message' => MESSAGE_CUPOM_ALREADY_RETRIEVED
+                    );
 
-            // verifica se o cupom pertence à rede que o funcionário está logado
-
-            $clientes_id = $cupons[0]["clientes_id"];
-            $clientesHasBrindesHabilitadosId = $cupons[0]->clientes_has_brindes_habilitados_id;
-
-            // pega a rede e procura todas as unidades
-
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
-
-            $redes_has_clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede_has_cliente["redes_id"]);
-
-            $encontrou_cupom = false;
-
-            // procura o brinde dentro da rede
-            foreach ($redes_has_clientes as $key => $value) {
-                if ($clientes_id == $value->clientes_id) {
-                    $encontrou_cupom = true;
-                    break;
-                }
-            }
-
-            // agora procura o funcionário dentro da rede
-            if ($funcionario["tipo_perfil"] == PROFILE_TYPE_DUMMY_WORKER) {
-
-                // Se não estiver autenticado, ele estará fazendo o processo via celular
-                // então não tem como localizar, pois não há funcionario autenticado.
-                // O funcionário será o mesmo do cupom
-                $encontrouUsuario = true;
-                $unidade_funcionario_id = $clientes_id;
-
-            } else {
-
-                $clientesHasUsuarios = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                    [
-                        'ClientesHasUsuarios.usuarios_id' => $funcionario['id']
-                    ]
-                );
-
-                $encontrouUsuario = false;
-                $unidadesId = 0;
-
-                foreach ($clientesHasUsuarios as $key => $value) {
-                    $unidadesId = $value->clientes_id;
+                    return $result;
                 }
 
-                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($unidadesId);
+                // verifica se o cupom pertence à rede que o funcionário está logado
 
-                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente->redes_id);
+                $clientesId = $cupom["clientes_id"];
+                $brindesId = $cupom["brindes_id"];
 
-                $unidade_funcionario_id = 0;
+                // pega a rede e procura todas as unidades
+
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+
+                $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente["redes_id"]);
+
+                $encontrouCupom = false;
+
+                // procura o brinde dentro da rede
                 foreach ($redesHasClientes as $key => $value) {
-                    if ($clientes_id == $value->clientes_id) {
-
-                        $unidade_funcionario_id = $clientes_id;
-                        $encontrouUsuario = true;
+                    if ($clientesId == $value["clientes_id"]) {
+                        $encontrouCupom = true;
                         break;
                     }
                 }
-            }
 
-            // se não encontrou o brinde na unidade, ou não encontrou o usuário
+                // agora procura o funcionário dentro da rede
+                if ($funcionario["tipo_perfil"] == PROFILE_TYPE_DUMMY_WORKER) {
 
-            if (!$encontrou_cupom || !$encontrouUsuario) {
-                return [
-                    'status' => false,
-                    'message' => __("Cupom pertencente à outra rede, não é possível importar dados!")
-                ];
-            }
+                    // Se não estiver autenticado, ele estará fazendo o processo via celular
+                    // então não tem como localizar, pois não há funcionario autenticado.
+                    // O funcionário será o mesmo do cupom
+                    $encontrouUsuario = true;
+                    $unidade_funcionario_id = $clientesId;
+                } else {
 
-            // Se o brinde não for ilimitado, verifica se ele possui estoque suficiente
+                    $encontrouUsuario = false;
 
-            $brindeHabilitado = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($clientesHasBrindesHabilitadosId);
+                    $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesVendaId);
+                    $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redeHasCliente->redes_id);
 
-            if (!$brindeHabilitado->brinde->ilimitado) {
+                    $unidadeFuncionarioId = 0;
+                    foreach ($redesHasClientes as $key => $value) {
+                        if ($clientesId == $value["clientes_id"]) {
 
-                // verifica se a unidade que vai fazer o saque tem estoque
+                            $unidadeFuncionarioId = $clientesId;
+                            $encontrouUsuario = true;
+                            break;
+                        }
+                    }
+                }
 
-                $quantidade_atual_brinde = $this->ClientesHasBrindesEstoque->getEstoqueAtualForBrindeId($clientesHasBrindesHabilitadosId);
+                // se não encontrou o brinde na unidade, ou não encontrou o usuário
 
-                $resultado_final = $quantidade_atual_brinde - $cupons[0]->quantidade;
-
-                if ($resultado_final < 0) {
+                if (!$encontrouCupom || !$encontrouUsuario) {
                     return [
                         'status' => false,
-                        'message' => __("Não há estoque suficiente para resgatar este brinde no momento!")
+                        'message' => __("Cupom pertencente à outra rede, não é possível importar dados!")
                     ];
                 }
+
+                // Se o brinde não for ilimitado, verifica se ele possui estoque suficiente
+
+                $brinde = $this->Brindes->getBrindeById($brindesId);
+
+                if (!$brinde->ilimitado) {
+
+                    // verifica se a unidade que vai fazer o saque tem estoque
+
+                    $quantidadeAtualBrinde = $this->BrindesEstoque->getEstoqueAtualForBrindeId($brindesId);
+
+                    $resultadoFinal = $quantidadeAtualBrinde - $cupom["quantidade"];
+
+                    if ($resultadoFinal < 0) {
+                        return array(
+                            'status' => false,
+                            'message' => __("Não há estoque suficiente para resgatar este brinde no momento!")
+                        );
+                    }
+                }
+
+                // passou em todas as validações
+
+                $cupom['unidade_funcionario_id'] = $unidadeFuncionarioId;
+
+                $cuponsRetorno[] = $cupom;
             }
-
-            // passou em todas as validações
-
-            $cupons[0]['unidade_funcionario_id'] = $unidade_funcionario_id;
 
             return [
                 'status' => true,
-                'data' => $cupons
+                'data' => $cuponsRetorno
             ];
         } else {
             return [

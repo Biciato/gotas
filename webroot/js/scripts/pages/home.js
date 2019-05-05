@@ -857,7 +857,6 @@ var updateDateTimePicker = function (campo, date) {
 var popularDadosCupomResgate = function (data) {
     if (data !== undefined && data !== null) {
         var usuario = null;
-        var brinde_habilitado = {};
         var unidade_funcionario_id = 0;
         var cupom_emitido = null;
         var data_hora = null;
@@ -872,7 +871,7 @@ var popularDadosCupomResgate = function (data) {
             unidade_funcionario_id = value.unidade_funcionario_id;
             cupom_emitido = value.cupom_emitido;
             usuario = value.usuario;
-            brinde_habilitado = value.clientes_has_brindes_habilitado;
+            var brinde = value.brinde;
 
             valorPagoReais =
                 valorPagoReais.toString().indexOf(",") < 0
@@ -883,7 +882,7 @@ var popularDadosCupomResgate = function (data) {
                 "<tr><td>" +
                 value.quantidade +
                 "</td><td>" +
-                brinde_habilitado.brinde.nome +
+                brinde.nome +
                 "</td><td>" +
                 valorPagoGotas +
                 "</td><td>" +

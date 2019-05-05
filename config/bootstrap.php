@@ -342,15 +342,16 @@ const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
 
 // Cupom
 
-const MESSAGE_COUPON_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
-const MESSAGE_COUPON_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
-const MESSAGE_COUPON_PRINTED_EMPTY = "Necessário informar o CUPOM!";
-const MESSAGE_COUPON_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
-const MESSAGE_COUPON_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
-const MESSAGE_COUPON_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
-const MESSAGE_COUPON_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
-const MESSAGE_COUPON_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
-const MESSAGE_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
+const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
+const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MESSAGE_CUPOM_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+const MESSAGE_CUPOM_PRINTED_EMPTY = "Necessário informar o CUPOM!";
+const MESSAGE_CUPOM_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
+const MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
+const MESSAGE_CUPOM_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
+const MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
+const MESSAGE_CUPOM_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
+const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
 
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
