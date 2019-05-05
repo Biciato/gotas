@@ -284,6 +284,7 @@ const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente n
 #region Entidades
 
 // Genérica
+const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const TYPE_BARCODE_QRCODE = "QRCode";

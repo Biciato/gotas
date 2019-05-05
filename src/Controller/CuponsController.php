@@ -2136,7 +2136,7 @@ class CuponsController extends AppController
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
 
-            Log::write("info", $data);
+            // Log::write("info", $data);
             // Validação de dados
             $errors = array();
             // Via API o default é PONTOS
@@ -2169,7 +2169,6 @@ class CuponsController extends AppController
             $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
             $usuariosId = $usuario["id"];
             $clientesId = $data["clientes_id"];
-            // $quantidade = $data["quantidade"];
             // Definido pelo Samuel, cliente só pode retirar 1 por vez
             $quantidade = 1;
             $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
@@ -2217,30 +2216,31 @@ class CuponsController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
-                $usuario = $this->Auth->user();
-                $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
-
+                $usuariosId = $this->Auth->user()["id"];
+                $valorPagoMin = !empty($data["valor_pago_min"]) ? (float)$data["valor_pago_min"] : null;
+                $valorPagoMax = !empty($data["valor_pago_max"]) ? (float)$data["valor_pago_max"] : null;
+                $dataInicio = !empty($data["data_inicio"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
+                $dataFim = !empty($data["data_fim"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
+                $brindesNome = !empty($data["brindes_nome"]) ? $data["brindes_nome"] : null;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (!in_array($tipoVenda, array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT))) {
-                    $message = Configure::read("messageLoadDataWithError");
+                    $message = MESSAGE_LOAD_DATA_WITH_ERROR;
                     ResponseUtil::errorAPI($message, array(TYPE_SELL_EMPTY));
                 }
 
-                $whereConditions = array("Cupons.usuarios_id" => $usuario["id"]);
+                $whereConditions = array("Cupons.usuarios_id" => $usuariosId);
 
                 if (!empty($tipoVenda)) {
                     $whereConditions[] = array("Brindes.tipo_venda" => $tipoVenda);
                 }
 
-                $tiposBrindesClientesConditions = array();
                 $orderConditions = array();
                 $paginationConditions = array();
                 $redesId = 0;
                 $clientesIds = array();
-
-                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (isset($data["order_by"])) {
                     $orderConditions = $data["order_by"];
@@ -2279,45 +2279,31 @@ class CuponsController extends AppController
                     $whereConditions[] = array('Cupons.clientes_id' => $clientesId);
                 }
 
-                // se tipos_brindes_redes_id estiver setado, pesquisa por um tipo de brinde
-
-                if (isset($data["tipos_brindes_redes_id"]) && count($clientesIds) > 0) {
-                    $tiposBrindesClientesConditions[] = array(
-                        "tipos_brindes_redes_id" => $data['tipos_brindes_redes_id'],
-                        "clientes_id in " => $clientesIds
-                    );
-                }
-
                 if (isset($data["brindes_nome"])) {
                     // $whereConditions[] = array("Cupons.ClientesHasBrindesHabilitados.Brindes.nome like '%" . $data["brindes_nome"] . "%'");
                     $whereConditions[] = array("Brindes.nome like '%" . $data["brindes_nome"] . "%'");
                 }
 
                 // Valor pago à compra
-                if (isset($data["valor_pago_min"]) && isset($data["valor_pago_max"])) {
-                    $whereConditions[] = array("Cupons.valor_pago_gotas BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'");
-                    $whereConditions[] = array("Cupons.valor_pago_reais BETWEEN '{$data["valor_pago_min"]}' AND '{$data["valor_pago_max"]}'");
-                } elseif (isset($data["valor_pago_min"])) {
-                    $whereConditions[] = array("Cupons.valor_pago_gotas >= " => $data["valor_pago_min"]);
-                    $whereConditions[] = array("Cupons.valor_pago_reais >= " => $data["valor_pago_min"]);
-                } elseif (isset($data["valor_pago_max"])) {
-                    $whereConditions[] = array("Cupons.valor_pago_gotas <= " => $data["valor_pago_max"]);
-                    $whereConditions[] = array("Cupons.valor_pago_reais <= " => $data["valor_pago_max"]);
+                if (!empty($valorPagoMin) && !empty($valorPagoMax)) {
+                    $whereConditions[] = array("Cupons.valor_pago_gotas BETWEEN '{$valorPagoMin}' AND '{$valorPagoMax}'");
+                    $whereConditions[] = array("Cupons.valor_pago_reais BETWEEN '{$valorPagoMin}' AND '{$valorPagoMax}'");
+                } elseif (!empty($valorPagoMin)) {
+                    $whereConditions[] = array("Cupons.valor_pago_gotas >= " => $valorPagoMin);
+                    $whereConditions[] = array("Cupons.valor_pago_reais >= " => $valorPagoMin);
+                } elseif (!empty($valorPagoMax)) {
+                    $whereConditions[] = array("Cupons.valor_pago_gotas <= " => $valorPagoMax);
+                    $whereConditions[] = array("Cupons.valor_pago_reais <= " => $valorPagoMax);
                 }
 
-                if (isset($data["data_inicio"]) && isset($data["data_fim"])) {
-                    $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
+                if (!empty($dataInicio) && !empty($dataFim)) {
 
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
-                } elseif (isset($data["data_inicio"])) {
-                    $dataInicio = date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d");
-                    $whereConditions[] = ["Cupons.data >= " => $dataInicio . " 00:00:00"];
-                } elseif (isset($data["dataFim"])) {
-                    $dataFim = date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d");
-
-                    $whereConditions[] = ["Cupons.data <= " => $dataFim . " 23:59:59"];
+                    $whereConditions[] = array("Cupons.data >= " => $dataInicio . " 00:00:00");
+                    $whereConditions[] = array("Cupons.data <= " => $dataFim . " 23:59:59");
+                } elseif (!empty($dataInicio)) {
+                    $whereConditions[] = array("Cupons.data >= " => $dataInicio . " 00:00:00");
+                } elseif (!empty($dataFim)) {
+                    $whereConditions[] = array("Cupons.data <= " => $dataFim . " 23:59:59");
                 } else {
                     $dataFim = date("Y-m-d 23:59:59");
                     $dataInicio = date('Y-m-d 00:00:00', strtotime("-30 days"));
@@ -2334,7 +2320,7 @@ class CuponsController extends AppController
 
                 $orderConditions = $orderConditionsNew;
 
-                $resultado = $this->Cupons->getCupons($whereConditions, $tiposBrindesClientesConditions, $orderConditions, $paginationConditions);
+                $resultado = $this->Cupons->getCupons($whereConditions, $orderConditions, $paginationConditions);
 
                 // DebugUtil::printArray($resultado);
                 $mensagem = $resultado["mensagem"];
@@ -2383,9 +2369,6 @@ class CuponsController extends AppController
      */
     private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoPagamento = "", $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
     {
-        // @todo Gustavo: Testar
-        // Rest API
-        // Web Jquery
         $retorno = array();
         $mensagem = array();
 
@@ -2657,7 +2640,6 @@ class CuponsController extends AppController
                 if (($tipoVendaBrinde == TYPE_SELL_DISCOUNT_TEXT)
                     || ($tipoVendaBrinde == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && $tipoPagamento == TYPE_PAYMENT_POINTS)
                 ) {
-                    // @todo gustavosg Ainda carece ajustes
                     $pontuacoesProcessar = $precoGotas * $quantidade;
 
                     $podeContinuar = true;
@@ -2704,9 +2686,7 @@ class CuponsController extends AppController
                             break;
                         }
 
-
                         if (count($pontuacoesPendentesUso) == 0) {
-                            // TODO: conferir o que está acontecendo
                             $podeContinuar = false;
                             break;
                         }

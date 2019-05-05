@@ -1,20 +1,12 @@
 <?php
 namespace App\Model\Table;
 
-use ArrayObject;
-use App\View\Helper;
-use App\Controller\AppController;
-use Cake\Auth\DefaultPasswordHasher;
+use App\Custom\RTI\ResponseUtil;
 use Cake\Core\Configure;
 use Cake\Log\Log;
-use Cake\Event\Event;
-use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use Aura\Intl\Exception;
-use App\Custom\RTI\DebugUtil;
 
 /**
  * PontuacoesComprovantes Model
@@ -49,29 +41,6 @@ class PontuacoesComprovantesTable extends GenericTable
      * Properties
      * -------------------------------------------------------------
      */
-
-    /**
-     * Method get of pontuacoesComprovantes table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getPontuacoesComprovantesTable()
-    {
-        if (is_null($this->pontuacoesComprovantesTable)) {
-            $this->_setPontuacoesComprovantesTable();
-        }
-        return $this->pontuacoesComprovantesTable;
-    }
-
-    /**
-     * Method set of pontuacoesComprovantes table property
-     *
-     * @return void
-     */
-    private function _setPontuacoesComprovantesTable()
-    {
-        $this->pontuacoesComprovantesTable = TableRegistry::get('PontuacoesComprovantes');
-    }
 
     /**
      * Initialize method
@@ -282,7 +251,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 array_push($conditions, ['clientes_id' => $clientes_id]);
             }
 
-            return $this->_getPontuacoesComprovantesTable()->find('all')
+            return $this->find('all')
                 ->where($conditions)->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -342,7 +311,7 @@ class PontuacoesComprovantesTable extends GenericTable
     public function getPontuacoesComprovantes(array $where_conditions = [], array $order_conditions = [])
     {
         try {
-            return $this->_getPontuacoesComprovantesTable()->find('all')
+            return $this->find('all')
                 ->where($where_conditions)
                 ->order($order_conditions)
                 ->contain(
@@ -413,7 +382,7 @@ class PontuacoesComprovantesTable extends GenericTable
             // Condições básicas de pesquisa
             $whereConditions = array(
                 "usuarios_id" => $usuariosId,
-            // Só irá retornar os dados válidos
+                // Só irá retornar os dados válidos
                 "registro_invalido" => 0
             );
 
@@ -449,7 +418,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 $whereConditions[] = array("data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
             }
 
-            $pontuacoesComprovantesQuery = $this->_getPontuacoesComprovantesTable()->find('all')
+            $pontuacoesComprovantesQuery = $this->find('all')
                 ->where($whereConditions)
                 ->contain(
                     array(
@@ -555,7 +524,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $where_conditions[] = ['usuarios_id' => $usuarios_id];
             $where_conditions[] = ['clientes_id in ' => $clientes_ids];
 
-            return $this->_getPontuacoesComprovantesTable()->find('all')
+            return $this->find('all')
                 ->where($where_conditions)
                 ->order($order_conditions)
                 ->contain([
@@ -585,7 +554,7 @@ class PontuacoesComprovantesTable extends GenericTable
     public function getAllClientesIdFromCoupons(array $where_conditions)
     {
         try {
-            return $this->_getPontuacoesComprovantesTable()->find('all')
+            return $this->find('all')
                 ->where($where_conditions)
                 ->distinct(['clientes_id'])
                 ->select(['clientes_id']);
@@ -639,7 +608,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 array_push($conditions, ['auditado' => $auditado]);
             }
 
-            $result = $this->_getPontuacoesComprovantesTable()->find('all')->where($conditions)->select('id');
+            $result = $this->find('all')->where($conditions)->select('id');
 
             return $result;
         } catch (\Exception $e) {
@@ -662,7 +631,7 @@ class PontuacoesComprovantesTable extends GenericTable
     public function getCouponById(int $id)
     {
         try {
-            $data = $this->_getPontuacoesComprovantesTable()
+            $data = $this
                 ->find('all')
                 ->where(
                     [
@@ -717,7 +686,7 @@ class PontuacoesComprovantesTable extends GenericTable
     public function getCouponsByClienteId(array $clientes_ids, array $options = null)
     {
         try {
-            $result = $this->_getPontuacoesComprovantesTable()->find('all')->where(
+            $result = $this->find('all')->where(
                 ['PontuacoesComprovantes.clientes_id in' => $clientes_ids]
             )->contain(
                 [
@@ -805,11 +774,11 @@ class PontuacoesComprovantesTable extends GenericTable
     public function setPontuacaoComprovanteApprovedById(int $id)
     {
         try {
-            $pontuacao_comprovante = $this->_getPontuacoesComprovantesTable()->get($id);
+            $pontuacao_comprovante = $this->get($id);
 
             $pontuacao_comprovante->auditado = true;
 
-            return $this->_getPontuacoesComprovantesTable()->save($pontuacao_comprovante);
+            return $this->save($pontuacao_comprovante);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0} em {1} ", $e->getMessage(), $trace[1]);
@@ -870,11 +839,11 @@ class PontuacoesComprovantesTable extends GenericTable
     public function setPontuacaoComprovanteValidStatusById(int $id, bool $status)
     {
         try {
-            $pontuacao_comprovante = $this->_getPontuacoesComprovantesTable()->get($id);
+            $pontuacao_comprovante = $this->get($id);
 
             $pontuacao_comprovante->registro_invalido = $status;
 
-            return $this->_getPontuacoesComprovantesTable()->save($pontuacao_comprovante);
+            return $this->save($pontuacao_comprovante);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0} em {1} ", $e->getMessage(), $trace[1]);
@@ -897,11 +866,11 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             $pontuacao_comprovante
-                = $this->_getPontuacoesComprovantesTable()->get($pontuacao_id);
+                = $this->get($pontuacao_id);
 
             $pontuacao_comprovante->usuarios_id = $usuarios_id;
 
-            return $this->_getPontuacoesComprovantesTable()->save($pontuacao_comprovante);
+            return $this->save($pontuacao_comprovante);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: {0} em {1} ", $e->getMessage(), $trace[1]);
@@ -955,9 +924,7 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             return $this->deleteAll(['id >= ' => 0]);
-        } catch (\Exception $e) {
-
-        }
+        } catch (\Exception $e) { }
     }
 
     /**
@@ -972,7 +939,6 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             return $this->deleteAll(['clientes_id in ' => $clientes_ids]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -1004,7 +970,6 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             return $this->deleteAll(['usuarios_id ' => $usuarios_id]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

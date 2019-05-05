@@ -584,10 +584,8 @@ class CuponsTable extends GenericTable
      *
      * @return array('count', 'data') \App\Model\Entity\Cupom[] Lista de Cupons
      */
-    public function getCupons(array $whereConditions, array $tiposBrindesClienteConditions = array(), array $orderConditions = array(), array $paginationConditions = array())
+    public function getCupons(array $whereConditions, array $orderConditions = array(), array $paginationConditions = array())
     {
-        try {
-
             // DebugUtil::print($tiposBrindesClienteConditions);
 
             $selectArray = array(
@@ -625,20 +623,13 @@ class CuponsTable extends GenericTable
                 "Clientes.tel_fixo",
                 "Clientes.tel_fax",
                 "Clientes.tel_celular",
-                "ClientesHasBrindesHabilitados.id",
-                "ClientesHasBrindesHabilitados.brindes_id",
-                "ClientesHasBrindesHabilitados.clientes_id",
-                "ClientesHasBrindesHabilitados.tipo_codigo_barras",
-                "ClientesHasBrindesHabilitados.tipos_brindes_clientes_id",
-                "ClientesHasBrindesHabilitados.habilitado",
-                "ClientesHasBrindesHabilitados.audit_insert",
-                "ClientesHasBrindesHabilitados.audit_update",
                 "Brindes.id",
                 "Brindes.clientes_id",
-                "Brindes.tipos_brindes_redes_id",
+                "Brindes.codigo_primario",
                 "Brindes.nome",
                 "Brindes.tempo_uso_brinde",
                 "Brindes.tipo_venda",
+                "Brindes.tipo_codigo_barras",
                 "Brindes.ilimitado",
                 "Brindes.habilitado",
                 "Brindes.preco_padrao",
@@ -660,23 +651,6 @@ class CuponsTable extends GenericTable
 
             $tiposBrindesClientesIds = array();
             $brindesIds = array();
-            if (sizeof($tiposBrindesClienteConditions) > 0) {
-
-                $tiposBrindesClientesTable = TableRegistry::get("TiposBrindesClientes");
-
-                $tiposBrindesClientesIds = $tiposBrindesClientesTable->getTiposBrindesClientesIdsFromConditions($tiposBrindesClienteConditions);
-
-                // DebugUtil::print($tiposBrindesClientesIds);
-
-                if (sizeof($tiposBrindesClientesIds) > 0) {
-                    $clientesHasBrindesHabilitadosConditions = array(
-                        "tipos_brindes_clientes_id in " => $tiposBrindesClientesIds
-                    );
-
-                    $clientesHasBrindesHabilitadosTable = TableRegistry::get("ClientesHasBrindesHabilitados");
-                    $brindesIds = $clientesHasBrindesHabilitadosTable->getBrindesHabilitadosIdsFromConditions($clientesHasBrindesHabilitadosConditions);
-                }
-            }
 
             if (sizeof($brindesIds) > 0) {
                 $whereConditions[] = array("brindes_id in " => $brindesIds);
@@ -685,7 +659,7 @@ class CuponsTable extends GenericTable
             $cupons = $this->find('all')
                 ->contain(
                     array(
-                        "ClientesHasBrindesHabilitados.Brindes",
+                        "Brindes",
                         "Clientes"
                     )
                 )
@@ -714,15 +688,7 @@ class CuponsTable extends GenericTable
             $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
 
             return $retorno;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar cupons: " . $e->getMessage());
 
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-
-            return $stringError;
-        }
     }
 
     /**

@@ -50,8 +50,16 @@ class Brinde extends Entity
 
     protected function _getNomeBrindeDetalhado()
     {
-        $codigoPrimario = $this->_properties["codigo_primario"];
-        $nome = $this->_properties["nome"];
+        $codigoPrimario = 0;
+        $nome = "";
+
+        if (!empty($this->_properties["codigo_primario"])){
+            $codigoPrimario = $this->_properties["codigo_primario"];
+        }
+
+        if (!empty($this->_properties["nome"])){
+            $nome = $this->_properties["nome"];
+        }
 
         if (empty($nome)) {
             return "";
@@ -60,7 +68,8 @@ class Brinde extends Entity
         if (empty($codigoPrimario)) {
             return $nome;
         }
-        if ($codigoPrimario == 2 || $codigoPrimario == 4) {
+
+        if (in_array($codigoPrimario, array(2, 4))) {
             $nomeCompleto = sprintf("%s (%s)", $nome, "PNE");
             return $nomeCompleto;
         }
