@@ -870,7 +870,7 @@ class UsuariosTable extends GenericTable
 
                 $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
 
-                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere)->toArray();
+                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere);
 
                 foreach ($usuariosIdsQuery as $clienteHasUsuario) {
                     $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
@@ -998,7 +998,7 @@ class UsuariosTable extends GenericTable
 
                 $clientesHasUsuariosWhere = array("clientes_id in " => $clientesIds);
 
-                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere)->toArray();
+                $usuariosIdsQuery = $clientesHasUsuariosTable->findClienteHasUsuario($clientesHasUsuariosWhere);
 
                 foreach ($usuariosIdsQuery as $clienteHasUsuario) {
                     $usuariosIds[] = $clienteHasUsuario["usuarios_id"];
@@ -1072,7 +1072,7 @@ class UsuariosTable extends GenericTable
                 $clientesHasUsuariosTable = TableRegistry::get("ClientesHasUsuarios");
 
                 $clienteHasUsuarioConditions = array(["clientes_id in " => $clientesIds]);
-                $usuariosIdsResult = $clientesHasUsuariosTable->findClienteHasUsuario($clienteHasUsuarioConditions)->toArray();
+                $usuariosIdsResult = $clientesHasUsuariosTable->findClienteHasUsuario($clienteHasUsuarioConditions);
 
                 foreach ($usuariosIdsResult as $result) {
                     $usuariosIds[] = $result["usuarios_id"];

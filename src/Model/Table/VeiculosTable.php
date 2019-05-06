@@ -562,13 +562,11 @@ class VeiculosTable extends GenericTable
             $usuariosClientesWhereConditions = $whereConditions;
             $usuariosClientesWhereConditions[] = array("ClientesHasUsuarios.usuarios_id in " => $usuariosVeiculosEncontradosIds);
 
-            $usuariosClientesEncontradosArray = $clientesHasUsuariosTable->findClienteHasUsuario(
+            $usuarioClienteEncontrado = $clientesHasUsuariosTable->findClienteHasUsuario(
                 $usuariosClientesWhereConditions
-            )->select(["usuarios_id"])->toArray();
+            );
 
-            foreach ($usuariosClientesEncontradosArray as $key => $value) {
-                $usuariosClientesEncontradosIds[] = $value["usuarios_id"];
-            }
+            $usuariosClientesEncontradosIds[] = $usuarioClienteEncontrado["usuarios_id"];
 
             $usuarios = array();
             if (count($usuariosClientesEncontradosIds) > 0) {

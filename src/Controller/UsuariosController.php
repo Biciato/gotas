@@ -830,7 +830,7 @@ class UsuariosController extends AppController
                             'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'],
                             'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
                         ]
-                    )->first();
+                    );
 
                 $cliente_id = isset($cliente_has_usuario) ? $cliente_has_usuario->clientes_id : null;
 
@@ -1485,7 +1485,7 @@ class UsuariosController extends AppController
                     // @todo gustavosg Testar tipo_perfil
                     //  'ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil
                 )
-            )->first();
+            );
 
             // com o código da unidade, verifica se há outro usuário vinculado
 
@@ -1496,7 +1496,7 @@ class UsuariosController extends AppController
                     // 'ClientesHasUsuarios.tipo_perfil <' => (int)Configure::read('profileTypes')['UserProfileType'],
                     'ClientesHasUsuarios.usuarios_id != ' => $usuario->id
                 ]
-            )->first();
+            );
 
             if (isset($clientes_has_usuarios)) {
 
@@ -2056,7 +2056,7 @@ class UsuariosController extends AppController
                 'ClientesHasUsuarios.usuarios_id' => $usuarios_id,
                 // 'ClientesHasUsuarios.tipo_perfil <= ' => Configure::read('profileTypes')['WorkerProfileType']
             ]
-        )->first();
+        );
 
         $clientesId = $clienteHasUsuario["clientes_id"];
 
@@ -2835,7 +2835,7 @@ class UsuariosController extends AppController
                 'ClientesHasUsuarios.usuarios_id' => $usuarioAdministrar["id"],
                 'ClientesHasUsuarios.clientes_id' => $cliente["id"]
             ]
-        )->first();
+        );
 
         if (empty($clienteHasUsuario) && $usuarioAdministrar["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"]) {
             $this->Flash->error("Este usuário não pode ser administrado pois não possui vinculo ainda à uma rede / ponto de atendimento!");

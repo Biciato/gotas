@@ -239,8 +239,7 @@ class PontuacoesComprovantesController extends AppController
             }
         } catch (\Exception $e) {
             $message_error = $status ?
-                __("Erro ao realizar tratamento de invalidar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]) :
-                __("Erro ao realizar tratamento de validar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]);
+                __("Erro ao realizar tratamento de invalidar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]) : __("Erro ao realizar tratamento de validar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
             $stringError = $message_error;
 
@@ -355,8 +354,7 @@ class PontuacoesComprovantesController extends AppController
      * @return void
      */
     public function pesquisarClienteFinalPontuacoes()
-    {
-    }
+    { }
 
     /**
      * Exibe a Action que mostra todas as pontuações de um usuário informado
@@ -571,7 +569,7 @@ class PontuacoesComprovantesController extends AppController
 
                         $pontuacoesComprovantes = $this->PontuacoesComprovantes->getPontuacoesComprovantes($whereConditions);
 
-                    // debug($pontuacoesComprovantes->toArray());
+                        // debug($pontuacoesComprovantes->toArray());
                     } else {
                         $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));
                     }
@@ -589,7 +587,6 @@ class PontuacoesComprovantesController extends AppController
             ];
 
             $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -638,7 +635,6 @@ class PontuacoesComprovantesController extends AppController
 
                 if (strlen($data['redes_id']) == 0) {
                     $this->Flash->error('É necessário selecionar uma rede para filtrar!');
-
                 } else {
 
                     // Data de Criação Início e Fim
@@ -656,7 +652,6 @@ class PontuacoesComprovantesController extends AppController
                         } else {
                             $whereConditions[] = ['PontuacoesComprovantes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                         }
-
                     } else if (strlen($data['auditInsertInicio']) > 0) {
 
                         if ($dataInicial > $dataHoje) {
@@ -664,7 +659,6 @@ class PontuacoesComprovantesController extends AppController
                         } else {
                             $whereConditions[] = ['PontuacoesComprovantes.audit_insert >= ' => $dataInicial];
                         }
-
                     } else if (strlen($data['auditInsertFim']) > 0) {
 
                         if ($dataFinal > $dataHoje) {
@@ -706,10 +700,10 @@ class PontuacoesComprovantesController extends AppController
                      */
 
                     $clientesHasUsuariosIdsArrayList = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                        [
+                        array(
                             'ClientesHasUsuarios.clientes_id in ' => $clientesIdsList
-                        ]
-                    )->toArray();
+                        )
+                    );
 
                     $usuariosIds = [];
 
@@ -760,7 +754,6 @@ class PontuacoesComprovantesController extends AppController
                         $this->Flash->error(Configure::read('messageQueryNoDataToReturn'));
                     }
                 }
-
             }
 
             $arraySet = [
@@ -774,7 +767,6 @@ class PontuacoesComprovantesController extends AppController
             ];
 
             $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -845,10 +837,10 @@ class PontuacoesComprovantesController extends AppController
 
                     $pontuacao_comprovante
                         = $this->PontuacoesComprovantes->findCouponByKey(
-                        $chave_nfe,
-                        $estado_nfe,
-                        $clientes_id
-                    );
+                            $chave_nfe,
+                            $estado_nfe,
+                            $clientes_id
+                        );
                 }
 
                 $message = "";
@@ -876,7 +868,6 @@ class PontuacoesComprovantesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter cupom fiscal para consulta: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -996,7 +987,6 @@ class PontuacoesComprovantesController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
-
                 } else {
                     // Status está anormal, grava para posterior processamento
 
@@ -1033,7 +1023,6 @@ class PontuacoesComprovantesController extends AppController
                         return;
                     }
                 }
-
             }
         } catch (\Exception $e) {
             $stringError = __("Erro ao obter conteúdo html de cupom fiscal: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -1071,7 +1060,6 @@ class PontuacoesComprovantesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $stringError = __("Erro ao salvar comprovante: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -1137,15 +1125,15 @@ class PontuacoesComprovantesController extends AppController
                     $usuarios_id = $data['usuarios_id'];
                     $usuario = $this->Usuarios->getUsuarioById($data['usuarios_id']);
 
-                        // procura pelo usuário se está associado
+                    // procura pelo usuário se está associado
                     $user_associated = $this->ClientesHasUsuarios->findClienteHasUsuario(
                         [
                             'ClientesHasUsuarios.usuarios_id' => $usuario->id,
                             'ClientesHasUsuarios.clientes_id' => $cliente->id
                         ]
-                    )->first();
+                    );
 
-                        // usuário não associado, faz associação
+                    // usuário não associado, faz associação
                     if (!$user_associated) {
                         $this->ClientesHasUsuarios->saveClienteHasUsuario(
                             $cliente->id,
@@ -1166,12 +1154,12 @@ class PontuacoesComprovantesController extends AppController
                     }
 
                     $chaveNFEIndex = strpos($chave_nfe, "chNFe=");
-                    if ($chaveNFEIndex > 0){
+                    if ($chaveNFEIndex > 0) {
                         $chave_nfe = substr($chave_nfe, $chaveNFEIndex + strlen("chNFe="));
                     }
 
                     $chaveNFEIndex = strpos($chave_nfe, "nVersao=");
-                    if ($chaveNFEIndex > 0){
+                    if ($chaveNFEIndex > 0) {
                         $chave_nfe = substr($chave_nfe, 0, 44);
                     }
 
@@ -1236,7 +1224,6 @@ class PontuacoesComprovantesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao salvar comprovante: {0} ", $e->getMessage());
@@ -1328,7 +1315,6 @@ class PontuacoesComprovantesController extends AppController
                         foreach ($rede->redes_has_clientes as $key => $value) {
                             $clientesIds[] = $value->clientes_id;
                         }
-
                     }
                     // else {
 
@@ -1544,10 +1530,10 @@ class PontuacoesComprovantesController extends AppController
                             }
                         }
 
-                    // Se encontrou o cnpj, procura o cliente através do cnpj.
-                    // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
+                        // Se encontrou o cnpj, procura o cliente através do cnpj.
+                        // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
 
-                    // DebugUtil::print($cnpjArray);
+                        // DebugUtil::print($cnpjArray);
 
                         if ($cnpjEncontrado) {
                             $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
@@ -1721,7 +1707,6 @@ class PontuacoesComprovantesController extends AppController
 
                         return;
                     }
-
                 } elseif (!$processamentoPendente) {
                     // Trata pontuação para ser processada posteriormente (se já não armazenada)
 
@@ -1766,7 +1751,6 @@ class PontuacoesComprovantesController extends AppController
             }
 
             Log::write('info', 'Finalizado processamento de cupom...');
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
@@ -2018,7 +2002,7 @@ class PontuacoesComprovantesController extends AppController
          * index: indice do registro na url
          */
 
-        if (empty($url) || strlen($url) == 0){
+        if (empty($url) || strlen($url) == 0) {
             $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $status = 0;
             $errors = array("QR Code não informado!");
@@ -2231,8 +2215,6 @@ class PontuacoesComprovantesController extends AppController
             $this->set("_serialize", $arraySet);
 
             return;
-
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao remover registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
@@ -2275,7 +2257,6 @@ class PontuacoesComprovantesController extends AppController
             $retorno = $this->processaDadosCupomXMLSefaz($cliente["cnpj"], $estado, $url, $chave, $xml, $gotas);
 
             return $retorno;
-
         } else {
             // É HTML
 
@@ -2297,7 +2278,6 @@ class PontuacoesComprovantesController extends AppController
                     "mensagem" => $mensagem,
                     "pontuacoes_comprovantes" => array()
                 );
-
             } else {
                 $pontuacoesComprovante = array(
                     "clientes_id" => $cliente["id"],

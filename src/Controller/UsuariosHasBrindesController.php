@@ -385,7 +385,7 @@ class UsuariosHasBrindesController extends AppController
 
                     $clientesHasUsuariosIdsArrayList = $this->ClientesHasUsuarios->findClienteHasUsuario(
                         $whereConditionsClientesHasUsuarios
-                    )->toArray();
+                    );
 
                     $usuariosIds = [];
 
