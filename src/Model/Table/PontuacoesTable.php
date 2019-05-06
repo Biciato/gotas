@@ -133,7 +133,6 @@ class PontuacoesTable extends GenericTable
 
         $validator
             ->decimal('valor_moeda_venda')
-            // ->requirePresence('valor_moeda_venda', 'create')
             ->allowEmpty('valor_moeda_venda');
 
         $validator

@@ -160,6 +160,9 @@ class BrindesTable extends GenericTable
             ->allowEmpty('valor_moeda_venda_padrao');
 
         $validator
+            ->integer("apagado");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 
@@ -326,7 +329,7 @@ class BrindesTable extends GenericTable
             }
 
             // Só mostra os registros não apagados
-            $where[] = array("Brindes.apagado" => 'Não');
+            $where[] = array("Brindes.apagado" => 0);
 
             $whereConditions = $where;
             $contains = array("PrecoAtual");
@@ -704,7 +707,7 @@ class BrindesTable extends GenericTable
     {
         try {
             return $this
-                ->updateAll(array("apagado" => STRING_YES), array("id" => $id));
+                ->updateAll(array("apagado" => 1), array("id" => $id));
         } catch (\Exception $e) {
 
             $trace = $e->getTraceAsString();

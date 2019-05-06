@@ -2222,7 +2222,7 @@ class CuponsController extends AppController
                 $dataInicio = !empty($data["data_inicio"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
                 $dataFim = !empty($data["data_fim"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
                 $brindesNome = !empty($data["brindes_nome"]) ? $data["brindes_nome"] : null;
-                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
+                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : TYPE_SELL_CURRENCY_OR_POINTS_TEXT;
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 

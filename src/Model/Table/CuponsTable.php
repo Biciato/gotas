@@ -343,6 +343,8 @@ class CuponsTable extends GenericTable
 
             $cupom = $this->save($cupom);
             $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
+            unset($cupom["codigo_primario"]);
+            unset($cupom["codigo_secundario"]);
             $cupom["valor_pago_gotas"] = Number::precision($cupom["valor_pago_gotas"], 2);
             $cupom["valor_pago_reais"] = Number::precision($cupom["valor_pago_reais"], 2);
             return $cupom;
@@ -594,8 +596,6 @@ class CuponsTable extends GenericTable
                 "Cupons.clientes_id",
                 "Cupons.funcionarios_id",
                 "Cupons.usuarios_id",
-                "Cupons.codigo_principal",
-                "Cupons.codigo_secundario",
                 "Cupons.valor_pago_gotas",
                 "Cupons.valor_pago_reais",
                 "Cupons.tipo_venda",
