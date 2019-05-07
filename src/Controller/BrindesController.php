@@ -42,74 +42,87 @@ class BrindesController extends AppController
      */
     public function index($clientesId = null)
     {
-        $arraySet = array("redesId", "clientesId", "brindes", "usuario", "dataPost");
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $dataPost = array();
+        try {
+            $arraySet = array("redesId", "clientesId", "brindes", "usuario", "dataPost");
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $dataPost = array();
 
-        if ($usuarioAdministrar) {
-            $this->usuarioLogado = $usuarioAdministrar;
-        }
-
-        $cliente = $sessaoUsuario["cliente"];
-
-        $rede = $sessaoUsuario["rede"];
-        $redesId = $rede["id"];
-
-        if (empty($clientesId) && empty($cliente)) {
-            $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
-            return $this->redirect("/");
-        }
-
-        if (empty($redesId)) {
-            if (empty($clientesId)) {
-                $clientesId = $cliente["id"];
+            if ($usuarioAdministrar) {
+                $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
-            $redesId = $rede["redes_id"];
+            $cliente = $sessaoUsuario["cliente"];
+
+            $rede = $sessaoUsuario["rede"];
+            $redesId = $rede["id"];
+
+            if (empty($clientesId) && empty($cliente)) {
+                $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
+                return $this->redirect("/");
+            }
+
+            if (empty($redesId)) {
+                if (empty($clientesId)) {
+                    $clientesId = $cliente["id"];
+                }
+
+                $rede = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                $redesId = $rede["redes_id"];
+            }
+
+            $nome = null;
+            $codigoPrimario = 0;
+            $tempoUsoBrindeMin = null;
+            $tempoUsoBrindeMax = null;
+            $ilimitado = null;
+            $tipoEquipamento = null;
+            $tipoVenda = null;
+            $tipoCodigoBarras = null;
+            $precoPadraoMin = null;
+            $precoPadraoMax = null;
+            $valorMoedaVendaPadraoMin = null;
+            $valorMoedaVendaPadraoMax = null;
+
+            if ($this->request->is('post')) {
+                $dataPost = $this->request->getData();
+
+                $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
+                $codigoPrimario = !empty($dataPost["codigo_primario"]) ? $dataPost["codigo_primario"] : 0;
+                $tempoUsoBrindeMin = !empty($dataPost["tempo_uso_brinde_min"]) ? $dataPost["tempo_uso_brinde_min"] : null;
+                $tempoUsoBrindeMax = !empty($dataPost["tempo_uso_brinde_max"]) ? $dataPost["tempo_uso_brinde_max"] : null;
+                $ilimitado = !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null;
+                $tipoEquipamento = !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null;
+                $tipoVenda = !empty($dataPost["tipo_venda"]) ? $dataPost["tipo_venda"] : null;
+                $tipoCodigoBarras = !empty($dataPost["tipo_codigo_barras"]) ? $dataPost["tipo_codigo_barras"] : null;
+                $precoPadraoMin = !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null;
+                $precoPadraoMax = !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null;
+                $valorMoedaVendaPadraoMin = !empty($dataPost["valor_moeda_venda_padrao_min"]) ? $dataPost["valor_moeda_venda_padrao_min"] : null;
+                $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
+            }
+
+            if (empty($tipoVenda)) {
+                $tipoVenda = array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT);
+            }
+
+            $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+            $brindes = $this->Paginate($brindes, array("limit" => 10));
+
+            $this->set(compact($arraySet));
+            //code...
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $messageString = __("Erro ao exibir lista de brindes!");
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+            $messageStringUser = sprintf("%s - %s", $messageString, $e->getMessage());
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+
+            throw new Exception($messageStringUser);
         }
-
-        $nome = null;
-        $codigoPrimario = 0;
-        $tempoUsoBrindeMin = null;
-        $tempoUsoBrindeMax = null;
-        $ilimitado = null;
-        $tipoEquipamento = null;
-        $tipoVenda = null;
-        $tipoCodigoBarras = null;
-        $precoPadraoMin = null;
-        $precoPadraoMax = null;
-        $valorMoedaVendaPadraoMin = null;
-        $valorMoedaVendaPadraoMax = null;
-
-        if ($this->request->is('post')) {
-            $dataPost = $this->request->getData();
-
-            $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
-            $codigoPrimario = !empty($dataPost["codigo_primario"]) ? $dataPost["codigo_primario"] : 0;
-            $tempoUsoBrindeMin = !empty($dataPost["tempo_uso_brinde_min"]) ? $dataPost["tempo_uso_brinde_min"] : null;
-            $tempoUsoBrindeMax = !empty($dataPost["tempo_uso_brinde_max"]) ? $dataPost["tempo_uso_brinde_max"] : null;
-            $ilimitado = !empty($dataPost["ilimitado"]) ? $dataPost["ilimitado"] : null;
-            $tipoEquipamento = !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null;
-            $tipoVenda = !empty($dataPost["tipo_venda"]) ? $dataPost["tipo_venda"] : null;
-            $tipoCodigoBarras = !empty($dataPost["tipo_codigo_barras"]) ? $dataPost["tipo_codigo_barras"] : null;
-            $precoPadraoMin = !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null;
-            $precoPadraoMax = !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null;
-            $valorMoedaVendaPadraoMin = !empty($dataPost["valor_moeda_venda_padrao_min"]) ? $dataPost["valor_moeda_venda_padrao_min"] : null;
-            $valorMoedaVendaPadraoMax = !empty($dataPost["valor_moeda_venda_padrao_max"]) ? $dataPost["valor_moeda_venda_padrao_max"] : null;
-        }
-
-        if (empty($tipoVenda)) {
-            $tipoVenda = array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT);
-        }
-
-        $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
-        $brindes = $this->paginate($brindes, array("limit" => 10));
-
-        $this->set(compact($arraySet));
     }
 
     /**
@@ -1128,9 +1141,6 @@ class BrindesController extends AppController
                 $todosBrindes = $todosBrindes->toArray();
                 $brindesAtuais = $brindesAtuais->toArray();
                 $resultado = ResponseUtil::prepareReturnDataPagination($todosBrindes, $brindesAtuais, "brindes", $pagination);
-
-                // DebugUtil::printArray($resultado);
-
                 $mensagem = $resultado["mensagem"];
                 $brindes = $resultado["brindes"];
             }

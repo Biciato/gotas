@@ -101,7 +101,7 @@ echo $this->Breadcrumbs->render(
                 </div>
                 <div class="col-lg-4">
                     <label for="tempo_uso_brinde"><?= $textoCodigoSecundario ?></label>
-                    <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="20" title="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
+                    <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="99" title="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
                 </div>
             </div>
         <?php else : ?>

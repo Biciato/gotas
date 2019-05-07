@@ -76,7 +76,7 @@ class BrindesTable extends GenericTable
                 "className" => "BrindesPrecos",
                 "foreignKey" => "brindes_id",
                 "joinType" => Query::JOIN_TYPE_LEFT,
-                "strategy" => "select",
+                // "strategy" => "select",
                 "conditions" => array(
                     "PrecoAtual.status_autorizacao" => STATUS_AUTHORIZATION_PRICE_AUTHORIZED
                 ),
@@ -266,7 +266,7 @@ class BrindesTable extends GenericTable
 
     public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = null, string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, array $orderBy = array())
     {
-        try {
+        // try {
 
             $where = array();
 
@@ -345,16 +345,17 @@ class BrindesTable extends GenericTable
 
             if (count($orderBy) > 0) {
                 $brindes = $brindes->order($orderBy);
+                // $brindes = $brindes->order(array("PrecoAtual.id" => "desc"));
             }
 
             return $brindes;
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+        // } catch (\Exception $e) {
+        //     $trace = $e->getTraceAsString();
+        //     $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
+        //     Log::write('error', $stringError);
+        //     Log::write('error', $trace);
+        // }
     }
 
     public function getBrindesSell(int $clientesId, string $tipoVenda, string $tipoOperacao)

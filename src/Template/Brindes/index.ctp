@@ -121,6 +121,9 @@ echo $this->Breadcrumbs->render(
                                 </a>
 
                             <?php endif; ?>
+
+                            <?php if ($brinde["tipo_equipamento"] == TYPE_EQUIPMENT_PRODUCT_SERVICES || $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER):?>
+                            <!-- Se usuário for admin rti ou o brinde é produtos serviços, exibe a opção de 'deletar' -->
                             <a href="#"
                                     class="btn btn-xs btn-primary btn-danger"
                                     title="Apagar"
@@ -131,6 +134,7 @@ echo $this->Breadcrumbs->render(
                                     >
                                     <i class="fa fa-trash"></i>
                                 </a>
+                            <?php endif;?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
