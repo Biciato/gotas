@@ -182,13 +182,13 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->integer('sexo')
-            ->requirePresence('sexo', 'create', "O campo Sexo precisa ser informado!")
+            // ->requirePresence('sexo', 'create', "O campo Sexo precisa ser informado!")
             ->allowEmpty('sexo', 'Por favor informe o sexo')
             ->add(
                 'sexo',
                 'inList',
                 [
-                    'rule' => ['inList', ['0', '1', '2']],
+                    'rule' => ['inList', [null, '0', '1', '2']],
                     'message' => 'Por favor informe o sexo'
                 ]
             );
@@ -232,7 +232,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 4 dígitos, somente números',
+                        'message' => 'A senha deve conter 6 dígitos, somente números',
 
                     ],
                     [
@@ -322,13 +322,13 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->integer('sexo')
-            ->requirePresence('sexo', 'create')
-            ->notEmpty('sexo', 'Por favor informe o sexo')
+            // ->requirePresence('sexo', 'create')
+            ->allowEmpty('sexo')
             ->add(
                 'sexo',
                 'inList',
                 [
-                    'rule' => ['inList', [0, 1, 2]],
+                    'rule' => ['inList', [null, 0, 1, 2]],
                     'message' => 'Por favor informe o sexo'
                 ]
             );
@@ -472,10 +472,10 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->integer('sexo')
-            ->requirePresence('sexo', 'create')
-            ->notEmpty('sexo', 'Por favor informe o sexo')
+            // ->requirePresence('sexo', 'create')
+            ->allowEmpty('sexo')
             ->add('sexo', 'inList', [
-                'rule' => ['inList', [0, 1, 2]],
+                'rule' => ['inList', [null, 0, 1, 2]],
                 'message' => 'Por favor informe o sexo'
             ]);
 
@@ -616,8 +616,6 @@ class UsuariosTable extends GenericTable
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->isUnique(['email']));
-        // cpf não pode estar na lista pois em caso de cadastro estrangeiro, ele deve ser nulo
-        // $rules->add($rules->isUnique(['cpf' ]));
 
         return $rules;
     }
@@ -2306,7 +2304,7 @@ class UsuariosTable extends GenericTable
      */
     public function checkPasswordUsuario($password, array $context)
     {
-        if (($context['data']['tipo_perfil'] == 6) && (preg_match("#[0-9]#", $password) && strlen($password) != 4)) {
+        if (($context['data']['tipo_perfil'] == 6) && (!preg_match("/[A-Za-z0-9]+/", $password) && strlen($password) != 6)) {
             return false;
         } else {
             return true;
