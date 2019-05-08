@@ -1114,6 +1114,16 @@ class BrindesController extends AppController
                     }
                 }
 
+                $orderPrecoArray = array();
+
+                foreach ($orderConditions as $key => $value) {
+                    if (strpos($key, "preco_atual.") !== false) {
+                        $keyProperty = explode(".", $key);
+                        $orderPrecoArray[$keyProperty[1]] = $value;
+                        unset($orderConditions[$key]);
+                    }
+                }
+
                 $resultado = $this->Brindes->findBrindes(
                     $redesId,
                     $clientesId,
@@ -1143,6 +1153,24 @@ class BrindesController extends AppController
                 $resultado = ResponseUtil::prepareReturnDataPagination($todosBrindes, $brindesAtuais, "brindes", $pagination);
                 $mensagem = $resultado["mensagem"];
                 $brindes = $resultado["brindes"];
+                $brindesSort = $brindes["data"];
+
+                if (count($orderPrecoArray) > 0) {
+                    // @TODO isto carece de ajustes no futuro, pois a ordenação deve vir do banco. No momento, funciona.
+                    usort($brindesSort, function ($a, $b) use ($orderPrecoArray) {
+                        $key = key($orderPrecoArray);
+
+                        if (strtoupper($orderPrecoArray[$key]) == "ASC") {
+                            // return $a[$key] > $b[$key];
+                            return $a["preco_atual"][$key] > $b["preco_atual"][$key];
+                        } else {
+                            // return $a[$key] < $b[$key];
+                            return $a["preco_atual"][$key] < $b["preco_atual"][$key];
+                        }
+                    });
+                }
+
+                $brindes["data"] = $brindesSort;
             }
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
