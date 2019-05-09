@@ -142,22 +142,15 @@ class BrindesEstoqueTable extends GenericTable
      **/
     public function addBrindeEstoque($brindesId, $usuariosId, $quantidade, $tipoOperacao)
     {
-        try {
-            $estoque = $this->newEntity();
+        $estoque = $this->newEntity();
 
-            $estoque["brindes_id"] = $brindesId;
-            $estoque["usuarios_id"] = $usuariosId;
-            $estoque["quantidade"] = $quantidade;
-            $estoque["tipo_operacao"] = $tipoOperacao;
-            $estoque["data"] = date("Y-m-d H:i:s");
+        $estoque["brindes_id"] = $brindesId;
+        $estoque["usuarios_id"] = $usuariosId;
+        $estoque["quantidade"] = $quantidade;
+        $estoque["tipo_operacao"] = $tipoOperacao;
+        $estoque["data"] = date("Y-m-d H:i:s");
 
-            return $this->save($estoque);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao salvar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
+        return $this->save($estoque);
     }
 
     #region Read

@@ -588,107 +588,106 @@ class CuponsTable extends GenericTable
      */
     public function getCupons(array $whereConditions, array $orderConditions = array(), array $paginationConditions = array())
     {
-            // DebugUtil::print($tiposBrindesClienteConditions);
+        // DebugUtil::print($tiposBrindesClienteConditions);
 
-            $selectArray = array(
-                "Cupons.id",
-                "Cupons.brindes_id",
-                "Cupons.clientes_id",
-                "Cupons.funcionarios_id",
-                "Cupons.usuarios_id",
-                "Cupons.valor_pago_gotas",
-                "Cupons.valor_pago_reais",
-                "Cupons.tipo_venda",
-                "Cupons.senha",
-                "Cupons.cupom_emitido",
-                "Cupons.data",
-                "Cupons.data_validade",
-                "Cupons.resgatado",
-                "Cupons.usado",
-                "Cupons.quantidade",
-                "Cupons.audit_insert",
-                "Cupons.audit_update",
-                "Clientes.nome_fantasia",
-                "Clientes.razao_social",
-                "Clientes.endereco",
-                "Clientes.endereco_numero",
-                "Clientes.endereco_complemento",
-                "Clientes.bairro",
-                "Clientes.municipio",
-                "Clientes.estado",
-                "Clientes.pais",
-                "Clientes.propaganda_img",
-                // "Clientes.propaganda_img_completo",
-                "Clientes.cep",
-                "Clientes.tel_fixo",
-                "Clientes.tel_fax",
-                "Clientes.tel_celular",
-                "Brindes.id",
-                "Brindes.clientes_id",
-                "Brindes.codigo_primario",
-                "Brindes.nome",
-                "Brindes.tempo_uso_brinde",
-                "Brindes.tipo_venda",
-                "Brindes.tipo_codigo_barras",
-                "Brindes.ilimitado",
-                "Brindes.habilitado",
-                "Brindes.preco_padrao",
-                "Brindes.valor_moeda_venda_padrao",
-                "Brindes.nome_img",
-                "Brindes.audit_insert",
-                "Brindes.audit_update"
-            );
+        $selectArray = array(
+            "Cupons.id",
+            "Cupons.brindes_id",
+            "Cupons.clientes_id",
+            "Cupons.funcionarios_id",
+            "Cupons.usuarios_id",
+            "Cupons.valor_pago_gotas",
+            "Cupons.valor_pago_reais",
+            "Cupons.tipo_venda",
+            "Cupons.senha",
+            "Cupons.cupom_emitido",
+            "Cupons.data",
+            "Cupons.data_validade",
+            "Cupons.resgatado",
+            "Cupons.usado",
+            "Cupons.quantidade",
+            "Cupons.audit_insert",
+            "Cupons.audit_update",
+            "Clientes.nome_fantasia",
+            "Clientes.razao_social",
+            "Clientes.endereco",
+            "Clientes.endereco_numero",
+            "Clientes.endereco_complemento",
+            "Clientes.bairro",
+            "Clientes.municipio",
+            "Clientes.estado",
+            "Clientes.pais",
+            "Clientes.propaganda_img",
+            // "Clientes.propaganda_img_completo",
+            "Clientes.cep",
+            "Clientes.tel_fixo",
+            "Clientes.tel_fax",
+            "Clientes.tel_celular",
+            "Brindes.id",
+            "Brindes.clientes_id",
+            "Brindes.codigo_primario",
+            "Brindes.nome",
+            "Brindes.tempo_uso_brinde",
+            "Brindes.tipo_venda",
+            "Brindes.tipo_codigo_barras",
+            "Brindes.ilimitado",
+            "Brindes.habilitado",
+            "Brindes.preco_padrao",
+            "Brindes.valor_moeda_venda_padrao",
+            "Brindes.nome_img",
+            "Brindes.audit_insert",
+            "Brindes.audit_update"
+        );
 
-            /**
-             * Nesta pesquisa, se o usuário informar Condições de Tipo Brindes Clientes,
-             * a pesquisa será particularmente pelo tipo principal de código de brinde.
-             * Mas foi deixado como array, pois esta pesquisa pode ampliar no futuro
-             *
-             * A intenção desta pesquisa, é apenas capturar os ids de
-             * Clientes Has Brindes Habilitados
-             * que serão filtrados
-             */
+        /**
+         * Nesta pesquisa, se o usuário informar Condições de Tipo Brindes Clientes,
+         * a pesquisa será particularmente pelo tipo principal de código de brinde.
+         * Mas foi deixado como array, pois esta pesquisa pode ampliar no futuro
+         *
+         * A intenção desta pesquisa, é apenas capturar os ids de
+         * Clientes Has Brindes Habilitados
+         * que serão filtrados
+         */
 
-            $tiposBrindesClientesIds = array();
-            $brindesIds = array();
+        $tiposBrindesClientesIds = array();
+        $brindesIds = array();
 
-            if (sizeof($brindesIds) > 0) {
-                $whereConditions[] = array("brindes_id in " => $brindesIds);
-            }
+        if (sizeof($brindesIds) > 0) {
+            $whereConditions[] = array("brindes_id in " => $brindesIds);
+        }
 
-            $cupons = $this->find('all')
-                ->contain(
-                    array(
-                        "Brindes",
-                        "Clientes"
-                    )
+        $cupons = $this->find('all')
+            ->contain(
+                array(
+                    "Brindes",
+                    "Clientes"
                 )
-                ->where($whereConditions)
-                ->select($selectArray);
+            )
+            ->where($whereConditions)
+            ->select($selectArray);
 
-            $dataTodosCupons = $cupons->toArray();
+        $dataTodosCupons = $cupons->toArray();
 
-            $count = $cupons->count();
+        $count = $cupons->count();
 
-            $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
+        $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
 
-            if ($retorno["mensagem"]["status"] == 0) {
-                return $retorno;
-            }
-
-            if (sizeof($orderConditions) > 0) {
-                $cupons = $cupons->order($orderConditions);
-            }
-
-            if (sizeof($paginationConditions) > 0) {
-                $cupons = $cupons->limit($paginationConditions["limit"])
-                    ->page($paginationConditions["page"]);
-            }
-
-            $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
-
+        if ($retorno["mensagem"]["status"] == 0) {
             return $retorno;
+        }
 
+        if (sizeof($orderConditions) > 0) {
+            $cupons = $cupons->order($orderConditions);
+        }
+
+        if (sizeof($paginationConditions) > 0) {
+            $cupons = $cupons->limit($paginationConditions["limit"])
+                ->page($paginationConditions["page"]);
+        }
+
+        $retorno = ResponseUtil::prepareReturnDataPagination($dataTodosCupons, $cupons->toArray(), "cupons", $paginationConditions);
+
+        return $retorno;
     }
 
     /**
@@ -893,33 +892,7 @@ class CuponsTable extends GenericTable
      */
     public function setCupomResgatado(int $id)
     {
-        try {
-            return $this->updateAll(
-                [
-                    'resgatado' => 1
-                ],
-                [
-                    'id' => $id
-                ]
-            );
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
-        }
+        return $this->updateAll(array('resgatado' => 1), array('id' => $id));
     }
 
     /**
@@ -934,24 +907,15 @@ class CuponsTable extends GenericTable
      */
     public function setCuponsResgatadosUsados(array $ids)
     {
-        try {
-            return $this->updateAll(
-                array(
-                    'resgatado' => 1,
-                    'usado' => 1
-                ),
-                array(
-                    'id IN' => $ids
-                )
-            );
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-
-            $stringError = __("Erro ao buscar registro: {0}", $e->getMessage());
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
+        return $this->updateAll(
+            array(
+                'resgatado' => 1,
+                'usado' => 1
+            ),
+            array(
+                'id IN' => $ids
+            )
+        );
     }
 
     #endregion

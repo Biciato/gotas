@@ -1729,16 +1729,12 @@ class CuponsController extends AppController
                 // Validação de funcionário logado
                 $funcionarioId = $this->Auth->user()["id"];
 
-
                 $tipoPerfil = $this->Auth->user()["tipo_perfil"];
                 $funcionario["nome"] = $this->Auth->user()["nome"];
 
                 $isFuncionario = false;
 
-                if (
-                    $tipoPerfil == Configure::read("profileTypes")["WorkerProfileType"]
-                    || $tipoPerfil == Configure::read("profileTypes")["DummyWorkerProfileType"]
-                ) {
+                if ($tipoPerfil == PROFILE_TYPE_WORKER || $tipoPerfil == PROFILE_TYPE_DUMMY_WORKER) {
                     $isFuncionario = true;
                 }
 
@@ -1806,34 +1802,35 @@ class CuponsController extends AppController
                 $dadosCupons = array();
 
                 $verificado = false;
-                $usado = false;
+                $resgatado = false;
                 foreach ($cupons as $cupom) {
 
                     $dadoCupom = array();
 
                     $somaTotalGotas += (float)$cupom["valor_pago_gotas"];
+                    $somaTotalReais += (float)$cupom["valor_pago_reais"];
 
-                    $dadoCupom["nome_brinde"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome"];
+                    $dadoCupom["nome"] = $cupom["brinde"]["nome"];
                     $dadoCupom["quantidade"] = $cupom["quantidade"];
                     $dadoCupom["preco_brinde_gotas"] = (float)$cupom["valor_pago_gotas"];
                     $dadoCupom["preco_brinde_reais"] = (float)$cupom["valor_pago_reais"];
                     // imagem brinde
-                    $dadoCupom["nome_img_completo"] = $cupom["clientes_has_brindes_habilitado"]["brinde"]["nome_img_completo"];
+                    $dadoCupom["nome_img_completo"] = $cupom["brinde"]["nome_img_completo"];
                     $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
                     $dadosCupons[] = $dadoCupom;
 
-                    if ($cupom["usado"]) {
-                        $usado = true;
+                    if ($cupom["resgatado"]) {
+                        $resgatado = true;
                         break;
                     }
                     $verificado = true;
                 }
 
-                if ($usado) {
+                if ($resgatado) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Este cupom já foi utilizado pelo usuário!")
+                        "errors" => array("Este cupom já foi resgatado pelo usuário!")
                     );
                     $resultado = array(
                         "recibo_baixa_cupons" => $dadosCupons
@@ -1884,41 +1881,65 @@ class CuponsController extends AppController
 
                     return;
                 }
+
+                $brindesNaoResgatados = array();
                 foreach ($cupons as $cupom) {
 
-                    $cliente_has_brinde_estoque = $this
-                        ->ClientesHasBrindesEstoque
-                        ->getEstoqueForBrinde($cupom->brindes_id);
+                    $brindesEstoque = $this
+                        ->BrindesEstoque
+                        ->getActualStockForBrindesEstoque($cupom["brindes_id"]);
 
-                    $estoque = $this->ClientesHasBrindesEstoque->addBrindeEstoque(
-                        $cupom->brindes_id,
-                        $cupom->usuarios_id,
-                        $cupom->quantidade,
-                        (int)Configure::read('stockOperationTypes')['sellTypeGift']
-                    );
+                    // DebugUtil::printArray($cupom, 1);
+                    // DebugUtil::printArray($brindesEstoque);
 
-                    // diminuiu estoque, considera o item do cupom como resgatado
-                    if ($estoque) {
-                        $cupomSave = null;
+                    $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]);
 
-                        // Equipamento RTI?
-                        if ($cupom["clientes_has_brindes_habilitado"]["tipos_brindes_cliente"]["tipo_brinde_rede"]["equipamento_rti"]) {
-                            $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
+                    if ($prosseguir) {
+
+                        $tipoSaida = "";
+
+                        if (($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"]) || $cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT)) {
+                            $tipoSaida = TYPE_OPERATION_SELL_BRINDE;
                         } else {
-                            $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                            $tipoSaida = TYPE_OPERATION_SELL_CURRENCY;
                         }
 
-                        // adiciona novo registro de pontuação
+                        $estoque = $this->BrindesEstoque->addBrindeEstoque(
+                            $cupom["brindes_id"],
+                            $cupom["usuarios_id"],
+                            $cupom["quantidade"],
+                            // TYPE_SELL
+                            $tipoSaida
+                        );
 
-                        // @todo conferir
-                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cupom->clientes_id,
-                            $cupom->usuarios_id,
-                            $cupom->brindes_id,
-                            $cupom->valor_pago_gotas,
-                            $cupom->valor_pago_reais,
-                            $this->Auth->user()["id"],
-                            true
+                        // diminuiu estoque, considera o item do cupom como resgatado
+                        if ($estoque) {
+                            $cupomSave = null;
+
+                            // Equipamento RTI?
+                            if ($cupom["brinde"]["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
+                                $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
+                            } else {
+                                $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                            }
+
+                            // adiciona novo registro de pontuação
+
+                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                                $cupom->clientes_id,
+                                $cupom->usuarios_id,
+                                $cupom->brindes_id,
+                                $cupom->valor_pago_gotas,
+                                $cupom->valor_pago_reais,
+                                $this->Auth->user()["id"],
+                                true
+                            );
+                        }
+                    } else {
+                        // Brindes que não foram resgatados devido o estoque ser insuficiente
+                        $brindesNaoResgatados[] = array(
+                            "nome" => $cupom["brinde"]["nome"],
+                            "quantidade" => $cupom["quantidade"]
                         );
                     }
                 }
@@ -1934,9 +1955,11 @@ class CuponsController extends AppController
                     "errors" => array()
                 );
                 $resultado = array(
-                    "soma_gotas" => $somaTotal,
+                    "soma_gotas" => $somaTotalGotas,
+                    "soma_reais" => $somaTotalReais,
                     "recibo" => $dadosCupons,
-                    "funcionario" => $funcionario
+                    "funcionario" => $funcionario,
+                    "brindes_nao_resgatados" => $brindesNaoResgatados
                 );
 
                 $arraySet = array(
@@ -1950,7 +1973,7 @@ class CuponsController extends AppController
                 return;
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $messageString = __("Erro durante resgate do cupom!");
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
