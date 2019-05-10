@@ -105,6 +105,8 @@ class BrindesController extends AppController
 
             if (empty($tipoVenda)) {
                 $tipoVenda = array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT);
+            } else {
+                $tipoVenda = array($tipoVenda);
             }
 
             $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);

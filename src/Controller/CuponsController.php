@@ -1802,7 +1802,9 @@ class CuponsController extends AppController
                 $dadosCupons = array();
 
                 $verificado = false;
-                $resgatado = false;
+                $resgatados = array();
+                $cuponsPendentes = array();
+
                 foreach ($cupons as $cupom) {
 
                     $dadoCupom = array();
@@ -1820,13 +1822,16 @@ class CuponsController extends AppController
                     $dadosCupons[] = $dadoCupom;
 
                     if ($cupom["resgatado"]) {
-                        $resgatado = true;
-                        break;
+                        $resgatados[] = true;
+                    } else {
+                        $cuponsPendentes[] = $cupom;
                     }
+
                     $verificado = true;
                 }
 
-                if ($resgatado) {
+                // Se a quantidade de cupons é igual a de resgatados, já resgatou tudo
+                if (count($resgatados) == count($cupons)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
@@ -1864,6 +1869,7 @@ class CuponsController extends AppController
                     return;
                 }
 
+                // Não encontrou cupom
                 if (count($cupons) == 0) {
                     // Avisa erro se não for encontrado. Motivos podem ser:
                     // Cupom já foi resgatado
@@ -1883,14 +1889,15 @@ class CuponsController extends AppController
                 }
 
                 $brindesNaoResgatados = array();
-                foreach ($cupons as $cupom) {
+                $dadosCupons = array();
 
-                    $brindesEstoque = $this
-                        ->BrindesEstoque
-                        ->getActualStockForBrindesEstoque($cupom["brindes_id"]);
+                $verificado = false;
+                $resgatados = array();
 
-                    // DebugUtil::printArray($cupom, 1);
-                    // DebugUtil::printArray($brindesEstoque);
+                // Processa somente os cupons pendentes
+                foreach ($cuponsPendentes as $cupom) {
+
+                    $brindesEstoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($cupom["brindes_id"]);
 
                     $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]);
 
@@ -1935,6 +1942,22 @@ class CuponsController extends AppController
                                 true
                             );
                         }
+
+                        // Obtem dados de retorno
+
+                        $dadoCupom = array();
+
+                        $somaTotalGotas += (float)$cupom["valor_pago_gotas"];
+                        $somaTotalReais += (float)$cupom["valor_pago_reais"];
+
+                        $dadoCupom["nome"] = $cupom["brinde"]["nome"];
+                        $dadoCupom["quantidade"] = $cupom["quantidade"];
+                        $dadoCupom["preco_brinde_gotas"] = (float)$cupom["valor_pago_gotas"];
+                        $dadoCupom["preco_brinde_reais"] = (float)$cupom["valor_pago_reais"];
+                        // imagem brinde
+                        $dadoCupom["nome_img_completo"] = $cupom["brinde"]["nome_img_completo"];
+                        $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
+                        $dadosCupons[] = $dadoCupom;
                     } else {
                         // Brindes que não foram resgatados devido o estoque ser insuficiente
                         $brindesNaoResgatados[] = array(
@@ -1943,8 +1966,12 @@ class CuponsController extends AppController
                         );
                     }
                 }
-                // }
 
+                $errors = array();
+
+                if (count($brindesNaoResgatados) > 0) {
+                    $errors[] = "Alguns brindes não foram resgatados pois não há estoque suficiente. Verifique com o estabelecimento!";
+                }
                 $mensagem = array(
                     "status" => 1,
                     "message" => __(
@@ -1952,7 +1979,7 @@ class CuponsController extends AppController
                         Configure::read("messageProcessingCompleted"),
                         Configure::read("messageRedeemCouponRedeemed")
                     ),
-                    "errors" => array()
+                    "errors" => $errors
                 );
                 $resultado = array(
                     "soma_gotas" => $somaTotalGotas,
