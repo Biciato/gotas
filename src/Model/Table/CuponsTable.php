@@ -261,7 +261,7 @@ class CuponsTable extends GenericTable
 
             if (is_numeric($codigoSecundario) && $codigoPrimario <= 4) {
                 // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
-                $codigoSecundario = $codigoSecundario + 10;
+                $codigoSecundario = $codigoSecundario >= 90 ? $codigoSecundario : $codigoSecundario + 10;
             } else {
                 // Se não é banho, apenas verifica se o tamanho é 1. se for, coloca um 0 na frente
                 $codigoSecundario = strlen($codigoSecundario) == 1 ? '0' . $codigoSecundario : $codigoSecundario;
