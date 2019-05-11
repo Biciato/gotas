@@ -2294,6 +2294,8 @@ class CuponsController extends AppController
 
                 if (isset($data["order_by"])) {
                     $orderConditions = $data["order_by"];
+                } else {
+                    $orderConditions = array("Cupons.data" => "DESC");
                 }
 
                 if (isset($data["pagination"])) {
