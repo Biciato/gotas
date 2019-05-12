@@ -26,331 +26,21 @@ use App\Custom\RTI\ImageUtil;
 
 /**
  * Usuarios Controller
+ * 
+ * Controller para Usuários
  *
  * @property \App\Model\Table\UsuariosTable $Usuarios
  *
  * @method \App\Model\Entity\Usuario[] paginate($object = null, array $settings = [])
+ * 
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2017-08-01
  */
 class UsuariosController extends AppController
 {
     protected $usuarioLogado = null;
 
-    /**
-     * ------------------------------------------------------------
-     * Auth Methods
-     * ------------------------------------------------------------
-     */
-
-    /**
-     * Login method
-     *
-     * @return void
-     */
-    public function login()
-    {
-        $recoverAccount = null;
-        $email = '';
-        $message = '';
-        $status = null;
-
-        if ($this->request->is('post')) {
-            $data = $this->request->getData();
-
-            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
-
-            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
-            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
-
-            if (strlen($message) > 0) {
-                $this->Flash->error(__($message));
-            }
-        }
-
-        $this->set('recoverAccount', $recoverAccount);
-        $this->set('email', $email);
-        $this->set('message', $message);
-        $this->set('_serialize', ['message']);
-
-
-        if (isset($status) && ($status == 0)) {
-            return $this->redirect(['controller' => 'pages', 'action' => 'display']);
-        }
-    }
-
-    /**
-     * Verifica se usuario está travado e qual tipo
-     *
-     * @return object conteúdo informando se conta está bloqueada
-     * @author
-     */
-    public function checkUsuarioIsLocked($usuario = null)
-    {
-        try {
-            $message = '';
-
-            /**
-             * 0 = nenhuma
-             * 1 = inativo
-             * 2 = bloqueado
-             * 3 = muitas tentativas
-             */
-            $statusUsuario = 0;
-
-            if (is_null($usuario)) {
-                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
-                $statusUsuario = 1;
-
-                return array('message' => $message, 'actionNeeded' => $statusUsuario);
-            }
-
-            // verifica se é uma conta sem ser usuário.
-            // se não for, verifica se a rede a qual ele se encontra está desativada
-
-            if ($usuario['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
-                // pega o vínculo do usuário com a rede
-
-                $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
-                    array(
-                        'ClientesHasUsuarios.usuarios_id' => $usuario['id']
-                    )
-                );
-                $cliente = null;
-
-                // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
-                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ) {
-                    $cliente = $clienteHasUsuario["cliente"];
-
-                    // verifica se a unidade está ativa. Se está, a rede também está
-                    if (!$cliente["ativado"]) {
-                        $message = __("A unidade/rede à qual esta conta está vinculada está desativada. O acesso não é permitido.");
-                        $statusUsuario = 2;
-
-                        return array('message' => $message, 'actionNeeded' => $statusUsuario);
-                    }
-                }
-
-                if ($usuario['conta_ativa'] == 0) {
-                    if ($usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
-                        $message = __("A conta encontra-se desativada. Somente seu administrador poderá reativá-la.");
-                        $statusUsuario = 2;
-                    } else {
-                        $message = __("A conta encontra-se desativada. Para reativar, será necessário confirmar alguns dados.");
-                        $statusUsuario = 1;
-                    }
-
-                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
-                } elseif ($usuario['conta_bloqueada'] == true) {
-                    $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de atendimento.");
-                    $statusUsuario = 2;
-
-                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
-                } else {
-                    $tentativasLogin = $usuario['tentativas_login'];
-                    $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
-
-                    if (!is_null($tentativasLogin) && !is_null($ultimaTentativaLogin)) {
-                        $format = 'Y-m-d H:i:s';
-                        $fromTime = strtotime($ultimaTentativaLogin->format($format));
-                        $toTime = strtotime(date($format));
-
-                        $diff = round(abs($fromTime - $toTime) / 60, 0);
-
-                        if ($tentativasLogin >= 5 && ($diff < 10)) {
-                            $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
-
-                            $statusUsuario = 3;
-                            return array('message' => $message, 'actionNeeded' => $statusUsuario, "status" => $statusUsuario);
-                        }
-                    }
-                }
-            }
-
-            return array('message' => $message, 'actionNeeded' => $statusUsuario);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
-
-            Log::write('error', $stringError);
-            Log::write('error', $e->getTraceAsString());
-        }
-    }
-
-    public function verificaTentativaLoginUsuario(string $email, string $senha)
-    {
-        $credenciais = array("email" => $email, "senha" => $senha);
-
-        $usuario = $this->Usuarios->getUsuarioByEmail($email);
-
-        $result = $this->checkUsuarioIsLocked($usuario);
-
-        if ($result['actionNeeded'] == 0) {
-            $user = $this->Auth->identify();
-
-            if ($user) {
-                $this->Auth->setUser($user);
-
-                $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
-                $status = 0;
-
-                if (($user['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK) && $user['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
-                    $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
-
-                    if (!empty($vinculoCliente)) {
-                        $cliente = $vinculoCliente["cliente"];
-
-                        if ($cliente) {
-                            // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
-                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-
-                            // verifica qual rede o usuário se encontra
-                            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
-                            $rede = $redeHasCliente["rede"];
-
-                            $this->request->session()->write('Rede.Grupo', $rede);
-                        }
-                    }
-                }
-                return array(
-                    "usuario" => $usuario,
-                    "status" => 0,
-                    "message" => $message,
-                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
-                );
-            } else {
-                $retornoLogin = $this->Usuarios->updateLoginRetry($usuario["id"], 0);
-                $status = 1;
-                $message = $retornoLogin;
-                $usuario = null;
-
-                // $this->Flash->error($retornoLogin);
-            }
-        } else {
-            $message = $result['message'];
-            $recoverAccount = $result['actionNeeded'];
-            $status = isset($result["status"]) ? $result["status"] : 1;
-            $usuario = null;
-        }
-
-        /**
-         * 0 = nenhuma
-         * 1 = inativo
-         * 2 = bloqueado
-         * 3 = muitas tentativas
-         */
-
-        return array(
-            "usuario" => $usuario,
-            "status" => $status,
-            "message" => $message,
-            "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
-        );
-    }
-
-    /**
-     * UsuariosController::clearCredentials
-     *
-     * Limpa todas as credenciais e variável de sessão da sessão atual
-     *
-     * @return void
-     */
-    public function clearCredentials()
-    {
-        $this->request->session()->delete("Usuario.AdministradorLogado");
-        $this->request->session()->delete("Usuario.Administrar");
-        $this->request->session()->delete('Rede.Grupo');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-    }
-
-    /**
-     * Logoff method
-     *
-     * @return void
-     */
-    public function logout()
-    {
-        // limpa as informações de session
-        $this->clearCredentials();
-
-        $usuarioAdministrar = null;
-        if (isset($usuarioAdministrador)) {
-            $usuarioAdministrador = $usuarioLogado;
-            $usuarioLogado = $this->request->session()->read('Usuario.Administrar');
-        }
-
-        return $this->redirect($this->Auth->logout());
-    }
-
-    /**
-     * ------------------------------------------------------------
-     * Métodos Comuns
-     * ------------------------------------------------------------
-     */
-
-    /**
-     * BeforeRender callback
-     *
-     * @param Event $event
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function beforeRender(Event $event)
-    {
-        parent::beforeRender($event);
-
-        if ($this->request->is('ajax')) {
-            $this->viewBuilder()->setLayout('ajax');
-        }
-    }
-
-    /**
-     * Before render callback.
-     *
-     * @param \App\Controller\Event\Event $event The beforeRender event.
-     *
-     * @return \Cake\Network\Response|null|void
-     */
-    public function beforeFilter(Event $event)
-    {
-        parent::beforeFilter($event);
-    }
-
-    /**
-     * Initialize function
-     */
-    public function initialize()
-    {
-        parent::initialize();
-        $this->loadComponent('RequestHandler');
-
-        // Permitir aos usuários se registrarem e efetuar login e logout.
-
-        $this->Auth->allow(
-            array(
-                "registrar",
-                "registrarAPI",
-                "esqueciMinhaSenhaAPI",
-                "loginAPI",
-                "login",
-                "logout",
-                "esqueciMinhaSenha",
-                "reativarConta",
-                "resetarMinhaSenha",
-                "getUsuarioByCPF",
-                "getUsuarioByEmail",
-                "uploadDocumentTemporaly",
-                "testAPI",
-                "getUsuarioByDocEstrangeiroAPI"
-            )
-        );
-    }
-
-    /**
-     * ------------------------------------------------------------
-     * CRUD Methods
-     * ------------------------------------------------------------
-     */
+    #region Actions Web
 
     /**
      * Index method
@@ -560,243 +250,6 @@ class UsuariosController extends AppController
     }
 
     /**
-     * UsuariosController::meuPerfilAPI
-     *
-     * Retorna os dados de perfil do usuário logado
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 2018/05/09
-     *
-     * @return json object
-     */
-    public function meuPerfilAPI()
-    {
-        $mensagem = array();
-
-        $status = false;
-        $message = null;
-        $errors = array();
-
-        try {
-            $usuario = $this->Usuarios->getUsuarioById($this->Auth->user()["id"]);
-
-            $mensagem = ['status' => true, 'message' => $message, 'errors' => $errors];
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $messageString = __("Erro ao obter dados de usuário!");
-
-            $errors = $trace;
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
-
-            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
-        }
-
-        $arraySet = [
-            "mensagem",
-            "usuario"
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-    }
-
-    /**
-     * UsuariosController::setPerfilAPI
-     *
-     * Atualiza o cadastro do usuário logado via API.
-     *
-     * @param int      $data["tipo_perfil"]            Tipo de Perfil. Somente leitura
-     * @param string   $data["nome"]                   Nome Completo
-     * @param date     $data["data_nasc"]              Data de Nascimento. Formato DDDD/MM/YY
-     * @param bool     $data["sexo"]                   Masculino / Feminino (1 / 0)
-     * @param bool     $data["necessidades_especiais"] Necessidades Especiais :
-     * @param string   $data["cpf"]                    Cpf : CPF do Usuário.
-     * @param string   $data["foto_documento"]         Foto Documento : URL da carteira de identidade / Doc. Estrangeiro.
-     * @param string   $data["doc_estrangeiro"]        Doc Estrangeiro : Documento Estrangeiro.
-     * @param string   $data["email"]                  Email : Email de cadastro. Somente leitura.
-     * @param string   $data["senha"]                  Senha : Somente leitura neste serviço
-     * @param string   $data["telefone"]               Telefone . 10 dígitos para TEL, 11 para CEL
-     * @param string   $data["endereco"]               Endereco
-     * @param string   $data["endereco_numero"]        Endereco Numero . Vazio = S/N
-     * @param string   $data["endereco_complemento"]   Endereco Complemento .
-     * @param string   $data["bairro"]                 Bairro
-     * @param string   $data["municipio"]              Municipio
-     * @param string   $data["estado"]                 Estado
-     * @param string   $data["pais"]                   Pais
-     * @param string   $data["cep"]                    Cep. Formato 99999999
-     * @param string   $data["token_senha"]            Token Senha : Token de Senha. Utilizado para reset de senha. Somente leitura
-     * @param datetime $data["data_expiracao_token"]   Data Expiracao Token. Somente Leitura
-     * @param bool     $data["conta_ativa"]            Conta Ativa : 1 = Ativo. 0 = Desativada. Somente leitura aqui. Somente Leitura
-     * @param bool     $data["conta_bloqueada"]        Conta Bloqueada : [1 = Bloqueada/0 = Desbloqueada]. Somente leitura. Somente Leitura
-     * @param int      $data["tentativas_login"]       Tentativas Login : Somente Leitura.
-     * @param datetime $data["ultima_tentativa_login"] Ultima Tentativa Login : Somente Leitura
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @date 2018/05/10
-     *
-     * @return json object
-     */
-    public function setPerfilAPI()
-    {
-        $mensagem = array();
-
-        $status = false;
-        $message = null;
-        $errors = array();
-
-        try {
-            $usuario = $this->Usuarios->getUsuarioById($this->Auth->user()["id"]);
-
-            if ($this->request->is("post")) {
-
-                $data = $this->request->getData();
-
-                // DebugUtil::printArray($data);
-
-                // validação de cpf
-                if (isset($data["cpf"])) {
-                    $result = NumberUtil::validarCPF($data["cpf"]);
-
-                    if (!$result["status"]) {
-                        $mensagem["status"] = false;
-                        $mensagem["message"] = __($result["message"], $data["cpf"]);
-                        $arraySet = ["mensagem"];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                }
-
-                // validação de e-mail
-
-                if (isset($data["email"])) {
-                    $resultado = EmailUtil::validateEmail($data["email"]);
-
-                    if (!$resultado["status"]) {
-                        $mensagem = [
-                            "status" => $resultado["status"],
-                            "message" => __($resultado["message"], $data["email"])
-                        ];
-
-                        $arraySet = ["mensagem"];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                }
-
-                // Faz o tratamento do envio da imagem ao servidor, se especificado
-
-                if (isset($data["foto"])) {
-
-                    $foto = $data["foto"];
-
-                    $nomeImagem = $foto["image_name"];
-                    $base64Imagem = $foto["value"];
-                    $extensao = $foto["extension"];
-
-                    $resultado = ImageUtil::generateImageFromBase64(
-                        $base64Imagem,
-                        Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                        Configure::read("temporaryDocumentUserPath")
-                    );
-
-                    // Move o arquivo gerado
-                    $fotoPerfil = $this->moveDocumentPermanently(
-                        Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                        Configure::read("documentUserPath"),
-                        null,
-                        $extensao
-                    );
-
-                    // Remove o array do item de gravação e passa a imagem
-                    unset($data["foto"]);
-
-                    $data["foto_perfil"] = $fotoPerfil;
-                }
-
-                // Remove os campos da atualizacao que não são permitidos fazer update
-
-                if (isset($data["tipo_perfil"])) {
-                    $data["tipo_perfil"] = $usuario["tipo_perfil"];
-                }
-
-                if (isset($data["senha"])) {
-                    unset($data["senha"]);
-                }
-
-                if (isset($data["token_senha"])) {
-                    unset($data["token_senha"]);
-                }
-
-                if (isset($data["data_expiracao_token"])) {
-                    unset($data["data_expiracao_token"]);
-                }
-
-                if (isset($data["conta_ativa"])) {
-                    unset($data["conta_ativa"]);
-                }
-
-                if (isset($data["conta_bloqueada"])) {
-                    unset($data["conta_bloqueada"]);
-                }
-
-                if (isset($data["tentativas_login"])) {
-                    unset($data["tentativas_login"]);
-                }
-
-                if (isset($data["ultima_tentativa_login"])) {
-                    unset($data["ultima_tentativa_login"]);
-                }
-
-                // Faz o patch da entidade
-                $usuario = $this->Usuarios->patchEntity($usuario, $data, ['validate' => 'EditUsuarioInfo']);
-
-                $errors = $usuario->errors();
-
-                // Gravação
-                $usuario = $this->Usuarios->save($usuario);
-
-                // Atualização com sucesso, retorna mensagem
-                if ($usuario) {
-                    $status = true;
-                    $message = Configure::read("messageSavedSuccess");
-                } else {
-                    // Atualização com erro, retorna mensagem de erro.
-                    $status = false;
-                    $message = __("{0} Confira as informações e tente novamente.", Configure::read("messageSavedError"));
-                }
-            }
-            $mensagem = ['status' => $status, 'message' => $message, 'errors' => $errors];
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $messageString = __("Erro ao atualizar dados de usuário!");
-
-            $errors = $trace;
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
-
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write("error", $messageStringDebug);
-        }
-
-        $arraySet = [
-            "mensagem",
-            "usuario"
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-    }
-
-    /**
      * Adiciona Conta de usuário
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
@@ -973,339 +426,6 @@ class UsuariosController extends AppController
             "veiculo",
             "transportadora"
         );
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
-
-    /**
-     * Adiciona Conta de usuário
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function registrarAPI()
-    {
-        $usuario = $this->Usuarios->newEntity();
-
-        $mensagem = [];
-
-        $usuarioRegistrado = null;
-
-        $errors = array();
-
-        if ($this->request->is(['post', 'put'])) {
-            $data = $this->request->getData();
-
-            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
-
-            // validação de cpf
-            if (isset($data["cpf"])) {
-                $result = NumberUtil::validarCPF($data["cpf"]);
-
-                if (!$result["status"]) {
-                    $mensagem["status"] = false;
-                    $mensagem["message"] = __($result["message"], $data["cpf"]);
-                    $arraySet = ["mensagem"];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-            }
-
-            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
-                // Funcionário ou usuário fictício não precisa de validação de cpf
-
-                $this->Usuarios->validator()->remove('cpf');
-            } else {
-                $data['tipo_perfil'] = (int)Configure::read('profileTypes')['UserProfileType'];
-            }
-            $data["doc_invalido"] = false;
-
-            // validação de cpf
-
-            $canContinue = false;
-
-            // Remove os campos da inserção que não são permitidos ao fazer insert
-
-            if (isset($data["token_senha"])) {
-                unset($data["token_senha"]);
-            }
-
-            if (isset($data["data_expiracao_token"])) {
-                unset($data["data_expiracao_token"]);
-            }
-
-            if (isset($data["conta_ativa"])) {
-                unset($data["conta_ativa"]);
-            }
-
-            if (isset($data["conta_bloqueada"])) {
-                unset($data["conta_bloqueada"]);
-            }
-
-            if (isset($data["tentativas_login"])) {
-                unset($data["tentativas_login"]);
-            }
-
-            if (isset($data["ultima_tentativa_login"])) {
-                unset($data["ultima_tentativa_login"]);
-            }
-
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            if (empty($email)) {
-                $errors[] = array("email" => "Email deve ser informado!");
-                $canContinue = false;
-            } else {
-                $resultado = EmailUtil::validateEmail($data["email"]);
-
-                if (!$resultado["status"]) {
-                    $mensagem = [
-                        "status" => $resultado["status"],
-                        "message" => __($resultado["message"], $data["email"])
-                    ];
-
-                    $arraySet = ["mensagem"];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-                $canContinue = true;
-            }
-
-            if (!isset($data["cpf"]) && $tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
-                $errors[] = array("CPF" => "CPF Deve ser informado!");
-                $canContinue = false;
-            } else {
-
-                // Valida se o usuário em questão não é ficticio
-                if ($tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
-
-                    $result = NumberUtil::validarCPF($data["cpf"]);
-
-                    if (!$result["status"]) {
-                        $mensagem["status"] = false;
-                        $mensagem["message"] = __($result["message"], $data["cpf"]);
-                        $arraySet = ["mensagem"];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                }
-
-
-                $canContinue = true;
-            }
-
-            // Faz o tratamento do envio da imagem ao servidor, se especificado
-
-            if (isset($data["foto"])) {
-
-                $foto = $data["foto"];
-
-                $nomeImagem = $foto["image_name"];
-                $base64Imagem = $foto["value"];
-                $extensao = $foto["extension"];
-
-                $resultado = ImageUtil::generateImageFromBase64(
-                    $base64Imagem,
-                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                    Configure::read("temporaryDocumentUserPath")
-                );
-
-                // Move o arquivo gerado
-                $fotoPerfil = $this->moveDocumentPermanently(
-                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                    Configure::read("documentUserPath"),
-                    null,
-                    $extensao
-                );
-
-                // Remove o array do item de gravação e passa a imagem
-                unset($data["foto"]);
-
-                $data["foto_perfil"] = $fotoPerfil;
-            }
-
-            $usuarioData = $data;
-            $email = !empty($usuarioData["email"]) ? $usuarioData["email"] : null;
-
-            // verifica se o usuário já está registrado
-
-            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($email);
-
-            if ($canContinue) {
-
-                // verifica se usuário já existe no sistema
-                if ($usuarioJaExiste) {
-                    $mensagem = [
-                        'status' => false,
-                        'message' => "Usuário " . $usuarioData['email'] . " já existe no sistema!"
-                    ];
-                } else {
-                    // senão, grava no banco
-
-                    $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
-
-                    if (!empty($senha)) {
-                        $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
-                    }
-
-                    $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
-                    foreach ($usuario->errors() as $key => $erro) {
-                        $errors[] = $erro;
-                    }
-
-                    $usuario = $this->Usuarios->save($usuario);
-
-                    if ($usuario) {
-                        // Realiza login de autenticação
-                        $usuario = [
-                            'id' => $usuario->id,
-                            'token' => JWT::encode(
-                                [
-                                    'sub' => $usuario->id,
-                                    'exp' => time() + 604800
-                                ],
-                                Security::salt()
-                            )
-                        ];
-
-                        $mensagem = array(
-                            "status" => true,
-                            "message" => "Usuário registrado com sucesso!",
-                            "errors" => $errors
-                        );
-                    } else {
-                        $mensagem = [
-                            'status' => false,
-                            'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
-                            'errors' => $errors
-                        ];
-                    }
-                }
-            } else {
-                $mensagem = [
-                    'status' => false,
-                    'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
-                    'errors' => $errors
-                ];
-            }
-        }
-
-        $arraySet = [
-            'usuario',
-            'mensagem'
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
-
-    /**
-     * Obtêm token de autenticação
-     *
-     * @return void
-     */
-    public function loginAPI()
-    {
-        $usuario = null;
-
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $senha = !empty($data["senha"]) ? $data["senha"] : null;
-
-            if (empty($email) || empty($senha)) {
-                // Retorna mensagem de erro se campos estiverem vazios
-                $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
-
-                return ResponseUtil::errorAPI($message);
-            }
-
-            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha);
-
-            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
-            $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
-            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
-        }
-
-        // $usuario = $this->Auth->identify();
-
-        if (!$usuario) {
-            $this->Auth->logout();
-            $this->clearCredentials();
-
-            $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
-
-            return ResponseUtil::errorAPI($message);
-        }
-
-        $mensagem = array(
-            'status' => true,
-            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
-        );
-
-        $usuario = array(
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 604800
-                ],
-                Security::salt()
-            )
-        );
-
-        return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
-    }
-
-    /**
-     * Obtêm token de autenticação
-     *
-     * @return void
-     */
-    public function logoutAPI()
-    {
-        $usuario = $this->Auth->user();
-
-        if (!$usuario) {
-            throw new UnauthorizedException('Usuário ou senha inválidos');
-        }
-
-        $mensagem = [
-            'status' => true,
-            'message' => Configure::read('messageUsuarioLoggedOutSuccessfully')
-        ];
-
-
-        $usuario = [
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 1
-                ],
-                Security::salt()
-            )
-        ];
-
-        $this->Auth->logout();
-
-        $arraySet = [
-            'mensagem'
-        ];
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -1505,27 +625,19 @@ class UsuariosController extends AppController
                 // remove / atualiza todas as tabelas necessárias
 
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByUsuariosId($usuario->id);
-
                 $this->UsuariosHasVeiculos->deleteAllUsuariosHasVeiculosByUsuariosId($usuario->id);
-
                 $this->TransportadorasHasUsuarios->deleteAllTransportadorasHasUsuariosByUsuariosId($usuario->id);
-
                 $this->PontuacoesPendentes->updateAllPontuacoesPendentes(['funcionarios_id' => $usuario_destino_id], ['funcionarios_id' => $usuario->id]);
-
                 $this->Pontuacoes->updateAllPontuacoes(['funcionarios_id' => $usuario_destino_id], ['funcionarios_id' => $usuario->id]);
-
                 $this->PontuacoesComprovantes->updateAllPontuacoesComprovantes(['funcionarios_id' => $usuario_destino_id], ['funcionarios_id' => $usuario->id]);
 
                 // realiza a exclusão do funcionário
                 $this->Cupons->deleteAllCuponsByUsuariosId($usuario->id);
-
                 $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByUsuariosId($usuario->id);
-
                 $this->UsuariosEncrypted->deleteUsuariosEncryptedByUsuariosId($usuario->id);
-
                 $this->Usuarios->delete($usuario);
-
                 $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
+
                 return $this->redirect($return_url);
             } else {
                 // não há outro usuário, então deve-se verificar se há alguma informação vinculada à ele. se não houver, pode remover.
@@ -1591,7 +703,7 @@ class UsuariosController extends AppController
     }
 
     /**
-     * Adiciona conta de usuário (cliente final, usado por um funcionário)
+     * Adiciona conta de usuário (cliente final, usado por um funcionário, via Web)
      *
      * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
      */
@@ -2289,47 +1401,41 @@ class UsuariosController extends AppController
     }
 
     /**
-     * Action de Esqueci minha Senha
+     * Login method
      *
-     * @return \Cake\Http\Response|void
-     * @author Gustavo Souza Gonçalves
+     * @return void
      */
-    public function esqueciMinhaSenhaAPI()
+    public function login()
     {
-        $mensagem = [];
+        $recoverAccount = null;
+        $email = '';
+        $message = '';
+        $status = null;
 
         if ($this->request->is('post')) {
-            $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
-            if (is_null($usuario)) {
-                $messageString = Configure::read("messageEmailNotFound");
-                $mensagem[] = ['status' => false, 'message' => $messageString];
-            } else {
-                // gera o token que o usuário irá utilizar para recuperar a senha
+            $data = $this->request->getData();
 
-                $token = bin2hex(openssl_random_pseudo_bytes(32));
-                $url = Router::url(['controller' => 'usuarios', 'action' => 'resetar_minha_senha', $token], true);
-                $timeout = time() + DAY;
+            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
 
-                if ($this->Usuarios->setUsuarioTokenPasswordRequest($usuario->id, $token, $timeout)) {
-                    $this->_sendResetEmail($url, $usuario);
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
 
-                    $messageString = __("Email  enviado para {0} com o token de resetar a senha.", $usuario->email);
-
-                    $mensagem[] = ['status' => true, 'message' => $messageString];
-                } else {
-
-                    $messageString = __('Houve um erro ao solicitar o token de resetar a senha.');
-                    $mensagem[] = ['status' => false, 'message' => $messageString];
-                }
+            if (strlen($message) > 0) {
+                $this->Flash->error(__($message));
             }
         }
 
-        $arraySet = [
-            'mensagem',
-        ];
+        $this->set('recoverAccount', $recoverAccount);
+        $this->set('email', $email);
+        $this->set('message', $message);
+        $this->set('_serialize', ['message']);
 
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+
+        if (isset($status) && ($status == 0)) {
+            return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+        }
     }
 
     /**
@@ -2872,6 +1978,912 @@ class UsuariosController extends AppController
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
+
+    /**
+     * Logoff method
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        // limpa as informações de session
+        $this->clearCredentials();
+
+        $usuarioAdministrar = null;
+        if (isset($usuarioAdministrador)) {
+            $usuarioAdministrador = $usuarioLogado;
+            $usuarioLogado = $this->request->session()->read('Usuario.Administrar');
+        }
+
+        return $this->redirect($this->Auth->logout());
+    }
+
+    #endregion
+
+    #region REST Services
+
+      /**
+     * Action de Esqueci minha Senha
+     *
+     * @return \Cake\Http\Response|void
+     * @author Gustavo Souza Gonçalves
+     */
+    public function esqueciMinhaSenhaAPI()
+    {
+        $mensagem = [];
+
+        if ($this->request->is('post')) {
+            $usuario = $this->Usuarios->getUsuarioByEmail($this->request->data['email']);
+            if (is_null($usuario)) {
+                $messageString = Configure::read("messageEmailNotFound");
+                $mensagem[] = ['status' => false, 'message' => $messageString];
+            } else {
+                // gera o token que o usuário irá utilizar para recuperar a senha
+
+                $token = bin2hex(openssl_random_pseudo_bytes(32));
+                $url = Router::url(['controller' => 'usuarios', 'action' => 'resetar_minha_senha', $token], true);
+                $timeout = time() + DAY;
+
+                if ($this->Usuarios->setUsuarioTokenPasswordRequest($usuario->id, $token, $timeout)) {
+                    $this->_sendResetEmail($url, $usuario);
+
+                    $messageString = __("Email  enviado para {0} com o token de resetar a senha.", $usuario->email);
+
+                    $mensagem[] = ['status' => true, 'message' => $messageString];
+                } else {
+
+                    $messageString = __('Houve um erro ao solicitar o token de resetar a senha.');
+                    $mensagem[] = ['status' => false, 'message' => $messageString];
+                }
+            }
+        }
+
+        $arraySet = [
+            'mensagem',
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+    /**
+     * UsuariosController::meuPerfilAPI
+     *
+     * Retorna os dados de perfil do usuário logado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 2018/05/09
+     *
+     * @return json object
+     */
+    public function meuPerfilAPI()
+    {
+        $mensagem = array();
+
+        $status = false;
+        $message = null;
+        $errors = array();
+
+        try {
+            $usuario = $this->Usuarios->getUsuarioById($this->Auth->user()["id"]);
+
+            $mensagem = ['status' => true, 'message' => $message, 'errors' => $errors];
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Erro ao obter dados de usuário!");
+
+            $errors = $trace;
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
+
+            $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+
+        $arraySet = [
+            "mensagem",
+            "usuario"
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * UsuariosController::setPerfilAPI
+     *
+     * Atualiza o cadastro do usuário logado via API.
+     *
+     * @param int      $data["tipo_perfil"]            Tipo de Perfil. Somente leitura
+     * @param string   $data["nome"]                   Nome Completo
+     * @param date     $data["data_nasc"]              Data de Nascimento. Formato DDDD/MM/YY
+     * @param bool     $data["sexo"]                   Masculino / Feminino (1 / 0)
+     * @param bool     $data["necessidades_especiais"] Necessidades Especiais :
+     * @param string   $data["cpf"]                    Cpf : CPF do Usuário.
+     * @param string   $data["foto_documento"]         Foto Documento : URL da carteira de identidade / Doc. Estrangeiro.
+     * @param string   $data["doc_estrangeiro"]        Doc Estrangeiro : Documento Estrangeiro.
+     * @param string   $data["email"]                  Email : Email de cadastro. Somente leitura.
+     * @param string   $data["senha"]                  Senha : Somente leitura neste serviço
+     * @param string   $data["telefone"]               Telefone . 10 dígitos para TEL, 11 para CEL
+     * @param string   $data["endereco"]               Endereco
+     * @param string   $data["endereco_numero"]        Endereco Numero . Vazio = S/N
+     * @param string   $data["endereco_complemento"]   Endereco Complemento .
+     * @param string   $data["bairro"]                 Bairro
+     * @param string   $data["municipio"]              Municipio
+     * @param string   $data["estado"]                 Estado
+     * @param string   $data["pais"]                   Pais
+     * @param string   $data["cep"]                    Cep. Formato 99999999
+     * @param string   $data["token_senha"]            Token Senha : Token de Senha. Utilizado para reset de senha. Somente leitura
+     * @param datetime $data["data_expiracao_token"]   Data Expiracao Token. Somente Leitura
+     * @param bool     $data["conta_ativa"]            Conta Ativa : 1 = Ativo. 0 = Desativada. Somente leitura aqui. Somente Leitura
+     * @param bool     $data["conta_bloqueada"]        Conta Bloqueada : [1 = Bloqueada/0 = Desbloqueada]. Somente leitura. Somente Leitura
+     * @param int      $data["tentativas_login"]       Tentativas Login : Somente Leitura.
+     * @param datetime $data["ultima_tentativa_login"] Ultima Tentativa Login : Somente Leitura
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 2018/05/10
+     *
+     * @return json object
+     */
+    public function setPerfilAPI()
+    {
+        $mensagem = array();
+
+        $status = false;
+        $message = null;
+        $errors = array();
+
+        try {
+            $usuario = $this->Usuarios->getUsuarioById($this->Auth->user()["id"]);
+
+            if ($this->request->is("post")) {
+
+                $data = $this->request->getData();
+
+                // DebugUtil::printArray($data);
+
+                // validação de cpf
+                if (isset($data["cpf"])) {
+                    $result = NumberUtil::validarCPF($data["cpf"]);
+
+                    if (!$result["status"]) {
+                        $mensagem["status"] = false;
+                        $mensagem["message"] = __($result["message"], $data["cpf"]);
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
+                }
+
+                // validação de e-mail
+
+                if (isset($data["email"])) {
+                    $resultado = EmailUtil::validateEmail($data["email"]);
+
+                    if (!$resultado["status"]) {
+                        $mensagem = [
+                            "status" => $resultado["status"],
+                            "message" => __($resultado["message"], $data["email"])
+                        ];
+
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
+                }
+
+                // Faz o tratamento do envio da imagem ao servidor, se especificado
+
+                if (isset($data["foto"])) {
+
+                    $foto = $data["foto"];
+
+                    $nomeImagem = $foto["image_name"];
+                    $base64Imagem = $foto["value"];
+                    $extensao = $foto["extension"];
+
+                    $resultado = ImageUtil::generateImageFromBase64(
+                        $base64Imagem,
+                        Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                        Configure::read("temporaryDocumentUserPath")
+                    );
+
+                    // Move o arquivo gerado
+                    $fotoPerfil = $this->moveDocumentPermanently(
+                        Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                        Configure::read("documentUserPath"),
+                        null,
+                        $extensao
+                    );
+
+                    // Remove o array do item de gravação e passa a imagem
+                    unset($data["foto"]);
+
+                    $data["foto_perfil"] = $fotoPerfil;
+                }
+
+                // Remove os campos da atualizacao que não são permitidos fazer update
+
+                if (isset($data["tipo_perfil"])) {
+                    $data["tipo_perfil"] = $usuario["tipo_perfil"];
+                }
+
+                if (isset($data["senha"])) {
+                    unset($data["senha"]);
+                }
+
+                if (isset($data["token_senha"])) {
+                    unset($data["token_senha"]);
+                }
+
+                if (isset($data["data_expiracao_token"])) {
+                    unset($data["data_expiracao_token"]);
+                }
+
+                if (isset($data["conta_ativa"])) {
+                    unset($data["conta_ativa"]);
+                }
+
+                if (isset($data["conta_bloqueada"])) {
+                    unset($data["conta_bloqueada"]);
+                }
+
+                if (isset($data["tentativas_login"])) {
+                    unset($data["tentativas_login"]);
+                }
+
+                if (isset($data["ultima_tentativa_login"])) {
+                    unset($data["ultima_tentativa_login"]);
+                }
+
+                // Faz o patch da entidade
+                $usuario = $this->Usuarios->patchEntity($usuario, $data, ['validate' => 'EditUsuarioInfo']);
+
+                $errors = $usuario->errors();
+
+                // Gravação
+                $usuario = $this->Usuarios->save($usuario);
+
+                // Atualização com sucesso, retorna mensagem
+                if ($usuario) {
+                    $status = true;
+                    $message = Configure::read("messageSavedSuccess");
+                } else {
+                    // Atualização com erro, retorna mensagem de erro.
+                    $status = false;
+                    $message = __("{0} Confira as informações e tente novamente.", Configure::read("messageSavedError"));
+                }
+            }
+            $mensagem = ['status' => $status, 'message' => $message, 'errors' => $errors];
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $messageString = __("Erro ao atualizar dados de usuário!");
+
+            $errors = $trace;
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $errors];
+
+            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+        }
+
+        $arraySet = [
+            "mensagem",
+            "usuario"
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * Adiciona Conta de usuário
+     *
+     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
+     */
+    public function registrarAPI()
+    {
+        $usuario = $this->Usuarios->newEntity();
+
+        $mensagem = array();
+
+        $usuarioRegistrado = null;
+
+        $errors = array();
+
+        if ($this->request->is(['post', 'put'])) {
+            $data = $this->request->getData();
+
+            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+
+            // validação de cpf
+            if (isset($data["cpf"])) {
+                $result = NumberUtil::validarCPF($data["cpf"]);
+
+                if (!$result["status"]) {
+                    $mensagem["status"] = false;
+                    $mensagem["message"] = __($result["message"], $data["cpf"]);
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+            }
+
+            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                // Funcionário ou usuário fictício não precisa de validação de cpf
+
+                $this->Usuarios->validator()->remove('cpf');
+            } else {
+                $data['tipo_perfil'] = (int)Configure::read('profileTypes')['UserProfileType'];
+            }
+            $data["doc_invalido"] = false;
+
+            // validação de cpf
+
+            $canContinue = false;
+
+            // Remove os campos da inserção que não são permitidos ao fazer insert
+
+            if (isset($data["token_senha"])) {
+                unset($data["token_senha"]);
+            }
+
+            if (isset($data["data_expiracao_token"])) {
+                unset($data["data_expiracao_token"]);
+            }
+
+            if (isset($data["conta_ativa"])) {
+                unset($data["conta_ativa"]);
+            }
+
+            if (isset($data["conta_bloqueada"])) {
+                unset($data["conta_bloqueada"]);
+            }
+
+            if (isset($data["tentativas_login"])) {
+                unset($data["tentativas_login"]);
+            }
+
+            if (isset($data["ultima_tentativa_login"])) {
+                unset($data["ultima_tentativa_login"]);
+            }
+
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            if (empty($email)) {
+                $errors[] = array("email" => "Email deve ser informado!");
+                $canContinue = false;
+            } else {
+                $resultado = EmailUtil::validateEmail($data["email"]);
+
+                if (!$resultado["status"]) {
+                    $mensagem = [
+                        "status" => $resultado["status"],
+                        "message" => __($resultado["message"], $data["email"])
+                    ];
+
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+                $canContinue = true;
+            }
+
+            if (!isset($data["cpf"]) && $tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
+                $errors[] = array("CPF" => "CPF Deve ser informado!");
+                $canContinue = false;
+            } else {
+
+                // Valida se o usuário em questão não é ficticio
+                if ($tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
+
+                    $result = NumberUtil::validarCPF($data["cpf"]);
+
+                    if (!$result["status"]) {
+                        $mensagem["status"] = false;
+                        $mensagem["message"] = __($result["message"], $data["cpf"]);
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
+                }
+
+
+                $canContinue = true;
+            }
+
+            // Faz o tratamento do envio da imagem ao servidor, se especificado
+
+            if (isset($data["foto"])) {
+
+                $foto = $data["foto"];
+
+                $nomeImagem = $foto["image_name"];
+                $base64Imagem = $foto["value"];
+                $extensao = $foto["extension"];
+
+                $resultado = ImageUtil::generateImageFromBase64(
+                    $base64Imagem,
+                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                    Configure::read("temporaryDocumentUserPath")
+                );
+
+                // Move o arquivo gerado
+                $fotoPerfil = $this->moveDocumentPermanently(
+                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                    Configure::read("documentUserPath"),
+                    null,
+                    $extensao
+                );
+
+                // Remove o array do item de gravação e passa a imagem
+                unset($data["foto"]);
+
+                $data["foto_perfil"] = $fotoPerfil;
+            }
+
+            $usuarioData = $data;
+            $email = !empty($usuarioData["email"]) ? $usuarioData["email"] : null;
+
+            // verifica se o usuário já está registrado
+
+            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($email);
+
+            if ($canContinue) {
+
+                // verifica se usuário já existe no sistema
+                if ($usuarioJaExiste) {
+                    $mensagem = [
+                        'status' => false,
+                        'message' => "Usuário " . $usuarioData['email'] . " já existe no sistema!"
+                    ];
+                } else {
+                    // senão, grava no banco
+
+                    $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
+
+                    if (!empty($senha)) {
+                        $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                    }
+
+                    $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
+
+                    foreach ($usuario->errors() as $key => $erro) {
+                        $errors[] = $erro;
+                    }
+
+                    $usuario = $this->Usuarios->save($usuario);
+
+                    if ($usuario) {
+                        // Realiza login de autenticação
+                        $usuario = [
+                            'id' => $usuario->id,
+                            'token' => JWT::encode(
+                                [
+                                    'sub' => $usuario->id,
+                                    'exp' => time() + 604800
+                                ],
+                                Security::salt()
+                            )
+                        ];
+
+                        $mensagem = array(
+                            "status" => true,
+                            "message" => "Usuário registrado com sucesso!",
+                            "errors" => $errors
+                        );
+                    } else {
+                        $mensagem = [
+                            'status' => false,
+                            'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
+                            'errors' => $errors
+                        ];
+                    }
+                }
+            } else {
+                $mensagem = [
+                    'status' => false,
+                    'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
+                    'errors' => $errors
+                ];
+            }
+        }
+
+        $arraySet = array('usuario', 'mensagem');
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    /**
+     * Obtêm token de autenticação
+     *
+     * @return void
+     */
+    public function loginAPI()
+    {
+        $usuario = null;
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $senha = !empty($data["senha"]) ? $data["senha"] : null;
+
+            if (empty($email) || empty($senha)) {
+                // Retorna mensagem de erro se campos estiverem vazios
+                $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+
+                return ResponseUtil::errorAPI($message);
+            }
+
+            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha);
+
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+        }
+
+        // $usuario = $this->Auth->identify();
+
+        if (!$usuario) {
+            $this->Auth->logout();
+            $this->clearCredentials();
+
+            $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+
+            return ResponseUtil::errorAPI($message);
+        }
+
+        $mensagem = array(
+            'status' => true,
+            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
+        );
+
+        $usuario = array(
+            'id' => $usuario['id'],
+            'token' => JWT::encode(
+                [
+                    'id' => $usuario['id'],
+                    'sub' => $usuario['id'],
+                    'exp' => time() + 604800
+                ],
+                Security::salt()
+            )
+        );
+
+        return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
+    }
+
+    /**
+     * Obtêm token de autenticação
+     *
+     * @return void
+     */
+    public function logoutAPI()
+    {
+        $usuario = $this->Auth->user();
+
+        if (!$usuario) {
+            throw new UnauthorizedException('Usuário ou senha inválidos');
+        }
+
+        $mensagem = [
+            'status' => true,
+            'message' => Configure::read('messageUsuarioLoggedOutSuccessfully')
+        ];
+
+
+        $usuario = [
+            'id' => $usuario['id'],
+            'token' => JWT::encode(
+                [
+                    'id' => $usuario['id'],
+                    'sub' => $usuario['id'],
+                    'exp' => time() + 1
+                ],
+                Security::salt()
+            )
+        ];
+
+        $this->Auth->logout();
+
+        $arraySet = [
+            'mensagem'
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+  
+
+    #endregion
+
+    #region Métodos Comuns
+
+    /**
+     * Verifica se usuario está travado e qual tipo
+     *
+     * @return object conteúdo informando se conta está bloqueada
+     * @author
+     */
+    private function checkUsuarioIsLocked($usuario = null)
+    {
+        try {
+            $message = '';
+
+            /**
+             * 0 = nenhuma
+             * 1 = inativo
+             * 2 = bloqueado
+             * 3 = muitas tentativas
+             */
+            $statusUsuario = 0;
+
+            if (is_null($usuario)) {
+                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                $statusUsuario = 1;
+
+                return array('message' => $message, 'actionNeeded' => $statusUsuario);
+            }
+
+            // verifica se é uma conta sem ser usuário.
+            // se não for, verifica se a rede a qual ele se encontra está desativada
+
+            if ($usuario['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
+                // pega o vínculo do usuário com a rede
+
+                $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario(
+                    array(
+                        'ClientesHasUsuarios.usuarios_id' => $usuario['id']
+                    )
+                );
+                $cliente = null;
+
+                // ele pode retornar vários (Caso de Admin Regional, então, pegar o primeiro
+                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER) {
+                    $cliente = $clienteHasUsuario["cliente"];
+
+                    // verifica se a unidade está ativa. Se está, a rede também está
+                    if (!$cliente["ativado"]) {
+                        $message = __("A unidade/rede à qual esta conta está vinculada está desativada. O acesso não é permitido.");
+                        $statusUsuario = 2;
+
+                        return array('message' => $message, 'actionNeeded' => $statusUsuario);
+                    }
+                }
+
+                if ($usuario['conta_ativa'] == 0) {
+                    if ($usuario['tipo_perfil'] <= PROFILE_TYPE_USER) {
+                        $message = __("A conta encontra-se desativada. Somente seu administrador poderá reativá-la.");
+                        $statusUsuario = 2;
+                    } else {
+                        $message = __("A conta encontra-se desativada. Para reativar, será necessário confirmar alguns dados.");
+                        $statusUsuario = 1;
+                    }
+
+                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
+                } elseif ($usuario['conta_bloqueada'] == true) {
+                    $message = __("Sua conta encontra-se bloqueada no momento. Ela pode ter sido bloqueada por um administrador. Entre em contato com sua rede de atendimento.");
+                    $statusUsuario = 2;
+
+                    return array('message' => $message, 'actionNeeded' => $statusUsuario);
+                } else {
+                    $tentativasLogin = $usuario['tentativas_login'];
+                    $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
+
+                    if (!is_null($tentativasLogin) && !is_null($ultimaTentativaLogin)) {
+                        $format = 'Y-m-d H:i:s';
+                        $fromTime = strtotime($ultimaTentativaLogin->format($format));
+                        $toTime = strtotime(date($format));
+
+                        $diff = round(abs($fromTime - $toTime) / 60, 0);
+
+                        if ($tentativasLogin >= 5 && ($diff < 10)) {
+                            $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
+
+                            $statusUsuario = 3;
+                            return array('message' => $message, 'actionNeeded' => $statusUsuario, "status" => $statusUsuario);
+                        }
+                    }
+                }
+            }
+
+            return array('message' => $message, 'actionNeeded' => $statusUsuario);
+        } catch (\Exception $e) {
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
+
+            Log::write('error', $stringError);
+            Log::write('error', $e->getTraceAsString());
+        }
+    }
+
+    private function verificaTentativaLoginUsuario(string $email, string $senha)
+    {
+        $credenciais = array("email" => $email, "senha" => $senha);
+
+        $usuario = $this->Usuarios->getUsuarioByEmail($email);
+
+        $result = $this->checkUsuarioIsLocked($usuario);
+
+        if ($result['actionNeeded'] == 0) {
+            $user = $this->Auth->identify();
+
+            if ($user) {
+                $this->Auth->setUser($user);
+
+                $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
+                $status = 0;
+
+                if (($user['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK) && $user['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
+                    $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+
+                    if (!empty($vinculoCliente)) {
+                        $cliente = $vinculoCliente["cliente"];
+
+                        if ($cliente) {
+                            // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
+                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+
+                            // verifica qual rede o usuário se encontra
+                            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                            $rede = $redeHasCliente["rede"];
+
+                            $this->request->session()->write('Rede.Grupo', $rede);
+                        }
+                    }
+                }
+                return array(
+                    "usuario" => $usuario,
+                    "status" => 0,
+                    "message" => $message,
+                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+                );
+            } else {
+                $retornoLogin = $this->Usuarios->updateLoginRetry($usuario["id"], 0);
+                $status = 1;
+                $message = $retornoLogin;
+                $usuario = null;
+
+                // $this->Flash->error($retornoLogin);
+            }
+        } else {
+            $message = $result['message'];
+            $recoverAccount = $result['actionNeeded'];
+            $status = isset($result["status"]) ? $result["status"] : 1;
+            $usuario = null;
+        }
+
+        /**
+         * 0 = nenhuma
+         * 1 = inativo
+         * 2 = bloqueado
+         * 3 = muitas tentativas
+         */
+
+        return array(
+            "usuario" => $usuario,
+            "status" => $status,
+            "message" => $message,
+            "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+        );
+    }
+
+    /**
+     * Helper que envia e-mail ao usuário para resetar a senha
+     *
+     * @param string $url     Url de envio do link
+     * @param object $usuario Entidade Usuário
+     *
+     * @return \Cake\Http\Response|void
+     */
+    private function _sendResetEmail($url, $usuario)
+    {
+        $email = new Email();
+        $email->template('resetpw');
+        $email->emailFormat('both');
+        $email->to($usuario->email, $usuario->nome);
+        $email->subject('Reset your password');
+        $email->viewVars(['url' => $url, 'username' => $usuario->nome]);
+        if ($email->send()) {
+            $this->Flash->success(__('Verifique seu email pela requisição de reset de senha'));
+        } else {
+            $this->Flash->error(__('Erro ao enviar email :') . $email->smtpError);
+        }
+    }
+
+    /**
+     * UsuariosController::clearCredentials
+     *
+     * Limpa todas as credenciais e variável de sessão da sessão atual
+     *
+     * @return void
+     */
+    public function clearCredentials()
+    {
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete('Rede.PontoAtendimento');
+    }
+
+    /**
+     * BeforeRender callback
+     *
+     * @param Event $event
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function beforeRender(Event $event)
+    {
+        parent::beforeRender($event);
+
+        if ($this->request->is('ajax')) {
+            $this->viewBuilder()->setLayout('ajax');
+        }
+    }
+
+    /**
+     * Before render callback.
+     *
+     * @param \App\Controller\Event\Event $event The beforeRender event.
+     *
+     * @return \Cake\Network\Response|null|void
+     */
+    public function beforeFilter(Event $event)
+    {
+        parent::beforeFilter($event);
+    }
+
+    /**
+     * Initialize function
+     */
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('RequestHandler');
+
+        // Permitir aos usuários se registrarem e efetuar login e logout.
+
+        $this->Auth->allow(
+            array(
+                "registrar",
+                "registrarAPI",
+                "esqueciMinhaSenhaAPI",
+                "loginAPI",
+                "login",
+                "logout",
+                "esqueciMinhaSenha",
+                "reativarConta",
+                "resetarMinhaSenha",
+                "getUsuarioByCPF",
+                "getUsuarioByEmail",
+                "uploadDocumentTemporaly",
+                "testAPI",
+                "getUsuarioByDocEstrangeiroAPI"
+            )
+        );
+    }
+
+    #endregion
 
     /**
      * ------------------------------------------------------------
@@ -3448,11 +3460,12 @@ class UsuariosController extends AppController
 
             $this->set(compact($arraySet));
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
-            $stringError = __("Erro ao exibir relatório de usuário: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $stringError = __("Erro ao exibir relatório de usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+            Log::write("error", $trace);
 
             $this->Flash->error($stringError);
         }
@@ -3895,11 +3908,7 @@ class UsuariosController extends AppController
 
 
 
-    /**
-     * ------------------------------------------------------------
-     * Ajax Methods
-     * ------------------------------------------------------------
-     */
+    #region  Ajax Methods 
 
     /**
      * Envia documento do cliente para autorização posterior
@@ -3942,13 +3951,13 @@ class UsuariosController extends AppController
 
                 $cpf = empty($data["cpf"]) ? null : $data["cpf"];
 
-                if (empty($cpf)){
+                if (empty($cpf)) {
                     return ResponseUtil::errorAPI(MESSAGE_USUARIOS_CPF_EMPTY, array());
                 }
 
                 $result = NumberUtil::validarCPF($data["cpf"]);
 
-                if ($result["status"] == 0){
+                if ($result["status"] == 0) {
                     return ResponseUtil::errorAPI($result["message"], array());
                 }
 
@@ -3965,7 +3974,9 @@ class UsuariosController extends AppController
                     $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
                 }
             }
-            $arraySet = ['user'];
+            $return = array("user" => $user);
+            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, $return);
+            // $arraySet = ['user', "mensagem"];
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
@@ -4262,32 +4273,7 @@ class UsuariosController extends AppController
         }
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Helpers
-     * ------------------------------------------------------------
-     */
+    #endregion
 
-    /**
-     * Helper que envia e-mail ao usuário para resetar a senha
-     *
-     * @param string $url     Url de envio do link
-     * @param object $usuario Entidade Usuário
-     *
-     * @return \Cake\Http\Response|void
-     */
-    private function _sendResetEmail($url, $usuario)
-    {
-        $email = new Email();
-        $email->template('resetpw');
-        $email->emailFormat('both');
-        $email->to($usuario->email, $usuario->nome);
-        $email->subject('Reset your password');
-        $email->viewVars(['url' => $url, 'username' => $usuario->nome]);
-        if ($email->send()) {
-            $this->Flash->success(__('Verifique seu email pela requisição de reset de senha'));
-        } else {
-            $this->Flash->error(__('Erro ao enviar email :') . $email->smtpError);
-        }
-    }
+
 }

@@ -1395,364 +1395,32 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
-                $url = isset($data['qr_code']) ? $data["qr_code"] : null;
-                $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
-
-                // Verifica se foi informado qr code. Senão já aborta
-                if (is_null($url)) {
-                    $mensagem = array("status" => false, "message" => __("Parâmetro QR CODE não foi informado!"));
-
-                    $arraySet = array("mensagem");
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-                    return;
-                }
-
-                $validacaoQRCode = $this->validarUrlQrCode($url);
-
-                // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-                if ($validacaoQRCode["status"] == false) {
-                    $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
-
-                    $arraySet = array("mensagem");
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-
-                $chaveNfe = !empty($data["chave_nfe"]) ? $data["chave_nfe"] : null;
-
-                $posInicial = strpos($url, "sefaz.") + 6;
-                $posFinal = $posInicial + 2;
-                $pos = substr($url, $posInicial, 2);
-
-                $estado = strtoupper($pos);
-
-                if (empty($chaveNfe)) {
-                    foreach ($validacaoQRCode["data"] as $key => $value) {
-                        if ($value["key"] == "chNFe") {
-                            $chaveNfe = $value["content"];
-                        }
-                    }
-                }
-
-                // Valida se o QR Code já foi importado anteriormente
-
-                $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chaveNfe, $estado);
-
-                // @todo: Apenas para carater de teste
-                // $cupomPreviamenteImportado["status"] = true;
-
-                // Cupom previamente importado, interrompe processamento e avisa usuário
-                if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
-                    $mensagem = $cupomPreviamenteImportado;
-
-                    $arraySet = [
-                        "mensagem"
-                    ];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-
-                // Não teve erros, dá continuidade ao processo.
-
-                $clienteCNPJ = !empty($data["clientes_cnpj"]) ? $data["clientes_cnpj"] : null;
-                $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
-                $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
-
-                $funcionario = null;
-                $usuarioFinal = null;
-                $cliente = null;
-
-                if (empty($funcionariosId)) {
-                    $funcionario = $this->Usuarios->getFuncionarioFicticio();
-                } else {
-                    $funcionario = $this->Usuarios->getUsuarioById($funcionariosId);
-                }
-
-                if (empty($usuariosId)) {
-                    $usuario = $this->Auth->user();
-                    $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
-                } else {
-                    $usuario = $this->Usuarios->getUsuarioById($usuariosId);
-                }
-
-                // Se cnpj for nulo, a pesquisa deverá ser feita sob todos os cnpjs , e depois, pesquisar eles na nota
-                if (!empty($clienteCNPJ)) {
-                    $cliente = $this->Clientes->getClienteByCNPJ($clienteCNPJ);
-                }
-
-                $isEstadoGoias = false;
-                if ($estado == "GO") {
-                    $isEstadoGoias = true;
-                    $startSearch = "chNFe=";
-                    $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
-                    $chave = substr($url, $startSearchIndex, 44);
-                    $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
-                }
-
-                $webContent = $this->webTools->getPageContent($url);
-
-                if ($webContent["statusCode"] == 200) {
-
-                    // Caso Mobile: Cliente não é informado
-                    if (empty($cliente)) {
-                        /**
-                         * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
-                         * trabalha, na API mobile nem sempre eu terei como saber de qual clientes_id o registro
-                         * está vindo.
-                         * Neste caso, é necessário saber de qual estado é o cupom em questão, pegar todos
-                         * os CNPJ's da base de dados, e validar através de loop.
-                         *
-                         */
-
-                        $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
-
-                        $cnpjArray = array();
-
-                        foreach ($cnpjQuery as $key => $value) {
-                            $cnpjArray[] = $value['cnpj'];
-                        }
-
-                        $cnpjEncontrado = null;
-                        foreach ($cnpjArray as $key => $cnpj) {
-
-                            Log::write('debug', __("CNPJ {$cnpj}"));
-                            $cnpjPos = strpos($webContent["response"], $cnpj);
-
-                            if ($cnpjPos > 0) {
-                                $cnpjEncontrado = $cnpj;
-                                break;
-                            }
-                        }
-
-                        // Se encontrou o cnpj, procura o cliente através do cnpj.
-                        // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
-
-                        // DebugUtil::print($cnpjArray);
-
-                        if ($cnpjEncontrado) {
-                            $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
-                        }
-
-                        if (empty($cliente)) {
-                            $mensagem = array(
-                                "status" => false,
-                                "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
-                                "errors" => array()
-                            );
-
-                            $arraySet = [
-                                "mensagem"
-                            ];
-                            $this->set(compact($arraySet));
-                            $this->set("_serialize", $arraySet);
-                            return;
-                        }
-                    }
-
-
-                    // $arrayInexistentes = array(
-                    //     "NOTA FISCAL ELETR&Ocirc;NICA INEXISTENTE",
-                    //     "NOTA FISCAL ELETRÔNICA INEXISTENTE",
-                    // );
-
-                    // $nfeInexistente = -1;
-
-                    // foreach ($arrayInexistentes as $key => $item) {
-                    //     $nfeInexistente = strpos($item, $webContent["response"]);
-
-                    //     if ($nfeInexistente >= 0) break;
-                    // }
-                    $nfeInexistente = -1;
-                    // @todo: ajustar nfe inexistente
-                    // $nfeInexistente = strpos("NOTA FISCAL ELETRÔNICA INEXISTENTE", $webContent["response"]);
-
-                    if ($nfeInexistente >= 0) {
-                        $mensagem = array(
-                            "status" => 0,
-                            "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                            "errors" => array("Nota Fiscal Eletrônica Inexistente!")
-                        );
-
-                        $arraySet = [
-                            "mensagem"
-                        ];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-
-                    // obtem todos os multiplicadores (gotas)
-                    $gotas = $this->Gotas->findGotasByClientesId(array($cliente["id"]));
-
-                    $gotas = $gotas->toArray();
-
-                    Log::write("debug", $webContent);
-
-                    $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, $webContent["response"]);
-
-                    if ($retorno["mensagem"]["status"]) {
-                        $pontuacaoComprovanteSave = $retorno["pontuacoesComprovante"];
-
-                        $pontuacaoComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
-                            $cliente["id"],
-                            $usuario["id"],
-                            $funcionario["id"],
-                            $pontuacaoComprovanteSave["conteudo"],
-                            $pontuacaoComprovanteSave["chave_nfe"],
-                            $estado,
-                            $pontuacaoComprovanteSave["data"],
-                            $pontuacaoComprovanteSave["requer_auditoria"],
-                            $pontuacaoComprovanteSave["auditado"]
-                        );
-
-                        $pontuacaoComprovanteId = $pontuacaoComprovante["id"];
-                        $dataProcessamento = $pontuacaoComprovante["data"];
-
-                        $pontuacoesTemp = $retorno["pontuacoes"];
-                        $pontuacoesSave = array();
-
-                        foreach ($pontuacoesTemp as $pontuacaoItem) {
-
-                            $pontuacao = array(
-                                "pontuacoes_comprovante_id" => $pontuacaoComprovanteId,
-                                "clientes_id" => $cliente["id"],
-                                "usuarios_id" => $usuario["id"],
-                                "funcionarios_id" => $funcionario["id"],
-                                "gotas_id" => $pontuacaoItem["gotas_id"],
-                                "quantidade_multiplicador" => floor($pontuacaoItem["quantidade_multiplicador"]),
-                                "quantidade_gotas" => floor($pontuacaoItem["quantidade_gotas"]),
-                                "data" => $dataProcessamento
-                            );
-
-                            $pontuacoesSave[] = $pontuacao;
-                        }
-
-                        $pontuacoesSave = $this->Pontuacoes->insertPontuacoesCupons($pontuacoesSave);
-
-                        if ($pontuacoesSave) {
-                            // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
-                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], true);
-                        }
-
-                        $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);
-
-                        $funcionarioOperacao = array(
-                            "id" => $funcionario["id"],
-                            "nome" => $funcionario["nome"]
-                        );
-                        $unidadeAtendimento = array(
-                            "id" => $cliente["id"],
-                            "razao_social" => $cliente["razao_social"],
-                            "nome_fantasia" => $cliente["nome_fantasia"],
-                            "cnpj" => $cliente["cnpj"]
-                        );
-
-                        $comprovanteResumo = array();
-
-                        $comprovanteResumo["chave_nfe"] = $chaveNfe;
-                        $comprovanteResumo["estado_nfe"] = $estado;
-                        $comprovanteResumo["data"] = $dataProcessamento;
-                        $comprovanteResumo["soma_pontuacoes"] = floor($pontuacaoComprovante["soma_pontuacoes"]);
-
-                        foreach ($pontuacaoComprovante["pontuacoes"] as $pontuacao) {
-
-                            $item = array(
-                                "nome_gota" => $pontuacao["gota"]["nome_parametro"],
-                                "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
-                                "quantidade_multiplicador" => floor($pontuacao["quantidade_multiplicador"])
-                            );
-                            $comprovanteResumo["pontuacoes"][] = $item;
-                        }
-
-                        $resumo = array(
-                            "funcionario" => $funcionarioOperacao,
-                            "unidade_atendimento" => $unidadeAtendimento,
-                            "comprovante_resumo" => $comprovanteResumo
-                        );
-
-                        $mensagem = $retorno["mensagem"];
-                        $pontuacoes_comprovantes = $pontuacaoComprovante;
-                        $resumo = $resumo;
-
-                        $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        if ($processamentoPendente) {
-                            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
-                            $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
-                        }
-
-                        Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacoes_comprovantes, "resumo" => $resumo));
-                        return;
-                    } else {
-                        // Retorna o que veio de erro
-
-                        $arraySet = array_keys($retorno);
-
-                        foreach ($arraySet as $value) {
-                            $$value = $retorno[$value];
-                        }
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                } elseif (!$processamentoPendente) {
-                    // Trata pontuação para ser processada posteriormente (se já não armazenada)
-
-                    // Status está anormal, grava para posterior processamento
-                    $clientesId = empty($cliente) ? null : $cliente["id"];
-
-                    // @todo: quando a pontuação pendente for processada, o usuário deve ser adicionado ao vínculo com aquele Ponto de Atendimento
-
-                    $pontuacao_pendente = $this
-                        ->PontuacoesPendentes
-                        ->createPontuacaoPendenteAwaitingProcessing(
-                            $clientesId,
-                            $usuario->id,
-                            $funcionario->id,
-                            $url,
-                            $chaveNfe,
-                            $estado
-                        );
-
-                    $success = false;
-                    $message = Configure::read("messageNotPossibleToImportCoupon");
-                    $errors = array(
-                        Configure::read("messageNotPossibleToImportCouponAwaitingProcessing")
+                $retorno = $this->processaCupom($data);
+
+                if ($retorno["mensagem"]["status"]) {
+                    $arrayData = array(
+                        "pontuacoes_comprovantes" => $retorno["pontuacoes_comprovantes"],
+                        "resumo" => $retorno["resumo"]
                     );
-                    $data = array();
 
-                    $arraySet = [
-                        'success',
-                        'message',
-                        'pontuacao_pendente',
-                        'data',
-                        "errors"
-                    ];
+                    ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
+                } else {
 
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-                    return;
+                    $arrayData = array();
+
+                    foreach ($retorno as $key => $value) {
+                        if ($key != "mensagem") {
+                            $arrayData[$key] = $value;
+                        }
+                    }
+
+                    ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
                 }
-
-                // @todo: remover ao finalizar
-                // $webContent = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
             }
 
             Log::write('info', 'Finalizado processamento de cupom...');
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
 
             $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
@@ -1769,10 +1437,362 @@ class PontuacoesComprovantesController extends AppController
             Log::write("error", $messageStringDebug);
             Log::write("error", $trace);
         }
+    }
+
+
+    private function processaCupom($data)
+    {
+        $url = isset($data['qr_code']) ? $data["qr_code"] : null;
+        $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
+
+        // Verifica se foi informado qr code. Senão já aborta
+        if (is_null($url)) {
+            $mensagem = array("status" => false, "message" => __("Parâmetro QR CODE não foi informado!"));
+
+            $arraySet = array("mensagem");
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+            return;
+        }
+
+        $validacaoQRCode = $this->validarUrlQrCode($url);
+
+        // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
+        if ($validacaoQRCode["status"] == false) {
+            $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
+
+            $arraySet = array("mensagem");
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            return;
+        }
+
+        $chaveNfe = !empty($data["chave_nfe"]) ? $data["chave_nfe"] : null;
+
+        $posInicial = strpos($url, "sefaz.") + 6;
+        $posFinal = $posInicial + 2;
+        $pos = substr($url, $posInicial, 2);
+
+        $estado = strtoupper($pos);
+
+        if (empty($chaveNfe)) {
+            foreach ($validacaoQRCode["data"] as $key => $value) {
+                if ($value["key"] == "chNFe") {
+                    $chaveNfe = $value["content"];
+                }
+            }
+        }
+
+        // Valida se o QR Code já foi importado anteriormente
+
+        $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chaveNfe, $estado);
+
+        // @todo: Apenas para carater de teste
+        // $cupomPreviamenteImportado["status"] = true;
+
+        // Cupom previamente importado, interrompe processamento e avisa usuário
+        if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
+
+            $mensagem = $cupomPreviamenteImportado;
+            $resposta = array("mensagem" => $mensagem);
+
+            return $resposta;
+        }
+
+        // Não teve erros, dá continuidade ao processo.
+
+        $clienteCNPJ = !empty($data["clientes_cnpj"]) ? $data["clientes_cnpj"] : null;
+        $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
+        $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
+
+        $funcionario = null;
+        $usuarioFinal = null;
+        $cliente = null;
+
+        if (empty($funcionariosId)) {
+            $funcionario = $this->Usuarios->getFuncionarioFicticio();
+        } else {
+            $funcionario = $this->Usuarios->getUsuarioById($funcionariosId);
+        }
+
+        if (empty($usuariosId)) {
+            $usuario = $this->Auth->user();
+            $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
+        } else {
+            $usuario = $this->Usuarios->getUsuarioById($usuariosId);
+        }
+
+        // Se cnpj for nulo, a pesquisa deverá ser feita sob todos os cnpjs , e depois, pesquisar eles na nota
+        if (!empty($clienteCNPJ)) {
+            $cliente = $this->Clientes->getClienteByCNPJ($clienteCNPJ);
+        }
+
+        $isEstadoGoias = false;
+        if ($estado == "GO") {
+            $isEstadoGoias = true;
+            $startSearch = "chNFe=";
+            $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
+            $chave = substr($url, $startSearchIndex, 44);
+            $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
+        }
+
+        $webContent = $this->webTools->getPageContent($url);
+
+        // @todo Só para carater de teste
+        // $webContent["statusCode"] = 400;
+
+        if ($webContent["statusCode"] == 200) {
+
+            // Caso Mobile: Cliente não é informado
+            if (empty($cliente)) {
+                /**
+                 * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
+                 * trabalha, na API mobile nem sempre eu terei como saber de qual clientes_id o registro
+                 * está vindo.
+                 * Neste caso, é necessário saber de qual estado é o cupom em questão, pegar todos
+                 * os CNPJ's da base de dados, e validar através de loop.
+                 *
+                 */
+
+                $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
+
+                $cnpjArray = array();
+
+                foreach ($cnpjQuery as $key => $value) {
+                    $cnpjArray[] = $value['cnpj'];
+                }
+
+                $cnpjEncontrado = null;
+                foreach ($cnpjArray as $key => $cnpj) {
+
+                    Log::write('debug', __("CNPJ {$cnpj}"));
+                    $cnpjPos = strpos($webContent["response"], $cnpj);
+
+                    if ($cnpjPos > 0) {
+                        $cnpjEncontrado = $cnpj;
+                        break;
+                    }
+                }
+
+                // Se encontrou o cnpj, procura o cliente através do cnpj.
+                // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
+
+                // DebugUtil::print($cnpjArray);
+
+                if ($cnpjEncontrado) {
+                    $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
+                }
+
+                if (empty($cliente)) {
+                    $mensagem = array(
+                        "status" => false,
+                        "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
+                        "errors" => array()
+                    );
+
+                    $arraySet = [
+                        "mensagem"
+                    ];
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+                    return;
+                }
+            }
+
+
+            // $arrayInexistentes = array(
+            //     "NOTA FISCAL ELETR&Ocirc;NICA INEXISTENTE",
+            //     "NOTA FISCAL ELETRÔNICA INEXISTENTE",
+            // );
+
+            // $nfeInexistente = -1;
+
+            // foreach ($arrayInexistentes as $key => $item) {
+            //     $nfeInexistente = strpos($item, $webContent["response"]);
+
+            //     if ($nfeInexistente >= 0) break;
+            // }
+            $nfeInexistente = -1;
+            // @todo: ajustar nfe inexistente
+            // $nfeInexistente = strpos("NOTA FISCAL ELETRÔNICA INEXISTENTE", $webContent["response"]);
+
+            if ($nfeInexistente >= 0) {
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                    "errors" => array("Nota Fiscal Eletrônica Inexistente!")
+                );
+
+                $arraySet = [
+                    "mensagem"
+                ];
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+
+            // obtem todos os multiplicadores (gotas)
+            $gotas = $this->Gotas->findGotasByClientesId(array($cliente["id"]));
+
+            $gotas = $gotas->toArray();
+
+            Log::write("debug", $webContent);
+
+            $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, $webContent["response"]);
+
+            if ($retorno["mensagem"]["status"]) {
+                $pontuacaoComprovanteSave = $retorno["pontuacoesComprovante"];
+
+                $pontuacaoComprovante = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom(
+                    $cliente["id"],
+                    $usuario["id"],
+                    $funcionario["id"],
+                    $pontuacaoComprovanteSave["conteudo"],
+                    $pontuacaoComprovanteSave["chave_nfe"],
+                    $estado,
+                    $pontuacaoComprovanteSave["data"],
+                    $pontuacaoComprovanteSave["requer_auditoria"],
+                    $pontuacaoComprovanteSave["auditado"]
+                );
+
+                $pontuacaoComprovanteId = $pontuacaoComprovante["id"];
+                $dataProcessamento = $pontuacaoComprovante["data"];
+
+                $pontuacoesTemp = $retorno["pontuacoes"];
+                $pontuacoesSave = array();
+
+                foreach ($pontuacoesTemp as $pontuacaoItem) {
+
+                    $pontuacao = array(
+                        "pontuacoes_comprovante_id" => $pontuacaoComprovanteId,
+                        "clientes_id" => $cliente["id"],
+                        "usuarios_id" => $usuario["id"],
+                        "funcionarios_id" => $funcionario["id"],
+                        "gotas_id" => $pontuacaoItem["gotas_id"],
+                        "quantidade_multiplicador" => floor($pontuacaoItem["quantidade_multiplicador"]),
+                        "quantidade_gotas" => floor($pontuacaoItem["quantidade_gotas"]),
+                        "data" => $dataProcessamento
+                    );
+
+                    $pontuacoesSave[] = $pontuacao;
+                }
+
+                $pontuacoesSave = $this->Pontuacoes->insertPontuacoesCupons($pontuacoesSave);
+
+                if ($pontuacoesSave) {
+                    // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], true);
+                }
+
+                $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);
+
+                $funcionarioOperacao = array(
+                    "id" => $funcionario["id"],
+                    "nome" => $funcionario["nome"]
+                );
+                $unidadeAtendimento = array(
+                    "id" => $cliente["id"],
+                    "razao_social" => $cliente["razao_social"],
+                    "nome_fantasia" => $cliente["nome_fantasia"],
+                    "cnpj" => $cliente["cnpj"]
+                );
+
+                $comprovanteResumo = array();
+
+                $comprovanteResumo["chave_nfe"] = $chaveNfe;
+                $comprovanteResumo["estado_nfe"] = $estado;
+                $comprovanteResumo["data"] = $dataProcessamento;
+                $comprovanteResumo["soma_pontuacoes"] = floor($pontuacaoComprovante["soma_pontuacoes"]);
+
+                foreach ($pontuacaoComprovante["pontuacoes"] as $pontuacao) {
+
+                    $item = array(
+                        "nome_gota" => $pontuacao["gota"]["nome_parametro"],
+                        "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
+                        "quantidade_multiplicador" => floor($pontuacao["quantidade_multiplicador"])
+                    );
+                    $comprovanteResumo["pontuacoes"][] = $item;
+                }
+
+                $resumo = array(
+                    "funcionario" => $funcionarioOperacao,
+                    "unidade_atendimento" => $unidadeAtendimento,
+                    "comprovante_resumo" => $comprovanteResumo
+                );
+
+                $mensagem = $retorno["mensagem"];
+                $resumo = $resumo;
+                $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
+
+                if ($processamentoPendente) {
+                    $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
+                    $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
+                }
+
+                Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacaoComprovante, "resumo" => $resumo));
+                return array(
+                    "mensagem" => $mensagem,
+                    "pontuacoes_comprovantes" => $pontuacaoComprovante,
+                    "resumo" => $resumo
+                );
+            } else {
+                // Retorna o que veio de erro
+
+                $arraySet = array_keys($retorno);
+
+                foreach ($arraySet as $value) {
+                    $$value = $retorno[$value];
+                }
+
+                $this->set(compact($arraySet));
+                $this->set("_serialize", $arraySet);
+
+                return;
+            }
+        } elseif (!$processamentoPendente) {
+            // Trata pontuação para ser processada posteriormente (se já não armazenada)
+
+            // Status está anormal, grava para posterior processamento
+            $clientesId = empty($cliente) ? null : $cliente["id"];
+
+            // @todo: quando a pontuação pendente for processada, o usuário deve ser adicionado ao vínculo com aquele Ponto de Atendimento
+
+            $pontuacaoPendente = $this
+                ->PontuacoesPendentes
+                ->createPontuacaoPendenteAwaitingProcessing(
+                    $clientesId,
+                    $usuario->id,
+                    $funcionario->id,
+                    $url,
+                    $chaveNfe,
+                    $estado
+                );
+
+            $errors = array(
+                Configure::read("messageNotPossibleToImportCouponAwaitingProcessing")
+            );
+            $data = array();
+            $mensagem = array(
+                "status" => 0,
+                "message" => Configure::read("messageNotPossibleToImportCoupon"),
+                "errors" => $errors
+            );
+            $resumo = null;
+
+            return array(
+                "mensagem" => $mensagem,
+                "pontuacao_pendente" => $pontuacaoPendente,
+                "resumo" => $resumo
+            );
+        }
+
+        // @todo: remover ao finalizar
+        // $webContent = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
-
-        $pontuacoes_comprovantes = $pontuacoesComprovantes;
 
         $arraySet = [
             'mensagem',
@@ -1780,8 +1800,11 @@ class PontuacoesComprovantesController extends AppController
             "resumo"
         ];
 
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
+        return array(
+            'mensagem' => $mensagem,
+            'pontuacoes_comprovantes' => $pontuacoesComprovantes,
+            'resumo' => $resumo
+        );
     }
 
     /**

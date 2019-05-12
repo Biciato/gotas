@@ -317,7 +317,7 @@ $(document).ready(function() {
                 console.log(response);
 
                 closeLoaderAnimation();
-                callModalError(response.responseText);
+                callModalError(response.responseJSON.mensagem.message, response.responseJSON.mensagem.errors);
             }
         }).done(function(result) {
             if (result.mensagem.status) {
