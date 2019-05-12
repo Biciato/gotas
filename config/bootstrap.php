@@ -287,7 +287,7 @@ const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente n
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
-        
+
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const TYPE_BARCODE_QRCODE = "QRCode";
@@ -364,6 +364,13 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 
 CONST PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
 CONST PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
+const MESSAGE_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
+
+#region Pontuacoes Comprovantes
+
+const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
+
+#endregion
 
 // Redes
 

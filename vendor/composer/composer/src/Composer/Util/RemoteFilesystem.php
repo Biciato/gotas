@@ -13,6 +13,9 @@
 namespace Composer\Util;
 
 use Composer\Config;
+use Composer\Composer;
+use Composer\Semver\Constraint\Constraint;
+use Composer\Package\Version\VersionParser;
 use Composer\IO\IOInterface;
 use Composer\Downloader\TransportException;
 use Composer\CaBundle\CaBundle;
@@ -114,13 +117,18 @@ class RemoteFilesystem
     /**
      * Merges new options
      *
-     * @return array $options
+     * @param array $options
      */
     public function setOptions(array $options)
     {
         $this->options = array_replace_recursive($this->options, $options);
     }
 
+    /**
+     * Check is disable TLS.
+     *
+     * @return bool
+     */
     public function isTlsDisabled()
     {
         return $this->disableTls === true;
@@ -319,15 +327,12 @@ class RemoteFilesystem
 
             if (!empty($http_response_header[0])) {
                 $statusCode = $this->findStatusCode($http_response_header);
+                if ($statusCode >= 400 && $this->findHeaderValue($http_response_header, 'content-type') === 'application/json') {
+                    self::outputWarnings($this->io, $originUrl, json_decode($result, true));
+                }
+
                 if (in_array($statusCode, array(401, 403)) && $this->retryAuthFailure) {
-                    $warning = null;
-                    if ($this->findHeaderValue($http_response_header, 'content-type') === 'application/json') {
-                        $data = json_decode($result, true);
-                        if (!empty($data['warning'])) {
-                            $warning = $data['warning'];
-                        }
-                    }
-                    $this->promptAuthAndRetry($statusCode, $this->findStatusMessage($http_response_header), $warning);
+                    $this->promptAuthAndRetry($statusCode, $this->findStatusMessage($http_response_header), null, $http_response_header);
                 }
             }
 
@@ -364,7 +369,7 @@ class RemoteFilesystem
             }
             $result = false;
         }
-        if ($errorMessage && !ini_get('allow_url_fopen')) {
+        if ($errorMessage && !filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)) {
             $errorMessage = 'allow_url_fopen must be enabled in php.ini ('.$errorMessage.')';
         }
         restore_error_handler();
@@ -385,15 +390,18 @@ class RemoteFilesystem
 
         $statusCode = null;
         $contentType = null;
+        $locationHeader = null;
         if (!empty($http_response_header[0])) {
             $statusCode = $this->findStatusCode($http_response_header);
             $contentType = $this->findHeaderValue($http_response_header, 'content-type');
+            $locationHeader = $this->findHeaderValue($http_response_header, 'location');
         }
 
         // check for bitbucket login page asking to authenticate
         if ($originUrl === 'bitbucket.org'
             && !$this->isPublicBitBucketDownload($fileUrl)
             && substr($fileUrl, -4) === '.zip'
+            && (!$locationHeader || substr($locationHeader, -4) !== '.zip')
             && $contentType && preg_match('{^text/html\b}i', $contentType)
         ) {
             $result = false;
@@ -639,11 +647,35 @@ class RemoteFilesystem
         }
     }
 
-    protected function promptAuthAndRetry($httpStatus, $reason = null, $warning = null)
+    protected function promptAuthAndRetry($httpStatus, $reason = null, $warning = null, $headers = array())
     {
         if ($this->config && in_array($this->originUrl, $this->config->get('github-domains'), true)) {
-            $message = "\n".'Could not fetch '.$this->fileUrl.', please create a GitHub OAuth token '.($httpStatus === 404 ? 'to access private repos' : 'to go over the API rate limit');
             $gitHubUtil = new GitHub($this->io, $this->config, null);
+            $message = "\n";
+
+            $rateLimited = $gitHubUtil->isRateLimited($headers);
+            if ($rateLimited) {
+                $rateLimit = $gitHubUtil->getRateLimit($headers);
+                if ($this->io->hasAuthentication($this->originUrl)) {
+                    $message = 'Review your configured GitHub OAuth token or enter a new one to go over the API rate limit.';
+                } else {
+                    $message = 'Create a GitHub OAuth token to go over the API rate limit.';
+                }
+
+                $message = sprintf(
+                    'GitHub API limit (%d calls/hr) is exhausted, could not fetch '.$this->fileUrl.'. '.$message.' You can also wait until %s for the rate limit to reset.',
+                    $rateLimit['limit'],
+                    $rateLimit['reset']
+                )."\n";
+            } else {
+                $message .= 'Could not fetch '.$this->fileUrl.', please ';
+                if ($this->io->hasAuthentication($this->originUrl)) {
+                    $message .= 'review your configured GitHub OAuth token or enter a new one to access private repos';
+                } else {
+                    $message .= 'create a GitHub OAuth token to access private repos';
+                }
+            }
+
             if (!$gitHubUtil->authorizeOAuth($this->originUrl)
                 && (!$this->io->isInteractive() || !$gitHubUtil->authorizeOAuthInteractively($this->originUrl, $message))
             ) {
@@ -709,10 +741,6 @@ class RemoteFilesystem
                 throw new TransportException("Invalid credentials for '" . $this->fileUrl . "', aborting.", $httpStatus);
             }
 
-            $this->io->overwriteError('');
-            if ($warning) {
-                $this->io->writeError('    <warning>'.$warning.'</warning>');
-            }
             $this->io->writeError('    Authentication required (<info>'.parse_url($this->fileUrl, PHP_URL_HOST).'</info>):');
             $username = $this->io->ask('      Username: ');
             $password = $this->io->askAndHideAnswer('      Password: ');
@@ -1057,5 +1085,25 @@ class RemoteFilesystem
         $pathParts = explode('/', $path);
 
         return count($pathParts) >= 4 && $pathParts[3] == 'downloads';
+    }
+
+    public static function outputWarnings(IOInterface $io, $url, $data)
+    {
+        foreach (array('warning', 'info') as $type) {
+            if (empty($data[$type])) {
+                continue;
+            }
+
+            if (!empty($data[$type . '-versions'])) {
+                $versionParser = new VersionParser();
+                $constraint = $versionParser->parseConstraints($data[$type . '-versions']);
+                $composer = new Constraint('==', $versionParser->normalize(Composer::getVersion()));
+                if (!$constraint->matches($composer)) {
+                    continue;
+                }
+            }
+
+            $io->writeError('<'.$type.'>'.ucfirst($type).' from '.$url.': '.$data[$type].'</'.$type.'>');
+        }
     }
 }

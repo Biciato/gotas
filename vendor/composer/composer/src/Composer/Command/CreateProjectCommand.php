@@ -104,6 +104,7 @@ controlled code by appending the <info>'--prefer-source'</info> flag.
 To install a package from another repository than the default one you
 can pass the <info>'--repository=https://myrepository.org'</info> flag.
 
+Read more at https://getcomposer.org/doc/03-cli.md#create-project
 EOT
             )
         ;
@@ -343,10 +344,6 @@ EOT
 
         if ($package instanceof AliasPackage) {
             $package = $package->getAliasOf();
-        }
-
-        if (0 === strpos($package->getPrettyVersion(), 'dev-') && in_array($package->getSourceType(), array('git', 'hg'))) {
-            $package->setSourceReference(substr($package->getPrettyVersion(), 4));
         }
 
         $dm = $this->createDownloadManager($io, $config);

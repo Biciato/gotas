@@ -201,6 +201,11 @@ Router::scope("/api", function ($routes) {
                     "action" => "removerPontuacoesDevAPI",
                     "method" => "GET",
                     "path" => "/remover_pontuacoes_dev"
+                ),
+                "setComprovanteFiscalViaFuncionarioAPI" => array(
+                    "action" => "setComprovanteFiscalViaFuncionarioAPI",
+                    "method" => "POST",
+                    "path" => "set_comprovante_fiscal_via_funcionario"
                 )
             ]
         ]

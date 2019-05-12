@@ -40,6 +40,8 @@ class PontuacoesComprovantesController extends AppController
      */
     protected $address_helper = null;
 
+    #region Métodos de Action
+
     /**
      * ------------------------------------------------------------
      * CRUD Methods
@@ -435,6 +437,8 @@ class PontuacoesComprovantesController extends AppController
             $this->Flash->error($stringError);
         }
     }
+
+    #endregion
 
     /**
      * ------------------------------------------------------------
@@ -1232,6 +1236,8 @@ class PontuacoesComprovantesController extends AppController
         }
     }
 
+    #region REST Methods
+
     /**
      * ------------------------------------------------------------
      * Serviços REST
@@ -1439,7 +1445,306 @@ class PontuacoesComprovantesController extends AppController
         }
     }
 
+    public function setComprovanteFiscalViaFuncionarioAPI()
+    {
+        Log::write('info', 'Iniciado processamento de cupom...');
+        $mensagem = array();
 
+        $status = false;
+        $message = null;
+        $errors = array();
+        try {
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
+                $usuariosId = !empty($data["usuarios_id"]) ? (int)$data["usuarios_id"] : null;
+                $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+                $funcionariosId = $this->Auth->user()["id"];
+
+                $errors = array();
+
+                if (empty($usuariosId)) {
+                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY;
+                }
+
+                $qrCode = null;
+                if (empty($qrCode)) {
+                    $errors[] = MESSAGE_QR_CODE_EMPTY;
+                }
+
+                if (count($errors) > 0) {
+                    throw new \Exception(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, 0, null, $errors);
+                }
+
+                $data = array(
+                    "usuarios_id" => $usuariosId,
+                    "qr_code" => $qrCode
+                );
+
+                $retorno = $this->processaCupom($data);
+
+                DebugUtil::printArray($retorno);
+            }
+        } catch (\Exception $e) {
+            Log::write("error", $e);
+            ResponseUtil::errorAPI();
+        }
+
+        Log::write("info", "Finalizando Processamento de cupom...");
+    }
+
+    /**
+     * PontuacoesComprovantesController::setPontuacoesUsuarioViaPostoAPI
+     *
+     * Grava as pontuações de um usuário que abasteceu no posto de atendimento
+     * sem precisar de cadastro
+     *
+     * @return void
+     */
+    public function setPontuacoesUsuarioViaPostoAPI()
+    {
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+            $errors = array();
+
+            // Informações do POST
+            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+            $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
+            $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+            $funcionario = $this->getUserLogged();
+
+            // Validação
+            if (empty($cnpj)) {
+                $errors[] = MESSAGE_CNPJ_EMPTY;
+            }
+
+            if (empty($cpf)) {
+                $errors[] = MESSAGE_USUARIOS_CPF_EMPTY;
+            }
+
+            if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
+                $errors[] = "Itens da Venda não foram informados!";
+            }
+
+            if (sizeof($errors) > 0) {
+                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+            }
+
+            // Validação CNPJ e CPF
+            $validacaoCNPJ = NumberUtil::validarCNPJ($cnpj);
+            $validacaoCPF = NumberUtil::validarCPF($cpf);
+
+            if ($validacaoCNPJ == 0) {
+                $errors[] = $validacaoCNPJ["message"];
+            }
+
+            if ($validacaoCPF["status"] == 0) {
+                $errors[] = $validacaoCPF["message"];
+            }
+
+            if (sizeof($errors) > 0) {
+                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+            }
+
+            // Posto de atendimento
+            $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
+
+            if (empty($cliente)) {
+                $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
+            }
+
+            $chave = null;
+
+            if (strtoupper($cliente["estado"] == "MG")) {
+                if (empty($qrCode)) {
+                    $qrCode = "CUPOM ECF-MG";
+                    $chave = $qrCode;
+                } else {
+                    $chave = $qrCode;
+                }
+            } else {
+                if (empty($qrCode)) {
+                    $errors[] = MESSAGE_COUPON_EMPTY;
+                } else if (strpos($qrCode, "sefaz.") == 0) {
+                    $errors[] = MESSAGE_COUPON_MISMATCH_FORMAT;
+                }
+
+                if (sizeof($errors) > 0) {
+                    ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                } else {
+                    $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+                }
+            }
+
+            if (sizeof($errors) > 0) {
+                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+            }
+
+            // Fim de Validação
+
+            // Cliente do posto
+            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
+            // Se usuário não encontrado, cadastra para futuro acesso
+            if (empty($usuario)) {
+                $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
+            }
+
+            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
+            if ($usuario) {
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], 0);
+            }
+
+            if (empty($funcionario)) {
+                $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
+            }
+
+            $gotasCliente = $this->Gotas->findGotasEnabledByClientesId($cliente["id"]);
+            $pontuacoes = array();
+            $data = date("Y-m-d H:i:s");
+            $gotasAtualizarPreco = array();
+            $gotasCliente = $gotasCliente->toArray();
+
+            foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
+
+                $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
+                    return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
+                });
+
+                $gota = array_values($gota);
+
+                if (!empty($gota)) {
+                    $gota = $gota[0];
+                    $item = array(
+                        "multiplicador_gota" => floor($gotaUsuario["gotas_qtde"]),
+                        "quantidade_gota" => floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]),
+                        "clientes_id" => $cliente["id"],
+                        "usuarios_id" => $usuario["id"],
+                        "funcionarios_id" => $funcionario["id"],
+                        "gotas_id" => $gota["id"],
+                        "data" => $data
+                    );
+
+                    // Confere quais gotas estão com preço desatualizado
+
+                    if ($gotaUsuario["gotas_vl_unit"] != $gota["valor_atual"]) {
+                        $gotaPreco = array(
+                            "clientes_id" => $cliente["id"],
+                            "gotas_id" => $gota["id"],
+                            "preco" => $gotaUsuario["gotas_vl_unit"]
+                        );
+
+                        // @todo gustavosg: pendente!
+                        $gotasAtualizarPreco[] = $gotaPreco;
+                    }
+
+                    $pontuacoes[] = $item;
+                }
+            }
+
+            $pontuacoesComprovante = array(
+                "qr_code" => $qrCode
+            );
+
+            $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrCode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
+
+            foreach ($pontuacoes as $pontuacao) {
+                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
+            }
+
+            $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
+
+            $comprovanteResumo = array();
+            $comprovanteResumo["chave_nfe"] = $chave;
+            $comprovanteResumo["estado_nfe"] = $cliente["estado"];
+            $comprovanteResumo["data"] = $data;
+            $comprovanteResumo["soma_pontuacoes"] = floor($comprovante["soma_pontuacoes"]);
+
+            foreach ($comprovante["pontuacoes"] as $pontuacao) {
+                $item = array(
+                    "nome_gota" => $pontuacao["gota"]["nome_parametro"],
+                    "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
+                    "quantidade_multiplicador" => floor($pontuacao["quantidade_multiplicador"])
+                );
+                $comprovanteResumo["pontuacoes"][] = $item;
+            }
+
+            $resumo = array(
+                "funcionario" => $funcionario,
+                "unidade_atendimento" => $cliente,
+                "comprovante_resumo" => $comprovanteResumo
+            );
+
+            $retorno = array(
+                "pontuacoes_comprovantes" => $pontuacaoComprovanteSave,
+                "resumo_envio_pontuacoes" => array(
+                    "funcionario" => $funcionario,
+                    "unidade_atendimento" => $cliente,
+                    "comprovantes_resumo" => $comprovanteResumo
+                )
+            );
+            ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+        }
+    }
+
+    /**
+     * Remove Pontuações Ambiente desenvolvimento
+     *
+     * @return void
+     */
+    public function removerPontuacoesDevAPI()
+    {
+        try {
+            $deletePontuacoes = $this->Pontuacoes->deleteAllPontuacoes();
+            $deletePontuacoesComprovantes = $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantes();
+
+            $dadosApagados = "";
+
+            $dadosApagados = $deletePontuacoes ? $dadosApagados . "PONTUAÇÕES , " : $dadosApagados;
+            $dadosApagados = $deletePontuacoesComprovantes ? $dadosApagados . "PONTUAÇÕES COMPROVANTES " : $dadosApagados;
+
+            if ($deletePontuacoes || $deletePontuacoesComprovantes) {
+
+                $mensagem = array(
+                    "status" => 1,
+                    "message" => __("Dados de {0} apagados com sucesso!", $dadosApagados),
+                    "errors" => array()
+                );
+            } else if ($deletePontuacoes == 0 && $deletePontuacoesComprovantes == 0) {
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => __("messageDeleteError"),
+                    "errors" => array("Não há dados para serem apagados!")
+                );
+            }
+
+            $arraySet = array("mensagem");
+
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            return;
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            $stringError = __("Erro ao remover registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
+        }
+    }
+
+    /**
+     * PontuacoesComprovantesController::processaCupom
+     *
+     * Realiza conjunto de processamento do cupom da SEFAZ
+     *
+     * @param array $data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-12
+     *
+     * @return json Response
+     */
     private function processaCupom($data)
     {
         $url = isset($data['qr_code']) ? $data["qr_code"] : null;
@@ -1807,200 +2112,6 @@ class PontuacoesComprovantesController extends AppController
         );
     }
 
-    /**
-     * PontuacoesComprovantesController::setPontuacoesUsuarioViaPostoAPI
-     *
-     * Grava as pontuações de um usuário que abasteceu no posto de atendimento
-     * sem precisar de cadastro
-     *
-     * @return void
-     */
-    public function setPontuacoesUsuarioViaPostoAPI()
-    {
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-            $errors = array();
-
-            // Informações do POST
-            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
-            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
-            $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
-            $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-            $funcionario = $this->getUserLogged();
-
-            // Validação
-            if (empty($cnpj)) {
-                $errors[] = MESSAGE_CNPJ_EMPTY;
-            }
-
-            if (empty($cpf)) {
-                $errors[] = MESSAGE_USUARIOS_CPF_EMPTY;
-            }
-
-            if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
-                $errors[] = "Itens da Venda não foram informados!";
-            }
-
-            if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
-            }
-
-            // Validação CNPJ e CPF
-            $validacaoCNPJ = NumberUtil::validarCNPJ($cnpj);
-            $validacaoCPF = NumberUtil::validarCPF($cpf);
-
-            if ($validacaoCNPJ == 0) {
-                $errors[] = $validacaoCNPJ["message"];
-            }
-
-            if ($validacaoCPF["status"] == 0) {
-                $errors[] = $validacaoCPF["message"];
-            }
-
-            if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
-            }
-
-            // Posto de atendimento
-            $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
-
-            if (empty($cliente)) {
-                $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
-            }
-
-            $chave = null;
-
-            if (strtoupper($cliente["estado"] == "MG")) {
-                if (empty($qrCode)) {
-                    $qrCode = "CUPOM ECF-MG";
-                    $chave = $qrCode;
-                } else {
-                    $chave = $qrCode;
-                }
-            } else {
-                if (empty($qrCode)) {
-                    $errors[] = MESSAGE_COUPON_EMPTY;
-                } else if (strpos($qrCode, "sefaz.") == 0) {
-                    $errors[] = MESSAGE_COUPON_MISMATCH_FORMAT;
-                }
-
-                if (sizeof($errors) > 0) {
-                    ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
-                } else {
-                    $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
-                }
-            }
-
-            if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
-            }
-
-            // Fim de Validação
-
-            // Cliente do posto
-            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
-
-            // Se usuário não encontrado, cadastra para futuro acesso
-            if (empty($usuario)) {
-                $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
-            }
-
-            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
-            if ($usuario) {
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], 0);
-            }
-
-            if (empty($funcionario)) {
-                $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
-            }
-
-            $gotasCliente = $this->Gotas->findGotasEnabledByClientesId($cliente["id"]);
-            $pontuacoes = array();
-            $data = date("Y-m-d H:i:s");
-            $gotasAtualizarPreco = array();
-            $gotasCliente = $gotasCliente->toArray();
-
-            foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
-
-                $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
-                    return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
-                });
-
-                $gota = array_values($gota);
-
-                if (!empty($gota)) {
-                    $gota = $gota[0];
-                    $item = array(
-                        "multiplicador_gota" => floor($gotaUsuario["gotas_qtde"]),
-                        "quantidade_gota" => floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]),
-                        "clientes_id" => $cliente["id"],
-                        "usuarios_id" => $usuario["id"],
-                        "funcionarios_id" => $funcionario["id"],
-                        "gotas_id" => $gota["id"],
-                        "data" => $data
-                    );
-
-                    // Confere quais gotas estão com preço desatualizado
-
-                    if ($gotaUsuario["gotas_vl_unit"] != $gota["valor_atual"]) {
-                        $gotaPreco = array(
-                            "clientes_id" => $cliente["id"],
-                            "gotas_id" => $gota["id"],
-                            "preco" => $gotaUsuario["gotas_vl_unit"]
-                        );
-
-                        // @todo gustavosg: pendente!
-                        $gotasAtualizarPreco[] = $gotaPreco;
-                    }
-
-                    $pontuacoes[] = $item;
-                }
-            }
-
-            $pontuacoesComprovante = array(
-                "qr_code" => $qrCode
-            );
-
-            $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrCode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
-
-            foreach ($pontuacoes as $pontuacao) {
-                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
-            }
-
-            $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
-
-            $comprovanteResumo = array();
-            $comprovanteResumo["chave_nfe"] = $chave;
-            $comprovanteResumo["estado_nfe"] = $cliente["estado"];
-            $comprovanteResumo["data"] = $data;
-            $comprovanteResumo["soma_pontuacoes"] = floor($comprovante["soma_pontuacoes"]);
-
-            foreach ($comprovante["pontuacoes"] as $pontuacao) {
-                $item = array(
-                    "nome_gota" => $pontuacao["gota"]["nome_parametro"],
-                    "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
-                    "quantidade_multiplicador" => floor($pontuacao["quantidade_multiplicador"])
-                );
-                $comprovanteResumo["pontuacoes"][] = $item;
-            }
-
-            $resumo = array(
-                "funcionario" => $funcionario,
-                "unidade_atendimento" => $cliente,
-                "comprovante_resumo" => $comprovanteResumo
-            );
-
-            $retorno = array(
-                "pontuacoes_comprovantes" => $pontuacaoComprovanteSave,
-                "resumo_envio_pontuacoes" => array(
-                    "funcionario" => $funcionario,
-                    "unidade_atendimento" => $cliente,
-                    "comprovantes_resumo" => $comprovanteResumo
-                )
-            );
-            ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
-        }
-    }
 
     /**
      * PontuacoesComprovantesController::validarUrlQrCode
@@ -2201,51 +2312,6 @@ class PontuacoesComprovantesController extends AppController
         return array("status" => $status, "message" => $message, "errors" => $errors);
     }
 
-    /**
-     * Remove Pontuações Ambiente desenvolvimento
-     *
-     * @return void
-     */
-    public function removerPontuacoesDevAPI()
-    {
-        try {
-            $deletePontuacoes = $this->Pontuacoes->deleteAllPontuacoes();
-            $deletePontuacoesComprovantes = $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantes();
-
-            $dadosApagados = "";
-
-            $dadosApagados = $deletePontuacoes ? $dadosApagados . "PONTUAÇÕES , " : $dadosApagados;
-            $dadosApagados = $deletePontuacoesComprovantes ? $dadosApagados . "PONTUAÇÕES COMPROVANTES " : $dadosApagados;
-
-            if ($deletePontuacoes || $deletePontuacoesComprovantes) {
-
-                $mensagem = array(
-                    "status" => 1,
-                    "message" => __("Dados de {0} apagados com sucesso!", $dadosApagados),
-                    "errors" => array()
-                );
-            } else if ($deletePontuacoes == 0 && $deletePontuacoesComprovantes == 0) {
-                $mensagem = array(
-                    "status" => 0,
-                    "message" => __("messageDeleteError"),
-                    "errors" => array("Não há dados para serem apagados!")
-                );
-            }
-
-            $arraySet = array("mensagem");
-
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
-
-            return;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao remover registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-            Log::write("error", $trace);
-        }
-    }
 
     /**
      * PontuacoesComprovantesController::processaConteudoSefaz
