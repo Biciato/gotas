@@ -1466,13 +1466,18 @@ class PontuacoesComprovantesController extends AppController
                     $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY;
                 }
 
-                $qrCode = null;
                 if (empty($qrCode)) {
                     $errors[] = MESSAGE_QR_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
-                    throw new \Exception(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, 0, null, $errors);
+                    $mensagem = array(
+                        "status" => 0,
+                        "message" => MESSAGE_OPERATION_FAILURE_DURING_PROCESSING,
+                        "errors" => $errors
+                    );
+
+                    return ResponseUtil::errorAPI($mensagem["message"], $mensagem["errors"]);
                 }
 
                 $data = array(
@@ -1482,11 +1487,42 @@ class PontuacoesComprovantesController extends AppController
 
                 $retorno = $this->processaCupom($data);
 
-                DebugUtil::printArray($retorno);
+                $mensagem = $retorno["mensagem"];
+
+                $responseData = array();
+                foreach ($retorno as $key => $value) {
+                    if ($key != "mensagem") {
+                        $responseData[$key] = $value;
+                    }
+                }
+
+                if ($mensagem["status"]) {
+                    return ResponseUtil::successAPI($mensagem["message"], $responseData);
+                } else {
+                    return ResponseUtil::errorAPI($mensagem["message"], $mensagem["errors"], $responseData);
+                }
             }
         } catch (\Exception $e) {
-            Log::write("error", $e);
-            ResponseUtil::errorAPI();
+            $trace = $e->getTraceAsString();
+
+            Log::write("error", $message);
+
+            $trace = $e->getTraceAsString();
+            $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
+
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+
+            $messageStringDebug = __(
+                "{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ",
+                $messageString,
+                $e->getMessage(),
+                __FUNCTION__,
+                __FILE__,
+                __LINE__
+            );
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
         }
 
         Log::write("info", "Finalizando Processamento de cupom...");
@@ -1752,7 +1788,7 @@ class PontuacoesComprovantesController extends AppController
 
         // Verifica se foi informado qr code. Senão já aborta
         if (is_null($url)) {
-            $mensagem = array("status" => false, "message" => __("Parâmetro QR CODE não foi informado!"));
+            $mensagem = array("status" => 0, "message" => __("Parâmetro QR CODE não foi informado!"));
 
             $arraySet = array("mensagem");
             $this->set(compact($arraySet));
@@ -1891,7 +1927,7 @@ class PontuacoesComprovantesController extends AppController
 
                 if (empty($cliente)) {
                     $mensagem = array(
-                        "status" => false,
+                        "status" => 0,
                         "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
                         "errors" => array()
                     );
@@ -1903,6 +1939,22 @@ class PontuacoesComprovantesController extends AppController
                     $this->set("_serialize", $arraySet);
                     return;
                 }
+            }
+
+            // Valida se a rede está ativa
+            if (!$cliente["rede_has_cliente"]["rede"]["ativado"]) {
+                $message = MESSAGE_GENERIC_COMPLETED_ERROR;
+                $errors = array(
+                    MESSAGE_NETWORK_DESACTIVATED
+                );
+
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => $message,
+                    "errors" => $errors
+                );
+
+                return array("mensagem" => $mensagem);
             }
 
 
@@ -2356,7 +2408,7 @@ class PontuacoesComprovantesController extends AppController
             // Só gera o comprovante se tiver alguma pontuação
             if (sizeof($pontuacoesHtml) == 0) {
                 $mensagem = array(
-                    "status" => false,
+                    "status" => 0,
                     "message" => __(Configure::read("messageNotPossibleToImportCoupon")),
                     "errors" => array(
                         __('No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...', $chave, $estado)
@@ -2398,7 +2450,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 $mensagem = array(
-                    "status" => true,
+                    "status" => 1,
                     "message" => __(Configure::read("messageCouponImportSuccess")),
                     "errors" => array()
                 );
@@ -2531,7 +2583,7 @@ class PontuacoesComprovantesController extends AppController
 
         return array(
             "mensagem" => array(
-                "status" => true,
+                "status" => 1,
                 "message" => __(Configure::read("messageCouponImportSuccess")),
                 "errors" => array()
             ),

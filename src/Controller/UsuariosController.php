@@ -26,13 +26,13 @@ use App\Custom\RTI\ImageUtil;
 
 /**
  * Usuarios Controller
- * 
+ *
  * Controller para Usuários
  *
  * @property \App\Model\Table\UsuariosTable $Usuarios
  *
  * @method \App\Model\Entity\Usuario[] paginate($object = null, array $settings = [])
- * 
+ *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2017-08-01
  */
@@ -2002,7 +2002,7 @@ class UsuariosController extends AppController
 
     #region REST Services
 
-      /**
+    /**
      * Action de Esqueci minha Senha
      *
      * @return \Cake\Http\Response|void
@@ -2482,7 +2482,7 @@ class UsuariosController extends AppController
                         ];
 
                         $mensagem = array(
-                            "status" => true,
+                            "status" => 1,
                             "message" => "Usuário registrado com sucesso!",
                             "errors" => $errors
                         );
@@ -2556,6 +2556,22 @@ class UsuariosController extends AppController
             'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
         );
 
+        $listaPermissoes = array();
+        if ($usuario["tipo_perfil"] == PROFILE_TYPE_WORKER) {
+            $listaPermissoes[] = array(
+                "funcao" => "VALIDAR_BRINDE",
+                "status" => 1
+            );
+            $listaPermissoes[] = array(
+                "funcao" => "CADASTRAR_USUARIO",
+                "status" => 1
+            );
+            $listaPermissoes[] = array(
+                "funcao" => "PONTUAR_USUARIO",
+                "status" => 1
+            );
+        }
+
         $usuario = array(
             'id' => $usuario['id'],
             'token' => JWT::encode(
@@ -2567,6 +2583,8 @@ class UsuariosController extends AppController
                 Security::salt()
             )
         );
+
+        $usuario["lista_permissoes"] = $listaPermissoes;
 
         return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
     }
@@ -2612,7 +2630,7 @@ class UsuariosController extends AppController
         $this->set('_serialize', $arraySet);
     }
 
-  
+
 
     #endregion
 
@@ -3908,7 +3926,7 @@ class UsuariosController extends AppController
 
 
 
-    #region  Ajax Methods 
+    #region  Ajax Methods
 
     /**
      * Envia documento do cliente para autorização posterior

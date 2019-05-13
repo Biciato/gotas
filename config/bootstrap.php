@@ -376,6 +376,8 @@ const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID d
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
 
+const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
+
 // Tipos de Brindes de Clientes
 
 const MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND = "O estabelecimento selecionado não possui tipo de brinde definido. Defina antes de continuar!";

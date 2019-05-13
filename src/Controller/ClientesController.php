@@ -797,7 +797,7 @@ class ClientesController extends AppController
             Log::write("error", $messageStringDebug);
         }
 
-        $mensagem = array("status" => true, "message" => null);
+        $mensagem = array("status" => 1, "message" => null);
 
         $result = array("mensagem" => $mensagem, "arquivos" => $arquivos);
 

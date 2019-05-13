@@ -593,7 +593,7 @@ class PontuacoesController extends AppController
 
                 return;
             }
-            $mensagem = array("status" => true, "message" => Configure::read("messageLoadDataWithSuccess"));
+            $mensagem = array("status" => 1, "message" => Configure::read("messageLoadDataWithSuccess"));
         } catch (\Exception $e) {
             $messageString = __("Não foi possível obter pontuações do usuário na rede!");
             $trace = $e->getTrace();
@@ -722,7 +722,7 @@ class PontuacoesController extends AppController
 
                 return;
             }
-            $mensagem = array("status" => true, "message" => Configure::read("messageLoadDataWithSuccess"));
+            $mensagem = array("status" => 1, "message" => Configure::read("messageLoadDataWithSuccess"));
         } catch (\Exception $e) {
             $messageString = __("Não foi possível obter pontuações do usuário na rede!");
             $trace = $e->getTrace();

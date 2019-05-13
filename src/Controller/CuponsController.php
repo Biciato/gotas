@@ -1150,7 +1150,7 @@ class CuponsController extends AppController
 
                 if (count($errors) > 0) {
 
-                    $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
+                    $mensagem = array("status" => 0, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
 
                     $arraySet = array("mensagem");
                     $this->set(compact($arraySet));
@@ -2206,7 +2206,7 @@ class CuponsController extends AppController
             }
 
             if (count($errors) > 0) {
-                $mensagem = array("status" => false, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
+                $mensagem = array("status" => 0, "message" => Configure::read("messageOperationFailureDuringProcessing"), "errors" => $errors);
                 $arraySet = array("mensagem");
                 $this->set(compact($arraySet));
                 $this->set("_serialize", $arraySet);
@@ -2441,7 +2441,7 @@ class CuponsController extends AppController
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(
-                    "status" => false,
+                    "status" => 0,
                     "message" => Configure::read("messageOperationFailureDuringProcessing"),
                     "errors" => array($message),
                 );
@@ -2491,7 +2491,7 @@ class CuponsController extends AppController
         if (empty($brinde)) {
 
             $mensagem = array(
-                "status" => false,
+                "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
                 "errors" => array(MESSAGE_CLIENTE_DOES_NOT_HAVE_BRINDE)
             );
@@ -2560,7 +2560,7 @@ class CuponsController extends AppController
         if ($error) {
             //  Comunique seu gestor!
             $mensagem = array(
-                "status" => false,
+                "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
                 "errors" => array(
                     sprintf("%s %s", $mensagemErro,  "Comunique seu gestor!")
@@ -2584,7 +2584,7 @@ class CuponsController extends AppController
             return $retorno;
         }
         $mensagem = array(
-            "status" => false,
+            "status" => 0,
             "message" => "",
             "errors" => array(__(""))
         );
@@ -2630,7 +2630,7 @@ class CuponsController extends AppController
             }
 
             $mensagem = array(
-                "status" => false,
+                "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
                 "errors" => array($message),
             );
@@ -2828,7 +2828,7 @@ class CuponsController extends AppController
                 );
 
                 $mensagem = array(
-                    "status" => true,
+                    "status" => 1,
                     "message" => Configure::read("messageProcessingCompleted"),
                     "errors" => array()
                 );
@@ -2836,7 +2836,7 @@ class CuponsController extends AppController
                 if (empty($cupom)) {
 
                     $mensagem = array(
-                        "status" => false,
+                        "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
                         "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
                     );
@@ -2889,7 +2889,7 @@ class CuponsController extends AppController
 
             // Se chegou até aqui, ocorreu tudo bem
             $mensagem = array(
-                "status" => true,
+                "status" => 1,
                 "message" => Configure::read("messageProcessingCompleted"),
                 "errors" => array()
             );

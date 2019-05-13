@@ -514,7 +514,6 @@ class ClientesTable extends GenericTable
 
 
             return $clientes->toArray();
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
@@ -704,23 +703,14 @@ class ClientesTable extends GenericTable
      **/
     public function getClienteByCNPJ(string $cnpj)
     {
-        try {
-            return $this->_getClientesTable()
-                ->find('all')
-                ->where(
-                    [
-                        'cnpj' => $cnpj
-                    ]
-                )->first();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao realizar pesquisa de clientes: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
+        return $this
+            ->find('all')
+            ->where(array('Clientes.cnpj' => $cnpj))
+            ->contain("RedeHasCliente.Redes")
+            ->select($this)
+            ->select(array("RedeHasCliente.id"))
+            ->select($this->RedeHasCliente->Redes)
+            ->first();
     }
 
     /**
@@ -753,7 +743,6 @@ class ClientesTable extends GenericTable
 
             return $this->find('list')
                 ->where(["id in " => $clientesIds]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -969,8 +958,7 @@ class ClientesTable extends GenericTable
             }
 
             return $returnIds;
-        } catch (\Exception $e) {
-        }
+        } catch (\Exception $e) { }
     }
 
     /**
@@ -1017,7 +1005,6 @@ class ClientesTable extends GenericTable
             $cliente["ativado"] = $ativado;
 
             return $this->_getClientesTable()->save($cliente);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -1055,7 +1042,6 @@ class ClientesTable extends GenericTable
             // $clienteToUpdate = $this->formatClient($cliente);
 
             return $this->save($clienteToUpdate);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1084,7 +1070,6 @@ class ClientesTable extends GenericTable
 
             return
                 $this->_getClientesTable()->deleteAll(['id in' => $clientes_ids]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

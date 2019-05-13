@@ -385,7 +385,7 @@ class TransportadorasHasUsuariosController extends AppController
 
                         if (!$transportadora) {
                             $mensagem = array(
-                                "status" => false,
+                                "status" => 0,
                                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
                                 "errors" => $errors,
                             );
@@ -521,9 +521,9 @@ class TransportadorasHasUsuariosController extends AppController
                 //             "message" => __(Configure::read("messageOperationFailureDuringProcessing")),
                 //             "errors" => array(Configure::read("messageCNPJInvalid"))
                 //         );
-    
+
                 //         $arraySet = array("mensagem");
-    
+
                 //         $this->set(compact($arraySet));
                 //         $this->set("_serialize", $arraySet);
                 //         return;
@@ -648,7 +648,7 @@ class TransportadorasHasUsuariosController extends AppController
 
                 if (is_null($transportadorasId)) {
                     $mensagem = array(
-                        "status" => false,
+                        "status" => 0,
                         "messageOperationFailureDuringProcessing" => "É necessário especificar a Transportadora a ser removida do cadastro!",
                         "errors" => "É necessário especificar a Transportadora a ser removida do cadastro!",
                     );

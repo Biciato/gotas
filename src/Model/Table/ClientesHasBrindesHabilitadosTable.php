@@ -539,7 +539,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
                 $retorno = array(
                     "mensagem" => array(
-                        "status" => false,
+                        "status" => 0,
                         "message" => Configure::read("messageLoadDataWithError"),
                         "errors" => array(Configure::read("messageQueryNoDataToReturn"))
                     ),
@@ -1005,7 +1005,7 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
 
             $retorno = array(
                 "mensagem" => array(
-                    "status" => true,
+                    "status" => 1,
                     "message" => $message,
                     "errors" => array()
                 ),
