@@ -578,7 +578,7 @@ class CuponsController extends AppController
             $cupom_id = $cupons_data['cupom_id'];
             $cupom_emitido = $cupons_data['cupom_emitido'];
             $cliente_final = $cupons_data['cliente_final'];
-            $clientes_has_brindes_habilitados_id = $cupons_data['clientes_has_brindes_habilitados_id'];
+            $brindes_id = $cupons_data['brindes_id'];
             $clientes_id = $cupons_data['clientes_id'];
             $data_impressao = $cupons_data['data_impressao'];
             $produtos = $cupons_data['produtos'];
@@ -588,7 +588,7 @@ class CuponsController extends AppController
                 'cupom_id',
                 'cupom_emitido',
                 'cliente_final',
-                'clientes_has_brindes_habilitados_id',
+                'brindes_id',
                 'clientes_id',
                 'cupons',
                 'data_impressao',
@@ -633,7 +633,7 @@ class CuponsController extends AppController
             $cupom_id = $cupons_data['cupom_id'];
             $cupom_emitido = $cupons_data['cupom_emitido'];
             $cliente_final = $cupons_data['cliente_final'];
-            $clientes_has_brindes_habilitados_id = $cupons_data['clientes_has_brindes_habilitados_id'];
+            $brindes_id = $cupons_data['brindes_id'];
             $clientes_id = $cupons_data['clientes_id'];
             $data_impressao = $cupons_data['data_impressao'];
             $produtos = $cupons_data['produtos'];
@@ -643,7 +643,7 @@ class CuponsController extends AppController
                 'cupom_id',
                 'cupom_emitido',
                 'cliente_final',
-                'clientes_has_brindes_habilitados_id',
+                'brindes_id',
                 'cupons',
                 'data_impressao',
                 'produtos',
@@ -680,7 +680,7 @@ class CuponsController extends AppController
             $cupom_emitido = $cupons->toArray()[0]->cupom_emitido;
             $data_impressao = $cupons->toArray()[0]->data->format('d/m/Y H:i:s');
             $cupom_id = $cupons->toArray()[0]->id;
-            $clientes_has_brindes_habilitados_id = $cupons->toArray()[0]->clientes_has_brindes_habilitado->id;
+            $brindes_id = $cupons->toArray()[0]->clientes_has_brindes_habilitado->id;
             $redes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->redes_id;
             $clientes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->clientes_id;
 
@@ -699,7 +699,7 @@ class CuponsController extends AppController
             $data = [
                 'cliente_final' => $cliente_final,
                 'clientes_id' => $clientes_id,
-                'clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id,
+                'brindes_id' => $brindes_id,
                 'cupom_emitido' => $cupom_emitido,
                 'cupom_id' => $cupom_id,
                 'data_impressao' => $data_impressao,
@@ -956,7 +956,7 @@ class CuponsController extends AppController
 
                     $cuponsAtuais = $this->Cupons->find("all")->where(
                         array(
-                            "clientes_has_brindes_habilitados_id" => $cupomPesquisa["id"],
+                            "brindes_id" => $cupomPesquisa["id"],
                             "clientes_id" => $cupomPesquisa["clientesId"],
                             "funcionarios_id" => $funcionarioId,
                             "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
@@ -1536,7 +1536,7 @@ class CuponsController extends AppController
 
                 $cupom = $this->Cupons->getCupomToReprint(
                     $data['id'],
-                    $data['clientes_has_brindes_habilitados_id'],
+                    $data['brindes_id'],
                     $data['clientes_id'],
                     $data['usuarios_id'],
                     $data['data']
