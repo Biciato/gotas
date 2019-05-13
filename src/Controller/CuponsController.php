@@ -823,7 +823,7 @@ class CuponsController extends AppController
 
             // Obtem os brindes habilitados do posto de atendimento
 
-            $brindesHabilitadosArray = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId(array($cliente["id"]));
+            $brindesHabilitadosArray = $this->Brindes->findBrindes(null, $cliente["id"]);
             $brindesHabilitadosArray = $brindesHabilitadosArray->toArray();
             $dadosPesquisaCuponsArray = array();
 
