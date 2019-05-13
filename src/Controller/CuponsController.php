@@ -886,7 +886,7 @@ class CuponsController extends AppController
 
                         $cuponsAnteriores = $this->Cupons->find("all")->where(
                             array(
-                                "clientes_has_brindes_habilitados_id" => $cupomPesquisa["id"],
+                                "brindes_id" => $cupomPesquisa["id"],
                                 "clientes_id" => $cupomPesquisa["clientesId"],
                                 "funcionarios_id" => $funcionarioId,
                                 "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
