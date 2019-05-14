@@ -342,7 +342,14 @@ class CuponsTable extends GenericTable
 
             $senha = $qteSenhas == null ? 1 : $qteSenhas + 1;
 
-            $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
+            // @todo cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
+            // if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
+
+            //     $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
+            // } else {
+            //     $cupom["cupom_emitido"] = "";
+            //  }
+            $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
 
             $cupom = $this->save($cupom);
             $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();

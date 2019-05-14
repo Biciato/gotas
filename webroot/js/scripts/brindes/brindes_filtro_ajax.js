@@ -165,7 +165,11 @@ $(document).ready(function () {
 
     $(".habilita-brindes-desconto").on("change", function () {
         var desconto = $(".habilita-brindes-desconto").prop("checked");
-        $(".tipo-venda").val("Com Desconto");
+
+        $(".tipo-venda").val("Gotas ou Reais");
+        if (desconto){
+            $(".tipo-venda").val("Com Desconto");
+        }
         searchBrinde(desconto);
     });
 
