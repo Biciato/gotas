@@ -301,6 +301,8 @@ $(document).ready(function () {
                             percentComplete = parseInt(percentComplete * 100);
                             console.log(percentComplete);
 
+                            callLoaderAnimation("Enviando Imagem... " + percentComplete + "% ");
+
                             /* faz alguma coisa durante o progresso do upload */
                         },
                         false
