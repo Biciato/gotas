@@ -278,6 +278,8 @@ $(document).ready(function () {
 
         formData.append("file", image.target.files[0]);
 
+        callLoaderAnimation("Enviando Imagem...");
+
         $.ajax({
             url: "/Brindes/enviaImagemBrinde",
             type: "POST",
@@ -312,7 +314,13 @@ $(document).ready(function () {
             success: function (e) {
                 // console.log(e);
             },
+            error: function(e){
+                console.log(e);
+                closeLoaderAnimation();
+            },
             complete: function (e) {
+                closeLoaderAnimation();
+
                 var result = JSON.parse(e.responseText);
                 if (result.mensagem.status) {
                     $(".img-crop-container").show();
