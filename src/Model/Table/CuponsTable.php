@@ -13,6 +13,7 @@ use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
 use Cake\I18n\Number;
 use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\CryptUtil;
 
 /**
  * Cupons Model
@@ -318,31 +319,34 @@ class CuponsTable extends GenericTable
                 $identificador_cliente = '0' . $identificador_cliente;
             }
 
-            $anoCupom = substr($year, 2, 2) + 10;
-            $mesCupom = $month + 10;
-            $diaCupom = $day + 10;
+            // $anoCupom = substr($year, 2, 2) + 10;
+            // $mesCupom = $month + 10;
+            // $diaCupom = $day + 10;
+            // if (strlen($senha) == 1) {
+            //     $senha = '00' . $senha;
+            // } elseif (strlen($senha) == 2) {
+            //     $senha = '0' . $senha;
+            // }
+
+            // // @todo Alterar
+            // $cupom->cupom_emitido = __(
+            //     "{0}{1}{2}{3}{4}{5}{6}",
+            //     $identificador_cliente,
+            //     $anoCupom,
+            //     $mesCupom,
+            //     $diaCupom,
+            //     $codigoPrimario,
+            //     $codigoSecundario,
+            //     $senha
+            // );
 
             $senha = $qteSenhas == null ? 1 : $qteSenhas + 1;
 
-            if (strlen($senha) == 1) {
-                $senha = '00' . $senha;
-            } elseif (strlen($senha) == 2) {
-                $senha = '0' . $senha;
-            }
-
-            $cupom->cupom_emitido = __(
-                "{0}{1}{2}{3}{4}{5}{6}",
-                $identificador_cliente,
-                $anoCupom,
-                $mesCupom,
-                $diaCupom,
-                $codigoPrimario,
-                $codigoSecundario,
-                $senha
-            );
+            $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
 
             $cupom = $this->save($cupom);
             $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
+
             unset($cupom["codigo_primario"]);
             unset($cupom["codigo_secundario"]);
             $cupom["valor_pago_gotas"] = Number::precision($cupom["valor_pago_gotas"], 2);

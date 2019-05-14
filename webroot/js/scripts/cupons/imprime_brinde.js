@@ -501,9 +501,9 @@ $(document).ready(function() {
                             result.cliente.nome_fantasia
                         );
                         $("#print_usuarios_nome").text(result.usuario.nome);
-                        $("#print_data_emissao").text(
-                            result.ticket.data.substr(0, 10)
-                        );
+                        var data = moment(result.ticket.data);
+
+                        $("#print_data_emissao").text(data.format("DD/MM/YYYY"));
 
                         var cupom_emitido = result.ticket.cupom_emitido;
 
