@@ -11,11 +11,36 @@
 <div class="users content container">
     <?php echo $this->Form->create($usuario) ?>
     <fieldset>
-        <legend><?php echo __('Resetar senha') ?>
-    <?= $this->Form->input('senha', ['type' => 'password', 'required' => true, 'autofocus' => true, "label" => "Senha*"]); ?>
+        <legend><?php echo __('Resetar senha') ?></legend>
+            <div class="form-group">
+                <label for="senha">Senha*</label>
+                <input type="text"
+                    name="senha"
+                    id="senha"
+                    required="true"
+                    class="form-control senha password"
+                    maxlength="8"
+                    autofocus="true" />
 
-    <?= $this->Form->input('confirm_senha', ["label" => "Confirmar Senha*", 'type' => 'password', 'required' => true]); ?>
+                <label for="confirm_senha">Confirmar Senha*</label>
+
+                <input type="text"
+                    name="confirm_senha"
+                    id="confirm_senha"
+                    required="true"
+                    class="form-control confirm-senha password"
+                    maxlength="8"
+                    autofocus="true" />
+            </div>
+
+
     </fieldset>
- 	<?php echo $this->Form->button(__('Resetar')); ?>
+    <?php echo $this->Form->button(__('Resetar')); ?>
     <?php echo $this->Form->end(); ?>
 </div>
+
+<?php
+    $extension = Configure::read("debug") ? ""  : ".min";
+?>
+
+<link rel="stylesheet" href="<?= "/webroot/css/styles/usuarios/resetar_minha_senha".$extension.".css" ?>">

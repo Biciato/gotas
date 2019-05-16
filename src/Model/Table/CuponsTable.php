@@ -14,6 +14,7 @@ use Cake\Core\Configure;
 use Cake\I18n\Number;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\CryptUtil;
+use App\Custom\RTI\StringUtil;
 
 /**
  * Cupons Model
@@ -319,37 +320,22 @@ class CuponsTable extends GenericTable
                 $identificador_cliente = '0' . $identificador_cliente;
             }
 
-            // $anoCupom = substr($year, 2, 2) + 10;
-            // $mesCupom = $month + 10;
-            // $diaCupom = $day + 10;
-            // if (strlen($senha) == 1) {
-            //     $senha = '00' . $senha;
-            // } elseif (strlen($senha) == 2) {
-            //     $senha = '0' . $senha;
-            // }
-
-            // // @todo Alterar
-            // $cupom->cupom_emitido = __(
-            //     "{0}{1}{2}{3}{4}{5}{6}",
-            //     $identificador_cliente,
-            //     $anoCupom,
-            //     $mesCupom,
-            //     $diaCupom,
-            //     $codigoPrimario,
-            //     $codigoSecundario,
-            //     $senha
-            // );
-
             $senha = $qteSenhas == null ? 1 : $qteSenhas + 1;
 
-            // @todo cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
-            // if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
+            // cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
+            if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
 
-            //     $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
-            // } else {
-            //     $cupom["cupom_emitido"] = "";
-            //  }
-            $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
+                $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
+            } else {
+
+                $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
+
+                while (count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
+                    $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
+                }
+
+                $cupom["cupom_emitido"] = $novoCupomAleatorio;
+            }
 
             $cupom = $this->save($cupom);
             $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
@@ -381,36 +367,27 @@ class CuponsTable extends GenericTable
      */
     public function addCuponsBrindesForUsuario($brinde_habilitado, $usuarios_id, $quantidade)
     {
-        try {
+        $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
+
+        // verifica se ja teve um cupom com essa sequencia. se sim, gera outro cupom
+
+        while ($this->getCupomByCupomEmitido($cupomEmitido)) {
             $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
-
-            // verifica se ja teve um cupom com essa sequencia. se sim, gera outro cupom
-
-            while ($this->getCupomByCupomEmitido($cupomEmitido)) {
-                $cupomEmitido = bin2hex(openssl_random_pseudo_bytes(7));
-            }
-
-            $cupom = $this->newEntity();
-
-            $cupom->brindes_id = $brinde_habilitado->id;
-            $cupom->clientes_id = $brinde_habilitado->clientes_id;
-            $cupom->usuarios_id = $usuarios_id;
-            $cupom->valor_pago_gotas = $brinde_habilitado->preco_atual->preco;
-            $cupom->valor_pago_reais = $brinde_habilitado->preco_atual->valor_moeda_venda;
-            $cupom->cupom_emitido = $cupomEmitido;
-            $cupom->resgatado = false;
-            $cupom->data = date("Y-m-d H:i:s");
-            $cupom->quantidade = $quantidade;
-
-            return $this->save($cupom);
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
         }
+
+        $cupom = $this->newEntity();
+
+        $cupom["brindes_id"] = $brinde_habilitado->id;
+        $cupom["clientes_id"] = $brinde_habilitado->clientes_id;
+        $cupom["usuarios_id"] = $usuarios_id;
+        $cupom["valor_pago_gotas"] = $brinde_habilitado->preco_atual->preco;
+        $cupom["valor_pago_reais"] = $brinde_habilitado->preco_atual->valor_moeda_venda;
+        $cupom["cupom_emitido"] = $cupomEmitido;
+        $cupom["resgatado"] = false;
+        $cupom["data"] = date("Y-m-d H:i:s");
+        $cupom["quantidade"] = $quantidade;
+
+        return $this->save($cupom);
     }
 
     #endregion
@@ -426,34 +403,24 @@ class CuponsTable extends GenericTable
      */
     public function getCupomByCupomEmitido(string $cupomEmitido, bool $estornado = null)
     {
-        try {
+        $whereConditions = array();
+        $whereConditions["Cupons.cupom_emitido"] = $cupomEmitido;
 
-            $whereConditions = array();
-            $whereConditions["Cupons.cupom_emitido"] = $cupomEmitido;
-
-            if (isset($estornado)) {
-                $whereConditions["Cupons.estornado"] = $estornado;
-            }
-
-            return $this->_getCuponsTable()->find('all')
-                ->where(
-                    $whereConditions
-                )->contain(
-                    array(
-                        'Brindes',
-                        'Clientes',
-                        'Usuarios'
-                    )
-                )->first();
-            // )->sql();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
+        if (isset($estornado)) {
+            $whereConditions["Cupons.estornado"] = $estornado;
         }
+
+        return $this->find('all')
+            ->where(
+                $whereConditions
+            )->contain(
+                array(
+                    'Brindes',
+                    'Clientes',
+                    'Usuarios'
+                )
+            )->first();
+        // )->sql();
     }
 
     /**
@@ -467,33 +434,23 @@ class CuponsTable extends GenericTable
      */
     public function getCuponsByCupomEmitido(string $cupomEmitido, array $clientesIds = array())
     {
-        try {
+        $whereConditions = array();
 
-            $whereConditions = array();
+        $whereConditions[] = array('Cupons.cupom_emitido' => $cupomEmitido);
 
-            $whereConditions[] = array('Cupons.cupom_emitido' => $cupomEmitido);
-
-            if (sizeof($clientesIds) > 0) {
-                $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
-            }
-
-            return $this->_getCuponsTable()->find('all')
-                ->where($whereConditions)
-                ->contain(
-                    array(
-                        "Clientes.RedeHasCliente",
-                        "Brindes",
-                        "Usuarios"
-                    )
-                );
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao consultar cupom: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Detalhes: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $trace);
-
-            Log::write('error', $stringError);
-
-            throw new \Exception($stringError);
+        if (sizeof($clientesIds) > 0) {
+            $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
         }
+
+        return $this->find('all')
+            ->where($whereConditions)
+            ->contain(
+                array(
+                    "Clientes.RedeHasCliente",
+                    "Brindes",
+                    "Usuarios"
+                )
+            );
     }
 
     /**
@@ -713,27 +670,18 @@ class CuponsTable extends GenericTable
      */
     public function getCupomToReprint(int $id, int $brindesId, int $clientes_id, int $usuarios_id, string $data)
     {
-        try {
-            $cupons = $this->_getCuponsTable()->find('all')
-                ->where(
-                    [
-                        'id' => $id,
-                        'brindes_id' => $brindesId,
-                        'clientes_id' => $clientes_id,
-                        'usuarios_id' => $usuarios_id,
-                        'data' => $data
-                    ]
-                )->first();
+        $cupons = $this->find('all')
+            ->where(
+                [
+                    'id' => $id,
+                    'brindes_id' => $brindesId,
+                    'clientes_id' => $clientes_id,
+                    'usuarios_id' => $usuarios_id,
+                    'data' => $data
+                ]
+            )->first();
 
-            return $cupons;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
+        return $cupons;
     }
 
     /**

@@ -84,4 +84,21 @@ class StringUtil
 
         return $resultado > -1;
     }
+
+    /**
+     * StringUtil::gerarStringAleatoria
+     *
+     * Gera uma string aleatória
+     *
+     * @param integer $tamanho Tamanho da string (Default 32 dígitos
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-16
+     *
+     * @return string
+     */
+    public static function gerarStringAleatoria(int $tamanho = 32)
+    {
+        return substr(md5(mt_rand()), 0, $tamanho);
+    }
 }

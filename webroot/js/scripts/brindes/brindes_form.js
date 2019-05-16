@@ -55,15 +55,20 @@ $(document).ready(function () {
         var labelCodigoPrimario = $("label[for=codigo_primario]").text().replace("*", "");
         var labelTempoUsoBrinde = $("label[for=tempo_uso_brinde]").text().replace("*", "");
 
+        var minCodigoPrimario = 0;
         if (value == "Equipamento RTI") {
             obrigatorio = true;
             labelCodigoPrimario += "*";
             labelTempoUsoBrinde += "*";
+            minCodigoPrimario = 1;
         }
         $(".codigo-primario").attr("required", obrigatorio);
+        $(".codigo-primario").attr("min", minCodigoPrimario);
         $("label[for=codigo_primario]").text(labelCodigoPrimario);
         $(".tempo-uso-brinde").attr("required", obrigatorio);
         $("label[for=tempo_uso_brinde]").text(labelTempoUsoBrinde);
+
+
     };
     $(".tipo-equipamento").on("change", function (e) {
         tipoEquipamentoOnChange(e.target.value);
