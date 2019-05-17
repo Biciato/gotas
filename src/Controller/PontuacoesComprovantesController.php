@@ -1810,12 +1810,7 @@ class PontuacoesComprovantesController extends AppController
         }
 
         $chaveNfe = !empty($data["chave_nfe"]) ? $data["chave_nfe"] : null;
-
-        $posInicial = strpos($url, "sefaz.") + 6;
-        $posFinal = $posInicial + 2;
-        $pos = substr($url, $posInicial, 2);
-
-        $estado = strtoupper($pos);
+        $estado = $validacaoQRCode["estado"];
 
         if (empty($chaveNfe)) {
             foreach ($validacaoQRCode["data"] as $key => $value) {
@@ -1824,6 +1819,7 @@ class PontuacoesComprovantesController extends AppController
                 }
             }
         }
+        $chave = $chaveNfe;
 
         // Valida se o QR Code já foi importado anteriormente
 
@@ -1878,7 +1874,7 @@ class PontuacoesComprovantesController extends AppController
             $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
         }
 
-        $webContent = $this->webTools->getPageContent($url);
+        $webContent = WebTools::getPageContent($url);
 
         // @todo Só para carater de teste
         // $webContent["statusCode"] = 400;
@@ -1897,11 +1893,19 @@ class PontuacoesComprovantesController extends AppController
                  */
 
                 $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
-
                 $cnpjArray = array();
+                if ($estado == "MG"){
+                    // Se estado == MG, preciso procurar a posição do cnpj com formatação
+                    foreach ($cnpjQuery as $key => $value) {
+                        $cnpjArray[] = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value["cnpj"]);
+                    }
 
-                foreach ($cnpjQuery as $key => $value) {
-                    $cnpjArray[] = $value['cnpj'];
+                } else {
+
+                    foreach ($cnpjQuery as $key => $value) {
+                        $cnpjArray[] = $value['cnpj'];
+                    }
+
                 }
 
                 $cnpjEncontrado = null;
@@ -1922,19 +1926,23 @@ class PontuacoesComprovantesController extends AppController
                 // DebugUtil::print($cnpjArray);
 
                 if ($cnpjEncontrado) {
+                    $cnpjEncontrado = NumberUtil::limparFormatacaoNumeros($cnpjEncontrado);
                     $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
                 }
 
                 if (empty($cliente)) {
+                    $errors = array(__(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave));
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
-                        "errors" => array()
+                        "errors" => $errors
                     );
 
                     $arraySet = [
                         "mensagem"
                     ];
+
+                    return ResponseUtil::errorAPI($mensagem["message"], $errors);
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
                     return;
@@ -1998,6 +2006,7 @@ class PontuacoesComprovantesController extends AppController
 
             Log::write("debug", $webContent);
 
+            // @todo Resolver problema importação MG
             $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, $webContent["response"]);
 
             if ($retorno["mensagem"]["status"]) {
@@ -2104,10 +2113,10 @@ class PontuacoesComprovantesController extends AppController
                     $$value = $retorno[$value];
                 }
 
-                $this->set(compact($arraySet));
-                $this->set("_serialize", $arraySet);
+                // $this->set(compact($arraySet));
+                // $this->set("_serialize", $arraySet);
 
-                return;
+                return $arraySet;
             }
         } elseif (!$processamentoPendente) {
             // Trata pontuação para ser processada posteriormente (se já não armazenada)
@@ -2215,6 +2224,47 @@ class PontuacoesComprovantesController extends AppController
 
         // Obtem estado da URL.
 
+        // Se estado = MG, o modelo é outro...
+
+        if (strpos($url, "fazenda.mg") !== false) {
+            $qrCodeProcura = "xhtml?p=";
+            $posInicioChave = strpos($url, $qrCodeProcura) + strlen($qrCodeProcura);
+
+            $qrCodeConteudo = substr($url, $posInicioChave);
+            $qrCodeArray = explode("|", $qrCodeConteudo);
+
+            $keysQrCodeMG = array("chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode");
+
+            $indexQrCodeArray = 0;
+            $qrCodeArrayRetorno = array();
+            foreach ($keysQrCodeMG as $chave) {
+                if (!empty($qrCodeArray[$indexQrCodeArray])) {
+                    $qrCodeArrayRetorno[] = array(
+                        "key" => $chave,
+                        "content" => $qrCodeArray[$indexQrCodeArray]
+                    );
+                }
+                $indexQrCodeArray++;
+            }
+
+            $estado = "MG";
+
+            $status = 1;
+            $errorMessage = null;
+            $errors = array();
+
+            $result = array(
+                "status" => $status,
+                "message" => $errorMessage,
+                "errors" => $errors,
+                "data" => $qrCodeArrayRetorno,
+                "estado" => $estado
+            );
+
+            // Retorna Array contendo erros de validações
+            return $result;
+        }
+
         $stringSearch = "sefaz.";
         $index = stripos($url, $stringSearch) + strlen($stringSearch);
 
@@ -2310,7 +2360,8 @@ class PontuacoesComprovantesController extends AppController
             "status" => $status,
             "message" => $errorMessage,
             "errors" => $errors,
-            "data" => $arrayResult
+            "data" => $arrayResult,
+            "estado" => $estado
         );
 
         // Retorna Array contendo erros de validações

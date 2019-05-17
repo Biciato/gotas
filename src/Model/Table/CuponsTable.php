@@ -556,8 +556,6 @@ class CuponsTable extends GenericTable
      */
     public function getCupons(array $whereConditions, array $orderConditions = array(), array $paginationConditions = array())
     {
-        // DebugUtil::print($tiposBrindesClienteConditions);
-
         $selectArray = array(
             "Cupons.id",
             "Cupons.brindes_id",
@@ -570,7 +568,6 @@ class CuponsTable extends GenericTable
             "Cupons.senha",
             "Cupons.cupom_emitido",
             "Cupons.data",
-            "Cupons.data_validade",
             "Cupons.resgatado",
             "Cupons.usado",
             "Cupons.quantidade",
@@ -586,7 +583,6 @@ class CuponsTable extends GenericTable
             "Clientes.estado",
             "Clientes.pais",
             "Clientes.propaganda_img",
-            // "Clientes.propaganda_img_completo",
             "Clientes.cep",
             "Clientes.tel_fixo",
             "Clientes.tel_fax",

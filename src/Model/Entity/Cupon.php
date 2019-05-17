@@ -3,6 +3,7 @@ namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
 use App\Custom\RTI\DateTimeUtil;
+use Cake\Log\Log;
 
 /**
  * Cupom Entity
@@ -40,5 +41,18 @@ class Cupon extends Entity
         'id' => false
     ];
 
+    protected $_virtual = array("data_validade");
 
+    protected function _getDataValidade()
+    {
+        $data = !empty($this->_properties["data"]) ? $this->_properties["data"] : null ;
+
+        if (empty($data)) {
+            return null;
+        }
+
+        $dataValidade = date("Y-m-d H:i:s", strtotime($data .  " +1 day "));
+
+        return $dataValidade;
+    }
 }

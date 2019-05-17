@@ -43,7 +43,7 @@ class WebTools
 
             $header = array();
             // $header[] = "Accept: text/xml,text/csv,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
-            $header[] = "Accept: application/xml;text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
+            $header[] = "Accept: application/xml;application/json;text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
             $header[] = "Connection: keep-alive";
             $header[] = "Keep-Alive: 300";
 

@@ -31,6 +31,8 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Model\Entity\PontuacoesComprovante;
 use \DateTime;
+use App\Custom\RTI\WebTools;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Classe para execução em terminal (shell)
@@ -264,5 +266,30 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
             return false;
         }
+    }
+
+    public function testGetCoupon()
+    {
+        try {
+            $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012401028054570|2|1|1|1E96845C21CB919EEBA8391CE89EA8FE75D1BC11";
+            $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012471028054644|2|1|1|FDEC36DF7F561504A77928F507564C3B40DDE9D5";
+
+            $response = WebTools::getPageContent($cupom);
+
+            // DebugUtil::printArray($response);
+
+            $file = "test.html";
+            // if (!file_exists($file)) {
+            $fileHandle = fopen($file, "w");
+            fwrite($fileHandle, $response['response']);
+            fclose($fileHandle);
+            // }
+
+            // file_put_contents("../tmp/test.html", $response);
+        } catch (\Exception $e) {
+
+        }
+
+
     }
 }
