@@ -306,6 +306,12 @@ Router::scope("/api", function ($routes) {
     $routes->resources("Usuarios", [
         'map' => [
             // utilizado pelo APP Mobile. Cuidado ao mexer
+            "alterarSenhaAPI" => array(
+                "action" => "alterarSenhaAPI",
+                "method" => "POST",
+                "path" => "/alterar_senha"
+            ),
+            // utilizado pelo APP Mobile. Cuidado ao mexer
             'setPerfilAPI' => [
                 'action' => "setPerfilAPI",
                 "method" => "POST",

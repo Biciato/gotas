@@ -1323,7 +1323,7 @@ class PontuacoesTable extends GenericTable
                     $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
                     $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_OUT;
-                    $pontuacao["brindes_id"] = $clienteBrindeHabilitado;
+                    $pontuacao["brinde"] = $clienteBrindeHabilitado;
                     $pontuacoesRetorno[] = $pontuacao;
                 }
             }

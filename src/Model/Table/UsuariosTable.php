@@ -372,7 +372,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 4 dígitos, somente números',
+                        'message' => 'A senha deve conter 6 dígitos, somente números',
                     ],
                     [
                         'provider' => 'table',

@@ -1372,6 +1372,7 @@ class PontuacoesComprovantesController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+        return;
     }
 
     /**

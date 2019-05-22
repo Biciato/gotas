@@ -187,7 +187,7 @@ class ResponseUtil
                     "errors" => array()
                 ),
                 $stringLabelReturn => array(
-                    "count" => 0,
+                    "count" => $count,
                     "page_count" => 0,
                     "data" => array()
                 ),

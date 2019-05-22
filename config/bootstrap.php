@@ -276,7 +276,7 @@ const PATH_IMAGES_CLIENTES = "img/clientes/";
 #region Comuns ao Sistema
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
-const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
+
 
 
 #endregion
@@ -383,6 +383,8 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 const MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND = "O estabelecimento selecionado não possui tipo de brinde definido. Defina antes de continuar!";
 
 // Usuários
+const MESSAGE_USUARIO_NEW_PASSWORD_DOESNT_MATCH = "Nova senha não confere!";
+const MESSAGE_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
 const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
@@ -390,6 +392,10 @@ const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro 
 const MESSAGE_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
+const MESSAGE_USUARIO_PASSWORD_LENGTH = "Tamanho da senha deve ser de %s dígitos!";
+const MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR = "Alteração de senha não foi realizada, confira se a senha e nova senha conferem!";
+const MESSAGE_USUARIO_PASSWORD_UPDATED = "Alteração de senha realizada com sucesso!";
+const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";

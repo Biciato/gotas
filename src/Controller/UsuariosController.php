@@ -23,6 +23,7 @@ use App\Custom\RTI\ResponseUtil;
 use Cake\ORM\TableRegistry;
 use ReCaptcha\Response;
 use App\Custom\RTI\ImageUtil;
+use App\Model\Entity\Usuario;
 
 /**
  * Usuarios Controller
@@ -1592,6 +1593,87 @@ class UsuariosController extends AppController
             Log::write('error', $stringError);
 
             $this->Flash->error($stringError);
+        }
+    }
+
+    /**
+     * UsuariosController::alterarSenhaAPI
+     *
+     * Alteração de Senha via API
+     *
+     * @param string senha_antiga Senha Antiga
+     * @param string nova_senha Nova Senha
+     * @param string confirm_senha Confirm Senha
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-22
+     *
+     * @return void
+     */
+    public function alterarSenhaAPI()
+    {
+        try {
+            if ($this->request->is(array("post"))) {
+                $usuario = $this->Auth->user();
+
+                if (empty($usuario)) {
+                    $errors = array(MESSAGE_USUARIOS_NOT_AUTHENTICATED);
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
+                }
+
+                $usuario = $this->Usuarios->getUsuarioById($usuario["id"]);
+                $usuarioSave = $usuario;
+
+                $data = $this->request->getData();
+                $errors = array();
+
+                $senhaAntiga = !empty($data["senha_antiga"]) ? $data["senha_antiga"] : null;
+                $novaSenha = !empty($data["nova_senha"]) ? $data["nova_senha"] : null;
+                $confirmSenha = !empty($data["confirm_senha"]) ? $data["confirm_senha"] : null;
+
+                $senhaValida = false;
+                if ((new DefaultPasswordHasher)->check($senhaAntiga, $usuario["senha"])) {
+                    $senhaValida = true;
+                }
+
+                if (!$senhaValida) {
+                    $errors[] = MESSAGE_USUARIO_PASSWORD_INCORRECT;
+                }
+
+                if ($novaSenha != $confirmSenha) {
+                    $errors[] = MESSAGE_USUARIO_NEW_PASSWORD_DOESNT_MATCH;
+                }
+
+                $tamanhoSenha = 8;
+                if ($usuario["tipo_perfil"] == PROFILE_TYPE_USER){
+                    $tamanhoSenha = 6;
+                }
+
+                if (strlen($novaSenha) != $tamanhoSenha) {
+                    $errors[] = sprintf(MESSAGE_USUARIO_PASSWORD_LENGTH, $tamanhoSenha);
+                }
+
+                if (count($errors) > 0 ) {
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
+                }
+
+                $usuarioSave["senha"] = $novaSenha;
+                $usuarioSave["confirm_senha"] = $confirmSenha;
+
+                $usuario = $this->Usuarios->patchEntity($usuario, (array) $usuarioSave, array('validate' => 'Default'));
+                $usuario = $this->Usuarios->save($usuario);
+
+                if ($usuario) {
+                    return ResponseUtil::successAPI(MESSAGE_USUARIO_PASSWORD_UPDATED, array());
+                }
+                return ResponseUtil::errorAPI(MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR);
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao realizar procedimento de troca de senha: {0} em: {1} ", $e->getMessage());
+
+            Log::write('error', $stringError);
+            Log::write("error", $trace);
         }
     }
 
@@ -3967,6 +4049,7 @@ class UsuariosController extends AppController
 
                 // DebugUtil::printArray($data);
 
+                $usuariosId = empty($data["id"]) ? null : $data["id"];
                 $cpf = empty($data["cpf"]) ? null : $data["cpf"];
 
                 if (empty($cpf)) {
@@ -3981,7 +4064,9 @@ class UsuariosController extends AppController
 
                 $user = $this->Usuarios->getUsuarioByCPF($data['cpf']);
 
-                if ($data['id'] != 0) {
+                // Se id informado, verifico se o usuário que está informado é o mesmo da consulta.
+                // Se for, não pode retornar registro, pois se retornar, significa que há outro usuário com este id
+                if (!empty($usuariosId)) {
 
                     if ($user !== null && $user->id == $data['id']) {
                         $user = null;
