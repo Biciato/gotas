@@ -1645,7 +1645,7 @@ class UsuariosController extends AppController
                 }
 
                 $tamanhoSenha = 8;
-                if ($usuario["tipo_perfil"] == PROFILE_TYPE_USER){
+                if ($usuario["tipo_perfil"] == PROFILE_TYPE_USER) {
                     $tamanhoSenha = 6;
                 }
 
@@ -1653,17 +1653,31 @@ class UsuariosController extends AppController
                     $errors[] = sprintf(MESSAGE_USUARIO_PASSWORD_LENGTH, $tamanhoSenha);
                 }
 
-                if (count($errors) > 0 ) {
+                if (count($errors) > 0) {
                     return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
                 }
 
                 $usuarioSave["senha"] = $novaSenha;
                 $usuarioSave["confirm_senha"] = $confirmSenha;
 
-                $usuario = $this->Usuarios->patchEntity($usuario, (array) $usuarioSave, array('validate' => 'Default'));
+                $usuario = $this->Usuarios->patchEntity($usuario, (array)$usuarioSave, array('validate' => 'Default'));
                 $usuario = $this->Usuarios->save($usuario);
 
                 if ($usuario) {
+                    // $this->request->session()->destroy();
+                    session_destroy();
+                    $usuario = [
+                        'id' => $usuario['id'],
+                        'token' => JWT::encode(
+                            [
+                                'id' => $usuario['id'],
+                                'sub' => $usuario['id'],
+                                'exp' => time()
+                            ],
+                            Security::salt()
+                        )
+                    ];
+                    $this->Auth->logout();
                     return ResponseUtil::successAPI(MESSAGE_USUARIO_PASSWORD_UPDATED, array());
                 }
                 return ResponseUtil::errorAPI(MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR);
