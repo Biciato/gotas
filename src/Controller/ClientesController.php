@@ -755,6 +755,36 @@ class ClientesController extends AppController
         }
     }
 
+    public function getPostoFuncionarioAPI()
+    {
+        try {
+            if ($this->request->is("GET")) {
+                $funcionario = $this->Auth->user();
+
+                $posto = $this->ClientesHasUsuarios->findClienteHasUsuario(array("usuarios_id" => $funcionario["id"]));
+
+                if (!empty($posto) && !empty($posto["cliente"])) {
+                    $posto = $posto["cliente"];
+
+                    return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
+                } else {
+                    $errors= array();
+                    $errors[] = MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE;
+
+                    return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
+                }
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $messageString = __("Erro ao obter dados do posto!");
+
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+    }
+
     /**
      * ------------------------------------------------------------
      * Métodos AJAX

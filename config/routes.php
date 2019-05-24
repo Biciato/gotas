@@ -229,6 +229,11 @@ Router::scope("/api", function ($routes) {
                 "action" => "getClientesListAPI",
                 "method" => "POST",
                 "path" => "/get_clientes_list"
+            ),
+            "getPostoFuncionarioAPI" => array(
+                "action" => "getPostoFuncionarioAPI",
+                "method" => "GET",
+                "path" => "/get_posto_funcionario"
             )
         )
     ));
@@ -372,6 +377,12 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/registrar'
             ],
+
+            "validarAtualizacaoPerfilAPI" => array(
+                "action" => "validarAtualizacaoPerfilAPI",
+                "method" => "GET",
+                "path" => "/validar_atualizacao_perfil"
+            ),
             // utilizado pelo APP Mobile. Cuidado ao mexer
             // "testAPI" => array(
             //     "action" => "testAPI",

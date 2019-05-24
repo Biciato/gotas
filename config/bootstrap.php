@@ -396,6 +396,9 @@ const MESSAGE_USUARIO_PASSWORD_LENGTH = "Tamanho da senha deve ser de %s dígito
 const MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR = "Alteração de senha não foi realizada, confira se a senha e nova senha conferem!";
 const MESSAGE_USUARIO_PASSWORD_UPDATED = "Alteração de senha realizada com sucesso!";
 const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
+const MESSAGE_USUARIO_PROFILE_ON_DATE = "Perfil está atualizado!";
+const MESSAGE_USUARIO_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
+const MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";

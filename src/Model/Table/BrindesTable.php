@@ -213,6 +213,7 @@ class BrindesTable extends GenericTable
             $brindeSave["tempo_uso_brinde"] = $tempoUsoBrinde;
             $brindeSave["ilimitado"] = $ilimitado;
             $brindeSave["habilitado"] = $habilitado;
+            $brindeSave["tipo_equipamento"] = $tipoEquipamento;
             $brindeSave["tipo_venda"] = $tipoVenda;
             $brindeSave["tipo_codigo_barras"] = $tipoCodigoBarras;
             $brindeSave["preco_padrao"] = $precoPadrao;

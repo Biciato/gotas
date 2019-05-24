@@ -2727,6 +2727,43 @@ class UsuariosController extends AppController
     }
 
 
+    public function validarAtualizacaoPerfilAPI()
+    {
+        try {
+            if ($this->request->is("GET")) {
+                $usuario = $this->Auth->user();
+
+                // Verifica se a data de atualização foi informada. Caso contrário, verifica pela data de inserção
+                $ultimaAtualizacao = !empty($usuario["audit_update"]) ? $usuario["audit_update"] : $usuario["audit_insert"];
+                $ultimaAtualizacao = date_create($ultimaAtualizacao);
+                $ultimaAtualizacao = date_format($ultimaAtualizacao, "Y-m-d");
+
+                $dataLimite = date("Y-m-d");
+
+                $dataSubtracao = date_create($dataLimite);
+                $dataSubtracao = date_sub($dataSubtracao, date_interval_create_from_date_string("30 days"));
+                $dataSubtracao = date_format($dataSubtracao, "Y-m-d");
+
+                $validacao = strtotime($ultimaAtualizacao) >= strtotime($dataSubtracao);
+                $infoUltimaAtualizacao = array("ultima_atualizacao" => $ultimaAtualizacao);
+
+                if ($validacao) {
+                    ResponseUtil::successAPI(MESSAGE_USUARIO_PROFILE_ON_DATE, $infoUltimaAtualizacao);
+                } else {
+                    ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIO_PROFILE_OUT_DATE), $infoUltimaAtualizacao);
+                }
+            }
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $messageString = __("Erro ao validar perfil de usuário!");
+
+            $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write("error", $messageStringDebug);
+            Log::write("error", $trace);
+        }
+    }
+
 
     #endregion
 

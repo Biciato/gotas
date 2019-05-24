@@ -291,8 +291,8 @@ class CuponsTable extends GenericTable
             $cupom["clientes_id"] = $clientesId;
             $cupom["funcionarios_id"] = $funcionariosId;
             $cupom["usuarios_id"] = $usuariosId;
-            $cupom["codigo_principal"] = $codigoPrimario;
-            $cupom["codigo_secundario"] = $codigoSecundario;
+            $cupom["codigo_primario"] = $codigoPrimario;
+            $cupom["tempo_uso_brinde"] = $codigoSecundario;
             $cupom["valor_pago_gotas"] = $valorPagoGotas;
             $cupom["valor_pago_reais"] = $valorPagoReais;
             $cupom["senha"] = $qteSenhas + 1;
