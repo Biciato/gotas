@@ -763,7 +763,7 @@ class ClientesController extends AppController
             if ($this->request->is("GET")) {
                 $usuario = $this->Auth->user();
 
-                if ($usuario["tipo_perfil"] == PROFILE_TYPE_WORKER) {
+                if ($usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER) {
                     $posto = $this->ClientesHasUsuarios->findClienteHasUsuario(array("usuarios_id" => $usuario["id"]));
                 } else {
                     $posto = null;
@@ -775,7 +775,7 @@ class ClientesController extends AppController
                     return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
                 } else {
                     $errors = array();
-                    $errors[] = MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE;
+                    $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER? MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE : MESSAGE_USUARIO_CANT_SEARCH;
 
                     return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
                 }

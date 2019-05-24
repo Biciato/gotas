@@ -398,7 +398,9 @@ const MESSAGE_USUARIO_PASSWORD_UPDATED = "Alteração de senha realizada com suc
 const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
 const MESSAGE_USUARIO_PROFILE_ON_DATE = "Perfil está atualizado!";
 const MESSAGE_USUARIO_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
+const MESSAGE_USUARIO_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
 const MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
+
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
