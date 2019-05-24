@@ -632,8 +632,10 @@ class ClientesController extends AppController
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
 
-                    if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_DEVELOPER
-                        && $this->usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL) {
+                    if (
+                        $this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_DEVELOPER
+                        && $this->usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_ADMIN_REGIONAL
+                    ) {
                         return $this->redirect(array("controller" => "RedesHasClientes", 'action' => 'propagandaEscolhaUnidades'));
                     } else if ($this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_LOCAL) {
                         return $this->redirect(array("controller" => "Pages", 'action' => 'display'));
@@ -759,16 +761,20 @@ class ClientesController extends AppController
     {
         try {
             if ($this->request->is("GET")) {
-                $funcionario = $this->Auth->user();
+                $usuario = $this->Auth->user();
 
-                $posto = $this->ClientesHasUsuarios->findClienteHasUsuario(array("usuarios_id" => $funcionario["id"]));
+                if ($usuario["tipo_perfil"] == PROFILE_TYPE_WORKER) {
+                    $posto = $this->ClientesHasUsuarios->findClienteHasUsuario(array("usuarios_id" => $usuario["id"]));
+                } else {
+                    $posto = null;
+                }
 
                 if (!empty($posto) && !empty($posto["cliente"])) {
                     $posto = $posto["cliente"];
 
                     return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
                 } else {
-                    $errors= array();
+                    $errors = array();
                     $errors[] = MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE;
 
                     return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
