@@ -2627,6 +2627,20 @@ class UsuariosController extends AppController
                 return ResponseUtil::errorAPI($message);
             }
 
+            // Se chegar já sem formatação, verifica
+
+            $format = "/(\d{3}).(\d{3}).(\d{3})-(\d{2})/";
+
+            $match = preg_match($format, $email);
+
+            if (is_numeric($email) || $match) {
+                $cpf = NumberUtil::limparFormatacaoNumeros($email);
+
+                $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+                $email = $usuario["email"];
+                $this->request->data["email"] = $email;
+            }
+
             $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;

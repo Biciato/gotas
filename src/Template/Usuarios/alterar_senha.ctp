@@ -21,7 +21,7 @@ echo $this->Breadcrumbs->render(
 );
 
 
-$max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['UserProfileType']) ? 4 : 8;
+$max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['UserProfileType']) ? 6 : 8;
 ?>
 <?= $this->element('../Usuarios/left_menu', ['controller' => 'pages', 'action' => 'display', 'mode' => 'back']) ?>
 
