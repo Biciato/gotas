@@ -263,6 +263,7 @@ const JOB_STATUS_INIT = "Inicializando...";
 const JOB_STATUS_END = "Finalizando...";
 
 
+
 #region Caminhos
 
 const PATH_IMAGES_READ_BRINDES = "/img/brindes/";
@@ -401,6 +402,9 @@ const MESSAGE_USUARIO_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique 
 const MESSAGE_USUARIO_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
 const MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
 
+const MESSAGE_CPF_LENGTH_INVALID = "Tamanho do CPF inválido!";
+const CPF_LENGTH = 11;
+
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
@@ -438,5 +442,16 @@ const PROFILE_TYPE_WORKER = 5;
 const PROFILE_TYPE_USER = 6;
 const PROFILE_TYPE_DUMMY_WORKER = 998;
 const PROFILE_TYPE_DUMMY_USER = 999;
+
+// Tipos de Perfil de Usuários (Tradução)
+const PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE = "Administrador RTI / Desenvolvedor";
+const PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE = "Administrador da Rede";
+const PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE = "Administrador Regional";
+const PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE = "Administrador";
+const PROFILE_TYPE_MANAGER_TRANSLATE = "Gerente";
+const PROFILE_TYPE_WORKER_TRANSLATE = "Funcionário";
+const PROFILE_TYPE_USER_TRANSLATE = "Usuário";
+const PROFILE_TYPE_DUMMY_WORKER_TRANSLATE = "Funcionário Fictício";
+const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
 
 

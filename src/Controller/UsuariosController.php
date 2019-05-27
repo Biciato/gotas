@@ -2636,7 +2636,19 @@ class UsuariosController extends AppController
             if (is_numeric($email) || $match) {
                 $cpf = NumberUtil::limparFormatacaoNumeros($email);
 
+                if (strlen($cpf) != CPF_LENGTH){
+                    $error = array();
+                    $error[] = MESSAGE_CPF_LENGTH_INVALID;
+
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $error);
+                }
+
                 $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
+                if (empty($usuario)) {
+                    return ResponseUtil::errorAPI(MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT);
+                }
+
                 $email = $usuario["email"];
                 $this->request->data["email"] = $email;
             }
