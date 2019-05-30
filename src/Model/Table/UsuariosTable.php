@@ -137,6 +137,15 @@ class UsuariosTable extends GenericTable
                 'joinType' => 'INNER'
             ]
         );
+
+        $this->hasMany(
+            "Tokens",
+            array(
+                "joinType" => Query::JOIN_TYPE_LEFT
+            )
+        )
+            ->setForeignKey("usuarios_id")
+            ->className("UsuariosTokens");
     }
 
     /**
@@ -197,7 +206,7 @@ class UsuariosTable extends GenericTable
             ->integer("necessidades_especiais")
             ->add(
                 "necessidades_especiais",
-                "inList" ,
+                "inList",
                 array(
                     "rule" => array("inList", array(0, 1)),
                     "message" => "Informe se possui necessidades especiais"
@@ -337,7 +346,7 @@ class UsuariosTable extends GenericTable
             ->integer("necessidades_especiais")
             ->add(
                 "necessidades_especiais",
-                "inList" ,
+                "inList",
                 array(
                     "rule" => array("inList", array(0, 1)),
                     "message" => "Informe se possui necessidades especiais"

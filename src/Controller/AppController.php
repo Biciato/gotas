@@ -231,9 +231,18 @@ class AppController extends Controller
             exit(0);
         }
 
+        
         $this->_initializeUtils();
         $this->_setUserTemplatePath();
+        
+        $user = $this->Auth->user();
 
+        if (!empty($user)) {
+            $test = $this->UsuariosTokens->getTokenUsuario($user["id"]);
+        } else {
+            $this->clearCredentials();
+            return $this->checkAuthentication();
+        }
         // $this->Security->requireSecure();
     }
 
@@ -272,6 +281,21 @@ class AppController extends Controller
                 die();
             }
         }
+    }
+
+    /**
+     * AppController::clearCredentials
+     *
+     * Limpa todas as credenciais e variável de sessão da sessão atual
+     *
+     * @return void
+     */
+    public function clearCredentials()
+    {
+        $this->request->session()->delete("Usuario.AdministradorLogado");
+        $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->delete('Rede.Grupo');
+        $this->request->session()->delete('Rede.PontoAtendimento');
     }
 
     /**

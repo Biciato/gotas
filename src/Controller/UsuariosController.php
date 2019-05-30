@@ -2987,20 +2987,7 @@ class UsuariosController extends AppController
         }
     }
 
-    /**
-     * UsuariosController::clearCredentials
-     *
-     * Limpa todas as credenciais e variável de sessão da sessão atual
-     *
-     * @return void
-     */
-    public function clearCredentials()
-    {
-        $this->request->session()->delete("Usuario.AdministradorLogado");
-        $this->request->session()->delete("Usuario.Administrar");
-        $this->request->session()->delete('Rede.Grupo');
-        $this->request->session()->delete('Rede.PontoAtendimento');
-    }
+    
 
     /**
      * BeforeRender callback

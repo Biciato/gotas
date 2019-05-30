@@ -87,6 +87,7 @@ Configure::write(
             "Usuarios",
             "UsuariosHasBrindes",
             "UsuariosHasVeiculos",
+            "UsuariosTokens",
             "Veiculos"
         ],
         'profileTypes' =>
