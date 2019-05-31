@@ -2903,14 +2903,17 @@ class UsuariosController extends AppController
         if ($result['actionNeeded'] == 0) {
             $user = $this->Auth->identify();
 
-            $user["token"] = JWT::encode(
-                array(
-                    'id' => $user['id'],
-                    'sub' => $user['id'],
-                    'exp' => time() + 604800
-                ),
-                Security::salt()
-            );
+            if ($user){
+                // Só autentica JWT se logou
+                $user["token"] = JWT::encode(
+                    array(
+                        'id' => $user['id'],
+                        'sub' => $user['id'],
+                        'exp' => time() + 604800
+                    ),
+                    Security::salt()
+                );
+            }
 
             if ($user) {
                 $this->Auth->setUser($user);

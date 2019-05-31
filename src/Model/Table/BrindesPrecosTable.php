@@ -232,21 +232,21 @@ class BrindesPrecosTable extends GenericTable
      *
      * @return entity $preco
      **/
-    public function getUltimoPrecoBrinde(int $brindesId, string $statusAutorizacao = "")
+    public function getUltimoPrecoBrinde(int $brindesId, string $statusAutorizacao = null)
     {
         try {
 
             $conditions = array();
 
-            $conditions[] = array('brindes_id' => $brindesId);
+            $conditions["brindes_id"] =  $brindesId;
             if (!empty($statusAutorizacao)) {
-                $conditions[] = array('status_autorizacao' => $statusAutorizacao);
+                $conditions["status_autorizacao"] = $statusAutorizacao;
             }
 
             return $this->find('all')
                 ->where($conditions)
-                ->order(array('BrindesPrecos.id' => 'desc'))
-                ->contain(array("Brindes"))
+                ->order(array('id' => 'desc'))
+                // ->contain(array("Brindes"))
                 ->select(array(
                     "id",
                     "preco",

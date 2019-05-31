@@ -1307,7 +1307,7 @@ class PontuacoesTable extends GenericTable
                     }
                 } else if (!empty($pontuacao["brindes_id"]) && $isBrinde) {
 
-                    $clienteBrindeHabilitado = $brindesTable->find("all")
+                    $brinde = $brindesTable->find("all")
                         ->where(
                             array(
                                 "id" => $pontuacao["brindes_id"],
@@ -1315,16 +1315,13 @@ class PontuacoesTable extends GenericTable
                             )
                         )->first();
 
-                    $brinde = $brindesTable->find("all")
-                        ->where(
-                            array("id" => $clienteBrindeHabilitado["brindes_id"])
-                        )->first();
-
-                    $clienteBrindeHabilitado["brinde"] = $brinde;
+                    // $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
                     $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_OUT;
-                    $pontuacao["brindes_id"] = $clienteBrindeHabilitado;
-                    $pontuacao["brinde"] = $clienteBrindeHabilitado;
+
+                    $brinde["preco_atual"] = $this->Brindes->PrecoAtual->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+                    // $pontuacao["brindes_id"] = $brinde;
+                    $pontuacao["brinde"] = $brinde;
                     $pontuacoesRetorno[] = $pontuacao;
                 }
             }

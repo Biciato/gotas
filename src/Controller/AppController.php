@@ -238,7 +238,9 @@ class AppController extends Controller
         $user = $this->Auth->user();
 
         if (!empty($user)) {
-            $userToken = $this->UsuariosTokens->getTokenUsuario($user["id"], $user["token"]);
+            $id = $user["id"];
+            $token = !empty($user["token"]) ? $user["token"] : null;
+            $userToken = $this->UsuariosTokens->getTokenUsuario($id, $token);
 
             if (empty($userToken)) {
                 // Redireciona o usuário se não tiver mais o token
@@ -387,6 +389,7 @@ class AppController extends Controller
      */
     public function getUserLogged()
     {
+        // $user = $this->Auth->user();
         return $this->request->session()->read('Auth.User');
     }
 
