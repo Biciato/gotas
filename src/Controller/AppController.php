@@ -29,6 +29,7 @@ use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
 use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Application Controller
@@ -242,8 +243,19 @@ class AppController extends Controller
             $token = !empty($user["token"]) ? $user["token"] : null;
             $userToken = $this->UsuariosTokens->getTokenUsuario($id, $token);
 
+            $isMobile = $this->request->header('IsMobile');
+
             if (empty($userToken)) {
                 // Redireciona o usuário se não tiver mais o token
+                $this->Auth->logout();
+                $this->clearCredentials();
+
+                if ($isMobile) {
+                    // Resposta para API
+                    return ResponseUtil::logoutResponseAPI();
+                }
+
+                // Resposta HTTP
                 return $this->redirect($this->Auth->logout());
             }
         } else {

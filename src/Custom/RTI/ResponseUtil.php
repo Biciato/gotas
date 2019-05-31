@@ -17,6 +17,7 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Http\Response;
+use Cake\Utility\Xml;
 
 /**
  * Classe de retorno de resposta
@@ -151,6 +152,37 @@ class ResponseUtil
 
         echo json_encode($arraySet);
         die();
+    }
+
+    public static function logoutResponseAPI($responseType = null)
+    {
+        header("HTTP/1.0 401");
+        $response = "Content-Type: application/json";
+        $isJson = 1;
+
+        if (!empty($responseType)) {
+            $isJson = 0;
+            $response = $responseType;
+        }
+        header($response);
+
+        $mensagem = array(
+            "status" => 0,
+            "message" => "Desconectado. Entre novamente para continuar.",
+            "errors" => array()
+        );
+
+        $arraySet = array();
+        $arraySet["mensagem"] = $mensagem;
+
+        if (!$isJson) {
+            $xml = Xml::fromArray($arraySet);
+            echo $xml->asXML();
+            exit;
+        }
+
+        echo json_encode($arraySet);
+        exit;
     }
 
     /**
