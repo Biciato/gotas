@@ -87,15 +87,21 @@ class UsuariosTokensTable extends Table
         return $rules;
     }
 
-    public function getTokenUsuario(int $usuariosId)
+    #region Read
+
+    public function getTokenUsuario(int $usuariosId, string $token = null)
     {
         $where = array();
 
         $where["usuarios_id"] = $usuariosId;
-        $tokens = $this->find("all")
+
+        if (!empty($token)) {
+            $where["token"] = $token;
+        }
+
+        return $this->find("all")
             ->where($where)
-            ->toArray();
-        return $tokens;
+            ->first();
     }
 
     public function getTokens()
@@ -103,4 +109,45 @@ class UsuariosTokensTable extends Table
         $tokens = $this->find("all")->toArray();
         return $tokens;
     }
+
+    #endregion 
+
+    #region Save 
+
+    /**
+     * UsuariosTokensTable::setToken
+     * 
+     * Seta o Token de um usuário no BD
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-31
+     *
+     * @param integer $usuariosId Id de Usuário
+     * @param string $tipo (WEB, API)
+     * @param string $token Token
+     * @param integer $expira Data de Expiração
+     * 
+     * @return \App\Entity\UsuariosToken
+     */
+    public function setToken(int $usuariosId, string $tipo, string $token)
+    {
+        $usuarioToken = $this->newEntity();
+        $usuarioToken->usuarios_id = $usuariosId;
+        $usuarioToken->tipo = $tipo;
+        $usuarioToken->token = $token;
+
+        return $this->save($usuarioToken);
+    }
+
+    #endregion 
+
+    #region Delete 
+
+    public function deleteTokensUsuario(int $usuariosId)
+    {
+        $conditions = array("usuarios_id" => $usuariosId);
+        return $this->deleteAll($conditions);
+    }
+
+    #endregion 
 }

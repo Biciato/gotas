@@ -231,14 +231,19 @@ class AppController extends Controller
             exit(0);
         }
 
-        
+
         $this->_initializeUtils();
         $this->_setUserTemplatePath();
-        
+
         $user = $this->Auth->user();
 
         if (!empty($user)) {
-            $test = $this->UsuariosTokens->getTokenUsuario($user["id"]);
+            $userToken = $this->UsuariosTokens->getTokenUsuario($user["id"], $user["token"]);
+
+            if (empty($userToken)) {
+                // Redireciona o usuário se não tiver mais o token
+                return $this->redirect($this->Auth->logout());
+            }
         } else {
             $this->clearCredentials();
             return $this->checkAuthentication();

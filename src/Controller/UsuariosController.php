@@ -1416,7 +1416,7 @@ class UsuariosController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"]);
+            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"], LOGIN_WEB);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
@@ -2636,7 +2636,7 @@ class UsuariosController extends AppController
             if (is_numeric($email) || $match) {
                 $cpf = NumberUtil::limparFormatacaoNumeros($email);
 
-                if (strlen($cpf) != CPF_LENGTH){
+                if (strlen($cpf) != CPF_LENGTH) {
                     $error = array();
                     $error[] = MESSAGE_CPF_LENGTH_INVALID;
 
@@ -2653,7 +2653,7 @@ class UsuariosController extends AppController
                 $this->request->data["email"] = $email;
             }
 
-            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha);
+            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha, LOGIN_API);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
@@ -2892,7 +2892,7 @@ class UsuariosController extends AppController
         }
     }
 
-    private function verificaTentativaLoginUsuario(string $email, string $senha)
+    private function verificaTentativaLoginUsuario(string $email, string $senha, string $tipoLogin)
     {
         $credenciais = array("email" => $email, "senha" => $senha);
 
@@ -2903,8 +2903,19 @@ class UsuariosController extends AppController
         if ($result['actionNeeded'] == 0) {
             $user = $this->Auth->identify();
 
+            $user["token"] = JWT::encode(
+                array(
+                    'id' => $user['id'],
+                    'sub' => $user['id'],
+                    'exp' => time() + 604800
+                ),
+                Security::salt()
+            );
+
             if ($user) {
                 $this->Auth->setUser($user);
+
+                $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
 
                 $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
                 $status = 0;
@@ -2929,7 +2940,7 @@ class UsuariosController extends AppController
                     }
                 }
                 return array(
-                    "usuario" => $usuario,
+                    "usuario" => $user,
                     "status" => 0,
                     "message" => $message,
                     "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
@@ -2987,7 +2998,7 @@ class UsuariosController extends AppController
         }
     }
 
-    
+
 
     /**
      * BeforeRender callback
