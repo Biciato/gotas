@@ -1664,8 +1664,7 @@ class UsuariosController extends AppController
                 $usuario = $this->Usuarios->save($usuario);
 
                 if ($usuario) {
-                    // $this->request->session()->destroy();
-                    session_destroy();
+                    $this->UsuariosTokens->deleteTokensUsuario($usuario->id);
                     $usuario = [
                         'id' => $usuario['id'],
                         'token' => JWT::encode(
@@ -1678,7 +1677,8 @@ class UsuariosController extends AppController
                         )
                     ];
                     $this->Auth->logout();
-                    return ResponseUtil::successAPI(MESSAGE_USUARIO_PASSWORD_UPDATED, array());
+
+                    return ResponseUtil::successAPI(MESSAGE_USUARIO_PASSWORD_UPDATED, array("usuario" => $usuario));
                 }
                 return ResponseUtil::errorAPI(MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR);
             }
