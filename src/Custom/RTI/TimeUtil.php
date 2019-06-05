@@ -26,13 +26,14 @@ class TimeUtil
      * Obtem turno anterior e atual conforme quadro de horários informados
      *
      * @param array $quadroHorariosCliente Quadros de Horário do Cliente
+     * @param int $turno Turno Anterior ou Atual (Anterior = 0 / Atual = 1)
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-01-11
      *
      * @return array("turnoAnterior", "turnoAtual")
      */
-    public static function getTurnoAnteriorAtual(array $quadroHorariosCliente)
+    public static function getTurnoAnteriorAtual(array $quadroHorariosCliente, int $turno)
     {
         $horarios = array();
         $horaAtual = date("H");
@@ -120,10 +121,7 @@ class TimeUtil
             $processamentoConcluido = !empty($turnoAnterior) && !empty($turnoAtual);
         }
 
-        return array(
-            "turnoAnterior" => $turnoAnterior,
-            "turnoAtual" => $turnoAtual
-        );
+        return $turno == 1 ? $turnoAtual : $turnoAnterior;
     }
 
 }

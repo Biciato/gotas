@@ -754,13 +754,20 @@ class CuponsController extends AppController
     }
 
     /**
-     * Action para Fechamento de Caixa de Funcionário
+     * Action para Relatorio de Caixa de Funcionário
      *
      * @return void
      */
-    public function fechamentoCaixaFuncionario()
+    public function relatorioCaixaFuncionario()
     {
-        $arraySet = array("dadosVendaFuncionarios", "totalGeral", "filtrarTurnoAnteriorList", "filtrarTurnoAnterior");
+        $arraySet = array(
+            "dadosVendaFuncionarios",
+            "totalGeral",
+            "filtrarTurnoAnteriorList",
+            "filtrarTurnoAnterior",
+            "tituloTurno"
+        );
+
         $sessaoUsuario = $this->getSessionUserVariables();
 
         $filtrarTurnoAnteriorList = array(
@@ -773,6 +780,8 @@ class CuponsController extends AppController
         $cliente = $sessaoUsuario["cliente"];
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
+
+        $tituloTurno = "";
 
         $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
         $quadroHorariosCliente = $quadroHorariosCliente->toArray();
@@ -789,21 +798,21 @@ class CuponsController extends AppController
 
             $data = $this->request->getData();
 
-            $filtrarTurnoAnterior = $data["filtrar_turno_anterior"];
+            $turno = $data["turno"];
 
-            $turnos = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente);
-            $turnoAtual = $turnos["turnoAtual"];
-            $turnoAnterior = $turnos["turnoAnterior"];
+            $tituloTurno = $turno ? "Turno Atual:" : "Turno Anterior:";
+
+            $turnoOperacao = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente, $turno);
+            // $turnoAtual = $turnos["turnoAtual"];
+            // $turnoAnterior = $turnos["turnoAnterior"];
 
             // Turno Anterior:
             // Se a hora do turno anterior é maior que a do turno atual, então é um dia a menos.
             // Turno Atual:
             // Se o horário do turno atual é maior que a hora atual, então turno anterior e turno atual é um dia a menos.
 
-            $turnoAtualInicio = $turnoAtual["dataConsultaInicio"];
-            $turnoAtualFim = $turnoAtual["dataConsultaFim"];
-            $turnoAnteriorInicio = $turnoAnterior["dataConsultaInicio"];
-            $turnoAnteriorFim = $turnoAnterior["dataConsultaFim"];
+            $turnoInicio = $turnoOperacao["dataConsultaInicio"];
+            $turnoFim = $turnoOperacao["dataConsultaFim"];
 
             // Obtem lista de funcionários da unidade
 
@@ -839,14 +848,12 @@ class CuponsController extends AppController
 
             // Fechamento Anterior
 
-            $cuponsFuncionariosAnterior = array();
+            $cuponsFuncionarios = array();
             $dadosVendaFuncionarios = array();
             $funcionarios = array();
 
-            $dataInicioAnterior = null;
-            $dataFimAnterior = null;
-            $dataInicioAtual = null;
-            $dataFimAtual = null;
+            $dataInicio = null;
+            $dataFim = null;
 
             foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
 
@@ -855,20 +862,14 @@ class CuponsController extends AppController
                 $funcionario["id"] = $funcionarioId;
                 $funcionario["nome"] = $funcionarioNome;
 
-                $dadosTurnoAnterior = array();
-                $dadosTurnoAtual = array();
-                $somaResgatadosAnterior = 0;
-                $somaUsadosAnterior = 0;
-                $somaGotasAnterior = 0;
-                $somaDinheiroAnterior = 0;
-                $somaBrindesAnterior = 0;
-                $somaComprasAnterior = 0;
-                $somaResgatadosAtual = 0;
-                $somaUsadosAtual = 0;
-                $somaGotasAtual = 0;
-                $somaDinheiroAtual = 0;
-                $somaBrindesAtual = 0;
-                $somaComprasAtual = 0;
+                $dadosTurno = array();
+                $dadosTurno = array();
+                $somaResgatados = 0;
+                $somaUsados = 0;
+                $somaGotas = 0;
+                $somaDinheiro = 0;
+                $somaBrindes = 0;
+                $somaCompras = 0;
 
                 // Soma total de todos os funcionários
                 $totalResgatados = null;
@@ -879,12 +880,10 @@ class CuponsController extends AppController
                 $totalCompras = null;
 
                 foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
-                    $dataInicio = $turnoAnteriorInicio;
-                    $dataFim = $turnoAnteriorFim;
+                    $dataInicio = $turnoInicio;
+                    $dataFim = $turnoFim;
 
-                    if ($filtrarTurnoAnterior) {
-
-                        $cuponsAnteriores = $this->Cupons->find("all")->where(
+                        $cupons = $this->Cupons->find("all")->where(
                             array(
                                 "brindes_id" => $cupomPesquisa["id"],
                                 "clientes_id" => $cupomPesquisa["clientesId"],
@@ -893,9 +892,9 @@ class CuponsController extends AppController
                             )
                         );
 
-                        $cuponsAnterioresArray = $cuponsAnteriores->toArray();
+                        $cuponsArray = $cupons->toArray();
 
-                        $anteriorArray = array();
+                        $dados = array();
 
                         $resgatados = 0;
                         $usados = 0;
@@ -904,7 +903,7 @@ class CuponsController extends AppController
                         $brindes = 0;
                         $compras = 0;
 
-                        foreach ($cuponsAnterioresArray as $anterior) {
+                        foreach ($cuponsArray as $anterior) {
                             $resgatados = $anterior["resgatado"] ? $resgatados + 1 : $resgatados;
 
                             $totalDinheiro += $anterior["valor_pago_reais"];
@@ -924,7 +923,7 @@ class CuponsController extends AppController
 
                         // somatória parcial
 
-                        $anteriorArray = array(
+                        $dados = array(
                             "idBrinde" => $cupomPesquisa["id"],
                             "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
                             "resgatados" => $resgatados,
@@ -937,134 +936,40 @@ class CuponsController extends AppController
                             "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
                         );
 
-                        $dataInicioAnterior = date("d/m/Y H:i:s", strtotime($dataInicio));
-                        $dataFimAnterior = date("d/m/Y H:i:s", strtotime($dataFim));
+                        $dataInicio = date("d/m/Y H:i:s", strtotime($dataInicio));
+                        $dataFim = date("d/m/Y H:i:s", strtotime($dataFim));
 
-                        $somaResgatadosAnterior += $resgatados;
-                        $somaUsadosAnterior += $usados;
-                        $somaGotasAnterior += $gotas;
-                        $somaDinheiroAnterior += $dinheiro;
-                        $somaBrindesAnterior += $brindes;
-                        $somaComprasAnterior += $compras;
-                        $dadosTurnoAnterior[] = $anteriorArray;
-                    }
-                }
-
-                foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
-                    $dataInicio = $turnoAtualInicio;
-                    $dataFim = $turnoAtualFim;
-
-                    $cuponsAtuais = $this->Cupons->find("all")->where(
-                        array(
-                            "brindes_id" => $cupomPesquisa["id"],
-                            "clientes_id" => $cupomPesquisa["clientesId"],
-                            "funcionarios_id" => $funcionarioId,
-                            "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
-
-                        )
-                    );
-
-                    $cuponsAtuaisArray = $cuponsAtuais->toArray();
-
-                    $resgatados = 0;
-                    $usados = 0;
-                    $gotas = 0;
-                    $dinheiro = 0;
-                    $brindes = 0;
-                    $compras = 0;
-
-                    foreach ($cuponsAtuaisArray as $atual) {
-                        $resgatados = $atual["resgatado"] ? $resgatados + 1 : $resgatados;
-
-                        $totalDinheiro += $atual["valor_pago_reais"];
-                        $totalGotas += $atual["valor_pago_gotas"];
-
-                        // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
-                        $totalCompras += ($atual["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
-                            || ($atual["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($atual["valor_pago_reais"])))
-                            ? 1 : 0;
-                        // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
-                        $totalBrindes += ($atual["tipo_venda"] == TYPE_SELL_FREE_TEXT
-                            || ($atual["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($atual["valor_pago_gotas"])))
-                            ? 1 : 0;
-
-                        $usados = $atual["usado"] ? $usados + 1 : $usados;
-                    }
-
-                    $atualArray = array(
-                        "idBrinde" => $cupomPesquisa["id"],
-                        "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
-                        "resgatados" => $resgatados,
-                        "usados" => $usados,
-                        "gotas" => $gotas,
-                        "dinheiro" => $dinheiro,
-                        "brindes" => $brindes,
-                        "compras" => $compras,
-                        "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
-                        "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
-                    );
-
-                    $dataInicioAtual = date("d/m/Y H:i:s", strtotime($dataInicio));
-                    $dataFimAtual = date("d/m/Y H:i:s", strtotime($dataFim));
-
-                    $somaResgatadosAtual += $resgatados;
-                    $somaUsadosAtual += $usados;
-                    $somaGotasAtual += $gotas;
-                    $somaDinheiroAtual += $dinheiro;
-                    $somaBrindesAtual += $brindes;
-                    $somaComprasAtual += $compras;
-
-                    // $dadosVendaFuncionarios[] = $anteriorArray;
-                    // $dadosVendaFuncionarios[] = $atualArray;
-                    $dadosTurnoAtual[] = $atualArray;
+                        $somaResgatados += $resgatados;
+                        $somaUsados += $usados;
+                        $somaGotas += $gotas;
+                        $somaDinheiro += $dinheiro;
+                        $somaBrindes += $brindes;
+                        $somaCompras += $compras;
+                        $dadosTurno[] = $dados;
                 }
 
                 // aqui acabou do funcionário
 
-                $somaAnterior = array(
-                    "somaResgatados" => $somaResgatadosAnterior,
-                    "somaUsados" => $somaUsadosAnterior,
-                    "somaGotas" => $somaGotasAnterior,
-                    "somaDinheiro" => $somaDinheiroAnterior,
-                    "somaBrindes" => $somaBrindesAnterior,
-                    "somaCompras" => $somaComprasAnterior,
+                $soma = array(
+                    "somaResgatados" => $somaResgatados,
+                    "somaUsados" => $somaUsados,
+                    "somaGotas" => $somaGotas,
+                    "somaDinheiro" => $somaDinheiro,
+                    "somaBrindes" => $somaBrindes,
+                    "somaCompras" => $somaCompras,
                 );
 
-                $somaAtual = array(
-                    "somaResgatados" => $somaResgatadosAtual,
-                    "somaUsados" => $somaUsadosAtual,
-                    "somaGotas" => $somaGotasAtual,
-                    "somaDinheiro" => $somaDinheiroAtual,
-                    "somaBrindes" => $somaBrindesAtual,
-                    "somaCompras" => $somaComprasAtual,
-                );
-
-                if ($filtrarTurnoAnterior) {
-
-                    $totalResgatados += $somaResgatadosAnterior;
-                    $totalUsados += $somaResgatadosAnterior;
-                    $totalGotas += $somaResgatadosAnterior;
-                    $totalDinheiro += $somaResgatadosAnterior;
-                    $totalBrindes += $somaResgatadosAnterior;
-                    $totalCompras += $somaResgatadosAnterior;
-                    $funcionario["somaAnterior"] = $somaAnterior;
-                    $funcionario["turnoAnterior"] = array(
-                        "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoAnteriorInicio)),
-                        "dataFim" => date("d/m/Y H:i:s", strtotime($turnoAnteriorFim)),
-                        "dados" => $dadosTurnoAnterior
-                    );
-                }
-                $totalResgatados += $somaResgatadosAtual;
-                $totalUsados += $somaResgatadosAtual;
-                $totalGotas += $somaResgatadosAtual;
-                $totalDinheiro += $somaResgatadosAtual;
-                $totalBrindes += $somaResgatadosAtual;
-                $totalCompras += $somaResgatadosAtual;
-                $funcionario["somaAtual"] = $somaAtual;
-                $funcionario["turnoAtual"] = array(
-                    "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoAtualInicio)),
-                    "dataFim" => date("d/m/Y H:i:s", strtotime($turnoAtualFim)),
-                    "dados" => $dadosTurnoAtual
+                $totalResgatados += $somaResgatados;
+                $totalUsados += $somaResgatados;
+                $totalGotas += $somaResgatados;
+                $totalDinheiro += $somaResgatados;
+                $totalBrindes += $somaResgatados;
+                $totalCompras += $somaResgatados;
+                $funcionario["soma"] = $soma;
+                $funcionario["turno"] = array(
+                    "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoInicio)),
+                    "dataFim" => date("d/m/Y H:i:s", strtotime($turnoFim)),
+                    "dados" => $dados
                 );
                 $dadosVendaFuncionarios[] = $funcionario;
             }
@@ -1085,7 +990,6 @@ class CuponsController extends AppController
 
         // DebugUtil::print($dadosVendaFuncionarios);
 
-        $arraySet = array("dadosVendaFuncionarios", "totalGeral", "filtrarTurnoAnteriorList", "filtrarTurnoAnterior");
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }

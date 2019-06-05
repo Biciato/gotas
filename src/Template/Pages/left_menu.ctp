@@ -109,8 +109,8 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
                 <?= __('Relatórios') ?>
             </li>
 
-            <li class="<?= $item_selected == 'fechamento_caixa_funcionario' ? 'list-group-item-success' : '' ?> ">
-                <a href="/cupons/fechamentoCaixaFuncionario/">Fechamento de Caixa</a>
+            <li class="<?= $item_selected == 'relatorio_caixa_funcionario' ? 'list-group-item-success' : '' ?> ">
+                <a href="/cupons/relatorioCaixaFuncionario/">Relatório de Caixa</a>
             </li>
 
 
