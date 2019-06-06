@@ -10,6 +10,7 @@
 
 use Cake\Core\Configure;
 use Cake\View\Helper\NumberHelper;
+use App\Custom\RTI\DebugUtil;
 
 $debug = Configure::read("debug");
 
@@ -68,31 +69,27 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <div class="col-lg-12 print-area-common">
 
+            <h3><?= $tituloTurno ?></h3>
+            <span><?= sprintf("De: %s Às %s: ", $dataInicio, $dataFim) ?></span>
             <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
-                <h3>Funcionário: <?= $dadoVenda["nome"] ?></h3>
-
                 <p>
                     <?php
-
                     $turno = $dadoVenda["turno"];
-                    $dataInicio = $turno["dataInicio"];
-                    $dataFim = $turno["dataFim"];
                     $somaAtual = $dadoVenda["soma"];
                     ?>
-                    <h4><?= $tituloTurno ?></h4>
-                    <span><?= sprintf("De: %s Às %s: ", $dataInicio, $dataFim) ?></span>
+                    <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
                     <p>
                         <?php foreach ($turno["dados"] as $cupom) : ?>
 
                             <?php if (($cupom["resgatados"] > 0)
-                                && ($cupom["usados"] > 0)
-                                && ($cupom["gotas"] > 0)
-                                && ($cupom["dinheiro"] > 0)
-                                && ($cupom["brindes"] > 0)
-                                && ($cupom["compras"] > 0)
+                                || ($cupom["usados"] > 0)
+                                || ($cupom["gotas"] > 0)
+                                || ($cupom["dinheiro"] > 0)
+                                || ($cupom["brindes"] > 0)
+                                || ($cupom["compras"] > 0)
                             ) : ?>
 
-                                <h4>Brinde: <?= $cupom["nomeBrinde"] ?></h4>
+                                <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
 
                                 <?php if ($cupom["resgatados"] > 0) : ?>
                                     <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
@@ -122,8 +119,18 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <?php endif; ?>
 
                             <?php endif; ?>
-
                         <?php endforeach; ?>
+                        <div class="total-geral">
+                            <h4>Soma Parcial do Funcionário <?= $dadoVenda["nome"] ?></h4>
+                            <ul class="list-group">
+                                <li class="list-group-item"> Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
+                                <li class="list-group-item"> Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
+                                <li class="list-group-item"> Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
+                                <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
+                                <li class="list-group-item"> Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
+                                <li class="list-group-item"> Vendas: <?= $somaAtual["somaCompras"] ?> </li>
+                            </ul>
+                        </div>
                     </p>
 
                     <div class="total-geral">
