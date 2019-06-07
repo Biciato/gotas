@@ -1,9 +1,9 @@
 /**
- * webroot\js\scripts\cupons\fechamento_caixa.js
+ * webroot\js\scripts\cupons\relatorio_caixa.js
  *
- * Arquivo jquery para element src\Template\Cupons\fechamento_caixa.ctp
+ * Arquivo jquery para element src\Template\Cupons\relatorio_caixa.ctp
  *
- * @file webroot/js/scripts/cupons/fechamento_caixa.js
+ * @file webroot/js/scripts/cupons/relatorio_caixa.js
  * @author Gustavo Souza Gonçalves
  * @since 2019-01-06
  *
