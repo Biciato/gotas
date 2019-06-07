@@ -763,8 +763,6 @@ class CuponsController extends AppController
         $arraySet = array(
             "dadosVendaFuncionarios",
             "totalGeral",
-            "filtrarTurnoAnteriorList",
-            "filtrarTurnoAnterior",
             "tituloTurno",
             "dataInicio",
             "dataFim"

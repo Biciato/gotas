@@ -47,13 +47,13 @@ $(document).ready(function() {
 
         var estado = $("#estado_funcionario").val();
 
-        if (estado != "MG") {
+        // if (estado != "MG") {
             startQRCodeCapture();
-        } else {
+        // } else {
             // startScanCapture("video-gotas-capture-container", "video-gotas-capture", "canvas-cam-gotas");
             // startScanCapture("video-gotas-capture-container", "video-gotas-capture");
-            exibeContainerCupomMG();
-        }
+            // exibeContainerCupomMG();
+        // }
     });
 
     /**
@@ -276,11 +276,12 @@ $(document).ready(function() {
                 callModalError(result.message);
             } else {
                 // só vai no servidor da SEFAZ se a URL estiver ok
-                if (!checkURLConsistency(url)) {
+                // fazer validação de URL do lado do server
+                // if (!checkURLConsistency(url)) {
                     saveTaxCoupon(url);
-                } else {
-                    closeLoaderAnimation();
-                }
+                // } else {
+                    // closeLoaderAnimation();
+                // }
             }
         });
     };

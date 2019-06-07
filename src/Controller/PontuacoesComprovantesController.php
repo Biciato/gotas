@@ -886,6 +886,7 @@ class PontuacoesComprovantesController extends AppController
      * Obtêm dados de comprovante pelo sistema da SEFAZ
      *
      * @return json object
+     * @deprecated 1.0
      *
      * ----------------------------------------------------------------------
      * Aviso!
@@ -893,12 +894,12 @@ class PontuacoesComprovantesController extends AppController
      * Este método e o método setComprovanteFiscalUsuarioAPI fazem a mesma
      * coisa de finalidade, mas suas execuções são diferentes!
      * Por isto, este método não se deve ser genérico!
-     * Caso um dos dois tenha modificações, deve ser analisado o que será
-     * impactado!
+     * Caso um dos dois tenha modificações, deve ser analisado o que será impactado!
      * ----------------------------------------------------------------------
      */
     public function saveTaxCoupon()
     {
+        return;
         try {
             $result = null;
 
