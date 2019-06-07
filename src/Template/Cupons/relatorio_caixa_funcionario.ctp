@@ -168,7 +168,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
                 <p>
                     <?php foreach ($turno["dados"] as $cupom) : ?>
-
+ 
                         <?php if (($cupom["resgatados"] > 0)
                             || ($cupom["usados"] > 0)
                             || ($cupom["gotas"] > 0)
