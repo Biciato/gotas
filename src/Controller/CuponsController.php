@@ -778,11 +778,11 @@ class CuponsController extends AppController
         $filtrarTurnoAnterior = null;
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
-        
+
         if ($sessaoUsuario["usuarioAdministrar"]) {
             $this->usuarioLogado = $sessaoUsuario["usuarioAdministrar"];
         }
-        
+
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
 
@@ -819,7 +819,7 @@ class CuponsController extends AppController
             $turnoInicio = $turnoOperacao["dataConsultaInicio"];
             $turnoFim = $turnoOperacao["dataConsultaFim"];
 
-          
+
 
             // Obtem lista de funcionários da unidade
 
@@ -889,65 +889,65 @@ class CuponsController extends AppController
                     $dataInicio = $turnoInicio;
                     $dataFim = $turnoFim;
 
-                        $cupons = $this->Cupons->find("all")->where(
-                            array(
-                                "brindes_id" => $cupomPesquisa["id"],
-                                "clientes_id" => $cupomPesquisa["clientesId"],
-                                "funcionarios_id" => $funcionarioId,
-                                "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
-                            )
-                        );
+                    $cupons = $this->Cupons->find("all")->where(
+                        array(
+                            "brindes_id" => $cupomPesquisa["id"],
+                            "clientes_id" => $cupomPesquisa["clientesId"],
+                            "funcionarios_id" => $funcionarioId,
+                            "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+                        )
+                    );
 
-                        $cuponsArray = $cupons->toArray();
+                    $cuponsArray = $cupons->toArray();
 
-                        $dados = array();
-                        $resgatados = 0;
-                        $usados = 0;
-                        $gotas = 0;
-                        $dinheiro = 0;
-                        $brindes = 0;
-                        $compras = 0;
+                    $dados = array();
+                    $resgatados = 0;
+                    $usados = 0;
+                    $gotas = 0;
+                    $dinheiro = 0;
+                    $brindes = 0;
+                    $compras = 0;
 
-                        foreach ($cuponsArray as $cupom) {
-                            $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
+                    foreach ($cuponsArray as $cupom) {
+                        $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
 
-                            $dinheiro += $cupom["valor_pago_reais"];
-                            $gotas += $cupom["valor_pago_gotas"];
+                        $dinheiro += $cupom["valor_pago_reais"];
+                        $gotas += $cupom["valor_pago_gotas"];
 
-                            // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
-                            $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
-                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"])))
-                                ? 1 : 0;
-                            // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
-                            $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT
-                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"])))
-                                ? 1 : 0;
+                        // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                        $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
+                            || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"])))
+                            ? 1 : 0;
+                        // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                        $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT
+                            || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"])))
+                            ? 1 : 0;
 
-                            $usados = $cupom["usado"] ? $usados + 1 : $usados;
-                        }
+                        $usados = $cupom["usado"] ? $usados + 1 : $usados;
+                    }
 
-                        // somatória parcial
+                    // somatória parcial
 
-                        $dados = array(
-                            "idBrinde" => $cupomPesquisa["id"],
-                            "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
-                            "resgatados" => $resgatados,
-                            "usados" => $usados,
-                            "gotas" => $gotas,
-                            "dinheiro" => $dinheiro,
-                            "brindes" => $brindes,
-                            "compras" => $compras,
-                            "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
-                            "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
-                        );
+                    $dados = array(
+                        "idBrinde" => $cupomPesquisa["id"],
+                        "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                        "resgatados" => $resgatados,
+                        "usados" => $usados,
+                        "gotas" => $gotas,
+                        "dinheiro" => $dinheiro,
+                        "brindes" => $brindes,
+                        "compras" => $compras,
+                        "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
+                        "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
+                    );
 
-                        $somaResgatados += $resgatados;
-                        $somaUsados += $usados;
-                        $somaGotas += $gotas;
-                        $somaDinheiro += $dinheiro;
-                        $somaBrindes += $brindes;
-                        $somaCompras += $compras;
-                        $dadosTurno[] = $dados;
+                    $somaResgatados += $resgatados;
+                    $somaUsados += $usados;
+                    $somaGotas += $gotas;
+                    $somaDinheiro += $dinheiro;
+                    $somaBrindes += $brindes;
+                    $somaCompras += $compras;
+                    $dadosTurno[] = $dados;
                 }
 
                 // aqui acabou do funcionário
@@ -973,11 +973,10 @@ class CuponsController extends AppController
                     "dados" => $dadosTurno
                 );
                 $dadosVendaFuncionarios[] = $funcionario;
-
             }
             $dataInicio = date("d/m/Y H:i", strtotime($turnoInicio));
             $dataFim = date("d/m/Y H:i", strtotime($turnoFim));
-            
+
             if (count($dadosVendaFuncionarios) == 0) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
             }
@@ -997,7 +996,7 @@ class CuponsController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }
-   
+
     /**
      * Action para Relatorio de Caixa de Funcionário via Gerente
      *
@@ -1020,11 +1019,11 @@ class CuponsController extends AppController
         );
 
         $date = date("Y-m-d H:i");
-        // $dataInicio = date_sub(, )
-        $dataInicio = date("Y-m-d H:i", strtotime($date));
+        // Uma semana atrás
+        $diaInicio = strtotime('-1 week', strtotime($date));
+
+        $dataInicio = date("Y-m-d 00:00", $diaInicio);
         $dataFim = date("Y-m-d H:i", strtotime($date));
-        
-        
 
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -1061,7 +1060,11 @@ class CuponsController extends AppController
 
             $data = $this->request->getData();
 
-            $turno = $data["turno"];
+            // Define datas
+            $dataInicio = !empty($data["data_inicio_envio"]) ?  $data["data_inicio_envio"] : $dataInicio;
+            $dataFim = !empty($data["data_fim_envio"]) ?  $data["data_fim_envio"] : $dataFim;
+
+            $turno = 1;
 
             $tituloTurno = $turno ? "Turno: Atual" : "Turno: Anterior";
 
@@ -1077,7 +1080,7 @@ class CuponsController extends AppController
             $turnoInicio = $turnoOperacao["dataConsultaInicio"];
             $turnoFim = $turnoOperacao["dataConsultaFim"];
 
-          
+
 
             // Obtem lista de funcionários da unidade
 
@@ -1117,9 +1120,6 @@ class CuponsController extends AppController
             $dadosVendaFuncionarios = array();
             $funcionarios = array();
 
-            $dataInicio = null;
-            $dataFim = null;
-
             foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
 
                 $funcionario = array();
@@ -1144,68 +1144,65 @@ class CuponsController extends AppController
                 $totalCompras = null;
 
                 foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
-                    $dataInicio = $turnoInicio;
-                    $dataFim = $turnoFim;
+                    $cupons = $this->Cupons->find("all")->where(
+                        array(
+                            "brindes_id" => $cupomPesquisa["id"],
+                            "clientes_id" => $cupomPesquisa["clientesId"],
+                            "funcionarios_id" => $funcionarioId,
+                            "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+                        )
+                    );
 
-                        $cupons = $this->Cupons->find("all")->where(
-                            array(
-                                "brindes_id" => $cupomPesquisa["id"],
-                                "clientes_id" => $cupomPesquisa["clientesId"],
-                                "funcionarios_id" => $funcionarioId,
-                                "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
-                            )
-                        );
+                    $cuponsArray = $cupons->toArray();
 
-                        $cuponsArray = $cupons->toArray();
+                    $dados = array();
+                    $resgatados = 0;
+                    $usados = 0;
+                    $gotas = 0;
+                    $dinheiro = 0;
+                    $brindes = 0;
+                    $compras = 0;
 
-                        $dados = array();
-                        $resgatados = 0;
-                        $usados = 0;
-                        $gotas = 0;
-                        $dinheiro = 0;
-                        $brindes = 0;
-                        $compras = 0;
+                    foreach ($cuponsArray as $cupom) {
+                        $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
 
-                        foreach ($cuponsArray as $cupom) {
-                            $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
+                        $dinheiro += $cupom["valor_pago_reais"];
+                        $gotas += $cupom["valor_pago_gotas"];
 
-                            $dinheiro += $cupom["valor_pago_reais"];
-                            $gotas += $cupom["valor_pago_gotas"];
+                        // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                        $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
+                            || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"])))
+                            ? 1 : 0;
+                        // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                        $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT
+                            || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"])))
+                            ? 1 : 0;
 
-                            // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
-                            $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
-                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"])))
-                                ? 1 : 0;
-                            // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
-                            $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT
-                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"])))
-                                ? 1 : 0;
+                        $usados = $cupom["usado"] ? $usados + 1 : $usados;
+                    }
 
-                            $usados = $cupom["usado"] ? $usados + 1 : $usados;
-                        }
+                    // somatória parcial
 
-                        // somatória parcial
+                    $dados = array(
+                        "idBrinde" => $cupomPesquisa["id"],
+                        "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                        "resgatados" => $resgatados,
+                        "usados" => $usados,
+                        "gotas" => $gotas,
+                        "dinheiro" => $dinheiro,
+                        "brindes" => $brindes,
+                        "compras" => $compras,
+                        "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
+                        "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
+                    );
 
-                        $dados = array(
-                            "idBrinde" => $cupomPesquisa["id"],
-                            "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
-                            "resgatados" => $resgatados,
-                            "usados" => $usados,
-                            "gotas" => $gotas,
-                            "dinheiro" => $dinheiro,
-                            "brindes" => $brindes,
-                            "compras" => $compras,
-                            "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
-                            "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
-                        );
-
-                        $somaResgatados += $resgatados;
-                        $somaUsados += $usados;
-                        $somaGotas += $gotas;
-                        $somaDinheiro += $dinheiro;
-                        $somaBrindes += $brindes;
-                        $somaCompras += $compras;
-                        $dadosTurno[] = $dados;
+                    $somaResgatados += $resgatados;
+                    $somaUsados += $usados;
+                    $somaGotas += $gotas;
+                    $somaDinheiro += $dinheiro;
+                    $somaBrindes += $brindes;
+                    $somaCompras += $compras;
+                    $dadosTurno[] = $dados;
                 }
 
                 // aqui acabou do funcionário
@@ -1231,11 +1228,8 @@ class CuponsController extends AppController
                     "dados" => $dadosTurno
                 );
                 $dadosVendaFuncionarios[] = $funcionario;
-
             }
-            $dataInicio = date("d/m/Y H:i", strtotime($turnoInicio));
-            $dataFim = date("d/m/Y H:i", strtotime($turnoFim));
-            
+
             if (count($dadosVendaFuncionarios) == 0) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
             }
@@ -2435,8 +2429,8 @@ class CuponsController extends AppController
                 $usuariosId = $this->Auth->user()["id"];
                 $valorPagoMin = !empty($data["valor_pago_min"]) ? (float)$data["valor_pago_min"] : null;
                 $valorPagoMax = !empty($data["valor_pago_max"]) ? (float)$data["valor_pago_max"] : null;
-                $dataInicio = !empty($data["data_inicio"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
-                $dataFim = !empty($data["data_fim"]) ?  date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
+                $dataInicio = !empty($data["data_inicio"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
+                $dataFim = !empty($data["data_fim"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
                 $brindesNome = !empty($data["brindes_nome"]) ? $data["brindes_nome"] : null;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : TYPE_SELL_CURRENCY_OR_POINTS_TEXT;
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
@@ -2729,7 +2723,7 @@ class CuponsController extends AppController
                 "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
                 "errors" => array(
-                    sprintf("%s %s", $mensagemErro,  "Comunique seu gestor!")
+                    sprintf("%s %s", $mensagemErro, "Comunique seu gestor!")
                 )
             );
 
@@ -3035,7 +3029,7 @@ class CuponsController extends AppController
             } catch (\Exception $e) {
                 $message = $e->getMessage();
                 $trace = $e->getTraceAsString();
-                $messageLog =  sprintf("Exceção durante processamento de cupom: %s %s [Função: %s / Arquivo: %s, Linha: %s].", $message, $trace, __FUNCTION__, __FILE__, __LINE__);
+                $messageLog = sprintf("Exceção durante processamento de cupom: %s %s [Função: %s / Arquivo: %s, Linha: %s].", $message, $trace, __FUNCTION__, __FILE__, __LINE__);
                 Log::write("error", $messageLog);
             }
 

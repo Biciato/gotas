@@ -20,7 +20,8 @@ $(document).ready(function () {
     var dataFim = undefined;
 
     if (dataInicioTemp !== undefined) {
-        dataInicio = moment(dataInicioTemp, "YYYY-MM-DD HH:mm").format("DD/MM/YYYY HH:mm");
+        // dataInicio = moment(dataInicioTemp, "YYYY-MM-DD HH:mm").format("DD/MM/YYYY HH:mm");
+        dataInicio = dataInicioTemp;
         // moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
     }
 

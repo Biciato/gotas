@@ -84,12 +84,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <?= $this->Form->input(
                                     "tipo_relatorio",
                                     array(
-                                        "type"=> "select",
-                                        "name"=>"tipo_relatorio",
+                                        "type" => "select",
+                                        "name" => "tipo_relatorio",
                                         "id" => "tipo_relatorio",
                                         "label" => false,
                                         "options" => array(
-                                            "Analítico" => "Analítico", 
+                                            "Analítico" => "Analítico",
                                             "Sintético" => "Sintético"
                                         ),
                                         "value" => $tipoRelatorio
@@ -98,29 +98,24 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 ); ?>
                             </div>
 
-                            <!-- <input type="hidden"  -->
                             <input type="text" 
                                 name="data_inicio_envio" 
                                 id="data_inicio_envio"
                                 value="<?= $dataInicio ?>"
                                 class="data-inicio-envio"
                                 >
-                            <input type="hidden" 
+                            <input type="text" 
                                 name="data_fim_envio" 
                                 id="data_fim_envio"
-                                value=""
+                                value="<?= $dataFim ?>"
                                 class="data-fim-envio">
 
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <button type="submit" class="btn btn-primary botao-pesquisar" id="turno" name="turno" value="0">
-                                    <span class="fa fa-bar-chart"></span>
-                                    Turno Anterior
-                                </button>
-                                <button type="submit" class="btn btn-primary botao-pesquisar" id="turno" name="turno" value="1">
-                                    <span class="fa fa-bar-chart"></span>
-                                    Turno Atual
+                                <button type="submit" class="btn btn-primary botao-pesquisar">
+                                    <span class="fa fa-search"></span>
+                                    Pesquisar
                                 </button>
                                 <?php if (count($dadosVendaFuncionarios) > 0) : ?>
                                     <button type="button" class="imprimir btn btn-default print-button-thermal" id="imprimir">
@@ -164,8 +159,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             || ($cupom["gotas"] > 0)
                             || ($cupom["dinheiro"] > 0)
                             || ($cupom["brindes"] > 0)
-                            || ($cupom["compras"] > 0)
-                        ) : ?>
+                            || ($cupom["compras"] > 0)) : ?>
 
                             <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
 
@@ -248,8 +242,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             || ($cupom["gotas"] > 0)
                             || ($cupom["dinheiro"] > 0)
                             || ($cupom["brindes"] > 0)
-                            || ($cupom["compras"] > 0)
-                        ) : ?>
+                            || ($cupom["compras"] > 0)) : ?>
 
                             <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
 

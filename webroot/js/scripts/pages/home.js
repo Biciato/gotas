@@ -650,13 +650,7 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
  *
  * @return void
  */
-var initializeDateTimePicker = function (
-    campo,
-    campoOculto,
-    dataAtual,
-    dataMinima,
-    dataMaxima
-) {
+var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMinima, dataMaxima) {
     console.log(dataMaxima);
     // Seta todos os campos DateTimePicker para Português Brasil
     moment.locale("pt-BR", {});
@@ -690,14 +684,13 @@ var initializeDateTimePicker = function (
 
     var valor = moment().format(format);
 
-    if (dataAtual != undefined) {
+    if (dataAtual !== undefined) {
         valor = moment(dataAtual).format(format);
     }
 
     $("#" + campo).data("DateTimePicker").date(valor);
     if (campoOculto) {
-        valor = moment().format("YYYY-MM-DD HH:mm");
-        $("#" + campoOculto).val(valor);
+        $("#" + campoOculto).val(moment(valor).format("YYYY-MM-DD HH:mm"));
     }
 
     $("#" + campo)
@@ -734,6 +727,11 @@ var initializeDateTimePicker = function (
                         );
                         $("#" + campo).val(dataOculta);
                     }
+                }
+            } else {
+                var data = moment(value, "DD/MM/YYYY HH:mm", true);
+                if (data.isValid()){
+                    $("#" + campoOculto).val(data.format("YYYY-MM-DD HH:mm"));
                 }
             }
         });
