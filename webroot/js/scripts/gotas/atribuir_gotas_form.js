@@ -123,7 +123,8 @@ $(document).ready(function() {
         initializeDateTimePicker(
             "data_processamento",
             "data_processamento_save",
-            true,
+            null,
+            null,
             moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
         );
         // $(".gotas-camera-manual-insert #data_processamento").val(data);
@@ -985,7 +986,8 @@ var resetLayout = function() {
     initializeDateTimePicker(
         "data_processamento",
         "data_processamento_save",
-        true,
+        null,
+        null,
         moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
     );
 

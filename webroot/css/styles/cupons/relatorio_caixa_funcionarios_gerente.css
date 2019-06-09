@@ -1,0 +1,39 @@
+/**
+ * relatorio_caixa_funcionarios_gerente.css
+ *
+ * Arquivo de estilo para relatorio_caixa_funcionarios_gerente.ctp
+ *
+ * @file webroot\css\styles\cupons\relatorio_caixa_funcionarios_gerente.css
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-06-09
+ *
+ *
+ */
+
+.print-thermal {
+    display: none;
+}
+
+@media print {
+    .print-thermal {
+        display: block !important;
+    }
+}
+
+.main-title {
+    font-size: 16px;
+    font-weight: bolder;
+}
+
+.shift-title {
+    font-size: 14px;
+}
+
+.shift-title>.shift-title-timer {
+    font-size: 12px;
+}
+
+.gift-title {
+    font-size: 13px;
+    font-weight: bold;
+}

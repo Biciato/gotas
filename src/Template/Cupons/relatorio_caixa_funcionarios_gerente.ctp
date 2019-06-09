@@ -2,11 +2,10 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src\Template\Cupons\relatorio_caixa_funcionario.ctp
+ * @file     src\Template\Cupons\relatorio_caixa_funcionarios_gerente.ctp
  * @date     06/08/2017
  *
- * Tela de Relatório de Caixa dos Funcionários de um Posto. Visualizado por um mesmo funcionário
- * 
+ * Tela de Relatório de Caixa dos Funcionários de um Posto. Visualizado por um gerente
  */
 
 use Cake\Core\Configure;
@@ -38,7 +37,81 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    <form action="/cupons/relatorioCaixaFuncionario/" method="post">
+                    <form action="/cupons/relatorioCaixaFuncionariosGerente/" method="post">
+                        <div class="form-group row">
+                            <div class="col-lg-6">
+
+                                <label for="funcionario">Funcionário:</label>
+                                <?= $this->Form->input(
+                                    "funcionario",
+                                    array(
+                                        "type" => "select",
+                                        "options" => $funcionariosList,
+                                        "value" => $funcionarioSelected,
+                                        "id" => "funcionario",
+                                        "empty" => "Selecionar...",
+                                        "placeholder" => "Funcionário...",
+                                        "label" => false
+                                    )
+                                );
+                                ?>
+
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="dataInicio">Data Início:</label>
+                                <input type="text"
+                                    class="form-control datetimepicker-input"
+                                    format="d/m/Y"
+                                    name="data_inicio"
+                                    id="data_inicio"
+                                    placeholder="Data Início..."
+                                    >
+                            </div>
+                            <div class="col-lg-2">
+                                <label for="dataFim">Data Fim:</label>
+                                <input type="text"
+                                    class="form-control datetimepicker-input"
+                                    format="d/m/Y"
+                                    name="data_fim"
+                                    id="data_fim"
+                                    placeholder="Data Fim..."
+                                    >
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="tipo_relatorio">Tipo de Relatório:</label>
+                                <?= $this->Form->input(
+                                    "tipo_relatorio",
+                                    array(
+                                        "type"=> "select",
+                                        "name"=>"tipo_relatorio",
+                                        "id" => "tipo_relatorio",
+                                        "label" => false,
+                                        "options" => array(
+                                            "Analítico" => "Analítico", 
+                                            "Sintético" => "Sintético"
+                                        ),
+                                        "value" => $tipoRelatorio
+                                        // "value" => "Sintético"
+                                    )
+                                ); ?>
+                            </div>
+
+                            <!-- <input type="hidden"  -->
+                            <input type="text" 
+                                name="data_inicio_envio" 
+                                id="data_inicio_envio"
+                                value="<?= $dataInicio ?>"
+                                class="data-inicio-envio"
+                                >
+                            <input type="hidden" 
+                                name="data_fim_envio" 
+                                id="data_fim_envio"
+                                value=""
+                                class="data-fim-envio">
+
+                        </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
                                 <button type="submit" class="btn btn-primary botao-pesquisar" id="turno" name="turno" value="0">
@@ -154,7 +227,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
 
         <div class="print-area-thermal col-lg-3 print-thermal">
-        <?php if (!empty($tituloTurno)) : ?>
+            <?php if (!empty($tituloTurno)) : ?>
                 <h3><?= $tituloTurno ?></h3>
                 <span><?= sprintf("Período: %s Às %s: ", $dataInicio, $dataFim) ?></span>
             <?php else : ?>
@@ -169,7 +242,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
                 <p>
                     <?php foreach ($turno["dados"] as $cupom) : ?>
- 
+
                         <?php if (($cupom["resgatados"] > 0)
                             || ($cupom["usados"] > 0)
                             || ($cupom["gotas"] > 0)
@@ -241,7 +314,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         // Adiciona comportamento jquery
         $extensionJs = $debug ? ".js" : ".min.js";
         $extensionCss = $debug ? ".css" : ".min.css";
-        echo $this->Html->script('scripts/cupons/relatorio_caixa' . $extensionJs);
-        echo $this->Html->css("styles/cupons/relatorio_caixa" . $extensionCss);
+        echo $this->Html->script('scripts/cupons/relatorio_caixa_funcionarios_gerente' . $extensionJs);
+        echo $this->Html->css("styles/cupons/relatorio_caixa_funcionarios_gerente" . $extensionCss);
         echo $this->fetch("script");
         ?>

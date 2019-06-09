@@ -774,13 +774,276 @@ class CuponsController extends AppController
             1 => "Sim",
             0 => "Nâo"
         );
+
+        $filtrarTurnoAnterior = null;
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        
+        if ($sessaoUsuario["usuarioAdministrar"]) {
+            $this->usuarioLogado = $sessaoUsuario["usuarioAdministrar"];
+        }
+        
+        $dadosVendaFuncionarios = array();
+        $totalGeral = array();
+
+        $tituloTurno = "";
+
+        $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
+        $quadroHorariosCliente = $quadroHorariosCliente->toArray();
+        $quadroHorariosClienteLength = count($quadroHorariosCliente);
+
+        if (empty($quadroHorariosCliente) || $quadroHorariosClienteLength == 0) {
+            $this->set(compact($arraySet));
+            $this->set("_serialize", $arraySet);
+
+            return $this->Flash->error(MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS);
+        }
+
+        if ($this->request->is("post")) {
+
+            $data = $this->request->getData();
+
+            $turno = $data["turno"];
+
+            $tituloTurno = $turno ? "Turno: Atual" : "Turno: Anterior";
+
+            $turnoOperacao = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente, $turno);
+            // $turnoAtual = $turnos["turnoAtual"];
+            // $turnoAnterior = $turnos["turnoAnterior"];
+
+            // Turno Anterior:
+            // Se a hora do turno anterior é maior que a do turno atual, então é um dia a menos.
+            // Turno Atual:
+            // Se o horário do turno atual é maior que a hora atual, então turno anterior e turno atual é um dia a menos.
+
+            $turnoInicio = $turnoOperacao["dataConsultaInicio"];
+            $turnoFim = $turnoOperacao["dataConsultaFim"];
+
+          
+
+            // Obtem lista de funcionários da unidade
+
+            $funcionariosArray = $this->ClientesHasUsuarios->getAllUsersByClienteId(
+                $cliente["id"],
+                PROFILE_TYPE_WORKER,
+                1
+            );
+            $funcionariosArray = $funcionariosArray->toArray();
+
+            // Lista dos IDS de funcionários
+            $funcionariosIdsList = array();
+
+            foreach ($funcionariosArray as $funcionario) {
+                $funcionariosIdsList[$funcionario["id"]] = $funcionario["nome"];
+            }
+
+            // Obtem os brindes habilitados do posto de atendimento
+
+            $brindes = $this->Brindes->findBrindes(null, $cliente["id"]);
+            $brindes = $brindes->toArray();
+            $dadosPesquisaCuponsArray = array();
+
+            foreach ($brindes as $brinde) {
+                $dadosPesquisaCuponsArray[] = array(
+                    "id" => $brinde->id,
+                    "nomeBrinde" => $brinde->nome,
+                    "clientesId" => $cliente->id
+                );
+            };
+
+            // Obtem os dados dos cupons
+
+            // Fechamento Anterior
+
+            $cuponsFuncionarios = array();
+            $dadosVendaFuncionarios = array();
+            $funcionarios = array();
+
+            $dataInicio = null;
+            $dataFim = null;
+
+            foreach ($funcionariosIdsList as $funcionarioId => $funcionarioNome) {
+
+                $funcionario = array();
+
+                $funcionario["id"] = $funcionarioId;
+                $funcionario["nome"] = $funcionarioNome;
+
+                $dadosTurno = array();
+                $somaResgatados = 0;
+                $somaUsados = 0;
+                $somaGotas = 0;
+                $somaDinheiro = 0;
+                $somaBrindes = 0;
+                $somaCompras = 0;
+
+                // Soma total de todos os funcionários
+                $totalResgatados = null;
+                $totalUsados = null;
+                $totalGotas = null;
+                $totalDinheiro = null;
+                $totalBrindes = null;
+                $totalCompras = null;
+
+                foreach ($dadosPesquisaCuponsArray as $cupomPesquisa) {
+                    $dataInicio = $turnoInicio;
+                    $dataFim = $turnoFim;
+
+                        $cupons = $this->Cupons->find("all")->where(
+                            array(
+                                "brindes_id" => $cupomPesquisa["id"],
+                                "clientes_id" => $cupomPesquisa["clientesId"],
+                                "funcionarios_id" => $funcionarioId,
+                                "data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+                            )
+                        );
+
+                        $cuponsArray = $cupons->toArray();
+
+                        $dados = array();
+                        $resgatados = 0;
+                        $usados = 0;
+                        $gotas = 0;
+                        $dinheiro = 0;
+                        $brindes = 0;
+                        $compras = 0;
+
+                        foreach ($cuponsArray as $cupom) {
+                            $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
+
+                            $dinheiro += $cupom["valor_pago_reais"];
+                            $gotas += $cupom["valor_pago_gotas"];
+
+                            // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                            $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT
+                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"])))
+                                ? 1 : 0;
+                            // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                            $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT
+                                || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"])))
+                                ? 1 : 0;
+
+                            $usados = $cupom["usado"] ? $usados + 1 : $usados;
+                        }
+
+                        // somatória parcial
+
+                        $dados = array(
+                            "idBrinde" => $cupomPesquisa["id"],
+                            "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                            "resgatados" => $resgatados,
+                            "usados" => $usados,
+                            "gotas" => $gotas,
+                            "dinheiro" => $dinheiro,
+                            "brindes" => $brindes,
+                            "compras" => $compras,
+                            "dataInicio" => date("d/m/Y H:i:s", strtotime($dataInicio)),
+                            "dataFim" => date("d/m/Y H:i:s", strtotime($dataFim))
+                        );
+
+                        $somaResgatados += $resgatados;
+                        $somaUsados += $usados;
+                        $somaGotas += $gotas;
+                        $somaDinheiro += $dinheiro;
+                        $somaBrindes += $brindes;
+                        $somaCompras += $compras;
+                        $dadosTurno[] = $dados;
+                }
+
+                // aqui acabou do funcionário
+                $soma = array(
+                    "somaResgatados" => $somaResgatados,
+                    "somaUsados" => $somaUsados,
+                    "somaGotas" => $somaGotas,
+                    "somaDinheiro" => $somaDinheiro,
+                    "somaBrindes" => $somaBrindes,
+                    "somaCompras" => $somaCompras,
+                );
+
+                $totalResgatados += $somaResgatados;
+                $totalUsados += $somaUsados;
+                $totalGotas += $somaGotas;
+                $totalDinheiro += $somaDinheiro;
+                $totalBrindes += $somaBrindes;
+                $totalCompras += $somaCompras;
+                $funcionario["soma"] = $soma;
+                $funcionario["turno"] = array(
+                    "dataInicio" => date("d/m/Y H:i:s", strtotime($turnoInicio)),
+                    "dataFim" => date("d/m/Y H:i:s", strtotime($turnoFim)),
+                    "dados" => $dadosTurno
+                );
+                $dadosVendaFuncionarios[] = $funcionario;
+
+            }
+            $dataInicio = date("d/m/Y H:i", strtotime($turnoInicio));
+            $dataFim = date("d/m/Y H:i", strtotime($turnoFim));
+            
+            if (count($dadosVendaFuncionarios) == 0) {
+                $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
+            }
+
+            $totalGeral = array(
+                "totalResgatados" => $totalResgatados,
+                "totalUsados" => $totalUsados,
+                "totalGotas" => $totalGotas,
+                "totalDinheiro" => $totalDinheiro,
+                "totalBrindes" => $totalBrindes,
+                "totalCompras" => $totalCompras,
+            );
+        }
+
+        // DebugUtil::print($dadosVendaFuncionarios);
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+   
+    /**
+     * Action para Relatorio de Caixa de Funcionário via Gerente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-09
+     * 
+     * @return void
+     */
+    public function relatorioCaixaFuncionariosGerente()
+    {
+        $arraySet = array(
+            "dadosVendaFuncionarios",
+            "funcionariosList",
+            "funcionarioSelected",
+            "totalGeral",
+            "tituloTurno",
+            "tipoRelatorio",
+            "dataInicio",
+            "dataFim"
+        );
+
+        $date = date("Y-m-d H:i");
+        // $dataInicio = date_sub(, )
+        $dataInicio = date("Y-m-d H:i", strtotime($date));
+        $dataFim = date("Y-m-d H:i", strtotime($date));
+        
+        
+
+        $sessaoUsuario = $this->getSessionUserVariables();
+
         $filtrarTurnoAnterior = null;
 
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
+
+        if ($sessaoUsuario["usuarioAdministrar"]) {
+            $this->usuarioLogado = $sessaoUsuario["usuarioAdministrar"];
+        }
+
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
 
+        // Pega todos os funcionários do posto do gerente alocado
+        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"], null, null, PROFILE_TYPE_WORKER))->find("list");
+        $funcionarioSelected = 0;
+        $tipoRelatorio = "Sintético";
         $tituloTurno = "";
 
         $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);

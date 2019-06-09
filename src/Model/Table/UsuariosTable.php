@@ -47,28 +47,6 @@ class UsuariosTable extends GenericTable
      */
 
     /**
-     * Method get of usuario table property
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getUsuarioTable()
-    {
-        if (is_null($this->usuarioTable)) {
-            $this->_setUsuarioTable();
-        }
-        return $this->usuarioTable;
-    }
-
-    /**
-     * Method set of usuario table property
-     *
-     * @return void
-     */
-    private function _setUsuarioTable()
-    {
-        $this->usuarioTable = TableRegistry::get('Usuarios');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -643,8 +621,7 @@ class UsuariosTable extends GenericTable
     public function addUsuario($usuario = null)
     {
         try {
-            $usuarioAdd = $this
-                ->newEntity();
+            $usuarioAdd = $this->newEntity();
             $usuarioAdd = $this->formatUsuario(0, $usuario);
 
             return $this->save($usuarioAdd);
@@ -808,7 +785,7 @@ class UsuariosTable extends GenericTable
     public function getFuncionarioFicticio()
     {
         try {
-            return $this->_getUsuarioTable()->find('all')
+            return $this->find('all')
                 ->where(['tipo_perfil' => (int)Configure::read("profileTypes")["DummyWorkerProfileType"]])->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -904,7 +881,7 @@ class UsuariosTable extends GenericTable
 
             $conditions[] = array('cpf like ' => '%' . $this->cleanNumber($cpf) . '%');
 
-            $usuario = $this->_getUsuarioTable()
+            $usuario = $this
                 ->find('all')
                 ->where($conditions)
                 ->first();
@@ -931,7 +908,7 @@ class UsuariosTable extends GenericTable
     public function getUsuarioByEmail($email = null)
     {
         try {
-            return $this->_getUsuarioTable()
+            return $this
                 ->find('all')
                 ->where(['email like ' => $email])->first();
         } catch (\Exception $e) {
@@ -1031,7 +1008,7 @@ class UsuariosTable extends GenericTable
 
             $conditions[] = array('doc_estrangeiro like ' => '%' . $doc_estrangeiro . '%');
 
-            $usuarios = $this->_getUsuarioTable()
+            $usuarios = $this
                 ->find('all')
                 ->where($conditions);
 
@@ -1105,7 +1082,7 @@ class UsuariosTable extends GenericTable
 
             array_push($conditions, ['nome like ' => "%" . $nome . "%"]);
 
-            $usuarios = $this->_getUsuarioTable()
+            $usuarios = $this
                 ->find('all')
                 ->where($conditions);
 
@@ -1131,7 +1108,7 @@ class UsuariosTable extends GenericTable
     public function getUsuariosByProfileType(int $tipoPerfil, int $limit = 999)
     {
         try {
-            $usuarios = $this->_getUsuarioTable()
+            $usuarios = $this
                 ->find('all')
                 ->where(['tipo_perfil' => $tipoPerfil]);
 
@@ -1173,7 +1150,7 @@ class UsuariosTable extends GenericTable
 
             array_push($conditions, ['aguardando_aprovacao' => true]);
 
-            return $this->_getUsuarioTable()->find('all')
+            return $this->find('all')
                 ->where($conditions);
             // ->contain('ClientesHasUsuarios.Clientes');
         } catch (\Exception $e) {
@@ -1196,7 +1173,7 @@ class UsuariosTable extends GenericTable
     public function findUsuarioAwaitingPasswordReset($tokenSenha = null, $dataExpiracaoToken = null)
     {
         try {
-            return $this->_getUsuarioTable()
+            return $this
                 ->find('all')
                 ->where([
                     'token_senha' => $tokenSenha,
@@ -1291,7 +1268,8 @@ class UsuariosTable extends GenericTable
             $arrayContain = array();
 
             $usuarios = $this->find('all')
-                ->where($whereConditions);
+                ->where($whereConditions)
+                ->order(array("Usuarios.nome" => "ASC"));
 
             if ($join) {
                 $arrayContain[] = 'ClienteHasUsuario.Cliente.RedesHasClientes.Redes';
@@ -1381,7 +1359,7 @@ class UsuariosTable extends GenericTable
     public function findAllUsuariosByRede(int $redesId, array $usuariosConditions = [])
     {
         try {
-            $redes = $this->_getUsuarioTable()->ClientesHasUsuarios->Clientes->RedeHasCliente->Redes->getAllRedes('all', ['id' => $redesId]);
+            $redes = $this->ClientesHasUsuarios->Clientes->RedeHasCliente->Redes->getAllRedes('all', ['id' => $redesId]);
 
             $redes = $redes->toArray();
 
@@ -1421,7 +1399,7 @@ class UsuariosTable extends GenericTable
             $usuarios = null;
 
             if (count($usuariosIdsArray) > 0) {
-                $usuarios = $this->_getUsuarioTable()->find('all')
+                $usuarios = $this->find('all')
                     ->where($conditions)
                     ->contain('ClientesHasUsuarios');
             }
@@ -1620,7 +1598,7 @@ class UsuariosTable extends GenericTable
                 array_push($conditions, $condition);
             }
 
-            $usuarios = $this->_getUsuarioTable()->find('all')
+            $usuarios = $this->find('all')
                 ->where($conditions)
                 ->group(['usuarios.id'])
                 ->join(
@@ -1922,7 +1900,7 @@ class UsuariosTable extends GenericTable
             if (is_null($client->matriz_id)) {
                 array_push($conditions, ['Usuarios.matriz_id' => $client->id]);
 
-                $usuarios = $this->_getUsuarioTable()->find('all')
+                $usuarios = $this->find('all')
                     ->where($conditions)
                     ->join(['ClientesHasUsuarios' =>
                     [
@@ -1963,7 +1941,7 @@ class UsuariosTable extends GenericTable
             } else {
                 array_push($conditions, ['usuarios.matriz_id' => $id]);
 
-                $usuarios = $this->_getUsuarioTable()->find('all')
+                $usuarios = $this->find('all')
                     ->where($conditions)
                     ->join(['ClientesHasUsuarios' =>
                     [
@@ -2155,7 +2133,7 @@ class UsuariosTable extends GenericTable
             $usuario->token_senha = $tokenSenha;
             $usuario->data_expiracao_token = $dataExpiracaoToken;
 
-            $this->_getUsuarioTable()->addUpdateUsuario($usuario);
+            $this->addUpdateUsuario($usuario);
 
             return true;
         } catch (\Exception $e) {
@@ -2180,7 +2158,7 @@ class UsuariosTable extends GenericTable
     {
         try {
 
-            $clientes_has_usuarios = $this->_getUsuarioTable()->ClientesHasUsuarios->find('all')
+            $clientes_has_usuarios = $this->ClientesHasUsuarios->find('all')
                 ->where(['clientes_id' => $clientes_id])->select(['id']);
 
             $clientes_has_usuarios_ids = [];

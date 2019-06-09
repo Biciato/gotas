@@ -644,13 +644,17 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
  *
  * @param {string} campo Campo a ser inicializado
  * @param {string} campoOculto Campo oculto que será enviado ao server
+ * @param {string} dataAtual Inicializar campo com Data Atual
+ * @param {date} dataMinima Limite de Data Mínima
+ * @param {date} dataMaxima Limite de Data Máxima
  *
  * @return void
  */
 var initializeDateTimePicker = function (
     campo,
     campoOculto,
-    inicializarCampo = false,
+    dataAtual,
+    dataMinima,
     dataMaxima
 ) {
     console.log(dataMaxima);
@@ -667,9 +671,16 @@ var initializeDateTimePicker = function (
         // allowBlank: false
     };
 
+    var format = "DD/MM/YYYY HH:mm";
+    var formatUS = "MM-DD-YYYY HH:mm";
+
+    if (dataMinima != undefined) {
+        var minDate = moment(dataMinima, format);
+        options.minDate = minDate;
+    }
+
     if (dataMaxima != undefined) {
-        var format = "DD/MM/YYYY HH:mm";
-        var formatUS = "MM-DD-YYYY HH:mm";
+
         // var maxDate = moment(dataMaxima, format).format(formatUS);
         var maxDate = moment(dataMaxima, format);
         options.maxDate = maxDate;
@@ -677,14 +688,16 @@ var initializeDateTimePicker = function (
 
     $("#" + campo).datetimepicker(options);
 
-    if (inicializarCampo != undefined && inicializarCampo) {
-        var valor = moment().format("DD/MM/YYYY HH:mm");
+    var valor = moment().format(format);
 
-        $("#" + campo).data("DateTimePicker").date(valor);
-        if (campoOculto) {
-            valor = moment().format("YYYY-MM-DD HH:mm");
-            $("#" + campoOculto).val(valor);
-        }
+    if (dataAtual != undefined) {
+        valor = moment(dataAtual).format(format);
+    }
+
+    $("#" + campo).data("DateTimePicker").date(valor);
+    if (campoOculto) {
+        valor = moment().format("YYYY-MM-DD HH:mm");
+        $("#" + campoOculto).val(valor);
     }
 
     $("#" + campo)
@@ -742,7 +755,7 @@ var initializeDateTimePicker = function (
 var initializeTimePicker = function (
     campo,
     campoOculto,
-    inicializarCampo = false,
+    dataAtual = false,
     dataMaxima
 ) {
     console.log(dataMaxima);
@@ -767,7 +780,7 @@ var initializeTimePicker = function (
 
     $("#" + campo).datetimepicker(options);
 
-    if (inicializarCampo != undefined && inicializarCampo) {
+    if (dataAtual != undefined && dataAtual) {
         var valor = moment().format("HH:mm");
 
         $("#" + campo).data("DateTimePicker").date(valor);

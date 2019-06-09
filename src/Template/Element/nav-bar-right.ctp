@@ -386,7 +386,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
     <?php
 
-} else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
 
     // Gerente
 
@@ -418,6 +418,9 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
                     <li>
                         <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                    </li>
+                    <li>
+                        <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Fechamento de Funcionários</a>
                     </li>
 
                     <li role="separator" class="divider" />
