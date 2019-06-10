@@ -96,8 +96,8 @@ class CuponsTable extends GenericTable
         ]);
         $this->belongsTo('Funcionarios', [
             "className" => "Usuarios",
-            'foreignKey' => 'usuarios_id',
-            'joinType' => 'INNER'
+            'foreignKey' => 'funcionarios_id',
+            'joinType' => 'LEFT'
         ]);
 
         $this->belongsTo('Usuarios', [

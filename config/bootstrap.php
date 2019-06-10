@@ -257,6 +257,13 @@ FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss'); // For any immutable DateT
 const DATA_TYPE_MESSAGE_JSON = "json";
 const DATA_TYPE_MESSAGE_XML = "xml";
 
+#region Relatórios
+
+const REPORT_TYPE_ANALYTICAL = "Analítico";
+const REPORT_TYPE_SYNTHETIC = "Sintético";
+
+#endregion
+
 // status de Job
 
 const JOB_STATUS_INIT = "Inicializando...";
@@ -367,8 +374,8 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 
 // Pontuações
 
-CONST PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
-CONST PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
+const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
+const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
 const MESSAGE_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 
 #region Pontuacoes Comprovantes
