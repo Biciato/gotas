@@ -26,7 +26,8 @@ $(document).ready(function () {
     }
 
     if (dataFimTemp !== undefined) {
-        dataFim = moment(dataFimTemp).format("YYYY-MM-DD HH:mm");
+        // dataFim = moment(dataFimTemp).format("YYYY-MM-DD HH:mm");
+        dataFim = dataFimTemp;
     }
 
     initializeDateTimePicker("data_inicio", "data_inicio_envio", dataInicio, null, new Date());

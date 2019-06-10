@@ -122,7 +122,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <span><?= sprintf("De: %s Às %s: ", $dataInicio, $dataFim) ?></span>
             <?php else : ?>
                 <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
-
             <?php endif; ?>
             <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
                 <?php
@@ -230,17 +229,25 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 </p>
 
             <?php endforeach; ?>
-            <div class="total-geral">
-                <h4>Total Geral</h4>
-                <ul class="list-group">
-                    <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> </li>
-                    <li class="list-group-item"> Total de Brindes Usados: <?= $totalGeral["totalUsados"] ?> </li>
-                    <li class="list-group-item"> Total de Gotas Bonificadas: <?= $totalGeral["totalGotas"] ?> </li>
-                    <li class="list-group-item"> Total de Dinheiro Recebido: <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
-                    <li class="list-group-item"> Total de Bonificação: <?= $totalGeral["totalBrindes"] ?> </li>
-                    <li class="list-group-item"> Total de Vendas: <?= $totalGeral["totalCompras"] ?> </li>
-                </ul>
-            </div>
+
+
+            <?php if (
+                $totalGeral["totalResgatados"] > 0 || $totalGeral["totalUsados"] > 0
+                || $totalGeral["totalGotas"] > 0 || $totalGeral["totalDinheiro"] > 0
+                || $totalGeral["totalBrindes"] > 0 || $totalGeral["totalCompras"] > 0
+            ) : ?>
+                <div class="total-geral">
+                    <h4>Total Geral</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> </li>
+                        <li class="list-group-item"> Total de Brindes Usados: <?= $totalGeral["totalUsados"] ?> </li>
+                        <li class="list-group-item"> Total de Gotas Bonificadas: <?= $totalGeral["totalGotas"] ?> </li>
+                        <li class="list-group-item"> Total de Dinheiro Recebido: <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
+                        <li class="list-group-item"> Total de Bonificação: <?= $totalGeral["totalBrindes"] ?> </li>
+                        <li class="list-group-item"> Total de Vendas: <?= $totalGeral["totalCompras"] ?> </li>
+                    </ul>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="print-area-thermal col-lg-3 print-thermal">

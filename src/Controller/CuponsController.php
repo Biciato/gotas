@@ -1011,6 +1011,7 @@ class CuponsController extends AppController
             "dadosVendaFuncionarios",
             "funcionariosList",
             "funcionarioSelected",
+            "pesquisaFeita",
             "totalGeral",
             "tituloTurno",
             "tipoRelatorio",
@@ -1018,17 +1019,16 @@ class CuponsController extends AppController
             "dataFim"
         );
 
-        $date = date("Y-m-d H:i");
-        // Uma semana atrás
-        $diaInicio = strtotime('-1 week', strtotime($date));
-
-        $dataInicio = date("Y-m-d 00:00", $diaInicio);
-        $dataFim = date("Y-m-d H:i", strtotime($date));
-
+        $totalGeral = array(
+            "totalResgatados" => 0,
+            "totalUsados" => 0,
+            "totalGotas" => 0,
+            "totalDinheiro" => 0,
+            "totalBrindes" => 0,
+            "totalCompras" => 0
+        );
+        $pesquisaFeita = 0;
         $sessaoUsuario = $this->getSessionUserVariables();
-
-        $filtrarTurnoAnterior = null;
-
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
 
@@ -1036,8 +1036,13 @@ class CuponsController extends AppController
             $this->usuarioLogado = $sessaoUsuario["usuarioAdministrar"];
         }
 
+        $date = date("Y-m-d H:i");
+        // Uma semana atrás
+        $diaInicio = strtotime('-1 week', strtotime($date));
+        $dataInicio = date("Y-m-d 00:00", $diaInicio);
+        $dataFim = date("Y-m-d H:i", strtotime($date));
+
         $dadosVendaFuncionarios = array();
-        $totalGeral = array();
 
         // Pega todos os funcionários do posto do gerente alocado
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"], null, null, PROFILE_TYPE_WORKER))->find("list");
@@ -1058,6 +1063,7 @@ class CuponsController extends AppController
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+            $pesquisaFeita = 1;
 
             // Define datas
             $dataInicio = !empty($data["data_inicio_envio"]) ?  $data["data_inicio_envio"] : $dataInicio;
@@ -1085,9 +1091,6 @@ class CuponsController extends AppController
                 );
             };
 
-            // Obtem os dados dos cupons
-
-            $dadosVendaFuncionarios = array();
             $funcionarios = array();
 
             // Soma total de todos os funcionários
@@ -1099,7 +1102,6 @@ class CuponsController extends AppController
             $totalCompras = null;
 
             foreach ($funcionariosArray as $funcionarioId => $funcionarioNome) {
-
                 $funcionario = array();
 
                 $funcionario["id"] = $funcionarioId;
@@ -1130,9 +1132,6 @@ class CuponsController extends AppController
                     // DebugUtil::printArray($cuponsArray);
 
                     $cupomFuncionario = array();
-
-
-
                     $dados = array();
                     $resgatados = 0;
                     $usados = 0;
@@ -1205,11 +1204,9 @@ class CuponsController extends AppController
                     $somaDinheiro += $dinheiro;
                     $somaBrindes += $brindes;
                     $somaCompras += $compras;
-                    // @todo conferir
                     $dadosSinteticos[] = $sintetico;
                 }
 
-                // aqui acabou do funcionário
                 $soma = array(
                     "somaResgatados" => $somaResgatados,
                     "somaUsados" => $somaUsados,
@@ -1230,8 +1227,6 @@ class CuponsController extends AppController
                 $funcionario[REPORT_TYPE_SYNTHETIC] = $dadosSinteticos;
                 $dadosVendaFuncionarios[] = $funcionario;
             }
-
-            // DebugUtil::printArray($dadosVendaFuncionarios);
 
             if (count($dadosVendaFuncionarios) == 0) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
