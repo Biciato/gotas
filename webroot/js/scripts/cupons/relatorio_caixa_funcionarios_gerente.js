@@ -36,14 +36,14 @@ $(document).ready(function () {
     $(".print-button-thermal").on("click", function () {
 
         setTimeout($(".print-area-thermal").printThis({
-            importCss: false
+            importCss: true
         }), 100);
 
     })
     $(".print-button-common").on("click", function () {
 
         setTimeout($(".print-area-common").printThis({
-            importCss: false
+            importCss: true
         }), 100);
     })
 

@@ -138,44 +138,44 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <?php if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) : ?>
                                 <div class="form-group">
                                     <?php if (count($cupom["brinde"]["cupons"]) > 0) : ?>
-                                            <?php foreach ($cupom["brinde"]["cupons"] as $usuarios) : ?>
-                                                <?php foreach ($usuarios as  $usuario) : ?>
+                                        <?php foreach ($cupom["brinde"]["cupons"] as $usuarios) : ?>
+                                            <?php foreach ($usuarios as  $usuario) : ?>
 
-                                                    <?php if (count($usuario["dados"]) > 0) : ?>
+                                                <?php if (count($usuario["dados"]) > 0) : ?>
 
-                                                        <table class="table table-bordered table-hover table-responsive table-striped table-condensed">
-                                                            <thead>
+                                                    <table class="table table-bordered table-hover table-responsive table-striped table-condensed">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2"><strong>Brinde:</strong> <?= $cupom["brinde"]["nome"] ?></th>
+                                                                <th colspan="3">Cliente: <?= $usuario["nome"] ?></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Resgatado</td>
+                                                                <td>Usado</td>
+                                                                <td>Valor Pago em Gotas</td>
+                                                                <td>Valor Pago em Reais</td>
+                                                                <td>Data</td>
+                                                            </tr>
+                                                            <?php foreach ($usuario["dados"] as $dado) : ?>
                                                                 <tr>
-                                                                    <th colspan="2"><strong>Brinde:</strong> <?= $cupom["brinde"]["nome"] ?></th>
-                                                                    <th colspan="3">Cliente: <?= $usuario["nome"] ?></th>
+                                                                    <td><?= $this->Boolean->convertBooleanToString($dado["resgatado"]) ?></td>
+                                                                    <td><?= $this->Boolean->convertBooleanToString($dado["usado"]) ?></td>
+                                                                    <td><?= $this->Number->precision($dado["valor_pago_gotas"], 2); ?></td>
+                                                                    <td><?= $this->Number->precision($dado["valor_pago_reais"], 2); ?></td>
+                                                                    <td><?= $dado["data"] ?></td>
+
+
                                                                 </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Resgatado</td>
-                                                                    <td>Usado</td>
-                                                                    <td>Valor Pago em Gotas</td>
-                                                                    <td>Valor Pago em Reais</td>
-                                                                    <td>Data</td>
-                                                                </tr>
-                                                                <?php foreach ($usuario["dados"] as $dado) : ?>
-                                                                    <tr>
-                                                                        <td><?= $this->Boolean->convertBooleanToString($dado["resgatado"]) ?></td>
-                                                                        <td><?= $this->Boolean->convertBooleanToString($dado["usado"]) ?></td>
-                                                                        <td><?= $this->Number->precision($dado["valor_pago_gotas"], 2); ?></td>
-                                                                        <td><?= $this->Number->precision($dado["valor_pago_reais"], 2); ?></td>
-                                                                        <td><?= $dado["data"] ?></td>
+                                                            <?php endforeach; ?>
 
+                                                        </tbody>
+                                                    </table>
 
-                                                                    </tr>
-                                                                <?php endforeach; ?>
-
-                                                            </tbody>
-                                                        </table>
-
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
+                                                <?php endif; ?>
                                             <?php endforeach; ?>
+                                        <?php endforeach; ?>
 
                                     <?php endif; ?>
                                 </div>
@@ -261,74 +261,134 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
 
         <div class="print-area-thermal col-lg-3 print-thermal">
-            <?php if (!empty($tituloTurno)) : ?>
-                <h3><?= $tituloTurno ?></h3>
-                <span><?= sprintf("Período: %s Às %s: ", $dataInicio, $dataFim) ?></span>
+            <?php if (!empty($dadosVendaFuncionarios)) : ?>
+                <h3 class="text-center">Relatório de Caixa de Funcionários:</h3>
+                <p class="text-center"><?= sprintf("De: %s <br />Às %s: ", $dataInicioFormatada, $dataFimFormatada) ?></p>
             <?php else : ?>
                 <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
-
             <?php endif; ?>
             <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
                 <?php
-                $turno = $dadoVenda["turno"];
+                $cupons = $tipoRelatorio == REPORT_TYPE_ANALYTICAL ? $dadoVenda[REPORT_TYPE_ANALYTICAL] : $dadoVenda[REPORT_TYPE_SYNTHETIC];
                 $somaAtual = $dadoVenda["soma"];
                 ?>
-                <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
-                <p>
-                    <?php foreach ($turno["dados"] as $cupom) : ?>
+                <?php if ($somaAtual["somaResgatados"] > 0 || $somaAtual["somaUsados"] > 0 || $somaAtual["somaGotas"] > 0 || $somaAtual["somaDinheiro"] > 0 || $somaAtual["somaBrindes"] > 0 || $somaAtual["somaCompras"] > 0) : ?>
 
-                        <?php if (($cupom["resgatados"] > 0)
-                            || ($cupom["usados"] > 0)
-                            || ($cupom["gotas"] > 0)
-                            || ($cupom["dinheiro"] > 0)
-                            || ($cupom["brindes"] > 0)
-                            || ($cupom["compras"] > 0)
-                        ) : ?>
+                    <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
+                    <p>
+                        <?php foreach ($cupons as $cupom) : ?>
 
-                            <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
+                            <?php if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) : ?>
+                                <div class="form-group">
+                                    <?php if (count($cupom["brinde"]["cupons"]) > 0) : ?>
+                                        <?php foreach ($cupom["brinde"]["cupons"] as $usuarios) : ?>
+                                            <?php foreach ($usuarios as  $usuario) : ?>
 
-                            <?php if ($cupom["resgatados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                                <?php if (count($usuario["dados"]) > 0) : ?>
+
+                                                    <table class="table table-bordered table-hover table-responsive table-striped table-condensed">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2"><strong>Brinde:</strong> <?= $cupom["brinde"]["nome"] ?></th>
+                                                                <th colspan="3">Cliente: <?= $usuario["nome"] ?></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Resgatado</td>
+                                                                <td>Usado</td>
+                                                                <td>Valor Pago em Gotas</td>
+                                                                <td>Valor Pago em Reais</td>
+                                                                <td>Data</td>
+                                                            </tr>
+                                                            <?php foreach ($usuario["dados"] as $dado) : ?>
+                                                                <tr>
+                                                                    <td><?= $this->Boolean->convertBooleanToString($dado["resgatado"]) ?></td>
+                                                                    <td><?= $this->Boolean->convertBooleanToString($dado["usado"]) ?></td>
+                                                                    <td><?= $this->Number->precision($dado["valor_pago_gotas"], 2); ?></td>
+                                                                    <td><?= $this->Number->precision($dado["valor_pago_reais"], 2); ?></td>
+                                                                    <td><?= $dado["data"] ?></td>
+
+
+                                                                </tr>
+                                                            <?php endforeach; ?>
+
+                                                        </tbody>
+                                                    </table>
+
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        <?php endforeach; ?>
+
+                                    <?php endif; ?>
+                                </div>
+
+                            <?php else : ?>
+                                <?php if (($cupom["resgatados"] > 0)
+                                    || ($cupom["usados"] > 0)
+                                    || ($cupom["gotas"] > 0)
+                                    || ($cupom["dinheiro"] > 0)
+                                    || ($cupom["brindes"] > 0)
+                                    || ($cupom["compras"] > 0)
+                                ) : ?>
+
+                                    <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
+
+
+                                    <?php if ($cupom["resgatados"] > 0) : ?>
+                                        <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                    <?php endif; ?>
+
+                                    <?php if ($cupom["usados"] > 0) : ?>
+                                        <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                                    <?php endif; ?>
+                                    <?php if ($cupom["gotas"] > 0) : ?>
+                                        <!-- Qte de gotas recebido -->
+                                        <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                                    <?php endif; ?>
+
+                                    <?php if ($cupom["dinheiro"] > 0) : ?>
+                                        <!-- Qte de dinheiro recebido daquele brinde -->
+                                        <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                                    <?php endif; ?>
+
+                                    <?php if ($cupom["brindes"] > 0) : ?>
+                                        <!-- Qte de Brindes vendidos via gotas -->
+                                        <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                                    <?php endif; ?>
+
+                                    <?php if ($cupom["compras"] > 0) : ?>
+                                        <!-- Qte de Brindes vendidos via dinheiro -->
+                                        <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
                             <?php endif; ?>
-
-                            <?php if ($cupom["usados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                            <?php endif; ?>
-                            <?php if ($cupom["gotas"] > 0) : ?>
-                                <!-- Qte de gotas recebido -->
-                                <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                            <?php endif; ?>
-
-                            <?php if ($cupom["dinheiro"] > 0) : ?>
-                                <!-- Qte de dinheiro recebido daquele brinde -->
-                                <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                            <?php endif; ?>
-
-                            <?php if ($cupom["brindes"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via gotas -->
-                                <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                            <?php endif; ?>
-
-                            <?php if ($cupom["compras"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via dinheiro -->
-                                <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
-                            <?php endif; ?>
-
+                        <?php endforeach; ?>
+                        <?php if ($somaAtual["somaResgatados"] > 0 || $somaAtual["somaUsados"] > 0 || $somaAtual["somaGotas"] > 0 || $somaAtual["somaDinheiro"] > 0 || $somaAtual["somaBrindes"] > 0 || $somaAtual["somaCompras"] > 0) : ?>
+                            <div class="total-geral">
+                                <h4>Soma Parcial do Funcionário <?= $dadoVenda["nome"] ?></h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item"> Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
+                                    <li class="list-group-item"> Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
+                                    <li class="list-group-item"> Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
+                                    <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
+                                    <li class="list-group-item"> Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
+                                    <li class="list-group-item"> Vendas: <?= $somaAtual["somaCompras"] ?> </li>
+                                </ul>
+                            </div>
                         <?php endif; ?>
-                    <?php endforeach; ?>
-                    <div class="total-geral">
-                        <h4>Soma Parcial do Funcionário <?= $dadoVenda["nome"] ?></h4>
-                        <ul class="list-group">
-                            <li class="list-group-item"> Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
-                            <li class="list-group-item"> Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
-                            <li class="list-group-item"> Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
-                            <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
-                            <li class="list-group-item"> Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
-                            <li class="list-group-item"> Vendas: <?= $somaAtual["somaCompras"] ?> </li>
-                        </ul>
-                    </div>
-                </p>
+                    </p>
+                <?php endif; ?>
 
+            <?php endforeach; ?>
+
+
+            <?php if (
+                $totalGeral["totalResgatados"] > 0 || $totalGeral["totalUsados"] > 0
+                || $totalGeral["totalGotas"] > 0 || $totalGeral["totalDinheiro"] > 0
+                || $totalGeral["totalBrindes"] > 0 || $totalGeral["totalCompras"] > 0
+            ) : ?>
                 <div class="total-geral">
                     <h4>Total Geral</h4>
                     <ul class="list-group">
@@ -340,8 +400,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <li class="list-group-item"> Total de Vendas: <?= $totalGeral["totalCompras"] ?> </li>
                     </ul>
                 </div>
-
-            <?php endforeach; ?>
+            <?php endif; ?>
         </div>
 
         <?php
