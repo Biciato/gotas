@@ -1010,13 +1010,15 @@ class CuponsController extends AppController
         $arraySet = array(
             "dadosVendaFuncionarios",
             "funcionariosList",
-            "funcionarioSelected",
+            "funcionarioSelecionado",
             "pesquisaFeita",
             "totalGeral",
             "tituloTurno",
             "tipoRelatorio",
             "dataInicio",
-            "dataFim"
+            "dataFim",
+            "dataInicioFormatada",
+            "dataFimFormatada"
         );
 
         $totalGeral = array(
@@ -1046,7 +1048,7 @@ class CuponsController extends AppController
 
         // Pega todos os funcionários do posto do gerente alocado
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"], null, null, PROFILE_TYPE_WORKER))->find("list");
-        $funcionarioSelected = 0;
+        $funcionarioSelecionado = 0;
         $tipoRelatorio = REPORT_TYPE_SYNTHETIC;
         $tituloTurno = "";
 
@@ -1076,6 +1078,12 @@ class CuponsController extends AppController
 
             // Lista dos IDS de funcionários
             $funcionariosArray = $funcionariosList->toArray();
+
+            $funcionarioSelecionado = !empty($data["funcionario"]) ? $data["funcionario"] : 0;
+
+            if ($funcionarioSelecionado > 0) {
+                $funcionariosArray = array($funcionarioSelecionado => $funcionariosArray[$funcionarioSelecionado]);
+            }
 
             // Obtem os brindes habilitados do posto de atendimento
 
@@ -1228,7 +1236,7 @@ class CuponsController extends AppController
                 $dadosVendaFuncionarios[] = $funcionario;
             }
 
-            if (count($dadosVendaFuncionarios) == 0) {
+            if ((count($dadosVendaFuncionarios) == 0 || ($totalResgatados + $totalUsados + $totalGotas + $totalDinheiro + $totalBrindes + $totalCompras == 0))) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
             }
 
@@ -1243,6 +1251,9 @@ class CuponsController extends AppController
         }
 
         // DebugUtil::print($dadosVendaFuncionarios);
+
+        $dataInicioFormatada = DateTimeUtil::convertDateTimeToLocal($dataInicio);
+        $dataFimFormatada = DateTimeUtil::convertDateTimeToLocal($dataFim);
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);

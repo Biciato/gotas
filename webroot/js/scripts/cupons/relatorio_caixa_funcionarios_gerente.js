@@ -13,8 +13,8 @@ $(document).ready(function () {
 
     var dataInicioTemp = $(".data-inicio-envio").val().length != 0 ? $(".data-inicio-envio").val() : undefined;
     var dataFimTemp = $(".data-fim-envio").val().length != 0 ? $(".data-fim-envio").val() : undefined;
-    console.log(dataInicio);
-    console.log(dataFim);
+    console.log(dataInicioTemp);
+    console.log(dataFimTemp);
 
     var dataInicio = undefined;
     var dataFim = undefined;

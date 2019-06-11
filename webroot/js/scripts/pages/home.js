@@ -666,7 +666,7 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
     };
 
     var format = "DD/MM/YYYY HH:mm";
-    var formatUS = "MM-DD-YYYY HH:mm";
+    var formatUS = "YYYY-MM-DD HH:mm";
 
     if (dataMinima != undefined) {
         var minDate = moment(dataMinima, format);
@@ -690,7 +690,7 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
 
     $("#" + campo).data("DateTimePicker").date(valor);
     if (campoOculto) {
-        $("#" + campoOculto).val(moment(valor).format("YYYY-MM-DD HH:mm"));
+        $("#" + campoOculto).val(moment(valor, format).format(formatUS));
     }
 
     $("#" + campo)
