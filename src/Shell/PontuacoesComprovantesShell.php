@@ -271,12 +271,23 @@ class PontuacoesComprovantesShell extends ExtendedShell
     public function testGetCoupon()
     {
         try {
-            $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012401028054570|2|1|1|1E96845C21CB919EEBA8391CE89EA8FE75D1BC11";
-            $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012471028054644|2|1|1|FDEC36DF7F561504A77928F507564C3B40DDE9D5";
+            // echo 'oi';
+            // $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012401028054570|2|1|1|1E96845C21CB919EEBA8391CE89EA8FE75D1BC11";
+            // $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012471028054644|2|1|1|FDEC36DF7F561504A77928F507564C3B40DDE9D5";
 
-            $response = WebTools::getPageContent($cupom);
+
+            $cupom1 = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
+            $response = array();
+            exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $cupom1 . "' true 2>&1", $response);
+            // $response = WebTools::getPageContent($cupom);
+            $request = $response[0];
+            $responseHtml = array();
+            
+            exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $responseHtml);
 
             // DebugUtil::printArray($response);
+            echo implode("", $responseHtml);
+            die();
 
             $file = "test.html";
             // if (!file_exists($file)) {
@@ -287,7 +298,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
             // file_put_contents("../tmp/test.html", $response);
         } catch (\Exception $e) {
-
+            Log::write("debug", $e->getMessage());
         }
 
 
