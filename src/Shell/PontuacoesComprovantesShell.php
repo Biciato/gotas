@@ -276,15 +276,27 @@ class PontuacoesComprovantesShell extends ExtendedShell
             // $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012471028054644|2|1|1|FDEC36DF7F561504A77928F507564C3B40DDE9D5";
 
 
-            $cupom1 = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
-            $response = array();
-            exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $cupom1 . "' true 2>&1", $response);
+            $cupom = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
+
+            $cupom= str_replace("|", "%7C", $cupom);
+            $cupom = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $cupom);
+            // echo $cupom;
+
+            //  "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?p=43190687700175000190650020007221271811401378%7C2%7C1%7C1%7C4F4DAAD878F88DFADDE401509A16B902AF816BBF"
+
+            // die();
+
+            // $cupom1 = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
+            // $response = array();
+            // exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $cupom1 . "' true 2>&1", $response);
             // $response = WebTools::getPageContent($cupom);
-            $request = $response[0];
+            // $request = $response[0];
+            $request = $cupom;
             $responseHtml = array();
             
             exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $responseHtml);
 
+            $responseHtml = json_decode($responseHtml[0]);
             // DebugUtil::printArray($response);
             echo implode("", $responseHtml);
             die();

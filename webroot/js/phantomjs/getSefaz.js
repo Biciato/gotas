@@ -1,5 +1,7 @@
-var system = require('system');
-var page = require('webpage').create();
+var page = require('webpage').create(),
+    system = require('system'),
+    resources = [],
+    statusPage = 0;
 page.settings.userAgent = 'SpecialAgent';
 
 var args = system.args;
@@ -10,7 +12,6 @@ if (args[2] !== undefined) {
     getLink = args[2] === "true" ? true : false;
 }
 
-// console.log('oi');
 function onPageReady() {
     var htmlContent = page.evaluate(function () {
         return document.documentElement.outerHTML;
@@ -20,10 +21,15 @@ function onPageReady() {
 }
 
 function getPageContent() {
+
+    console.log(JSON.stringify(resources));
+    // var status = response[0].status;
     var link = page.evaluate(function () {
-        // return page.plainText;
-        return document.documentElement.outerHTML;
-        // return page.content;
+        var result = {
+            // "response": document.documentElement.outerHTML,
+            "status": resources[0].status
+        };
+        return JSON.stringify(result);
 
     });
 
@@ -70,6 +76,24 @@ page.open(url, function (status) {
 
     checkReadyState();
 });
+page.onResourceReceived = function (response) {
+
+    // statusPage = response.status;
+
+    // return resources;
+
+    // terminou carregamento 
+    if (response.stage !== "end") return;
+    resources.push(response);
+
+    // if (response.headers.filter(function (header) {
+    //     if (header.name == "contentType" && header.value.indexOf("text/html") == 0) {
+    //         return true;
+    //     }
+    //     return false;
+    // }).length > 0) {
+    // }
+};
 
 // getPageContent(url);
 // phantom.exit();
