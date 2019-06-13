@@ -3,6 +3,10 @@ var page = require('webpage').create(),
     resources = [],
     statusPage = 0;
 page.settings.userAgent = 'SpecialAgent';
+page.customHeaders = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+};
 
 var args = system.args;
 var url = args[1];
@@ -20,18 +24,28 @@ function onPageReady() {
     phantom.exit();
 }
 
+/**
+ * getSefaz::getPageContent
+ * 
+ * Obtem conteúdo da página
+ * 
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-06-13
+ * 
+ * @returns JSON string
+ */
 function getPageContent() {
-
-    console.log(JSON.stringify(resources));
-    // var status = response[0].status;
-    var link = page.evaluate(function () {
+    var status = JSON.stringify(resources[0].status);
+    var link = page.evaluate(function (status, page) {
         var result = {
-            // "response": document.documentElement.outerHTML,
-            "status": resources[0].status
+            "response": document.documentElement.outerHTML,
+            "statusCode": status,
+            "url": page.url,
+            "status": status < 400 ? "online" : "offline"
         };
         return JSON.stringify(result);
 
-    });
+    }, status, page);
 
     console.log(link);
     phantom.exit();

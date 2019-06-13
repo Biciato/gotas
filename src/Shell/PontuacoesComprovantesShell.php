@@ -130,12 +130,12 @@ class PontuacoesComprovantesShell extends ExtendedShell
                 foreach ($funcionariosArray as $key => $funcionario) {
                     $comprovantesId =
                         $this->PontuacoesComprovantes->getAllCouponsIdByWorkerId(
-                        $funcionario->id,
-                        $dateStart,
-                        $dateEnd,
-                        true,
-                        false
-                    );
+                            $funcionario->id,
+                            $dateStart,
+                            $dateEnd,
+                            true,
+                            false
+                        );
 
 
                     $comprovantesIdNotSelected = [];
@@ -207,8 +207,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
             }
 
             Log::write('info', 'Concluído o envio de Comprovantes dos Cupoms Fiscais inseridos manualmente...');
-        } catch (\Exception $e) {
-        }
+        } catch (\Exception $e) { }
     }
 
     /**
@@ -278,7 +277,7 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
             $cupom = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
 
-            $cupom= str_replace("|", "%7C", $cupom);
+            $cupom = str_replace("|", "%7C", $cupom);
             $cupom = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $cupom);
             // echo $cupom;
 
@@ -286,21 +285,17 @@ class PontuacoesComprovantesShell extends ExtendedShell
 
             // die();
 
-            // $cupom1 = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
-            // $response = array();
-            // exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $cupom1 . "' true 2>&1", $response);
-            // $response = WebTools::getPageContent($cupom);
-            // $request = $response[0];
             $request = $cupom;
-            $responseHtml = array();
-            
-            exec("/usr/bin/phantomjs ". __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $responseHtml);
+            $response = "";
 
-            $responseHtml = json_decode($responseHtml[0]);
-            // DebugUtil::printArray($response);
-            echo implode("", $responseHtml);
-            die();
+            exec("/usr/bin/phantomjs " . __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $response);
 
+            // echo gettype($response);
+
+            if (gettype($response) == "array" && empty($response["response"])) {
+                $response = (array) json_decode($response[0]);
+            }
+                
             $file = "test.html";
             // if (!file_exists($file)) {
             $fileHandle = fopen($file, "w");
@@ -312,7 +307,5 @@ class PontuacoesComprovantesShell extends ExtendedShell
         } catch (\Exception $e) {
             Log::write("debug", $e->getMessage());
         }
-
-
     }
 }
