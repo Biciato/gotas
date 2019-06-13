@@ -33,8 +33,7 @@ class StringUtil
      * Construtor
      */
     function __construct()
-    {
-    }
+    { }
 
     /**
      * StringUtil::validarCPF
@@ -80,9 +79,20 @@ class StringUtil
      */
     public static function validarConteudoXML(string $conteudo)
     {
-        $resultado = strpos($conteudo, "?xml");
+        if (empty($conteudo)) {
+            return false;
+        }
 
-        return $resultado > -1;
+        //Elimina possibilidade de retornar HTML
+        if (stripos($conteudo, '<!DOCTYPE html>') !== false) {
+            return false;
+        }
+
+        libxml_use_internal_errors(true);
+        simplexml_load_string($conteudo);
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+        return empty($errors);
     }
 
     /**

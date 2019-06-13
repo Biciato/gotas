@@ -11,6 +11,7 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use SimpleXMLElement;
 use Cake\Core\Exception\Exception;
+use Cake\Log\Log;
 
 /**
  * Classe para operações de conteúdo da SEFAZ
@@ -36,6 +37,10 @@ class SefazUtil
      */
     public static function obtemDadosHTMLCupomSefaz(string $content, array $gotas, string $estado)
     {
+        if (strtoupper($estado) == "RS") {
+            return self::converteHTMLParaPontuacoesArrayRioGrandeSul($content, $gotas);
+        }
+
         if (strtoupper($estado) == "MG") {
             return self::converteHTMLParaPontuacoesArrayMinasGerais($content, $gotas);
         }
@@ -214,6 +219,94 @@ class SefazUtil
             $stringError = __("Erro ao preparar conteúdo html: {0}", $e->getMessage());
 
             Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * SefazUtil::converteHTMLParaPontuacoesArrayMinasGerais
+     *
+     * Obtêm conteúdo de página Sefaz (Estado de Minas Gerais)
+     *
+     * @param string $content Endereço do site
+     * @param array  $gotas Array de gotas
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-19
+     *
+     * @return array objeto contendo resposta
+     */
+    private static function converteHTMLParaPontuacoesArrayRioGrandeSul(string $content, $gotas)
+    {
+        try {
+
+            // Evita erros de DOM Elements
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+
+            $dom->loadHTML("<?xml encoding='utf-8' ?>" . $content);
+
+            $items = $dom->getElementsByTagName("table");
+
+            $nodeProdutos = 9;
+
+            $linhaProdutos = $items[$nodeProdutos]->nodeValue;
+            
+            DebugUtil::printArray($linhaProdutos);
+            $itemsNodesHtml = array();
+            if (!empty($items)) {
+                foreach ($items->childNodes as $node) {
+                    $texto = $node->textContent;
+
+                    // Captura do gotas.nome_parametro
+                    $posicaoParentese = strpos($texto, "(");
+                    $gota = substr($texto, 0, $posicaoParentese);
+                    $gota = trim($gota);
+                    $item["gota"] = $gota;
+
+                    // Captura de quantidade
+                    $textoQuantidade = "Qtde total de ítens: ";
+                    $posicaoFimTextoQuantidade = strlen($textoQuantidade);
+                    $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
+                    $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
+                    $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
+                    $item["quantidade"] = $quantidade;
+
+                    // Captura de valor
+                    $textoReais = "R$ ";
+                    $posicaoFimTextoReais = strlen($textoReais);
+                    $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+
+                    $valor = substr($texto, $posicaoReaisInicio);
+                    $item["valor"] = $valor;
+                    $itemsNodesHtml[] = $item;
+                }
+            }
+
+            $pontuacoes = array();
+
+            foreach ($gotas as $gota) {
+                foreach ($itemsNodesHtml as $itemProcessar) {
+                    if ($gota["nome_parametro"] == $itemProcessar["gota"]) {
+                        $pontuacao = array();
+                        $pontuacao["gotas_id"] = $gota["id"];
+                        $pontuacao["quantidade_multiplicador"] = $itemProcessar["quantidade"];
+                        $pontuacao["valor"] = trim($itemProcessar["valor"]);
+                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$itemProcessar["quantidade"];
+
+                        $pontuacoes[] = $pontuacao;
+                    }
+                }
+            }
+
+            return $pontuacoes;
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao preparar conteúdo html: {0}", $e->getMessage());
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+
+            throw new Exception($stringError);
         }
     }
 

@@ -1799,6 +1799,7 @@ class PontuacoesComprovantesController extends AppController
         }
 
         $validacaoQRCode = $this->validarUrlQrCode($url);
+        $url = $validacaoQRCode["url_real"];
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
         if ($validacaoQRCode["status"] == false) {
@@ -1896,27 +1897,28 @@ class PontuacoesComprovantesController extends AppController
 
                 $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
                 $cnpjArray = array();
-                if ($estado == "MG"){
+                if ($estado == "MG") {
                     // Se estado == MG, preciso procurar a posição do cnpj com formatação
                     foreach ($cnpjQuery as $key => $value) {
                         $cnpjArray[] = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value["cnpj"]);
                     }
-
                 } else {
 
                     foreach ($cnpjQuery as $key => $value) {
                         $cnpjArray[] = $value['cnpj'];
                     }
-
                 }
 
                 $cnpjEncontrado = null;
                 foreach ($cnpjArray as $key => $cnpj) {
 
+                    $cnpjFormatado = NumberUtil::formatarCNPJ($cnpj);
                     Log::write('debug', __("CNPJ {$cnpj}"));
-                    $cnpjPos = strpos($webContent["response"], $cnpj);
+                    Log::write('debug', __("CNPJ {$cnpjFormatado}"));
+                    $cnpjPos = strpos($webContent["response"], $cnpj) !== false;
+                    $cnpjPosFormatado = strpos($webContent["response"], $cnpjFormatado) !== false;
 
-                    if ($cnpjPos > 0) {
+                    if ($cnpjPos || $cnpjPosFormatado) {
                         $cnpjEncontrado = $cnpj;
                         break;
                     }
@@ -2008,7 +2010,6 @@ class PontuacoesComprovantesController extends AppController
 
             Log::write("debug", $webContent);
 
-            // @todo Resolver problema importação MG
             $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, $webContent["response"]);
 
             if ($retorno["mensagem"]["status"]) {
@@ -2118,7 +2119,7 @@ class PontuacoesComprovantesController extends AppController
                 // $this->set(compact($arraySet));
                 // $this->set("_serialize", $arraySet);
 
-                return $arraySet;
+                return $retorno;
             }
         } elseif (!$processamentoPendente) {
             // Trata pontuação para ser processada posteriormente (se já não armazenada)
@@ -2218,9 +2219,7 @@ class PontuacoesComprovantesController extends AppController
         $arrayConsistency = array();
 
         // Tratamento de url para assegurar que é HTTPS
-        $isHttps = stripos($url, "https://");
-
-        if ($isHttps === false) {
+        if (stripos($url, "https://") === false) {
             $url = str_replace("http://", "https://", $url);
         }
 
@@ -2228,12 +2227,40 @@ class PontuacoesComprovantesController extends AppController
 
         // Se estado = MG, o modelo é outro...
 
-        if (strpos($url, "fazenda.mg") !== false) {
-            $qrCodeProcura = "xhtml?p=";
+        $estadoPorURLArray = array(
+            "fazenda.mg" => array("estado" => "MG", "qrCodeProcura" => "xhtml?p="),
+            "sefaz.rs" => array("estado" => "RS", "qrCodeProcura" => "asp?p="),
+        );
+        $estado = "";
+        $qrCodeProcura = "";
+        $tratamentoPorEstado = false;
+
+        foreach ($estadoPorURLArray as $site => $item) {
+            if (strpos($url, $site) !== false) {
+                $estado = $item["estado"];
+                $qrCodeProcura = $item["qrCodeProcura"];
+                $tratamentoPorEstado = true;
+                break;
+            }
+        }
+
+        if ($tratamentoPorEstado) {
+
+
+            if ($estado == "RS") {
+                $url = str_replace("|", "%7C", $url);
+                $url = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $url);
+            }
+
+            // $estado = "";
+
+            // $qrCodeProcura = "xhtml?p=";
             $posInicioChave = strpos($url, $qrCodeProcura) + strlen($qrCodeProcura);
 
             $qrCodeConteudo = substr($url, $posInicioChave);
-            $qrCodeArray = explode("|", $qrCodeConteudo);
+
+            $explodeString = strpos($url, "|") !== false ? "|" : "%7C";
+            $qrCodeArray = explode($explodeString, $qrCodeConteudo);
 
             $keysQrCodeMG = array("chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode");
 
@@ -2249,7 +2276,7 @@ class PontuacoesComprovantesController extends AppController
                 $indexQrCodeArray++;
             }
 
-            $estado = "MG";
+            // $estado = "MG";
 
             $status = 1;
             $errorMessage = null;
@@ -2260,6 +2287,7 @@ class PontuacoesComprovantesController extends AppController
                 "message" => $errorMessage,
                 "errors" => $errors,
                 "data" => $qrCodeArrayRetorno,
+                "url_real" => $url,
                 "estado" => $estado
             );
 
@@ -2363,6 +2391,7 @@ class PontuacoesComprovantesController extends AppController
             "message" => $errorMessage,
             "errors" => $errors,
             "data" => $arrayResult,
+            "url_real" => $url,
             "estado" => $estado
         );
 
