@@ -242,56 +242,58 @@ class SefazUtil
             // Evita erros de DOM Elements
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
-
             $dom->loadHTML("<?xml encoding='utf-8' ?>" . $content);
-
             $items = $dom->getElementsByTagName("table");
 
+            // Index aonde está a lista de produtos
             $nodeProdutos = 9;
 
-            $linhaProdutos = $items[$nodeProdutos]->nodeValue;
-            
-            DebugUtil::printArray($linhaProdutos);
-            $itemsNodesHtml = array();
-            if (!empty($items)) {
-                foreach ($items->childNodes as $node) {
-                    $texto = $node->textContent;
+            $produtosTemp = $items[$nodeProdutos];
+            $produtosNota = array();
 
-                    // Captura do gotas.nome_parametro
-                    $posicaoParentese = strpos($texto, "(");
-                    $gota = substr($texto, 0, $posicaoParentese);
-                    $gota = trim($gota);
-                    $item["gota"] = $gota;
-
-                    // Captura de quantidade
-                    $textoQuantidade = "Qtde total de ítens: ";
-                    $posicaoFimTextoQuantidade = strlen($textoQuantidade);
-                    $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
-                    $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
-                    $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
-                    $item["quantidade"] = $quantidade;
-
-                    // Captura de valor
-                    $textoReais = "R$ ";
-                    $posicaoFimTextoReais = strlen($textoReais);
-                    $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
-
-                    $valor = substr($texto, $posicaoReaisInicio);
-                    $item["valor"] = $valor;
-                    $itemsNodesHtml[] = $item;
-                }
+            if (!empty($produtosTemp)) {
+                $produtosNota = $produtosTemp->childNodes;
             }
 
+            $produtosLength = count($produtosNota);
             $pontuacoes = array();
 
             foreach ($gotas as $gota) {
-                foreach ($itemsNodesHtml as $itemProcessar) {
-                    if ($gota["nome_parametro"] == $itemProcessar["gota"]) {
+                // Começa da posição 1 para ignorar o header da tabela
+                for ($i = 1; $i < $produtosLength; $i++) {
+                    $produtoNota = $produtosNota[$i];
+
+                    if (stripos($produtoNota->nodeValue, $gota->nome_parametro) !== false) {
+                        $itemString = trim($produtoNota->nodeValue);
+
+                        $item = explode(" ", $itemString);
+                        $itemLength = count($item);
+
+                        /**
+                         * Delimitações do array:
+                         * Posição 0: Código do Produto
+                         * Posição 1... N: Texto da gota
+                         * Posição MAX-3: Qtde
+                         * Posiçaõ MAX-2: Unidade
+                         * Posição MAX-1: Vl. Unitário
+                         * Posição MAX: Vl. Total
+                         */
+                        $codigo = $item[0];
+                        $itemRealLength = $itemLength - 1;
+                        $quantidade = $item[$itemRealLength - 3];
+                        $valor = trim($item[$itemRealLength - 1]);
+                        $nomeProdutoMaxIndex = $itemRealLength - 4;
+                        $nomeProduto = "";
+                        for ($index = 1; $index <= $nomeProdutoMaxIndex; $index++) {
+                            $nomeProduto .= $item[$index] . " ";
+                        }
+                        $nomeProduto = trim($nomeProduto);
+
                         $pontuacao = array();
                         $pontuacao["gotas_id"] = $gota["id"];
-                        $pontuacao["quantidade_multiplicador"] = $itemProcessar["quantidade"];
-                        $pontuacao["valor"] = trim($itemProcessar["valor"]);
-                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$itemProcessar["quantidade"];
+                        $pontuacao["quantidade_multiplicador"] = $quantidade;
+                        $pontuacao["valor"] = $valor;
+                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$quantidade;
 
                         $pontuacoes[] = $pontuacao;
                     }
