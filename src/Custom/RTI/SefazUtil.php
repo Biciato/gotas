@@ -7,31 +7,34 @@
 
 namespace App\Custom\RTI;
 
-use App\Controller\AppController;
-use Cake\Core\Configure;
-use SimpleXMLElement;
 use Cake\Core\Exception\Exception;
 use Cake\Log\Log;
+use DOMDocument;
 
 /**
  * Classe para operações de conteúdo da SEFAZ
+ * 
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2018-06-01
  */
 class SefazUtil
 {
-    function __construct()
-    { }
+    public function __construct()
+    { 
+
+    }
 
     /**
      * SefazUtil::obtemDadosHTMLCupomSefaz
      *
      * Realiza tomada de decisão de qual método de conversão dos dados da SEFAZ será utilizado e retorna os objetos prontos
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 10/11/2018
+     *
      * @param string $content Conteudo HTML
      * @param array $gotas Array de Gotas do cliente
      * @param string $estado Estado em formato 2 letras Uppercase
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 10/11/2018
      *
      * @return array
      */
@@ -55,6 +58,9 @@ class SefazUtil
     /**
      * Obtêm conteúdo de página Sefaz
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 10/11/2018
+     * 
      * @param string $content               Endereço do site
      * @param int    $gotas                 Array de gotas
      * @param object $pontuacao_comprovante Objeto preparado de Comprovante de Pontuacao
@@ -63,7 +69,6 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    // public static function converteHTMLParaPontuacoesArray(string $content, $gotas, $clientesId, $usuariosId, $funcionariosId, $data)
     private static function converteHTMLParaPontuacoesArray(string $content, $gotas)
     {
         try {
@@ -238,10 +243,10 @@ class SefazUtil
     private static function converteHTMLParaPontuacoesArrayRioGrandeSul(string $content, $gotas)
     {
         try {
-
             // Evita erros de DOM Elements
             libxml_use_internal_errors(true);
-            $dom = new \DOMDocument();
+
+            $dom = new DOMDocument();
             $dom->loadHTML("<?xml encoding='utf-8' ?>" . $content);
             $items = $dom->getElementsByTagName("table");
 
@@ -289,13 +294,16 @@ class SefazUtil
                         }
                         $nomeProduto = trim($nomeProduto);
 
-                        $pontuacao = array();
-                        $pontuacao["gotas_id"] = $gota["id"];
-                        $pontuacao["quantidade_multiplicador"] = $quantidade;
-                        $pontuacao["valor"] = $valor;
-                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$quantidade;
+                        // Se o nome do produto REALMENTE bate, adiciona na lista
+                        if ($nomeProduto == $gota->nome_parametro) {
+                            $pontuacao = array();
+                            $pontuacao["gotas_id"] = $gota["id"];
+                            $pontuacao["quantidade_multiplicador"] = $quantidade;
+                            $pontuacao["valor"] = $valor;
+                            $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$quantidade;
 
-                        $pontuacoes[] = $pontuacao;
+                            $pontuacoes[] = $pontuacao;
+                        }
                     }
                 }
             }
@@ -497,7 +505,6 @@ class SefazUtil
 
         $emitente = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["emit"];
         $produtosListaXml = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["det"];
-        $cnpjNotaFiscalXML = $emitente["CNPJ"];
 
         return array(
             "cnpj" => $emitente["CNPJ"],
