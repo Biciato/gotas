@@ -325,7 +325,7 @@ class BrindesTable extends GenericTable
         }
 
         // Só mostra os registros não apagados
-        $where[] = array("Brindes.apagado <> " => 0);
+        $where[] = array("Brindes.apagado" => 0);
 
         $whereConditions = $where;
         $contains = array("PrecoAtual");
