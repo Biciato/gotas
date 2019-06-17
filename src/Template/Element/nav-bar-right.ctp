@@ -49,16 +49,10 @@ if (empty($usuarioLogado)) {
 
                     <li role="separator" class="divider"></li>
                     <li>
-
                         <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'index']) ?>
                     </li>
-                    <!-- <li role="separator" class="divider"></li> -->
-                    <!-- <li>
-                                                        <?php echo $this->Html->link('Tipos de Brindes', ['controller' => 'TiposBrindesRedes', 'action' => 'index']) ?>
-                                                    </li> -->
 
                     <li role="separator" class="divider"></li>
-
                     <li>
                         <?php echo $this->Html->link('Transportadoras', ['controller' => 'Transportadoras', 'action' => 'index']) ?>
                     </li>
@@ -106,9 +100,6 @@ if (empty($usuarioLogado)) {
                     </li>
                 </ul>
             </li>
-
-
-
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Relatórios<span class="caret"></span></a>
                 <ul class="dropdown-menu">
@@ -230,7 +221,7 @@ if (empty($usuarioLogado)) {
     <?php
     // Administrador de Rede ou Regional
 
-} else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+} else if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
 
     ?>
         <ul class="nav navbar-nav navbar-right">
@@ -239,12 +230,23 @@ if (empty($usuarioLogado)) {
                 <ul class="dropdown-menu">
 
 
-                    <!-- se o administrador não selecionou uma unidade para gerenciar
-                                                    só permite ver os items de Cadastro de Usuários e Relatórios -->
+                    <?php
+                    // se o administrador não selecionou uma unidade para gerenciar
+                    // só permite ver os items de Cadastro de Usuários e Relatórios 
+                    ?>
 
                     <li>
                         <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
                     </li>
+
+                    <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) : ?>
+
+                        <!-- <li>
+                            <a href="/redesUsuariosExcecaoAbastecimentos/">Exceção de Abastecimentos para Usuários da Rede</a>
+
+                        </li> -->
+
+                    <?php endif; ?>
 
                     <li role="separator" class="divider" />
 
@@ -277,7 +279,7 @@ if (empty($usuarioLogado)) {
                 } ?>
 
                     <!-- <li> -->
-                        <!-- <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?> -->
+                    <!-- <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?> -->
                     <!-- </li> -->
 
                     <li role="separator" class="divider" />
@@ -300,8 +302,8 @@ if (empty($usuarioLogado)) {
                     <li class="divider"></li>
 
                     <!-- <li>
-                                                            <a href="#!/relatorios">Relatórios</a>
-                                                        </li> -->
+                                                                                                                                                                                    <a href="#!/relatorios">Relatórios</a>
+                                                                                                                                                                                </li> -->
                     <!-- Ativar relatórios aqui -->
                     <li>
                         <a href="/usuarios/relatorios">Relatórios</a>
@@ -449,18 +451,14 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
 
             <!-- <li class="dropdown">
-                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                                                <ul class="dropdown-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
+                                </li>
 
-
-                                                    <li>
-                                                        <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
-                                                    </li>
-
-
-
-                                                </ul>
-                                            </li> -->
+                        </ul>
+                        </li> -->
 
             <li>
                 <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
