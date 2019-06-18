@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * RedesUsuariosExcecaoAbastecimentos Controller
@@ -16,16 +17,55 @@ class RedesUsuariosExcecaoAbastecimentosController extends AppController
     /**
      * Index method
      *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-18
+     * 
      * @return \Cake\Http\Response|void
      */
     public function index()
     {
+
+        $arraySet = array(
+            "nome",
+            "cpf",
+            "email",
+            "usuariosList"
+        );
+
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if (!empty($usuarioAdministrar)) {
+            $usuarioLogado = $usuarioAdministrar;
+            $this->usuarioLogado = $usuarioAdministrar;
+        }
+
+        $nome = "";
+        $email = "";
+        $cpf = "";
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $nome = !empty($data["nome"]) ? $data["nome"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+        }
+
+        $usuariosList = $this->RedesUsuariosExcecaoAbastecimentos->findUsuariosExcecaoAbastecimentos($rede->id, $nome, $email, $cpf);
+
+        
         $this->paginate = [
             'contain' => ['Redes', 'Usuarios']
         ];
-        $redesUsuariosExcecaoAbastecimentos = $this->paginate($this->RedesUsuariosExcecaoAbastecimentos);
+        $usuariosList = $this->paginate($this->RedesUsuariosExcecaoAbastecimentos);
 
-        $this->set(compact('redesUsuariosExcecaoAbastecimentos'));
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

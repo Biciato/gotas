@@ -21,7 +21,7 @@ use Cake\Validation\Validator;
  * @method \App\Model\Entity\RedesUsuariosExcecaoAbastecimento[] patchEntities($entities, array $data, array $options = [])
  * @method \App\Model\Entity\RedesUsuariosExcecaoAbastecimento findOrCreate($search, callable $callback = null, $options = [])
  */
-class RedesUsuariosExcecaoAbastecimentosTable extends Table
+class RedesUsuariosExcecaoAbastecimentosTable extends GenericTable
 {
 
     /**
@@ -38,18 +38,30 @@ class RedesUsuariosExcecaoAbastecimentosTable extends Table
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('Redes', [
+        $this->belongsTo(
+            "Rede",
+            array(
+                "className" => "Redes",
+                "joinType" => Query::JOIN_TYPE_INNER,
+                "foreignKey" => "redes_id"
+            )
+        );
+        $this->belongsToMany('Redes', [
             'foreignKey' => 'redes_id',
             'joinType' => 'INNER'
         ]);
-        $this->belongsTo('Usuarios', [
+        $this->belongsToMany('Usuarios', [
             'foreignKey' => 'adm_rede_id',
             'joinType' => 'INNER'
         ]);
-        $this->belongsTo('Usuarios', [
-            'foreignKey' => 'usuarios_id',
-            'joinType' => 'INNER'
-        ]);
+        $this->belongsTo(
+            'Usuario',
+            array(
+                "className" => "Usuarios",
+                'foreignKey' => 'usuarios_id',
+                'joinType' => 'INNER'
+            )
+        );
     }
 
     /**
@@ -100,4 +112,29 @@ class RedesUsuariosExcecaoAbastecimentosTable extends Table
 
         return $rules;
     }
+
+    #region Read
+
+    /**
+     * Obtem os Usuários que possuem Exceção
+     *
+     * @param integer $redesId
+     * @param string $name
+     * @param string $email
+     * @param string $cpf
+     * @return void
+     */
+    public function findUsuariosExcecaoAbastecimentos(int $redesId, string $name = null, string $email = null, string $cpf = null)
+    {
+        # code...
+    }
+    #endregion
+
+    #region Save
+
+    #endregion
+
+    #region Delete
+
+    #endregion
 }

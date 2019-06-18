@@ -89,12 +89,8 @@ $(document).ready(function () {
 
                             var image = $(".img-crop");
 
-
-
                             $(".img-crop").on("load", function () {
                                 closeLoaderAnimation();
-                            }).on("loaded", function () {
-                                console.log('carregado');
                             });
 
                             $(".img-crop").cropper('destroy');

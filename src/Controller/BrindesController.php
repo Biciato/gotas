@@ -491,7 +491,9 @@ class BrindesController extends AppController
                     if ($enviouNovaImagem) {
                         if (!empty($brinde["nome_img"])) {
                             $imagemRemover = __("{0}{1}", PATH_IMAGES_BRINDES,  $brinde["nome_img"]);
-                            unlink($imagemOriginal);
+                            if (file_exists($imagemOriginal)) {
+                                unlink($imagemOriginal);
+                            }
                         }
                         $nomeImg = $this->_preparaImagemBrindeParaGravacao($data);
                     }

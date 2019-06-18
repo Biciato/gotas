@@ -242,8 +242,9 @@ if (empty($usuarioLogado)) {
                     <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) : ?>
 
                         <!-- <li>
-                            <a href="/redesUsuariosExcecaoAbastecimentos/">Exceção de Abastecimentos para Usuários da Rede</a>
-
+                            <a href="/redesUsuariosExcecaoAbastecimentos/">
+                                Exceção de Abastecimentos para Usuários da Rede
+                            </a>
                         </li> -->
 
                     <?php endif; ?>

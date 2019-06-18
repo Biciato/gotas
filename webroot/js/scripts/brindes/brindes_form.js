@@ -342,10 +342,16 @@ $(document).ready(function () {
                         });
 
                         if (arquivo != undefined) {
+                            callLoaderAnimation("Carregando imagem...");
+
                             $(".img-crop").attr("src", arquivo.path);
                             $(".img-upload").val(arquivo.file);
 
                             var image = $(".img-crop");
+
+                            $(".img-crop").on("load", function () {
+                                closeLoaderAnimation();
+                            });
 
                             $(".img-crop").cropper("destroy");
                             image.cropper({
