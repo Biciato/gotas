@@ -97,12 +97,15 @@ class ImageUtil
         } else if (strpos($imageSource, ".png")) {
             $typeImage = ".png";
             $image = imagecreatefrompng($imageSource);
-
         } else if (strpos($imageSource, ".bmp")) {
             $typeImage = ".bmp";
             $image = imagecreatefrombmp($imageSource);
         }
 
+        if (empty($image)) {
+            throw new \Exception("Erro durante carregamento de imagem. Aguarde o total carregamento da mesma!");
+        }
+        
         imagecopyresampled($newImage, $image, 0, 0, $valueX, $valueY, $cropWidth, $cropHeight, $imageWidth, $imageHeight);
 
         if ($typeImage == ".jpg") {
@@ -139,6 +142,4 @@ class ImageUtil
             Log::write('error', $e->getMessage());
         }
     }
-
-
 }

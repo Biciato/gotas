@@ -366,8 +366,10 @@ class BrindesController extends AppController
         }
 
         $brinde = $this->Brindes->getBrindeById($id);
-        $imagemExibicao = sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde["nome_img"]);
-        $imagemOriginal = sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde["nome_img"]);
+        $imagemExibicao = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde->nome_img) : null;
+        $imagemOriginal = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde->nome_img) : null;
+
+        // echo $imagemExibicao;
 
         try {
             if (empty($brinde)) {

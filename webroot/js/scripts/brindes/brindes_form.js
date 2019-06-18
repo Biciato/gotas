@@ -153,9 +153,6 @@ $(document).ready(function () {
         }
     }).change();
 
-
-
-
     var defineFormatoPrecosVenda = function (value) {
         if (value) {
             $("#preco_padrao").on("focus", function () {

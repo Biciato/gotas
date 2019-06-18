@@ -1154,6 +1154,7 @@ class UsuariosController extends AppController
         // DebugUtil::printArray($sessaoUsuario);
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $this->usuarioLogado;
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;

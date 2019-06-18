@@ -92,7 +92,6 @@ class RedesController extends AppController
 
             $this->set(compact('rede', 'redes_has_clientes', 'imagem'));
             $this->set('_serialize', ['rede', 'redes_has_clientes', 'imagem']);
-
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());
@@ -100,8 +99,6 @@ class RedesController extends AppController
             Log::write("error", $trace);
 
             $this->Flash->error($message);
-
-
         }
     }
 
@@ -156,9 +153,11 @@ class RedesController extends AppController
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
 
-            $this->set(compact('rede'));
-            $this->set('_serialize', ['rede']);
+            $imagemOriginal = null;
+            $arraySet = array("rede", "imagemOriginal");
 
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -166,7 +165,6 @@ class RedesController extends AppController
             Log::write('error', $message);
 
             $this->Flash->error($message);
-
         }
     }
 
@@ -177,14 +175,14 @@ class RedesController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function editar($id = null)
+    public function editar($id)
     {
         try {
             $imagemOriginal = null;
             $rede = $this->Redes->getRedeById($id);
 
             if (strlen($rede->nome_img) > 0) {
-                $imagemOriginal = __("{0}{1}", Configure::read("imageNetworkPath"), $rede->nome_img);
+                $imagemOriginal = __("{0}{1}", PATH_IMAGES_READ_REDES, $rede->nome_img);
             }
 
             if ($this->request->is(['post', 'put'])) {
@@ -228,8 +226,9 @@ class RedesController extends AppController
                 }
                 $this->Flash->error(__(Configure::read('messageSavedError')));
             }
-            $this->set(compact('rede', 'imagem'));
-            $this->set('_serialize', ['rede', 'imagem']);
+            $arraySet = array('rede', 'imagem', 'imagemOriginal');
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -237,7 +236,6 @@ class RedesController extends AppController
             Log::write('error', $message);
 
             $this->Flash->error($message);
-
         }
     }
 
@@ -525,7 +523,6 @@ class RedesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
@@ -609,9 +606,7 @@ class RedesController extends AppController
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                 } else {
                     $whereConditions[] = ['audit_insert BETWEEN "' . $dataInicial . '" AND "' . $dataFinal . '"'];
-
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
@@ -619,7 +614,6 @@ class RedesController extends AppController
                 } else {
                     $whereConditions[] = ['audit_insert >= ' => $dataInicial];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
                 if ($dataFinal > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -859,9 +853,7 @@ class RedesController extends AppController
                     $redes["page_count"] = $redesQueryResult["redes"]["page_count"];
                     $mensagem = $redesQueryResult["mensagem"];
                 }
-
             }
-
         } catch (\Exception $e) {
             $messageString = __("Não foi possível obter dados de Redes e Pontuações!");
             $trace = $e->getTrace();

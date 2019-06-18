@@ -195,7 +195,7 @@ echo $this->Breadcrumbs->render(
             </div>
                 <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
         </div>
-        <?php if ($brinde["nome_img"]) : ?>
+        <?php if ($imagemExibicao) : ?>
             <div class="form-group row">
                 <div class="col-lg-12">
                     <label>Imagem Atual do Brinde</label>
