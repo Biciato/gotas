@@ -218,7 +218,9 @@ class RedesController extends AppController
                 if ($this->Redes->updateRede($rede)) {
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                        unlink($imagemOriginal);
+                        if (file_exists($imagemOriginal)) {
+                            unlink($imagemOriginal);
+                        }
                     }
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
