@@ -16,6 +16,7 @@ use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Event\Event;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Classe para execução em terminal (shell)
@@ -52,4 +53,12 @@ class TestShell extends ExtendedShell
         } catch (\Exception $e) {
         }
     }
+
+    public function testTimeShift(int $clientesId)
+    {
+        $quadroHorarios = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
+
+        DebugUtil::printArray($quadroHorarios);
+    }
+
 }

@@ -89,57 +89,6 @@ class ClientesHasQuadroHorarioTable extends Table
         return $rules;
     }
 
-    #region Create
-
-    /**
-     * Adiciona Quadro de Horários
-     *
-     * @param integer $redesId Id da Rede
-     * @param integer $clientesId Id do Cliente
-     * @param array $horarios Array de Horários
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2018-12-31
-     *
-     * @return \App\Model\ClientesHasQuadroHorario entidade
-     */
-    public function addHorariosCliente(int $redesId, int $clientesId, array $horarios)
-    {
-        try {
-            $arrayHorarios = array();
-
-            foreach ($horarios as $horario) {
-
-                $item = array(
-                    "redes_id" => $redesId,
-                    "clientes_id" => $clientesId,
-                    "horario" => implode(":", $horario)
-                );
-
-                $arrayHorarios[] = $item;
-            };
-
-            $horariosSave = $this->newEntities($arrayHorarios);
-
-            $result = $this->saveMany($horariosSave);
-            return $result;
-        } catch (\Exception $error) {
-            $trace = $error->getTrace();
-            $stringError = __(
-                "Erro ao gravar registro(s): {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ",
-                $error->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                $error->getLine()
-            );
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
-    }
-
-    #endregion
-
     #region Read
 
     /**
@@ -158,7 +107,7 @@ class ClientesHasQuadroHorarioTable extends Table
      *
      * @return \App\Model\ClientesHasQuadroHorario[] Quadros de Horário
      */
-    public function getHorariosCliente(int $redesId, int $clientesId, int $hora = 0, int $minutos = 0, int $limite = 999)
+    public function getHorariosCliente(int $redesId = null, int $clientesId = null, int $hora = 0, int $minutos = 0, int $limite = 999)
     {
         try {
             $where = array();
@@ -201,6 +150,81 @@ class ClientesHasQuadroHorarioTable extends Table
             Log::write('error', $stringError);
             Log::write('error', $trace);
         }
+    }
+
+    #endregion
+
+    #region Save
+
+    /**
+     * Adiciona Quadro de Horários
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Cliente
+     * @param array $horarios Array de Horários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-12-31
+     *
+     * @return \App\Model\ClientesHasQuadroHorario entidade
+     */
+    public function addHorariosCliente(int $redesId, int $clientesId, array $horarios)
+    {
+        try {
+            $arrayHorarios = array();
+
+            foreach ($horarios as $horario) {
+
+                $item = array(
+                    "redes_id" => $redesId,
+                    "clientes_id" => $clientesId,
+                    "horario" => implode(":", $horario)
+                );
+
+                $arrayHorarios[] = $item;
+            };
+
+            $horariosSave = $this->newEntities($arrayHorarios);
+
+            $result = $this->saveMany($horariosSave);
+            return $result;
+        } catch (\Exception $error) {
+            $trace = $error->getTraceAsString();
+            $stringError = __(
+                "Erro ao gravar registro(s): {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ",
+                $error->getMessage(),
+                __FUNCTION__,
+                __FILE__,
+                $error->getLine()
+            );
+
+            Log::write('error', $stringError);
+            Log::write('error', $trace);
+        }
+    }
+
+    /**
+     * ClientesHasQuadroHorarioTable::disableHorariosCliente
+     * 
+     * Atualiza todos os registros de Horários do Posto para desativados
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-21
+     * 
+     * @param integer $clientesId Id do Posto Cliente
+     * 
+     * @return bool Status de Update
+     */
+    public function disableHorariosCliente(int $clientesId)
+    {
+        $fields = array("ativado" => false);
+
+        $conditions = array(
+            "clientes_id" => $clientesId,
+            "ativado" => true
+        );
+
+        return $this->updateAll($fields, $conditions);
     }
 
     #endregion

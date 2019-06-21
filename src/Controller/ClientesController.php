@@ -339,7 +339,7 @@ class ClientesController extends AppController
 
                         $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
 
-                        $resultRemove = $this->ClientesHasQuadroHorario->deleteHorariosCliente($cliente["id"]);
+                        $resultDisable = $this->ClientesHasQuadroHorario->disableHorariosCliente($cliente["id"]);
 
                         $status = $this->ClientesHasQuadroHorario->addHorariosCliente($redesId, $cliente["id"], $horarios);
                     }
