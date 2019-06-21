@@ -22,6 +22,7 @@
 #sudo chmod 755 -R tmp*
 #Pasta de imagens deve ser permissiva
 sudo chmod 760  webroot/img* -R
+sudo chmod 766  logs* -R
 sudo chown www-data:www-data webroot/img/* -R
 
 #sudo chown www-data:www-data * -R

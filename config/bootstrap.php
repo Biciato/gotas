@@ -308,6 +308,10 @@ const TYPE_BARCODE_QRCODE = "QRCode";
 const TYPE_BARCODE_CODE128 = 'Code128';
 const TYPE_BARCODE_PDF417 = 'PDF417';
 
+const FILTER_TYPE_DATE_TIME = "Data/Hora";
+const FILTER_TYPE_SHIFT = "Turno";
+
+
 const STRING_YES = 'Sim';
 const STRING_NO = 'Não';
 
@@ -359,6 +363,12 @@ const STOCK_OPERATION_TYPES_SELL_TYPE_SALE = 2;
 const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
 
 // Cupom
+
+// Máximo de intervalo de horas ao gerar relatório de caixa de funcionários
+const MAX_TIME_COUPONS_REPORT_TIME = 16;
+// Tempo padrão caso funcionário gerar o relatório completo de caixa de funcionários
+const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
+const MESSAGE_WARNING_GENERATE_REPORT= "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
 
 const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
 const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
