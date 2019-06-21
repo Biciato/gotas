@@ -100,6 +100,7 @@ class ClientesHasQuadroHorarioTable extends Table
      * @param integer $clientesId Id do Cliente
      * @param integer $hora Hora
      * @param integer $minutos Minuto
+     * @param boolean $ativado Registro ativado / Desativado
      * @param integer $limite Limite
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -107,7 +108,7 @@ class ClientesHasQuadroHorarioTable extends Table
      *
      * @return \App\Model\ClientesHasQuadroHorario[] Quadros de Horário
      */
-    public function getHorariosCliente(int $redesId = null, int $clientesId = null, int $hora = 0, int $minutos = 0, int $limite = 999)
+    public function getHorariosCliente(int $redesId = null, int $clientesId = null, int $hora = 0, int $minutos = 0, bool $ativado = null, int $limite = 999)
     {
         try {
             $where = array();
@@ -126,6 +127,12 @@ class ClientesHasQuadroHorarioTable extends Table
 
             if (!empty($minutos)) {
                 $where["TIME_FORMAT(horario, %i)"] = $minutos;
+            }
+
+            if (isset($ativado)) {
+                $where["ativado"] = $ativado;
+            } else {
+                $where["ativado"] = true;
             }
 
             $data = $this->find("all")->where($where);

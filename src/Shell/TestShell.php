@@ -58,7 +58,7 @@ class TestShell extends ExtendedShell
     {
         $quadroHorarios = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
 
-        DebugUtil::printArray($quadroHorarios);
+        DebugUtil::printArray($quadroHorarios->toArray());
     }
 
 }
