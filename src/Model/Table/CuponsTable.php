@@ -223,11 +223,12 @@ class CuponsTable extends GenericTable
      * @param float $valorPagoGotas Valor Pago em Gotas
      * @param float $valorPagoReais Valor Pago em Reais
      * @param int $quantidade Quantidade Solicitada
+     * @param int $clienteQuadroHorarioId Quadro de Horario (Turno) Atual da empresa
      * @param int $tipoVenda Tipo de Venda ('Isento', 'Com Desconto', 'Gotas ou Reais')
      *
      * @return \App\Model\Entity\Cupom
      */
-    public function addCupomForUsuario(int $brindesId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPagoGotas = null, float $valorPagoReais = null, int $quantidade, string $tipoVenda = TYPE_SELL_CURRENCY_OR_POINTS_TEXT)
+    public function addCupomForUsuario(int $brindesId, int $clientesId, int $funcionariosId, int $usuariosId, float $valorPagoGotas = null, float $valorPagoReais = null, int $quantidade, int $clienteQuadroHorarioId, string $tipoVenda = TYPE_SELL_CURRENCY_OR_POINTS_TEXT)
     {
         // @todo Gustavo Verificar onde chama este método, ajustar:
         // 1 - tipo Venda
@@ -257,17 +258,17 @@ class CuponsTable extends GenericTable
              * o código pode ser usado conforme lógica antiga de brinde
              */
 
-            $codigoPrimario = !empty($brinde["codigo_primario"]) ? $brinde["codigo_primario"] : "0";
+            $codigoPrimario = !empty($brinde->codigo_primario) ? $brinde->codigo_primario : "0";
             // Brindes["tempo_uso_brinde"]
-            $codigoSecundario = !empty($brinde["tempo_uso_brinde"]) ? $brinde["tempo_uso_brinde"] : "00";
+            $codigoSecundario = !empty($brinde->tempo_uso_brinde) ? $brinde->tempo_uso_brinde : 0;
 
-            if (is_numeric($codigoSecundario) && $codigoPrimario <= 4) {
-                // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
-                $codigoSecundario = $codigoSecundario >= 90 ? $codigoSecundario : $codigoSecundario + 10;
-            } else {
-                // Se não é banho, apenas verifica se o tamanho é 1. se for, coloca um 0 na frente
-                $codigoSecundario = strlen($codigoSecundario) == 1 ? '0' . $codigoSecundario : $codigoSecundario;
-            }
+            // if (is_numeric($codigoSecundario) && $codigoPrimario <= 4) {
+            //     // Validação se é banho ou brinde comum. Se for banho, adiciona + 10
+            //     $codigoSecundario = $codigoSecundario >= 90 ? $codigoSecundario : $codigoSecundario + 10;
+            // } else {
+            //     // Se não é banho, apenas verifica se o tamanho é 1. se for, coloca um 0 na frente
+            //     $codigoSecundario = strlen($codigoSecundario) == 1 ? '0' . $codigoSecundario : $codigoSecundario;
+            // }
 
             // Obtem cliente
 
@@ -287,25 +288,26 @@ class CuponsTable extends GenericTable
 
 
             // Processo de Gravação
-            $cupom["brindes_id"] = $brindesId;
-            $cupom["clientes_id"] = $clientesId;
-            $cupom["funcionarios_id"] = $funcionariosId;
-            $cupom["usuarios_id"] = $usuariosId;
-            $cupom["codigo_primario"] = $codigoPrimario;
-            $cupom["tempo_uso_brinde"] = $codigoSecundario;
-            $cupom["valor_pago_gotas"] = $valorPagoGotas;
-            $cupom["valor_pago_reais"] = $valorPagoReais;
-            $cupom["senha"] = $qteSenhas + 1;
-            $cupom["data"] = $data;
-            $cupom["quantidade"] = $quantidade;
-            $cupom["tipo_venda"] = $tipoVenda;
+            $cupom->brindes_id = $brindesId;
+            $cupom->clientes_id = $clientesId;
+            $cupom->funcionarios_id = $funcionariosId;
+            $cupom->usuarios_id = $usuariosId;
+            $cupom->codigo_primario = $codigoPrimario;
+            $cupom->tempo_uso_brinde = $codigoSecundario;
+            $cupom->valor_pago_gotas = $valorPagoGotas;
+            $cupom->valor_pago_reais = $valorPagoReais;
+            $cupom->senha = $qteSenhas + 1;
+            $cupom->data = $data;
+            $cupom->quantidade = $quantidade;
+            $cupom->clientes_has_quadro_horario_id = $clienteQuadroHorarioId;
+            $cupom->tipo_venda = $tipoVenda;
 
             /**
              * Se é um Equipamento RTI, já considera resgatado pois equipamentos RTI são impressos na hora
              * Senão, false.
              */
             // $cupom->resgatado = $codigoPrimario <= 4;
-            $cupom["resgatado"] = $brinde["equipamento_rti"] == TYPE_EQUIPMENT_RTI;
+            $cupom->resgatado = $brinde->equipamento_rti == TYPE_EQUIPMENT_RTI;
 
             // Usado é automatico após 24 horas se for Equipamento RTI
             // Se não for, é definido como usado, quando é feito a baixa.
@@ -314,7 +316,7 @@ class CuponsTable extends GenericTable
 
             // Antes do save, calcular cupom emitido
 
-            $identificador_cliente = $cliente["codigo_equipamento_rti"];
+            $identificador_cliente = $cliente->codigo_equipamento_rti;
 
             if (strlen($identificador_cliente) == 1) {
                 $identificador_cliente = '0' . $identificador_cliente;
@@ -325,7 +327,7 @@ class CuponsTable extends GenericTable
             // cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
             if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
 
-                $cupom["cupom_emitido"] = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
+                $cupom->cupom_emitido = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
                 $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
@@ -334,16 +336,16 @@ class CuponsTable extends GenericTable
                     $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
                 }
 
-                $cupom["cupom_emitido"] = $novoCupomAleatorio;
+                $cupom->cupom_emitido = $novoCupomAleatorio;
             }
 
             $cupom = $this->save($cupom);
-            $cupom = $this->find()->where(array("id" => $cupom["id"]))->first();
+            $cupom = $this->get($cupom->id);
+            unset($cupom->codigo_primario);
+            unset($cupom->codigo_secundario);
+            $cupom->valor_pago_gotas = Number::precision($cupom->valor_pago_gotas, 2);
+            $cupom->valor_pago_reais = Number::precision($cupom->valor_pago_reais, 2);
 
-            unset($cupom["codigo_primario"]);
-            unset($cupom["codigo_secundario"]);
-            $cupom["valor_pago_gotas"] = Number::precision($cupom["valor_pago_gotas"], 2);
-            $cupom["valor_pago_reais"] = Number::precision($cupom["valor_pago_reais"], 2);
             return $cupom;
         } catch (\Exception $e) {
             $trace = $e->getTrace();

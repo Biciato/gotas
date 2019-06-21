@@ -2954,7 +2954,12 @@ class CuponsController extends AppController
                 // Emitir Cupom e retornar
                 $totalGotas = $precoGotas * $quantidade;
                 $totalReais = $precoReais * $quantidade;
-                $cupom = $this->Cupons->addCupomForUsuario($brinde->id, $cliente->id, $funcionariosId, $usuario->id, $totalGotas, $totalReais, $quantidade, $tipoVendaBrinde);
+
+                $quadroHorarios = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
+                $quadroHorarios = $quadroHorarios->toArray();
+                $quadroHorarioAtual = TimeUtil::obtemTurnoAtual($quadroHorarios);
+
+                $cupom = $this->Cupons->addCupomForUsuario($brinde->id, $cliente->id, $funcionariosId, $usuario->id, $totalGotas, $totalReais, $quantidade, $quadroHorarioAtual["id"], $tipoVendaBrinde);
 
                 // vincula item resgatado ao cliente final
                 $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(

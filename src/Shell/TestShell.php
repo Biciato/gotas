@@ -10,7 +10,7 @@
  * @link     https://www.rtibrindes.com.br/Shell/ClasseDeExecucaoBackground
  */
 
- namespace App\Shell;
+namespace App\Shell;
 
 use Cake\Console\Shell;
 use Cake\Core\Configure;
@@ -50,15 +50,45 @@ class TestShell extends ExtendedShell
         try {
             $this->out("hello");
             Log::write('info', 'hello');
-        } catch (\Exception $e) {
-        }
+        } catch (\Exception $e) { }
     }
 
-    public function testTimeShift(int $clientesId)
+    public function getClosestShiftByClientesId(int $clientesId)
     {
-        $quadroHorarios = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
+        $timeBoards = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
 
-        DebugUtil::printArray($quadroHorarios->toArray());
+        $times = array();
+
+        // obtem hora atual
+        $currentTime = date("H:i");
+
+        // obtem todas as horas e calcula a diferença
+
+        foreach ($timeBoards as $timeItem) {
+            $time = array();
+
+            $time["id"] = $timeItem->id;
+            $time["horario"] = $timeItem->horario;
+            $time["difference"] = $currentTime - $timeItem->horario->format("H:i");
+
+            $times[] = $time;
+        }
+
+        // Reordena 
+        usort($times, function ($a, $b) {
+            return $a["difference"] >= 0 && $a["difference"] >= $b["difference"];
+        });
+
+        $positiveTimes = array();
+
+        foreach ($times as $time) {
+            if ($time["difference"] >= 0) {
+                $positiveTimes[] = $time;
+            }
+        }
+
+        $closestShift = $positiveTimes[0];
+        
+        DebugUtil::printArray($closestShift);
     }
-
 }

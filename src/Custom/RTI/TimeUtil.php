@@ -124,4 +124,63 @@ class TimeUtil
         return $turno == 1 ? $turnoAtual : $turnoAnterior;
     }
 
+    /**
+     * TimeUtil::obtemTurnoAtual
+     * 
+     * Retorna o quadro de horário atual
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-21
+     *
+     * @param \App\Model\Entity\ClientesHasQuadroHorario[] $horarios
+     * 
+     * @return array Turno Atual em Array
+     */
+    public static function obtemTurnoAtual(array $horarios)
+    {
+        if (empty($horarios) || count($horarios) == 0) {
+            throw new \Exception("Quadro de Horários não configurado!");
+        }
+
+        $horasPesquisa = array();
+
+        // obtem hora atual
+        $horaAtual = date("H:i");
+
+        // obtem todas as horas e calcula a diferença
+
+        foreach ($horarios as $itemHorario) {
+            $horaPesquisa = array();
+
+            $horaPesquisa["id"] = $itemHorario->id;
+            $horaPesquisa["horario"] = $itemHorario->horario;
+
+            $horaComparacaoInicio = new \DateTime($horaAtual);
+            // $timestampComparacao = strtotime($itemHorario->horario->format("H:i"));
+            $horaComparacaoFim = new \DateTime($itemHorario->horario->format("H:i"));
+            
+            $diferenca = $horaComparacaoInicio->diff($horaComparacaoFim);
+
+            $horaDiferenca = $diferenca->format("%H:%i");
+
+            $horaPesquisa["diferenca"] = $horaDiferenca;
+
+            $horasPesquisa[] = $horaPesquisa;
+        }
+
+        // Reordena conforme diferença
+        usort($horasPesquisa, function ($a, $b) {
+            return $a["diferenca"] >= 0 && $a["diferenca"] >= $b["diferenca"];
+        });
+
+        $horariosPositivos = array();
+
+        foreach ($horasPesquisa as $hora) {
+            if ($hora["diferenca"] >= 0) {
+                $horariosPositivos[] = $hora;
+            }
+        }
+
+        return $horariosPositivos[0];
+    }
 }
