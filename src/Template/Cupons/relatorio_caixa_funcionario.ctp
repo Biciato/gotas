@@ -39,7 +39,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <form action="/cupons/relatorioCaixaFuncionario/" method="post">
-                        <div class="form-group">
+                        <div class="form-group row">
                             <div class="col-lg-4">
                                 <label for="tipoFiltro">Tipo de Filtro:</label>
                                 <?= $this->Form->input(
@@ -103,6 +103,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
 
         <?php endif; ?>
+
+        <?php if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME && count($dadosVendaFuncionarios) > 0) : ?>
+            <!-- Se filtro por hora, exibir mensagem: -->
+            <h4 class="text-center">Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!</h4>
+        <?php endif; ?>
+
         <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
             <?php
             $filtrarTurno = $dadoVenda["filtrarTurno"];

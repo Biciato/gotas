@@ -779,13 +779,6 @@ class CuponsController extends AppController
         $tipoFiltroList = array(FILTER_TYPE_DATE_TIME => FILTER_TYPE_DATE_TIME, FILTER_TYPE_SHIFT => FILTER_TYPE_SHIFT);
         $tipoFiltroSelecionado = FILTER_TYPE_SHIFT;
         $sessaoUsuario = $this->getSessionUserVariables();
-
-        $filtrarTurnoAnteriorList = array(
-            1 => "Sim",
-            0 => "Nâo"
-        );
-
-        $filtrarTurnoAnterior = null;
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
 
@@ -815,6 +808,38 @@ class CuponsController extends AppController
 
             $data = $this->request->getData();
             $tipoFiltroSelecionado = $data["tipoFiltro"];
+
+            // Obtem os turnos do posto atual e verifica se a data de inserção é anterior ao tempo definido
+
+            $dataHoraLimitePesquisa = new DateTime();
+            $dataHoraLimitePesquisa->modify(sprintf("-%s hours", MAX_TIME_COUPONS_REPORT_TIME));
+
+            $turnosPosto = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
+            $turnosPosto = $turnosPosto->toArray();
+
+            $numeroTurnos = count($turnosPosto);
+
+            $diferencaTurnos = 0;
+            $somaDiferencaTurnos = 0;
+            if ($numeroTurnos > 1) {
+                $turno1 = $turnosPosto[0]->horario;
+                $turno2 = $turnosPosto[1]->horario;
+                $diff = $turno1->diff($turno2);
+                $diferencaTurnos = (int) $diff->format("%H");
+            } else {
+                $diferencaTurnos = 24;
+            }
+
+            // Verifica qual é o turno atual
+
+            $turnoAtual = TimeUtil::obtemTurnoAtual($turnosPosto);
+
+            while ($somaDiferencaTurnos < MAX_TIME_COUPONS_REPORT_TIME) {
+                // Gera todos os turnos
+            }
+            DebugUtil::printArray($turnoAtual);
+
+            DebugUtil::printArray($turnosPosto);
 
             DebugUtil::printArray($data);
 
@@ -2962,17 +2987,7 @@ class CuponsController extends AppController
                 $cupom = $this->Cupons->addCupomForUsuario($brinde->id, $cliente->id, $funcionariosId, $usuario->id, $totalGotas, $totalReais, $quantidade, $quadroHorarioAtual["id"], $tipoVendaBrinde);
 
                 // vincula item resgatado ao cliente final
-                $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes(
-                    $rede["id"],
-                    $cliente["id"],
-                    $usuario["id"],
-                    $brinde["id"],
-                    $quantidade,
-                    $precoGotas,
-                    $precoReais,
-                    $tipoPagamento,
-                    $cupom["id"]
-                );
+                $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes($rede->id, $cliente->id, $usuario->id, $brinde->id, $quantidade, $precoGotas, $precoReais, $tipoPagamento, $cupom->id);
 
                 $mensagem = array(
                     "status" => 1,

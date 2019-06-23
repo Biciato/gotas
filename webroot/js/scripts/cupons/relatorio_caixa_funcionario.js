@@ -11,6 +11,24 @@
 'use strict';
 $(document).ready(function () {
 
+    /**
+     * Desabilita os filtros de data e hora
+     * 
+     * @param {object} e Objeto de verificação 
+     */
+    var filtroSelecionadoOnChange = function (e) {
+
+        var filtroDatas = false;
+
+        if (e.target.value.toString() === "Turno") {
+            filtroDatas = true;
+        }
+        $(".datetimepicker-input").attr("disabled", filtroDatas);
+    }
+
+    $("#tipoFiltro").on("change", filtroSelecionadoOnChange);
+    $("#tipoFiltro").change();
+
     var dataInicioTemp = $(".data-inicio-envio").val().length != 0 ? $(".data-inicio-envio").val() : undefined;
     var dataFimTemp = $(".data-fim-envio").val().length != 0 ? $(".data-fim-envio").val() : undefined;
 

@@ -126,14 +126,14 @@ class TimeUtil
 
     /**
      * TimeUtil::obtemTurnoAtual
-     * 
+     *
      * Retorna o quadro de horário atual
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-06-21
      *
      * @param \App\Model\Entity\ClientesHasQuadroHorario[] $horarios
-     * 
+     *
      * @return array Turno Atual em Array
      */
     public static function obtemTurnoAtual(array $horarios)
@@ -144,8 +144,10 @@ class TimeUtil
 
         $horasPesquisa = array();
 
-        // obtem hora atual
-        $horaAtual = date("H:i");
+        // obtem hora atual em segundos
+        $horaAtualTotalSegundos = self::transformaHoraSegundos(date("H"), date("i"), date("s"));
+
+        // ->getTimestamp();
 
         // obtem todas as horas e calcula a diferença
 
@@ -155,15 +157,13 @@ class TimeUtil
             $horaPesquisa["id"] = $itemHorario->id;
             $horaPesquisa["horario"] = $itemHorario->horario;
 
-            $horaComparacaoInicio = new \DateTime($horaAtual);
-            // $timestampComparacao = strtotime($itemHorario->horario->format("H:i"));
-            $horaComparacaoFim = new \DateTime($itemHorario->horario->format("H:i"));
-            
-            $diferenca = $horaComparacaoInicio->diff($horaComparacaoFim);
+            $horaComparacaoSegundos = self::transformaHoraSegundos($horaPesquisa["horario"]->format("H"), $horaPesquisa["horario"]->format("i"), $horaPesquisa["horario"]->format("s"));
 
-            $horaDiferenca = $diferenca->format("%H:%i");
+            $comparacao = $horaAtualTotalSegundos - $horaComparacaoSegundos;
 
-            $horaPesquisa["diferenca"] = $horaDiferenca;
+            // $comparacao = $comparacao < 0 ? $comparacao * -1 : $comparacao;
+
+            $horaPesquisa["diferenca"] = $comparacao;
 
             $horasPesquisa[] = $horaPesquisa;
         }
@@ -173,14 +173,24 @@ class TimeUtil
             return $a["diferenca"] >= 0 && $a["diferenca"] >= $b["diferenca"];
         });
 
-        $horariosPositivos = array();
-
-        foreach ($horasPesquisa as $hora) {
-            if ($hora["diferenca"] >= 0) {
-                $horariosPositivos[] = $hora;
-            }
+        if (count($horasPesquisa) == 0) {
+            throw new \Exception("Erro durante cálculo de segundos dos turnos");
         }
 
-        return $horariosPositivos[0];
+        return $horasPesquisa[0];
+    }
+
+    public static function transformaHoraSegundos($horas = 0, $minutos = 0, $segundos = 0)
+    {
+        $horas = $horas * 3600;
+        $minutos = $minutos * 60;
+
+        $t = $horas + $minutos + $segundos;
+        return $t;
+    }
+
+    public static function transformaSegundosHoras(int $totalSegundos)
+    {
+        # code...
     }
 }
