@@ -17,6 +17,7 @@ use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\TimeUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\ShiftUtil;
 
 /**
  * Cupons Controller
@@ -807,15 +808,22 @@ class CuponsController extends AppController
         if ($this->request->is("post")) {
 
             $data = $this->request->getData();
-            $tipoFiltroSelecionado = $data["tipoFiltro"];
+            $tipoFiltroSelecionado = !empty($data["tipoFiltro"]) ? $data["tipoFiltro"] : null;
+
+            $dataInicio = !empty($data["data_inicio_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_inicio_envio"] : null;
+            $dataFim = !empty($data["data_fim_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_fim_envio"] : null;
+
+            $tituloTurno = $tipoFiltroSelecionado == FILTER_TYPE_SHIFT ? "Relatório Completo" : "Relatório Parcial";
 
             // Obtem os turnos do posto atual e verifica se a data de inserção é anterior ao tempo definido
 
+            $dataHoraInicioFiltro = new DateTime($dataInicio);
             $dataHoraLimitePesquisa = new DateTime();
             $dataHoraLimitePesquisa->modify(sprintf("-%s hours", MAX_TIME_COUPONS_REPORT_TIME));
 
             $turnosPosto = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
             $turnosPosto = $turnosPosto->toArray();
+            $turnosPesquisa = array();
 
             $numeroTurnos = count($turnosPosto);
 
@@ -824,37 +832,52 @@ class CuponsController extends AppController
             if ($numeroTurnos > 1) {
                 $turno1 = $turnosPosto[0]->horario;
                 $turno2 = $turnosPosto[1]->horario;
-                $diff = $turno1->diff($turno2);
-                $diferencaTurnos = (int) $diff->format("%H");
+                $diferenca = $turno1->diff($turno2);
+                $diferencaTurnos = (int)$diferenca->format("%H");
             } else {
                 $diferencaTurnos = 24;
             }
 
             // Verifica qual é o turno atual
+            $turnoAtual = ShiftUtil::obtemTurnoAtual($turnosPosto);
+            $horarioTurnoAtual = $turnoAtual["horario"];
+            $diferencaTurnoAtual = $horarioTurnoAtual->diff($dataHoraInicioFiltro);
+            $horaDiferenca = $diferencaTurnoAtual->format("%H:%i:%s");
 
-            $turnoAtual = TimeUtil::obtemTurnoAtual($turnosPosto);
+            /**
+             * Se a diferença de turnos é maior que o tempo limite, só será um turno à pesquisar
+             * Que é o atual
+             * Caso contrário, faz o cálculo de todos os turnos
+             */
+            if (MAX_TIME_COUPONS_REPORT_TIME <= $diferencaTurnos) {
+                $turnosPesquisa[] = $turnoAtual;
+            } else {
+                $horarioTurno = new DateTime($horarioTurnoAtual->format("Y-m-d H:i:s"));
 
-            while ($somaDiferencaTurnos < MAX_TIME_COUPONS_REPORT_TIME) {
-                // Gera todos os turnos
+                while ($somaDiferencaTurnos <= MAX_TIME_COUPONS_REPORT_TIME) {
+                    // Gera todos os turnos
+                    $somaDiferencaTurnos += $diferencaTurnos;
+
+                    foreach ($turnosPosto as $turno) {
+                        if ($turno->horario->format("H:i:s") === $horarioTurno->format("H:i:s")) {
+                            $item = $turno;
+                            $fim = new DateTime($horarioTurno->format("Y-m-d H:i:s"));
+                            $fim->modify(sprintf("+%s hours", $diferencaTurnos));
+                            $item["horarioFim"] = $fim;
+                            $turnosPesquisa[] = $item;
+                            break;
+                        }
+                    }
+                    $horarioTurno->modify(sprintf("-%s hours", $diferencaTurnos));
+                }
             }
-            DebugUtil::printArray($turnoAtual);
 
-            DebugUtil::printArray($turnosPosto);
+            // Retornena os turnos conforme as datas de pesquisa
+            usort($turnosPesquisa, function ($a, $b) {
+                return $a->horario->format("Y-m-d H:i:s") > $b->horario->format("Y-m-d H:i:s");
+            });
 
-            DebugUtil::printArray($data);
-
-            $turno = $data["filtrarTurno"];
-
-            $tituloTurno = $turno ? "Relatório Completo" : "Turno: Anterior";
-
-            $turnoOperacao = TimeUtil::getTurnoAnteriorAtual($quadroHorariosCliente, $turno);
-
-            if ($turno) { }
-
-            $turnoInicio = $turnoOperacao["dataConsultaInicio"];
-            $turnoFim = $turnoOperacao["dataConsultaFim"];
-
-            // Obtem os brindes habilitados do posto de atendimento
+             // Obtem os brindes habilitados do posto de atendimento
 
             $brindes = $this->Brindes->findBrindes(null, $cliente["id"]);
             $brindes = $brindes->toArray();
@@ -867,6 +890,34 @@ class CuponsController extends AppController
                     "clientesId" => $cliente->id
                 );
             };
+
+            foreach ($turnosPesquisa as $turno) {
+                $cupons = $this->Cupons->get();
+
+                // @todo Criar método de pesquisa
+
+                $whereConditions = array(
+                    "clientes_id" => $cliente->id,
+                    // Usuario logado é o usuário da sessão
+                    "funcionarios_id" => $usuarioLogado->id,
+                    "clientes_has_quadro_horario" => $turno->id,
+                    "data BETWEEN '{$dataHoraLimitePesquisa}' AND '{$turno['horarioFim']->format("Y-m-d H:i:s')}'"
+                );
+                $cupons = $this->Cupons->find("all")
+                ->where(
+                    $whereConditions
+                );
+                # code...
+            }
+
+            // DebugUtil::printArray($turnosPesquisa);
+            DebugUtil::printArray($data);
+
+
+            $turnoInicio = $turnoOperacao["dataConsultaInicio"];
+            $turnoFim = $turnoOperacao["dataConsultaFim"];
+
+           
 
             // Obtem os dados dos cupons
 

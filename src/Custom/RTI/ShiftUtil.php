@@ -18,7 +18,7 @@ use Cake\Log\Log;
  * @license  http://www.apache.org/licenses/LICENSE-2.0.txt Apache License 2.0
  * @link     https://www.rtibrindes.com.br/Utils/ClasseDeUtilidades
  */
-class TimeUtil
+class ShiftUtil
 {
     /**
      * TimeUtil::getTurnoAnteriorAtual
@@ -124,17 +124,65 @@ class TimeUtil
         return $turno == 1 ? $turnoAtual : $turnoAnterior;
     }
 
-    public static function transformaHoraSegundos($horas = 0, $minutos = 0, $segundos = 0)
+    /**
+     * TimeUtil::obtemTurnoAtual
+     *
+     * Retorna o quadro de horário atual
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-21
+     *
+     * @param \App\Model\Entity\ClientesHasQuadroHorario[] $horarios
+     *
+     * @return array Turno Atual em Array
+     */
+    public static function obtemTurnoAtual(array $horarios)
     {
-        $horas = $horas * 3600;
-        $minutos = $minutos * 60;
+        if (empty($horarios) || count($horarios) == 0) {
+            throw new \Exception("Quadro de Horários não configurado!");
+        }
 
-        $t = $horas + $minutos + $segundos;
-        return $t;
-    }
+        $horasPesquisa = array();
 
-    public static function transformaSegundosHoras(int $totalSegundos)
-    {
-        # code...
+        // obtem hora atual em segundos
+        $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(date("H"), date("i"), date("s"));
+
+        // ->getTimestamp();
+
+        // obtem todas as horas e calcula a diferença
+
+        foreach ($horarios as $itemHorario) {
+            $horaPesquisa = array();
+
+            $horaPesquisa["id"] = $itemHorario->id;
+            $horaPesquisa["horario"] = $itemHorario->horario;
+
+            $horaComparacaoSegundos = TimeUtil::transformaHoraSegundos($horaPesquisa["horario"]->format("H"), $horaPesquisa["horario"]->format("i"), $horaPesquisa["horario"]->format("s"));
+
+            $comparacao = $horaAtualTotalSegundos - $horaComparacaoSegundos;
+
+            // $comparacao = $comparacao < 0 ? $comparacao * -1 : $comparacao;
+
+            $horaPesquisa["diferenca"] = $comparacao;
+
+            $horasPesquisa[] = $horaPesquisa;
+        }
+
+        // Reordena conforme diferença
+        usort($horasPesquisa, function ($a, $b) {
+            return $a["diferenca"] >= 0 && $a["diferenca"] >= $b["diferenca"];
+        });
+
+        if (count($horasPesquisa) == 0) {
+            throw new \Exception("Erro durante cálculo de segundos dos turnos");
+        }
+
+        // Retorna o primeiro registro onde a diferença é maior que 0
+
+        foreach ($horasPesquisa as $item) {
+            if ($item["diferenca"] >= 0) {
+                return $item;
+            }
+        }
     }
 }
