@@ -10,8 +10,6 @@
  */
 
 use Cake\Core\Configure;
-use Cake\View\Helper\NumberHelper;
-use App\Custom\RTI\DebugUtil;
 
 $debug = Configure::read("debug");
 
@@ -98,7 +96,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <?php if (!empty($tituloTurno)) : ?>
             <h3><?= $tituloTurno ?></h3>
-            <span><?= sprintf("De: %s Às %s: ", $dataInicio, $dataFim) ?></span>
         <?php else : ?>
             <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
 
@@ -109,52 +106,57 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <h4 class="text-center">Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!</h4>
         <?php endif; ?>
 
-        <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
+        <?php foreach ($dadosVendaFuncionarios as $dados) : ?>
             <?php
-            $filtrarTurno = $dadoVenda["filtrarTurno"];
-            $somaAtual = $dadoVenda["soma"];
+            $turnos = $dados["turnos"];
+            $somaAtual = $dados["soma"];
             ?>
-            <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
+            <h4>Funcionário: <?= $dados["nome"] ?></h4>
             <p>
-                <?php foreach ($filtrarTurno["dados"] as $cupom) : ?>
+                <?php foreach ($turnos as $turno) : ?>
 
-                    <?php if (($cupom["resgatados"] > 0)
-                        || ($cupom["usados"] > 0)
-                        || ($cupom["gotas"] > 0)
-                        || ($cupom["dinheiro"] > 0)
-                        || ($cupom["brindes"] > 0)
-                        || ($cupom["compras"] > 0)
+                    <h4>Turno: De <?= $turno["horario_inicio"] ?> às <?= $turno["horario_fim"] ?> </h4>
+                    <?php if (($turno["somaTurno"]["resgatados"] > 0)
+                        || ($turno["somaTurno"]["usados"] > 0)
+                        || ($turno["somaTurno"]["gotas"] > 0)
+                        || ($turno["somaTurno"]["dinheiro"] > 0)
+                        || ($turno["somaTurno"]["brindes"] > 0)
+                        || ($turno["somaTurno"]["compras"] > 0)
                     ) : ?>
 
-                        <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
+                        <?php foreach ($turno["cupons"] as $cupom) : ?>
+                            <h5>Brinde: <?= $cupom["nome_brinde"] ?></h5>
 
-                        <?php if ($cupom["resgatados"] > 0) : ?>
-                            <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["resgatados"] > 0) : ?>
+                                <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["usados"] > 0) : ?>
-                            <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                        <?php endif; ?>
-                        <?php if ($cupom["gotas"] > 0) : ?>
-                            <!-- Qte de gotas recebido -->
-                            <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["usados"] > 0) : ?>
+                                <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                            <?php endif; ?>
+                            <?php if ($cupom["gotas"] > 0) : ?>
+                                <!-- Qte de gotas recebido -->
+                                <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["dinheiro"] > 0) : ?>
-                            <!-- Qte de dinheiro recebido daquele brinde -->
-                            <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["dinheiro"] > 0) : ?>
+                                <!-- Qte de dinheiro recebido daquele brinde -->
+                                <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["brindes"] > 0) : ?>
-                            <!-- Qte de Brindes vendidos via gotas -->
-                            <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["brindes"] > 0) : ?>
+                                <!-- Qte de Brindes vendidos via gotas -->
+                                <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["compras"] > 0) : ?>
-                            <!-- Qte de Brindes vendidos via dinheiro -->
-                            <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["compras"] > 0) : ?>
+                                <!-- Qte de Brindes vendidos via dinheiro -->
+                                <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
 
+                    <?php else : ?>
+                        <h5>Não há dados para o turno!</h5>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </p>
@@ -182,14 +184,14 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
 
         <?php endif; ?>
-        <?php foreach ($dadosVendaFuncionarios as $key => $dadoVenda) : ?>
+        <?php foreach ($dadosVendaFuncionarios as $key => $dados) : ?>
             <?php
-            $filtrarTurno = $dadoVenda["filtrarTurno"];
-            $somaAtual = $dadoVenda["soma"];
+            $turnos = $dados["filtrarTurno"];
+            $somaAtual = $dados["soma"];
             ?>
-            <h4>Funcionário: <?= $dadoVenda["nome"] ?></h4>
+            <h4>Funcionário: <?= $dados["nome"] ?></h4>
             <p>
-                <?php foreach ($filtrarTurno["dados"] as $cupom) : ?>
+                <?php foreach ($turnos["dados"] as $cupom) : ?>
 
                     <?php if (($cupom["resgatados"] > 0)
                         || ($cupom["usados"] > 0)
@@ -231,7 +233,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     <?php endif; ?>
                 <?php endforeach; ?>
                 <div class="total-geral">
-                    <h4>Soma Parcial do Funcionário <?= $dadoVenda["nome"] ?></h4>
+                    <h4>Soma Parcial do Funcionário <?= $dados["nome"] ?></h4>
                     <ul class="list-group">
                         <li class="list-group-item"> Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
                         <li class="list-group-item"> Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>

@@ -104,6 +104,12 @@ class CuponsTable extends GenericTable
             'foreignKey' => 'usuarios_id',
             'joinType' => 'INNER'
         ]);
+
+        $this->belongsTo("ClienteQuadroHorario", array(
+            "className" => "ClientesHasQuadroHorario",
+            "foreignKey" => "clientes_has_quadro_horario_id",
+            "joinType" => Query::JOIN_TYPE_INNER
+        ));
     }
 
     /**
