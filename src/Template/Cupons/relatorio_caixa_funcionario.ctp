@@ -16,7 +16,7 @@ $debug = Configure::read("debug");
 $title = "Relatório de Caixa de Funcionários";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
-echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+// echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
@@ -81,6 +81,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                         Impressora Comum
                                     </button>
                                 <?php endif; ?>
+                            </i>
                         </div>
                 </div>
 
@@ -156,7 +157,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <?php endforeach; ?>
 
                     <?php else : ?>
-                        <h5>Não há dados para o turno!</h5>
+                        <h4 class="text-center">Não há dados para o turno!</h4>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </p>
@@ -177,72 +178,73 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     </div>
 
     <div class="print-area-thermal col-lg-3 print-thermal">
+
         <?php if (!empty($tituloTurno)) : ?>
-            <h3><?= $tituloTurno ?></h3>
-            <span><?= sprintf("Período: %s Às %s: ", $dataInicio, $dataFim) ?></span>
+            <h4><?= $tituloTurno ?></h4>
         <?php else : ?>
-            <h4 class="text-center">Utilize um dos filtros para gerar o relatório!</h4>
+            <h5 class="text-center">Utilize um dos filtros para gerar o relatório!</h5>
 
         <?php endif; ?>
-        <?php foreach ($dadosVendaFuncionarios as $key => $dados) : ?>
+
+        <?php if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME && count($dadosVendaFuncionarios) > 0) : ?>
+            <!-- Se filtro por hora, exibir mensagem: -->
+            <h6 class="text-center">Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!</h6>
+        <?php endif; ?>
+
+        <?php foreach ($dadosVendaFuncionarios as $dados) : ?>
             <?php
-            $turnos = $dados["filtrarTurno"];
+            $turnos = $dados["turnos"];
             $somaAtual = $dados["soma"];
             ?>
-            <h4>Funcionário: <?= $dados["nome"] ?></h4>
+            <h6>Funcionário: <?= $dados["nome"] ?></h6>
             <p>
-                <?php foreach ($turnos["dados"] as $cupom) : ?>
+                <?php foreach ($turnos as $turno) : ?>
 
-                    <?php if (($cupom["resgatados"] > 0)
-                        || ($cupom["usados"] > 0)
-                        || ($cupom["gotas"] > 0)
-                        || ($cupom["dinheiro"] > 0)
-                        || ($cupom["brindes"] > 0)
-                        || ($cupom["compras"] > 0)
+                    <span>Turno: <br /> De <?= $turno["horario_inicio"] ?> <br /> às <?= $turno["horario_fim"] ?> </span>
+                    <?php if (($turno["somaTurno"]["resgatados"] > 0)
+                        || ($turno["somaTurno"]["usados"] > 0)
+                        || ($turno["somaTurno"]["gotas"] > 0)
+                        || ($turno["somaTurno"]["dinheiro"] > 0)
+                        || ($turno["somaTurno"]["brindes"] > 0)
+                        || ($turno["somaTurno"]["compras"] > 0)
                     ) : ?>
 
-                        <h5>Brinde: <?= $cupom["nomeBrinde"] ?></h5>
+                        <?php foreach ($turno["cupons"] as $cupom) : ?>
+                            <br />
+                            <strong>Brinde: <?= $cupom["nome_brinde"] ?></strong>
 
-                        <?php if ($cupom["resgatados"] > 0) : ?>
-                            <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["resgatados"] > 0) : ?>
+                                <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["usados"] > 0) : ?>
-                            <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                        <?php endif; ?>
-                        <?php if ($cupom["gotas"] > 0) : ?>
-                            <!-- Qte de gotas recebido -->
-                            <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["usados"] > 0) : ?>
+                                <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                            <?php endif; ?>
+                            <?php if ($cupom["gotas"] > 0) : ?>
+                                <!-- Qte de gotas recebido -->
+                                <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["dinheiro"] > 0) : ?>
-                            <!-- Qte de dinheiro recebido daquele brinde -->
-                            <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["dinheiro"] > 0) : ?>
+                                <!-- Qte de dinheiro recebido daquele brinde -->
+                                <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["brindes"] > 0) : ?>
-                            <!-- Qte de Brindes vendidos via gotas -->
-                            <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["brindes"] > 0) : ?>
+                                <!-- Qte de Brindes vendidos via gotas -->
+                                <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
+                            <?php endif; ?>
 
-                        <?php if ($cupom["compras"] > 0) : ?>
-                            <!-- Qte de Brindes vendidos via dinheiro -->
-                            <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
-                        <?php endif; ?>
+                            <?php if ($cupom["compras"] > 0) : ?>
+                                <!-- Qte de Brindes vendidos via dinheiro -->
+                                <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
 
+                    <?php else : ?>
+                        <h5 class="text-center">Não há dados para o turno!</h5>
                     <?php endif; ?>
                 <?php endforeach; ?>
-                <div class="total-geral">
-                    <h4>Soma Parcial do Funcionário <?= $dados["nome"] ?></h4>
-                    <ul class="list-group">
-                        <li class="list-group-item"> Brindes Resgatados: <?= $somaAtual["somaResgatados"] ?> </li>
-                        <li class="list-group-item"> Brindes Usados: <?= $somaAtual["somaUsados"] ?> </li>
-                        <li class="list-group-item"> Gotas Bonificadas: <?= $somaAtual["somaGotas"] ?> </li>
-                        <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($somaAtual["somaDinheiro"]) ?> </li>
-                        <li class="list-group-item"> Bonificação: <?= $somaAtual["somaBrindes"] ?> </li>
-                        <li class="list-group-item"> Vendas: <?= $somaAtual["somaCompras"] ?> </li>
-                    </ul>
-                </div>
             </p>
 
             <div class="total-geral">

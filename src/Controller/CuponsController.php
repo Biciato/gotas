@@ -784,6 +784,7 @@ class CuponsController extends AppController
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
+        $this->usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($sessaoUsuario["usuarioAdministrar"]) {
             $this->usuarioLogado = $sessaoUsuario["usuarioAdministrar"];
@@ -903,7 +904,7 @@ class CuponsController extends AppController
                     $whereConditions = array(
                         "Cupons.clientes_id" => $cliente->id,
                         // Usuario logado é o usuário da sessão
-                        "Cupons.funcionarios_id" => $usuarioLogado->id,
+                        "Cupons.funcionarios_id" => $usuarioLogado["id"],
                         "Cupons.clientes_has_quadro_horario_id" => $turno->id,
                         "Cupons.brindes_id" => $brinde["id"],
                         "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'"
@@ -953,8 +954,8 @@ class CuponsController extends AppController
 
             $funcionario = array();
 
-            $funcionario["id"] = $usuarioLogado->id;
-            $funcionario["nome"] = $usuarioLogado->nome;
+            $funcionario["id"] = $usuarioLogado["id"];
+            $funcionario["nome"] = $usuarioLogado["nome"];
 
             $dadosTurno = array();
             $somaResgatados = 0;
