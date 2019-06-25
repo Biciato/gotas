@@ -774,7 +774,6 @@ class CuponsController extends AppController
 
         $data = date("Y-m-d H:i:s");
         $turnos = array();
-
         $momentoInicio = strtotime(sprintf("-%s hours", MAX_TIME_COUPONS_REPORT_TIME), strtotime($data));
         $dataInicio = date("Y-m-d H:i", $momentoInicio);
         $dataFim = date("Y-m-d H:i", strtotime($data));
@@ -791,10 +790,8 @@ class CuponsController extends AppController
         }
 
         $usuarioLogado = $this->usuarioLogado;
-
         $dadosVendaFuncionarios = array();
         $totalGeral = array();
-
         $tituloTurno = "";
 
         $quadroHorariosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente($rede["id"], $cliente["id"]);
@@ -809,10 +806,9 @@ class CuponsController extends AppController
         }
 
         if ($this->request->is("post")) {
-
             $data = $this->request->getData();
             $tipoFiltroSelecionado = !empty($data["tipoFiltro"]) ? $data["tipoFiltro"] : null;
-
+            $tituloTurno = $tipoFiltroSelecionado == FILTER_TYPE_SHIFT ? "Relatório Completo" : "Relatório Parcial";
             $dataInicio = !empty($data["data_inicio_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_inicio_envio"] : null;
             $dataFim = !empty($data["data_fim_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_fim_envio"] : null;
 
@@ -832,10 +828,7 @@ class CuponsController extends AppController
                 }
             }
 
-            $tituloTurno = $tipoFiltroSelecionado == FILTER_TYPE_SHIFT ? "Relatório Completo" : "Relatório Parcial";
-
             // Obtem os turnos do posto atual e verifica se a data de inserção é anterior ao tempo definido
-
             $dataHoraInicioFiltro = new DateTime($dataInicio);
             $dataHoraLimitePesquisa = new DateTime();
             $dataHoraLimitePesquisa->modify(sprintf("-%s hours", MAX_TIME_COUPONS_REPORT_TIME));
@@ -843,7 +836,6 @@ class CuponsController extends AppController
             $turnosPosto = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
             $turnosPosto = $turnosPosto->toArray();
             $turnosPesquisa = array();
-
             $numeroTurnos = count($turnosPosto);
 
             $diferencaTurnos = 0;
@@ -859,6 +851,12 @@ class CuponsController extends AppController
 
             // Verifica qual é o turno atual
             $turnoAtual = ShiftUtil::obtemTurnoAtual($turnosPosto);
+
+            if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME) {
+                $dataInicioPesquisa = new DateTime($dataInicio);
+                $dataFimPesquisa = new DateTime($dataFim);
+                $turnoAtual = ShiftUtil::regridePeriodoTurnos($turnosPosto, $dataFimPesquisa);
+            }
             $horarioTurnoAtual = $turnoAtual["horario"];
             $diferencaTurnoAtual = $horarioTurnoAtual->diff($dataHoraInicioFiltro);
             $horaDiferenca = $diferencaTurnoAtual->format("%H:%i:%s");
@@ -923,12 +921,22 @@ class CuponsController extends AppController
                         "Cupons.funcionarios_id" => $usuarioLogado["id"],
                         "Cupons.clientes_has_quadro_horario_id" => $turno->id,
                         "Cupons.brindes_id" => $brinde["id"],
-                        "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'"
                     );
+
+                    if ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
+                        $whereConditions[] = "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'";
+                    } else {
+                        // @TODO ajustar
+                        $dataInicioPesquisa = new DateTime($dataInicio);
+                        $dataFimPesquisa = new DateTime($dataFim);
+                        $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
+                    }
 
                     // @todo Criar método de pesquisa
                     $queryCupons = $this->Cupons->find("all")->where($whereConditions);
 
+                    echo $queryCupons->sql();
+                    echo "<br />";
 
                     $cupons = array();
                     foreach ($queryCupons as $key => $item) {

@@ -147,24 +147,14 @@ class ShiftUtil
         // obtem hora atual em segundos
         $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(date("H"), date("i"), date("s"));
 
-        // ->getTimestamp();
-
         // obtem todas as horas e calcula a diferença
-
         foreach ($horarios as $itemHorario) {
             $horaPesquisa = array();
-
             $horaPesquisa["id"] = $itemHorario->id;
             $horaPesquisa["horario"] = $itemHorario->horario;
-
             $horaComparacaoSegundos = TimeUtil::transformaHoraSegundos($horaPesquisa["horario"]->format("H"), $horaPesquisa["horario"]->format("i"), $horaPesquisa["horario"]->format("s"));
-
             $comparacao = $horaAtualTotalSegundos - $horaComparacaoSegundos;
-
-            // $comparacao = $comparacao < 0 ? $comparacao * -1 : $comparacao;
-
             $horaPesquisa["diferenca"] = $comparacao;
-
             $horasPesquisa[] = $horaPesquisa;
         }
 
@@ -183,6 +173,32 @@ class ShiftUtil
             if ($item["diferenca"] >= 0) {
                 return $item;
             }
+        }
+    }
+
+    /**
+     * ShiftUtil::regridePeriodoTurnos
+     * 
+     * Regride o horário de cada turno
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-06-25
+     * 
+     * @param array $horarios
+     * @param \DateTime $dataFim
+     * 
+     * @return array
+     */
+    public static function regridePeriodoTurnos(array $horarios, \DateTime $dataFim)
+    {
+        // Reposiciona os turnos se data de fim informada
+        if (!empty($dataFim)) {
+            $ultimoTurno = end($horarios);
+            $horaUltimoTurno = new DateTime($ultimoTurno->horario->format("Y-m-d H:i:s"));
+            $diferenca = $horaUltimoTurno->getTimestamp() - $dataFim->getTimestamp();
+            $diferenca = $diferenca < 0 ? $diferenca * -1 : $diferenca;
+            $horaUltimoTurno->modify(sprintf("-%s seconds", $diferenca));
+            die();
         }
     }
 }
