@@ -816,6 +816,22 @@ class CuponsController extends AppController
             $dataInicio = !empty($data["data_inicio_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_inicio_envio"] : null;
             $dataFim = !empty($data["data_fim_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_fim_envio"] : null;
 
+            // Verifica se for filtro de data, não deixa pesquisar com diferença superior ao número de horas definidas
+
+            if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME) {
+                $dataInicioComparacao = new DateTime($dataInicio);
+                $dataFimComparacao = new DateTime($dataFim);
+                $segundosDiferenca = $dataFimComparacao->getTimestamp() -  $dataInicioComparacao->getTimestamp();
+
+                if ($segundosDiferenca > (MAX_TIME_COUPONS_REPORT_TIME * 3600)) {
+                    $this->Flash->error(sprintf("Período de pesquisa não pode ser superior à %s horas!", MAX_TIME_COUPONS_REPORT_TIME));
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+            }
+
             $tituloTurno = $tipoFiltroSelecionado == FILTER_TYPE_SHIFT ? "Relatório Completo" : "Relatório Parcial";
 
             // Obtem os turnos do posto atual e verifica se a data de inserção é anterior ao tempo definido
@@ -941,23 +957,18 @@ class CuponsController extends AppController
                 $turnos[] = $turno;
             }
 
-            // DebugUtil::printArray($turnos);
-
             // Obtem os dados dos cupons
 
             $cuponsFuncionarios = array();
             $dadosVendaFuncionarios = array();
             $funcionarios = array();
-
             $dataInicio = null;
             $dataFim = null;
+            $funcionario = array(
+                "id" => $usuarioLogado["id"],
+                "nome" => $usuarioLogado["nome"]
+            );
 
-            $funcionario = array();
-
-            $funcionario["id"] = $usuarioLogado["id"];
-            $funcionario["nome"] = $usuarioLogado["nome"];
-
-            $dadosTurno = array();
             $somaResgatados = 0;
             $somaUsados = 0;
             $somaGotas = 0;
@@ -973,16 +984,16 @@ class CuponsController extends AppController
             $totalBrindes = null;
             $totalCompras = null;
 
+            $dadosTurno = array();
             $turnosRetorno = array();
 
             foreach ($turnos as $turnoPesquisa) {
-                # code...
+                $turnoItem = null;
                 $dadosTurno = array(
                     "horario_inicio" => $turnoPesquisa["horario"]->format("d/m/Y H:i:s"),
                     "horario_fim" => $turnoPesquisa["horario_fim"]->format("d/m/Y H:i:s"),
                     "cupons" => null
                 );
-                $turnoItem = null;
                 $somaTurno = array(
                     "resgatados" => 0,
                     "usados" => 0,
@@ -1013,7 +1024,6 @@ class CuponsController extends AppController
                         $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"]))) ? 1 : 0;
                     }
 
-                    
                     // somatória parcial
                     $dados = array(
                         // "brindes_id" => $cupomPesquisa["id"],
@@ -1058,7 +1068,6 @@ class CuponsController extends AppController
 
                 $turnosRetorno[] = $dadosTurno;
             }
-
 
             $totalResgatados += $somaResgatados;
             $totalUsados += $somaUsados;

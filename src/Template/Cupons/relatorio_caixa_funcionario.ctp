@@ -47,7 +47,7 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                                         "options" => $tipoFiltroList,
                                         "name" => "tipoFiltro",
                                         "id" => "tipoFiltro",
-                                        "value" => "Turno",
+                                        "value" => $tipoFiltroSelecionado,
                                         "label" => false,
                                         "autofocus" => true
 
