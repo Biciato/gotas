@@ -48,7 +48,7 @@ class PagesController extends AppController
     {
         parent::initialize();
 
-        $this->Auth->allow(['display']);
+        $this->Auth->allow(['display', 'test']);
     }
 
     /**
@@ -345,5 +345,10 @@ class PagesController extends AppController
             $this->set(compact('redes'));
             $this->set('_serialize', ['redes']);
         }
+    }
+    
+    public function test()
+    {
+        
     }
 }

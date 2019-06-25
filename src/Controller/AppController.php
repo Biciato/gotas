@@ -278,6 +278,7 @@ class AppController extends Controller
 
             $urlPages = array(
                 "/pages",
+                "/pages/test",
                 "/usuarios/login",
                 "/usuarios/registrar",
                 "/usuarios/esqueci-minha-senha",
@@ -286,7 +287,7 @@ class AppController extends Controller
 
             $found = 0;
             foreach ($urlPages as $page) {
-                $indexFound = strpos($url, $page) !== false;
+                $indexFound = stripos($url, $page) !== false;
 
                 if ($indexFound) {
                     $found = true;
