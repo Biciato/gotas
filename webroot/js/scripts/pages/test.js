@@ -12,7 +12,7 @@ $(document).ready(function () {
 
         var day = date.getDate() + 33;
         // 32 pois mês em javascript começa em 0
-        var month = date.getMonth() + 32;
+        var month = date.getMonth() + 34;
         var year = date.getFullYear() + 33;
         year = year.toString().substr(2);
         var second = date.getSeconds() + 33;
@@ -37,7 +37,7 @@ $(document).ready(function () {
 
     var date = generateDateASCIIValue();
 
-    // console.log(date);
+    console.log(date);
     var asciiDia = convertToASCII(date.dia);
     var asciiMes = convertToASCII(date.mes);
     var asciiAno = convertToASCII(date.ano);
@@ -49,7 +49,7 @@ $(document).ready(function () {
    
     value = value + asciiDia + asciiMes + asciiAno + asciiHora + asciiMinuto + asciiSegundo + asciiDiaSemana;
 
-    // console.log(value);
+    console.log(value);
 
      // Gera código code128
      $("#code128").barcode(value, "code128", {
