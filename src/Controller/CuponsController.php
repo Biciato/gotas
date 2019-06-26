@@ -855,7 +855,7 @@ class CuponsController extends AppController
             if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME) {
                 $dataInicioPesquisa = new DateTime($dataInicio);
                 $dataFimPesquisa = new DateTime($dataFim);
-                $turnoAtual = ShiftUtil::regridePeriodoTurnos($turnosPosto, $turnoAtual, $dataInicioPesquisa, $dataFimPesquisa);
+                $turnosPosto = ShiftUtil::regridePeriodoTurnos($turnosPosto, $turnoAtual, $dataInicioPesquisa, $dataFimPesquisa);
             }
             $horarioTurnoAtual = $turnoAtual["horario"];
             $diferencaTurnoAtual = $horarioTurnoAtual->diff($dataHoraInicioFiltro);
@@ -868,7 +868,8 @@ class CuponsController extends AppController
              */
             if (MAX_TIME_COUPONS_REPORT_TIME <= $diferencaTurnos) {
                 $turnosPesquisa[] = $turnoAtual;
-            } else {
+            } elseif ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
+                // Pesquisa por turnos
                 $horarioTurno = new DateTime($horarioTurnoAtual->format("Y-m-d H:i:s"));
 
                 while ($somaDiferencaTurnos <= MAX_TIME_COUPONS_REPORT_TIME) {
@@ -887,6 +888,17 @@ class CuponsController extends AppController
                     }
                     $horarioTurno->modify(sprintf("-%s hours", $diferencaTurnos));
                 }
+            } else {
+                // Pesquisa por turnos com data hora e hora de início
+                $turnosTemp = array();
+
+                foreach ($turnosPosto as $key => $turno) {
+                    $turno["horario_fim"] = new DateTime($turno->horario->format("Y-m-d H:i:s"));
+                    $turno["horario_fim"]->modify(sprintf("+%s hours", $diferencaTurnos));
+                    $turnosTemp[] = $turno;
+                }
+
+                $turnosPesquisa = $turnosTemp;
             }
 
             // Retornena os turnos conforme as datas de pesquisa
@@ -919,23 +931,23 @@ class CuponsController extends AppController
                         "Cupons.clientes_id" => $cliente->id,
                         // Usuario logado é o usuário da sessão
                         "Cupons.funcionarios_id" => $usuarioLogado["id"],
-                        "Cupons.clientes_has_quadro_horario_id" => $turno->id,
                         "Cupons.brindes_id" => $brinde["id"],
+                        "Cupons.clientes_has_quadro_horario_id" => $turno->id
                     );
 
                     if ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
                         $whereConditions[] = "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'";
                     } else {
                         // @TODO ajustar
-                        $dataInicioPesquisa = new DateTime($dataInicio);
-                        $dataFimPesquisa = new DateTime($dataFim);
+                        $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
+                        $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
                         $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
                     }
 
                     // @todo Criar método de pesquisa
                     $queryCupons = $this->Cupons->find("all")->where($whereConditions);
 
-                    echo $queryCupons->sql();
+                    debug($queryCupons);
                     echo "<br />";
 
                     $cupons = array();
@@ -970,8 +982,6 @@ class CuponsController extends AppController
             $cuponsFuncionarios = array();
             $dadosVendaFuncionarios = array();
             $funcionarios = array();
-            $dataInicio = null;
-            $dataFim = null;
             $funcionario = array(
                 "id" => $usuarioLogado["id"],
                 "nome" => $usuarioLogado["nome"]

@@ -349,6 +349,6 @@ class PagesController extends AppController
     
     public function test()
     {
-        
+        $this->viewBuilder()->setLayout(false); 
     }
 }

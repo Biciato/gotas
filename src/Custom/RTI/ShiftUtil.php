@@ -194,6 +194,7 @@ class ShiftUtil
      */
     public static function regridePeriodoTurnos(array $horarios, array $turnoAtual, \DateTime $dataInicio, \DateTime $dataFim)
     {
+        // DebugUtil::printArray($horarios, false);
         // Reposiciona os turnos se data de fim informada
         if (!empty($dataFim)) {
             $horaTurnoAtual = new DateTime($turnoAtual["horario"]->format("Y-m-d H:i:s"));
@@ -233,7 +234,6 @@ class ShiftUtil
                 $hora = new DateTime($horaInicioPesquisa->format("Y-m-d H:i:s"));
 
                 $turno = new ClientesHasQuadroHorario();
-
                 $turno->clientes_id = $ultimoTurnoHorarios->clientes_id;
                 $turno->horario = $hora;
                 $turno->redes_id = $ultimoTurnoEncontrado->redes_id;
@@ -250,6 +250,16 @@ class ShiftUtil
                 return $a->horario >= $b->horario;
             });
 
+
+            foreach ($horarios as $horarioItem) {
+                foreach ($turnos as $turno) {
+                    if ($horarioItem->horario->format("H:i:s") == $turno->horario->format("H:i:s")) {
+                        $turno->id = $horarioItem->id;
+                    }
+                }
+            }
+
+            // DebugUtil::printArray($turnos);
             return $turnos;
         }
     }
