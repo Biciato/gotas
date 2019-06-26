@@ -947,9 +947,6 @@ class CuponsController extends AppController
                     // @todo Criar método de pesquisa
                     $queryCupons = $this->Cupons->find("all")->where($whereConditions);
 
-                    debug($queryCupons);
-                    echo "<br />";
-
                     $cupons = array();
                     foreach ($queryCupons as $key => $item) {
                         $cupom = array(
