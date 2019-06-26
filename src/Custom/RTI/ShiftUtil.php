@@ -7,6 +7,7 @@ use App\Controller\AppController;
 use Cake\Mailer\Files;
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use App\Model\Entity\ClientesHasQuadroHorario;
 
 /**
  * Classe de Utilidades para Tempo
@@ -178,27 +179,78 @@ class ShiftUtil
 
     /**
      * ShiftUtil::regridePeriodoTurnos
-     * 
+     *
      * Regride o horário de cada turno
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-06-25
-     * 
-     * @param array $horarios
-     * @param \DateTime $dataFim
-     * 
-     * @return array
+     *
+     * @param array $horarios Horarios
+     * @param array $turnoAtual Turno Atual
+     * @param \DateTime $dataInicio Data Inicio
+     * @param \DateTime $dataFim Data Fim
+     *
+     * @return array $turnos Turnos de horários novos reposicionados
      */
-    public static function regridePeriodoTurnos(array $horarios, \DateTime $dataFim)
+    public static function regridePeriodoTurnos(array $horarios, array $turnoAtual, \DateTime $dataInicio, \DateTime $dataFim)
     {
         // Reposiciona os turnos se data de fim informada
         if (!empty($dataFim)) {
-            $ultimoTurno = end($horarios);
-            $horaUltimoTurno = new DateTime($ultimoTurno->horario->format("Y-m-d H:i:s"));
-            $diferenca = $horaUltimoTurno->getTimestamp() - $dataFim->getTimestamp();
-            $diferenca = $diferenca < 0 ? $diferenca * -1 : $diferenca;
-            $horaUltimoTurno->modify(sprintf("-%s seconds", $diferenca));
-            die();
+            $horaTurnoAtual = new DateTime($turnoAtual["horario"]->format("Y-m-d H:i:s"));
+
+            $horaFimEncontrado = null;
+            $qteHorarios = count($horarios);
+            $ultimoTurnoEncontrado = new ClientesHasQuadroHorario();
+
+            $diferencaTurnos = 24 / $qteHorarios;
+            $ultimoTurnoHorarios = end($horarios);
+
+            // Número de horas à reduzir
+            $dataAdicionar = $diferencaTurnos * 3600;
+
+            while ($horaFimEncontrado == null) {
+                if ($horaTurnoAtual->getTimestamp() <= $dataFim->getTimestamp()) {
+                    $horaFimEncontrado = $horaTurnoAtual;
+
+                    $ultimoTurnoEncontrado->clientes_id = $ultimoTurnoHorarios->clientes_id;
+                    $ultimoTurnoEncontrado->horario = $horaFimEncontrado;
+                    $ultimoTurnoEncontrado->redes_id = $ultimoTurnoHorarios->redes_id;
+
+                    break;
+                }
+
+                $horaTurnoAtual->modify(sprintf("-%s seconds", $dataAdicionar));
+            }
+
+            $turnos = array();
+            $horaInicioEncontrado = null;
+            $turnos[] = $ultimoTurnoEncontrado;
+            $horaInicioPesquisa = new DateTime($horaFimEncontrado->format("Y-m-d H:i:s"));
+
+            while (empty($horaInicioEncontrado)) {
+
+                $horaInicioPesquisa->modify(sprintf("-%s seconds", $dataAdicionar));
+                $hora = new DateTime($horaInicioPesquisa->format("Y-m-d H:i:s"));
+
+                $turno = new ClientesHasQuadroHorario();
+
+                $turno->clientes_id = $ultimoTurnoHorarios->clientes_id;
+                $turno->horario = $hora;
+                $turno->redes_id = $ultimoTurnoEncontrado->redes_id;
+
+                $turnos[] = $turno;
+
+                if ($horaInicioPesquisa->getTimestamp() <= $dataInicio->getTimestamp()) {
+                    $horaInicioEncontrado = $horaInicioPesquisa;
+                    break;
+                }
+            }
+
+            usort($turnos, function ($a, $b) {
+                return $a->horario >= $b->horario;
+            });
+
+            return $turnos;
         }
     }
 }

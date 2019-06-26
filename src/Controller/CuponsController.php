@@ -855,7 +855,7 @@ class CuponsController extends AppController
             if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME) {
                 $dataInicioPesquisa = new DateTime($dataInicio);
                 $dataFimPesquisa = new DateTime($dataFim);
-                $turnoAtual = ShiftUtil::regridePeriodoTurnos($turnosPosto, $dataFimPesquisa);
+                $turnoAtual = ShiftUtil::regridePeriodoTurnos($turnosPosto, $turnoAtual, $dataInicioPesquisa, $dataFimPesquisa);
             }
             $horarioTurnoAtual = $turnoAtual["horario"];
             $diferencaTurnoAtual = $horarioTurnoAtual->diff($dataHoraInicioFiltro);
