@@ -775,8 +775,8 @@ class CuponsController extends AppController
         $data = date("Y-m-d H:i:s");
         $turnos = array();
         $momentoInicio = strtotime(sprintf("-%s hours", MAX_TIME_COUPONS_REPORT_TIME), strtotime($data));
-        $dataInicio = date("Y-m-d H:i", $momentoInicio);
-        $dataFim = date("Y-m-d H:i", strtotime($data));
+        $dataInicio = date("Y-m-d H:i:00", $momentoInicio);
+        $dataFim = date("Y-m-d H:i:59", strtotime($data));
 
         $tipoFiltroList = array(FILTER_TYPE_DATE_TIME => FILTER_TYPE_DATE_TIME, FILTER_TYPE_SHIFT => FILTER_TYPE_SHIFT);
         $tipoFiltroSelecionado = FILTER_TYPE_SHIFT;
@@ -809,15 +809,16 @@ class CuponsController extends AppController
             $data = $this->request->getData();
             $tipoFiltroSelecionado = !empty($data["tipoFiltro"]) ? $data["tipoFiltro"] : null;
             $tituloTurno = $tipoFiltroSelecionado == FILTER_TYPE_SHIFT ? "Relatório Completo" : "Relatório Parcial";
-            $dataInicio = !empty($data["data_inicio_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_inicio_envio"] : null;
-            $dataFim = !empty($data["data_fim_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_fim_envio"] : null;
+            $dataInicio = !empty($data["data_inicio_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_inicio_envio"] . ":00" : null;
+            $dataFim = !empty($data["data_fim_envio"]) && $tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME ? $data["data_fim_envio"] . ":59" : null;
 
             // Verifica se for filtro de data, não deixa pesquisar com diferença superior ao número de horas definidas
 
             if ($tipoFiltroSelecionado == FILTER_TYPE_DATE_TIME) {
                 $dataInicioComparacao = new DateTime($dataInicio);
                 $dataFimComparacao = new DateTime($dataFim);
-                $segundosDiferenca = $dataFimComparacao->getTimestamp() -  $dataInicioComparacao->getTimestamp();
+                // Confere se não é maior que o tempo definido MAIS um minuto
+                $segundosDiferenca = ($dataFimComparacao->getTimestamp() -  $dataInicioComparacao->getTimestamp()) - 60;
 
                 if ($segundosDiferenca > (MAX_TIME_COUPONS_REPORT_TIME * 3600)) {
                     $this->Flash->error(sprintf("Período de pesquisa não pode ser superior à %s horas!", MAX_TIME_COUPONS_REPORT_TIME));
@@ -922,11 +923,12 @@ class CuponsController extends AppController
 
             $cupons = null;
             $turnos = array();
+            // Contadores para saber quando mudar a data de pesquisa quando filtrado por data/hora
+            $contadorLoop = 0;
+            $maximoLoop = count($turnosPesquisa) - 1;
             foreach ($turnosPesquisa as $turno) {
                 $cupomListaTurno = array();
                 foreach ($brindesCliente as $brinde) {
-                    # code...
-
                     $whereConditions = array(
                         "Cupons.clientes_id" => $cliente->id,
                         // Usuario logado é o usuário da sessão
@@ -936,17 +938,37 @@ class CuponsController extends AppController
                     );
 
                     if ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
-                        $whereConditions[] = "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'";
-                    } else {
-                        // @TODO ajustar
                         $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
                         $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
+
+                        if ($contadorLoop == 0) {
+                            // Se é o primeiro loop, a data de início TEM QUE SER a data de início enviada pelo POST
+                            $dataInicioPesquisa = new DateTime($dataHoraLimitePesquisa->format("Y-m-d H:i:s"));
+                        }
+
+                        $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
+                        // $whereConditions[] = "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'";
+                    } else {
+                        $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
+                        $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
+
+                        if ($contadorLoop == 0) {
+                            // Se é o primeiro loop, a data de início TEM QUE SER a data de início enviada pelo POST
+                            $dataInicioPesquisa = new DateTime($dataInicio);
+                        }
+
+                        if (($maximoLoop) == $contadorLoop) {
+                            // Seta data de fim enviada pelo POST
+                            $dataFimPesquisa = new DateTime($dataFim);
+                        }
+
                         $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
                     }
 
                     // @todo Criar método de pesquisa
                     $queryCupons = $this->Cupons->find("all")->where($whereConditions);
 
+                    // Log::write("debug", $queryCupons);
                     $cupons = array();
                     foreach ($queryCupons as $key => $item) {
                         $cupom = array(
@@ -972,6 +994,7 @@ class CuponsController extends AppController
                 }
                 $turno["cupons"] = $cupomListaTurno;
                 $turnos[] = $turno;
+                $contadorLoop++;
             }
 
             // Obtem os dados dos cupons

@@ -651,9 +651,8 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
  * @return void
  */
 var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMinima, dataMaxima) {
-    console.log(dataMaxima);
     // Seta todos os campos DateTimePicker para Português Brasil
-    moment.locale("pt-BR", {});
+    moment.updateLocale("pt-BR", {});
     var options = {
         locale: "pt-BR",
         format: "DD/MM/YYYY HH:mm",
