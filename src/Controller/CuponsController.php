@@ -3110,7 +3110,7 @@ class CuponsController extends AppController
 
                 $quadroHorarios = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $clientesId);
                 $quadroHorarios = $quadroHorarios->toArray();
-                $quadroHorarioAtual = TimeUtil::obtemTurnoAtual($quadroHorarios);
+                $quadroHorarioAtual = ShiftUtil::obtemTurnoAtual($quadroHorarios);
 
                 $cupom = $this->Cupons->addCupomForUsuario($brinde->id, $cliente->id, $funcionariosId, $usuario->id, $totalGotas, $totalReais, $quantidade, $quadroHorarioAtual["id"], $tipoVendaBrinde);
 

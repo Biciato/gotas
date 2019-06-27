@@ -520,6 +520,11 @@ class BrindesTable extends GenericTable
                 ->where(array("Brindes.id" => $brindesId))
                 ->contain(array("PrecoAtual"))
                 ->first();
+
+            if (empty($brinde)) {
+                return null;
+            }
+            
             $estoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($brindesId);
             $brinde["estoque"] = $estoque;
             return $brinde;
