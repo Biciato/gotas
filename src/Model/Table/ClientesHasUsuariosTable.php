@@ -171,17 +171,10 @@ class ClientesHasUsuariosTable extends Table
      **/
     public function findClienteHasUsuario(array $where_conditions)
     {
-        try {
-            return $this->find('all')
-                ->where($where_conditions)
-                ->contain(['Cliente', 'Usuario'])
-                ->first();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-        }
+        return $this->find('all')
+            ->where($where_conditions)
+            ->contain(['Cliente', 'Usuario'])
+            ->first();
     }
 
     /**
@@ -194,27 +187,18 @@ class ClientesHasUsuariosTable extends Table
      */
     public function findClienteHasUsuarioInsideNetwork(int $usuariosId, array $array_clientes_id)
     {
-        try {
-            $data = $this->find('all')
-                ->where(
-                    [
-                        'ClientesHasUsuarios.clientes_id in' => $array_clientes_id,
-                        'ClientesHasUsuarios.usuarios_id' => $usuariosId
-                    ]
-                )
-                ->join(['Usuarios'])
-                // ->contain(['Usuarios'])
-                ->first();
+        $data = $this->find('all')
+            ->where(
+                [
+                    'ClientesHasUsuarios.clientes_id in' => $array_clientes_id,
+                    'ClientesHasUsuarios.usuarios_id' => $usuariosId
+                ]
+            )
+            ->join(['Usuarios'])
+            // ->contain(['Usuarios'])
+            ->first();
 
-            return $data;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            $this->Flash->error($stringError);
-        }
+        return $data;
     }
 
     /**
@@ -361,7 +345,7 @@ class ClientesHasUsuariosTable extends Table
                     $clientes = $this->Clientes->find('list')
                         ->where(['id in' => $clientesIds]);
                 }
-            } else if ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
+            } elseif ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
 
                 // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
 
@@ -432,7 +416,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $clientes->select(array("id", "razao_social"));
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
 
             Log::write('error', $stringError);
@@ -522,7 +506,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $result;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
@@ -577,7 +561,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $items;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $stringError = __("Erro ao obter registros: {0}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
@@ -665,7 +649,7 @@ class ClientesHasUsuariosTable extends Table
                 return $clientesUsuarios->toArray();
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $stringError = __("Erro ao obter vínculo de clientes ao usuário: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
@@ -711,7 +695,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $this->save($clientesHasUsuario);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -757,7 +741,7 @@ class ClientesHasUsuariosTable extends Table
                 )
             );
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -789,7 +773,7 @@ class ClientesHasUsuariosTable extends Table
         try {
             return $this->updateAll($update_array, $select_array);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -829,7 +813,7 @@ class ClientesHasUsuariosTable extends Table
                 ]
             );
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -889,7 +873,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $this->deleteAll(array('clientes_id in' => $clientesIds));
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -920,7 +904,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $this->deleteAll(['usuarios_id' => $usuariosId]);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -976,7 +960,7 @@ class ClientesHasUsuariosTable extends Table
                 return false;
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {
@@ -1012,7 +996,7 @@ class ClientesHasUsuariosTable extends Table
 
             return $this->delete($cliente_has_usuario);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
             foreach ($trace as $key => $item_trace) {

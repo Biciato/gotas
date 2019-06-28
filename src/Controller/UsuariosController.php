@@ -290,8 +290,8 @@ class UsuariosController extends AppController
 
                 $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
 
-                $transportadoraData = $usuarioData['TransportadorasHasUsuarios']['Transportadoras'];
-                $veiculosData = $usuarioData['UsuariosHasVeiculos']['Veiculos'];
+                $transportadoraData = !empty($usuarioData['TransportadorasHasUsuarios']['Transportadoras']) ? $usuarioData['TransportadorasHasUsuarios']['Transportadoras']  : null;
+                $veiculosData = !empty($usuarioData['UsuariosHasVeiculos']['Veiculos']) ? $usuarioData['UsuariosHasVeiculos']['Veiculos']  : null;
             }
 
             unset($usuarioData['TransportadorasHasUsuarios']);
@@ -2904,7 +2904,7 @@ class UsuariosController extends AppController
         if ($result['actionNeeded'] == 0) {
             $user = $this->Auth->identify();
 
-            if ($user){
+            if ($user) {
                 // Só autentica JWT se logou
                 $user["token"] = JWT::encode(
                     array(
