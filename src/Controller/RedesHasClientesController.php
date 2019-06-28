@@ -24,6 +24,7 @@ use App\Custom\RTI\Security;
 use App\Model\Table\ClientesTable;
 use App\Custom\RTI\GeolocalizationUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * RedesHasClientes Controller
