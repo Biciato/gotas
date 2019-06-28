@@ -364,7 +364,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                         type="password"
                         name="senha"
                         required="true"
-                        maxLength="4"
+                        maxLength="6"
                         placeholder="Senha..."
                         id="senha"
                         class="form-control"/>
@@ -377,7 +377,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
                         name="confirm_senha"
                         required="true"
                         placeholder="Confirmar Senha..."
-                        maxLength="4"
+                        maxLength="6"
                         id="confirm_senha"
                         class="form-control"/>
                     </div>
