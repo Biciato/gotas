@@ -330,7 +330,7 @@ class ClientesTable extends GenericTable
             $conditions = [];
 
             foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
+                $conditions[$key] = $condition;
             }
 
             return $this->find('all')

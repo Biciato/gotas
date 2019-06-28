@@ -147,34 +147,28 @@ class ClientesHasUsuariosController extends AppController
 
             $usuario = $this->Usuarios->getUsuarioById($id);
 
-            $clientes_has_usuarios_conditions = [];
+            $clientesHasUsuariosConditions = array('ClientesHasUsuarios.usuarios_id' => $id);
 
-            array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.usuarios_id' => $id]);
-            // array_push($clientes_has_usuarios_conditions, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
-
-            $clientes_has_usuarios_query = $this->ClientesHasUsuarios->findClienteHasUsuario($clientes_has_usuarios_conditions);
+            $clienteHasUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 
             // debug($clientes_has_usuarios_query->toArray());
             // die();
             // tenho o cliente alocado, pegar agora a rede que ele está
-            $cliente_has_usuario = $clientes_has_usuarios_query->toArray()[0];
-            $cliente = $cliente_has_usuario->cliente;
+            $cliente = $clienteHasUsuario->cliente;
 
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente_has_usuario->clientes_id);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario->clientes_id);
 
-            $rede = $this->Redes->getRedeById($rede_has_cliente->rede->id);
+            $rede = $this->Redes->getRedeById($redeHasCliente->rede->id);
 
-            $clientes_ids = [];
+            $clientesIds = [];
 
             foreach ($rede->redes_has_clientes as $key => $value) {
-                array_push($clientes_ids, $value->clientes_id);
+                $clientesIds[] = $value->clientes_id;
             }
 
-            $where_conditions = [];
+            $whereConditions = array('Clientes.id IN' => $clientesIds);
 
-            array_push($where_conditions, ['Clientes.id IN' => $clientes_ids]);
-
-            $clientes = $this->Clientes->getAllClientes($where_conditions);
+            $clientes = $this->Clientes->getAllClientes($whereConditions);
 
             $arraySet = array('usuario', 'usuarioLogadoTipoPerfil', 'rede', 'clientes', "usuarioLogado");
 
@@ -236,13 +230,13 @@ class ClientesHasUsuariosController extends AppController
             $update_array = [];
             $select_array = [];
 
-            array_push($update_array, ['tipo_perfil ' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
+            // array_push($update_array, ['tipo_perfil ' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
 
-            array_push($select_array, ['clientes_id IN ' => $clientes_ids]);
-            array_push($select_array, ['usuarios_id' => $usuario->id]);
-            array_push($select_array, ['tipo_perfil' => Configure::read('profileTypes')['AdminLocalProfileType']]);
+            // array_push($select_array, ['clientes_id IN ' => $clientes_ids]);
+            // array_push($select_array, ['usuarios_id' => $usuario->id]);
+            // array_push($select_array, ['tipo_perfil' => Configure::read('profileTypes')['AdminLocalProfileType']]);
 
-            $this->ClientesHasUsuarios->updateClientesHasUsuarioRelationship($update_array, $select_array);
+            // $this->ClientesHasUsuarios->updateClientesHasUsuarioRelationship($update_array, $select_array);
 
             if ($result) {
                 $this->Flash->success(Configure::read('messageEnableSuccess'));
@@ -256,7 +250,6 @@ class ClientesHasUsuariosController extends AppController
             }
 
             $this->Flash->error(Configure::read('messageEnableError'));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao realizar remoção de unidade de uma rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -267,7 +260,6 @@ class ClientesHasUsuariosController extends AppController
 
             return $this->redirect($query['return_url']);
         }
-
     }
 
     /**
@@ -348,7 +340,7 @@ class ClientesHasUsuariosController extends AppController
 
                     array_push($select_array, ['clientes_id IN ' => $clientes_ids]);
                     array_push($select_array, ['usuarios_id' => $usuario->id]);
-                    array_push($select_array, ['tipo_perfil' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
+                    // array_push($select_array, ['tipo_perfil' => Configure::read('profileTypes')['AdminRegionalProfileType']]);
 
                     $this->ClientesHasUsuarios->updateClientesHasUsuarioRelationship($update_array, $select_array);
                 }
@@ -363,7 +355,6 @@ class ClientesHasUsuariosController extends AppController
             }
 
             $this->Flash->error(Configure::read('messageDisableError'));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao realizar remoção de unidade de uma rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -374,7 +365,6 @@ class ClientesHasUsuariosController extends AppController
 
             return $this->redirect($query['return_url']);
         }
-
     }
 
     public function alteraContaAtivaUsuario()
@@ -399,6 +389,5 @@ class ClientesHasUsuariosController extends AppController
 
         $this->Flash->error($msgErro);
         return $this->redirect($returnUrl);
-
     }
 }

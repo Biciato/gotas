@@ -770,26 +770,7 @@ class ClientesHasUsuariosTable extends Table
      */
     public function updateClientesHasUsuarioRelationship(array $update_array, array $select_array)
     {
-        try {
-            return $this->updateAll($update_array, $select_array);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
-        }
+        return $this->updateAll($update_array, $select_array);
     }
 
 
@@ -803,33 +784,14 @@ class ClientesHasUsuariosTable extends Table
      */
     public function setClientesHasUsuariosToMainCliente(int $clientesId, int $matriz_id)
     {
-        try {
-            return $this->updateAll(
-                [
-                    'clientes_id' => $matriz_id
-                ],
-                [
-                    'clientes_id' => $clientesId
-                ]
-            );
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $object = null;
-
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
-
-            Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
-        }
+        return $this->updateAll(
+            [
+                'clientes_id' => $matriz_id
+            ],
+            [
+                'clientes_id' => $clientesId
+            ]
+        );
     }
 
     public function updateContaAtivaUsuario(int $id = null, int $clientesId, int $usuariosId, bool $contaAtiva)
