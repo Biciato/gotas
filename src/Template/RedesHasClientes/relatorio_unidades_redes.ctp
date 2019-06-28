@@ -35,7 +35,7 @@ echo $this->Breadcrumbs->render(
 <div class="col-lg-9 col-md-8 ">
     <legend><?= $title ?></legend>
 
-    <?= $this->element('../Redes/filtro_redes_unidades_relatorio', ['controller' => 'Clientes', 'action' => 'relatorio_unidades_redes']) ?>
+    <?= $this->element('../Redes/filtro_redes_unidades_relatorio', ['controller' => 'RedesHasClientes', 'action' => 'relatorio_unidades_redes']) ?>
 
     <div class="pull-right">
         <?= $this->Html->tag(
