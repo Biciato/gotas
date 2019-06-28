@@ -13,6 +13,7 @@
 
 namespace App\Controller;
 
+use \DateTime;
 use App\Controller\AppController;
 use App\Model\Entity;
 use Cake\ORM\TableRegistry;
@@ -24,6 +25,7 @@ use App\Custom\RTI\Security;
 use App\Model\Table\ClientesTable;
 use App\Custom\RTI\GeolocalizationUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\DateTimeUtil;
 
 /**
  * RedesHasClientes Controller
