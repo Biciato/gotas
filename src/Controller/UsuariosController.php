@@ -281,8 +281,8 @@ class UsuariosController extends AppController
                 $cliente_has_usuario =
                     $this->ClientesHasUsuarios->findClienteHasUsuario(
                         [
-                            'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'],
-                            'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
+                            'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id']
+                            // 'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
                         ]
                     );
 
