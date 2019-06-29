@@ -1939,13 +1939,13 @@ class CuponsController extends AppController
                     $todasUnidadesIds[] = $value["clientes_id"];
                 }
 
-                if ($cupomEmitido == "" || strlen($cupomEmitido) < 14) {
+                if (empty($cupomEmitido)) {
 
                     $errors = array(__(Configure::read("messageFieldEmptyDefault"), "CUPOM EMITIDO"));
 
-                    if (strlen($cupomEmitido) <= 14) {
-                        $errors[] = __(Configure::read("messageFieldDigitsMinimum"), "CUPOM EMITIDO", 14);
-                    }
+                    // if (strlen($cupomEmitido) <= 14) {
+                    //     $errors[] = __(Configure::read("messageFieldDigitsMinimum"), "CUPOM EMITIDO", 14);
+                    // }
 
                     $mensagem = array(
                         "status" => 0,
