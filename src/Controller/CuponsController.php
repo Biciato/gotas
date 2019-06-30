@@ -457,10 +457,7 @@ class CuponsController extends AppController
         $dataInicio = date($date, strtotime("-30 day"));
         $dataFimPesquisa = date($date);
         $dataInicioPesquisa = date($date, strtotime("-30 day"));
-
         $brindes = $this->Brindes->findBrindes($rede["id"]);
-        // @todo usar o findBrindes
-        // $brindes = $this->Brindes->getBrindesByClientes($clientesIds)->find("list");
 
         $data = array();
 
@@ -911,7 +908,7 @@ class CuponsController extends AppController
 
             // Obtem os brindes habilitados do posto de atendimento
 
-            $brindes = $this->Brindes->findBrindes(null, $cliente["id"]);
+            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
             $brindes = $brindes->toArray();
             $brindesCliente = array();
 
@@ -931,13 +928,8 @@ class CuponsController extends AppController
             foreach ($turnosPesquisa as $turno) {
                 $cupomListaTurno = array();
                 foreach ($brindesCliente as $brinde) {
-                    $whereConditions = array(
-                        "Cupons.clientes_id" => $cliente->id,
-                        // Usuario logado é o usuário da sessão
-                        "Cupons.funcionarios_id" => $usuarioLogado["id"],
-                        "Cupons.brindes_id" => $brinde["id"],
-                        "Cupons.clientes_has_quadro_horario_id" => $turno->id
-                    );
+                    $dataInicioPesquisa = null;
+                    $dataFimPesquisa = null;
 
                     if ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
                         $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
@@ -947,9 +939,6 @@ class CuponsController extends AppController
                             // Se é o primeiro loop, a data de início TEM QUE SER a data de início enviada pelo POST
                             $dataInicioPesquisa = new DateTime($dataHoraLimitePesquisa->format("Y-m-d H:i:s"));
                         }
-
-                        $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
-                        // $whereConditions[] = "Cupons.data BETWEEN '{$dataHoraLimitePesquisa->format("Y-m-d H:i:s")}' AND '{$turno['horario_fim']->format("Y-m-d H:i:s")}'";
                     } else {
                         $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
                         $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
@@ -963,14 +952,10 @@ class CuponsController extends AppController
                             // Seta data de fim enviada pelo POST
                             $dataFimPesquisa = new DateTime($dataFim);
                         }
-
-                        $whereConditions[] = "Cupons.data BETWEEN '{$dataInicioPesquisa->format("Y-m-d H:i:s")}' AND '{$dataFimPesquisa->format("Y-m-d H:i:s")}'";
                     }
 
-                    // @todo Criar método de pesquisa
-                    $queryCupons = $this->Cupons->find("all")->where($whereConditions);
+                    $queryCupons = $this->Cupons->getCuponsFuncionario(null, $cliente->id, $usuarioLogado["id"], $brinde["id"], $turno->id, $dataInicioPesquisa, $dataFimPesquisa);
 
-                    // Log::write("debug", $queryCupons);
                     $cupons = array();
                     foreach ($queryCupons as $key => $item) {
                         $cupom = array(
@@ -1053,10 +1038,12 @@ class CuponsController extends AppController
                     $compras = 0;
 
                     foreach ($cupomPesquisa["dados"] as $cupom) {
-                        $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
                         $dinheiro += $cupom["valor_pago_reais"];
                         $gotas += $cupom["valor_pago_gotas"];
-                        $usados += $cupom["usado"] ? $usados + 1 : $usados;
+
+                        // Verifica se naquele turno, teve resgate ou uso efetuado pelo funcionário do brinde em questão. 
+                        // $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
+                        // $usados += $cupom["usado"] ? $usados + 1 : $usados;
 
                         // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                         $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"]))) ? 1 : 0;

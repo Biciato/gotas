@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -239,8 +240,8 @@ class BrindesController extends AppController
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float)$data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float)$data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
                 // Trata tipo de equipamento
@@ -282,7 +283,7 @@ class BrindesController extends AppController
                     $ilimitado = 1;
                 }
 
-                $precoPadrao = (float)$precoPadrao;
+                $precoPadrao = (float) $precoPadrao;
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome,
                 $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
@@ -434,8 +435,8 @@ class BrindesController extends AppController
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float)$data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float)$data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
@@ -860,11 +861,11 @@ class BrindesController extends AppController
             }
 
             if (strlen($data['ilimitado']) > 0) {
-                $whereConditions[] = ["ilimitado" => (bool)$data['ilimitado']];
+                $whereConditions[] = ["ilimitado" => (bool) $data['ilimitado']];
             }
 
             if (strlen($data['habilitado']) > 0) {
-                $whereConditions[] = ["habilitado" => (bool)$data['habilitado']];
+                $whereConditions[] = ["habilitado" => (bool) $data['habilitado']];
             }
 
             $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
@@ -908,7 +909,7 @@ class BrindesController extends AppController
 
             $usuariosIds = array();
 
-            $rede = $this->Redes->getRedeById((int)$value);
+            $rede = $this->Redes->getRedeById((int) $value);
 
             $redeItem = array();
 
@@ -927,16 +928,10 @@ class BrindesController extends AppController
                 'clientes_id in ' => $unidades_ids
             ];
 
-            // @todo @gustavosg AJUSTAR
-            // $brindes = $this->Brindes->findBrindes(
-            // $arrayWhereConditions
-            // );
-
             $redeItem['brindes'] = $brindes;
-
             unset($arrayWhereConditions);
 
-            array_push($redes, $redeItem);
+            $redes[] = $redeItem;
         }
 
         $arraySet = [
@@ -1014,7 +1009,7 @@ class BrindesController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
-            $clientesId = !empty($data["clientes_id"]) ? (int)$data['clientes_id'] : null;
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data['clientes_id'] : null;
             $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
             $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
             $desconto = !empty($data['desconto']) ? $data["desconto"] : false;
@@ -1079,8 +1074,8 @@ class BrindesController extends AppController
                 // $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
                 $tipoVenda = TYPE_SELL_CURRENCY_OR_POINTS_TEXT;
 
-                $precoMin = isset($data["preco_min"]) ? (float)$data["preco_min"] : null;
-                $precoMax = isset($data["preco_max"]) ? (float)$data["preco_max"] : null;
+                $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
+                $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
 
                 if (empty($clientesId)) {
                     $mensagem = array(
@@ -1140,6 +1135,7 @@ class BrindesController extends AppController
                     null,
                     null,
                     array($tipoVenda),
+                    null,
                     null,
                     null,
                     null,

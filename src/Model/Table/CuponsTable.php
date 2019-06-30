@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -333,7 +334,7 @@ class CuponsTable extends GenericTable
             // cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
             if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
 
-                $cupom->cupom_emitido = CryptUtil::encryptCupom($identificador_cliente, (int)$day, (int)$month, (int)$year, $codigoPrimario, $codigoSecundario, intval($senha));
+                $cupom->cupom_emitido = CryptUtil::encryptCupom($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
                 $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
@@ -723,6 +724,51 @@ class CuponsTable extends GenericTable
         }
     }
 
+    public function getCuponsFuncionario(int $redesId = null, int $clientesId = null, int $funcionariosId = null, int $brindesId = null, int $clienteHasQuadroHorarioId = null, \DateTime $dataInicio = null, \DateTime $dataFim = null)
+    {
+        try {
+            $where = array();
+
+            if (!empty($redesId)) {
+                $where["Cupons.redes_id"] =  $redesId;
+            }
+
+            if (!empty($clientesId)) {
+                $where["Cupons.clientes_id"] =  $clientesId;
+            }
+
+            if (!empty($funcionariosId)) {
+                $where["Cupons.funcionarios_id"] =  $funcionariosId;
+            }
+
+            if (!empty($brindesId)) {
+                $where["Cupons.brindes_id"] =  $brindesId;
+            }
+
+            if (!empty($clienteHasQuadroHorarioId)) {
+                $where["Cupons.clientes_has_quadro_horario_id"] =  $clienteHasQuadroHorarioId;
+            }
+
+            if (!empty($dataInicio)) {
+                $where["Cupons.data >="] = $dataInicio->format("Y-m-d H:i:s");
+            }
+
+            if (!empty($dataFim)) {
+                $where["Cupons.data <= "] = $dataFim->format("Y-m-d H:i:s");
+            }
+
+            $query = $this->find("all")
+                ->where($where)
+                // ->contain(array())
+                ;
+
+            Log::write("debug", $query->sql());
+            return $query;
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            $trace = $th->getTraceAsString();
+        }
+    }
     /**
      * Get tickets by cliente id
      *
@@ -793,16 +839,14 @@ class CuponsTable extends GenericTable
                 throw new Exception(sprintf("Cupom de id %s não encontrado!", $id));
             }
 
-            $cupom["estornado"] = true;
-            $cupom = $this->save($cupom);
-
-            return $cupom;
+            $cupom->estornado = true;
+            return $this->save($cupom);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao gravar cupom: {0}. [Função: {1} / Arquivo: {2} / Linha: {3} / Detalhes: {4}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__, $trace);
+            $stringError = sprintf("", MESSAGE_SAVED_ERROR, $e->getMessage());
 
             Log::write('error', $stringError);
-            Log::write('error', $trace);
+            Log::write('debug', $trace);
 
             throw new \Exception($stringError);
         }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use Cake\Log\Log;
@@ -260,7 +261,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, array $orderBy = array())
+    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
     {
         // try {
 
@@ -325,7 +326,13 @@ class BrindesTable extends GenericTable
         }
 
         // Só mostra os registros não apagados
-        $where[] = array("Brindes.apagado" => 0);
+        if (!isset($apagado)) {
+            $where[] = array("Brindes.apagado" => 0);
+        } elseif ($apagado < 0) {
+            $where[] = array("Brindes.apagado IN " => array(0, 1));
+        } else {
+            $where[] = array("Brindes.apagado" => $apagado);
+        }
 
         $whereConditions = $where;
         $contains = array("PrecoAtual");
@@ -525,7 +532,7 @@ class BrindesTable extends GenericTable
             if (empty($brinde)) {
                 return null;
             }
-            
+
             $estoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($brindesId);
             $brinde["estoque"] = $estoque;
             return $brinde;
