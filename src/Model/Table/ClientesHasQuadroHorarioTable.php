@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use Cake\ORM\Query;
@@ -177,37 +178,23 @@ class ClientesHasQuadroHorarioTable extends Table
      */
     public function addHorariosCliente(int $redesId, int $clientesId, array $horarios)
     {
-        try {
-            $arrayHorarios = array();
+        $arrayHorarios = array();
 
-            foreach ($horarios as $horario) {
+        foreach ($horarios as $horario) {
 
-                $item = array(
-                    "redes_id" => $redesId,
-                    "clientes_id" => $clientesId,
-                    "horario" => implode(":", $horario)
-                );
-
-                $arrayHorarios[] = $item;
-            };
-
-            $horariosSave = $this->newEntities($arrayHorarios);
-
-            $result = $this->saveMany($horariosSave);
-            return $result;
-        } catch (\Exception $error) {
-            $trace = $error->getTraceAsString();
-            $stringError = __(
-                "Erro ao gravar registro(s): {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ",
-                $error->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                $error->getLine()
+            $item = array(
+                "redes_id" => $redesId,
+                "clientes_id" => $clientesId,
+                "horario" => implode(":", $horario)
             );
 
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
+            $arrayHorarios[] = $item;
+        };
+
+        $horariosSave = $this->newEntities($arrayHorarios);
+
+        $result = $this->saveMany($horariosSave);
+        return $result;
     }
 
     /**
@@ -252,27 +239,8 @@ class ClientesHasQuadroHorarioTable extends Table
      */
     public function deleteHorariosCliente(int $clientesId)
     {
-        try {
-            $result = $this->deleteAll(
-                array(
-                    "clientes_id" => $clientesId
-                )
-            );
-            return $result;
-        } catch (\Exception $error) {
-            $trace = $error->getTrace();
-            $stringError = __(
-                "Erro ao remover registro(s): {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ",
-                $error->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                __LINE__
-            );
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-        }
+        return $this->deleteAll(array("clientes_id" => $clientesId));
     }
-    #endregion
 
+    #endregion
 }

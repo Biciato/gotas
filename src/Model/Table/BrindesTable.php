@@ -392,7 +392,8 @@ class BrindesTable extends GenericTable
                 array(
                     "conditions" => array(
                         "Brindes.clientes_id" => $clientesId,
-                        "Brindes.tipo_venda" => $tipoVenda
+                        "Brindes.tipo_venda" => $tipoVenda,
+                        "Brindes.apagado" => 0,
                     ),
                     "contain" => array("PrecoAtual")
                 )

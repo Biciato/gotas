@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use \DateTime;
@@ -18,6 +19,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\TimeUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\ShiftUtil;
+use App\Model\Entity\CuponsTransacoes;
 
 /**
  * Cupons Controller
@@ -328,7 +330,7 @@ class CuponsController extends AppController
 
             if ($data['filtrar_unidade'] != "") {
                 $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+                $clientes_ids[] = (int) $data['filtrar_unidade'];
             }
         }
 
@@ -399,7 +401,7 @@ class CuponsController extends AppController
 
             if ($data['filtrar_unidade'] != "") {
                 $clientes_ids = [];
-                $clientes_ids[] = (int)$data['filtrar_unidade'];
+                $clientes_ids[] = (int) $data['filtrar_unidade'];
             }
         }
 
@@ -507,7 +509,7 @@ class CuponsController extends AppController
 
         if (!empty($unidadeSelecionado)) {
             $clientesIds = [];
-            $clientesIds[] = (int)$unidadeSelecionado;
+            $clientesIds[] = (int) $unidadeSelecionado;
         }
 
         $cupons = array();
@@ -845,7 +847,7 @@ class CuponsController extends AppController
                 $turno1 = $turnosPosto[0]->horario;
                 $turno2 = $turnosPosto[1]->horario;
                 $diferenca = $turno1->diff($turno2);
-                $diferencaTurnos = (int)$diferenca->format("%H");
+                $diferencaTurnos = (int) $diferenca->format("%H");
             } else {
                 $diferencaTurnos = 24;
             }
@@ -1432,7 +1434,7 @@ class CuponsController extends AppController
 
                 $brindesId = !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
-                $funcionariosId = !empty($data["funcionarios_id"]) ? (int)$data["funcionarios_id"] : $usuarioLogado["id"];
+                $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : $usuarioLogado["id"];
                 $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : 0;
                 $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : null;
                 $currentPassword = !empty($data["current_password"]) ? $data["current_password"] : null;
@@ -1473,7 +1475,7 @@ class CuponsController extends AppController
                     $brindesId,
                     $usuariosId,
                     $clientesId,
-                    (float)$quantidade,
+                    (float) $quantidade,
                     $funcionariosId,
                     $tipoPagamento,
                     $vendaAvulsa,
@@ -1939,6 +1941,18 @@ class CuponsController extends AppController
      */
     public function resgatarCupomAjax()
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if (!empty($usuarioAdministrar)) {
+            $usuarioLogado = $usuarioAdministrar;
+            $this->usuarioLogado = $usuarioLogado;
+        }
+
         $arraySet = array('status', 'error');
         try {
             $status = false;
@@ -1959,7 +1973,13 @@ class CuponsController extends AppController
                     $this->set(compact($arraySet));
                     return;
                 }
-                foreach ($cupons->toArray() as $key => $cupom) {
+
+                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
+                $turnos = $turnos->toArray();
+                $turnoAtual = ShiftUtil::obtemTurnoAtual($turnos);
+
+                // @todo testar
+                foreach ($cupons as $key => $cupom) {
                     $brindesEstoque = $this
                         ->BrindesEstoque
                         ->getEstoqueForBrinde($cupom["brindes_id"]);
@@ -1969,12 +1989,34 @@ class CuponsController extends AppController
                         $cupom["brindes_id"],
                         $cupom["usuarios_id"],
                         $cupom["quantidade"],
-                        (int)Configure::read('stockOperationTypes')['sellTypeGift']
+                        STOCK_OPERATION_TYPES_SELL_TYPE_GIFT
                     );
 
                     // diminuiu estoque, considera o item do cupom como resgatado
                     if ($estoque) {
-                        $cupom_save = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                        $cupomSave = null;
+
+                        // if ($cupom->brinde->tipo->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
+                        $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+
+                        // Gera nova transação para o cupom, definindo como 'resgatado'
+
+                        $transacao = new CuponsTransacoes();
+                        $transacao->redes_id = $rede->id;
+                        $transacao->clientes_id = $cliente->id;
+                        $transacao->cupons_id = $cupom->id;
+                        $transacao->brindes_id = $cupom->brindes_id;
+                        $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                        $transacao->funcionarios_id = $usuarioLogado["id"];
+                        $transacao->tipo_operacao = TYPE_OPERATION_RETRIEVE;
+                        $transacao->data = new DateTime();
+
+                        $this->CuponsTransacoes->saveUpdate($transacao);
+                        // $this->CuponsTransacoes->redes
+                        // } else {
+                        // $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                        // }
+
 
                         // adiciona novo registro de pontuação
                         $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
@@ -2002,6 +2044,14 @@ class CuponsController extends AppController
 
             // @todo gustavosg melhorar log
             Log::write('error', $stringError);
+
+            $retorno = array(
+                "status" => 0,
+                "message" => MESSAGE_GENERIC_ERROR,
+                "errors" => array($stringError)
+            );
+
+            ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($stringError));
         }
     }
 
@@ -2016,7 +2066,7 @@ class CuponsController extends AppController
     /**
      * CuponsController::efetuarBaixaCupomAPI
      *
-     * Efetua a baixa do brinde de usuário
+     * Efetua a baixa do brinde de usuário (isto é, define que o um cupom foi usado)
      *
      * @params $data["cupom_emitido"] Código do cupom para pesquisa
      * @params $data["confirmar"] Confirma se é para efetuar baixa
@@ -2028,12 +2078,23 @@ class CuponsController extends AppController
      */
     public function efetuarBaixaCupomAPI()
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if (!empty($usuarioAdministrar)) {
+            $usuarioLogado = $usuarioAdministrar;
+            $this->usuarioLogado = $usuarioLogado;
+        }
+
         try {
 
             if ($this->request->is(['post'])) {
-
                 $data = $this->request->getData();
-                $confirmar = !empty($data["confirmar"]) ? (bool)$data["confirmar"] : false;
+                $confirmar = !empty($data["confirmar"]) ? (bool) $data["confirmar"] : false;
                 $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : "";
 
                 // Validação de funcionário logado
@@ -2041,8 +2102,10 @@ class CuponsController extends AppController
 
                 $tipoPerfil = $this->Auth->user()["tipo_perfil"];
                 $funcionario["nome"] = $this->Auth->user()["nome"];
-
                 $isFuncionario = false;
+                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
+                $turnos = $turnos->toArray();
+                $turnoAtual = ShiftUtil::obtemTurnoAtual($turnos);
 
                 if ($tipoPerfil == PROFILE_TYPE_WORKER || $tipoPerfil == PROFILE_TYPE_DUMMY_WORKER) {
                     $isFuncionario = true;
@@ -2064,16 +2127,13 @@ class CuponsController extends AppController
                 }
 
                 $clientesUsuariosIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($funcionarioId, $tipoPerfil);
-
                 $clienteId = 0;
+
                 if (count($clientesUsuariosIds) > 0) {
                     $clienteId = $clientesUsuariosIds[0];
                 }
 
-                // $clienteId = 2;
-
                 $todasUnidadesRedesQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clienteId);
-
                 $todasUnidadesIds = array();
 
                 foreach ($todasUnidadesRedesQuery as $value) {
@@ -2081,19 +2141,12 @@ class CuponsController extends AppController
                 }
 
                 if (empty($cupomEmitido)) {
-
                     $errors = array(__(Configure::read("messageFieldEmptyDefault"), "CUPOM EMITIDO"));
-
-                    // if (strlen($cupomEmitido) <= 14) {
-                    //     $errors[] = __(Configure::read("messageFieldDigitsMinimum"), "CUPOM EMITIDO", 14);
-                    // }
-
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
                         "errors" => $errors
                     );
-
                     $arraySet = array("mensagem");
 
                     $this->set(compact($arraySet));
@@ -2105,34 +2158,33 @@ class CuponsController extends AppController
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
                 $cupons = $cupons->toArray();
 
-                // DebugUtil::print($cupons);
                 // Verifica se este cupom já foi usado
                 $somaTotalGotas = 0;
                 $somaTotalReais = 0;
                 $dadosCupons = array();
 
                 $verificado = false;
-                $resgatados = array();
+                $usados = array();
                 $cuponsPendentes = array();
 
                 foreach ($cupons as $cupom) {
 
                     $dadoCupom = array();
 
-                    $somaTotalGotas += (float)$cupom["valor_pago_gotas"];
-                    $somaTotalReais += (float)$cupom["valor_pago_reais"];
+                    $somaTotalGotas += (float) $cupom["valor_pago_gotas"];
+                    $somaTotalReais += (float) $cupom["valor_pago_reais"];
 
                     $dadoCupom["nome"] = $cupom["brinde"]["nome"];
                     $dadoCupom["quantidade"] = $cupom["quantidade"];
-                    $dadoCupom["preco_brinde_gotas"] = (float)$cupom["valor_pago_gotas"];
-                    $dadoCupom["preco_brinde_reais"] = (float)$cupom["valor_pago_reais"];
+                    $dadoCupom["preco_brinde_gotas"] = (float) $cupom["valor_pago_gotas"];
+                    $dadoCupom["preco_brinde_reais"] = (float) $cupom["valor_pago_reais"];
                     // imagem brinde
                     $dadoCupom["nome_img_completo"] = $cupom["brinde"]["nome_img_completo"];
                     $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
                     $dadosCupons[] = $dadoCupom;
 
-                    if ($cupom["resgatado"]) {
-                        $resgatados[] = true;
+                    if ($cupom->usado) {
+                        $usados[] = true;
                     } else {
                         $cuponsPendentes[] = $cupom;
                     }
@@ -2140,12 +2192,12 @@ class CuponsController extends AppController
                     $verificado = true;
                 }
 
-                // Se a quantidade de cupons é igual a de resgatados, já resgatou tudo
-                if (count($resgatados) == count($cupons)) {
+                // Se a quantidade de cupons é igual a de usados, já resgatou tudo
+                if (count($usados) == count($cupons)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Este cupom já foi resgatado pelo usuário!")
+                        "errors" => array("Este cupom já foi usado pelo usuário!")
                     );
                     $resultado = array(
                         "recibo_baixa_cupons" => $dadosCupons
@@ -2198,11 +2250,11 @@ class CuponsController extends AppController
                     return;
                 }
 
-                $brindesNaoResgatados = array();
+                $brindesNaoUsados = array();
                 $dadosCupons = array();
 
                 $verificado = false;
-                $resgatados = array();
+                $usados = array();
 
                 // Processa somente os cupons pendentes
                 foreach ($cuponsPendentes as $cupom) {
@@ -2212,7 +2264,6 @@ class CuponsController extends AppController
                     $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]);
 
                     if ($prosseguir) {
-
                         $tipoSaida = "";
 
                         if (($cupom->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"]) || $cupom->tipo_venda == TYPE_SELL_FREE_TEXT)) {
@@ -2238,6 +2289,20 @@ class CuponsController extends AppController
                                 $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
                             } else {
                                 $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+
+                                // Gera nova transação
+
+                                $transacao = new CuponsTransacoes();
+                                $transacao->redes_id = $rede->id;
+                                $transacao->clientes_id = $cliente->id;
+                                $transacao->cupons_id = $cupom->id;
+                                $transacao->brindes_id = $cupom->brindes_id;
+                                $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                                $transacao->funcionarios_id = $usuarioLogado["id"];
+                                $transacao->tipo_operacao = TYPE_OPERATION_USE;
+                                $transacao->data = new DateTime();
+
+                                $this->CuponsTransacoes->saveUpdate($transacao);
                             }
 
                             // adiciona novo registro de pontuação
@@ -2248,7 +2313,7 @@ class CuponsController extends AppController
                                 $cupom->brindes_id,
                                 $cupom->valor_pago_gotas,
                                 $cupom->valor_pago_reais,
-                                $this->Auth->user()["id"],
+                                $usuarioLogado["id"],
                                 true
                             );
                         }
@@ -2257,20 +2322,20 @@ class CuponsController extends AppController
 
                         $dadoCupom = array();
 
-                        $somaTotalGotas += (float)$cupom["valor_pago_gotas"];
-                        $somaTotalReais += (float)$cupom["valor_pago_reais"];
+                        $somaTotalGotas += (float) $cupom["valor_pago_gotas"];
+                        $somaTotalReais += (float) $cupom["valor_pago_reais"];
 
                         $dadoCupom["nome"] = $cupom["brinde"]["nome"];
                         $dadoCupom["quantidade"] = $cupom["quantidade"];
-                        $dadoCupom["preco_brinde_gotas"] = (float)$cupom["valor_pago_gotas"];
-                        $dadoCupom["preco_brinde_reais"] = (float)$cupom["valor_pago_reais"];
+                        $dadoCupom["preco_brinde_gotas"] = (float) $cupom["valor_pago_gotas"];
+                        $dadoCupom["preco_brinde_reais"] = (float) $cupom["valor_pago_reais"];
                         // imagem brinde
                         $dadoCupom["nome_img_completo"] = $cupom["brinde"]["nome_img_completo"];
                         $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
                         $dadosCupons[] = $dadoCupom;
                     } else {
-                        // Brindes que não foram resgatados devido o estoque ser insuficiente
-                        $brindesNaoResgatados[] = array(
+                        // Brindes que não foram usados devido o estoque ser insuficiente
+                        $brindesNaoUsados[] = array(
                             "nome" => $cupom["brinde"]["nome"],
                             "quantidade" => $cupom["quantidade"]
                         );
@@ -2279,15 +2344,15 @@ class CuponsController extends AppController
 
                 $errors = array();
 
-                if (count($brindesNaoResgatados) > 0) {
-                    $errors[] = "Alguns brindes não foram resgatados pois não há estoque suficiente. Verifique com o estabelecimento!";
+                if (count($brindesNaoUsados) > 0) {
+                    $errors[] = "Alguns brindes não foram usados pois não há estoque suficiente. Verifique com o estabelecimento!";
                 }
                 $mensagem = array(
                     "status" => 1,
                     "message" => __(
                         "{0} {1}",
-                        Configure::read("messageProcessingCompleted"),
-                        Configure::read("messageRedeemCouponRedeemed")
+                        MESSAGE_PROCESSING_COMPLETED,
+                        MESSAGE_REDEEM_COUPON_USED
                     ),
                     "errors" => $errors
                 );
@@ -2296,7 +2361,7 @@ class CuponsController extends AppController
                     "soma_reais" => $somaTotalReais,
                     "recibo" => $dadosCupons,
                     "funcionario" => $funcionario,
-                    "brindes_nao_resgatados" => $brindesNaoResgatados
+                    "brindes_nao_resgatados" => $brindesNaoUsados
                 );
 
                 $arraySet = array(
@@ -2312,7 +2377,7 @@ class CuponsController extends AppController
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
 
-            $messageString = __("Erro durante resgate do cupom!");
+            $messageString = __("Erro durante baixa do cupom!");
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
@@ -2577,8 +2642,8 @@ class CuponsController extends AppController
                 $data = $this->request->getData();
 
                 $usuariosId = $this->Auth->user()["id"];
-                $valorPagoMin = !empty($data["valor_pago_min"]) ? (float)$data["valor_pago_min"] : null;
-                $valorPagoMax = !empty($data["valor_pago_max"]) ? (float)$data["valor_pago_max"] : null;
+                $valorPagoMin = !empty($data["valor_pago_min"]) ? (float) $data["valor_pago_min"] : null;
+                $valorPagoMax = !empty($data["valor_pago_max"]) ? (float) $data["valor_pago_max"] : null;
                 $dataInicio = !empty($data["data_inicio"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
                 $dataFim = !empty($data["data_fim"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
                 $brindesNome = !empty($data["brindes_nome"]) ? $data["brindes_nome"] : null;

@@ -111,7 +111,8 @@ use Cake\Routing\Router;
                         <tr>
                             <td><?= 'Qtd.' ?></td>
                             <td><?= 'Nome' ?></td>
-                            <td><?= 'Valor Pago' ?></td>
+                            <td><?= 'Valor Pago Gotas' ?></td>
+                            <td><?= 'Valor Pago Reais' ?></td>
                         </tr>
                     </thead>
                     <tbody>

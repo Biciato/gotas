@@ -72,6 +72,7 @@ Configure::write(
             "ClientesHasUsuarios",
             "ClientesHasQuadroHorario",
             "Cupons",
+            "CuponsTransacoes",
             "Gotas",
             "Pontuacoes",
             "PontuacoesComprovantes",

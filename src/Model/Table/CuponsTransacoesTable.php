@@ -8,6 +8,7 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Exception;
 use App\Model\Entity\CuponsTransacoes;
+use Cake\Log\Log;
 
 /**
  * CuponsTransacoes Model
@@ -44,10 +45,13 @@ class CuponsTransacoesTable extends GenericTable
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo('Rede', array(
-            "className" => "redes",
-            'foreignKey' => 'redes_id',
-            'joinType' => 'INNER'
+        $this->belongsTo(
+            'Rede',
+            array(
+                "className" => "redes",
+                'foreignKey' => 'redes_id',
+                'joinType' => 'INNER'
+            )
         );
         $this->belongsTo(
             'Cliente',
@@ -132,12 +136,12 @@ class CuponsTransacoesTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['redes_id'], 'Redes'));
-        $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
-        $rules->add($rules->existsIn(['cupons_id'], 'Cupons'));
-        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
-        $rules->add($rules->existsIn(['clientes_has_quadro_horario_id'], 'ClientesHasQuadroHorario'));
-        $rules->add($rules->existsIn(['funcionarios_id'], 'Usuarios'));
+        $rules->add($rules->existsIn(['redes_id'], 'Rede'));
+        $rules->add($rules->existsIn(['clientes_id'], 'Cliente'));
+        $rules->add($rules->existsIn(['cupons_id'], 'Cupom'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brinde'));
+        $rules->add($rules->existsIn(['clientes_has_quadro_horario_id'], 'ClienteHasQuadroHorario'));
+        $rules->add($rules->existsIn(['funcionarios_id'], 'Funcionario'));
 
         return $rules;
     }
@@ -160,22 +164,14 @@ class CuponsTransacoesTable extends GenericTable
      *
      * @return CuponsTransacoes objeto inserido
      */
-    public function saveUpdate(CuponsTransacoes $data)
+    public function saveUpdate(CuponsTransacoes $cupomTransacao)
     {
         try {
-            $cupomTransacaoSave = $this->newEntity();
-
-            if (!empty($data["id"])) {
-                $cupomTransacaoSave = $this->get($data["id"]);
-            }
-
-            $this->patchEntity($cupomTransacaoSave, $data);
-
-            return $this->save($cupomTransacaoSave);
-
+            return $this->save($cupomTransacao);
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
             Log::write("error", $message);
+            Log::write("debug", sprintf("Error: %s/ Trace: %s", $message, $e->getTraceAsString()));
             throw new Exception($message);
         }
     }

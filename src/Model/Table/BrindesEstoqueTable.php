@@ -299,20 +299,20 @@ class BrindesEstoqueTable extends GenericTable
     /**
      * Get total sum of brindes stock
      *
-     * @param int $clientes_has_brindes_habilitados_id
+     * @param int $brindesId
 
      * @return int sum of brinde stock
      *
      * @todo Deverá ser reescrevido o retorno, ou utilizar um novo método
      * @deprecated 1.0
      **/
-    public function getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id)
+    public function getEstoqueAtualForBrindeId($brindesId)
     {
         try {
             $query = $this->find();
 
             $queryResult = $query->select(['sum' => $query->func()->sum('quantidade')])
-                ->where(['clientes_has_brindes_habilitados_id' => $clientes_has_brindes_habilitados_id])->first();
+                ->where(['brindes_id' => $brindesId])->first();
 
             return $queryResult['sum'];
         } catch (\Exception $e) {
@@ -328,14 +328,14 @@ class BrindesEstoqueTable extends GenericTable
     /**
      * Verifica se tem estoque para o brinde
      *
-     * @param int $clientes_has_brindes_habilitados_id Id do Brinde Habilitado
+     * @param int $brindesId Id do Brinde Habilitado
      * @param int $checkout_ammount                    Quantidade de saída
      *
      * @return array
      */
-    public function checkBrindeHasEstoqueByBrindesHabilitadosId(int $clientes_has_brindes_habilitados_id, int $checkout_ammount)
+    public function checkBrindeHasEstoqueByBrindesHabilitadosId(int $brindesId, int $checkout_ammount)
     {
-        $left = $this->getEstoqueAtualForBrindeId($clientes_has_brindes_habilitados_id);
+        $left = $this->getEstoqueAtualForBrindeId($brindesId);
 
         return ['enough' => $left > $checkout_ammount, 'left' => $left];
     }
@@ -359,18 +359,18 @@ class BrindesEstoqueTable extends GenericTable
     {
         try {
 
-            $clientes_has_brindes_habilitados_id = $this->ClientesHasBrindesHabilitados->find('all')
+            $brindesId = $this->ClientesHasBrindesHabilitados->find('all')
                 ->where(['clientes_id in' => $clientes_ids])->select(['id']);
 
-            $clientes_has_brindes_habilitados_ids = [];
+            $brindesIds = [];
 
-            foreach ($clientes_has_brindes_habilitados_id as $key => $value) {
-                array_push($clientes_has_brindes_habilitados_ids, $value['id']);
+            foreach ($brindesId as $key => $value) {
+                array_push($brindesIds, $value['id']);
             }
 
-            if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
+            if (sizeof($brindesIds) > 0) {
                 return $this
-                    ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
+                    ->deleteAll(['brindes_id in' => $brindesIds]);
             } else {
                 return true;
             }

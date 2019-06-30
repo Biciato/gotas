@@ -7,12 +7,12 @@
 
 $(document).ready(function () {
 
-    $(".pdf-417-code").mask("AAAAAAAAAAAAAA");
+    // $(".pdf-417-code").mask("####");
     $(".pdf-417-code").focus();
 
 
     $(".pdf-417-code").on('keyup', function (event) {
-        if (this.value.length == 14 && event.keyCode == 13) {
+        if (this.value.length > 0 && event.keyCode == 13) {
             obtemCupomClienteFinal();
         }
     });
@@ -49,6 +49,7 @@ $(document).ready(function () {
             },
             error: function (response) {
                 console.log(response);
+                callModalError(response.responseJSON.mensagem.message, response.responseJSON.mensagem.errors);
                 closeLoaderAnimation();
             }
 

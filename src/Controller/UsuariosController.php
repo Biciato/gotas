@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -392,9 +393,9 @@ class UsuariosController extends AppController
 
                 if (isset($this->usuarioLogado)) {
 
-                    if ($this->usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                    if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         return $this->redirect(['action' => 'index']);
-                    } else if ($this->usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['ManagerProfileType']) {
+                    } else if ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['ManagerProfileType']) {
                         return $this->redirect(['action' => 'meus_clientes']);
                     } else {
                         return $this->redirect(['controller' => 'pages', 'action' => 'index']);
@@ -416,7 +417,7 @@ class UsuariosController extends AppController
             }
         }
 
-        $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
+        $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
 
         $arraySet = array(
             "usuario",
@@ -456,7 +457,7 @@ class UsuariosController extends AppController
             $redesConditions = array();
             $clientesHasUsuariosWhere = array();
 
-            if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+            if ($usuario->tipo_perfil != (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
                 array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.usuarios_id' => $id]);
                 // @todo gustavosg Testar tipo_perfil
@@ -500,13 +501,13 @@ class UsuariosController extends AppController
 
                 $usuario_compare = $this->request->getData();
 
-                if ($usuario->tipo_perfil != (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                if ($usuario->tipo_perfil != (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     if (!empty($clienteHasUsuario)) {
                         if (
                             $clienteHasUsuario->clientes_id != $usuario_compare['clientes_id']
                             || $clienteHasUsuario->tipo_perfil != $usuario_compare['tipo_perfil']
                         ) {
-                            $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, (int)$usuario_compare['clientes_id'], $usuario_compare['id'], (int)$usuario_compare['tipo_perfil']);
+                            $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario->id, (int) $usuario_compare['clientes_id'], $usuario_compare['id'], (int) $usuario_compare['tipo_perfil']);
                         }
                     }
                 }
@@ -564,7 +565,7 @@ class UsuariosController extends AppController
         $usuario = $this->Usuarios->get($usuario_id);
 
         // se o usuário a ser removido é usuário, remove todos os registros à ele vinculados
-        if ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['UserProfileType']) {
+        if ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['UserProfileType']) {
 
             $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByUsuariosId($usuario->id);
             $this->UsuariosHasVeiculos->deleteAllUsuariosHasVeiculosByUsuariosId($usuario->id);
@@ -582,7 +583,7 @@ class UsuariosController extends AppController
 
             $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
             return $this->redirect($return_url);
-        } else if ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        } else if ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
             // admin rti / desenvolvedor não há problema
             // em ser removido, pois não realizam atendimento
@@ -1015,7 +1016,7 @@ class UsuariosController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             // guarda qual é a unidade que está sendo cadastrada
-            $clientes_id = (int)$data['clientes_id'];
+            $clientes_id = (int) $data['clientes_id'];
 
             if (empty($redesId)) {
                 $redesId = $data["redes_id"];
@@ -1210,7 +1211,7 @@ class UsuariosController extends AppController
             $usuarioData = $data;
 
             // guarda qual é a unidade que está sendo cadastrada
-            $clientesId = (int)$data['clientes_id'];
+            $clientesId = (int) $data['clientes_id'];
             $tipo_perfil = empty($data["tipo_perfil"]) ? $usuario["tipo_perfil"] : $data['tipo_perfil'];
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
             // $usuario = $this->Usuarios->formatUsuario($usuario['id'], $usuario);
@@ -1249,7 +1250,7 @@ class UsuariosController extends AppController
                      * Se o operador não for adm de rede, nem regional, atualiza o vínculo.
                      */
 
-                    if ($usuario["tipo_perfil"] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType']) {
+                    if ($usuario["tipo_perfil"] >= (int) Configure::read('profileTypes')['AdminNetworkProfileType']) {
                         $this->ClientesHasUsuarios->updateClienteHasUsuarioRelationship($clienteHasUsuario["id"], $clientesId, $usuario["id"]);
                     }
                 }
@@ -1570,9 +1571,9 @@ class UsuariosController extends AppController
                             // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
                             $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
 
-                            if ($this->usuarioLogado['tipo_perfil'] == (int)Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                            if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                                 return $this->redirect(array('action' => 'index'));
-                            } else if ($this->usuarioLogado['tipo_perfil'] >= (int)Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) {
+                            } else if ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['WorkerProfileType']) {
                                 return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                             } else {
                                 return $this->redirect(['controller' => 'usuarios', 'action' => 'meu_perfil']);
@@ -1661,7 +1662,7 @@ class UsuariosController extends AppController
                 $usuarioSave["senha"] = $novaSenha;
                 $usuarioSave["confirm_senha"] = $confirmSenha;
 
-                $usuario = $this->Usuarios->patchEntity($usuario, (array)$usuarioSave, array('validate' => 'Default'));
+                $usuario = $this->Usuarios->patchEntity($usuario, (array) $usuarioSave, array('validate' => 'Default'));
                 $usuario = $this->Usuarios->save($usuario);
 
                 if ($usuario) {
@@ -1748,7 +1749,7 @@ class UsuariosController extends AppController
 
             if ($data['filtrar_unidade'] != "") {
                 $clientesIds = [];
-                $clientesIds[] = (int)$data['filtrar_unidade'];
+                $clientesIds[] = (int) $data['filtrar_unidade'];
             }
         }
 
@@ -1837,7 +1838,7 @@ class UsuariosController extends AppController
 
             if ($data['filtrar_unidade'] != "") {
                 $clientesIds = [];
-                $clientesIds[] = (int)$data['filtrar_unidade'];
+                $clientesIds[] = (int) $data['filtrar_unidade'];
             }
         }
 
@@ -1914,7 +1915,7 @@ class UsuariosController extends AppController
 
             if ($filtrarUnidade != "") {
                 $clientesIds = [];
-                $clientesIds[] = (int)$data['filtrar_unidade'];
+                $clientesIds[] = (int) $data['filtrar_unidade'];
             }
         }
 
@@ -1976,7 +1977,7 @@ class UsuariosController extends AppController
                 $unidadeClienteFiltrar = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
                 if (strlen($unidadeClienteFiltrar)) {
                     $clientesIds = [];
-                    $clientesIds[] = (int)$unidadeClienteFiltrar;
+                    $clientesIds[] = (int) $unidadeClienteFiltrar;
                 }
             }
             if (strlen($tipoPerfil) == 0) {
@@ -2420,7 +2421,7 @@ class UsuariosController extends AppController
 
                 $this->Usuarios->validator()->remove('cpf');
             } else {
-                $data['tipo_perfil'] = (int)Configure::read('profileTypes')['UserProfileType'];
+                $data['tipo_perfil'] = (int) Configure::read('profileTypes')['UserProfileType'];
             }
             $data["doc_invalido"] = false;
 
@@ -2477,13 +2478,13 @@ class UsuariosController extends AppController
                 $canContinue = true;
             }
 
-            if (!isset($data["cpf"]) && $tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
+            if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
                 $errors[] = array("CPF" => "CPF Deve ser informado!");
                 $canContinue = false;
             } else {
 
                 // Valida se o usuário em questão não é ficticio
-                if ($tipoPerfil < (int)Configure::read("DummyWorkerProfileType")) {
+                if ($tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
 
                     $result = NumberUtil::validarCPF($data["cpf"]);
 
@@ -2875,7 +2876,7 @@ class UsuariosController extends AppController
                         $diff = round(abs($fromTime - $toTime) / 60, 0);
 
                         if ($tentativasLogin >= 5 && ($diff < 10)) {
-                            $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
+                            $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
 
                             $statusUsuario = 3;
                             return array('message' => $message, 'actionNeeded' => $statusUsuario, "status" => $statusUsuario);
@@ -3079,7 +3080,7 @@ class UsuariosController extends AppController
     {
         $query = $this->request->query;
 
-        $result = $this->_alteraContaAtivaUsuario((int)$query['usuarios_id'], true);
+        $result = $this->_alteraContaAtivaUsuario((int) $query['usuarios_id'], true);
 
         if ($result) {
             $this->Flash->success(Configure::read('messageEnableSuccess'));
@@ -3097,7 +3098,7 @@ class UsuariosController extends AppController
     {
         $query = $this->request->query;
 
-        $result = $this->_alteraContaAtivaUsuario((int)$query['usuarios_id'], false);
+        $result = $this->_alteraContaAtivaUsuario((int) $query['usuarios_id'], false);
 
         if ($result) {
             $this->Flash->success(Configure::read('messageDisableSuccess'));
@@ -3201,7 +3202,7 @@ class UsuariosController extends AppController
                 }
             }
 
-            $usuarioLogadoTipoPerfil = (int)Configure::read('profileTypes')['UserProfileType'];
+            $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
 
             $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
             $this->set('_serialize', ['usuario', 'usuarioLogadoTipoPerfil']);
@@ -3266,15 +3267,15 @@ class UsuariosController extends AppController
             }
 
             if (strlen($data['sexo']) > 0) {
-                $whereConditions[] = ['sexo' => (bool)$data['sexo']];
+                $whereConditions[] = ['sexo' => (bool) $data['sexo']];
             }
 
             if (strlen($data['conta_ativa']) > 0) {
-                $whereConditions[] = ['conta_ativa' => (bool)$data['conta_ativa']];
+                $whereConditions[] = ['conta_ativa' => (bool) $data['conta_ativa']];
             }
 
             if (strlen($data['conta_bloqueada']) > 0) {
-                $whereConditions[] = ['conta_bloqueada' => (bool)$data['conta_bloqueada']];
+                $whereConditions[] = ['conta_bloqueada' => (bool) $data['conta_bloqueada']];
             }
 
             $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
@@ -3318,7 +3319,7 @@ class UsuariosController extends AppController
 
             $usuariosIds = array();
 
-            $rede = $this->Redes->getRedeById((int)$value);
+            $rede = $this->Redes->getRedeById((int) $value);
 
             $redeItem = array();
 
@@ -3383,15 +3384,15 @@ class UsuariosController extends AppController
             ];
 
             if (strlen($data['sexo']) > 0) {
-                $whereConditions[] = ['usuarios.sexo' => (bool)$data['sexo']];
+                $whereConditions[] = ['usuarios.sexo' => (bool) $data['sexo']];
             }
 
             if (strlen($data['conta_ativa']) > 0) {
-                $whereConditions[] = ['usuarios.conta_ativa' => (bool)$data['conta_ativa']];
+                $whereConditions[] = ['usuarios.conta_ativa' => (bool) $data['conta_ativa']];
             }
 
             if (strlen($data['conta_bloqueada']) > 0) {
-                $whereConditions[] = ['usuarios.conta_bloqueada' => (bool)$data['conta_bloqueada']];
+                $whereConditions[] = ['usuarios.conta_bloqueada' => (bool) $data['conta_bloqueada']];
             }
 
             $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
@@ -3514,18 +3515,18 @@ class UsuariosController extends AppController
                 }
 
                 if (strlen($data['sexo']) > 0) {
-                    $whereConditions[] = ['sexo' => (bool)$data['sexo']];
+                    $whereConditions[] = ['sexo' => (bool) $data['sexo']];
                 }
 
                 if (strlen($data['conta_ativa']) > 0) {
-                    $whereConditions[] = ['conta_ativa' => (bool)$data['conta_ativa']];
+                    $whereConditions[] = ['conta_ativa' => (bool) $data['conta_ativa']];
                 }
 
                 if (strlen($data['conta_bloqueada']) > 0) {
-                    $whereConditions[] = ['conta_bloqueada' => (bool)$data['conta_bloqueada']];
+                    $whereConditions[] = ['conta_bloqueada' => (bool) $data['conta_bloqueada']];
                 }
 
-                $qteRegistros = (int)$data['qte_registros'];
+                $qteRegistros = (int) $data['qte_registros'];
 
                 $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
                 $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
@@ -3599,7 +3600,7 @@ class UsuariosController extends AppController
 
                     $usuariosIds = array();
 
-                    $rede = $this->Redes->getRedeById((int)$value);
+                    $rede = $this->Redes->getRedeById((int) $value);
 
                     $redeItem = array();
 
@@ -3666,7 +3667,7 @@ class UsuariosController extends AppController
     private function _consultaUsuariosAssiduos(array $data = array(), int $redesId = null, float $mediaAssiduidadeClientes = null)
     {
         if (!empty($data["redesId"]) && $data["redesId"] > 0) {
-            $redesId = (int)$data["redesId"];
+            $redesId = (int) $data["redesId"];
         }
 
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
@@ -3724,7 +3725,7 @@ class UsuariosController extends AppController
     private function _consultaUsuariosFidelizados(array $data, int $redesId)
     {
         if (!empty($data["redesId"]) && $data["redesId"] > 0) {
-            $redesId = (int)$data["redesId"];
+            $redesId = (int) $data["redesId"];
         }
 
         $clientesIds = !empty($data["clientesIds"]) ? $data["clientesIds"] : null;
@@ -4152,9 +4153,7 @@ class UsuariosController extends AppController
                     }
                 }
 
-                if (!empty($user)) {
-                    $user['data_nasc'] = $user['data_nasc']->format('d/m/Y');
-                }
+                $user['data_nasc'] = !empty($user) && !empty($user['data_nasc']) ? $user["data_nasc"]->format('d/m/Y') : null;
             }
             $return = array("user" => $user);
             return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, $return);
@@ -4397,7 +4396,7 @@ class UsuariosController extends AppController
 
                 // verifica cliente (Usuário deve estar vinculado à rede, seja matriz ou filial)
 
-                $usuariosId = isset($data["usuarios_id"]) ? (int)$data["usuarios_id"] : null;
+                $usuariosId = isset($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
 
                 if (!empty($usuariosId)) {
                     $clientes_ids = $this->Clientes->getIdsMatrizFiliaisByClienteId($data['clientes_id']);

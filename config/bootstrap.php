@@ -380,9 +380,15 @@ const MESSAGE_CUPOM_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!"
 const MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
 const MESSAGE_CUPOM_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
 const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
+const MESSAGE_REDEEM_COUPON_REDEEMED = "Cupom resgatado!";
+const MESSAGE_REDEEM_COUPON_USED = "Cupom usado!";
+
+const TYPE_OPERATION_RETRIEVE = 'Resgate';
+const TYPE_OPERATION_USE = 'Uso';
 
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
+
 
 // Pontuações
 
@@ -438,7 +444,7 @@ const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
 const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
 const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
 const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
-const MESSAGE_SAVED_ERROR = "Não foi possível gravar o registro!";
+const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
 const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
 
 // Mensagens de processamento
