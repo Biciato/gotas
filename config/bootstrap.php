@@ -371,6 +371,7 @@ const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
 const MESSAGE_WARNING_GENERATE_REPORT= "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
 
 const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
+const MESSAGE_CUPOM_ALREADY_USED = "Cupom já foi validado, não é possível novo uso!";
 const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
 const MESSAGE_CUPOM_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MESSAGE_CUPOM_PRINTED_EMPTY = "Necessário informar o CUPOM!";

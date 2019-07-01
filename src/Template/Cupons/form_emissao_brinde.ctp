@@ -44,7 +44,7 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
         <?php endif; ?>
 
         <div class="container-emissao-cupom">
-            <legend><?= __("Emissão de Cupom") ?></legend>
+            <legend><?= __("Resgate de Brinde") ?></legend>
 
             <?= $this->Form->create(); ?>
             <div class="row">

@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Cupons/resgate_cupom_canhoto_confirmacao_confirmacao.ctp
+ * @file     src/Template/Cupons/validar_brinde_canhoto_confirmacao.ctp
  * @date     22/04/2018
  */
 
@@ -10,7 +10,7 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 // A confirmação do resgate só é feita pela interface de funcionário até o momento. então redireciona para a mesma tela.
-$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "Cupons", "action" => "resgate_cupons") : $urlRedirectConfirmacao;
+$urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" => "Cupons", "action" => "validarBrinde") : $urlRedirectConfirmacao;
 
 ?>
 
@@ -48,10 +48,10 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
 </div>
 
 <?php if (Configure::read('debug')) : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_confirmacao') ?>
-    <?= $this->Html->script('scripts/cupons/resgate_cupom_canhoto_confirmacao') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_canhoto_confirmacao') ?>
+    <?= $this->Html->script('scripts/cupons/validar_brinde_canhoto_confirmacao') ?>
 <?php else : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_confirmacao.min') ?>
-    <?= $this->Html->script('scripts/cupons/resgate_cupom_canhoto_confirmacao.min') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_canhoto_confirmacao.min') ?>
+    <?= $this->Html->script('scripts/cupons/validar_brinde_canhoto_confirmacao.min') ?>
 
 <?php endif; ?>

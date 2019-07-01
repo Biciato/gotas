@@ -13,18 +13,18 @@ use Cake\Routing\Router;
 
 <div class="resgate-cupom-main">
 
-<legend>Informe o Cupom para resgate: </legend>
+    <legend>Validação de Brinde: </legend>
 
     <div class="col-lg-9">
-            <?= $this->Form->input('pdf417_code', [
-                'type' => 'text',
-                'class' => 'pdf-417-code',
-                'max' => 14,
-                'label' => 'Informe Código de Leitura*',
-                'placeholder' => 'Informe Código de Leitura...',
-                "required" => true,
-                'autocomplete' => 'off'
-            ]) ?>
+        <?= $this->Form->input('pdf417_code', [
+            'type' => 'text',
+            'class' => 'pdf-417-code',
+            'max' => 14,
+            'label' => 'Informe Código de Leitura*',
+            'placeholder' => 'Informe Código de Leitura...',
+            "required" => true,
+            'autocomplete' => 'off'
+        ]) ?>
 
         <?= $this->Html->tag(
             'div',
@@ -132,11 +132,11 @@ use Cake\Routing\Router;
 </div>
 
 <?php if (Configure::read('debug')) : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_form') ?>
-    <?= $this->Html->script('scripts/cupons/resgate_cupom_form') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_form') ?>
+    <?= $this->Html->script('scripts/cupons/validar_brinde_form') ?>
 <?php else : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_form.min') ?>
-    <?= $this->Html->script('scripts/cupons/resgate_cupom_form.min') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_form.min') ?>
+    <?= $this->Html->script('scripts/cupons/validar_brinde_form.min') ?>
 <?php endif; ?>
 
 <?= $this->fetch('css') ?>

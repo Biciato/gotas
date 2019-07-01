@@ -329,7 +329,7 @@ $showMenu = isset($showMenu) ? $showMenu : true;
                 <!-- Confirmação de impressão do canhoto SMART Shower -->
                 <?= $this->Html->link(
                     __("{0} Sim", $this->Html->tag("i", '', ['class' => 'fa fa-check'])),
-                    ['controller' => 'brindes', 'action' => 'impressao_rapida'],
+                    ['controller' => 'brindes', 'action' => 'resgate_brinde'],
                     ['escape' => false, 'class' => 'btn btn-primary btn-block']
                 ); ?>
             </div>

@@ -737,10 +737,11 @@ class CuponsController extends AppController
 
     /**
      * Action para resgate de cupons (view de funcionário)
+     * A validação de Brinde é quando o cliente apresenta o cupom que tem o brinde resgatado
      *
      * @return void
      */
-    public function resgateCupons()
+    public function validarBrinde()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -1164,7 +1165,7 @@ class CuponsController extends AppController
                 $turnosRetorno[] = $dadosTurno;
             }
 
-          
+
             $funcionario["soma"] = $somaTurno;
             $funcionario["turnos"] = $turnosRetorno;
 
@@ -1582,17 +1583,17 @@ class CuponsController extends AppController
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Houve um erro durante o processamento do Ticket. [{0}] ", $e->getMessage());
 
             Log::write('error', $stringError);
 
             $messageString = __("Não foi possível obter pontuações do usuário na rede!");
-            $trace = $e->getTrace();
             $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
             $messageStringDebug = __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
+            throw new Exception($stringError);
         }
     }
 
@@ -2046,22 +2047,25 @@ class CuponsController extends AppController
                     if ($estoque) {
                         $cupomSave = null;
 
-                        // if ($cupom->brinde->tipo->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
-                        $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                        if ($cupom->brinde->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                        } else {
+                            $cupomSave = $this->Cupons->setCupomUsado($cupom->id);
+                            
+                            // Gera nova transação para o cupom, definindo como 'resgatado'
+                            $transacao = new CuponsTransacoes();
+                            $transacao->redes_id = $rede->id;
+                            $transacao->clientes_id = $cliente->id;
+                            $transacao->cupons_id = $cupom->id;
+                            $transacao->brindes_id = $cupom->brindes_id;
+                            $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                            $transacao->funcionarios_id = $usuarioLogado["id"];
+                            $transacao->tipo_operacao = TYPE_OPERATION_USE;
+                            $transacao->data = new DateTime();
+    
+                            $this->CuponsTransacoes->saveUpdate($transacao);
+                        }
 
-                        // Gera nova transação para o cupom, definindo como 'resgatado'
-
-                        $transacao = new CuponsTransacoes();
-                        $transacao->redes_id = $rede->id;
-                        $transacao->clientes_id = $cliente->id;
-                        $transacao->cupons_id = $cupom->id;
-                        $transacao->brindes_id = $cupom->brindes_id;
-                        $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
-                        $transacao->funcionarios_id = $usuarioLogado["id"];
-                        $transacao->tipo_operacao = TYPE_OPERATION_RETRIEVE;
-                        $transacao->data = new DateTime();
-
-                        $this->CuponsTransacoes->saveUpdate($transacao);
                         // $this->CuponsTransacoes->redes
                         // } else {
                         // $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
@@ -3232,6 +3236,24 @@ class CuponsController extends AppController
                 // vincula item resgatado ao cliente final
                 $brindeUsuario = $this->UsuariosHasBrindes->addUsuarioHasBrindes($rede->id, $cliente->id, $usuario->id, $brinde->id, $quantidade, $precoGotas, $precoReais, $tipoPagamento, $cupom->id);
 
+                // Faz transação de resgate
+
+                $turnosCliente = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
+                $turnosCliente = $turnosCliente->toArray();
+                $turnoAtual = ShiftUtil::obtemTurnoAtual($turnosCliente);
+
+                $cupomTransacao = new CuponsTransacoes();
+                $cupomTransacao->redes_id = $rede->id;
+                $cupomTransacao->clientes_id = $cliente->id;
+                $cupomTransacao->cupons_id = $cupom->id;
+                $cupomTransacao->brindes_id = $brinde->id;
+                $cupomTransacao->funcionarios_id = $funcionariosId;
+                $cupomTransacao->tipo_operacao = TYPE_OPERATION_RETRIEVE;
+                $cupomTransacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                $cupomTransacao->data = new DateTime();
+
+                $this->CuponsTransacoes->saveUpdate($cupomTransacao);
+
                 $mensagem = array(
                     "status" => 1,
                     "message" => Configure::read("messageProcessingCompleted"),
@@ -3400,12 +3422,12 @@ class CuponsController extends AppController
                 # code...
                 // verifica se o cupom já foi resgatado
 
-                if ($cupom["resgatado"]) {
+                if ($cupom->usado) {
 
                     // Qualquer cupom resgatado do código signifca que o cupom inteiro já foi resgatado
                     $result = array(
                         'status' => false,
-                        'message' => MESSAGE_CUPOM_ALREADY_RETRIEVED
+                        'message' => MESSAGE_CUPOM_ALREADY_USED
                     );
 
                     return $result;

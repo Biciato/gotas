@@ -135,16 +135,13 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                             ) : ?>
                                 <h5>Brinde: <?= $cupom["nome_brinde"] ?></h5>
 
-                                <?php if ($cupom["resgatados"] > 0) : ?>
-                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                <?php if ($cupom["resgatados"] > 0 || $cupom["usados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> / Validados: <?= $cupom["usados"] ?> </li>
                                 <?php endif; ?>
-
-                                <?php if ($cupom["usados"] > 0) : ?>
-                                    <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                                <?php endif; ?>
+                                
                                 <?php if ($cupom["gotas"] > 0) : ?>
                                     <!-- Qte de gotas recebido -->
-                                    <li class="list-group-item">Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                                    <li class="list-group-item">Gotas Resgatadas: <?= $cupom["gotas"] ?> </li>
                                 <?php endif; ?>
 
                                 <?php if ($cupom["dinheiro"] > 0) : ?>
@@ -166,9 +163,8 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                         <div class="soma-turno">
                             <h4>Soma Turno</h4>
                             <ul class="list-group">
-                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> </li>
-                                <li class="list-group-item"> Brindes Usados: <?= $turno["somaTurno"]["usados"] ?> </li>
-                                <li class="list-group-item"> Gotas Bonificadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
+                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> / Validados: <?= $turno["somaTurno"]["usados"] ?> </li>
+                                <li class="list-group-item"> Gotas Resgatadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
                                 <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($turno["somaTurno"]["dinheiro"]) ?> </li>
                                 <li class="list-group-item"> Bonificação: <?= $turno["somaTurno"]["brindes"] ?> </li>
                                 <li class="list-group-item"> Vendas: <?= $turno["somaTurno"]["compras"] ?> </li>
@@ -183,9 +179,8 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
             <div class="total-geral">
                 <h4>Total Geral</h4>
                 <ul class="list-group">
-                    <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> </li>
-                    <li class="list-group-item"> Total de Brindes Usados: <?= $totalGeral["totalUsados"] ?> </li>
-                    <li class="list-group-item"> Total de Gotas Bonificadas: <?= $totalGeral["totalGotas"] ?> </li>
+                    <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> / Validados: <?= $totalGeral["totalUsados"] ?> </li>
+                    <li class="list-group-item"> Total de Gotas Resgatadas: <?= $totalGeral["totalGotas"] ?> </li>
                     <li class="list-group-item"> Total de Dinheiro Recebido: <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
                     <li class="list-group-item"> Total de Bonificação: <?= $totalGeral["totalBrindes"] ?> </li>
                     <li class="list-group-item"> Total de Vendas: <?= $totalGeral["totalCompras"] ?> </li>
@@ -238,16 +233,13 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                                 <br />
                                 <strong>Brinde: <?= $cupom["nome_brinde"] ?></strong>
 
-                                <?php if ($cupom["resgatados"] > 0) : ?>
-                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                <?php if ($cupom["resgatados"] > 0 || $cupom["usados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> / Validados: <?= $cupom["usados"] ?> </li>
                                 <?php endif; ?>
 
-                                <?php if ($cupom["usados"] > 0) : ?>
-                                    <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                                <?php endif; ?>
                                 <?php if ($cupom["gotas"] > 0) : ?>
                                     <!-- Qte de gotas recebido -->
-                                    <li class="list-group-item">Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                                    <li class="list-group-item">Gotas Resgatadas: <?= $cupom["gotas"] ?> </li>
                                 <?php endif; ?>
 
                                 <?php if ($cupom["dinheiro"] > 0) : ?>
@@ -270,9 +262,8 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                         <div class="soma-turno">
                             <h4>Total Turno</h4>
                             <ul class="list-group">
-                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> </li>
-                                <li class="list-group-item"> Brindes Usados: <?= $turno["somaTurno"]["usados"] ?> </li>
-                                <li class="list-group-item"> Gotas Bonificadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
+                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> / Validados: <?= $turno["somaTurno"]["usados"] ?> </li>
+                                <li class="list-group-item"> Gotas Resgatadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
                                 <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($turno["somaTurno"]["dinheiro"]) ?> </li>
                                 <li class="list-group-item"> Bonificação: <?= $turno["somaTurno"]["brindes"] ?> </li>
                                 <li class="list-group-item"> Vendas: <?= $turno["somaTurno"]["compras"] ?> </li>
@@ -287,9 +278,8 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
             <div class="total-geral">
                 <h4>Total Geral</h4>
                 <ul class="list-group">
-                    <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> </li>
-                    <li class="list-group-item"> Total de Brindes Usados: <?= $totalGeral["totalUsados"] ?> </li>
-                    <li class="list-group-item"> Total de Gotas Bonificadas: <?= $totalGeral["totalGotas"] ?> </li>
+                    <li class="list-group-item"> Total de Brindes Resgatados: <?= $totalGeral["totalResgatados"] ?> / Validados: <?= $totalGeral["totalUsados"] ?> </li>
+                    <li class="list-group-item"> Total de Gotas Resgatadas: <?= $totalGeral["totalGotas"] ?> </li>
                     <li class="list-group-item"> Total de Dinheiro Recebido: <?= $this->Number->currency($totalGeral["totalDinheiro"]) ?> </li>
                     <li class="list-group-item"> Total de Bonificação: <?= $totalGeral["totalBrindes"] ?> </li>
                     <li class="list-group-item"> Total de Vendas: <?= $totalGeral["totalCompras"] ?> </li>

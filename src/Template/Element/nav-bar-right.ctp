@@ -350,7 +350,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                     </li>
 
                     <li>
-                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
+                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'resgate_brinde']) ?>
                     </li>
 
                     <li>
@@ -406,7 +406,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                     <li role="separator" class="divider"></li>
 
                     <li>
-                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'impressao_rapida']) ?>
+                        <?php echo $this->Html->link('Emissão de Cupom de Brindes - Troca por Gotas', ['controller' => 'brindes', 'action' => 'resgate_brinde']) ?>
                     </li>
 
                     <li>

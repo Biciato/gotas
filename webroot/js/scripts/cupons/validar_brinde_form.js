@@ -1,6 +1,6 @@
 /**
  * @author Gustavo Souza Gonçalves
- * @file webroot\js\scripts\cupons\resgate_cupom_form.js
+ * @file webroot\js\scripts\cupons\validar_brinde_form.js
  * @date 30/01/2018
  *
  */

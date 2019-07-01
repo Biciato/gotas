@@ -2,7 +2,7 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Gotas/atribuir_gotas_form.ctp
+ * @file     src/Template/Brindes/resgate_brinde.ctp
  * @date     06/08/2017
  *
  * Arquivo para atribuir gotas de cliente na view de funcionário
@@ -17,7 +17,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
-<?= $this->element('../Pages/left_menu', ['item_selected' => 'impressao_rapida']) ?>
+<?= $this->element('../Pages/left_menu', ['item_selected' => 'resgate_brinde']) ?>
 
 <?php if (isset($clientes_id)) : ?>
 
@@ -62,11 +62,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <?php echo $this->element("../Cupons/form_emissao_brinde", array('showMenu' => false, 'show_breadcrumbs' => false, "tipoPagamento" => TYPE_PAYMENT_POINTS)); ?>
 
 <?php if (Configure::read('debug') == true) : ?>
-<?= $this->Html->script('scripts/brindes/impressao_rapida') ?>
-<?= $this->Html->css('styles/brindes/impressao_rapida') ?>
+<?= $this->Html->script('scripts/brindes/resgate_brinde') ?>
+<?= $this->Html->css('styles/brindes/resgate_brinde') ?>
 <?php else : ?>
-<?= $this->Html->script('scripts/brindes/impressao_rapida.min') ?>
-<?= $this->Html->css('styles/brindes/impressao_rapida.min') ?>
+<?= $this->Html->script('scripts/brindes/resgate_brinde.min') ?>
+<?= $this->Html->css('styles/brindes/resgate_brinde.min') ?>
 <?php endif; ?>
 
 <?= $this->fetch('script') ?>

@@ -87,9 +87,9 @@ use Cake\Routing\Router;
 </div>
 
 <?php if (Configure::read('debug')) : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_impressao') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_canhoto_impressao') ?>
 <?php else : ?>
-    <?= $this->Html->css('styles/cupons/resgate_cupom_canhoto_impressao') ?>
+    <?= $this->Html->css('styles/cupons/validar_brinde_canhoto_impressao') ?>
 <?php endif; ?>
 
 <?= $this->fetch('css') ?>

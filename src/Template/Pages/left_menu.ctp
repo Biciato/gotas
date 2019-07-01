@@ -62,19 +62,19 @@ $mode_selected = isset($mode_selected) ? $mode_selected : null;
 
                 <?= $this->Html->link(__('Pontuar Gotas'), ['controller' => 'Gotas', 'action' => 'atribuir_gotas']) ?>
             </li>
-            <?php if ($item_selected == 'impressao_rapida') : ?>
+            <?php if ($item_selected == 'resgate_brinde') : ?>
                 <li class="list-group-item-success">
             <?php else : ?>
                 <li>
             <?php endif; ?>
-                <?= $this->Html->link(__('Impressão de Brindes'), ['controller' => 'Brindes', 'action' => 'impressao_rapida']) ?>
+                <?= $this->Html->link(__('Resgate de Brinde'), ['controller' => 'Brindes', 'action' => 'resgate_brinde']) ?>
             </li>
-            <?php if ($item_selected == 'resgate_cupons') : ?>
+            <?php if ($item_selected == 'validarBrinde') : ?>
                 <li class="list-group-item-success">
             <?php else : ?>
                 <li>
             <?php endif; ?>
-                <?= $this->Html->link(__('Resgate de Cupons'), ['controller' => 'Cupons', 'action' => 'resgate_cupons']) ?>
+                <?= $this->Html->link(__('Validação de Brinde'), ['controller' => 'Cupons', 'action' => 'validarBrinde']) ?>
             </li>
             <!-- Emissão de Banho Smart Shower Avulso -->
             <?php if ($item_selected == 'emissao_brinde_avulso') : ?>

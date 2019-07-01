@@ -314,12 +314,13 @@ class CuponsTable extends GenericTable
              * Senão, false.
              */
             // $cupom->resgatado = $codigoPrimario <= 4;
-            $cupom->resgatado = $brinde->equipamento_rti == TYPE_EQUIPMENT_RTI;
+            // $cupom->resgatado = $brinde->equipamento_rti == TYPE_EQUIPMENT_RTI;
+            $cupom->resgatado = 1;
 
             // Usado é automatico após 24 horas se for Equipamento RTI
             // Se não for, é definido como usado, quando é feito a baixa.
             // Por isso, o default deverá ser 0
-            $cupom["usado"] = 0;
+            $cupom->usado = 0;
 
             // Antes do save, calcular cupom emitido
 
@@ -900,6 +901,17 @@ class CuponsTable extends GenericTable
     public function setCupomResgatado(int $id)
     {
         return $this->updateAll(array('resgatado' => 1), array('id' => $id));
+    }
+    
+    /**
+     * Define um cupom como usado
+     *
+     * @param integer $id
+     * @return void
+     */
+    public function setCupomUsado(int $id)
+    {
+        return $this->updateAll(array('usado' => 1), array('id' => $id));
     }
 
     /**

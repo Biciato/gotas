@@ -93,11 +93,11 @@ use Cake\Core\Configure;
 ) ?>
 
 <?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/brindes/impressao_rapida') ?>
-    <?= $this->Html->css('styles/brindes/impressao_rapida') ?>
+    <?= $this->Html->script('scripts/brindes/resgate_brinde') ?>
+    <?= $this->Html->css('styles/brindes/resgate_brinde') ?>
 <?php else : ?>
-    <?= $this->Html->script('scripts/brindes/impressao_rapida.min') ?>
-    <?= $this->Html->css('styles/brindes/impressao_rapida.min') ?>
+    <?= $this->Html->script('scripts/brindes/resgate_brinde.min') ?>
+    <?= $this->Html->css('styles/brindes/resgate_brinde.min') ?>
 <?php endif; ?>
 
 <?= $this->fetch('script') ?>

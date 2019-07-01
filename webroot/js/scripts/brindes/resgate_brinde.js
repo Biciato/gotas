@@ -1,5 +1,5 @@
 /**
- * @file webroot/js/scripts/brindes/impressao_rapida.js
+ * @file webroot/js/scripts/brindes/resgate_brinde.js
  * @author Gustavo Souza Gonçalves
  * @date 04/02/2018
  * @

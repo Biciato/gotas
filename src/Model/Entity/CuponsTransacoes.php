@@ -14,7 +14,7 @@ use Cake\ORM\Entity;
  * @property int $clientes_has_quadro_horario_id
  * @property int $funcionarios_id
  * @property string $tipo_operacao
- * @property \Cake\I18n\FrozenTime $DATA
+ * @property \Cake\I18n\FrozenTime $data
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
@@ -45,7 +45,7 @@ class CuponsTransacoes extends Entity
         'clientes_has_quadro_horario_id' => true,
         'funcionarios_id' => true,
         'tipo_operacao' => true,
-        'DATA' => true,
+        'data' => true,
         'audit_insert' => true,
         'audit_update' => true,
         'rede' => true,

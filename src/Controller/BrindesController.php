@@ -726,9 +726,9 @@ class BrindesController extends AppController
      *
      * @return void
      */
-    public function impressaoRapida()
+    public function resgateBrinde()
     {
-        $urlRedirectConfirmacao = array("controller" => "Brindes", "action" => "impressao_rapida");
+        $urlRedirectConfirmacao = array("controller" => "Brindes", "action" => "resgate_brinde");
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 

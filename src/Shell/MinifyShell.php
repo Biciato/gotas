@@ -40,7 +40,7 @@ class MinifyShell extends ExtendedShell
                 'brindes_form',
                 'brindes_filtro_pesquisa_comum',
                 'filtro_brindes_relatorio',
-                'impressao_rapida'
+                'resgate_brinde'
             ]
         ],
         [
@@ -170,7 +170,7 @@ class MinifyShell extends ExtendedShell
             'brindes' => [
                 'brinde_desativado',
                 'brindes_filtro_shower_ajax',
-                'impressao_rapida'
+                'resgate_brinde'
             ]
         ],
         [
