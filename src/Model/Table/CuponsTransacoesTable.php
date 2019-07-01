@@ -9,6 +9,8 @@ use Cake\Validation\Validator;
 use Exception;
 use App\Model\Entity\CuponsTransacoes;
 use Cake\Log\Log;
+use DateTime;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * CuponsTransacoes Model
@@ -148,6 +150,54 @@ class CuponsTransacoesTable extends GenericTable
 
     #region Read
 
+    public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
+    {
+        try {
+            $where = array();
+
+            if (!empty($redesId)) {
+                $where[] = array("CuponsTransacoes.redes_id" => $redesId);
+            }
+            if (!empty($clientesId)) {
+                $where[] = array("CuponsTransacoes.clientes_id" => $clientesId);
+            }
+            if (!empty($cuponsId)) {
+                $where[] = array("CuponsTransacoes.cupons_id" => $cuponsId);
+            }
+            if (!empty($brindesId)) {
+                $where[] = array("CuponsTransacoes.brindes_id" => $brindesId);
+            }
+            if (!empty($clienteHasQuadroHorario)) {
+                $where[] = array("CuponsTransacoes.clientes_has_quadro_horario_id" => $clienteHasQuadroHorario);
+            }
+            if (!empty($funcionariosId)) {
+                $where[] = array("CuponsTransacoes.funcionarios_id" => $funcionariosId);
+            }
+            if (!empty($tipoOperacao)) {
+                $where[] = array("CuponsTransacoes.tipo_operacao" => $tipoOperacao);
+            }
+            if (!empty($dataInicio)) {
+                $where[] = array("CuponsTransacoes.data >= " => $dataInicio->format("Y-m-d H:i:s"));
+            }
+            if (!empty($dataFim)) {
+                $where[] = array("CuponsTransacoes.data <= " => $dataFim->format("Y-m-d H:i:s"));
+            }
+
+            $query = $this->find();
+            $soma = $query->select(array("count" => $query->func()->count("CuponsTransacoes.id")))
+                ->where($where)->first();
+
+            return $soma["count"];
+        } catch (\Exception $ex) {
+            $message = $ex->getMessage();
+            $trace = $ex->getTraceAsString();
+
+            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message, $trace));
+
+            throw new Exception($message);
+        }
+    }
     #endregion
 
     #region Save
