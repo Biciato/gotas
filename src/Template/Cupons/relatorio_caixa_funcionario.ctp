@@ -126,36 +126,54 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                     ) : ?>
 
                         <?php foreach ($turno["cupons"] as $cupom) : ?>
-                            <h5>Brinde: <?= $cupom["nome_brinde"] ?></h5>
+                            <?php if (($cupom["resgatados"] > 0)
+                                || ($cupom["usados"] > 0)
+                                || ($cupom["gotas"] > 0)
+                                || ($cupom["dinheiro"] > 0)
+                                || ($cupom["brindes"] > 0)
+                                || ($cupom["compras"] > 0)
+                            ) : ?>
+                                <h5>Brinde: <?= $cupom["nome_brinde"] ?></h5>
 
-                            <?php if ($cupom["resgatados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["resgatados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["usados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                            <?php endif; ?>
-                            <?php if ($cupom["gotas"] > 0) : ?>
-                                <!-- Qte de gotas recebido -->
-                                <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["usados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                                <?php endif; ?>
+                                <?php if ($cupom["gotas"] > 0) : ?>
+                                    <!-- Qte de gotas recebido -->
+                                    <li class="list-group-item">Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["dinheiro"] > 0) : ?>
-                                <!-- Qte de dinheiro recebido daquele brinde -->
-                                <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["dinheiro"] > 0) : ?>
+                                    <!-- Qte de dinheiro recebido daquele brinde -->
+                                    <li class="list-group-item">Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["brindes"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via gotas -->
-                                <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["brindes"] > 0) : ?>
+                                    <!-- Qte de Brindes vendidos via gotas -->
+                                    <li class="list-group-item">Bonificação: <?= $cupom["brindes"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["compras"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via dinheiro -->
-                                <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                                <?php if ($cupom["compras"] > 0) : ?>
+                                    <!-- Qte de Brindes vendidos via dinheiro -->
+                                    <li class="list-group-item">Vendas: <?= $cupom["compras"] ?> </li>
+                                <?php endif; ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
-
+                        <div class="soma-turno">
+                            <h4>Soma Turno</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> </li>
+                                <li class="list-group-item"> Brindes Usados: <?= $turno["somaTurno"]["usados"] ?> </li>
+                                <li class="list-group-item"> Gotas Bonificadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
+                                <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($turno["somaTurno"]["dinheiro"]) ?> </li>
+                                <li class="list-group-item"> Bonificação: <?= $turno["somaTurno"]["brindes"] ?> </li>
+                                <li class="list-group-item"> Vendas: <?= $turno["somaTurno"]["compras"] ?> </li>
+                            </ul>
+                        </div>
                     <?php else : ?>
                         <h4 class="text-center">Não há dados para o turno!</h4>
                     <?php endif; ?>
@@ -210,37 +228,56 @@ $this->Breadcrumbs->add($title, [], ['class' => 'active']);
                     ) : ?>
 
                         <?php foreach ($turno["cupons"] as $cupom) : ?>
-                            <br />
-                            <strong>Brinde: <?= $cupom["nome_brinde"] ?></strong>
+                            <?php if (($cupom["resgatados"] > 0)
+                                || ($cupom["usados"] > 0)
+                                || ($cupom["gotas"] > 0)
+                                || ($cupom["dinheiro"] > 0)
+                                || ($cupom["brindes"] > 0)
+                                || ($cupom["compras"] > 0)
+                            ) : ?>
+                                <br />
+                                <strong>Brinde: <?= $cupom["nome_brinde"] ?></strong>
 
-                            <?php if ($cupom["resgatados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["resgatados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Resgatados: <?= $cupom["resgatados"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["usados"] > 0) : ?>
-                                <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
-                            <?php endif; ?>
-                            <?php if ($cupom["gotas"] > 0) : ?>
-                                <!-- Qte de gotas recebido -->
-                                <li class="list-group-item">Total de Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["usados"] > 0) : ?>
+                                    <li class="list-group-item">Brindes Usados: <?= $cupom["usados"] ?> </li>
+                                <?php endif; ?>
+                                <?php if ($cupom["gotas"] > 0) : ?>
+                                    <!-- Qte de gotas recebido -->
+                                    <li class="list-group-item">Gotas Bonificadas: <?= $cupom["gotas"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["dinheiro"] > 0) : ?>
-                                <!-- Qte de dinheiro recebido daquele brinde -->
-                                <li class="list-group-item">Total de Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["dinheiro"] > 0) : ?>
+                                    <!-- Qte de dinheiro recebido daquele brinde -->
+                                    <li class="list-group-item">Dinheiro Recebido: <?= $this->Number->currency($cupom["dinheiro"]) ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["brindes"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via gotas -->
-                                <li class="list-group-item">Total de Bonificação: <?= $cupom["brindes"] ?> </li>
-                            <?php endif; ?>
+                                <?php if ($cupom["brindes"] > 0) : ?>
+                                    <!-- Qte de Brindes vendidos via gotas -->
+                                    <li class="list-group-item">Bonificação: <?= $cupom["brindes"] ?> </li>
+                                <?php endif; ?>
 
-                            <?php if ($cupom["compras"] > 0) : ?>
-                                <!-- Qte de Brindes vendidos via dinheiro -->
-                                <li class="list-group-item">Total de Vendas: <?= $cupom["compras"] ?> </li>
+                                <?php if ($cupom["compras"] > 0) : ?>
+                                    <!-- Qte de Brindes vendidos via dinheiro -->
+                                    <li class="list-group-item">Vendas: <?= $cupom["compras"] ?> </li>
+                                <?php endif; ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
 
+                        <div class="soma-turno">
+                            <h4>Total Turno</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item"> Brindes Resgatados: <?= $turno["somaTurno"]["resgatados"] ?> </li>
+                                <li class="list-group-item"> Brindes Usados: <?= $turno["somaTurno"]["usados"] ?> </li>
+                                <li class="list-group-item"> Gotas Bonificadas: <?= $turno["somaTurno"]["gotas"] ?> </li>
+                                <li class="list-group-item"> Dinheiro Recebido: <?= $this->Number->currency($turno["somaTurno"]["dinheiro"]) ?> </li>
+                                <li class="list-group-item"> Bonificação: <?= $turno["somaTurno"]["brindes"] ?> </li>
+                                <li class="list-group-item"> Vendas: <?= $turno["somaTurno"]["compras"] ?> </li>
+                            </ul>
+                        </div>
                     <?php else : ?>
                         <h5 class="text-center">Não há dados para o turno!</h5>
                     <?php endif; ?>
