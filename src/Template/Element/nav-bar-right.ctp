@@ -423,7 +423,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                         <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
                     </li>
                     <li>
-                        <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Fechamento de Funcionários</a>
+                        <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a>
                     </li>
 
                     <li role="separator" class="divider" />

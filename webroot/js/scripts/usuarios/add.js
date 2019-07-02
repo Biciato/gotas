@@ -612,7 +612,7 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    initializeDatePicker("data_nasc", null, 'now');
+    initializeDatePicker("data_nasc", null, null, null, 'now');
     /**
      * Configurações de ação para botão confirmar
      */

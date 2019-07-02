@@ -600,7 +600,7 @@ var preventEnterActionInput = function (ev) {
  *
  * @return void
  */
-var initializeDatePicker = function (campo, minDate, maxDate) {
+var initializeDatePicker = function (campo, campoOculto, actualDate, minDate, maxDate) {
     var options = {
         minView: 2,
         maxView: 2,
@@ -614,6 +614,9 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
         initialDate: new Date()
     };
 
+    var format = "DD/MM/YYYY";
+    var formatUS = "YYYY-MM-DD";
+
     if (minDate != undefined) {
         options.minDate = minDate;
     }
@@ -624,6 +627,20 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
 
     $("#" + campo).datepicker(options);
 
+    if (actualDate !== undefined) {
+        var date = moment(actualDate).format("DD/MM/YYYY");
+        // var date = moment(actualDate);
+        // options.setDate = date;
+        // $("#" + campo).datepicker("setDate", actualDate);
+        $("#" + campo).datepicker("setDate", date);
+    }
+
+    var valor = moment().format(format);
+
+    if (actualDate !== undefined) {
+        valor = moment(actualDate).format(format);
+    }
+
     $("#" + campo)
         .on("keyup", function (ev) {
             preventEnterActionInput(ev);
@@ -632,12 +649,19 @@ var initializeDatePicker = function (campo, minDate, maxDate) {
         .on("keydown", function (ev) {
             preventEnterActionInput(ev);
         });
+
+    if (campoOculto) {
+        $("#" + campo).on("change", function(ev){
+            valor = ev.target.value;
+            $("#" + campoOculto).val(moment(valor, format).format(formatUS));
+        });
+    }
 };
 
 /**
- * home::initializeDatePicker
+ * home::initializeDateTimePicker
  *
- * Inicializa um campo como date picker
+ * Inicializa um campo como date time picker
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-03-04
@@ -729,7 +753,7 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
                 }
             } else {
                 var data = moment(value, "DD/MM/YYYY HH:mm", true);
-                if (data.isValid()){
+                if (data.isValid()) {
                     $("#" + campoOculto).val(data.format("YYYY-MM-DD HH:mm"));
                 }
             }

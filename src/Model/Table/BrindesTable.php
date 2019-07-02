@@ -6,7 +6,7 @@ use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
-use Aura\Intl\Exception;
+use \Exception;
 
 /**
  * Brindes Model
@@ -247,12 +247,13 @@ class BrindesTable extends GenericTable
      * @param integer $tempoUsoBrindeMax Tempo Uso Brinde Maximo
      * @param integer $ilimitado Ilimitado
      * @param string $tipoEquipamento Tipo Equipamento
-     * @param string $tipoVenda Tipo de Venda
+     * @param array $tipoVendas Tipo de Venda
      * @param string $tipoCodigoBarras Tipo Codigo Barras
      * @param float $precoPadraoMin Preco Padrao Minimo
      * @param float $precoPadraoMax Preco Padrao Maximo
      * @param float $valorMoedaVendaPadraoMin Valor Moeda Venda Padrao Minimo
      * @param float $valorMoedaVendaPadraoMax Valor Moeda Venda Padrao Maximo
+     * @param int $apagado Registro Apagado (< 0 pesquisa por todos)
      * @param array $orderBy Array de Ordenação
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -263,132 +264,150 @@ class BrindesTable extends GenericTable
 
     public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
     {
-        // try {
+        try {
 
-        $where = array();
+            $where = array();
 
-        if (!empty($redesId)) {
-            $where[] = array("RedesHasClientes.redes_id" => $redesId);
+            if (!empty($redesId)) {
+                $where[] = array("RedesHasClientes.redes_id" => $redesId);
+            }
+
+            if (!empty($clientesId)) {
+                $where[] = array("Brindes.clientes_id" => $clientesId);
+            }
+
+            if (!empty($codigoPrimario)) {
+                $where[] = array("Brindes.codigo_primario" => $codigoPrimario);
+            }
+
+            if (!empty($nome)) {
+                // $where[] = array("nome LIKE '%{$nome}%'");
+                $where[] = array("Brindes.nome = '{$nome}'");
+            }
+
+            if (!empty($tempoUsoBrindeMin) && !empty($tempoUsoBrindeMax)) {
+                $where[] = array("Brindes.tempo_uso_brinde BETWEEN '{$tempoUsoBrindeMin}' AND '{$tempoUsoBrindeMax}' ");
+            } else if (!empty($tempoUsoBrindeMin)) {
+                $where[] = array("Brindes.tempo_uso_brinde >= " => $tempoUsoBrindeMin);
+            } else if (!empty($tempoUsoBrindeMax)) {
+                $where[] = array("Brindes.tempo_uso_brinde <= " => $tempoUsoBrindeMax);
+            }
+
+            if (isset($ilimitado)) {
+                $where[] = array("Brindes.ilimitado" => $ilimitado);
+            }
+
+            if (!empty($tipoEquipamento)) {
+                $where[] = array("Brindes.tipo_equipamento" => $tipoEquipamento);
+            }
+
+            if (count($tiposVendas) > 0) {
+                $tiposVendas = implode("','", $tiposVendas);
+                $where[] = array("Brindes.tipo_venda IN ('{$tiposVendas}')");
+            }
+
+            if (!empty($tipoCodigoBarras)) {
+                $where[] = array("Brindes.tipo_codigo_barras" => $tipoCodigoBarras);
+            }
+
+            if (!empty($precoPadraoMin) && !empty($precoPadraoMax)) {
+                $where[] = array("Brindes.preco_padrao BETWEEN '{$precoPadraoMin}' AND '{$precoPadraoMax}' ");
+            } else if (!empty($precoPadraoMin)) {
+                $where[] = array("Brindes.preco_padrao >= " => $precoPadraoMin);
+            } else if (!empty($precoPadraoMax)) {
+                $where[] = array("Brindes.preco_padrao <= " => $precoPadraoMax);
+            }
+
+            if (!empty($valorMoedaVendaPadraoMin) && !empty($valorMoedaVendaPadraoMax)) {
+                $where[] = array("Brindes.valor_moeda_venda_padrao BETWEEN '{$valorMoedaVendaPadraoMin}' AND '{$valorMoedaVendaPadraoMax}' ");
+            } else if (!empty($valorMoedaVendaPadraoMin)) {
+                $where[] = array("Brindes.valor_moeda_venda_padrao >= " => $valorMoedaVendaPadraoMin);
+            } else if (!empty($valorMoedaVendaPadraoMax)) {
+                $where[] = array("Brindes.valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
+            }
+
+            // Só mostra os registros não apagados
+            if (!isset($apagado)) {
+                $where[] = array("Brindes.apagado" => 0);
+            } elseif ($apagado < 0) {
+                $where[] = array("Brindes.apagado IN " => array(0, 1));
+            } else {
+                $where[] = array("Brindes.apagado" => $apagado);
+            }
+
+            $whereConditions = $where;
+            $contains = array("PrecoAtual");
+
+            $brindes = $this->find('all')
+                ->contain($contains)
+                ->where($whereConditions);
+
+            if (count($orderBy) > 0) {
+                $brindes = $brindes->order($orderBy);
+            }
+
+            return $brindes;
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            $messageTrace = sprintf("[%s] %s / %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage(), $trace);
+
+            Log::write('error', $message);
+            Log::write('debug', $messageTrace);
+
+            throw new Exception($message);
         }
+    }
 
-        if (!empty($clientesId)) {
-            $where[] = array("Brindes.clientes_id" => $clientesId);
+    /**
+     * BrindesTable::getList
+     * 
+     * Obtem a lista de brindes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-01
+     *
+     * @param integer $redesId Redes Id
+     * @param integer $clientesId Clientes Id
+     * @param integer $apagado Apagado
+     * 
+     * @return array[int, string] Lista de Brindes
+     */
+    public function getList(int $redesId = null, int $clientesId = null, int $apagado = null)
+    {
+        try {
+            $where = array();
+
+            if (!empty($redesId)) {
+                $where["Brindes.redes_id"] = $redesId;
+            }
+
+            if (!empty($clientesId)) {
+                $where["Brindes.clientes_id"] = $clientesId;
+            }
+
+            if (count($where) == 0) {
+                throw new Exception("Informe um dos seguintes argumentos para obter a lista de brindes: [REDES_ID, CLIENTES_ID]!");
+            }
+
+            // Só mostra os registros não apagados
+            if (!isset($apagado)) {
+                $where[] = array("Brindes.apagado" => 0);
+            } elseif ($apagado < 0) {
+                $where[] = array("Brindes.apagado IN " => array(0, 1));
+            } else {
+                $where[] = array("Brindes.apagado" => $apagado);
+            }
+
+            $brindes = $this->find("list")->where($where);
+
+            return $brindes;
+
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+
+            throw new Exception($message);
         }
-
-        if (!empty($codigoPrimario)) {
-            $where[] = array("Brindes.codigo_primario" => $codigoPrimario);
-        }
-
-        if (!empty($nome)) {
-            // $where[] = array("nome LIKE '%{$nome}%'");
-            $where[] = array("Brindes.nome = '{$nome}'");
-        }
-
-        if (!empty($tempoUsoBrindeMin) && !empty($tempoUsoBrindeMax)) {
-            $where[] = array("Brindes.tempo_uso_brinde BETWEEN '{$tempoUsoBrindeMin}' AND '{$tempoUsoBrindeMax}' ");
-        } else if (!empty($tempoUsoBrindeMin)) {
-            $where[] = array("Brindes.tempo_uso_brinde >= " => $tempoUsoBrindeMin);
-        } else if (!empty($tempoUsoBrindeMax)) {
-            $where[] = array("Brindes.tempo_uso_brinde <= " => $tempoUsoBrindeMax);
-        }
-
-        if (isset($ilimitado)) {
-            $where[] = array("Brindes.ilimitado" => $ilimitado);
-        }
-
-        if (!empty($tipoEquipamento)) {
-            $where[] = array("Brindes.tipo_equipamento" => $tipoEquipamento);
-        }
-
-        if (count($tiposVendas) > 0) {
-            $tiposVendas = implode("','", $tiposVendas);
-            $where[] = array("Brindes.tipo_venda IN ('{$tiposVendas}')");
-        }
-
-        if (!empty($tipoCodigoBarras)) {
-            $where[] = array("Brindes.tipo_codigo_barras" => $tipoCodigoBarras);
-        }
-
-        if (!empty($precoPadraoMin) && !empty($precoPadraoMax)) {
-            $where[] = array("Brindes.preco_padrao BETWEEN '{$precoPadraoMin}' AND '{$precoPadraoMax}' ");
-        } else if (!empty($precoPadraoMin)) {
-            $where[] = array("Brindes.preco_padrao >= " => $precoPadraoMin);
-        } else if (!empty($precoPadraoMax)) {
-            $where[] = array("Brindes.preco_padrao <= " => $precoPadraoMax);
-        }
-
-        if (!empty($valorMoedaVendaPadraoMin) && !empty($valorMoedaVendaPadraoMax)) {
-            $where[] = array("Brindes.valor_moeda_venda_padrao BETWEEN '{$valorMoedaVendaPadraoMin}' AND '{$valorMoedaVendaPadraoMax}' ");
-        } else if (!empty($valorMoedaVendaPadraoMin)) {
-            $where[] = array("Brindes.valor_moeda_venda_padrao >= " => $valorMoedaVendaPadraoMin);
-        } else if (!empty($valorMoedaVendaPadraoMax)) {
-            $where[] = array("Brindes.valor_moeda_venda_padrao <= " => $valorMoedaVendaPadraoMax);
-        }
-
-        // Só mostra os registros não apagados
-        if (!isset($apagado)) {
-            $where[] = array("Brindes.apagado" => 0);
-        } elseif ($apagado < 0) {
-            $where[] = array("Brindes.apagado IN " => array(0, 1));
-        } else {
-            $where[] = array("Brindes.apagado" => $apagado);
-        }
-
-        $whereConditions = $where;
-        $contains = array("PrecoAtual");
-        // $contains = array(
-        //     "PrecoAtual" => array(
-        //         "conditions" => array(
-        //             "PrecoAtual.brindes_id = Brindes.id",
-
-        //         ),
-        //         "order" => array(
-        //             "PrecoAtual.id" => "DESC"
-        //         )
-        //     )
-        // );
-        // $contains = array("Cliente", "PrecoAtual");
-
-        // if (!empty($redesId)) {
-        //     $contains = array("Cliente.RedesHasClientes");
-        // }
-
-
-        $brindes = $this->find('all')
-            ->contain($contains)
-            ->where($whereConditions);
-
-        // $brindes = $brindes->select($this);
-        // $brindes = $brindes->select(array(
-        //     // "data" => "MAX(PrecoAtual.data_preco)",
-        //     "data" => "PrecoAtual.data_preco",
-        //     "preco_atual" => "PrecoAtual.preco",
-        //     "valor_atual" => "PrecoAtual.valor_moeda_venda"
-        // ))
-        // ->order(array("data" => "desc"))
-        // // ;
-        // ->limit(1);
-
-        // $brindes = $brindes->group(array("Brindes.id"));
-        // $brindes = $brindes->group(array("Brindes.id", "PrecoAtual.preco", "PrecoAtual.valor_moeda_venda"));
-
-
-
-        if (count($orderBy) > 0) {
-            $brindes = $brindes->order($orderBy);
-            // $brindes = $brindes->order(array("PrecoAtual.id" => "desc"));
-        }
-
-
-
-        return $brindes;
-        // } catch (\Exception $e) {
-        //     $trace = $e->getTraceAsString();
-        //     $stringError = __("Erro ao obter registros: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-        //     Log::write('error', $stringError);
-        //     Log::write('error', $trace);
-        // }
     }
 
     public function getBrindesSell(int $clientesId, string $tipoVenda, string $tipoOperacao)

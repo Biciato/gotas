@@ -414,7 +414,7 @@ $(document).ready(function () {
 
     $("#cep").mask("99.999-999");
 
-    initializeDatePicker("data_nasc", new Date());
+    initializeDatePicker("data_nasc", null,  null,  null, new Date());
 
     /**
      * Esconde e reseta as informações de Redes

@@ -1203,6 +1203,8 @@ class CuponsController extends AppController
     {
         $arraySet = array(
             "dadosVendaFuncionarios",
+            "brindesList",
+            "brindeSelecionado",
             "funcionariosList",
             "funcionarioSelecionado",
             "pesquisaFeita",
@@ -1234,15 +1236,17 @@ class CuponsController extends AppController
 
         $date = date("Y-m-d H:i");
         // Uma semana atrás
-        $diaInicio = strtotime('-1 week', strtotime($date));
-        $dataInicio = date("Y-m-d 00:00", $diaInicio);
-        $dataFim = date("Y-m-d H:i", strtotime($date));
+        $diaInicio = strtotime('-1 day', strtotime($date));
+        $dataInicio = date("Y-m-d", $diaInicio);
+        $dataFim = date("Y-m-d", strtotime($date));
 
         $dadosVendaFuncionarios = array();
 
         // Pega todos os funcionários do posto do gerente alocado
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"], null, null, PROFILE_TYPE_WORKER))->find("list");
         $funcionarioSelecionado = 0;
+        $brindesList = $this->Brindes->getList(null, $cliente->id, -1);
+        $brindeSelecionado = 0;
         $tipoRelatorio = REPORT_TYPE_SYNTHETIC;
         $tituloTurno = "";
 
@@ -1259,11 +1263,14 @@ class CuponsController extends AppController
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+
+            // DebugUtil::printArray($data);
             $pesquisaFeita = 1;
 
             // Define datas
             $dataInicio = !empty($data["data_inicio_envio"]) ?  $data["data_inicio_envio"] : $dataInicio;
             $dataFim = !empty($data["data_fim_envio"]) ?  $data["data_fim_envio"] : $dataFim;
+            $brindeSelecionado = !empty($data["brinde"]) ? $data["brinde"] : 0;
             $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
 
             $turno = 1;

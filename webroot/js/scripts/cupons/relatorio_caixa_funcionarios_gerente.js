@@ -16,22 +16,19 @@ $(document).ready(function () {
     console.log(dataInicioTemp);
     console.log(dataFimTemp);
 
-    var dataInicio = undefined;
-    var dataFim = undefined;
+    var dataInicio;
+    var dataFim;
 
     if (dataInicioTemp !== undefined) {
-        // dataInicio = moment(dataInicioTemp, "YYYY-MM-DD HH:mm").format("DD/MM/YYYY HH:mm");
         dataInicio = dataInicioTemp;
-        // moment(new Date(), "YYYY-MM-DD HH:mm A").format("DD/MM/YYYY HH:mm")
     }
 
     if (dataFimTemp !== undefined) {
-        // dataFim = moment(dataFimTemp).format("YYYY-MM-DD HH:mm");
         dataFim = dataFimTemp;
     }
 
-    initializeDateTimePicker("data_inicio", "data_inicio_envio", dataInicio, null, new Date());
-    initializeDateTimePicker("data_fim", "data_fim_envio", dataFim, null, new Date());
+    initializeDatePicker("data_inicio", "data_inicio_envio", dataInicio, null, new Date());
+    initializeDatePicker("data_fim", "data_fim_envio", dataFim, null, new Date());
 
     $(".print-button-thermal").on("click", function () {
 
