@@ -1239,16 +1239,12 @@ class UsuariosTable extends GenericTable
                 $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
             } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
-
                 $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
-                // $whereConditions[] = array(__("{$prefixo}.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-                // $whereConditions[] = array(__("ClienteHasUsuario.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
-                // $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax)),
             } else {
                 $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
 
-                $whereConditions[] = array("Usuario.tipo_perfil" => $tipoPerfil);
+                $whereConditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
             }
 
             if (!empty($cpf)) {

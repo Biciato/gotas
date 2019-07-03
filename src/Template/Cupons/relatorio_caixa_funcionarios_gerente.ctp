@@ -40,7 +40,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <div class="panel-body">
                     <form action="/cupons/relatorioCaixaFuncionariosGerente/" method="post">
                         <div class="form-group row">
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
 
                                 <label for="funcionario">Funcionário:</label>
                                 <?= $this->Form->input(
@@ -59,7 +59,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 ?>
 
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
 
                                 <label for="brinde">Brinde:</label>
                                 <?= $this->Form->input(
@@ -80,12 +80,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
 
                             <div class="col-lg-2">
-                                <label for="dataInicio">Data Início:</label>
-                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data_inicio" id="data_inicio" placeholder="Data Início...">
-                            </div>
-                            <div class="col-lg-2">
-                                <label for="dataFim">Data Fim:</label>
-                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data_fim" id="data_fim" placeholder="Data Fim...">
+                                <label for="dataInicio">Data de Pesquisa:</label>
+                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data_pesquisa" id="data_pesquisa" placeholder="Data Início...">
                             </div>
 
                             <div class="col-lg-2">
@@ -106,8 +102,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 ); ?>
                             </div>
 
-                            <input type="text" name="data_inicio_envio" id="data_inicio_envio" value="<?= $dataInicio ?>" class="data-inicio-envio">
-                            <input type="text" name="data_fim_envio" id="data_fim_envio" value="<?= $dataFim ?>" class="data-fim-envio">
+                            <input type="hidden" name="data_pesquisa_envio" id="data_pesquisa_envio" value="<?= $dataPesquisa ?>" class="data-pesquisa-envio">
 
                         </div>
                         <div class="form-group row">

@@ -196,71 +196,138 @@ class ShiftUtil
     {
         // DebugUtil::printArray($horarios, false);
         // Reposiciona os turnos se data de fim informada
-        if (!empty($dataFim)) {
-            $horaTurnoAtual = new DateTime($turnoAtual["horario"]->format("Y-m-d H:i:s"));
+        $horaTurnoAtual = new DateTime($turnoAtual["horario"]->format("Y-m-d H:i:s"));
 
-            $horaFimEncontrado = null;
-            $qteHorarios = count($horarios);
-            $ultimoTurnoEncontrado = new ClientesHasQuadroHorario();
+        $horaFimEncontrado = null;
+        $qteHorarios = count($horarios);
+        $ultimoTurnoEncontrado = new ClientesHasQuadroHorario();
 
-            $diferencaTurnos = 24 / $qteHorarios;
-            $ultimoTurnoHorarios = end($horarios);
+        $diferencaTurnos = 24 / $qteHorarios;
+        $ultimoTurnoHorarios = end($horarios);
 
-            // Número de horas à reduzir
-            $dataAdicionar = $diferencaTurnos * 3600;
+        // Número de horas à reduzir
+        $dataAdicionar = $diferencaTurnos * 3600;
 
-            while ($horaFimEncontrado == null) {
-                if ($horaTurnoAtual->getTimestamp() <= $dataFim->getTimestamp()) {
-                    $horaFimEncontrado = $horaTurnoAtual;
+        while ($horaFimEncontrado == null) {
+            if ($horaTurnoAtual->getTimestamp() <= $dataFim->getTimestamp()) {
+                $horaFimEncontrado = $horaTurnoAtual;
 
-                    $ultimoTurnoEncontrado->clientes_id = $ultimoTurnoHorarios->clientes_id;
-                    $ultimoTurnoEncontrado->horario = $horaFimEncontrado;
-                    $ultimoTurnoEncontrado->redes_id = $ultimoTurnoHorarios->redes_id;
+                $ultimoTurnoEncontrado->clientes_id = $ultimoTurnoHorarios->clientes_id;
+                $ultimoTurnoEncontrado->horario = $horaFimEncontrado;
+                $ultimoTurnoEncontrado->redes_id = $ultimoTurnoHorarios->redes_id;
 
-                    break;
-                }
-
-                $horaTurnoAtual->modify(sprintf("-%s seconds", $dataAdicionar));
+                break;
             }
 
-            $turnos = array();
-            $horaInicioEncontrado = null;
-            $turnos[] = $ultimoTurnoEncontrado;
-            $horaInicioPesquisa = new DateTime($horaFimEncontrado->format("Y-m-d H:i:s"));
-
-            while (empty($horaInicioEncontrado)) {
-
-                $horaInicioPesquisa->modify(sprintf("-%s seconds", $dataAdicionar));
-                $hora = new DateTime($horaInicioPesquisa->format("Y-m-d H:i:s"));
-
-                $turno = new ClientesHasQuadroHorario();
-                $turno->clientes_id = $ultimoTurnoHorarios->clientes_id;
-                $turno->horario = $hora;
-                $turno->redes_id = $ultimoTurnoEncontrado->redes_id;
-
-                $turnos[] = $turno;
-
-                if ($horaInicioPesquisa->getTimestamp() <= $dataInicio->getTimestamp()) {
-                    $horaInicioEncontrado = $horaInicioPesquisa;
-                    break;
-                }
-            }
-
-            usort($turnos, function ($a, $b) {
-                return $a->horario >= $b->horario;
-            });
-
-
-            foreach ($horarios as $horarioItem) {
-                foreach ($turnos as $turno) {
-                    if ($horarioItem->horario->format("H:i:s") == $turno->horario->format("H:i:s")) {
-                        $turno->id = $horarioItem->id;
-                    }
-                }
-            }
-
-            // DebugUtil::printArray($turnos);
-            return $turnos;
+            $horaTurnoAtual->modify(sprintf("-%s seconds", $dataAdicionar));
         }
+
+        $turnos = array();
+        $horaInicioEncontrado = null;
+        $turnos[] = $ultimoTurnoEncontrado;
+        $horaInicioPesquisa = new DateTime($horaFimEncontrado->format("Y-m-d H:i:s"));
+
+        while (empty($horaInicioEncontrado)) {
+
+            $horaInicioPesquisa->modify(sprintf("-%s seconds", $dataAdicionar));
+            $hora = new DateTime($horaInicioPesquisa->format("Y-m-d H:i:s"));
+
+            $turno = new ClientesHasQuadroHorario();
+            $turno->clientes_id = $ultimoTurnoHorarios->clientes_id;
+            $turno->horario = $hora;
+            $turno->redes_id = $ultimoTurnoEncontrado->redes_id;
+
+            $turnos[] = $turno;
+
+            if ($horaInicioPesquisa->getTimestamp() <= $dataInicio->getTimestamp()) {
+                $horaInicioEncontrado = $horaInicioPesquisa;
+                break;
+            }
+        }
+
+        usort($turnos, function ($a, $b) {
+            return $a->horario >= $b->horario;
+        });
+
+
+        foreach ($horarios as $horarioItem) {
+            foreach ($turnos as $turno) {
+                if ($horarioItem->horario->format("H:i:s") == $turno->horario->format("H:i:s")) {
+                    $turno->id = $horarioItem->id;
+                }
+            }
+        }
+
+        // DebugUtil::printArray($turnos);
+        return $turnos;
+    }
+
+    /**
+     * ShiftUtil::reordenaTurnosInicioDia
+     *
+     * Retorna um array de Turnos para começar no início do dia
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-02
+     *
+     * @param array[id, horario, horario_fim] $horarios Array de Horários
+     *
+     * @return  array[id, horario, horario_fim] $horarios Array de Horários
+     */
+    public static function reordenaTurnosInicioDia(array $horarios, DateTime $diaInicio = null)
+    {
+        $qteTurnos = count($horarios);
+        $diferencaHora = 24 / $qteTurnos;
+
+        // obtem o turno mais cedo da lista
+        $primeiroTurno = end($horarios);
+
+        // Descobre qual é o primeiro horário do dia
+        foreach ($horarios as $horarioItem) {
+            if ($primeiroTurno["horario"]->getTimestamp() > $horarioItem["horario"]->getTimestamp()) {
+                $primeiroTurno = $horarioItem;
+            }
+        }
+
+        $turnoComparacao = $primeiroTurno;
+
+        if (!empty($diaInicio)) {
+            $turnoComparacao["horario"] = new DateTime(sprintf("%s %s", $diaInicio->format("Y-m-d") , $turnoComparacao["horario"]->format("H:i:s")));
+        }
+
+        $turnos = array();
+
+        // Monta os turnos
+        for ($i = 0; $i < $qteTurnos; $i++) {
+            $inicio = new DateTime($turnoComparacao["horario"]->format("Y-m-d H:i:s"));
+            $fim = new DateTime($inicio->format("Y-m-d H:i:s"));
+            $fim->modify(sprintf("+%s HOURS", $diferencaHora));
+
+            $turno = array(
+                "horario" => $inicio,
+                "horario_fim" => $fim
+            );
+
+            $turnos[] = $turno;
+
+            $turnoComparacao["horario"] = $fim;
+        }
+
+        // atribui os ids para pesquisa
+        $turnosRetorno = array();
+
+        foreach ($turnos as $turno) {
+            foreach ($horarios as $horarioItem) {
+                if ($turno["horario"]->format("H:i:s") == $horarioItem["horario"]->format("H:i:s")) {
+                    $turnosRetorno[] = array(
+                        "id" => $horarioItem["id"],
+                        "horario" => $turno["horario"],
+                        "horario_fim" => $turno["horario_fim"]
+                    );
+                }
+            }
+        }
+
+        return $turnosRetorno;
     }
 }

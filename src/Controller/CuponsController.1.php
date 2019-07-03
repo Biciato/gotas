@@ -882,7 +882,7 @@ class CuponsController extends AppController
                     $somaDiferencaTurnos += $diferencaTurnos;
 
                     foreach ($turnosPosto as $turno) {
-                        if ($turno["horario"]->format("H:i:s") === $horarioTurno->format("H:i:s")) {
+                        if ($turno->horario->format("H:i:s") === $horarioTurno->format("H:i:s")) {
                             $item = $turno;
                             $fim = new DateTime($horarioTurno->format("Y-m-d H:i:s"));
                             $fim->modify(sprintf("+%s hours", $diferencaTurnos));
@@ -898,7 +898,7 @@ class CuponsController extends AppController
                 $turnosTemp = array();
 
                 foreach ($turnosPosto as $key => $turno) {
-                    $turno["horario_fim"] = new DateTime($turno["horario"]->format("Y-m-d H:i:s"));
+                    $turno["horario_fim"] = new DateTime($turno->horario->format("Y-m-d H:i:s"));
                     $turno["horario_fim"]->modify(sprintf("+%s hours", $diferencaTurnos));
                     $turnosTemp[] = $turno;
                 }
@@ -937,7 +937,7 @@ class CuponsController extends AppController
                     $dataFimPesquisa = null;
 
                     if ($tipoFiltroSelecionado == FILTER_TYPE_SHIFT) {
-                        $dataInicioPesquisa = new DateTime($turno["horario"]->format("Y-m-d H:i:s"));
+                        $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
                         $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
 
                         if ($contadorLoop == 0) {
@@ -945,7 +945,7 @@ class CuponsController extends AppController
                             $dataInicioPesquisa = new DateTime($dataHoraLimitePesquisa->format("Y-m-d H:i:s"));
                         }
                     } else {
-                        $dataInicioPesquisa = new DateTime($turno["horario"]->format("Y-m-d H:i:s"));
+                        $dataInicioPesquisa = new DateTime($turno->horario->format("Y-m-d H:i:s"));
                         $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
 
                         if ($contadorLoop == 0) {
@@ -992,7 +992,7 @@ class CuponsController extends AppController
 
             // Obtem os dados dos cupons
 
-            $cuponsFuncionario = array();
+            $cuponsFuncionarios = array();
             $dadosVendaFuncionarios = array();
             $funcionarios = array();
             $funcionario = array(
@@ -1050,6 +1050,10 @@ class CuponsController extends AppController
                         $dinheiro += $cupom["valor_pago_reais"];
                         $gotas += $cupom["valor_pago_gotas"];
 
+                        // Verifica se naquele turno, teve resgate ou uso efetuado pelo funcionário do brinde em questão.
+                        // $resgatados = $cupom["resgatado"] ? $resgatados + 1 : $resgatados;
+                        // $usados += $cupom["usado"] ? $usados + 1 : $usados;
+
                         // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                         $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"]))) ? 1 : 0;
                         // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
@@ -1065,6 +1069,22 @@ class CuponsController extends AppController
                         "brindes" => $brindes,
                         "compras" => $compras
                     );
+
+                    // $somaTurno = array(
+                    //     "resgatados" => $resgatados,
+                    //     "usados" => $usados,
+                    //     "gotas" => $gotas,
+                    //     "dinheiro" => $dinheiro,
+                    //     "brindes" => $brindes,
+                    //     "compras" => $compras
+                    // );
+
+                    // $somaResgatados += $resgatados;
+                    // $somaUsados += $usados;
+                    // $somaGotas += $gotas;
+                    // $somaDinheiro += $dinheiro;
+                    // $somaBrindes += $brindes;
+                    // $somaCompras += $compras;
 
                     $turnoItem[] = $dados;
                 }
@@ -1116,6 +1136,7 @@ class CuponsController extends AppController
                         "usados" => $usados
                     );
 
+
                     $turnoItemTemp[] = $dados;
                 }
 
@@ -1136,11 +1157,14 @@ class CuponsController extends AppController
                 $totalDinheiro += $somaDinheiro;
                 $totalBrindes += $somaBrindes;
                 $totalCompras += $somaCompras;
+
                 $dadosTurno["somaTurno"] = $somaTurno;
                 $dadosTurno["cupons"] = $turnoItem;
 
+
                 $turnosRetorno[] = $dadosTurno;
             }
+
 
             $funcionario["soma"] = $somaTurno;
             $funcionario["turnos"] = $turnosRetorno;
@@ -1217,7 +1241,7 @@ class CuponsController extends AppController
         $dadosVendaFuncionarios = array();
 
         // Pega todos os funcionários do posto do gerente alocado
-        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, PROFILE_TYPE_WORKER)->find("list");
+        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"], null, null, PROFILE_TYPE_WORKER))->find("list");
         $funcionarioSelecionado = 0;
         $brindesList = $this->Brindes->getList(null, $cliente->id, -1);
         $brindeSelecionado = 0;
@@ -1241,34 +1265,30 @@ class CuponsController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
-            $dataInicio = !empty($data["data_pesquisa_envio"]) ?  $data["data_pesquisa_envio"] : $dataInicioPesquisa;
-            $dataPesquisa = $dataInicio;
-            $dataInicioPesquisa = new DateTime(date("Y-m-d", strtotime($dataInicio)));
-            $dataFimPesquisa = new DateTime(date("Y-m-d 00:00:00", strtotime($dataInicio)));
-            $dataFimPesquisa->modify("+1 DAY");
-            $dataFimPesquisa->modify("-1 SECOND");
-            $dataFim = $dataFimPesquisa->format("Y-m-d H:i:s");
-            $brindeSelecionado = !empty($data["brinde"]) ? $data["brinde"] : 0;
-            $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
-            $tituloTurno = $tipoRelatorio == REPORT_TYPE_SYNTHETIC ? "Relatório Sintético" : "Relatório Analítico";
-
             // DebugUtil::printArray($data);
             $pesquisaFeita = 1;
 
             $listaHorarios = array();
             $horasTurno = 24 / $quadroHorariosClienteLength;
-
             foreach ($quadroHorariosCliente as $horarioItem) {
                 $horaFim = new DateTime($horarioItem->horario->format("Y-m-d H:i:s"));
                 $horaFim->modify(sprintf("+%s HOURS", $horasTurno));
                 $listaHorarios[] = array(
                     "id" => $horarioItem->id,
-                    "horario" => new DateTime($horarioItem->horario->format("Y-m-d H:i:s")),
+                    "horario_inicio" => new DateTime($horarioItem->horario->format("Y-m-d H:i:s")),
                     "horario_fim" => $horaFim
                 );
             }
 
-            $turnosPesquisa = ShiftUtil::reordenaTurnosInicioDia($listaHorarios, $dataInicioPesquisa);
+            $quadroHorariosCliente = ShiftUtil::reordenaTurnosInicioDia($listaHorarios, $dataInicioPesquisa);
+
+
+            // Define datas
+            $dataInicio = !empty($data["data_pesquisa_envio"]) ?  $data["data_pesquisa_envio"] : $dataInicio;
+            $brindeSelecionado = !empty($data["brinde"]) ? $data["brinde"] : 0;
+            $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+
+            $tituloTurno = $turno ? "Turno: Atual" : "Turno: Anterior";
 
             // Lista dos IDS de funcionários
             $funcionariosArray = $funcionariosList->toArray();
@@ -1278,6 +1298,20 @@ class CuponsController extends AppController
             if ($funcionarioSelecionado > 0) {
                 $funcionariosArray = array($funcionarioSelecionado => $funcionariosArray[$funcionarioSelecionado]);
             }
+
+            // Obtem os brindes habilitados do posto de atendimento
+
+            $brindes = $this->Brindes->findBrindes(null, $cliente["id"]);
+            $brindes = $brindes->toArray();
+            $brindesCliente = array();
+
+            foreach ($brindes as $brinde) {
+                $brindesCliente[] = array(
+                    "id" => $brinde->id,
+                    "nomeBrinde" => $brinde->nome,
+                    "clientesId" => $cliente->id
+                );
+            };
 
             $funcionarios = array();
 
@@ -1289,263 +1323,132 @@ class CuponsController extends AppController
             $totalBrindes = null;
             $totalCompras = null;
 
-            // Monta o relatório
-
-            // Obtem os brindes habilitados do posto de atendimento
-
-            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
-            $brindes = $brindes->toArray();
-            $brindesCliente = array();
-
-            foreach ($brindes as $brinde) {
-                $brindesCliente[] = array(
-                    "id" => $brinde->id,
-                    "nome_brinde" => $brinde->nome,
-                    "clientesId" => $cliente->id
-                );
-            };
-
             foreach ($funcionariosArray as $funcionarioId => $funcionarioNome) {
                 $funcionario = array();
+
                 $funcionario["id"] = $funcionarioId;
                 $funcionario["nome"] = $funcionarioNome;
-                $turnos = array();
 
-                foreach ($turnosPesquisa as $turno) {
-                    $cupomListaTurno = array();
-                    foreach ($brindesCliente as $brinde) {
-                        $dataInicioPesquisa = new DateTime($turno["horario"]->format("Y-m-d H:i:s"));
-                        $dataFimPesquisa = new DateTime($turno["horario_fim"]->format("Y-m-d H:i:s"));
-                        $queryCupons = $this->Cupons->getCuponsFuncionario(null, $cliente->id, $funcionarioId, $brinde["id"], $turno["id"], $dataInicioPesquisa, $dataFimPesquisa);
-                        $cupons = array();
-
-                        foreach ($queryCupons as $key => $item) {
-                            $cupom = array(
-                                "brindes_id" => $brinde["id"],
-                                "nome_brinde" => $brinde["nome_brinde"],
-                                "valor_pago_gotas" => $item->valor_pago_gotas,
-                                "valor_pago_reais" => $item->valor_pago_reais,
-                                "tipo_venda" => $item->tipo_venda,
-                                "data" => $item->data,
-                                "resgatado" => $item->resgatado,
-                                "usado" => $item->usado,
-                                "funcionario" => $item->funcionario,
-                                "usuario" => $item->usuario
-                            );
-
-                            // DebugUtil::printArray($item);
-                            $cupons[] = $cupom;
-                        }
-
-                        if (!empty($cupons)) {
-                            $cupomListaTurno[] = array(
-                                "brindes_id" => $brinde["id"],
-                                "nome_brinde" => $brinde["nome_brinde"],
-                                "dados" => $cupons
-                            );
-                        }
-                    }
-                    $turno["cupons"] = $cupomListaTurno;
-                    $turnos[] = $turno;
-                }
-
-                // Obtem os dados dos cupons
-
+                $somaResgatados = 0;
+                $somaUsados = 0;
+                $somaGotas = 0;
+                $somaDinheiro = 0;
+                $somaBrindes = 0;
+                $somaCompras = 0;
                 $cuponsFuncionario = array();
-                $dadosVendaFuncionarios = array();
-                $funcionarios = array();
-                $funcionario = array(
-                    "id" => $usuarioLogado["id"],
-                    "nome" => $usuarioLogado["nome"]
-                );
 
-                $somaFuncionarioResgatados = 0;
-                $somaFuncionarioUsados = 0;
-                $somaFuncionarioGotas = 0;
-                $somaFuncionarioDinheiro = 0;
-                $somaFuncionarioBrindes = 0;
-                $somaFuncionarioCompras = 0;
-
-                // Soma total de todos os funcionários
-                $totalResgatados = null;
-                $totalUsados = null;
-                $totalGotas = null;
-                $totalDinheiro = null;
-                $totalBrindes = null;
-                $totalCompras = null;
-
-
-
-                $dadosTurno = array();
-                $turnosRetorno = array();
-                $dadosAnaliticos = array();
                 $dadosSinteticos = array();
 
-                // DebugUtil::printArray($turnos);
-                foreach ($turnos as $turnoPesquisa) {
-                    $somaTurnoGotas = 0;
-                    $somaTurnoDinheiro = 0;
-                    $somaTurnoBrindes = 0;
-                    $somaTurnoCompras = 0;
-                    $somaTurnoResgatados = 0;
-                    $somaTurnoUsados = 0;
+                foreach ($brindesCliente as $cupomPesquisa) {
+                    $cupons = $this->Cupons->find("all")->where(
+                        array(
+                            "Cupons.brindes_id" => $cupomPesquisa["id"],
+                            "Cupons.clientes_id" => $cupomPesquisa["clientesId"],
+                            "Cupons.funcionarios_id" => $funcionarioId,
+                            "Cupons.data BETWEEN '{$dataInicio}' AND '{$dataFim}'"
+                        )
+                    )->contain(array("Brindes", "Usuarios", "Funcionarios"));
 
-                    $turnoItemSintetico = array();
-                    $dataInicioPesquisa = new DateTime($turnoPesquisa["horario"]->format("Y-m-d H:i:s"));
-                    $dataFimPesquisa = new DateTime($turnoPesquisa["horario_fim"]->format("Y-m-d H:i:s"));
-                    $dadosTurno = array(
-                        "horario_inicio" => $dataInicioPesquisa->format("d/m/Y H:i:s"),
-                        "horario_fim" => $dataFimPesquisa->format("d/m/Y H:i:s"),
-                        "cupons" => null
-                    );
-                    $dadosAnaliticos["horario_inicio"] = $dataInicioPesquisa->format("d/m/Y H:i:s");
-                    $dadosAnaliticos["horario_fim"] = $dataFimPesquisa->format("d/m/Y H:i:s");
-                    $dadosAnaliticos["cupons"] = null;
+                    $cuponsArray = $cupons->toArray();
 
-                    $somaTurno = array(
-                        "resgatados" => 0,
-                        "usados" => 0,
-                        "gotas" => 0,
-                        "dinheiro" => 0,
-                        "brindes" => 0,
-                        "compras" => 0
-                    );
+                    // DebugUtil::printArray($cuponsArray);
 
-                    // $cupons = array();
-                    // $cupons;
-                    foreach ($turnoPesquisa["cupons"] as $cupomPesquisa) {
-                        $dados = array();
-                        $resgatados = 0;
-                        $usados = 0;
-                        $gotas = 0;
-                        $dinheiro = 0;
-                        $brindes = 0;
-                        $compras = 0;
+                    $cupomFuncionario = array();
+                    $dados = array();
+                    $resgatados = 0;
+                    $usados = 0;
+                    $gotas = 0;
+                    $dinheiro = 0;
+                    $brindes = 0;
+                    $compras = 0;
+                    $sintetico = null;
+                    $usuarios = array();
+                    $cupons = array();
 
-                        // DebugUtil::printArray($cupomPesquisa);
+                    foreach ($cuponsArray as $cupom) {
+                        $resgatados = $cupom->resgatado ? $resgatados + 1 : $resgatados;
 
-                        foreach ($cupomPesquisa["dados"] as $cupom) {
-                            $dinheiro += $cupom["valor_pago_reais"];
-                            $gotas += $cupom["valor_pago_gotas"];
+                        $dinheiro += $cupom->valor_pago_reais;
+                        $gotas += $cupom->valor_pago_gotas;
 
-                            // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
-                            $compras += ($cupom["tipo_venda"] == TYPE_SELL_DISCOUNT_TEXT || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_reais"]))) ? 1 : 0;
-                            // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
-                            $brindes += ($cupom["tipo_venda"] == TYPE_SELL_FREE_TEXT || ($cupom["tipo_venda"] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom["valor_pago_gotas"]))) ? 1 : 0;
-                        }
+                        // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
+                        $compras += ($cupom->tipo_venda == TYPE_SELL_DISCOUNT_TEXT
+                            || ($cupom->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom->valor_pago_reais)))
+                            ? 1 : 0;
+                        // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
+                        $brindes += ($cupom->tipo_venda == TYPE_SELL_FREE_TEXT
+                            || ($cupom->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($cupom->valor_pago_gotas)))
+                            ? 1 : 0;
 
-                        // somatória parcial
-                        $dados = array(
-                            "brindes_id" => $cupomPesquisa["brindes_id"],
-                            "nome_brinde" => $cupomPesquisa["nome_brinde"],
-                            "gotas" => $gotas,
-                            "dinheiro" => $dinheiro,
-                            "brindes" => $brindes,
-                            "compras" => $compras
+                        $usados = $cupom->usado ? $usados + 1 : $usados;
+
+                        $dado =  array(
+                            "id" => $cupom->id,
+                            "valor_pago_gotas" => $cupom->valor_pago_gotas,
+                            "valor_pago_reais" => $cupom->valor_pago_reais,
+                            "brindes_id" => $cupom->brindes_id,
+                            "usuarios_id" => $cupom->usuarios_id,
+                            "resgatado" => $cupom->resgatado,
+                            "quantidade" => $cupom->quantidade,
+                            "usado" => $cupom->usado,
+                            "data" => $cupom->data->format("d/m/Y H:i:s")
                         );
-
-                        $cupons[$cupom["usuario"]["id"]]["usuario"]["nome"] = $cupom["usuario"]["nome"];
-                        $cupons[$cupom["usuario"]["id"]]["usuario"]["dados"][] = $dados;
-
-                        $turnoItemSintetico[] = $dados;
-
-                        $dadosAnaliticos["brinde"][] = array(
-                        // $dadosAnaliticos[] = array(
-                            "id" => $cupomPesquisa["brindes_id"],
-                            "nome" => $cupomPesquisa["nome_brinde"],
-                            "cupons" => $cupons
-                        );
+                        $cupons[$cupom->usuario->id]["usuario"]["nome"] = $cupom->usuario->nome;
+                        $cupons[$cupom->usuario->id]["usuario"]["dados"][] = $dado;
                     }
 
-                    $sintetico = array();
-                    $turnoSintetico = array();
-                    $turnoItemTemp = array();
-
-                    foreach ($brindesCliente as $brinde) {
-                        $gotas = 0;
-                        $dinheiro = 0;
-                        $brindes = 0;
-                        $compras = 0;
-                        $resgatados = 0;
-                        $usados = 0;
-
-                        foreach ($turnoItemSintetico as $dadoTurno) {
-                            if ($brinde["id"] == $dadoTurno["brindes_id"]) {
-                                $gotas += $dadoTurno["gotas"];
-                                $dinheiro += $dadoTurno["dinheiro"];
-                                $brindes += $dadoTurno["brindes"];
-                                $compras += $dadoTurno["compras"];
-                            }
-                        }
-
-                        $resgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                        $usados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
-
-                        $somaTurnoGotas += $gotas;
-                        $somaTurnoDinheiro += $dinheiro;
-                        $somaTurnoBrindes += $brindes;
-                        $somaTurnoCompras += $compras;
-                        $somaTurnoResgatados += $resgatados;
-                        $somaTurnoUsados += $usados;
-
-                        $dados = array(
-                            "brindes_id" => $brinde["id"],
-                            "nome_brinde" => $brinde["nome_brinde"],
-                            "gotas" => $gotas,
-                            "dinheiro" => $dinheiro,
-                            "brindes" => $brindes,
-                            "compras" => $compras,
-                            "resgatados" => $resgatados,
-                            "usados" => $usados
-                        );
-
-                        $turnoSintetico[] = $dados;
-                        $turnoItemTemp[] = $dados;
-                    }
-                    $dadosSinteticos[] = $turnoSintetico;
-
-                    $somaTurno = array(
-                        "resgatados" => $somaTurnoResgatados,
-                        "usados" => $somaTurnoUsados,
-                        "gotas" => $somaTurnoGotas,
-                        "dinheiro" => $somaTurnoDinheiro,
-                        "brindes" => $somaTurnoBrindes,
-                        "compras" => $somaTurnoCompras,
+                    $cupomFuncionario["brinde"] = array(
+                        "id" => $cupomPesquisa["id"],
+                        "nome" => $cupomPesquisa["nomeBrinde"],
+                        "cupons" => $cupons
                     );
 
-                    $turnoItemSintetico = $turnoItemTemp;
+                    if (count($cupomFuncionario) > 0) {
+                        $cuponsFuncionario[] = $cupomFuncionario;
+                    }
 
-                    $somaFuncionarioResgatados += $somaTurnoResgatados;
-                    $somaFuncionarioUsados += $somaTurnoUsados;
-                    $somaFuncionarioGotas += $somaTurnoGotas;
-                    $somaFuncionarioDinheiro += $somaTurnoDinheiro;
-                    $somaFuncionarioBrindes += $somaTurnoBrindes;
-                    $somaFuncionarioCompras += $somaTurnoCompras;
+                    $sintetico = array(
+                        "idBrinde" => $cupomPesquisa["id"],
+                        "nomeBrinde" => $cupomPesquisa["nomeBrinde"],
+                        "resgatados" => $resgatados,
+                        "usados" => $usados,
+                        "gotas" => $gotas,
+                        "dinheiro" => $dinheiro,
+                        "brindes" => $brindes,
+                        "compras" => $compras
+                    );
 
-                    $dadosTurno["somaTurno"] = $somaTurno;
-                    $dadosTurno["cupons"] = $turnoItemSintetico;
+                    // somatória parcial
 
-                    $turnosRetorno[] = $dadosTurno;
+                    $somaResgatados += $resgatados;
+                    $somaUsados += $usados;
+                    $somaGotas += $gotas;
+                    $somaDinheiro += $dinheiro;
+                    $somaBrindes += $brindes;
+                    $somaCompras += $compras;
+                    $dadosSinteticos[] = $sintetico;
                 }
 
                 $soma = array(
-                    "resgatados" => $somaFuncionarioResgatados,
-                    "usados" => $somaFuncionarioUsados,
-                    "gotas" => $somaFuncionarioGotas,
-                    "dinheiro" => $somaFuncionarioDinheiro,
-                    "brindes" => $somaFuncionarioBrindes,
-                    "compras" => $somaFuncionarioCompras,
+                    "somaResgatados" => $somaResgatados,
+                    "somaUsados" => $somaUsados,
+                    "somaGotas" => $somaGotas,
+                    "somaDinheiro" => $somaDinheiro,
+                    "somaBrindes" => $somaBrindes,
+                    "somaCompras" => $somaCompras,
                 );
 
+                $totalResgatados += $somaResgatados;
+                $totalUsados += $somaUsados;
+                $totalGotas += $somaGotas;
+                $totalDinheiro += $somaDinheiro;
+                $totalBrindes += $somaBrindes;
+                $totalCompras += $somaCompras;
                 $funcionario["soma"] = $soma;
-                $funcionario[REPORT_TYPE_ANALYTICAL] = $dadosAnaliticos;
-                $funcionario[REPORT_TYPE_SYNTHETIC] = $turnosRetorno;
-
+                $funcionario[REPORT_TYPE_ANALYTICAL] = $cuponsFuncionario;
+                $funcionario[REPORT_TYPE_SYNTHETIC] = $dadosSinteticos;
                 $dadosVendaFuncionarios[] = $funcionario;
             }
-
-            DebugUtil::printArray($dadosVendaFuncionarios);
-            // Fim monta relatório
 
             if ((count($dadosVendaFuncionarios) == 0 || ($totalResgatados + $totalUsados + $totalGotas + $totalDinheiro + $totalBrindes + $totalCompras == 0))) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);

@@ -760,7 +760,7 @@ class CuponsTable extends GenericTable
 
             $query = $this->find("all")
                 ->where($where)
-                // ->contain(array())
+                ->contain(array("Usuarios", "Funcionarios"))
                 ;
 
             Log::write("debug", $query->sql());

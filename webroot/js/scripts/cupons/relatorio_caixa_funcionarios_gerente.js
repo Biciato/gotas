@@ -11,24 +11,16 @@
 'use strict';
 $(document).ready(function () {
 
-    var dataInicioTemp = $(".data-inicio-envio").val().length != 0 ? $(".data-inicio-envio").val() : undefined;
-    var dataFimTemp = $(".data-fim-envio").val().length != 0 ? $(".data-fim-envio").val() : undefined;
-    console.log(dataInicioTemp);
-    console.log(dataFimTemp);
+    var dataPesquisaTemp = $(".data-pesquisa-envio").val().length != 0 ? $(".data-pesquisa-envio").val() : undefined;
+    console.log(dataPesquisaTemp);
 
-    var dataInicio;
-    var dataFim;
+    var dataPesquisa;
 
-    if (dataInicioTemp !== undefined) {
-        dataInicio = dataInicioTemp;
+    if (dataPesquisaTemp !== undefined) {
+        dataPesquisa = dataPesquisaTemp;
     }
 
-    if (dataFimTemp !== undefined) {
-        dataFim = dataFimTemp;
-    }
-
-    initializeDatePicker("data_inicio", "data_inicio_envio", dataInicio, null, new Date());
-    initializeDatePicker("data_fim", "data_fim_envio", dataFim, null, new Date());
+    initializeDatePicker("data_pesquisa", "data_pesquisa_envio", dataPesquisa, null, new Date());
 
     $(".print-button-thermal").on("click", function () {
 
