@@ -150,6 +150,26 @@ class CuponsTransacoesTable extends GenericTable
 
     #region Read
 
+    /**
+     * CuponsTransacoesTable::getSumTransacoesByTypeOperation
+     *
+     * Retorna soma de transações por tipo de transação
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-03
+     * 
+     * @param integer $redesId Redes Id
+     * @param integer $clientesId Clientes Id
+     * @param integer $cuponsId Cupons Id
+     * @param integer $brindesId Brindes Id
+     * @param integer $clienteHasQuadroHorario Cliente Has Quadro Horario
+     * @param integer $funcionariosId Funcionarios Id
+     * @param string $tipoOperacao Tipo Operacao
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data Fim
+     * 
+     * @return int Soma
+     */
     public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
     {
         try {

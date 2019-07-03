@@ -725,30 +725,48 @@ class CuponsTable extends GenericTable
         }
     }
 
-    public function getCuponsFuncionario(int $redesId = null, int $clientesId = null, int $funcionariosId = null, int $brindesId = null, int $clienteHasQuadroHorarioId = null, \DateTime $dataInicio = null, \DateTime $dataFim = null)
+    /**
+     * CuponsTable::getCuponsFuncionario
+     *
+     * Obtem os Cupons emitidos por um funcionário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-03
+     *
+     * @param integer $clientesId Clientes Id
+     * @param integer $clienteHasQuadroHorarioId Cliente Has Quadro Horario Id
+     * @param integer $funcionariosId Funcionarios Id
+     * @param integer $usuariosId Usuarios Id
+     * @param integer $brindesId Brindes Id
+     * @param \DateTime $dataInicio Data Inicio
+     * @param \DateTime $dataFim Data Fim
+     *
+     * @return Cake\ORM\Query[App\Model\Entity\Cupons] $cupons
+     */
+    public function getCuponsFuncionario(int $clientesId = null, int $clienteHasQuadroHorarioId = null, int $funcionariosId = null, int $usuariosId = null, int $brindesId = null, \DateTime $dataInicio = null, \DateTime $dataFim = null)
     {
         try {
             $where = array();
-
-            if (!empty($redesId)) {
-                $where["Cupons.redes_id"] =  $redesId;
-            }
 
             if (!empty($clientesId)) {
                 $where["Cupons.clientes_id"] =  $clientesId;
             }
 
+            if (!empty($clienteHasQuadroHorarioId)) {
+                $where["Cupons.clientes_has_quadro_horario_id"] =  $clienteHasQuadroHorarioId;
+            }
             if (!empty($funcionariosId)) {
                 $where["Cupons.funcionarios_id"] =  $funcionariosId;
+            }
+
+            if (!empty($usuariosId)) {
+                $where["Cupons.usuarios_id"] =  $usuariosId;
             }
 
             if (!empty($brindesId)) {
                 $where["Cupons.brindes_id"] =  $brindesId;
             }
 
-            if (!empty($clienteHasQuadroHorarioId)) {
-                $where["Cupons.clientes_has_quadro_horario_id"] =  $clienteHasQuadroHorarioId;
-            }
 
             if (!empty($dataInicio)) {
                 $where["Cupons.data >="] = $dataInicio->format("Y-m-d H:i:s");
@@ -760,8 +778,7 @@ class CuponsTable extends GenericTable
 
             $query = $this->find("all")
                 ->where($where)
-                ->contain(array("Usuarios", "Funcionarios"))
-                ;
+                ->contain(array("Usuarios", "Funcionarios"));
 
             Log::write("debug", $query->sql());
             return $query;
@@ -902,7 +919,7 @@ class CuponsTable extends GenericTable
     {
         return $this->updateAll(array('resgatado' => 1), array('id' => $id));
     }
-    
+
     /**
      * Define um cupom como usado
      *

@@ -41,9 +41,10 @@ class DebugUtil
     public static function printArray($array, bool $die = true, bool $formatted = true)
     {
         if ($formatted) {
-            echo "<pre>";
-            print_r($array);
-            echo "</pre>";
+            echo json_encode($array);
+            // echo "<pre>";
+            // print_r($array);
+            // echo "</pre>";
         } else {
             print_r($array);
         }
