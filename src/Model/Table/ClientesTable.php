@@ -432,7 +432,8 @@ class ClientesTable extends GenericTable
 
             foreach ($clientesAtual as $key => $cliente) {
                 $clienteTemp = $cliente;
-                $clienteTemp["resumo_gotas_cliente"] = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, null, array($cliente["id"]));
+                $redesId = $cliente->redes_has_cliente->redes_id;
+                $clienteTemp["resumo_gotas_cliente"] = $pontuacoesTable->getSumPontuacoesOfUsuario($usuariosId, $redesId, array());
 
                 $clientesAtualTemp[] = $clienteTemp;
             }
