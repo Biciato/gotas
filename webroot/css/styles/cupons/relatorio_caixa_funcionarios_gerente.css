@@ -12,6 +12,8 @@
 
 .print-thermal {
     display: none;
+    padding: 5px  0px;
+    margin: 5px 0px;
 }
 
 @media print {
@@ -36,4 +38,51 @@
 .gift-title {
     font-size: 13px;
     font-weight: bold;
+}
+
+.print-area-thermal h1{
+    font-size: 13px;
+    font-weight: bold;
+    padding:10px 0px;
+    margin: 0px 0px;
+    text-align: center;
+}
+
+.print-area-thermal h2{
+    font-size: 13px;
+}
+.print-area-thermal h3{
+    font-size: 12px;
+}
+.print-area-thermal h4{
+    font-size: 11px;
+}
+
+.print-area-thermal table{
+    font-size: 9px;
+    width: 100%;
+    position: relative;
+    zoom: 80%;
+}
+
+.print-area-thermal table thead th h5{
+    font-size: 11px;
+    zoom: 90%;
+
+    padding: 0px;
+    margin: 0px;
+}
+
+.print-area-thermal table tbody td{
+    font-size: 10px;
+    /* padding: 0px; */
+    /* margin: 0px; */
+}
+
+.print-area-thermal li{
+    font-size: 12px;
+    width: 100%;
+    position: relative;
+    zoom: 80%;
+    
 }
