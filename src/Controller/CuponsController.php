@@ -1181,10 +1181,11 @@ class CuponsController extends AppController
             "dadosVendaFuncionarios",
             "brindesList",
             "brindeSelecionado",
+            "dadosRelatorio",
             "funcionariosList",
             "funcionarioSelecionado",
             "pesquisaFeita",
-            "totalGeral",
+            "somaTotal",
             "tituloTurno",
             "tipoRelatorio",
             "dataPesquisa",
@@ -1214,7 +1215,8 @@ class CuponsController extends AppController
 
         $dataPesquisa = date("Y-m-d");
         $dataFim = date("Y-m-d");
-        $funcionarios = array();
+        // Lista de informações do retorno do relatório
+        $dadosRelatorio = array();
 
         // Pega todos os funcionários do posto do gerente alocado
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, PROFILE_TYPE_WORKER)->find("list");
@@ -1293,8 +1295,14 @@ class CuponsController extends AppController
 
             // Obtem os brindes habilitados do posto de atendimento
 
-            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
-            $brindes = $brindes->toArray();
+            $brindes = array();
+            if (empty($brindeSelecionado)) {
+                $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
+                $brindes = $brindes->toArray();
+            } else {
+                $brinde = $this->Brindes->getBrindeById($brindeSelecionado);
+                $brindes[] = $brinde;
+            }
             $brindesCliente = array();
 
             // Obtem lista de usuarios (clientes finais) do posto
@@ -1504,12 +1512,12 @@ class CuponsController extends AppController
 
                     $sinteticoTurnoBrindes["horario_inicio"] = $dataInicioPesquisa->format("Y-m-d H:i:s");
                     $sinteticoTurnoBrindes["horario_fim"] = $dataFimPesquisa->format("Y-m-d H:i:s");
-                    $sinteticoTurnoBrindes["dados_turno"][] = $sinteticoBrindes;
+                    $sinteticoTurnoBrindes["brindes"][] = $sinteticoBrindes;
                     $sinteticoTurnoBrindes["soma"] = $dadosTurno["soma"];
 
-                    $dadosSinteticos["turnos"][] = $sinteticoTurnoBrindes;
+                    $dadosSinteticos[] = $sinteticoTurnoBrindes;
                 }
-                
+
                 // soma de valores do funcionário
                 $somaFuncionario = array(
                     "valor_pago_gotas" => $somaFuncionarioValorGotas,
@@ -1520,7 +1528,7 @@ class CuponsController extends AppController
                     "usados" => $somaFuncionarioUsados,
                 );
 
-                $dadosAnaliticos["turnos"] = $dadosTurnos;
+                $dadosAnaliticos = $dadosTurnos;
                 $somaTotalValorGotas += $somaFuncionarioValorGotas;
                 $somaTotalValorReais += $somaFuncionarioValorReais;
                 $somaTotalCompras += $somaFuncionarioCompras;
@@ -1541,7 +1549,7 @@ class CuponsController extends AppController
                 $funcionario[REPORT_TYPE_ANALYTICAL] = $dadosAnaliticos;
                 $funcionario[REPORT_TYPE_SYNTHETIC] = $dadosSinteticos;
 
-                $funcionarios["dados"] = $funcionario;
+                $dadosRelatorio["funcionarios"][] = $funcionario;
             }
             $somaTotal = array(
                 "valor_pago_gotas" => $somaTotalValorGotas,
@@ -1552,22 +1560,14 @@ class CuponsController extends AppController
                 "usados" => $somaTotalUsados
             );
 
-            $funcionarios["total"] = $somaTotal;
-            DebugUtil::printArray($funcionarios);
+            $dadosRelatorio["total"] = $somaTotal;
             // Fim monta relatório
 
-            if ((count($funcionarios) == 0 || ($totalResgatados + $totalUsados + $totalGotas + $totalDinheiro + $totalBrindes + $totalCompras == 0))) {
+            if ((count($dadosRelatorio) == 0 || ($somaTotalResgatados + $somaTotalUsados + $somaTotalValorGotas + $somaTotalValorReais + $somaTotalBrindes + $somaTotalCompras == 0))) {
                 $this->Flash->warning(MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA);
             }
 
-            $totalGeral = array(
-                "totalResgatados" => $totalResgatados,
-                "totalUsados" => $totalUsados,
-                "totalGotas" => $totalGotas,
-                "totalDinheiro" => $totalDinheiro,
-                "totalBrindes" => $totalBrindes,
-                "totalCompras" => $totalCompras,
-            );
+            // DebugUtil::printArray($dadosRelatorio);
         }
 
         $dataInicioFormatada = DateTimeUtil::convertDateTimeToLocal($dataPesquisa);

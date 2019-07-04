@@ -1,4 +1,6 @@
 <?php
+use Cake\Core\Configure;
+
 /**
  * @description Arquivo para formulário de cadastro de usuários
  * @author      Gustavo Souza Gonçalves
