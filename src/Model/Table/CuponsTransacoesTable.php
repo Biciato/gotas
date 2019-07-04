@@ -170,7 +170,7 @@ class CuponsTransacoesTable extends GenericTable
      * 
      * @return int Soma
      */
-    public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
+    public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId = null, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
     {
         try {
             $where = array();

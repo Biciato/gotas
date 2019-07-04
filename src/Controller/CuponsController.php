@@ -1378,6 +1378,11 @@ class CuponsController extends AppController
                         $somaBrindeResgatados = 0;
                         $somaBrindeUsados = 0;
 
+                        // Verifica se o cliente final resgatou/usou o brinde no turno e faz a soma das informações
+
+                        $somaBrindeResgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeUsados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+
                         foreach ($usuarios as $usuarioId => $usuarioNome) {
                             $usuario = array(
                                 "id" => $usuarioId,
@@ -1395,6 +1400,8 @@ class CuponsController extends AppController
 
                             $queryCupons = $this->Cupons->getCuponsFuncionario($cliente->id, $turno["id"], $funcionarioId, $usuarioId, $brinde["id"], $dataInicioPesquisa, $dataFimPesquisa);
                             $cupons = array();
+                            $qteUsuarioResgatados = 0;
+                            $qteUsuarioUsados = 0;
 
                             foreach ($queryCupons as $key => $item) {
                                 $cupom = array(
@@ -1405,8 +1412,8 @@ class CuponsController extends AppController
                                     "valor_pago_reais" => $item->valor_pago_reais,
                                     "tipo_venda" => $item->tipo_venda,
                                     "data" => $item->data,
-                                    "resgatado" => $item->resgatado,
-                                    "usado" => $item->usado,
+                                    "resgatado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], null, $funcionarioId, TYPE_OPERATION_RETRIEVE),
+                                    "usado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], null, $funcionarioId, TYPE_OPERATION_USE),
                                     // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                                     "compras" => ($item->tipo_venda == TYPE_SELL_DISCOUNT_TEXT || ($item->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($item->valor_pago_reais))) ? 1 : 0,
                                     // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
@@ -1427,13 +1434,6 @@ class CuponsController extends AppController
                             $somaBrindeValorReais += $somaUsuarioValorReais;
                             $somaBrindeCompras += $somaUsuarioCompras;
                             $somaBrindeBrindes += $somaUsuarioBrindes;
-
-                            // Verifica se o cliente final resgatou/usou o brinde no turno e faz a soma das informações
-
-                            $qteUsuarioResgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                            $qteUsuarioUsados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
-                            $somaBrindeResgatados += $qteUsuarioResgatados;
-                            $somaBrindeUsados += $qteUsuarioUsados;
 
                             // Soma dos pontos do usuário naquele brinde
                             $somaUsuario = array(
@@ -1512,7 +1512,7 @@ class CuponsController extends AppController
 
                     $sinteticoTurnoBrindes["horario_inicio"] = $dataInicioPesquisa->format("Y-m-d H:i:s");
                     $sinteticoTurnoBrindes["horario_fim"] = $dataFimPesquisa->format("Y-m-d H:i:s");
-                    $sinteticoTurnoBrindes["brindes"][] = $sinteticoBrindes;
+                    $sinteticoTurnoBrindes["brindes"] = $sinteticoBrindes;
                     $sinteticoTurnoBrindes["soma"] = $dadosTurno["soma"];
 
                     $dadosSinteticos[] = $sinteticoTurnoBrindes;
