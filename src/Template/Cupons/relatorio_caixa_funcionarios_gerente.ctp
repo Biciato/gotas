@@ -136,7 +136,7 @@ $totalGeral = $dadosRelatorio["total"];
             <?php if (!empty($dadosRelatorio) && ($totalGeral["resgatados"] > 0 || $totalGeral["usados"] > 0
                 || $totalGeral["valor_pago_gotas"] > 0 || $totalGeral["valor_pago_reais"] > 0
                 || $totalGeral["brindes"] > 0 || $totalGeral["compras"] > 0)) : ?>
-                <h1 class="text-center">Relatório de Caixa de Funcionários:</h1>
+                <h1 class="text-center">Relatório <?= $tipoRelatorio ?> de Caixa de Funcionários:</h1>
                 <h4 class="text-center"><?= sprintf("De: %s Às %s: ", $dataInicioFormatada, $dataFimFormatada) ?></h4>
 
                 <!-- Primeiro nível, funcinários -->
@@ -170,14 +170,18 @@ $totalGeral = $dadosRelatorio["total"];
                                                             </th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        <!-- Dados de Usuários -->
-                                                        <?php foreach ($brinde["usuarios"] as $usuario) : ?>
+                                                </table>
+                                                <?php foreach ($brinde["usuarios"] as $usuario) : ?>
+                                                    <table class="table table-bordered table-hover table-responsive table-striped table-condensed">
+                                                        <thead>
+                                                            <!-- Dados de Usuários -->
                                                             <tr>
                                                                 <th colspan="5">
-                                                                    <h2 class="text-center"><?= $usuario["nome"] ?></h2>
+                                                                    <h2 class="text-center">Cliente: <?= $usuario["nome"] ?></h2>
                                                                 </th>
                                                             </tr>
+                                                        </thead>
+                                                        <tbody>
                                                             <tr>
                                                                 <td>
                                                                     <h5>Brindes Resgatados / Validados</h5>
@@ -203,46 +207,47 @@ $totalGeral = $dadosRelatorio["total"];
                                                                 <td><?= $usuario["soma"]["compras"] ?></td>
                                                             </tr>
 
-                                                        <?php endforeach; ?>
+                                                        </tbody>
+                                                    </table>
+                                                <?php endforeach; ?>
 
-                                                        <!-- Soma do Brinde -->
-                                                        <table class="table table-bordered table-hover table-responsive table-striped table-condensed" colspan="6">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th colspan="5">
-                                                                        <h3 class="text-center">Soma do Brinde <?= $brinde["nome"] ?></h3>
-                                                                    </th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>
-                                                                        <h5>Brindes Resgatados / Validados</h5>
-                                                                    </td>
-                                                                    <td>
-                                                                        <h5>Gotas Resgatadas</h5>
-                                                                    </td>
-                                                                    <td>
-                                                                        <h5>Dinheiro Recebido</h5>
-                                                                    </td>
-                                                                    <td>
-                                                                        <h5>Bonificação</h5>
-                                                                    </td>
-                                                                    <td>
-                                                                        <h5>Vendas</h5>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><?= sprintf("%s / %s", $brinde["soma"]["resgatados"], $brinde["soma"]["usados"]) ?></td>
-                                                                    <td><?= $brinde["soma"]["valor_pago_gotas"] ?></td>
-                                                                    <td><?= Number::currency($brinde["soma"]["valor_pago_reais"]) ?></td>
-                                                                    <td><?= $brinde["soma"]["brindes"] ?></td>
-                                                                    <td><?= $brinde["soma"]["compras"] ?></td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
+                                                <!-- Soma do Brinde -->
+                                                <table class="table table-bordered table-hover table-responsive table-striped table-condensed" colspan="6">
+                                                    <thead>
+                                                        <tr>
+                                                            <th colspan="5">
+                                                                <h3 class="text-center">Soma do Brinde <?= $brinde["nome"] ?></h3>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <h5>Brindes Resgatados / Validados</h5>
+                                                            </td>
+                                                            <td>
+                                                                <h5>Gotas Resgatadas</h5>
+                                                            </td>
+                                                            <td>
+                                                                <h5>Dinheiro Recebido</h5>
+                                                            </td>
+                                                            <td>
+                                                                <h5>Bonificação</h5>
+                                                            </td>
+                                                            <td>
+                                                                <h5>Vendas</h5>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><?= sprintf("%s / %s", $brinde["soma"]["resgatados"], $brinde["soma"]["usados"]) ?></td>
+                                                            <td><?= $brinde["soma"]["valor_pago_gotas"] ?></td>
+                                                            <td><?= Number::currency($brinde["soma"]["valor_pago_reais"]) ?></td>
+                                                            <td><?= $brinde["soma"]["brindes"] ?></td>
+                                                            <td><?= $brinde["soma"]["compras"] ?></td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
+
 
                                                 <!-- Soma do Turno -->
                                                 <table class="table table-bordered table-hover table-responsive table-striped table-condensed">
