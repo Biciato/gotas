@@ -1412,8 +1412,8 @@ class CuponsController extends AppController
                                     "valor_pago_reais" => $item->valor_pago_reais,
                                     "tipo_venda" => $item->tipo_venda,
                                     "data" => $item->data,
-                                    "resgatado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], null, $funcionarioId, TYPE_OPERATION_RETRIEVE),
-                                    "usado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], null, $funcionarioId, TYPE_OPERATION_USE),
+                                    "resgatado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa),
+                                    "usado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa),
                                     // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                                     "compras" => ($item->tipo_venda == TYPE_SELL_DISCOUNT_TEXT || ($item->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($item->valor_pago_reais))) ? 1 : 0,
                                     // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
