@@ -317,19 +317,19 @@ class UsuariosHasBrindesTable extends GenericTable
      *
      * @return boolean
      */
-    public function deleteAllUsuariosHasBrindesByClientesIds(array $clientes_ids)
+    public function deleteAllUsuariosHasBrindesByClientesIds(array $clientesIds)
     {
         try {
 
             // pegar id de brindes que estão vinculados em um cliente
 
-            $brindes_clientes_ids = $this->_getUsuariosHasBrindesTable()->ClientesHasBrindesHabilitados->find('all')
-                ->where(['clientes_id in' => $clientes_ids])
+            $brindesClientesIds = $this->Brindes->find('all')
+                ->where(['clientes_id in' => $clientesIds])
                 ->select(['id']);
 
             $clientes_has_brindes_habilitados_ids = [];
 
-            foreach ($brindes_clientes_ids as $key => $value) {
+            foreach ($brindesClientesIds as $key => $value) {
                 array_push($clientes_has_brindes_habilitados_ids, $value['id']);
             }
 
