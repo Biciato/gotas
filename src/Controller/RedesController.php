@@ -291,7 +291,6 @@ class RedesController extends AppController
             }
 
             if (sizeof($clientesIds) > 0) {
-
                 // Usuários Has Brindes
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
                 // Remoção de Cupons
@@ -333,6 +332,10 @@ class RedesController extends AppController
                 // Remove a unidade de rede
                 $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
 
+                foreach ($clientesIds as $clienteId) {
+                    $this->ClientesHasQuadroHorario->deleteHorariosCliente($clienteId);
+                }
+                
                 $this->Clientes->deleteClientesByIds($clientesIds);
             }
 

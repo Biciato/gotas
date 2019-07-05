@@ -360,7 +360,8 @@ class BrindesEstoqueTable extends GenericTable
     {
         try {
 
-            $brindesId = $this->find('all')
+            
+            $brindesId = $this->Brindes->find('all')
                 ->where(array('clientes_id in' => $clientesIds))->select(array("id"));
 
             $brindesIds = [];
