@@ -21,7 +21,7 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
-$totalGeral = $dadosRelatorio["total"];
+$totalGeral = !empty($dadosRelatorio["total"]) ? $dadosRelatorio["total"] : array();
 
 ?>
 
@@ -133,9 +133,8 @@ $totalGeral = $dadosRelatorio["total"];
 
         <div class="col-lg-12 print-area-common">
 
-            <?php if (!empty($dadosRelatorio) && ($totalGeral["resgatados"] > 0 || $totalGeral["usados"] > 0
-                || $totalGeral["valor_pago_gotas"] > 0 || $totalGeral["valor_pago_reais"] > 0
-                || $totalGeral["brindes"] > 0 || $totalGeral["compras"] > 0)) : ?>
+            <?php if ( !empty($dadosRelatorio) && (count($totalGeral) > 0) && (($totalGeral["resgatados"] > 0 || $totalGeral["usados"] > 0 || $totalGeral["valor_pago_gotas"] > 0 || $totalGeral["valor_pago_reais"] > 0 || $totalGeral["brindes"] > 0 || $totalGeral["compras"] > 0))
+            ) : ?>
                 <h1 class="text-center">Relatório <?= $tipoRelatorio ?> de Caixa de Funcionários:</h1>
                 <h4 class="text-center"><?= sprintf("De: %s Às %s: ", $dataInicioFormatada, $dataFimFormatada) ?></h4>
 

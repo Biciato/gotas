@@ -84,7 +84,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
         $usuarios = $this->Paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
@@ -1765,7 +1765,7 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
 
@@ -1923,7 +1923,7 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
+        $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, null, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("Usuarios.nome" => "ASC")));
 
@@ -1988,7 +1988,7 @@ class UsuariosController extends AppController
                 $tipoPerfilMax = $tipoPerfil;
             }
 
-            $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
+            $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
 
@@ -3457,6 +3457,7 @@ class UsuariosController extends AppController
             }
         }
 
+        // @todo Conferir se este relatório está sendo usado
         $usuarios = $this->Usuarios->findAllUsuarios(
             $whereConditions
         );

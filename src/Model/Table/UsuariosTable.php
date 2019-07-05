@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -786,7 +787,7 @@ class UsuariosTable extends GenericTable
     {
         try {
             return $this->find('all')
-                ->where(['tipo_perfil' => (int)Configure::read("profileTypes")["DummyWorkerProfileType"]])->first();
+                ->where(['tipo_perfil' => (int) Configure::read("profileTypes")["DummyWorkerProfileType"]])->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1190,18 +1191,34 @@ class UsuariosTable extends GenericTable
     }
 
     /**
+     * UsuariosTable::findAllUsuarios
+     * 
      * Busca todos os usuários conforme parâmetros
      *
-     * @param array $whereConditions Condições
-     *
-     * @return array $usuarios Lista de Usuários
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-05
+     * 
+     * @param integer $redesId
+     * @param array $clientesIds
+     * @param string $nome
+     * @param string $email
+     * @param array $tiposPerfis
+     * @param integer $tipoPerfilMin
+     * @param integer $tipoPerfilMax
+     * @param string $cpf
+     * @param string $docEstrangeiro
+     * @param integer $contaAtiva
+     * @param boolean $join
+     * @param array $usuariosIds
+     * 
+     * @return Entity\Model\Usuarios[] $usuarios
      */
-    // public function findAllUsuarios(array $whereConditions = [])
     public function findAllUsuarios(
         int $redesId = null,
         array $clientesIds = array(),
         string $nome = null,
         string $email = null,
+        array $tiposPerfis = null,
         int $tipoPerfilMin = null,
         int $tipoPerfilMax = null,
         string $cpf = null,
@@ -1234,17 +1251,21 @@ class UsuariosTable extends GenericTable
                 $whereConditions[] = array("Usuarios.email like '%{$email}%'");
             }
 
-            if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
-                $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
-                $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
-                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
-            } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
-                $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
-                $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+            if (!empty($tiposPerfis) && count($tiposPerfis) > 0) {
+                $whereConditions[] = array("Usuarios.tipo_perfil IN " => $tiposPerfis);
             } else {
-                $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
+                if (strlen($tipoPerfilMin) == 0 && strlen($tipoPerfilMax) == 0) {
+                    $tipoPerfilMin = Configure::read("profileTypes")["AdminNetworkProfileType"];
+                    $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
+                    $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
+                    $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
+                    $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
+                } else {
+                    $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
 
-                $whereConditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+                    $whereConditions[] = array("Usuarios.tipo_perfil" => $tipoPerfil);
+                }
             }
 
             if (!empty($cpf)) {
@@ -1795,7 +1816,7 @@ class UsuariosTable extends GenericTable
                 $totalAssiduidade += $usuario["quantidadeMes"];
                 $contadorUsuarioMes += 1;
 
-                $mediaAssiduidade = Number::precision((float)$totalAssiduidade / $contadorUsuarioMes, 2);
+                $mediaAssiduidade = Number::precision((float) $totalAssiduidade / $contadorUsuarioMes, 2);
 
                 $filtrarPorAssiduidade = strlen($assiduidade) > 0;
 
@@ -2080,7 +2101,7 @@ class UsuariosTable extends GenericTable
                     $diff = round(abs($fromTime - $toTime) / 60, 0);
 
                     if ($tentativasLogin >= 5 && ($diff < 10)) {
-                        $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int)$diff));
+                        $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
                         $usuarioIsChanged = false;
                     } else {
                         if ($tentativasLogin >= 5) {

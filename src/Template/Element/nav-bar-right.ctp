@@ -239,7 +239,7 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
                     </li>
 
-                    <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) : ?>
+                    <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_NETWORK) : ?>
 
                         <!-- <li>
                             <a href="/redesUsuariosExcecaoAbastecimentos/">

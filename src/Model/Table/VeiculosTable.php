@@ -589,6 +589,7 @@ class VeiculosTable extends GenericTable
                     null,
                     null,
                     null,
+                    null,
                     false,
                     $usuariosClientesEncontradosIds
                 )->toArray();
