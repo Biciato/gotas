@@ -353,22 +353,13 @@ class BrindesPrecosTable extends GenericTable
                     ]
                 );
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            $stringError = sprintf("[%s] %s %s", MESSAGE_DELETE_EXCEPTION, $e->getMessage());
 
             Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
+            throw new Exception($stringError);
         }
     }
 }

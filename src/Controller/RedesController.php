@@ -302,13 +302,12 @@ class RedesController extends AppController
                 $this->PontuacoesComprovantes->deleteAllPontuacoesComprovantesByClientesIds($clientesIds);
 
                 // Tipos Brindes
-                $this->TiposBrindesClientes->deleteAllTiposBrindesClientesByRedesId($redesId);
-                $this->TiposBrindesRedes->deleteAllTiposBrindesRedesByRedesId($redesId);
+                // $this->TiposBrindesClientes->deleteAllTiposBrindesClientesByRedesId($redesId);
+                // $this->TiposBrindesRedes->deleteAllTiposBrindesRedesByRedesId($redesId);
 
                 // brindes
-                $this->ClientesHasBrindesEstoque->deleteAllClientesHasBrindesEstoqueByClientesIds($clientesIds);
-                $this->ClientesHasBrindesHabilitadosPreco->deleteAllClientesHasBrindesHabilitadosPrecoByClientesIds($clientesIds);
-                $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
+                $this->BrindesEstoque->deleteAllBrindesEstoqueByClientesIds($clientesIds);
+                $this->BrindesPrecos->deleteAllBrindesPrecosByClientesIds($clientesIds);
                 $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
 
                 // gotas

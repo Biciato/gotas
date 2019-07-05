@@ -7,6 +7,7 @@
 
 $(document).ready(function () {
 
+    $("#codigo_equipamento_rti").mask("999");
     $("#codigo_equipamento_rti").on('blur', function () {
         if (this.value.toString().length == 1) {
             this.value = '0' + this.value;

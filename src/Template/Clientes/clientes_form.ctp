@@ -20,7 +20,7 @@ use Cake\Routing\Router;
             <div class="col-lg-6">
                 <label for="codigo_equipamento_rti">Código Equipamento RTI*</label>
                 <input type="text"
-                    maxLength="2"
+                    maxLength="3"
                     title="Código que será utilizado para impressão de senhas"
                     placeholder="Código Equipamento RTI..."
                     required="required"

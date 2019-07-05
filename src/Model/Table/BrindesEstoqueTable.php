@@ -351,16 +351,16 @@ class BrindesEstoqueTable extends GenericTable
     /**
      * Apaga todas as gotas de clientes
      *
-     * @param array $clientes_ids Ids de clientes
+     * @param array $clientesIds Ids de clientes
      *
      * @return boolean
      */
-    public function deleteAllClientesHasBrindesEstoqueByClientesIds(array $clientes_ids)
+    public function deleteAllBrindesEstoqueByClientesIds(array $clientesIds)
     {
         try {
 
-            $brindesId = $this->ClientesHasBrindesHabilitados->find('all')
-                ->where(['clientes_id in' => $clientes_ids])->select(['id']);
+            $brindesId = $this->find('all')
+                ->where(array('clientes_id in' => $clientesIds))->select(array("id"));
 
             $brindesIds = [];
 
@@ -375,22 +375,13 @@ class BrindesEstoqueTable extends GenericTable
                 return true;
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $object = null;
 
-            foreach ($trace as $key => $item_trace) {
-                if ($item_trace['class'] == 'Cake\Database\Query') {
-                    $object = $item_trace;
-                    break;
-                }
-            }
-
-            $stringError = __("Erro ao buscar registro: {0}, em {1}", $e->getMessage(), $object['file']);
+            $stringError = sprintf("[%s] %s %s", MESSAGE_DELETE_EXCEPTION, $e->getMessage());
 
             Log::write('error', $stringError);
-
-            $error = ['result' => false, 'message' => $stringError];
-            return $error;
+            throw new Exception($stringError);
         }
     }
 
