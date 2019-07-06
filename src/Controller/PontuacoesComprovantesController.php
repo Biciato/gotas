@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use \DateTime;
@@ -173,7 +174,7 @@ class PontuacoesComprovantesController extends AppController
                 return $this->redirect(
                     [
                         'controller' => 'pontuacoes',
-                        'action' => 'detalhesCupom', (int)$id
+                        'action' => 'detalhesCupom', (int) $id
                     ]
                 );
             }
@@ -235,7 +236,7 @@ class PontuacoesComprovantesController extends AppController
                 return $this->redirect(
                     [
                         'controller' => 'pontuacoes',
-                        'action' => 'detalhesCupom', (int)$id
+                        'action' => 'detalhesCupom', (int) $id
                     ]
                 );
             }
@@ -527,7 +528,7 @@ class PontuacoesComprovantesController extends AppController
                     if (strlen($data['clientes_id']) > 0) {
                         $clientesIdsList = [];
 
-                        $clientesIdsList[] = (int)$data['clientes_id'];
+                        $clientesIdsList[] = (int) $data['clientes_id'];
                     }
 
                     /**
@@ -547,7 +548,7 @@ class PontuacoesComprovantesController extends AppController
                     if (strlen($data['funcionarios_id']) > 0) {
                         $funcionariosIds = [];
 
-                        $funcionariosIds[] = (int)$data['funcionarios_id'];
+                        $funcionariosIds[] = (int) $data['funcionarios_id'];
                     }
 
                     if (sizeof($funcionariosIds) > 0) {
@@ -696,7 +697,7 @@ class PontuacoesComprovantesController extends AppController
                     if (strlen($data['clientes_id']) > 0) {
                         $clientesIdsList = [];
 
-                        $clientesIdsList[] = (int)$data['clientes_id'];
+                        $clientesIdsList[] = (int) $data['clientes_id'];
                     }
                     /**
                      * Pega todos os funcionários da rede através da lista
@@ -718,7 +719,7 @@ class PontuacoesComprovantesController extends AppController
                     if (strlen($data['usuarios_id']) > 0) {
                         $usuariosIds = [];
 
-                        $usuariosIds[] = (int)$data['usuarios_id'];
+                        $usuariosIds[] = (int) $data['usuarios_id'];
                     }
 
                     if (sizeof($usuariosIds) > 0) {
@@ -1273,8 +1274,8 @@ class PontuacoesComprovantesController extends AppController
                 $data = $this->request->getData();
 
                 // Filtros
-                $redesId = isset($data["redes_id"]) && strlen($data["redes_id"]) > 0 ? (int)$data["redes_id"] : null;
-                $clientesId = isset($data["clientes_id"]) && strlen($data["clientes_id"]) > 0 ? (int)$data["clientes_id"] : null;
+                $redesId = isset($data["redes_id"]) && strlen($data["redes_id"]) > 0 ? (int) $data["redes_id"] : null;
+                $clientesId = isset($data["clientes_id"]) && strlen($data["clientes_id"]) > 0 ? (int) $data["clientes_id"] : null;
                 $chaveNfe = isset($data["chave_nfe"]) && strlen($data["chave_nfe"]) > 0 ? $data["chave_nfe"] : null;
                 $estadoNFE = isset($data["estado"]) && strlen($data["estado"]) > 0 ? $data["estado"] : null;
                 $dataInicio = isset($data["data_inicio"]) && strlen($data["data_inicio"]) > 0 ?
@@ -1458,7 +1459,7 @@ class PontuacoesComprovantesController extends AppController
         try {
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
-                $usuariosId = !empty($data["usuarios_id"]) ? (int)$data["usuarios_id"] : null;
+                $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
                 $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
                 $funcionariosId = $this->Auth->user()["id"];
 
@@ -1799,8 +1800,7 @@ class PontuacoesComprovantesController extends AppController
         }
 
         $validacaoQRCode = $this->validarUrlQrCode($url);
-        $url = $validacaoQRCode["url_real"];
-
+        
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
         if ($validacaoQRCode["status"] == false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
@@ -1808,10 +1808,11 @@ class PontuacoesComprovantesController extends AppController
             $arraySet = array("mensagem");
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
-            return;
+            
+            return array("mensagem" => $mensagem);
         }
-
+        
+        $url = $validacaoQRCode["url_real"];
         $chaveNfe = !empty($data["chave_nfe"]) ? $data["chave_nfe"] : null;
         $estado = $validacaoQRCode["estado"];
 
@@ -2216,6 +2217,24 @@ class PontuacoesComprovantesController extends AppController
             return $result;
         }
 
+        // Verifica se conteúdo é URL real
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)){
+            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $status = 0;
+            $errors = array("QR Code Inválido!");
+
+            $result = array(
+                "status" => $status,
+                "message" => $errorMessage,
+                "errors" => $errors,
+                "data" => array()
+            );
+
+            // Retorna Array contendo erros de validações
+            return $result;
+        }
+
         $arrayConsistency = array();
 
         // Tratamento de url para assegurar que é HTTPS
@@ -2245,16 +2264,11 @@ class PontuacoesComprovantesController extends AppController
         }
 
         if ($tratamentoPorEstado) {
-
-
             if ($estado == "RS") {
                 $url = str_replace("|", "%7C", $url);
                 $url = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $url);
             }
 
-            // $estado = "";
-
-            // $qrCodeProcura = "xhtml?p=";
             $posInicioChave = strpos($url, $qrCodeProcura) + strlen($qrCodeProcura);
 
             $qrCodeConteudo = substr($url, $posInicioChave);
