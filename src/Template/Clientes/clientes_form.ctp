@@ -27,6 +27,7 @@ use Cake\Routing\Router;
                     name="codigo_equipamento_rti"
                     id="codigo_equipamento_rti"
                     class="form-control"
+                    autofocus="true"
                     value="<?= $cliente["codigo_equipamento_rti"]?>">
             </div>
 
