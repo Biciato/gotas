@@ -485,7 +485,8 @@ class CuponsTable extends GenericTable
         $whereConditions[] = array("Cupons.usado" => $usado);
 
         if (isset($equipamentoRTI) && is_bool($equipamentoRTI)) {
-            $whereConditions[] = array("TipoBrindeRede.equipamento_rti" => $equipamentoRTI);
+            // $whereConditions[] = array("TipoBrindeRede.equipamento_rti" => $equipamentoRTI);
+            $whereConditions[] = array("Brindes.equipamento_rti" => $equipamentoRTI);
         }
 
         $whereConditions[] = array("Rede.ativado" => $redeAtiva);
@@ -495,7 +496,7 @@ class CuponsTable extends GenericTable
             ->contain(
                 array(
                     "Brindes",
-                    "Clientes.RedesHasClientes.Rede",
+                    "Clientes.RedeHasCliente.Rede",
                     "Usuarios"
                 )
             )
