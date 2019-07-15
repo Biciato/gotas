@@ -247,9 +247,9 @@ class PontuacoesComprovantesTable extends GenericTable
         try {
             $conditions = ['chave_nfe' => $chave_nfe, 'estado_nfe' => $estado_nfe];
 
-            if (strtolower($estado_nfe) == 'mg') {
-                array_push($conditions, ['clientes_id' => $clientes_id]);
-            }
+            // if (strtolower($estado_nfe) == 'mg') {
+            //     array_push($conditions, ['clientes_id' => $clientes_id]);
+            // }
 
             return $this->find('all')
                 ->where($conditions)->first();
