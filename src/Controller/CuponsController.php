@@ -2282,7 +2282,7 @@ class CuponsController extends AppController
                 $tipoPerfil = $this->Auth->user()["tipo_perfil"];
                 $funcionario["nome"] = $this->Auth->user()["nome"];
                 $isFuncionario = false;
-                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
+                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente["id"]);
                 $turnos = $turnos->toArray();
                 $turnoAtual = ShiftUtil::obtemTurnoAtual($turnos);
 

@@ -301,6 +301,7 @@ const LOGIN_WEB = "WEB";
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
+const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar!";
 const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover!";
 
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";

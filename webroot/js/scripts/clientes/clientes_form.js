@@ -9,9 +9,12 @@ $(document).ready(function () {
 
     $("#codigo_equipamento_rti").mask("999");
     $("#codigo_equipamento_rti").on('blur', function () {
-        if (this.value.toString().length == 1) {
-            this.value = '0' + this.value;
+        var valueCheck = this.value;
+
+        while (valueCheck.length < 3) {
+            valueCheck = "0" + valueCheck;
         }
+        this.value = valueCheck;
     });
 
     $("#cnpj").mask('99.999.999/9999-99');

@@ -465,9 +465,11 @@ class UsuariosController extends AppController
 
                 $clientesHasUsuariosQuery = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosWhere);
 
-                if (sizeof($clientesHasUsuariosQuery->toArray()) > 0) {
+                // DebugUtil::printArray($clientesHasUsuariosQuery);
+
+                if (!empty($clientesHasUsuariosQuery)) {
                     // tenho o cliente alocado, pegar agora a rede que ele está
-                    $clienteHasUsuario = $clientesHasUsuariosQuery->toArray()[0];
+                    $clienteHasUsuario = $clientesHasUsuariosQuery;
                     $cliente = $clienteHasUsuario->cliente;
 
                     $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario->clientes_id);

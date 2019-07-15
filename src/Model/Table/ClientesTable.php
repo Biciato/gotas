@@ -283,6 +283,7 @@ class ClientesTable extends GenericTable
             // $cliente['bairro'] = $cliente['bairro'];
             // $cliente['municipio'] = $cliente['municipio'];
             // $cliente['estado'] = $cliente['estado'];
+            $cliente->codigo_equipamento_rti = str_pad($cliente->codigo_equipamento_rti, 3, "0", STR_PAD_LEFT);
             $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
             $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
             $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
@@ -1034,23 +1035,20 @@ class ClientesTable extends GenericTable
     public function updateClient($cliente)
     {
         try {
+            $cliente->codigo_equipamento_rti = str_pad($cliente->codigo_equipamento_rti, 3, "0", STR_PAD_LEFT);
             $cliente['cnpj'] = $this->cleanNumber($cliente['cnpj']);
             $cliente['tel_fixo'] = $this->cleanNumber($cliente['tel_fixo']);
             $cliente['tel_celular'] = $this->cleanNumber($cliente['tel_celular']);
             $cliente['tel_fax'] = $this->cleanNumber($cliente['tel_fax']);
             $cliente['cep'] = $this->cleanNumber($cliente['cep']);
             $clienteToUpdate = $cliente;
-            // $clienteToUpdate = $this->formatClient($cliente);
 
             return $this->save($clienteToUpdate);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao inserir novo registro: {0} em: {1}", $e->getMessage(), $trace[1]);
-
+            $stringError = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);
 
-            return ['success' => false, 'message' => $stringError];
+            throw new \Exception($stringError);
         }
     }
 
