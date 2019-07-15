@@ -178,7 +178,7 @@ class RedesHasClientesAdministradoresTable extends GenericTable
         try {
             return $this->find('all')
                 ->where(['usuarios_id' => $usuarios_id])
-                ->contain(['RedesHasClientes.Redes', 'RedesHasClientes.Clientes'])->first();
+                ->contain(['RedesHasClientes.Rede', 'RedesHasClientes.Clientes'])->first();
 
         } catch (\Exception $e) {
             $trace = $e->getTrace();

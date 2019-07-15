@@ -2270,7 +2270,6 @@ class CuponsController extends AppController
         }
 
         try {
-
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
                 $confirmar = !empty($data["confirmar"]) ? (bool) $data["confirmar"] : false;
@@ -2334,8 +2333,14 @@ class CuponsController extends AppController
                     return;
                 }
 
-                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido, $todasUnidadesIds);
+                $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
                 $cupons = $cupons->toArray();
+
+                if (count($cupons) == 0) {
+                    $errors = array(MESSAGE_RECORD_NOT_FOUND);
+
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                }
 
                 // Verifica se este cupom já foi usado
                 $somaTotalGotas = 0;
@@ -2347,6 +2352,11 @@ class CuponsController extends AppController
                 $cuponsPendentes = array();
 
                 foreach ($cupons as $cupom) {
+                    if (!in_array($cupom["clientes_id"], $todasUnidadesIds)) {
+                        $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
+
+                        return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                    }
 
                     $dadoCupom = array();
 
@@ -2392,7 +2402,6 @@ class CuponsController extends AppController
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
                 if (!$confirmar) {
-
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
@@ -2410,36 +2419,14 @@ class CuponsController extends AppController
                     return;
                 }
 
-                // Não encontrou cupom
-                if (count($cupons) == 0) {
-                    // Avisa erro se não for encontrado. Motivos podem ser:
-                    // Cupom já foi resgatado
-                    // Cupom pertence a outra rede
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => array(Configure::read('messageRecordNotFound'))
-                    );
-
-                    $arraySet = array("mensagem");
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-
                 $brindesNaoUsados = array();
                 $dadosCupons = array();
-
                 $verificado = false;
                 $usados = array();
 
                 // Processa somente os cupons pendentes
                 foreach ($cuponsPendentes as $cupom) {
-
                     $brindesEstoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($cupom["brindes_id"]);
-
                     $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]);
 
                     if ($prosseguir) {

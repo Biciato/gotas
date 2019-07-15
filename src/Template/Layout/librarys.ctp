@@ -108,13 +108,7 @@ echo $this->Html->meta('icon');
 <!-- Bootstrap DateTimePicker -->
 <link rel="stylesheet" href="/webroot/css/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
 <link rel="stylesheet" href="/webroot/css/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
-<script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js"></script>
 <script src="/webroot/js/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-
-
-
-
-
 
 <!-- Início Estilos -->
 <!-- <link href="/webroot/app/css/site.css" rel="stylesheet" > -->

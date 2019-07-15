@@ -459,13 +459,10 @@ class UsuariosController extends AppController
 
             if ($usuario->tipo_perfil != (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
-                array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.usuarios_id' => $id]);
+                $clientesHasUsuariosWhere[] = array('ClientesHasUsuarios.usuarios_id' => $id);
                 // @todo gustavosg Testar tipo_perfil
-                // array_push($clientesHasUsuariosWhere, ['ClientesHasUsuarios.tipo_perfil' => $usuario->tipo_perfil]);
 
                 $clientesHasUsuariosQuery = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosWhere);
-
-                // DebugUtil::printArray($clientesHasUsuariosQuery);
 
                 if (!empty($clientesHasUsuariosQuery)) {
                     // tenho o cliente alocado, pegar agora a rede que ele está
@@ -484,7 +481,7 @@ class UsuariosController extends AppController
 
             if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                 $redes = $this->Redes->getRedesList($rede["id"]);
-            } else if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
+            } elseif ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) {
                 // pega o Id de cliente que o usuário se encontra
                 // AdminLocalProfileType
 
