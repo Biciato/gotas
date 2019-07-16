@@ -109,7 +109,7 @@ class ClientesHasQuadroHorarioTable extends Table
      *
      * @return \App\Model\ClientesHasQuadroHorario[] Quadros de Horário
      */
-    public function getHorariosCliente(int $redesId = null, int $clientesId = null, int $hora = 0, int $minutos = 0, bool $ativado = null, int $limite = 999)
+    public function getHorariosCliente(int $redesId = null, int $clientesId = null, int $hora = null, int $minutos = null, bool $ativado = null, int $limite = 999)
     {
         try {
             $where = array();
@@ -122,11 +122,11 @@ class ClientesHasQuadroHorarioTable extends Table
                 $where["clientes_id"] = $clientesId;
             }
 
-            if (!empty($hora)) {
+            if (isset($hora)) {
                 $where["TIME_FORMAT(horario, %H)"] = $hora;
             }
 
-            if (!empty($minutos)) {
+            if (isset($minutos)) {
                 $where["TIME_FORMAT(horario, %i)"] = $minutos;
             }
 

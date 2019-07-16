@@ -303,6 +303,7 @@ const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
 const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar!";
 const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover!";
+const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
@@ -388,6 +389,8 @@ const MESSAGE_REDEEM_COUPON_USED = "Cupom usado!";
 
 const TYPE_OPERATION_RETRIEVE = 'Resgate';
 const TYPE_OPERATION_USE = 'Uso';
+const TYPE_OPERATION_RETRIEVED = 'Resgatado';
+const TYPE_OPERATION_USED= 'Usado';
 
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";

@@ -477,10 +477,11 @@ class CuponsTable extends GenericTable
      *
      * @return array App\Model\Entity\Cupon
      */
-    public function getCuponsResgatadosUsados(bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = null, bool $redeAtiva = true, int $diasAnteriores = 1)
+    public function getCuponsResgatadosUsados(int $clientesId, bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = null, bool $redeAtiva = true, int $diasAnteriores = 1)
     {
         $whereConditions = array();
 
+        $whereConditions[] = array("Cupons.clientes_id" => $clientesId);
         $whereConditions[] = array("Cupons.resgatado" => $resgatado);
         $whereConditions[] = array("Cupons.usado" => $usado);
 

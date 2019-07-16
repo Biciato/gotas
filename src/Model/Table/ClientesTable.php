@@ -371,7 +371,7 @@ class ClientesTable extends GenericTable
         try {
             $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
-            $clientesQuery = $this->_getClientesTable()->find('all')
+            $clientesQuery = $this->find('all')
                 ->where($whereConditions);
 
             $clientesQuery = $clientesQuery->contain(array("RedesHasClientes.Redes"));
@@ -800,7 +800,7 @@ class ClientesTable extends GenericTable
     public function getIdsMatrizFiliaisByClienteId($clientes_id)
     {
         try {
-            $arrayIds = $this->_getClientesTable()->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
+            $arrayIds = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($clientes_id);
 
             $array = [];
 
@@ -1101,8 +1101,8 @@ class ClientesTable extends GenericTable
      */
     public function formatClient($cliente)
     {
-        echo __LINE__;
-        DebugUtil::print($cliente);
+        // echo __LINE__;
+        // DebugUtil::print($cliente);
         $cliente["matriz"] = $cliente["matriz"];
         $cliente["ativado"] = $cliente["ativado"];
         $cliente['tipo_unidade'] = $cliente['tipo_unidade'];

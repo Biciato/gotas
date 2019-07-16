@@ -325,19 +325,21 @@ class RedesTable extends GenericTable
      *
      * @return \App\Entity\Model\Redes $redes[] Lista de Redes
      */
-    public function getAllRedes(string $queryType = null, array $whereConditions = [], bool $withAssociations = true)
+    public function getAllRedes(string $queryType = null, array $whereConditions = null, bool $withAssociations = true)
     {
         try {
 
             $conditions = [];
 
-            foreach ($whereConditions as $key => $value) {
-                array_push($conditions, [$key => $value]);
+            if (isset($whereConditions)) {
+                foreach ($whereConditions as $key => $value) {
+                    array_push($conditions, [$key => $value]);
+                }
             }
 
             $query = isset($queryType) ? $queryType : 'all';
 
-            $redes = $this->_getRedesTable()->find($query)
+            $redes = $this->find($query)
                 ->where($conditions);
 
             if ($withAssociations) {

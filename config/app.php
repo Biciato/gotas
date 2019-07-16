@@ -1,16 +1,18 @@
 <?php
+use Cake\Log\Log;
 
 require_once("definitions.php");
+
 return [
-/**
- * Debug Level:
- *
- * Production Mode:
- * false: No error messages, errors, or warnings shown.
- *
- * Development Mode:
- * true: Errors and warnings shown.
- */
+    /**
+     * Debug Level:
+     *
+     * Production Mode:
+     * false: No error messages, errors, or warnings shown.
+     *
+     * Development Mode:
+     * true: Errors and warnings shown.
+     */
     'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
     // 'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
 
@@ -204,9 +206,9 @@ return [
             'tls' => true,
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
             'context' =>
-                [
+            [
                 'ssl' =>
-                    [
+                [
                     'verify_peer' => false,
                     'verify_peer_name' => false,
                     'allow_self_signed' => true
@@ -378,7 +380,6 @@ return [
             'file' => 'error',
             'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
             'url' => env('LOG_ERROR_URL', null),
-        // ]
         ],
         'info' => [
             'className' => 'Cake\Log\Engine\FileLog',
@@ -386,16 +387,17 @@ return [
             'file' => 'info',
             'levels' => ["info"],
             'url' => env('LOG_ERROR_URL', null),
-        // ]
         ],
+
 
         // guardar todas as queries executadas em log
         'queries' => [
-            'className' => 'File',
+            'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
-            'file' => 'queries.log',
+            'file' => 'queries',
             'scopes' => ['queriesLog']
         ]
+
     ],
 
     /**
