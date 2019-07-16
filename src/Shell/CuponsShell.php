@@ -69,6 +69,7 @@ class CuponsShell extends ExtendedShell
 
         $cupons = $this->Cupons->getCuponsResgatadosUsados(true, false, null, true, 1);
 
+        // DebugUtil::printArray($cupons);
         $cuponsIdsAtualizar = array();
 
         foreach ($cupons as $cupom) {

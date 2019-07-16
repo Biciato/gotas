@@ -479,7 +479,7 @@ class CuponsTable extends GenericTable
      */
     public function getCuponsResgatadosUsados(bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = null, bool $redeAtiva = true, int $diasAnteriores = 1)
     {
-        $whereConditions =   array();
+        $whereConditions = array();
 
         $whereConditions[] = array("Cupons.resgatado" => $resgatado);
         $whereConditions[] = array("Cupons.usado" => $usado);
@@ -527,26 +527,28 @@ class CuponsTable extends GenericTable
         $retorno = array();
 
         foreach ($cupons as $key => $value) {
-            $retorno[] = array(
-                "id" => $value["id"],
-                "brindes_id" => $value["brindes_id"],
-                "clientes_id" => $value["clientes_id"],
-                "funcionarios_id" => $value["funcionarios_id"],
-                "usuarios_id" => $value["usuarios_id"],
-                "codigo_principal" => $value["codigo_principal"],
-                "codigo_secundario" => $value["codigo_secundario"],
-                "valor_pago_gotas" => $value["valor_pago_gotas"],
-                "valor_pago_reais" => $value["valor_pago_reais"],
-                "tipo_venda" => $value["tipo_venda"],
-                "senha" => $value["senha"],
-                "cupom_emitido" => $value["cupom_emitido"],
-                "data" => $value["data"],
-                "resgatado" => $value["resgatado"],
-                "usado" => $value["usado"],
-                "quantidade" => $value["quantidade"],
-                "audit_insert" => $value["audit_insert"],
-                "audit_update" => $value["audit_update"],
-            );
+
+            $retorno[] = $value;
+            // $retorno[] = array(
+            //     "id" => $value["id"],
+            //     "brindes_id" => $value["brindes_id"],
+            //     "clientes_id" => $value["clientes_id"],
+            //     "funcionarios_id" => $value["funcionarios_id"],
+            //     "usuarios_id" => $value["usuarios_id"],
+            //     "codigo_principal" => $value["codigo_principal"],
+            //     "codigo_secundario" => $value["codigo_secundario"],
+            //     "valor_pago_gotas" => $value["valor_pago_gotas"],
+            //     "valor_pago_reais" => $value["valor_pago_reais"],
+            //     "tipo_venda" => $value["tipo_venda"],
+            //     "senha" => $value["senha"],
+            //     "cupom_emitido" => $value["cupom_emitido"],
+            //     "data" => $value["data"],
+            //     "resgatado" => $value["resgatado"],
+            //     "usado" => $value["usado"],
+            //     "quantidade" => $value["quantidade"],
+            //     "audit_insert" => $value["audit_insert"],
+            //     "audit_update" => $value["audit_update"],
+            // );
         }
 
         return $retorno;
