@@ -2,3 +2,4 @@
 *.png
 *.gif
 !/icons/rti_cupom.png
+!/icons/*
