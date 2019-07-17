@@ -2,7 +2,11 @@
 
 ?>
 
-<legend>Instalar Aplicação</legend>
+<div class="container-fluid">
+    <div class="col-lg-12">
+        <legend>Instalar Aplicação</legend>
+    </div>
+</div>
 <div class="container">
     <div class="center-block">
         <p class="text-center">
