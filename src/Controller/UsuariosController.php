@@ -262,9 +262,11 @@ class UsuariosController extends AppController
         $transportadora = $this->Transportadoras->newEntity();
         $veiculo = $this->Veiculos->newEntity();
 
+        $sessaoUsuario = $this->getSessionUserVariables();
+
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $usuarioLogado = null;
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
 
         if ($usuarioAdministrador) {
@@ -345,7 +347,7 @@ class UsuariosController extends AppController
 
             $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
 
-            if (strlen($usuarioData['doc_estrangeiro']) > 0) {
+            if (!empty($usuarioData["doc_estrangeiro"]) && strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, [
                     'validate' => 'CadastroEstrangeiro'
                 ]);
@@ -353,7 +355,7 @@ class UsuariosController extends AppController
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, ['validate' => 'Default']);
             }
 
-            if (strlen($usuarioData['doc_estrangeiro']) == 0 && strlen($usuarioData['cpf']) == 0) {
+            if (!empty($usuarioData["doc_estrangeiro"]) && strlen($usuarioData['doc_estrangeiro']) == 0 && strlen($usuarioData['cpf']) == 0) {
                 $this->Flash->error(__("Deve ser informado o CPF ou Documentação Estrangeira do novo usuário!"));
 
                 $this->set(compact(['usuario']));
@@ -456,6 +458,7 @@ class UsuariosController extends AppController
             $redes = array();
             $redesConditions = array();
             $clientesHasUsuariosWhere = array();
+            $cliente = null;
 
             if ($usuario->tipo_perfil != (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
@@ -739,10 +742,6 @@ class UsuariosController extends AppController
             $clientes_ids[] = $key;
         }
 
-        // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
-
-        // $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
-
         if (isset($redes_id)) {
             $redes_conditions[] = ['id' => $redes_id];
         }
@@ -762,22 +761,13 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-
             $usuarioData = $data;
-
-            DebugUtil::printArray($usuarioData, 0);
 
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = $cliente["id"];
-
             $tipo_perfil = $data['tipo_perfil'];
-
-            $transportadoraData = null;
-            $veiculosData = null;
-
             $transportadoraData = array();
             $veiculosData = array();
-
 
             foreach ($usuarioData as $key => $value) {
                 if (substr($key, 0, strlen($transportadoraNomeProcura)) == $transportadoraNomeProcura) {
@@ -816,32 +806,36 @@ class UsuariosController extends AppController
             }
 
             if (isset($this->usuarioLogado)) {
-                $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
-                $veiculoDataBase = $veiculoDataBase["veiculo"];
+                if (!empty($veiculosData["placa"])) {
+                    $veiculoDataBase = $this->Veiculos->getVeiculoByPlaca($veiculosData['placa']);
+                    $veiculoDataBase = $veiculoDataBase["veiculo"];
 
-                // DebugUtil::print($veiculoDataBase);
+                    // DebugUtil::print($veiculoDataBase);
 
-                if ($veiculoDataBase) {
-                    $veiculo = $veiculoDataBase;
-                } elseif (isset($veiculosData)) {
-                    $veiculo = $this->Veiculos->patchEntity($veiculo, $veiculosData);
-                    $veiculo = $this->Veiculos->save($veiculo);
+                    if ($veiculoDataBase) {
+                        $veiculo = $veiculoDataBase;
+                    } elseif (isset($veiculosData)) {
+                        $veiculo = $this->Veiculos->patchEntity($veiculo, $veiculosData);
+                        $veiculo = $this->Veiculos->save($veiculo);
+                    }
                 }
 
-                if (strlen($transportadoraData['cnpj']) > 0 || strlen($transportadoraData['nome_fantasia']) > 0 || strlen($transportadoraData['razao_social']) > 0) {
-                    $transportadoraDataBase = $this->Transportadoras->findTransportadoraByCNPJ($transportadoraData['cnpj']);
+                if (!empty($transportadoraData["cnpj"])) {
+                    if (strlen($transportadoraData['cnpj']) > 0 || strlen($transportadoraData['nome_fantasia']) > 0 || strlen($transportadoraData['razao_social']) > 0) {
+                        $transportadoraDataBase = $this->Transportadoras->findTransportadoraByCNPJ($transportadoraData['cnpj']);
 
-                    if ($transportadoraDataBase) {
-                        $transportadora = $transportadoraDataBase;
-                    } else {
-                        $transportadora = $this->Transportadoras->patchEntity($transportadora, $transportadoraData);
+                        if ($transportadoraDataBase) {
+                            $transportadora = $transportadoraDataBase;
+                        } else {
+                            $transportadora = $this->Transportadoras->patchEntity($transportadora, $transportadoraData);
 
-                        $transportadora = $this->Transportadoras->save($transportadora);
+                            $transportadora = $this->Transportadoras->save($transportadora);
+                        }
                     }
                 }
             }
 
-            if (strlen($usuarioData['doc_estrangeiro']) > 0) {
+            if (!empty($usuarioData["doc_estrangeiro"]) &&  strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario
                     = $this->Usuarios->patchEntity(
                         $usuario,
@@ -913,7 +907,6 @@ class UsuariosController extends AppController
                 // se o id da rede está definido, volta para o cadastro da rede
                 // caso contrário, volta para o índex de administrador
 
-
                 // se quem está fazendo o cadastro é administrador da rede até gerente
                 if (
                     $this->usuarioLogado['tipo_perfil'] >= (Configure::read('profileTypes')['AdminNetworkProfileType'])
@@ -930,8 +923,7 @@ class UsuariosController extends AppController
                 } else {
                     // se é administrador rti
                     if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                        // se está mexendo em um cadastro de rede,
-                        // redireciona para os usuários daquela rede
+                        // se está mexendo em um cadastro de rede, redireciona para os usuários daquela rede
                         if (isset($redes_id)) {
                             return $this->redirect(['action' => 'usuarios_rede', $redes_id]);
                         }
@@ -4153,7 +4145,9 @@ class UsuariosController extends AppController
                     }
                 }
 
-                $user['data_nasc'] = !empty($user) && !empty($user['data_nasc']) ? $user["data_nasc"]->format('d/m/Y') : null;
+                if (!empty($user)) {
+                    $user['data_nasc'] = !empty($user) && !empty($user['data_nasc']) ? $user["data_nasc"]->format('d/m/Y') : null;
+                }
             }
             $return = array("user" => $user);
             return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, $return);

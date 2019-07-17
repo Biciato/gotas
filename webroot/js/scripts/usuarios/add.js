@@ -210,8 +210,8 @@ $(document).ready(function () {
         loadUnidadesRede(data);
     }
 
-    $("#senha").mask("####");
-    $("#confirm-senha").mask("####");
+    $("#senha").mask("######");
+    $("#confirm-senha").mask("######");
 
     $(".fields-is-final-customer").show();
 
@@ -258,8 +258,8 @@ $(document).ready(function () {
             $(".fields-is-final-customer").hide();
 
         } else {
-            $("#senha").mask("####");
-            $("#confirm-senha").mask("####");
+            $("#senha").mask("######");
+            $("#confirm-senha").mask("######");
             $(".fields-is-final-customer").show();
         }
     }

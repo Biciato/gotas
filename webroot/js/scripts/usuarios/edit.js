@@ -482,8 +482,6 @@ $(document).ready(function () {
             closeLoaderAnimation();
             var interval;
 
-            console.log('oi');
-
             interval = setInterval(function () {
                 if (
                     $("#clientes_rede").val() != "" &&
