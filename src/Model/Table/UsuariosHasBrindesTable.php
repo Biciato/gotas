@@ -14,7 +14,7 @@ use Cake\Validation\Validator;
  * UsuariosHasBrindes Model
  *
  * @property \App\Model\Table\UsuariosTable|\Cake\ORM\Association\BelongsTo $Usuarios
- * @property \App\Model\Table\ClientesHasBrindesHabilitadosTable|\Cake\ORM\Association\BelongsTo $ClientesHasBrindesHabilitados
+ * @property \App\Model\Table\BrindesTable|\Cake\ORM\Association\BelongsTo $Brindes
  *
  * @method \App\Model\Entity\UsuariosHasBrinde get($primaryKey, $options = [])
  * @method \App\Model\Entity\UsuariosHasBrinde newEntity($data = null, array $options = [])
@@ -26,42 +26,6 @@ use Cake\Validation\Validator;
  */
 class UsuariosHasBrindesTable extends GenericTable
 {
-    /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $usuariosHasBrindesTable = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of brinde table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getUsuariosHasBrindesTable()
-    {
-        if (is_null($this->usuariosHasBrindesTable)) {
-            $this->_setUsuariosHasBrindesTable();
-        }
-        return $this->usuariosHasBrindesTable;
-    }
-
-    /**
-     * Method set of brinde table property
-     *
-     * @return void
-     */
-    private function _setUsuariosHasBrindesTable()
-    {
-        $this->usuariosHasBrindesTable = TableRegistry::get('UsuariosHasBrindes');
-    }
-
     /**
      * Initialize method
      *
@@ -228,9 +192,9 @@ class UsuariosHasBrindesTable extends GenericTable
     public function getUsuariosHasBrindesById(int $usuarios_has_brindes_id)
     {
         try {
-            return $this->_getUsuariosHasBrindesTable()
+            return $this
                 ->find('all')
-                ->contain(['ClientesHasBrindesHabilitados.Brindes'])
+                ->contain(['Brindes'])
                 ->where(['UsuariosHasBrindes.id' => $usuarios_has_brindes_id])
                 ->first();
         } catch (\Exception $e) {
@@ -254,13 +218,13 @@ class UsuariosHasBrindesTable extends GenericTable
         try {
             return $this
                 ->find('all')
-                ->contain(array('ClientesHasBrindesHabilitados.Brindes'))
+                ->contain(array('Brindes'))
                 ->where(array('UsuariosHasBrindes.cupons_id' => $cuponsId))
                 ->select(
                     array(
                         "UsuariosHasBrindes.id",
                         "UsuariosHasBrindes.quantidade",
-                        "ClientesHasBrindesHabilitados.id",
+                        "Brindes.id",
                         "Brindes.nome"
                     )
                 )
@@ -287,11 +251,11 @@ class UsuariosHasBrindesTable extends GenericTable
     public function getAllUsuariosHasBrindes(array $where_conditions = [], array $order_conditions = [])
     {
         try {
-            return $this->_getUsuariosHasBrindesTable()
+            return $this
                 ->find('all')
                 ->contain(
                     [
-                        'ClientesHasBrindesHabilitados.Brindes'
+                        'Brindes'
                     ]
                 )
                 ->where($where_conditions)
@@ -334,7 +298,7 @@ class UsuariosHasBrindesTable extends GenericTable
             }
 
             if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
-                return $this->_getUsuariosHasBrindesTable()
+                return $this
                     ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
             } else {
                 return true;

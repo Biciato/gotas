@@ -1,0 +1,16 @@
+/**
+  * @author   Gustavo Souza Gonçalves
+  * @file webroot/css/styles/pages/instala_mobile.css
+  * @date     2019-07-17
+  */
+
+  .img-stores{
+      width: 300px;
+      height: 80px;
+  }
+  
+  .qr-code-img-stores{
+      zoom: 1.5;
+  }
+
+  

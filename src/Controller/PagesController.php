@@ -48,7 +48,7 @@ class PagesController extends AppController
     {
         parent::initialize();
 
-        $this->Auth->allow(['display', 'test']);
+        $this->Auth->allow(['display', 'test', 'instalaMobile']);
     }
 
     /**
@@ -166,7 +166,6 @@ class PagesController extends AppController
         }
     }
 
-
     /**
      * Displays a admin dashboard view
      *
@@ -215,7 +214,6 @@ class PagesController extends AppController
         }
     }
 
-
     /**
      * Displays a manager dashboard view
      *
@@ -229,7 +227,6 @@ class PagesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
     }
-
 
     /**
      * Configura a dashboard para funcionário
@@ -349,6 +346,24 @@ class PagesController extends AppController
     
     public function test()
     {
-        $this->viewBuilder()->setLayout(false); 
+        $this->viewBuilder()->setLayout(false);
+    }
+
+    /**
+     * PagesController::instalaMobile
+     *
+     * Action para exibir os links para instalar aplicação no Mobile
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-17
+     *
+     * @return void
+     */
+    public function instalaMobile()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"] ?? null;
+
+        $this->set(compact("usuarioLogado"));
     }
 }

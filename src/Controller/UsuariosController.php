@@ -263,9 +263,8 @@ class UsuariosController extends AppController
         $veiculo = $this->Veiculos->newEntity();
 
         $sessaoUsuario = $this->getSessionUserVariables();
-
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
 
@@ -280,19 +279,13 @@ class UsuariosController extends AppController
             $cliente = null;
 
             if (isset($this->usuarioLogado)) {
-
                 $cliente_has_usuario =
                     $this->ClientesHasUsuarios->findClienteHasUsuario(
-                        [
-                            'ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id']
-                            // 'ClientesHasUsuarios.tipo_perfil' => $this->usuarioLogado['tipo_perfil']
-                        ]
+                        array('ClientesHasUsuarios.usuarios_id' => $this->usuarioLogado['id'])
                     );
 
                 $cliente_id = isset($cliente_has_usuario) ? $cliente_has_usuario->clientes_id : null;
-
                 $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
-
                 $transportadoraData = !empty($usuarioData['TransportadorasHasUsuarios']['Transportadoras']) ? $usuarioData['TransportadorasHasUsuarios']['Transportadoras']  : null;
                 $veiculosData = !empty($usuarioData['UsuariosHasVeiculos']['Veiculos']) ? $usuarioData['UsuariosHasVeiculos']['Veiculos']  : null;
             }
@@ -303,10 +296,8 @@ class UsuariosController extends AppController
 
             if ($usuarioData['doc_invalido'] == true) {
                 $nomeDoc = strlen($usuarioData['cpf']) > 0 ? $usuarioData['cpf'] : $usuarioData['doc_estrangeiro'];
-
                 $nomeDoc = $this->cleanNumberAndLetters($nomeDoc);
                 $nomeDoc = $nomeDoc . '.jpg';
-
                 $currentPath = Configure::read('temporaryDocumentUserPath');
                 $newPath = Configure::read('documentUserPath');
 
@@ -364,14 +355,7 @@ class UsuariosController extends AppController
                 return;
             }
             $errors = $usuario->errors();
-
-            // debug($errors);
-
             $usuario = $this->Usuarios->save($usuario);
-
-            // debug($usuario);
-            // debug($veiculo);
-            // die();
 
             if ($usuario) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
@@ -397,18 +381,13 @@ class UsuariosController extends AppController
 
                     if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                         return $this->redirect(['action' => 'index']);
-                    } else if ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['ManagerProfileType']) {
+                    } elseif ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminDeveloperProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['ManagerProfileType']) {
                         return $this->redirect(['action' => 'meus_clientes']);
                     } else {
                         return $this->redirect(['controller' => 'pages', 'action' => 'index']);
                     }
                 } else {
-                    return $this->redirect(
-                        [
-                            'controller' => 'usuarios',
-                            'action' => 'login'
-                        ]
-                    );
+                    return $this->redirect("/Pages/instalaMobile");
                 }
             } else {
                 $this->Flash->error(__('O usuário não pode ser registrado.'));

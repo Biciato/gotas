@@ -2392,7 +2392,7 @@ class UsuariosTable extends GenericTable
         $usuario->sexo = !empty($usuario["nome"]) ? $usuario['sexo'] : null;
 
         $usuario->data_nasc = !empty($usuario["data_nasc"]) ? date_format(date_create_from_format('d/m/Y', $usuario['data_nasc']->format('d/m/Y')), 'Y-m-d') : null;
-        $usuario->email = !empty($email) ? $usuario['email'] : null;
+        $usuario->email = !empty($usuario["email"]) ? $usuario['email'] : null;
 
         $usuario->telefone = isset($usuario['telefone']) ? NumberUtil::limparFormatacaoNumeros($usuario['telefone']) : null;
         $usuario->endereco = isset($usuario['endereco']) ? $usuario['endereco'] : null;

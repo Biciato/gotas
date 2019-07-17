@@ -482,6 +482,11 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Acesso Rápido<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li>
+                        <a href="/pages/instalaMobile">Instalar Aplicação Mobile</a>
+                        
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
                         <?php echo $this->Html->link('Meu Histórico de Cupons de Brindes', ['controller' => 'usuarios_has_brindes', 'action' => 'historico_brindes']) ?>
                     </li>
                     <li role="separator" class="divider"></li>

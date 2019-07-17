@@ -13,6 +13,7 @@
  * @since     0.2.9
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace App\Controller;
 
 use Cake\Controller\Controller;
@@ -278,6 +279,7 @@ class AppController extends Controller
 
             $urlPages = array(
                 "/pages",
+                "/pages/instalaMobile",
                 "/pages/test",
                 "/usuarios/login",
                 "/usuarios/registrar",
