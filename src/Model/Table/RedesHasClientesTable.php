@@ -161,8 +161,8 @@ class RedesHasClientesTable extends GenericTable
             return $this->find('all')
                 ->where(
                     array(
-                        'redes_has_clientes.redes_id' => $redesId,
-                        'clientes.matriz' => true
+                        'RedesHasClientes.redes_id' => $redesId,
+                        'Clientes.matriz' => true
                     )
                 )
                 ->contain(array('Redes', 'Clientes'))

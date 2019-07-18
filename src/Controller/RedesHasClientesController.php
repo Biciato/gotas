@@ -196,6 +196,8 @@ class RedesHasClientesController extends AppController
 
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesById($redesHasClientesId);
 
+            // DebugUtil::printArray($redeHasCliente);
+
             // se rede é matriz
             if ($redeHasCliente["cliente"]["matriz"]) {
                 /**
@@ -275,9 +277,9 @@ class RedesHasClientesController extends AppController
                 $matriz = $this->RedesHasClientes->findMatrizOfRedesByRedesId($redeHasCliente->redes_id);
 
                 // pontuações do cliente
-                $this->PontuacoesPendentes->setPontuacoesPendentesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
-                $this->Pontuacoes->setPontuacoesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
-                $this->PontuacoesComprovantes->setPontuacoesComprovantesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->PontuacoesPendentes->setPontuacoesPendentesToMainCliente($redeHasCliente["clientes_id"], $matriz->clientes_id);
+                $this->Pontuacoes->setPontuacoesToMainCliente($redeHasCliente->clientes_id, $matriz->clientes_id);
+                $this->PontuacoesComprovantes->setPontuacoesComprovantesToMainCliente($redeHasCliente->clientes_id, $matriz->clientes_id);
 
                 // gotas
 
@@ -287,12 +289,11 @@ class RedesHasClientesController extends AppController
 
                 // brindes
 
-                $this->ClientesHasBrindesHabilitadosPreco->setClientesHasBrindesHabilitadosPrecoToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
-                $this->ClientesHasBrindesHabilitados->setClientesHasBrindesHabilitadosToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                $this->BrindesPrecos->setBrindesPrecosToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
                 $this->Brindes->setBrindesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
 
                 // Migrar os tipos de brindes para a matriz
-                $this->TiposBrindesClientes->setTiposBrindesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
+                // $this->TiposBrindesClientes->setTiposBrindesToMainCliente($redeHasCliente["clientes_id"], $matriz["clientes_id"]);
 
                 $this->Usuarios->disableUsuariosOfCliente($redeHasCliente["clientes_id"], $deleteConditionsUsuarios);
 
