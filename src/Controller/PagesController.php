@@ -48,7 +48,7 @@ class PagesController extends AppController
     {
         parent::initialize();
 
-        $this->Auth->allow(['display', 'test', 'instalaMobile']);
+        $this->Auth->allow(['display', 'test', 'instalaMobile', 'eula']);
     }
 
     /**
@@ -365,5 +365,9 @@ class PagesController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"] ?? null;
 
         $this->set(compact("usuarioLogado"));
+    }
+
+    public function eula(){
+
     }
 }
