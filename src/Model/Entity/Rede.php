@@ -41,7 +41,8 @@ class Rede extends Entity
     protected function _getNomeImgCompleto()
     {
         if (!empty($this->_properties["nome_img"]) && (strlen($this->_properties["nome_img"]) > 0)) {
-            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageNetworkPath"), $this->_properties["nome_img"]);
+            return sprintf("%s%s%s%s", __SERVER__ , PATH_WEBROOT, PATH_IMAGES_REDES, $this->_properties["nome_img"]);
+            // return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageNetworkPath"), $this->_properties["nome_img"]);
         }
 
         return null;
@@ -50,7 +51,8 @@ class Rede extends Entity
     protected function _getPropagandaImgCompleto()
     {
         if (!empty($this->_properties["propaganda_img"]) && strlen($this->_properties["propaganda_img"]) > 0) {
-            return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageNetworkPath"), $this->_properties["propaganda_img"]);
+            return sprintf("%s%s%s%s", __SERVER__ , PATH_WEBROOT, PATH_IMAGES_REDES, $this->_properties["propaganda_img"]);
+            // return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageNetworkPath"), $this->_properties["propaganda_img"]);
         }
 
         return null;
