@@ -319,6 +319,32 @@ class ClientesTable extends GenericTable
     #region Read
 
     /**
+     * ClientesTable::getClienteByImage
+     *
+     * Verifica se já tem imagem cadastrada para a rede com a string informada
+     *
+     * @author Gustavo Souza Gonçalves  <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-20
+     *
+     * @param string $propagandaImg Imagem de Propaganda
+     *
+     * @return int Id
+     */
+    public function getClienteByImage(string $propagandaImg)
+    {
+        try {
+            return $this->find("all")
+                ->where(array("propaganda_img" => $propagandaImg))
+                ->select("Clientes.id")
+                ->first();
+        } catch (Exception $e) {
+            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $e->getMessage()));
+
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
      * Obtem todos os clientes
      *
      * @param array $where_conditions condições

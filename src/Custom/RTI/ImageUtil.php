@@ -103,7 +103,7 @@ class ImageUtil
         }
 
         if (empty($image)) {
-            throw new \Exception("Erro durante carregamento de imagem. Aguarde o total carregamento da mesma!");
+            throw new \Exception("Erro durante processamento de imagem. Avise suporte!");
         }
         
         imagecopyresampled($newImage, $image, 0, 0, $valueX, $valueY, $cropWidth, $cropHeight, $imageWidth, $imageHeight);

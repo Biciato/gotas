@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -14,6 +15,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use Exception;
 
 /**
  * Redes Model
@@ -181,6 +183,32 @@ class RedesTable extends GenericTable
     #region Read
 
     /**
+     * RedesTable::getRedeByImage
+     *
+     * Verifica se já tem imagem cadastrada para a rede com a string informada
+     *
+     * @author Gustavo Souza Gonçalves  <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-20
+     *
+     * @param string $propagandaImg Imagem de Propaganda
+     *
+     * @return int Id
+     */
+    public function getRedeByImage(string $propagandaImg)
+    {
+        try {
+            return $this->find("all")
+                ->where(array("propaganda_img" => $propagandaImg))
+                ->select("Redes.id")
+                ->first();
+        } catch (Exception $e) {
+            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $e->getMessage()));
+
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
      * RedesTable::findRedesByName
      *
      * Procura Redes por nome
@@ -210,12 +238,9 @@ class RedesTable extends GenericTable
 
             return $redes;
         } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao realizar pesquisa: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
-            Log::write('error', $trace);
-
         }
     }
 
@@ -551,7 +576,6 @@ class RedesTable extends GenericTable
 
             foreach ($rede->redes_has_clientes as $key => $value) {
                 $clientesIds[] = $value["clientes_id"];
-
             }
 
             // troca o estado dos registros pertencentes à uma rede
@@ -567,7 +591,6 @@ class RedesTable extends GenericTable
             $rede->ativado = $ativado;
 
             return $this->_getRedesTable()->save($rede);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -599,7 +622,6 @@ class RedesTable extends GenericTable
         try {
 
             return $this->_getRedesTable()->save($rede);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -636,7 +658,6 @@ class RedesTable extends GenericTable
 
             return
                 $this->_getRedesTable()->deleteAll(['id' => $id]);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

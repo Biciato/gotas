@@ -80,6 +80,7 @@ use Cake\I18n\FrozenDate;
  * idea to create multiple configuration files, and separate the configuration
  * that changes from configuration that does not. This makes deployment simpler.
  */
+
 try {
     Configure::config('default', new PhpConfig());
     Configure::load('app', 'default', false);
@@ -278,6 +279,11 @@ const PATH_IMAGES_BRINDES = "img/brindes/";
 const PATH_IMAGES_CLIENTES = "img/clientes/";
 const PATH_IMAGES_READ_REDES = "/img/redes/";
 const PATH_IMAGES_REDES = "img/redes/";
+const PATH_WEBROOT = "/webroot/";
+const PATH_IMAGES_BRINDES_TEMP = "img/tmp/brindes";
+const PATH_IMAGES_CLIENTES_TEMP = "img/tmp/clientes/";
+const PATH_IMAGES_REDES_TEMP = "img/tmp/redes/";
+const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 #endregion
 
@@ -301,8 +307,9 @@ const LOGIN_WEB = "WEB";
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
-const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar!";
-const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover!";
+const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
+const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
+const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
@@ -371,7 +378,7 @@ const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
 const MAX_TIME_COUPONS_REPORT_TIME = 16;
 // Tempo padrão caso funcionário gerar o relatório completo de caixa de funcionários
 const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
-const MESSAGE_WARNING_GENERATE_REPORT= "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
+const MESSAGE_WARNING_GENERATE_REPORT = "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
 
 const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
 const MESSAGE_CUPOM_ALREADY_USED = "Cupom já foi validado, não é possível novo uso!";
@@ -390,7 +397,7 @@ const MESSAGE_REDEEM_COUPON_USED = "Cupom usado!";
 const TYPE_OPERATION_RETRIEVE = 'Resgate';
 const TYPE_OPERATION_USE = 'Uso';
 const TYPE_OPERATION_RETRIEVED = 'Resgatado';
-const TYPE_OPERATION_USED= 'Usado';
+const TYPE_OPERATION_USED = 'Usado';
 
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
@@ -488,5 +495,3 @@ const PROFILE_TYPE_WORKER_TRANSLATE = "Funcionário";
 const PROFILE_TYPE_USER_TRANSLATE = "Usuário";
 const PROFILE_TYPE_DUMMY_WORKER_TRANSLATE = "Funcionário Fictício";
 const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
-
-

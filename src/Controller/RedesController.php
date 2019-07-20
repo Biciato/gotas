@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -16,6 +17,8 @@ use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
 use Cake\Auth\DefaultPasswordHasher;
+use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\StringUtil;
 
 /**
  * Redes Controller
@@ -335,7 +338,7 @@ class RedesController extends AppController
                 foreach ($clientesIds as $clienteId) {
                     $this->ClientesHasQuadroHorario->deleteHorariosCliente($clienteId);
                 }
-                
+
                 $this->Clientes->deleteClientesByIds($clientesIds);
             }
 
@@ -362,7 +365,7 @@ class RedesController extends AppController
     {
         $query = $this->request->query();
 
-        $this->_alteraEstadoRede((int)$query['rede_id'], true, $query['return_url']);
+        $this->_alteraEstadoRede((int) $query['rede_id'], true, $query['return_url']);
     }
 
     /**
@@ -374,7 +377,7 @@ class RedesController extends AppController
     {
         $query = $this->request->query();
 
-        $this->_alteraEstadoRede((int)$query['rede_id'], false, $query['return_url']);
+        $this->_alteraEstadoRede((int) $query['rede_id'], false, $query['return_url']);
     }
 
     /**
@@ -440,43 +443,50 @@ class RedesController extends AppController
             }
             $rede = $this->request->session()->read('Rede.Grupo');
             $rede = $this->Redes->getRedeById($rede["id"]);
-            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $rede["propaganda_img"]);
+            $imagem = sprintf("%s%s%s", PATH_WEBROOT, PATH_IMAGES_REDES, $rede->propaganda_img);
             $imagemExistente = !empty($rede["propaganda_img"]);
             $imagemOriginal = null;
 
-            if (strlen($rede["propaganda_img"]) > 0) {
+            if (!empty($rede->propaganda_img)) {
                 // O caminho tem que ser pelo cliente, pois a mesma imagem será usada para todas as unidades
-                $imagemOriginal = __("{0}{1}", Configure::read("imageClientPath"), $rede["propaganda_img"]);
+                // $imagemOriginal = __("{0}{1}", Configure::read("imageClientPath"), $rede["propaganda_img"]);
+                $imagemOriginal = sprintf("%s%s", PATH_IMAGES_REDES, $rede->propaganda_img);
             }
 
             if ($this->request->is(['post', 'put'])) {
-
                 $data = $this->request->getData();
-
                 $trocaImagem = 0;
 
                 if (strlen($data['crop-height']) > 0) {
-
                     // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
-                    // obtem dados de redimensionamento
 
+                    // obtem dados de redimensionamento
                     $height = $data["crop-height"];
                     $width = $data["crop-width"];
                     $valueX = $data["crop-x1"];
                     $valueY = $data["crop-y1"];
-
                     $propagandaLink = $data["propaganda_link"];
-                    $propagandaImg = $data["img-upload"];
+                    $propagandaImg = StringUtil::gerarNomeArquivoAleatorio();
+                    $propagandaImg = $propagandaImg["fileName"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageClientPathTemp"), $data["img-upload"]);
+                    // Verifica se já tem este nome gerado na base
+                    while (!empty($idRedePropaganda = $this->Redes->getRedeByImage($propagandaImg))) {
+                        $propagandaImg = StringUtil::gerarNomeArquivoAleatorio();
+                    }
 
-                    $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
+                    $imagemOrigem = sprintf("%s%s", PATH_IMAGES_REDES_TEMP, $data["img-upload"]);
+                    // $imagemOrigem = __("{0}{1}", Configure::read("imageClientPathTemp"), $data["img-upload"]);
+                    $imagemDestino = sprintf("%s%s", PATH_IMAGES_REDES, $propagandaImg);
+                    $imagemDestinoClientes = sprintf("%s%s", PATH_IMAGES_CLIENTES, $propagandaImg);
+                    // $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
                     // Se imagem foi redimensionada, move e atribui o nome para gravação
                     if ($resizeSucesso == 1) {
                         rename($imagemOrigem, $imagemDestino);
-                        $data["propaganda_img"] = $data["img-upload"];
+                        copy($imagemDestino, $imagemDestinoClientes);
+                        // $data["propaganda_img"] = $data["img-upload"];
+                        $data["propaganda_img"] = $propagandaImg;
 
                         $trocaImagem = 1;
                     }
@@ -485,7 +495,6 @@ class RedesController extends AppController
                 $rede = $this->Redes->patchEntity($rede, $data);
 
                 if ($this->Redes->updateRede($rede)) {
-
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
                         if (file_exists($imagemOriginal)) {
                             unlink($imagemOriginal);
@@ -496,13 +505,13 @@ class RedesController extends AppController
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
 
                     $arrayUpdate = array();
-                    foreach ($clientesIds as $cliente) {
-                        $itemUpdate = array(
-                            "propaganda_link" => $propagandaLink,
-                            "propaganda_img" => $propagandaImg,
-                        );
+                    $itemUpdate = array(
+                        "propaganda_link" => $propagandaLink,
+                        "propaganda_img" => $propagandaImg,
+                    );
 
-                        $this->Clientes->updateAll($itemUpdate, array("id" => $cliente));
+                    if (count($clientesIds) > 0) {
+                        $this->Clientes->updateAll($itemUpdate, array("id IN" => $clientesIds));
                     }
 
                     $this->Flash->success(__(Configure::read('messageSavedSuccess')));
@@ -528,7 +537,7 @@ class RedesController extends AppController
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
 
             $messageStringDebug =
@@ -697,6 +706,39 @@ class RedesController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * RedesController::enviaImagemPropaganda
+     *
+     * Envia imagem de rede de forma assíncrona
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 06/08/2018
+     *
+     * @return json_object
+     */
+    public function enviaImagemPropagandaAPI()
+    {
+        $message = __("Erro durante o envio da imagem. Tente novamente!");
+
+        $arquivos = array();
+        try {
+            if ($this->request->is('post')) {
+                $data = $this->request->getData();
+
+                $arquivos = FilesUtil::uploadFiles(PATH_IMAGES_REDES_TEMP);
+
+                return ResponseUtil::successAPI("", $arquivos);
+            }
+        } catch (\Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_GENERIC_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            $errors = array();
+            $errors[] = $e->getMessage();
+
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
+        }
     }
 
     /**

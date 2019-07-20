@@ -142,19 +142,6 @@ Router::scope("/api", function ($routes) {
     );
 
     $routes->resources(
-        "TiposBrindesRedes",
-        [
-            "map" => [
-                // utilizado pelo APP Mobile. Cuidado ao mexer
-                "getTiposBrindesRedeAPI" => [
-                    "action" => "getTiposBrindesRedeAPI",
-                    "method" => "POST",
-                    "path" => "/get_tipos_brindes_rede"
-                ]
-            ]
-        ]
-    );
-    $routes->resources(
         "Pontuacoes",
         [
             "map" => [
@@ -218,12 +205,22 @@ Router::scope("/api", function ($routes) {
                 "action" => "getRedesAPI",
                 "method" => "POST",
                 "path" => "/get_redes"
-            ]
+            ],
+            "enviaImagemPropagandaAPI" => array(
+                "action" => "enviaImagemPropagandaAPI",
+                "method" => "POST",
+                "path" => "/envia_imagem_propaganda"
+            )
         ]
     ]);
 
     $routes->resources("Clientes", array(
         "map" => array(
+            "enviaImagemPropagandaAPI" => array(
+                "action" => "enviaImagemPropagandaAPI",
+                "method" => "POST",
+                "path" => "/envia_imagem_propaganda"
+            ),
             // utilizado pelo Angular
             "getClientesListAPI" => array(
                 "action" => "getClientesListAPI",

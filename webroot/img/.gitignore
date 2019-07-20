@@ -1,5 +1,6 @@
+!/icons/rti_cupom.png
+!/icons/
 *.jpg
+*.jpeg
 *.png
 *.gif
-!/icons/rti_cupom.png
-!/icons/*

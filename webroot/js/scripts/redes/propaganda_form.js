@@ -26,7 +26,7 @@ $(document).ready(function () {
             formData.append("file", image.target.files[0]);
 
             $.ajax({
-                url: "/api/clientes/envia_imagem_propaganda",
+                url: "/api/redes/envia_imagem_propaganda",
                 type: 'POST',
                 data: formData,
                 cache: false,
@@ -71,7 +71,7 @@ $(document).ready(function () {
 
                         var arquivos = null;
 
-                        if (result != undefined && result.filesUploaded != undefined && result.filesUploaded.length > 0) {
+                        if (result.mensagem.status && result.filesUploaded != undefined && result.filesUploaded.length > 0) {
 
                             result.filesUploaded.forEach(element => {
                                 arquivo = element;

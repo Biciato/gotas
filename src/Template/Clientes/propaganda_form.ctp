@@ -33,6 +33,7 @@ use Cake\Routing\Router;
             'type' => 'file',
             'label' => 'Propaganda para Exibição*',
             "id" => "propaganda_img",
+            "class" => "propaganda_img",
             "accept" => ".png,.jpg",
 
         ]

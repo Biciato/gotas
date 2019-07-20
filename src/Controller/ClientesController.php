@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -16,6 +17,7 @@ use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\StringUtil;
 
 /**
  * Clientes Controller
@@ -73,7 +75,7 @@ class ClientesController extends AppController
     {
         $query = $this->request->query();
 
-        $this->_alteraEstadoCliente((int)$query['clientes_id'], true, $query['return_url']);
+        $this->_alteraEstadoCliente((int) $query['clientes_id'], true, $query['return_url']);
     }
 
     /**
@@ -85,7 +87,7 @@ class ClientesController extends AppController
     {
         $query = $this->request->query();
 
-        $this->_alteraEstadoCliente((int)$query['clientes_id'], false, $query['return_url']);
+        $this->_alteraEstadoCliente((int) $query['clientes_id'], false, $query['return_url']);
     }
 
     /**
@@ -578,8 +580,9 @@ class ClientesController extends AppController
 
             $clientesId = empty($clientesId) ? $sessaoUsuario["cliente"]["id"] : $clientesId;
             $cliente = $this->Clientes->getClienteById($clientesId);
-            $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
-            $imagemExistente = !empty($rede["propaganda_img"]);
+            $imagem = sprintf("%s%s%s", PATH_WEBROOT, PATH_IMAGES_CLIENTES, $cliente->propaganda_img);
+            // $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
+            $imagemExistente = !empty($cliente->propaganda_img);
             $imagemOriginal = null;
 
             if (strlen($cliente["propaganda_img"]) > 0) {
@@ -588,9 +591,7 @@ class ClientesController extends AppController
             }
 
             if ($this->request->is(['post', 'put'])) {
-
                 $data = $this->request->getData();
-
                 $trocaImagem = 0;
 
                 if (strlen($data['crop-height']) > 0) {
@@ -604,18 +605,24 @@ class ClientesController extends AppController
                     $valueY = $data["crop-y1"];
 
                     $propagandaLink = $data["propaganda_link"];
-                    $propagandaImg = $data["img-upload"];
+                    $propagandaImg = StringUtil::gerarNomeArquivoAleatorio();
+                    $propagandaImg = $propagandaImg["fileName"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageClientPathTemp"), $data["img-upload"]);
+                    // Verifica se já tem este nome gerado na base
+                    while (!empty($idClientePropaganda = $this->Clientes->getClienteByImage($propagandaImg))) {
+                        $propagandaImg = StringUtil::gerarNomeArquivoAleatorio();
+                    }
 
-                    $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
+                    $imagemOrigem = __("{0}{1}", PATH_IMAGES_CLIENTES_TEMP, $data["img-upload"]);
+
+                    $imagemDestino = __("{0}{1}", PATH_IMAGES_CLIENTES, $propagandaImg);
                     // $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
                     // Se imagem foi redimensionada, move e atribui o nome para gravação
                     if ($resizeSucesso == 1) {
                         rename($imagemOrigem, $imagemDestino);
-                        $data["propaganda_img"] = $data["img-upload"];
+                        $data["propaganda_img"] = $propagandaImg;
 
                         $trocaImagem = 1;
                     }
@@ -625,12 +632,7 @@ class ClientesController extends AppController
 
                 if ($this->Clientes->updateClient($cliente)) {
 
-                    // Não posso dar unlink na imagem aqui, pois outras podem usar ainda
-                    // if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
-                    //     unlink($imagemOriginal);
-                    // }
-
-                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+                    $this->Flash->success(MESSAGE_SAVED_SUCCESS);
 
                     if (
                         $this->usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_DEVELOPER
@@ -775,7 +777,7 @@ class ClientesController extends AppController
                     return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
                 } else {
                     $errors = array();
-                    $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER? MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE : MESSAGE_USUARIO_CANT_SEARCH;
+                    $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE : MESSAGE_USUARIO_CANT_SEARCH;
 
                     return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
                 }
@@ -800,51 +802,34 @@ class ClientesController extends AppController
     /**
      * ClientesController::enviaImagemPropaganda
      *
-     * Envia imagem de rede de forma assíncrona
+     * Envia imagem de forma assíncrona
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 06/08/2018
      *
      * @return json_object
      */
-    public function enviaImagemPropaganda()
+    public function enviaImagemPropagandaAPI()
     {
-        $mensagem = null;
-        $status = false;
         $message = __("Erro durante o envio da imagem. Tente novamente!");
 
         $arquivos = array();
         try {
             if ($this->request->is('post')) {
-
                 $data = $this->request->getData();
 
-                $arquivos = FilesUtil::uploadFiles(Configure::read("imageClientPathTemp"));
+                $arquivos = FilesUtil::uploadFiles(PATH_IMAGES_CLIENTES_TEMP);
 
-                $status = true;
-                $message = __("Envio concluído com sucesso!");
+                return ResponseUtil::successAPI("", $arquivos);
             }
         } catch (\Exception $e) {
-            $messageString = __("Não foi possível enviar imagem de rede!");
-            $trace = $e->getTrace();
-            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+            $message = sprintf("[%s] %s", MESSAGE_GENERIC_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            $errors = array();
+            $errors[] = $e->getMessage();
 
-            Log::write("error", $messageStringDebug);
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
         }
-
-        $mensagem = array("status" => 1, "message" => null);
-
-        $result = array("mensagem" => $mensagem, "arquivos" => $arquivos);
-
-        // echo json_encode($result);
-        $arraySet = array(
-            "arquivos",
-            "mensagem"
-        );
-
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
     }
 
     /**
