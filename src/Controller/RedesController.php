@@ -443,7 +443,7 @@ class RedesController extends AppController
             }
             $rede = $this->request->session()->read('Rede.Grupo');
             $rede = $this->Redes->getRedeById($rede["id"]);
-            $imagem = sprintf("%s%s%s", PATH_WEBROOT, PATH_IMAGES_REDES, $rede->propaganda_img);
+            $imagem = sprintf("/%s%s%s", PATH_WEBROOT, PATH_IMAGES_REDES, $rede->propaganda_img);
             $imagemExistente = !empty($rede["propaganda_img"]);
             $imagemOriginal = null;
 

@@ -580,7 +580,7 @@ class ClientesController extends AppController
 
             $clientesId = empty($clientesId) ? $sessaoUsuario["cliente"]["id"] : $clientesId;
             $cliente = $this->Clientes->getClienteById($clientesId);
-            $imagem = sprintf("%s%s%s", PATH_WEBROOT, PATH_IMAGES_CLIENTES, $cliente->propaganda_img);
+            $imagem = sprintf("/%s%s%s", PATH_WEBROOT, PATH_IMAGES_CLIENTES, $cliente->propaganda_img);
             // $imagem = __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("imageClientPathRead"), $cliente["propaganda_img"]);
             $imagemExistente = !empty($cliente->propaganda_img);
             $imagemOriginal = null;
