@@ -485,7 +485,8 @@ class RedesController extends AppController
                     $imagemDestino = sprintf("%s%s", PATH_IMAGES_REDES, $propagandaImg);
                     $imagemDestinoClientes = sprintf("%s%s", PATH_IMAGES_CLIENTES, $propagandaImg);
                     // $imagemDestino = __("{0}{1}", Configure::read("imageClientPath"), $data["img-upload"]);
-                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
+                    // $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
+                    $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
                     // Se imagem foi redimensionada, move e atribui o nome para gravação
                     if ($resizeSucesso == 1) {
