@@ -20,6 +20,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use Exception;
 
 /**
  * Clientes Model
@@ -304,13 +305,9 @@ class ClientesTable extends GenericTable
 
             return $result;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao inserir novo registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
+            $stringError = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
             Log::write('error', $stringError);
-
-            Log::write("error", $trace);
+            throw new Exception($stringError);
         }
     }
 

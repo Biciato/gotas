@@ -297,6 +297,7 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 #region Comuns ao Sistema
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
+const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
 
 #endregion
 

@@ -20,6 +20,8 @@ use Cake\Auth\DefaultPasswordHasher;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\StringUtil;
 use Exception;
+use App\Model\Entity\Rede;
+use Cake\I18n\Number;
 
 /**
  * Redes Controller
@@ -426,6 +428,42 @@ class RedesController extends AppController
 
             $this->Flash->error($stringError);
         }
+    }
+
+    /**
+     * Action que permite Adm Rede configurar parâmetros de sua rede
+     *
+     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+     */
+    public function configurarParametrosRede()
+    {
+        $arraySet = ['rede'];
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_NETWORK) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+
+            return $this->redirect("/");
+        }
+
+        if ($this->request->is('put')) {
+            $data = $this->request->getData();
+            $rede = $this->Redes->patchEntity($rede, $data);
+            $update = $this->Redes->updateRede($rede);
+
+            if ($update) {
+                $this->Flash->success(MESSAGE_SAVED_SUCCESS);
+
+                return $this->redirect("/");
+            }
+
+            $this->Flash->error(MESSAGE_SAVED_ERROR);
+        }
+
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**

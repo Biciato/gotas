@@ -292,6 +292,29 @@ var closeLoaderAnimation = function () {
 };
 
 /**
+ * home::fixMoneyValue
+ *
+ * Corrige valor formatado de tipo money
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-07-22
+ *
+ * @param {object} target Campo à ser corrigido
+ *
+ * @return {object} Campo corrigido
+ */
+var fixMoneyValue = function(target){
+    var stringCheck = target.val().toString();
+    var indexComma = stringCheck.indexOf(".") + 1;
+    var stringBeforeComma = stringCheck.substring(indexComma);
+
+    if (stringCheck.length - (stringCheck.length - stringBeforeComma.length) == 1) {
+        stringCheck = stringCheck + "0";
+        target.val(stringCheck);
+    }
+}
+
+/**
  * Procura todas as ocorrências de um termo em uma string
  * @param {string} haystack
  * @param {string} needle
@@ -1230,3 +1253,4 @@ var validacaoGenericaForm = function (e) {
         }
     });
 }
+

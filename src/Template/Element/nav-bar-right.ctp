@@ -234,7 +234,11 @@ if (empty($usuarioLogado)) {
                     // se o administrador não selecionou uma unidade para gerenciar
                     // só permite ver os items de Cadastro de Usuários e Relatórios 
                     ?>
-
+                    <li>
+                        <a href="/redes/configurarParametrosRede">Configurar Parâmetros da Rede</a>
+                    </li>
+                    <li role="separator" class="divider" />
+                    
                     <li>
                         <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
                     </li>

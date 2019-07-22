@@ -19,7 +19,7 @@ use Cake\Core\Configure;
  * @property int $qte_gotas_bonificacao
  * @property string $propaganda_img
  * @property string $propaganda_link
- * @property int $custo_referencia_gotas
+ * @property float $custo_referencia_gotas
  * @property int $media_assiduidade_clientes
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update

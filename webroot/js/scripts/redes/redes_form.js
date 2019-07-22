@@ -16,6 +16,8 @@ $(document).ready(function () {
 
     $("#custo_referencia_gotas").maskMoney();
 
+    fixMoneyValue($("#custo_referencia_gotas"));
+
     $("#nome-img").on("change", function (image) {
 
         var formData = new FormData();

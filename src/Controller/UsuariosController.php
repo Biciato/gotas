@@ -2021,7 +2021,7 @@ class UsuariosController extends AppController
             $clienteHasUsuario["clientes_id"]
         );
 
-        $rede = $redeHasCliente["rede"];
+        $rede = $redeHasCliente->rede;
 
         $this->request->session()->write('Rede.Grupo', $rede);
         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
@@ -2908,7 +2908,7 @@ class UsuariosController extends AppController
 
                             // verifica qual rede o usuário se encontra
                             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
-                            $rede = $redeHasCliente["rede"];
+                            $rede = $redeHasCliente->rede;
 
                             $this->request->session()->write('Rede.Grupo', $rede);
                         }

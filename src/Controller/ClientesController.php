@@ -206,49 +206,44 @@ class ClientesController extends AppController
         $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
 
         $cliente = $this->Clientes->newEntity();
-
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
-        $usuarioLogado = $this->usuarioLogado;
 
+        $usuarioLogado = $this->usuarioLogado;
         $rede = $this->Redes->getRedeById($redes_id);
 
         if ($this->request->is('post')) {
-
             $data = $this->request->getData();
-
-            // DebugUtil::print($data);
             $cliente = $this->Clientes->patchEntity($cliente, $data);
 
             // Verifica se ja tem um registro antes
-
             $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
 
             if ($cnpj) {
                 $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
 
                 if ($clienteJaExistente) {
-
                     $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
+                    
                     $this->Flash->error($message);
-
                     $this->set(compact($arraySet));
                     $this->set('_serialize', $arraySet);
                     return;
                 }
             }
 
-            if ($this->Clientes->addClient($redes_id, $cliente)) {
-
+            if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
                 $qteTurnos = $data["quantidade_turnos"];
                 $horarioInicial = $data["horario"];
                 $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
-
                 $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
+
+                // Adiciona bonificação extra sefaz para novo posto
+                $this->Gotas->saveUpdateBonificacaoExtraSefaz([$cliente->id], $rede->qte_gotas_bonificacao);
 
                 $this->Flash->success(__("Registro gravado com sucesso."));
 
