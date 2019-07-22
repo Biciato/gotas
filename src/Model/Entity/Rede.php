@@ -10,7 +10,17 @@ use Cake\Core\Configure;
  *
  * @property int $id
  * @property string $nome_rede
+ * @property string nome_img
  * @property bool $ativado
+ * @property int $tempo_expiracao_gotas_usuarios
+ * @property int $quantidade_pontuacoes_usuarios_dia
+ * @property int $quantidade_consumo_usuarios_dia
+ * @property int $qte_gotas_minima_bonificacao
+ * @property int $qte_gotas_bonificacao
+ * @property string $propaganda_img
+ * @property string $propaganda_link
+ * @property int $custo_referencia_gotas
+ * @property int $media_assiduidade_clientes
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  */

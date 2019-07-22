@@ -349,8 +349,8 @@ class SefazUtil
                 $texto = $node->textContent;
 
                 // Captura do gotas.nome_parametro
-                $posicaoParentese = strpos($texto, "(");
-                $gota = substr($texto, 0, $posicaoParentese);
+                $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
+                $gota = substr($texto, 0, $posicaoQuantidade);
                 $gota = trim($gota);
                 $item["gota"] = $gota;
 

@@ -13,6 +13,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use \DateTime;
 use App\Custom\RTI\ResponseUtil;
+use Exception;
 
 /**
  * Pontuacoes Model
@@ -295,11 +296,11 @@ class PontuacoesTable extends GenericTable
      */
     public function insertPontuacoesCupons(array $pontuacoes)
     {
-        // Prepara os registros
-        $pontuacoesSave = $this->newEntities($pontuacoes);
-
-        // retona os registros salvos
-        return $this->saveMany($pontuacoesSave);
+        try {
+            return $this->saveMany($pontuacoes);
+        } catch (Exception $ex) {
+            Log::write("error", $ex->getMessage());
+        }
     }
 
     #endregion

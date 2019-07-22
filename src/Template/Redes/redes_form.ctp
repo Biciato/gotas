@@ -12,31 +12,41 @@ use Cake\Core\Configure;
 <div class="form-group row">
     <div class="col-lg-4">
         <label for="nome_rede">Nome da Rede*</label>
-        <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="<?= $rede['nome_rede'] ?>" placeholder="Nome da Rede..." required />
+        <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="<?= $rede['nome_rede'] ?>" placeholder="Nome da Rede..." title="Nome da Rede*" required />
     </div>
 
     <div class="col-lg-4">
         <label for="quantidade_pontuacoes_usuarios_dia">Máx. Abast. Gotas Diárias p/ Usuário*</label>
-        <input type="number" min="1" max="365" placeholder="Máx. Abast. Gotas Diárias p/ Usuário..." class="form-control" name="quantidade_pontuacoes_usuarios_dia" required value="<?= $rede['quantidade_pontuacoes_usuarios_dia'] ?>" />
+        <input type="number" min="1" max="365" placeholder="Máx. Abast. Gotas Diárias p/ Usuário..." class="form-control" name="quantidade_pontuacoes_usuarios_dia" title="Máximo Abastecimento Gotas Diárias para Usuário" required value="<?= $rede['quantidade_pontuacoes_usuarios_dia'] ?>" />
     </div>
     <div class="col-lg-4">
         <label for="quantidade_consumo_usuarios_dia">Máximo de Compras Diárias p/ Usuário*</label>
-        <input type="text" min="1" max="365" placeholder="Máximo de Compras Diárias p/ Usuário*" class="form-control" name="quantidade_consumo_usuarios_dia" required value="<?= $rede['quantidade_consumo_usuarios_dia'] ?>" />
-
+        <input type="text" min="1" max="365" placeholder="Máximo de Compras Diárias p/ Usuário*" title="Máximo de Compras Diárias para Usuário" class="form-control" name="quantidade_consumo_usuarios_dia" required value="<?= $rede['quantidade_consumo_usuarios_dia'] ?>" />
     </div>
 </div>
 
 <div class="form-group row">
     <div class="col-lg-6">
         <label for="custo_referencia_gotas">Custo Referência Gotas (R$)*</label>
-        <input type="text" name="custo_referencia_gotas" id="custo_referencia_gotas" placeholder="Custo Referência Gotas (R$)..." required="required" value="<?= $rede["custo_referencia_gotas"] ?>" class="form-control" />
+        <input type="text" name="custo_referencia_gotas" id="custo_referencia_gotas" placeholder="Custo Referência Gotas (R$)..." title="Custo Referência Gotas (R$)" required="required" value="<?= $rede["custo_referencia_gotas"] ?>" class="form-control" />
 
     </div>
 
     <div class="col-lg-6">
-        <label for="media_assiduidade_clientes">Media de Assiduidade Clientes (Mês)*</label>
-        <input type="number" min="1" max="30" name="media_assiduidade_clientes" required="required" id="media_assiduidade_clientes" class="form-control" value="<?= $rede["media_assiduidade_clientes"] ?>" placeholder="Media de Assiduidade Clientes (Mês)" />
+        <label for="media_assiduidade_clientes">Média Assid. Clientes (Mês)*</label>
+        <input type="number" min="1" max="30" name="media_assiduidade_clientes" required="required" title="Média Assiduidade Clientes (Mês)" id="media_assiduidade_clientes" class="form-control" value="<?= $rede["media_assiduidade_clientes"] ?>" placeholder="Media de Assiduidade Clientes (Mês)" />
 
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-6">
+        <label for="qte_gotas_minima_bonificacao">Qte. Litros Mínima para Atingir Bonificação</label>
+        <input type="number" name="qte_gotas_minima_bonificacao" id="qte_gotas_minima_bonificacao" placeholder="Qte. Litros Mínima para Atingir Bonificação" title="Qte. Litros Mínima para Atingir Bonificação" required="required" value="<?= $rede["qte_gotas_minima_bonificacao"] ?>" class="form-control" />
+    </div>
+
+    <div class="col-lg-6">
+        <label for="qte_gotas_bonificacao">Qte. Bonificação na Importação da SEFAZ</label>
+        <input type="number" name="qte_gotas_bonificacao" required="required" id="qte_gotas_bonificacao" class="form-control" value="<?= $rede["qte_gotas_bonificacao"] ?>" placeholder="Qte. Bonificação na Importação da SEFAZ" title="Qte. Bonificação na Importação da SEFAZ" />
     </div>
 </div>
 

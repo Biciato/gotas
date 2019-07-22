@@ -8,7 +8,10 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property int $clientes_id
+ * @property string $nome_parametro
  * @property int $multiplicador_gota
+ * @property bool $habilitado
+ * @property bool $tipo_cadastro
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *

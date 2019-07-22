@@ -19,6 +19,7 @@ use App\Custom\RTI\DebugUtil;
 use Cake\Auth\DefaultPasswordHasher;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\StringUtil;
+use Exception;
 
 /**
  * Redes Controller
@@ -132,17 +133,17 @@ class RedesController extends AppController
                     $valueX = $data["crop-x1"];
                     $valueY = $data["crop-y1"];
 
-                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
+                    $nomeImgRede = StringUtil::gerarNomeArquivoAleatorio();
+                    $nomeImgRede = $nomeImgRede["fileName"];
 
-                    $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $data["img-upload"]);
+                    $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
+                    $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $nomeImgRede);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, 600, 600, $valueX, $valueY, $width, $height, 90);
 
                     // Se imagem foi redimensionada, move e atribui o nome para gravação
                     if ($resizeSucesso) {
-
                         rename($imagemOrigem, $imagemDestino);
-
-                        $data["nome_img"] = $data["img-upload"];
+                        $data["nome_img"] = $nomeImgRede;
                     }
                 }
 
@@ -162,8 +163,8 @@ class RedesController extends AppController
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $message = __("Erro ao adicionar nova rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $trace = $e->getTraceAsString();
+            $message = __("Erro ao adicionar nova rede: {0}", $e->getMessage());
 
             Log::write('error', $message);
 
@@ -201,9 +202,11 @@ class RedesController extends AppController
                     $width = $data["crop-width"];
                     $valueX = $data["crop-x1"];
                     $valueY = $data["crop-y1"];
+                    $nomeImgRede = StringUtil::gerarNomeArquivoAleatorio();
+                    $nomeImgRede = $nomeImgRede["fileName"];
 
                     $imagemOrigem = __("{0}{1}", Configure::read("imageNetworkPathTemp"), $data["img-upload"]);
-                    $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $data["img-upload"]);
+                    $imagemDestino = __("{0}{1}", Configure::read("imageNetworkPath"), $nomeImgRede);
                     $resizeSucesso = ImageUtil::resizeImage($imagemOrigem, $width, $height, $valueX, $valueY, $width, $height, 90);
 
                     // Se imagem foi redimensionada, move e
@@ -211,7 +214,7 @@ class RedesController extends AppController
 
                     if ($resizeSucesso == 1) {
                         rename($imagemOrigem, $imagemDestino);
-                        $data["nome_img"] = $data["img-upload"];
+                        $data["nome_img"] = $nomeImgRede;
                         $trocaImagem = 1;
                     }
                 }
@@ -219,6 +222,9 @@ class RedesController extends AppController
                 $rede = $this->Redes->patchEntity($rede, $data);
 
                 if ($this->Redes->updateRede($rede)) {
+                    // Atualiza todas as bonificações de gotas dos postos que é de sistema (bonificação extra SEFAZ)
+                    $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+                    $this->Gotas->saveUpdateBonificacaoExtraSefaz($clientesIds, $rede->qte_gotas_bonificacao);
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
                         if (file_exists($imagemOriginal)) {
