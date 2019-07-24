@@ -91,13 +91,13 @@ class ImageUtil
 
         $newImage = imagecreatetruecolor($cropWidth, $cropHeight);
 
-        if (strpos($imageSource, ".jpg") || strpos($imageSource, ".jpeg")) {
+        if (strpos(strtolower($imageSource), ".jpg") || strpos(strtolower($imageSource), ".jpeg")) {
             $typeImage = ".jpg";
             $image = imagecreatefromjpeg($imageSource);
-        } else if (strpos($imageSource, ".png")) {
+        } else if (strpos(strtolower($imageSource), ".png")) {
             $typeImage = ".png";
             $image = imagecreatefrompng($imageSource);
-        } else if (strpos($imageSource, ".bmp")) {
+        } else if (strpos(strtolower($imageSource), ".bmp")) {
             $typeImage = ".bmp";
             $image = imagecreatefrombmp($imageSource);
         }
