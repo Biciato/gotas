@@ -652,14 +652,12 @@ class ClientesController extends AppController
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
 
             $messageStringDebug =
                 __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
         }
     }
 
