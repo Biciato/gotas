@@ -112,10 +112,11 @@ class CategoriasBrindesTable extends GenericTable
         try {
             $where = [];
             $where[] = ["redes_id" => $redesId];
+            $where[] = ["nome LIKE" => "%{$nome}%"];
 
-            $where[] = ["nome LIKE" => "'%{$nome}%'"];
-
-            $where[] = ["habilitado" => $habilitado];
+            if (!empty($habilitado)) {
+                $where[] = ["habilitado" => $habilitado];
+            }
 
             return $this->find("all")->where($where);
         } catch (\Throwable $th) {

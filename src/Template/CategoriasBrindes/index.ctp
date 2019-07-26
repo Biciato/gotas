@@ -30,8 +30,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     <th><?= $this->Paginator->sort('nome', ['label' => 'Nome']) ?></th>
                     <th><?= $this->Paginator->sort('habilitado', ['label' => 'Habilitado']) ?></th>
                     <th><?= $this->Paginator->sort('data', ['label' => 'Data']) ?></th>
-
-                    <th><?= $this->Paginator->sort('cnpj', ['label' => 'CNPJ']) ?></th>
                     <th class="actions">
                         <?= __('Ações') ?>
                         <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes"><span class=" fa fa-book"> Legendas</span></div>

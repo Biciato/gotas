@@ -2,8 +2,23 @@ $(document).ready(function() {
     // #region Fields
 
     var categoriaBrinde = {};
-    
+
     // #endregion
+
+    var generateEditButton = function(value, target){
+        var template = "<button class='btn btn-primary btn-xs form-btn-editar' id='form-btn-editar' value="+value+"> <i class=' fa fa-edit'></i></button>";
+
+        return template;
+    }
+
+    var generateEditButtonFunctions = function(classString) {
+        click = function(e){
+            var id = $(this).val();
+            editarCadastro(id);
+        }
+
+        $("." + classString).on("click", click);        
+    }
 
     /**
      * Obtem os dados de categorias de brindes e alimenta a tabela
@@ -30,11 +45,27 @@ $(document).ready(function() {
                 closeLoaderAnimation();
 
                 var table = $("#tabela-dados tbody");
+                table.empty();
                 var dataReceived = success.responseJSON.categorias_brindes;
 
+                var rows = [];
                 dataReceived.forEach(element => {
-                    table.append(element.nome);
+                    console.log(element);
+                    var habilitado = element.habilitado ? "Sim" : "Não";
+                    var botaoEditar = generateEditButton(element.id);
+                    var botaoRemover = "";
+                    var row = 
+                        "<tr><td>" + element.nome + 
+                        "</td><td>"+ habilitado + 
+                        "</td><td>"+ element.data + 
+                        "</td><td>"+ botaoEditar + botaoRemover + 
+                        "</td></tr>";
+                    rows.push(row);
                 });
+
+                table.append(rows);
+
+                generateEditButtonFunctions("form-btn-editar");
             }
         });
     };
@@ -45,10 +76,10 @@ $(document).ready(function() {
         loadData();
     };
 
-    var limparForm = function(){
+    var limparForm = function() {
         $("#id").val(null);
         $("#nome").val(null);
-    }
+    };
 
     var cancelar = function() {
         exibirTabela();
@@ -61,7 +92,23 @@ $(document).ready(function() {
         limparForm();
     };
 
-    var editarCadastro = function(e) {};
+    var editarCadastro = function(val) {
+
+        // esconde tabela de dados 
+
+        $("#dados").hide(500);
+        $("#formCadastro").show(500);
+
+        $.ajax({
+            url: "/api/categorias_brindes/get",
+            type: "GET",
+            data: {id: val},
+            success: function(e){
+                
+            }
+        })
+
+    };
 
     var gravar = function() {
         validacaoGenericaForm();
