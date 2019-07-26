@@ -90,20 +90,36 @@ Router::scope("/api", function ($routes) {
                     "action" => "findBrindes",
                     "method" => "POST",
                     "path" => "/findBrindes"
+                ],
+                // utilizado pelo APP Mobile. Cuidado ao mexer
+                "getBrindesUnidadeAPI" => [
+                    "action" => "getBrindesUnidadeAPI",
+                    "method" => "POST",
+                    "path" => "/get_brindes_unidade"
                 ]
             ]
         ]
     );
 
     $routes->resources(
-        "Brindes",
+        "CategoriasBrindes",
         [
-            "map" => [
-                // utilizado pelo APP Mobile. Cuidado ao mexer
-                "getBrindesUnidadeAPI" => [
-                    "action" => "getBrindesUnidadeAPI",
+            "map" =>
+            [
+                "getCategoriasBrindes" => [
+                    "action" => "getCategoriasBrindesAPI",
+                    "method" => "GET",
+                    "path" => "/get_categorias_brindes"
+                ],
+                "saveCategoriasBrindes" => [
+                    "action" => "saveCategoriasBrindesAPI",
                     "method" => "POST",
-                    "path" => "/get_brindes_unidade"
+                    "path" => "/save_categorias_brindes"
+                ],
+                "updateCategoriasBrindes" => [
+                    "action" => "updateCategoriasBrindesAPI",
+                    "method" => "POST",
+                    "path" => "/update_categorias_brindes"
                 ]
             ]
         ]
@@ -487,9 +503,6 @@ Router::scope("/api", function ($routes) {
             ]
         ]
     ]);
-
-
-
 });
 
 // Router::prefix('api', function ($routes) {

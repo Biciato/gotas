@@ -261,8 +261,12 @@ if (empty($usuarioLogado)) {
 
                     <li role="separator" class="divider" />
 
-                    <?php if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminNetworkProfileType']) : ?>
+                    <?php if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_NETWORK) : ?>
                         <!-- brinde só pode ser cadastrado por um Administrador da Rede -->
+                        <li>
+                            <a href="/categoriasBrindes/index">Cadastro de Categorias de Brindes</a>
+                        </li>
+
                         <li>
                             <a href="/brindes/escolherPostoConfigurarBrinde">Cadastro de Brindes</a>
                         </li>

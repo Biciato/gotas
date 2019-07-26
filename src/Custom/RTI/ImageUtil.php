@@ -94,10 +94,10 @@ class ImageUtil
         if (strpos(strtolower($imageSource), ".jpg") || strpos(strtolower($imageSource), ".jpeg")) {
             $typeImage = ".jpg";
             $image = imagecreatefromjpeg($imageSource);
-        } else if (strpos(strtolower($imageSource), ".png")) {
+        } elseif (strpos(strtolower($imageSource), ".png")) {
             $typeImage = ".png";
             $image = imagecreatefrompng($imageSource);
-        } else if (strpos(strtolower($imageSource), ".bmp")) {
+        } elseif (strpos(strtolower($imageSource), ".bmp")) {
             $typeImage = ".bmp";
             $image = imagecreatefrombmp($imageSource);
         }
@@ -110,16 +110,14 @@ class ImageUtil
 
         if ($typeImage == ".jpg") {
             return imagejpeg($newImage, $imageSource, 90) == true ? 1 : 0;
-        } else if ($typeImage == ".png") {
+        } elseif ($typeImage == ".png") {
             return imagepng($newImage, $imageSource, 9) == true ? 1 : 0;
-        } else if ($typeImage == ".bmp") {
+        } elseif ($typeImage == ".bmp") {
             return imagebmp($newImage, $imageSource, 9) == true ? 1 : 0;
         } else {
             return 0;
         }
     }
-
-
 
     /**
      * Rotates a Image

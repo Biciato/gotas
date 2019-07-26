@@ -362,6 +362,12 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 #endregion
 
+#region Categorias Brindes
+
+const MESSAGE_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+
+#endregion
+
 #region Clientes
 
 const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimento à gerenciar!";

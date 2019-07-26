@@ -54,6 +54,15 @@ class RedesTable extends GenericTable
                 'join' => 'LEFT'
             )
         );
+
+        $this->hasMany(
+            "CategoriasBrindes",
+            [
+                "className" => "CategoriasBrindes",
+                "foreignKey" => "redes_id",
+                "join" => "LEFT"
+            ]
+        );
     }
 
     /**
@@ -94,7 +103,7 @@ class RedesTable extends GenericTable
         $validator
             ->integer("qte_gotas_minima_bonificacao")
             ->allowEmpty("qte_gotas_minima_bonificacao");
-            
+
         $validator
             ->integer("qte_gotas_bonificacao")
             ->allowEmpty("qte_gotas_bonificacao");
