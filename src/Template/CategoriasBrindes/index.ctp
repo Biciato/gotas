@@ -29,7 +29,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <tr>
                     <th><?= $this->Paginator->sort('nome', ['label' => 'Nome']) ?></th>
                     <th><?= $this->Paginator->sort('habilitado', ['label' => 'Habilitado']) ?></th>
-                    <th><?= $this->Paginator->sort('data', ['label' => 'Data']) ?></th>
+                    <th><?= $this->Paginator->sort('data', ['label' => 'Data Criação']) ?></th>
                     <th class="actions">
                         <?= __('Ações') ?>
                         <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes"><span class=" fa fa-book"> Legendas</span></div>
@@ -40,8 +40,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </tbody>
         </table>
     </div>
-
-
 
     <form id="formCadastro">
         <legend id='titulo'></legend>
@@ -63,6 +61,27 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
         </div>
     </form>
+
+    <div id="modal-remover" class="modal fade" tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remover Registro</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Deseja remover o registro: <span id='nome-registro'></span> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmar">Remover</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 </div>
 
 

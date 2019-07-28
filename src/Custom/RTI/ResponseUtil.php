@@ -94,7 +94,7 @@ class ResponseUtil
      *
      * @return json_encode Dados json
      */
-    public static function successAPI($msg, $contentArray)
+    public static function successAPI($msg, $contentArray = [])
     {
         header("HTTP/1.0 200");
         header("Content-Type: application/json");

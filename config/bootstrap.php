@@ -322,6 +322,7 @@ const LOGIN_WEB = "WEB";
 
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
+const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
 
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
@@ -364,6 +365,8 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 #region Categorias Brindes
 
+const MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MESSAGE_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
 const MESSAGE_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
 
 #endregion

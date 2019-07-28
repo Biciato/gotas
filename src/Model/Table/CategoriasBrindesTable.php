@@ -140,6 +140,16 @@ class CategoriasBrindesTable extends GenericTable
         }
     }
 
+    public function updateStatusCategoriasBrindes(int $id, bool $habilitado)
+    {
+        try {
+            return $this->updateAll(["habilitado" => $habilitado], ["id" => $id]);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
     #endregion
 
     #region Delete

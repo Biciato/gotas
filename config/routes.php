@@ -106,6 +106,11 @@ Router::scope("/api", function ($routes) {
         [
             "map" =>
             [
+                "getCategoriaBrinde" => [
+                    "action" => "getCategoriaBrindeAPI",
+                    "method" => "GET",
+                    "path" => "/get_categoria_brinde"
+                ],
                 "getCategoriasBrindes" => [
                     "action" => "getCategoriasBrindesAPI",
                     "method" => "GET",
@@ -118,8 +123,18 @@ Router::scope("/api", function ($routes) {
                 ],
                 "updateCategoriasBrindes" => [
                     "action" => "updateCategoriasBrindesAPI",
-                    "method" => "POST",
+                    "method" => "PUT",
                     "path" => "/update_categorias_brindes"
+                ],
+                "updateStatusCategoriasBrindes" => [
+                    "action" => "updateStatusCategoriasBrindesAPI",
+                    "method" => "PUT",
+                    "path" => "/update_status_categorias_brindes"
+                ],
+                "deleteCategoriasBrindes" => [
+                    "action" => "deleteCategoriasBrindesAPI",
+                    "method" => "DELETE",
+                    "path" => "/delete_categorias_brindes"
                 ]
             ]
         ]

@@ -1,28 +1,28 @@
 /**
  * Classe javascript para ações de uso comum
  */
-$(document).ready(function () {
-
+$(document).ready(function() {
     validacaoGenericaForm();
 
-    $(".botao-pesquisar").on("click", function () {
+    $(".botao-pesquisar").on("click", function() {
         callLoaderAnimation();
     });
 
-    $(".botao-cancelar").on("click", function () {
+    $(".botao-cancelar").on("click", function() {
         callLoaderAnimation();
     });
 
-    $(".botao-navegacao-tabela").on("click", function () {
+    $(".botao-navegacao-tabela").on("click", function() {
         callLoaderAnimation();
     });
-
 
     /**
      * Adiciona comportamento de sub-menu de dropdown (bootstrap)
      */
-    $(".dropdown-submenu a.test").on("click", function (e) {
-        $(this).next("ul").toggle();
+    $(".dropdown-submenu a.test").on("click", function(e) {
+        $(this)
+            .next("ul")
+            .toggle();
         e.stopPropagation();
         e.preventDefault();
     });
@@ -30,18 +30,18 @@ $(document).ready(function () {
     /**
      * Imprime o conteúdo de uma tabela
      */
-    $(".btn-print-html").on("click", function (e) {
+    $(".btn-print-html").on("click", function(e) {
         $(".table-export").printThis();
     });
 
     /**
      * Imprime o conteúdo de uma tabela
      */
-    $(".btn-export-html").on("click", function (e) {
+    $(".btn-export-html").on("click", function(e) {
         // $(".table-export").html();
         window.open(
             "data:application/vnd.ms-excel," +
-            encodeURIComponent($(".table-export").html())
+                encodeURIComponent($(".table-export").html())
         );
         e.preventDefault();
     });
@@ -51,14 +51,14 @@ $(document).ready(function () {
      *
      * @param {string} parameter
      */
-    var addModalBootstrapPopup = function (parameter) {
-        $("#" + parameter).on("show.bs.modal", function (e) {
+    var addModalBootstrapPopup = function(parameter) {
+        $("#" + parameter).on("show.bs.modal", function(e) {
             $(this)
                 .find("form")
                 .attr("action", $(e.relatedTarget).data("action"));
         });
 
-        $("#" + parameter + " #submit_button").on("click", function (e) {
+        $("#" + parameter + " #submit_button").on("click", function(e) {
             $("#" + parameter)
                 .find("form")
                 .submit();
@@ -75,7 +75,7 @@ $(document).ready(function () {
         "modal-quit-manage-unit"
     ];
 
-    parameters.forEach(function (element) {
+    parameters.forEach(function(element) {
         addModalBootstrapPopup(element);
     }, this);
 
@@ -84,8 +84,8 @@ $(document).ready(function () {
      *
      * @param {*} parameter
      */
-    var addModalBootstrapPopupWithMessage = function (parameter) {
-        $("#" + parameter).on("show.bs.modal", function (e) {
+    var addModalBootstrapPopupWithMessage = function(parameter) {
+        $("#" + parameter).on("show.bs.modal", function(e) {
             $(this)
                 .find("form")
                 .attr("action", $(e.relatedTarget).data("action"));
@@ -95,7 +95,7 @@ $(document).ready(function () {
                 .text($(e.relatedTarget).attr("data-message"));
         });
 
-        $("#" + parameter + " #submit_button").on("click", function (e) {
+        $("#" + parameter + " #submit_button").on("click", function(e) {
             $("#" + parameter)
                 .find("form")
                 .submit();
@@ -108,7 +108,7 @@ $(document).ready(function () {
         "modal-delete-with-message"
     ];
 
-    parametersWithMessage.forEach(function (element) {
+    parametersWithMessage.forEach(function(element) {
         addModalBootstrapPopupWithMessage(element);
     });
 
@@ -117,8 +117,8 @@ $(document).ready(function () {
      *
      * @param {*} parameter
      */
-    var addModalBootstrapPopupWithMessageConfirmation = function (parameter) {
-        $("#" + parameter).on("show.bs.modal", function (e) {
+    var addModalBootstrapPopupWithMessageConfirmation = function(parameter) {
+        $("#" + parameter).on("show.bs.modal", function(e) {
             $(this)
                 .find("#modal-body-content-append")
                 .empty();
@@ -142,12 +142,12 @@ $(document).ready(function () {
                     .find("#modal-body-content-append")
                     .append(
                         "<input type='text' class='hidden' name='" +
-                        id +
-                        "' id='" +
-                        id +
-                        "' value='" +
-                        valor +
-                        "' />"
+                            id +
+                            "' id='" +
+                            id +
+                            "' value='" +
+                            valor +
+                            "' />"
                     );
             });
             console.log(action);
@@ -161,7 +161,7 @@ $(document).ready(function () {
                 .text($(e.relatedTarget).attr("data-message"));
         });
 
-        $("#" + parameter + " #submit_button").on("click", function (e) {
+        $("#" + parameter + " #submit_button").on("click", function(e) {
             if (
                 $(this.form)
                     .find("#senha_usuario")
@@ -179,7 +179,7 @@ $(document).ready(function () {
         "modal-delete-with-message-confirmation"
     ];
 
-    parametersWithMessageConfirmation.forEach(function (element) {
+    parametersWithMessageConfirmation.forEach(function(element) {
         addModalBootstrapPopupWithMessageConfirmation(element);
     });
 
@@ -194,26 +194,26 @@ $(document).ready(function () {
         $("body").css("height", height);
     }
 
-    $(".cep").on("blur", function () {
+    $(".cep").on("blur", function() {
         getCEP(this);
     });
 
     // reseta o form
 
-    $(".reset-form").on("click", function (e) {
+    $(".reset-form").on("click", function(e) {
         var form = this.closest("form");
-        $(':input', form)
-            .not(':button, :submit, :reset, :hidden')
-            .val('')
-            .prop('checked', false)
-            .prop('selected', false);
-    })
+        $(":input", form)
+            .not(":button, :submit, :reset, :hidden")
+            .val("")
+            .prop("checked", false)
+            .prop("selected", false);
+    });
 });
 
 /**
  * Abre janela de Modal que exibe conteúdo de mensagem, procura pelo atributo setado
  */
-var callHowItWorks = function (data) {
+var callHowItWorks = function(data) {
     // abre modal
     $(".modal-how-it-works").modal();
 
@@ -231,7 +231,7 @@ var callHowItWorks = function (data) {
  * Chama a modal de confirmação ao gravar
  * @param {object} content
  */
-var callModalSave = function (content) {
+var callModalSave = function(content) {
     closeLoaderAnimation();
     $(".modal-save").modal();
 
@@ -245,14 +245,14 @@ var callModalSave = function (content) {
     }
 };
 
-var callModalError = function (error, arrayContent) {
+var callModalError = function(error, arrayContent) {
     closeLoaderAnimation();
     $(".modal-error .modal-body-content").html(error);
     $(".modal-error .modal-body-content-description").empty();
 
     if (arrayContent != undefined && arrayContent.length > 0) {
         $(".modal-error .modal-body-content-description").empty();
-        $.each(arrayContent, function (index, value) {
+        $.each(arrayContent, function(index, value) {
             $(".modal-error .modal-body-content-description").append(
                 "(" + (parseInt(index) + 1) + ")  " + value + "<br />"
             );
@@ -262,12 +262,33 @@ var callModalError = function (error, arrayContent) {
 };
 
 /**
+ * Chama a modal de confirmação ao gravar
+ * @param {object} message Mensagem de aviso
+ * @param {object} content Conteúdo em HTML Table
+ */
+var callModalGeneric = function(message, content = undefined) {
+    closeLoaderAnimation();
+    var modalClass = ".modal-generic";
+    $(modalClass).modal();
+
+    $(modalClass + " .modal-body-content").text(message);
+    $(modalClass + " .modal-body-table-content").empty();
+
+    if (content == undefined) {
+        $(modalClass + " .table-content").hide();
+    } else {
+        $(modalClass + " .table-content").show();
+        $(modalClass + " .modal-body-table-content").append(content);
+    }
+};
+
+/**
  * Apresenta tela de loading
  *
  * @param string text-info Texto para informação
  *
  */
-var callLoaderAnimation = function (text_info) {
+var callLoaderAnimation = function(text_info) {
     // $(".modal-loader").modal();
     $(".loading").show();
     // $(".modal-loader").modal();
@@ -278,14 +299,14 @@ var callLoaderAnimation = function (text_info) {
     }
 };
 
-var clearNumbers = function (value) {
-    return value.replace(/(\D+)/g, '');
-}
+var clearNumbers = function(value) {
+    return value.replace(/(\D+)/g, "");
+};
 
 /**
  * Fecha tela de loading
  */
-var closeLoaderAnimation = function () {
+var closeLoaderAnimation = function() {
     $(".loading").hide();
 
     // $(".modal-loader").modal("hide");
@@ -303,23 +324,26 @@ var closeLoaderAnimation = function () {
  *
  * @return {object} Campo corrigido
  */
-var fixMoneyValue = function(target){
+var fixMoneyValue = function(target) {
     var stringCheck = target.val().toString();
     var indexComma = stringCheck.indexOf(".") + 1;
     var stringBeforeComma = stringCheck.substring(indexComma);
 
-    if (stringCheck.length - (stringCheck.length - stringBeforeComma.length) == 1) {
+    if (
+        stringCheck.length - (stringCheck.length - stringBeforeComma.length) ==
+        1
+    ) {
         stringCheck = stringCheck + "0";
         target.val(stringCheck);
     }
-}
+};
 
 /**
  * Procura todas as ocorrências de um termo em uma string
  * @param {string} haystack
  * @param {string} needle
  */
-var getAllIndexes = function (haystack, needle) {
+var getAllIndexes = function(haystack, needle) {
     var indexes = [];
 
     for (index = 0; index < haystack.length; index++) {
@@ -334,7 +358,7 @@ var getAllIndexes = function (haystack, needle) {
 /**
  * Obtêm dados de CEP
  */
-var getCEP = function (parameter) {
+var getCEP = function(parameter) {
     //Nova variável "cep" somente com dígitos.
     var cep = $(parameter)
         .val()
@@ -355,7 +379,7 @@ var getCEP = function (parameter) {
             $.ajax({
                 type: "GET",
                 url: "https://viacep.com.br/ws/" + cep + "/json/",
-                complete: function (success) {
+                complete: function(success) {
                     closeLoaderAnimation();
                     console.log(success);
                     var dados = success.responseJSON;
@@ -365,7 +389,7 @@ var getCEP = function (parameter) {
                     $(".estado").val(dados.uf);
                     $(".pais").val("Brasil");
                 },
-                error: function (err) {
+                error: function(err) {
                     //end if.
                     //CEP pesquisado não foi encontrado.
                     //limpa_formulário_cep();
@@ -374,8 +398,6 @@ var getCEP = function (parameter) {
                     console.log(err);
                 }
             });
-
-
 
             // $.getJSON(
             //     "https://viacep.com.br/ws/" + cep + "/json/?callback=?",
@@ -409,9 +431,9 @@ function initMap() {
     // Google maps are now initialized.
 }
 
-var getGeolocalizationGoogle = function (cep) {
+var getGeolocalizationGoogle = function(cep) {
     var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: cep }, function (results, status) {
+    geocoder.geocode({ address: cep }, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
             if ($("#latitude").length == 1) {
                 var latitude = results[0].geometry.location.lat().toString();
@@ -447,7 +469,7 @@ var getGeolocalizationGoogle = function (cep) {
  * Prepara conteúdo para exibir após gravar dados de Pontuações do usuário
  * @param {*} data Dados da gravação de pontuacoes
  */
-var prepareContentPontuacoesDisplay = function (data) {
+var prepareContentPontuacoesDisplay = function(data) {
     var content = $("<div></div>");
 
     var usuario = data.pontuacoes_comprovantes.usuario;
@@ -456,9 +478,9 @@ var prepareContentPontuacoesDisplay = function (data) {
 
     var title = $(
         "<legend>" +
-        "Dados gravados para o usuário " +
-        usuario.nome +
-        "</legend>"
+            "Dados gravados para o usuário " +
+            usuario.nome +
+            "</legend>"
     );
 
     var table = $(
@@ -470,7 +492,7 @@ var prepareContentPontuacoesDisplay = function (data) {
     table.append(header);
 
     var rows = [];
-    $.each(pontuacoes, function (index, pontuacao) {
+    $.each(pontuacoes, function(index, pontuacao) {
         var row =
             "<tr><td>" +
             pontuacao.gota.nome_parametro +
@@ -482,8 +504,8 @@ var prepareContentPontuacoesDisplay = function (data) {
 
     var total = $(
         "<table class='table table-responsive'><th>Total:</th><td> " +
-        somaPontuacoes +
-        "</td></table>"
+            somaPontuacoes +
+            "</td></table>"
     );
 
     content.append(title);
@@ -494,7 +516,7 @@ var prepareContentPontuacoesDisplay = function (data) {
     return content;
 };
 
-var formatDateTimeToDate = function (data) {
+var formatDateTimeToDate = function(data) {
     var dataToReturn = data.substr(0, data.indexOf("+"));
 
     dataToReturn = new Date(dataToReturn);
@@ -512,7 +534,7 @@ var formatDateTimeToDate = function (data) {
     return day + "/" + month + "/" + year;
 };
 
-var generateQRCode = function (element, value) {
+var generateQRCode = function(element, value) {
     // https://larsjung.de/jquery-qrcode/
     console.log("teste");
     var options = {
@@ -567,7 +589,7 @@ var generateQRCode = function (element, value) {
  * @param {*} ev
  * @param {*} value
  */
-var defaultKeyUpDatePickerAction = function (campo, ev, value) {
+var defaultKeyUpDatePickerAction = function(campo, ev, value) {
     var value = value.replace(/(\d{2})(\d{2})(\d{4})/g, "$1/$2/$3");
     if (
         value.length == 10 &&
@@ -587,9 +609,16 @@ var defaultKeyUpDatePickerAction = function (campo, ev, value) {
  * @param {*} ev
  * @param {*} value
  */
-var defaultKeyUpDateTimePickerAction = function (campo, ev, value) {
-    var value = value.replace(/(\d{2})(\d{2})(\d{4})(\d{2})(\d{2)/g, "$1/$2/$3 $4:$5");
-    if (value.length == 10 && ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105))) {
+var defaultKeyUpDateTimePickerAction = function(campo, ev, value) {
+    var value = value.replace(
+        /(\d{2})(\d{2})(\d{4})(\d{2})(\d{2)/g,
+        "$1/$2/$3 $4:$5"
+    );
+    if (
+        value.length == 10 &&
+        ((ev.keyCode >= 48 && ev.keyCode <= 57) ||
+            (ev.keyCode >= 96 && ev.keyCode <= 105))
+    ) {
         updateDateTimePicker(campo, value);
     }
 };
@@ -602,7 +631,7 @@ var defaultKeyUpDateTimePickerAction = function (campo, ev, value) {
  *
  * @param {event} ev Evento
  */
-var preventEnterActionInput = function (ev) {
+var preventEnterActionInput = function(ev) {
     if (ev.keyCode === 13) {
         ev.stopPropagation();
         ev.preventDefault();
@@ -623,7 +652,13 @@ var preventEnterActionInput = function (ev) {
  *
  * @return void
  */
-var initializeDatePicker = function (campo, campoOculto, actualDate, minDate, maxDate) {
+var initializeDatePicker = function(
+    campo,
+    campoOculto,
+    actualDate,
+    minDate,
+    maxDate
+) {
     var options = {
         minView: 2,
         maxView: 2,
@@ -665,16 +700,16 @@ var initializeDatePicker = function (campo, campoOculto, actualDate, minDate, ma
     }
 
     $("#" + campo)
-        .on("keyup", function (ev) {
+        .on("keyup", function(ev) {
             preventEnterActionInput(ev);
             defaultKeyUpDatePickerAction(campo, ev, this.value);
         })
-        .on("keydown", function (ev) {
+        .on("keydown", function(ev) {
             preventEnterActionInput(ev);
         });
 
     if (campoOculto) {
-        $("#" + campo).on("change", function(ev){
+        $("#" + campo).on("change", function(ev) {
             valor = ev.target.value;
             $("#" + campoOculto).val(moment(valor, format).format(formatUS));
         });
@@ -697,7 +732,13 @@ var initializeDatePicker = function (campo, campoOculto, actualDate, minDate, ma
  *
  * @return void
  */
-var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMinima, dataMaxima) {
+var initializeDateTimePicker = function(
+    campo,
+    campoOculto,
+    dataAtual,
+    dataMinima,
+    dataMaxima
+) {
     // Seta todos os campos DateTimePicker para Português Brasil
     moment.updateLocale("pt-BR", {});
     var options = {
@@ -720,7 +761,6 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
     }
 
     if (dataMaxima != undefined) {
-
         // var maxDate = moment(dataMaxima, format).format(formatUS);
         var maxDate = moment(dataMaxima, format);
         options.maxDate = maxDate;
@@ -734,19 +774,21 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
         valor = moment(dataAtual).format(format);
     }
 
-    $("#" + campo).data("DateTimePicker").date(valor);
+    $("#" + campo)
+        .data("DateTimePicker")
+        .date(valor);
     if (campoOculto) {
         $("#" + campoOculto).val(moment(valor, format).format(formatUS));
     }
 
     $("#" + campo)
-        .on("keyup", function (ev) {
+        .on("keyup", function(ev) {
             preventEnterActionInput(ev);
         })
-        .on("keydown", function (ev) {
+        .on("keydown", function(ev) {
             preventEnterActionInput(ev);
         })
-        .on("change", function (ev) {
+        .on("change", function(ev) {
             var value = ev.target.value;
 
             if (value != undefined && value.length > 0) {
@@ -756,7 +798,7 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
                 $("#" + campoOculto).val(valorEnviar);
             }
         })
-        .on("blur", function (ev) {
+        .on("blur", function(ev) {
             var value = ev.target.value;
 
             if (value == "") {
@@ -796,7 +838,7 @@ var initializeDateTimePicker = function (campo, campoOculto, dataAtual, dataMini
  *
  * @return void
  */
-var initializeTimePicker = function (
+var initializeTimePicker = function(
     campo,
     campoOculto,
     dataAtual = false,
@@ -827,7 +869,9 @@ var initializeTimePicker = function (
     if (dataAtual != undefined && dataAtual) {
         var valor = moment().format("HH:mm");
 
-        $("#" + campo).data("DateTimePicker").date(valor);
+        $("#" + campo)
+            .data("DateTimePicker")
+            .date(valor);
         if (campoOculto) {
             valor = moment().format("HH:mm");
             $("#" + campoOculto).val(valor);
@@ -835,23 +879,21 @@ var initializeTimePicker = function (
     }
 
     $("#" + campo)
-        .on("keyup", function (ev) {
+        .on("keyup", function(ev) {
             preventEnterActionInput(ev);
         })
-        .on("keydown", function (ev) {
+        .on("keydown", function(ev) {
             preventEnterActionInput(ev);
         })
-        .on("change", function (ev) {
+        .on("change", function(ev) {
             var value = ev.target.value;
 
             if (value != undefined && value.length > 0) {
-                var valorEnviar = moment(value, "HH:mm").format(
-                    "HH:mm"
-                );
+                var valorEnviar = moment(value, "HH:mm").format("HH:mm");
                 $("#" + campoOculto).val(valorEnviar);
             }
         })
-        .on("blur", function (ev) {
+        .on("blur", function(ev) {
             var value = ev.target.value;
 
             if (value == "") {
@@ -863,9 +905,7 @@ var initializeTimePicker = function (
                     dataOculta = moment(dataOculta, "HH:mm", true);
 
                     if (dataOculta.isValid()) {
-                        dataOculta = moment(dataOculta).format(
-                            "HH:mm"
-                        );
+                        dataOculta = moment(dataOculta).format("HH:mm");
                         $("#" + campo).val(dataOculta);
                     }
                 }
@@ -886,7 +926,7 @@ var initializeTimePicker = function (
  *
  * @return void
  */
-var updateDatePicker = function (campo, date) {
+var updateDatePicker = function(campo, date) {
     $("#" + campo).datepicker("update", date);
 };
 
@@ -903,7 +943,7 @@ var updateDatePicker = function (campo, date) {
  *
  * @return void
  */
-var updateDateTimePicker = function (campo, date) {
+var updateDateTimePicker = function(campo, date) {
     console.log(date);
     $("#" + campo).val(date);
 };
@@ -911,7 +951,7 @@ var updateDateTimePicker = function (campo, date) {
 /**
  * Popula dados de cupom para resgate
  */
-var popularDadosCupomResgate = function (data) {
+var popularDadosCupomResgate = function(data) {
     if (data !== undefined && data !== null) {
         var usuario = null;
         var unidade_funcionario_id = 0;
@@ -919,7 +959,7 @@ var popularDadosCupomResgate = function (data) {
         var data_hora = null;
         var rows = [];
 
-        $.each(data, function (index, value) {
+        $.each(data, function(index, value) {
             var valorPagoGotas = value.valor_pago_gotas;
             var valorPagoReais = value.valor_pago_reais;
             var tipoPagamento = "R$";
@@ -961,7 +1001,9 @@ var popularDadosCupomResgate = function (data) {
             formatDateTimeToDate(usuario.data_nasc)
         );
 
-        $(".impressao-resgate-cupom-canhoto-impressao #print_data_emissao").text(data_hora);
+        $(
+            ".impressao-resgate-cupom-canhoto-impressao #print_data_emissao"
+        ).text(data_hora);
         $(".impressao-resgate-cupom-canhoto-impressao .usuario-final").text(
             usuario.nome
         );
@@ -975,7 +1017,7 @@ var popularDadosCupomResgate = function (data) {
     }
 };
 
-var imprimirCanhotoResgate = function () {
+var imprimirCanhotoResgate = function() {
     setTimeout(
         $(".impressao-resgate-cupom-canhoto-impressao .print_area").printThis({
             importCss: false
@@ -987,7 +1029,7 @@ var imprimirCanhotoResgate = function () {
 /**
  * Reseta a aba de usuário
  */
-var resetUserTab = function () {
+var resetUserTab = function() {
     // exibe região de busca do usuário
     $(".user-query-region").show();
 
@@ -1025,7 +1067,7 @@ var resetUserTab = function () {
 /**
  * Reseta a aba de resgate de brindes
  */
-var resetRedeemTab = function () {
+var resetRedeemTab = function() {
     $(".resgate-cupom-main").show();
     $(".resgate-cupom-result").hide();
 
@@ -1039,7 +1081,7 @@ var video = null;
  * Inicia gravação de câmera para captura de imagem
  */
 // var startScanCapture = function (regionCapture, videoElement, canvasElement) {
-var startScanCapture = function (regionCapture, videoElement) {
+var startScanCapture = function(regionCapture, videoElement) {
     $("." + regionCapture).show();
 
     video = null;
@@ -1094,14 +1136,13 @@ var startScanCapture = function (regionCapture, videoElement) {
     }
 };
 
-
 /**
  * Interrompe captura da Webcam
  */
-var stopCamRecording = function () {
+var stopCamRecording = function() {
     var interval = 0;
     var retries = 0;
-    interval = setInterval(function () {
+    interval = setInterval(function() {
         if (window.localStream !== undefined) {
             window.localStream.getVideoTracks()[0].stop();
         }
@@ -1114,29 +1155,28 @@ var stopCamRecording = function () {
 /**
  * Oculta região de captura de imagem e interrompe o dispositivo webcam
  */
-var stopScanDocument = function () {
+var stopScanDocument = function() {
     stopCamRecording();
 
     $(".group-video-capture").hide();
 };
 
-
 // Array de parâmetros de gotas populados (para gravar no BD)
 var arrayParametrosGravar = {
     array: [],
-    get: function () {
+    get: function() {
         return this.array;
     },
-    set: function (array) {
+    set: function(array) {
         this.array = array;
     },
-    add: function (item) {
+    add: function(item) {
         this.array.push(item);
     },
-    remove: function (key) {
+    remove: function(key) {
         var arrayToRemove = [];
 
-        $.each(this.array, function (index, value) {
+        $.each(this.array, function(index, value) {
             if (value.key != key) {
                 arrayToRemove.push(value);
             }
@@ -1144,7 +1184,7 @@ var arrayParametrosGravar = {
 
         this.array = arrayToRemove;
     },
-    clear: function () {
+    clear: function() {
         this.array = [];
     }
 };
@@ -1152,27 +1192,27 @@ var arrayParametrosGravar = {
 // Array de gotas (parâmetros)
 var arrayGotas = {
     array: [],
-    get: function () {
+    get: function() {
         return this.array;
     },
-    findByKey: function (key) {
-        var item = $.grep(this.array, function (value, index) {
+    findByKey: function(key) {
+        var item = $.grep(this.array, function(value, index) {
             if (value.gotas_id == key) return value;
         });
 
         return item[0];
     },
-    set: function (array) {
+    set: function(array) {
         this.array = array;
     }
 };
 /**
-   * Salva os registros
-   */
-var saveReceipt = function (image) {
+ * Salva os registros
+ */
+var saveReceipt = function(image) {
     var data = [];
 
-    $.each(arrayParametrosGravar.get(), function (index, value) {
+    $.each(arrayParametrosGravar.get(), function(index, value) {
         value.clientes_id = $("#clientes_id").val();
         value.usuarios_id = $("#usuarios_id").val();
 
@@ -1198,7 +1238,7 @@ var saveReceipt = function (image) {
             image: image,
             data_processamento: $("#data_processamento_save").val()
         }),
-        beforeSend: function (xhr) {
+        beforeSend: function(xhr) {
             xhr.setRequestHeader("Accept", "application/json");
             xhr.setRequestHeader(
                 "Content-Type",
@@ -1207,11 +1247,11 @@ var saveReceipt = function (image) {
 
             callLoaderAnimation();
         },
-        error: function (response) {
+        error: function(response) {
             console.log(response);
             closeLoaderAnimation();
         }
-    }).done(function (result) {
+    }).done(function(result) {
         console.log(result);
         if (result.success) {
             //success
@@ -1242,8 +1282,8 @@ var saveReceipt = function (image) {
     });
 };
 
-var validacaoGenericaForm = function (e) {
-    $(".botao-confirmar").on("click", function (e) {
+var validacaoGenericaForm = function(e) {
+    $(".botao-confirmar").on("click", function(e) {
         var form = e.target.form;
 
         var isValid = form.checkValidity();
@@ -1252,5 +1292,4 @@ var validacaoGenericaForm = function (e) {
             callLoaderAnimation("");
         }
     });
-}
-
+};
