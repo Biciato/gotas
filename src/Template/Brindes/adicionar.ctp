@@ -47,12 +47,12 @@ echo $this->Breadcrumbs->render(
         <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
         <?= $this->Form->hidden("edit-mode", ["id" => null, "value" => $editMode]) ?>
         <div class="form-group row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="nome">Nome*</label>
                 <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="tipo_codigo_barras">Código de Barras*</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
@@ -70,6 +70,22 @@ echo $this->Breadcrumbs->render(
                             TYPE_BARCODE_QRCODE => TYPE_BARCODE_QRCODE,
                         )
                     )
+                ); ?>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="categorias_brindes">Categoria</label>
+                <?= $this->Form->input(
+                    "categorias_brindes_id",
+                    [
+                        "id" => "categorias_brindes_id",
+                        "value" => $brinde["categorias_brindes_id"],
+                        "class" => "categorias-brindes-id",
+                        "label" => false,
+                        "empty" => "Sem Categoria",
+                        "selected" => $brinde['categorias_brindes_id'],
+                        "options" => $categoriasBrindesList
+                    ]
                 ); ?>
             </div>
         </div>
@@ -254,7 +270,7 @@ echo $this->Breadcrumbs->render(
                     </span>
                     Salvar
                 </button>
-                <a href="<?= sprintf("/brindes/index/%s", $clientesId)?>" class="btn btn-danger botao-cancelar">
+                <a href="<?= sprintf("/brindes/index/%s", $clientesId) ?>" class="btn btn-danger botao-cancelar">
                     <span class="fa fa-window-close"></span>
                     Cancelar
                 </a>
@@ -274,4 +290,3 @@ echo $this->Breadcrumbs->render(
 <?php endif; ?>
 
 <?= $this->fetch('script'); ?>
-

@@ -38,7 +38,7 @@ class CategoriasBrindesTable extends GenericTable
         parent::initialize($config);
 
         $this->setTable('categorias_brindes');
-        $this->setDisplayField('id');
+        $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Rede', [
@@ -106,6 +106,21 @@ class CategoriasBrindesTable extends GenericTable
     }
 
     #region Read
+
+    public function getCategoriasBrindesList(int $redesId)
+    {
+        try {
+            $where = [];
+            $where[] = ["redes_id" => $redesId];
+            $where[] = ["habilitado" => 1];
+
+            return $this->find("list")->where($where);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
 
     public function getCategoriasBrindes(int $redesId, string $nome = null, bool $habilitado = null)
     {

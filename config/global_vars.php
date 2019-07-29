@@ -66,6 +66,7 @@ Configure::write(
         'models' =>
             [
             "Brindes",
+            "CategoriasBrindes",
             "Clientes",
             "BrindesEstoque",
             "BrindesPrecos",

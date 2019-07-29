@@ -16,12 +16,12 @@ use Cake\I18n\Number;
 <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
 <?= $this->Form->hidden("edit-mode", ["id" => "edit_mode", "value" => $editMode]) ?>
 <div class="form-group row">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <label for="nome">Nome*</label>
         <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <label for="tipo_codigo_barras">Código de Barras*</label>
         <?= $this->Form->input(
             "tipo_codigo_barras",
@@ -39,6 +39,22 @@ use Cake\I18n\Number;
                     TYPE_BARCODE_QRCODE => TYPE_BARCODE_QRCODE,
                 )
             )
+        ); ?>
+    </div>
+
+    <div class="col-lg-4">
+        <label for="categorias_brindes">Categoria</label>
+        <?= $this->Form->input(
+            "categorias_brindes_id",
+            [
+                "id" => "categorias_brindes_id",
+                "value" => $brinde["tipo_codigo_barras"],
+                "required" => "required",
+                "class" => "categorias-brindes-id",
+                "label" => false,
+                "selected" => $brinde['categorias_brindes_id'],
+                "options" => $categoriasBrindesList
+            ]
         ); ?>
     </div>
 </div>
@@ -73,8 +89,8 @@ use Cake\I18n\Number;
             <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="99" title="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
         </div>
     </div>
-    <?php else : ?>
-        <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
+<?php else : ?>
+    <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
 <?php endif; ?>
 
 <div class="form-group row">
@@ -138,24 +154,11 @@ use Cake\I18n\Number;
 
     <div class="col-lg-3">
         <label for="preco_padrao">Preço Padrão Gotas*</label>
-        <input type="text"
-            name="preco_padrao"
-            required="required"
-            placeholder="Preço Padrão em Gotas..."
-            id="preco_padrao"
-            class="form-control"
-            value="<?= $brinde['preco_padrao'] ?>">
+        <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
     </div>
     <div class="col-lg-3">
         <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
-        <input type="text"
-            name="valor_moeda_venda_padrao"
-            required="required"
-            placeholder="Preço Padrão de Venda Avulsa (R$)..."
-            id="valor_moeda_venda_padrao"
-            class="form-control"
-            value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>"
-        >
+        <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
     </div>
 </div>
 

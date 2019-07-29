@@ -111,10 +111,11 @@ class BrindesController extends AppController
             }
 
             $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
-            $brindes = $this->Paginate($brindes, array("limit" => 10));
 
+            // DebugUtil::printArray($brindes);
+            $brindes = $this->Paginate($brindes, array("limit" => 10));
             $this->set(compact($arraySet));
-            //code...
+            
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $messageString = __("Erro ao exibir lista de brindes!");
@@ -179,21 +180,21 @@ class BrindesController extends AppController
      */
     public function adicionar($clientesId)
     {
-        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario");
+        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "categoriasBrindesList");
         $editMode = 0;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
 
         if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
-
-        $rede = $sessaoUsuario["rede"];
+        $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
 
         if (empty($rede)) {
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
@@ -231,6 +232,7 @@ class BrindesController extends AppController
                 $data["clientes_id"] = $clientesId;
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
+                $categoriaBrindeId = $data["categorias_brindes_id"] ?? null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
@@ -296,11 +298,25 @@ class BrindesController extends AppController
                         $nomeImg = $this->_preparaImagemBrindeParaGravacao($data);
                     }
 
-                    $brinde = $this->Brindes->insertBrinde($clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $ilimitado, $habilitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadrao, $valorMoedaVendaPadrao, $nomeImg);
+                    $brinde->clientes_id = $clientesId;
+                    $brinde->categorias_brindes_id = $categoriaBrindeId;
+                    $brinde->nome = $nome;
+                    $brinde->codigo_primario = $codigoPrimario;
+                    $brinde->tempo_uso_brinde = $tempoUsoBrinde;
+                    $brinde->ilimitado = $ilimitado;
+                    $brinde->habilitado = $habilitado;
+                    $brinde->tipo_equipamento = $tipoEquipamento;
+                    $brinde->tipo_venda = $tipoVenda;
+                    $brinde->tipo_codigo_barras = $tipoCodigoBarras;
+                    $brinde->preco_padrao = $precoPadrao;
+                    $brinde->valor_moeda_venda_padrao = $valorMoedaVendaPadrao;
+                    $brinde->nome_img = $nomeImg;
+
+                    $brinde = $this->Brindes->saveUpdate($brinde);
+
                     $errors = $brinde->errors();
 
                     if ($brinde) {
-
                         /* estoque só deve ser criado nas seguintes situações.
                          * 1 - O Brinde está sendo vinculado a um cadastro de loja
                          *  no sistema (Isto é, se ele não foi anteriormente )
@@ -354,13 +370,14 @@ class BrindesController extends AppController
      */
     public function editar($id)
     {
-        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "imagemOriginal", "imagemExibicao");
+        $arraySet = ["editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "imagemOriginal", "imagemExibicao", "categoriasBrindesList"];
         $editMode = 1;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $cliente = $sessaoUsuario["cliente"];
+        $rede = $sessaoUsuario["rede"];
 
         if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -369,8 +386,7 @@ class BrindesController extends AppController
         $brinde = $this->Brindes->getBrindeById($id);
         $imagemExibicao = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde->nome_img) : null;
         $imagemOriginal = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde->nome_img) : null;
-
-        // echo $imagemExibicao;
+        $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
 
         try {
             if (empty($brinde)) {
@@ -425,9 +441,11 @@ class BrindesController extends AppController
 
             if ($this->request->is(array('post', 'put'))) {
                 $data = $this->request->getData();
+
                 $errors = array();
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
+                $categoriaBrindeId = $data["categorias_brindes_id"] ?? null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -502,21 +520,23 @@ class BrindesController extends AppController
                     $brinde["clientes_id"] = $clientesId;
 
                     // $brinde = $this->Brindes->patchEntity($brinde, $data);
-                    $brinde = $this->Brindes->updateBrinde(
-                        $id,
-                        $clientesId,
-                        $nome,
-                        $codigoPrimario,
-                        $tempoUsoBrinde,
-                        $ilimitado,
-                        $habilitado,
-                        $tipoEquipamento,
-                        $tipoVenda,
-                        $tipoCodigoBarras,
-                        $precoPadrao,
-                        $valorMoedaVendaPadrao,
-                        $nomeImg
-                    );
+
+                    $brinde->clientes_id = $clientesId;
+                    $brinde->categorias_brindes_id = $categoriaBrindeId;
+                    $brinde->nome = $nome;
+                    $brinde->codigo_primario = $codigoPrimario;
+                    $brinde->tempo_uso_brinde = $tempoUsoBrinde;
+                    $brinde->ilimitado = $ilimitado;
+                    $brinde->habilitado = $habilitado;
+                    $brinde->tipo_equipamento = $tipoEquipamento;
+                    $brinde->tipo_venda = $tipoVenda;
+                    $brinde->tipo_codigo_barras = $tipoCodigoBarras;
+                    $brinde->preco_padrao = $precoPadrao;
+                    $brinde->valor_moeda_venda_padrao = $valorMoedaVendaPadrao;
+                    $brinde->nome_img = $enviouNovaImagem ? $nomeImg : $brinde->nome_img;
+
+                    $brinde = $this->Brindes->saveUpdate($brinde);
+
                     $errors = $brinde->errors();
 
                     if ($brinde) {
