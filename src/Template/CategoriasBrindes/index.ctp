@@ -24,6 +24,37 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <legend><?= $title ?></legend>
 
+        <div id="filtro">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
+                        <div>
+                            <span class="fa fa-search"></span>
+                            Exibir / Ocultar Filtros
+                        </div>
+                    </div>
+                    <div id="filter-coupons" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="form-group row">
+                                <div class="col-lg-12">
+                                    <label for="pesquisa-nome">Nome</label>
+                                    <input type="text" name="pesquisa-nome" id="pesquisa-nome" class="form-control" placeholder="Nome..." title="Nome" autofocus>
+                                </div>
+                            </div>
+                            <div class="form-group row ">
+                                <div class="col-lg-2 pull-right">
+                                    <button type="submit" class="btn btn-primary btn-block botao-pesquisar">
+                                        <span class="fa fa-search"></span>
+                                        Pesquisar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <table class="table table-striped table-hover" id="tabela-dados">
             <thead>
                 <tr>
@@ -81,7 +112,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
         </div>
     </div>
-    
+
 </div>
 
 

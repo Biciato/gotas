@@ -73,8 +73,11 @@ echo $this->Html->meta('icon');
 <script src="/webroot/js/jquery-qrcode/jquery-qrcode.0.14.0.min.js"></script>
 
 <!-- jQuery Validation Form -->
-
 <script src="/webroot/js/jquery-validation/dist/jquery.validate.min.js"></script>
+
+<!-- jQuery Pagination -->
+<link href="/webroot/js/jquery-pagination/dist/pagination.css" rel="stylesheet"/>
+<script src="/webroot/js/jquery-pagination/dist/pagination.js"></script>
 
 <!-- Print This -->
 <script src="/webroot/js/printThis-master/printThis.js"></script>

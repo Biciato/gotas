@@ -1,4 +1,5 @@
-$(document).ready(function() {
+"use strict";
+$(function() {
     // #region Fields
 
     var categoriasBrindes = [];
@@ -7,6 +8,19 @@ $(document).ready(function() {
     // #endregion
 
     // #region Functions
+
+    var filterData = function() {
+        var nome = $("#pesquisa-nome").val();
+
+        loadData(nome);
+    };
+
+    $("#pesquisa-nome").on("keyup", function(e) {
+        if (e.which == 13) {
+            filterData();
+        }
+    });
+    $(".botao-pesquisar").on("click", filterData);
 
     var generateEditButton = function(value, target) {
         var template =
@@ -21,7 +35,7 @@ $(document).ready(function() {
         var click = function(e) {
             var id = $(this).val();
 
-            categoriaBrinde = jQuery.grep(categoriasBrindes, function(cb) {
+            var categoriaBrinde = $.grep(categoriasBrindes, function(cb) {
                 return cb.id == id;
             });
 
@@ -40,14 +54,22 @@ $(document).ready(function() {
             "<button class='btn btn-primary btn-xs form-btn-enable' id='form-btn-enable' value=" +
             value +
             "> <i class=' fa fa-power-off'></i></button>";
-
         return template;
     };
 
     var generateEnableButtonFunctions = function(classString) {
-        click = function(e) {
+        var click = function(e) {
             var id = $(this).val();
-            editar(id);
+
+            categoriaBrinde = $.grep(categoriasBrindes, function(cb) {
+                return cb.id == id;
+            });
+
+            if (categoriaBrinde.length > 0) {
+                categoriaBrindeSelected = categoriaBrinde[0];
+            }
+
+            abreModalHabilitar(categoriaBrindeSelected.id);
         };
 
         $("." + classString).on("click", click);
@@ -63,10 +85,10 @@ $(document).ready(function() {
     };
 
     var generateDisableButtonFunctions = function(classString) {
-        click = function(e) {
+        var click = function(e) {
             var id = $(this).val();
 
-            categoriaBrinde = jQuery.grep(categoriasBrindes, function(cb) {
+            var categoriaBrinde = $.grep(categoriasBrindes, function(cb) {
                 return cb.id == id;
             });
 
@@ -90,10 +112,10 @@ $(document).ready(function() {
     };
 
     var generateDeleteButtonFunctions = function(classString) {
-        click = function(e) {
+        var click = function(e) {
             var id = $(this).val();
 
-            categoriaBrinde = jQuery.grep(categoriasBrindes, function(cb) {
+            var categoriaBrinde = $.grep(categoriasBrindes, function(cb) {
                 return cb.id == id;
             });
 
@@ -111,29 +133,60 @@ $(document).ready(function() {
      * Obtem os dados de categorias de brindes e alimenta a tabela
      *
      */
-    var loadData = function() {
-        var dataRequest = {};
+    var loadData = function(nome) {
+        var dataRequest = { nome: nome };
 
         callLoaderAnimation();
-        $.ajax({
-            type: "GET",
-            url: "/api/categorias_brindes/get_categorias_brindes",
-            data: dataRequest,
-            success: function(success) {},
-            error: function(err) {
-                closeLoaderAnimation();
-                callModalError(err.mensagem.message, err.mensagem.errors);
-            },
-            complete: function(success) {
-                closeLoaderAnimation();
 
+
+        // if ($(".paginationjs").length > 0) {
+        //     $("#tabela-dados").pagination("destroy");
+        // }
+        $("#tabela-dados").pagination({
+            pageSize: 1,
+            showPrevious: true,
+            showNext: true,
+            dataSource: function(done) {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/categorias_brindes/get_categorias_brindes",
+                    data: dataRequest,
+                    success: function(success) {},
+                    error: function(err) {
+                        closeLoaderAnimation();
+                        callModalError(
+                            err.mensagem.message,
+                            err.mensagem.errors
+                        );
+                    },
+                    complete: function(success) {
+                        closeLoaderAnimation();
+
+                        var dataReceived =
+                            success.responseJSON.categorias_brindes;
+
+                        var rows = [];
+                        dataReceived.forEach(element => {
+                            var obj = {};
+                            obj.id = element.id;
+                            obj.nome = element.nome;
+                            obj.habilitado = element.habilitado;
+                            obj.dataCriado = element.data;
+                            rows.push(obj);
+                        });
+
+                        categoriasBrindes = dataReceived;
+
+                        done(categoriasBrindes);
+                    }
+                });
+            },
+            callback: function(data, pagination) {
                 var table = $("#tabela-dados tbody");
                 table.empty();
-                var dataReceived = success.responseJSON.categorias_brindes;
 
                 var rows = [];
-                dataReceived.forEach(element => {
-                    console.log(element);
+                data.forEach(element => {
                     var habilitado = element.habilitado ? "Sim" : "Não";
                     var botaoEditar = generateEditButton(element.id);
                     var botaoRemover = generateDeleteButton(element.id);
@@ -159,8 +212,6 @@ $(document).ready(function() {
                 });
 
                 table.append(rows);
-
-                categoriasBrindes = dataReceived;
 
                 generateEditButtonFunctions("form-btn-edit");
                 generateEnableButtonFunctions("form-btn-enable");
@@ -195,8 +246,10 @@ $(document).ready(function() {
     var editar = function(val) {
         // esconde tabela de dados e exibe form
 
-        $("#dados").hide(500);
-        $("#formCadastro").show(500);
+        $("#dados").fadeOut(100);
+        $("#formCadastro").fadeIn(500);
+
+        callLoaderAnimation();
 
         $.ajax({
             url: "/api/categorias_brindes/get_categoria_brinde",
@@ -216,6 +269,17 @@ $(document).ready(function() {
                 $("#id").val(categoriaBrinde.id);
                 $("#nome").val(categoriaBrinde.nome);
             }
+        });
+    };
+
+    var abreModalHabilitar = function(val) {
+        var modal = "#modal-enable";
+        $(modal).modal();
+        $(modal + " #nome-registro").text(categoriaBrindeSelected.nome);
+        $(modal + " #confirmar").on("click", function() {
+            alteraEstado(val, 1);
+            $(modal).modal("hide");
+            loadData();
         });
     };
 
@@ -263,11 +327,14 @@ $(document).ready(function() {
             success: function(res) {},
             error: function(res) {
                 closeLoaderAnimation();
-                callModalError(res.responseJSON.mensagem.message, res.responseJSON.mensagem.errors);
+                callModalError(
+                    res.responseJSON.mensagem.message,
+                    res.responseJSON.mensagem.errors
+                );
             },
             complete: function(res) {
                 closeLoaderAnimation();
-                callModalGeneric(res.responseJSON.mensagem.message);
+                // callModalGeneric(res.responseJSON.mensagem.message);
                 loadData();
             }
         });
