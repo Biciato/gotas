@@ -21,6 +21,8 @@ use Cake\Core\Configure;
  * @property string $propaganda_link
  * @property float $custo_referencia_gotas
  * @property int $media_assiduidade_clientes
+ * @property bool $app_personalizado
+ * @property bool $msg_distancia_compra_brinde
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  */

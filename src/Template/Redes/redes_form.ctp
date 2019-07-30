@@ -12,7 +12,7 @@ use Cake\Core\Configure;
 <div class="form-group row">
     <div class="col-lg-4">
         <label for="nome_rede">Nome da Rede*</label>
-        <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="<?= $rede['nome_rede'] ?>" placeholder="Nome da Rede..." title="Nome da Rede*" required />
+        <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="<?= $rede['nome_rede'] ?>" placeholder="Nome da Rede..." title="Nome da Rede*" autofocus required />
     </div>
 
     <div class="col-lg-4">
@@ -70,10 +70,28 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-
+<h4>Opções Gerais</h4>
 <div class="form-group row">
     <div class="col-lg-12">
         <?= $this->Form->control('ativado', ['label' => 'Rede Ativada']); ?>
+    </div>
+</div>
+<h4>Opções de Aplicativo Mobile Personalizado</h4>
+<div class="form-group row">
+    <div class="col-lg-12">
+        <input type="hidden" name='app_personalizado' value='0'>
+        <label for="app_personalizado">
+            <input type="checkbox" <?= $rede->app_personalizado ? 'checked' : '' ?> id="app_personalizado" name="app_personalizado" class="app_personalizado" value="1">
+            Rede com APP Personalizado?
+        </label>
+    </div>
+    <div class="col-lg-12">
+        <input type="hidden" name='msg_distancia_compra_brinde' value='0'>
+        <label for="msg_distancia_compra_brinde">
+            <input type="checkbox" <?= $rede->msg_distancia_compra_brinde ? 'checked' : '' ?> id="msg_distancia_compra_brinde" name="msg_distancia_compra_brinde" class="items_app_personalizado" value="1">
+            Exibir Mensagem de Distância ao Comprar
+        </label>
+
     </div>
 </div>
 

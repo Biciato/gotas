@@ -196,7 +196,6 @@ class RedesController extends AppController
                 $trocaImagem = 0;
 
                 if (strlen($data['crop-height']) > 0) {
-
                     // imagem já está no servidor, deve ser feito apenas o resize e mover ela da pasta temporária
 
                     // obtem dados de redimensionamento
@@ -222,6 +221,7 @@ class RedesController extends AppController
                 }
 
                 $rede = $this->Redes->patchEntity($rede, $data);
+                $rede->msg_distancia_compra_brinde = $rede->app_personalizado ? $rede->msg_distancia_compra_brinde : 0;
 
                 if ($this->Redes->updateRede($rede)) {
                     // Atualiza todas as bonificações de gotas dos postos que é de sistema (bonificação extra SEFAZ)
