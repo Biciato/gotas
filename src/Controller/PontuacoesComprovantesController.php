@@ -1412,7 +1412,7 @@ class PontuacoesComprovantesController extends AppController
                         "resumo" => $retorno["resumo"]
                     );
 
-                    ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
+                    return ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
                 } else {
 
                     $arrayData = array();
@@ -1423,7 +1423,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
-                    ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
+                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
                 }
             }
 
@@ -1566,7 +1566,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Validação CNPJ e CPF
@@ -1582,7 +1582,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Posto de atendimento
@@ -1609,14 +1609,14 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (sizeof($errors) > 0) {
-                    ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
                 } else {
                     $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
                 }
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Fim de Validação
@@ -1722,7 +1722,7 @@ class PontuacoesComprovantesController extends AppController
                     "comprovantes_resumo" => $comprovanteResumo
                 )
             );
-            ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
         }
     }
 

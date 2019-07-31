@@ -320,6 +320,7 @@ const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
+const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';

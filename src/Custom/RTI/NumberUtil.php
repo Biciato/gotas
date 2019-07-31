@@ -33,7 +33,57 @@ class NumberUtil
      * Construtor
      */
     function __construct()
+    { }
+
+    /**
+     * NumberUtil::calculaDistanciaLatitudeLongitude
+     * 
+     * Calcula distância entre duas localizações latitude/longitude 
+     * 
+     * @author martinstoeckli <https://stackoverflow.com/users/575765/martinstoeckli>
+     * @since 2012-04-07
+     * 
+     * @source https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
+     *
+     * @param float $latOrigem
+     * @param float $longOrigem
+     * @param float $latDestino
+     * @param float $longDestino
+     * @param string $unidade
+     * 
+     * @return float $distancia
+     */
+    public static function calculaDistanciaLatitudeLongitude($latOrigem, $longOrigem, $latDestino, $longDestino, $unidade = "km")
     {
+        // converte valores degraus para Radianos
+        $latOrigem = deg2rad($latOrigem);
+        $lonOrigem = deg2rad($longOrigem);
+        $latDestino = deg2rad($latDestino);
+        $lonDestino = deg2rad($longDestino);
+
+        $earthRadius = 0;
+
+        switch ($unidade) {
+            case 'km':
+                // kilometros
+                $earthRadius = 6371;
+                break;
+            case 'm':
+                // metros
+                $earthRadius = 6371000;
+                break;
+            default:
+                // milhas
+                $earthRadius = 3959;
+                break;
+        }
+
+        $lonDelta = $lonDestino - $lonOrigem;
+        $a = pow(cos($latDestino) * sin($lonDelta), 2) + pow(cos($latOrigem) * sin($latDestino) - sin($latOrigem) * cos($latDestino) * cos($lonDelta), 2);
+        $b = sin($latOrigem) * sin($latDestino) + cos($latOrigem) * cos($latDestino) * cos($lonDelta);
+
+        $angle = atan2(sqrt($a), $b);
+        return $angle * $earthRadius;
     }
 
     /**
@@ -65,11 +115,11 @@ class NumberUtil
         // Faz o calculo para validar o CPF
         for ($t = 9; $t < 11; $t++) {
             for ($d = 0, $c = 0; $c < $t; $c++) {
-                $d += $cpf {
+                $d += $cpf{
                     $c} * (($t + 1) - $c);
             }
             $d = ((10 * $d) % 11) % 10;
-            if ($cpf {
+            if ($cpf{
                 $c} != $d) {
                 return ["status" => 0, "message" => Configure::read("messageUsuarioCPFNotValidInvalidNumber")];
             }
@@ -91,25 +141,25 @@ class NumberUtil
     public static function validarCNPJ(string $cnpj = null)
     {
         try {
-
-        // Verifica se um número foi informado
+            // Verifica se um número foi informado
             if (empty($cnpj)) {
                 return false;
             }
 
-        // Elimina possivel mascara
+            // Elimina possivel mascara
             $cnpj = preg_replace("/[^0-9]/", "", $cnpj);
             $cnpj = str_pad($cnpj, 14, '0', STR_PAD_LEFT);
             $cnpj = strval($cnpj);
 
-        // Verifica se o numero de digitos informados é igual a 11
+            // Verifica se o numero de digitos informados é igual a 11
             if (strlen($cnpj) != 14) {
                 return false;
             }
 
-        // Verifica se nenhuma das sequências invalidas abaixo
-        // foi digitada. Caso afirmativo, retorna falso
-            else if ($cnpj == '00000000000000' ||
+            // Verifica se nenhuma das sequências invalidas abaixo
+            // foi digitada. Caso afirmativo, retorna falso
+            elseif (
+                $cnpj == '00000000000000' ||
                 $cnpj == '11111111111111' ||
                 $cnpj == '22222222222222' ||
                 $cnpj == '33333333333333' ||
@@ -118,11 +168,12 @@ class NumberUtil
                 $cnpj == '66666666666666' ||
                 $cnpj == '77777777777777' ||
                 $cnpj == '88888888888888' ||
-                $cnpj == '99999999999999') {
+                $cnpj == '99999999999999'
+            ) {
                 return false;
 
-         // Calcula os digitos verificadores para verificar se o
-         // CPF é válido
+                // Calcula os digitos verificadores para verificar se o
+                // CPF é válido
             } else {
 
                 $j = 5;
@@ -143,20 +194,18 @@ class NumberUtil
 
                     $k--;
                     $j--;
-
                 }
 
                 $digito1 = $soma1 % 11 < 2 ? 0 : 11 - $soma1 % 11;
                 $digito2 = $soma2 % 11 < 2 ? 0 : 11 - $soma2 % 11;
 
-                return (($cnpj {
-                    12} == $digito1) and ($cnpj {
+                return (($cnpj{
+                    12} == $digito1) and ($cnpj{
                     13} == $digito2));
             }
         } catch (\Exception $e) {
             echo $e;
         }
-
     }
 
     /**
@@ -186,6 +235,4 @@ class NumberUtil
     {
         return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $cnpj);
     }
-
-
 }
