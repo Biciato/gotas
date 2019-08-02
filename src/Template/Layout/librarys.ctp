@@ -15,10 +15,6 @@ echo $this->Html->meta('icon');
 <script src="/webroot/js/jquery/jquery.min.js"></script>
 
 
-
-<!-- <script src="/webroot/js/jqueryui/jquery-ui.js"></script>
-<script src="/webroot/js/jqueryui/jquery-ui.min.js"></script> -->
-
 <!-- Moment -->
 <script src="/webroot/app/lib/moment/moment.min.js" ></script>
 <script src="/webroot/app/lib/moment/moment-with-locales.min.js" ></script>
@@ -62,6 +58,11 @@ echo $this->Html->meta('icon');
 
 <!-- Bibliotecas jQuery -->
 
+<!-- jQueryUI -->
+<!-- <script src="/webroot/js/jqueryui/jquery-ui.js"></script> -->
+<script src="/webroot/js/jqueryui/jquery-ui.min.js"></script>
+<!-- <link href="/webroot/js/jqueryui/themes/base/jquery-ui.css" type="text/stylesheet"> -->
+
 <!-- jQuery Mask -->
 <script src="/webroot/js/jquery-Mask/jquery.mask.js"></script>
 <script src="/webroot/js/jquery-Mask/jquery.mask.min.js"></script>
@@ -85,6 +86,8 @@ echo $this->Html->meta('icon');
 <!-- jQuery Mask Money -->
 <script src="/webroot/js/plentz-jquery-maskmoney/dist/jquery.maskMoney.js"></script>
 <script src="/webroot/js/plentz-jquery-maskmoney/dist/jquery.maskMoney.min.js"></script>
+
+
 
 <!-- PDF417 -->
 <script src="/webroot/js/pdf417-gh-pages/pdf417.js"></script>
@@ -134,7 +137,7 @@ echo $this->Html->meta('icon');
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->
-<script src="/webroot/app/lib/angularjs/angular.min.js" ></script>
+<script src="/webroot/app/lib/angularjs/angular.min.js" ></li>
 <script src="/webroot/app/lib/angularjs/angular-locale_pt-br.js" ></script>
 <script src="/webroot/app/lib/angularjs/angular-animate.min.js" ></script>
 <script src="/webroot/app/lib/angularjs/angular-route.min.js" ></script>

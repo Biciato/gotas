@@ -1,4 +1,5 @@
 <?php
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
@@ -219,11 +220,11 @@ if (empty($usuarioLogado)) {
         </li>
         </ul>
     <?php
-    // Administrador de Rede ou Regional
+        // Administrador de Rede ou Regional
 
-} else if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
+    } else if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
 
-    ?>
+        ?>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
@@ -238,7 +239,7 @@ if (empty($usuarioLogado)) {
                         <a href="/redes/configurarParametrosRede">Configurar Parâmetros da Rede</a>
                     </li>
                     <li role="separator" class="divider" />
-                    
+
                     <li>
                         <?php echo $this->Html->link('Usuários da Rede', ['controller' => 'Usuarios', 'action' => 'usuarios_rede']) ?>
                     </li>
@@ -270,6 +271,13 @@ if (empty($usuarioLogado)) {
                         <li>
                             <a href="/brindes/escolherPostoConfigurarBrinde">Cadastro de Brindes</a>
                         </li>
+
+                        <li>
+                            <a href="/topBrindes/nacional">Cadastro Top Brindes Nacional</a>
+                        </li>
+                        <li>
+                            <a href="/topBrindes/posto">Cadastro Top Brindes Posto</a>
+                        </li>
                     <?php endif; ?>
 
                     <?php
@@ -284,8 +292,8 @@ if (empty($usuarioLogado)) {
                             </li>
 
                         <?php
-                    }
-                } ?>
+                        }
+                    } ?>
 
                     <!-- <li> -->
                     <!-- <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?> -->
@@ -332,11 +340,11 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-}
-// Administrador da loja
-else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+    }
+    // Administrador da loja
+    else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
 
-    ?>
+        ?>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
@@ -397,11 +405,11 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
     <?php
 
-} else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
+    } else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
 
-    // Gerente
+        // Gerente
 
-    ?>
+        ?>
         <ul class="nav navbar-nav navbar-right">
 
             <li class="dropdown">
@@ -452,22 +460,22 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
     <?php
 
-} else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
-    // Funcionário
+    } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+        // Funcionário
 
-    ?>
+        ?>
         <ul class="nav navbar-nav navbar-right">
 
 
             <!-- <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
-                                </li>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <?php echo $this->Html->link('Verificação de Brindes Virtuais', ['controller' => 'Brindes', 'action' => 'verificarBrindeVirtual']) ?>
+                                        </li>
 
-                        </ul>
-                        </li> -->
+                                </ul>
+                                </li> -->
 
             <li>
                 <?php echo $this->Html->link('Meu Cadastro', ['controller' => 'Usuarios', 'action' => 'meu_perfil']) ?>
@@ -479,10 +487,10 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
     <?php
 
-} else {
-    // Cliente
+    } else {
+        // Cliente
 
-    ?>
+        ?>
         <ul class="nav navbar-nav navbar-right">
 
 
@@ -491,7 +499,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
                 <ul class="dropdown-menu">
                     <li>
                         <a href="/pages/instalaMobile">Instalar Aplicação Mobile</a>
-                        
+
                     </li>
                     <li role="separator" class="divider"></li>
                     <li>
@@ -518,7 +526,7 @@ else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['Admin
 
     <?php
 
-}
+    }
 }
 
 ?>
