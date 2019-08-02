@@ -28,33 +28,29 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <legend>Top Brindes Nacional Cadastrados</legend>
             <div id="box-parent" class="box-items-parent">
                 <ul class="box-items" id="box-items" name="box-items">
-                    <!-- <div class="parent-item-box" id="parent-item-box1"></div>
-                    <div class="parent-item-box" id="parent-item-box2"></div>
-                    <div class="parent-item-box" id="parent-item-box3"></div>
-                    <div class="parent-item-box" id="parent-item-box4"></div> -->
                     <li class="item-box" name="item-box1" id="item-box1">1</li>
                     <li class="item-box" name="item-box2" id="item-box2">2</li>
                     <li class="item-box" name="item-box3" id="item-box3">3</li>
                     <li class="item-box" name="item-box4" id="item-box4">4</li>
-                    <!-- <li>1</li>
-                    <li>2</li>
-                    <li>3</li>
-                    <li>4</li>
-                    <li>5</li>
-                    <li>6</li>
-                    <li>7</li>
-                    <li>8</li>
-                    <li>9</li> -->
                 </ul>
             </div>
         </div>
     </div>
 
+    <div id="form-vinculo" class="form-vinculo">
+        <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
+        <label for="postos_rede">Lista de Unidades:</label>
+        <select name="postos_rede" id="postos-rede" class="form-control"></select>
+
+        <div class="brindes-container">
+            <ul id="brindes-list" class="brindes-list">
+                
+            </ul>
+        </div>
+        
+    </div>
 </div>
 
-<form id="formVinculo">
-
-</form>
 
 <div id="modal-remover" class="modal fade" tabindex="-1">
     <div class="modal-dialog" role="document">

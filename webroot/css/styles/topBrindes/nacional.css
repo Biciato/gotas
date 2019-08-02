@@ -61,23 +61,41 @@
 .item-box:hover {
     opacity: 1.0;
 }
-/* 
-#item-box1 {
-    left: 5%;
-    top: 5%;
-}
 
-#item-box2 {
-    right: 5%;
-    top: 5%;
-}
+/**
+ * Estilo de formVinculo
+ */
 
-#item-box3 {
-    left: 5%;
-    bottom: 5%;
-}
+ .form-vinculo {
+     display: none;
+ }
 
-#item-box4 {
-    right: 5%;
-    bottom: 5%;
-} */
+ .form-vinculo img {
+    width: 160px;
+    height: 120px;
+  
+  }
+  
+  .form-vinculo li {
+    display: flex;
+    padding: 10px;
+    height: 120px;
+    background-color: #aaaaaa;
+  }
+  
+  .form-vinculo li .text {
+    display: inline-block;
+    width: 250px;
+    text-justify: center;
+    border: 1px solid black;
+    line-height: 120px;
+  }
+  
+  .form-vinculo li .button-area {
+    display: inline-block;
+    width: 80px;
+    text-justify: center;
+    border: 1px solid black;
+    line-height: 120px;
+  }
+  

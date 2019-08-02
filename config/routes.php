@@ -255,7 +255,7 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo Angular
             "getClientesListAPI" => array(
                 "action" => "getClientesListAPI",
-                "method" => "POST",
+                "method" => "GET",
                 "path" => "/get_clientes_list"
             ),
             "getPostoFuncionarioAPI" => array(

@@ -228,7 +228,7 @@ class ClientesController extends AppController
 
                 if ($clienteJaExistente) {
                     $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
-                    
+
                     $this->Flash->error($message);
                     $this->set(compact($arraySet));
                     $this->set('_serialize', $arraySet);
@@ -705,7 +705,7 @@ class ClientesController extends AppController
     /**
      * ClientesController::getClientesListAPI
      *
-     * Obtem lista de Clientes
+     * Obtem lista de Clientes (da Rede informada ou da sessão do usuário)
      *
      * @param int $redesId Id da Rede (opcional)
      *
@@ -720,35 +720,44 @@ class ClientesController extends AppController
         $rede = $sessao["rede"];
         $redesId = $rede["id"];
 
-        // Caso o método seja chamado via post
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
+        try {
+            // Caso o método seja chamado via get
+            if ($this->request->is("get")) {
+                $data = $this->request->getData();
 
-            if (!empty($data["redesId"])) {
-                $redesId = $data["redesId"];
+                if (!empty($data["redesId"])) {
+                    $redesId = $data["redesId"];
+                }
             }
-        }
 
-        $selectList = array(
-            "Clientes.id",
-            "Clientes.nome_fantasia",
-            "Clientes.razao_social",
-            "Clientes.propaganda_img"
-        );
+            $selectList = array(
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.propaganda_img"
+            );
 
-        // @todo Gustavo, se a redesId for nulo, não pode retornar ninguém!
-        $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            if (empty($redesId)) {
+                throw new Exception(MESSAGE_ID_EMPTY);
+            }
 
-        $clientes = array();
+            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            $clientes = [];
 
-        foreach ($redeHasClientes as $redeHasCliente) {
-            $clientes[] = $redeHasCliente["cliente"];
-        }
+            foreach ($redeHasClientes as $redeHasCliente) {
+                $clientes[] = $redeHasCliente["cliente"];
+            }
 
-        if (sizeof($clientes) > 0) {
-            ResponseUtil::success($clientes);
-        } else {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+            if (count($clientes) == 0) {
+                return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
+            }
+
+            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 
