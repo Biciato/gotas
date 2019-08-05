@@ -47,9 +47,6 @@ $(function() {
     var showMainScreen = function() {
         $("#dados").fadeIn(100);
         $("#form-vinculo").fadeOut(100);
-
-        // fecha todos os modais
-        $(".modal").modal("hide");
     };
 
     var getBrindesNacional = function() {
