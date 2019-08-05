@@ -15,8 +15,34 @@ $(function() {
      */
     $(".top-brindes-box-items").sortable({
         stop: function(event, ui) {
-            console.log(event);
-            console.log(ui);
+            items = $(".top-brindes-box-items").sortable("toArray");
+
+            var itemsPosition = [];
+            var position = 1;
+            items.forEach(element => {
+                var id = $("#" + element).val();
+
+                var item = {
+                    id: id,
+                    posicao: position
+                };
+                position++;
+
+                itemsPosition.push(item);
+            });
+
+            // Executa rearrange de posições
+
+            $.ajax({
+                type: "PUT",
+                url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
+                data: itemsPosition,
+                dataType: "JSON",
+                success: function (response) {
+                    
+                }
+            });
+            console.log(itemsPosition);
         }
     });
 
@@ -81,10 +107,11 @@ $(function() {
                 var data = response.responseJSON.top_brindes;
                 topBrindesSortable.empty();
 
-                var count = 1;
+                var count = 0;
                 data.forEach(element => {
                     var item = {};
 
+                    item.id = element.id;
                     item.img = element.brinde.nome_img_completo;
                     item.nome = element.brinde.nome;
                     item.posicao = element.posicao;
@@ -94,11 +121,15 @@ $(function() {
                         count +
                         "' id='item-box" +
                         count +
+                        "' value='" +
+                        item.id +
                         "'>";
                     template += "<img src='" + item.img + "' />";
                     template += "</li>";
 
                     topBrindesSortable.append(template);
+
+                    count++;
                 });
             }
         });
@@ -172,7 +203,7 @@ $(function() {
     var showAddTopBrinde = function() {
         var value = this.value;
         var item = $.grep(brindesList, function(brinde) {
-            return (brinde.id = value);
+            return brinde.id == value;
         });
 
         if (item.length > 0) {
@@ -197,7 +228,7 @@ $(function() {
     // Dispara adicionar top brindes nacional
 
     $("#modal-atribuir .modal-footer #confirmar").on("click", function() {
-        $("#modal-atribuir").modal('hide');
+        $("#modal-atribuir").modal("hide");
         setTopBrindeNacional(brindesSelectedItem.id);
     });
 
