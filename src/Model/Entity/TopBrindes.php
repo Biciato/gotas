@@ -12,7 +12,6 @@ use Cake\ORM\Entity;
  * @property int $brindes_id
  * @property int $posicao
  * @property string $tipo
- * @property bool $habilitado
  * @property \Cake\I18n\FrozenTime $data
  * @property int $audit_user_insert_id
  * @property \Cake\I18n\FrozenTime $audit_insert

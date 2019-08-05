@@ -375,7 +375,7 @@ $(function() {
 
         if (formData !== undefined) {
             var type = "POST";
-            var url = "/api/categorias_brindes/save_categorias_brindes";
+            var url = "/api/categorias_brindes/set_categorias_brindes";
 
             if ($("#id").val() > 0) {
                 type = "PUT";

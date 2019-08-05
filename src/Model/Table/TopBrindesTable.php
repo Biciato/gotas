@@ -7,6 +7,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use DateTime;
+use App\Model\Entity\TopBrindes;
+use Cake\Log\Log;
+use Exception;
 
 /**
  * TopBrindes Model
@@ -42,16 +45,19 @@ class TopBrindesTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsTo('Rede', [
+            "className" => "Redes",
             'foreignKey' => 'redes_id',
-            'joinType' => 'INNER'
+            'joinType' => Query::JOIN_TYPE_INNER
         ]);
         $this->belongsTo('Cliente', [
+            "className" => "Clientes",
             'foreignKey' => 'clientes_id',
-            'joinType' => 'INNER'
+            'joinType' => Query::JOIN_TYPE_INNER
         ]);
         $this->belongsTo('Brinde', [
+            "className" => "Brindes",
             'foreignKey' => 'brindes_id',
-            'joinType' => 'INNER'
+            'joinType' => Query::JOIN_TYPE_INNER
         ]);
         $this->belongsTo('UsuarioCadastro', [
             "className" => "Usuarios",
@@ -78,10 +84,6 @@ class TopBrindesTable extends Table
         $validator
             ->scalar('tipo')
             ->allowEmpty('tipo');
-
-        $validator
-            ->boolean('habilitado')
-            ->allowEmpty('habilitado');
 
         $validator
             ->dateTime('data')
@@ -126,14 +128,13 @@ class TopBrindesTable extends Table
      * @param integer $brindesId Brindes Id
      * @param integer $posicao Posicao (Máx 4)
      * @param string $tipo Tipo ("Nacional", "Posto")
-     * @param boolean $habilitado Habilitado
      * @param DateTime $dataMin Data Mínima de criação
      * @param DateTime $dataMax Data Maxima de criação
      * @param integer $usuarioAudiInsert Usuario Audi Insert
      * 
      * @return App\Model\Entity\TopBrindes $brinde
      */
-    public function getTopBrindes(int $redesId, int $clientesId = null, int $brindesId = null, int $posicao = null, string $tipo = null, bool $habilitado = null, DateTime $dataMin, DateTime $dataMax, int $usuarioAudiInsert)
+    public function getTopBrindes(int $redesId, int $clientesId = null, int $brindesId = null, int $posicao = null, string $tipo = null, DateTime $dataMin = null, DateTime $dataMax = null, int $usuarioAudiInsert = null)
     {
         try {
             $where = [];
@@ -154,10 +155,6 @@ class TopBrindesTable extends Table
 
             if (!empty($tipo)) {
                 $where[] = ["TopBrindes.tipo" => $tipo];
-            }
-
-            if (isset($habilitado)) {
-                $where[] = ["TopBrindes.habilitado" => $habilitado];
             }
 
             if (!empty($dataMin)) {
@@ -181,9 +178,64 @@ class TopBrindesTable extends Table
         }
     }
 
+    /**
+     * Obtem Top Brindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     * 
+     * @param integer $redesId Redes Id
+     * @param integer $clientesId Clientes Id
+     * @param string $tipo Tipo ("Nacional", "Posto")
+     * 
+     * @return int $count
+     */
+    public function countTopBrindes(int $redesId, int $clientesId = null, string $tipo = null)
+    {
+        try {
+            $where = [];
+
+            $where[] = ["TopBrindes.redes_id" => $redesId];
+
+            if (!empty($clientesId)) {
+                $where[] = ["TopBrindes.clientes_id" => $clientesId];
+            }
+
+            if (!empty($tipo)) {
+                $where[] = ["TopBrindes.tipo" => $tipo];
+            }
+
+            return $this->find()->where($where)->count();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
     #endregion
 
     #region Save
+
+    /**
+     * Salva um registro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     *
+     * @param TopBrindes $topBrinde Entidade
+     *
+     * @return TopBrindes $topBrinde Entidade salva com Id
+     */
+    public function saveUpdate(TopBrindes $topBrinde)
+    {
+        try {
+            return $this->save($topBrinde);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
 
     #endregion
 

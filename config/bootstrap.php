@@ -443,8 +443,18 @@ const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID d
 #region Redes
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
-
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
+
+#endregion
+
+#region Top Brindes
+
+const MESSAGE_TOP_BRINDES_MAX = 4;
+const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";
+const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
+const TOP_BRINDES_TYPE_NATIONAL = 'Nacional';
+const TOP_BRINDES_TYPE_LOCAL = 'Posto';
+
 
 #endregion
 

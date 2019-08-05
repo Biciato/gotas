@@ -116,10 +116,10 @@ Router::scope("/api", function ($routes) {
                     "method" => "GET",
                     "path" => "/get_categorias_brindes"
                 ],
-                "saveCategoriasBrindes" => [
-                    "action" => "saveCategoriasBrindesAPI",
+                "setCategoriasBrindes" => [
+                    "action" => "setCategoriasBrindesAPI",
                     "method" => "POST",
-                    "path" => "/save_categorias_brindes"
+                    "path" => "/set_categorias_brindes"
                 ],
                 "updateCategoriasBrindes" => [
                     "action" => "updateCategoriasBrindesAPI",
@@ -288,6 +288,21 @@ Router::scope("/api", function ($routes) {
             )
         )
 
+    ]);
+
+    $routes->resources("TopBrindes", [
+        "map" => [
+            "getTopBrindesNacionalAPI" => [
+                "action" => "getTopBrindesNacionalAPI",
+                "method" => "GET",
+                "path" => "get_top_brindes_nacional"
+            ],
+            "setTopBrindeNacionalAPI" => [
+                "action" => "setTopBrindeNacionalAPI",
+                "method" => "POST",
+                "path" => "set_top_brinde_nacional"
+            ]
+        ]
     ]);
 
     $routes->resources("Transportadoras", [

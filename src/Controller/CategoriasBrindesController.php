@@ -189,7 +189,7 @@ class CategoriasBrindesController extends AppController
         ResponseUtil::successAPI("Sucesso", $dataRetorno);
     }
 
-    public function saveCategoriasBrindesAPI()
+    public function setCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -223,9 +223,11 @@ class CategoriasBrindesController extends AppController
 
             $categoriaBrinde = $this->CategoriasBrindes->saveUpdate($categoriaBrinde);
 
-            if ($categoriaBrinde) {
-                ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['categoria_brinde' => $categoriaBrinde]);
+            if (!$categoriaBrinde) {
+                throw new Exception(implode("\n", $categoriaBrinde->errors()));
             }
+
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['categoria_brinde' => $categoriaBrinde]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
