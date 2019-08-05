@@ -339,13 +339,12 @@ class CategoriasBrindesController extends AppController
             }
 
             $success = $this->CategoriasBrindes->updateStatusCategoriasBrindes($categoriaBrinde->id, $habilitado);
-            
+
             if (!$success) {
                 throw new Exception(MESSAGE_DELETE_ERROR);
             }
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
-
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $th->getMessage());
             Log::write("error", $message);
@@ -353,6 +352,7 @@ class CategoriasBrindesController extends AppController
             return ResponseUtil::errorAPI(MESSAGE_SAVED_ERROR, [$th->getMessage()]);
         }
     }
+    
     public function deleteCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();

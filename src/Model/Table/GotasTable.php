@@ -238,7 +238,9 @@ class GotasTable extends GenericTable
             $conditionsSql = array();
 
             $conditionsSql[] = [
-                'clientes_id IN ' => $clientesIds
+                'clientes_id IN ' => $clientesIds,
+                // Exibir somente cadastro manual
+                "tipo_cadastro" => 0
             ];
 
             foreach ($whereConditions as $key => $value) {

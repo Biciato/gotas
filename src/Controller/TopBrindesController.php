@@ -233,5 +233,10 @@ class TopBrindesController extends AppController
         }
     }
 
+    public function setPosicoesTopBrindesNacionalAPI()
+    {
+        # code...
+    }
+
     #endregion
 }

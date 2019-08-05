@@ -420,7 +420,7 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 #region Gotas
 
 // Nome Comum Gota Bonificacao
-const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO SEFAZ";
+const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
 
