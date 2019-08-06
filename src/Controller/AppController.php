@@ -70,7 +70,7 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this::chooseDatabaseConnection();
+        // $this::chooseDatabaseConnection();
 
         $this->loadComponent(
             'Auth',

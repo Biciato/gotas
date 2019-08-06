@@ -250,6 +250,11 @@ class ClientesController extends AppController
 
                 $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
 
+                // Adiciona o funcionário de sistema como o primeiro funcionário da rede
+                // Ele será necessário para funções automáticas de venda de brinde via API
+                $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
+
                 $this->Flash->success(__("Registro gravado com sucesso."));
 
                 return $this->redirect(
