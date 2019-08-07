@@ -235,7 +235,54 @@ class TopBrindesController extends AppController
 
     public function setPosicoesTopBrindesNacionalAPI()
     {
-        # code...
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            $topBrindes = [];
+
+            if ($this->request->is("put")) {
+                $data = $this->request->getData();
+
+                $topBrindes = $data["top_brindes"] ?? [];
+            }
+
+            if (count($topBrindes) == 0) {
+                throw new Exception(MESSAGE_TOP_BRINDES_ITEMS_REQUIRED);
+            }
+
+            $topBrindesReajustarList = [];
+
+            foreach ($topBrindes as $brindeReajuste) {
+                $topBrinde = $this->TopBrindes->get($brindeReajuste["id"]);
+
+                if ($topBrinde->posicao != $brindeReajuste["posicao"]) {
+                    $topBrinde->posicao = $brindeReajuste["posicao"];
+                    $topBrinde = new TopBrindes($topBrinde->toArray());
+                    $topBrindesReajustarList[] = $topBrinde;
+                }
+            }
+
+            foreach ($topBrindesReajustarList as $topBrindesSave) {
+                $this->TopBrindes->saveUpdate($topBrindesSave);
+            }
+
+            return ResponseUtil::success(MESSAGE_SAVED_SUCCESS);
+            
+
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+        }
     }
 
     #endregion

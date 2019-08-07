@@ -449,6 +449,7 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 #region Top Brindes
 
+const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
 const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";

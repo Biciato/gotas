@@ -1,10 +1,22 @@
 .box-container{
     /* height: 400px; */
     width: 400px;
-    background-color: #e8e8e8;
+    /* background-color: #e8e8e8; */
     border: 1px color black;
     /* border-radius: 2px; */
     /* position: relative; */
+}
+
+.box-details {
+  /* display: none; */
+  
+}
+
+.img-top-brindes-details {
+  max-width: 300px;
+  max-height: 240px;
+  display: block;
+  position: absolute;
 }
 
 .top-brindes-box-items-parent {
@@ -13,7 +25,7 @@
 }
 
 .top-brindes-box-items-parent .top-brindes-box-items {
-    background-color: #dcd6fa;
+    /* background-color: #dcd6fa; */
     border: 2px solid black;
     /* height: 260px; */
     width: 303px;

@@ -304,7 +304,7 @@ Router::scope("/api", function ($routes) {
             ],
             "setPosicoesTopBrindesNacionalAPI" => [
                 "action" => "setPosicoesTopBrindesNacionalAPI",
-                "method" => "POST",
+                "method" => "PUT",
                 "path" => "set_posicoes_top_brindes_nacional"
             ]
         ]

@@ -24,43 +24,56 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <legend><?= $title ?></legend>
 
-        <div id="items" class="box-container">
-            <legend>Top Brindes Nacional Cadastrados</legend>
-            <div id="box-parent" class="top-brindes-box-items-parent">
-                <ul class="top-brindes-box-items" id="top-brindes-box-items" name="top-brindes-box-items">
-                    <!-- <li class="item-box" name="item-box1" id="item-box1">1</li>
-                    <li class="item-box" name="item-box2" id="item-box2">2</li>
-                    <li class="item-box" name="item-box3" id="item-box3">3</li>
-                    <li class="item-box" name="item-box4" id="item-box4">4</li> -->
-                </ul>
+        <div id="items">
+            <div class="box-container col-lg-4">
+                <h4 class="text-center">Top Brindes Nacional Cadastrados</>
+                    <div id="box-parent" class="top-brindes-box-items-parent">
+                        <ul class="top-brindes-box-items" id="top-brindes-box-items" name="top-brindes-box-items">
+                            <!-- <li class="item-box" name="item-box1" id="item-box1">1</li>
+                        <li class="item-box" name="item-box2" id="item-box2">2</li>
+                        <li class="item-box" name="item-box3" id="item-box3">3</li>
+                        <li class="item-box" name="item-box4" id="item-box4">4</li> -->
+                        </ul>
+                    </div>
+            </div>
+
+            <div class="col-lg-8 top-brindes-details">
+                <h4>Dados do Top Brinde</h4>
+                <label for="nome">Nome do Brinde: </label>
+                <input type="text" class="disabled form-control" disabled="disabled" readonly value="" id="nome-top-brindes">
+                <label for="img">Imagem</label>
+                <img src="" alt="" class="img-top-brindes-details">
+
+                <div class="form-group text-right">
+                    <div class="btn btn-danger"> <i class="fa fa-trash"></i> Excluir</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="form-vinculo" class="form-vinculo">
-        <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
-        <label for="postos_rede">Lista de Unidades:</label>
-        <select name="postos_rede" id="postos-rede" class="form-control"></select>
+<div id="form-vinculo" class="form-vinculo">
+    <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
+    <label for="postos_rede">Lista de Unidades:</label>
+    <select name="postos_rede" id="postos-rede" class="form-control"></select>
 
-        <div class="form-group">
-            <div class="brindes-container">
-                <h4>Brindes do Posto:</h4>
-                <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="brindes-list">
-                    <thead>
-                        <tr>
-                            <th>Imagem</th>
-                            <th>Descrição</th>
-                            <th>Definir</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
+    <div class="form-group">
+        <div class="brindes-container">
+            <h4>Brindes do Posto:</h4>
+            <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="brindes-list">
+                <thead>
+                    <tr>
+                        <th>Imagem</th>
+                        <th>Descrição</th>
+                        <th>Definir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
-
-
+</div>
 </div>
 
 

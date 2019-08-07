@@ -1,11 +1,15 @@
 $(function() {
-    var items = [];
     var brindesList = [];
     var brindesSelectedItem = {};
     var brindesSelectList = $("#brindes-list tbody");
     var clientesList = [];
     var clientesSelectListBox = $("#postos-rede");
     var clienteSelectedItem = {};
+    var topBrindesSelectedItem = {};
+    var topBrindesList = [];
+    var topBrindesElementSortable = [];
+    var topBrindesSortableStart = [];
+    var topBrindesSortableFinish = [];
     var topBrindesSortable = $(".top-brindes-box-items");
 
     // #region Functions
@@ -14,68 +18,66 @@ $(function() {
      * Habilita sortable
      */
     $(".top-brindes-box-items").sortable({
+        start: function(event, ui) {
+            topBrindesSortableStart = getCurrentItemsSortable(".top-brindes-box-items");
+        },
         stop: function(event, ui) {
-            items = $(".top-brindes-box-items").sortable("toArray");
+            topBrindesSortableFinish = getCurrentItemsSortable(".top-brindes-box-items");
 
-            var itemsPosition = [];
-            var position = 1;
-            items.forEach(element => {
-                var id = $("#" + element).val();
-
-                var item = {
-                    id: id,
-                    posicao: position
-                };
-                position++;
-
-                itemsPosition.push(item);
-            });
-
+            var itemsSortableSend = compareItemsSortable(topBrindesSortableStart, topBrindesSortableFinish);
             // Executa rearrange de posições
 
-            $.ajax({
-                type: "PUT",
-                url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
-                data: itemsPosition,
-                dataType: "JSON",
-                success: function (response) {
-                    
-                }
-            });
-            console.log(itemsPosition);
+            if (itemsSortableSend.length > 0) {
+                setPosicaoTopBrindes(itemsSortableSend);
+            }
         }
     });
+    $(".top-brindes-box-items").on("click", "li", function(){
+        var item = this.value;
 
-    var setTopBrindeNacional = function(e) {
-        callLoaderAnimation("Aguarde, atribuindo Top Brinde...");
-        $.ajax({
-            type: "POST",
-            url: "/api/top_brindes/set_top_brinde_nacional",
-            data: { brindes_id: e },
-            dataType: "JSON",
-            success: function(response) {},
-            error: function(response) {
-                closeLoaderAnimation();
+        var t = $.grep(topBrindesList, function (is){
+            return is.id == item;
+        })
 
-                var error = response.responseJSON.mensagem;
-                callModalError(error.message, error.errors);
-            },
-            complete: function(response) {
-                closeLoaderAnimation();
+        if (t.length > 0) {
+            t = t[0];
+        }
+        topBrindesSelectedItem = t;
 
-                // Fecha tela de adicionar e recarrega tela principal
-                showMainScreen();
-                getBrindesNacional();
+        showEditTopBrinde(topBrindesSelectedItem);
+    });
+
+    /**
+     * nacional.js::compareItemsSortable
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-06
+     *
+     * @param {array} list1 Lista 1 de comparação
+     * @param {array} list2 Lista 2 de comparação
+     *
+     * @returns {array} List Lista com valores diferentes
+     */
+    var compareItemsSortable = function(list1, list2) {
+        // as listas terão sempre o mesmo tamanho
+        var indexCheck = 0;
+        var maxCheck = list1.length;
+        var itemsSend = [];
+        var item1 = null;
+        var item2 = null;
+
+        for (indexCheck = 0; indexCheck < maxCheck; indexCheck++) {
+            item1 = list1[indexCheck];
+            item2 = list2[indexCheck];
+            if (!Object.is(JSON.stringify(item1), JSON.stringify(item2))) {
+                itemsSend.push(item2);
             }
-        });
+        }
+
+        return itemsSend;
     };
 
-    var showMainScreen = function() {
-        $("#dados").fadeIn(100);
-        $("#form-vinculo").fadeOut(100);
-    };
-
-    var getBrindesNacional = function() {
+    var getTopBrindesNacional = function() {
         callLoaderAnimation("Aguarde... Obtendo Top Brindes...");
         var data = {};
 
@@ -108,6 +110,8 @@ $(function() {
                 topBrindesSortable.empty();
 
                 var count = 0;
+                var rows = [];
+
                 data.forEach(element => {
                     var item = {};
 
@@ -130,7 +134,10 @@ $(function() {
                     topBrindesSortable.append(template);
 
                     count++;
+                    rows.push(item);
                 });
+
+                topBrindesList = rows;
             }
         });
     };
@@ -200,6 +207,84 @@ $(function() {
         }
     };
 
+    var getCurrentItemsSortable = function(elementClass) {
+        topBrindesElementSortable = $(elementClass).sortable("toArray");
+
+        var itemsPosition = [];
+        var position = 1;
+        topBrindesElementSortable.forEach(element => {
+            var id = $("#" + element).val();
+
+            var item = {
+                id: id,
+                posicao: position
+            };
+            position++;
+
+            itemsPosition.push(item);
+        });
+
+        return itemsPosition;
+    };
+
+    var setTopBrindeNacional = function(e) {
+        callLoaderAnimation("Aguarde, atribuindo Top Brinde...");
+        $.ajax({
+            type: "POST",
+            url: "/api/top_brindes/set_top_brinde_nacional",
+            data: { brindes_id: e },
+            dataType: "JSON",
+            success: function(response) {},
+            error: function(response) {
+                closeLoaderAnimation();
+
+                var error = response.responseJSON.mensagem;
+                callModalError(error.message, error.errors);
+            },
+            complete: function(response) {
+                closeLoaderAnimation();
+
+                // Fecha tela de adicionar e recarrega tela principal
+                showMainScreen();
+                getTopBrindesNacional();
+            }
+        });
+    };
+
+    /**
+     * nacional.js::setPosicaoTopBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-06
+     *
+     * @param {array} itemsToSend Lista para guardar (estrutura: [{ id: id, posicao: posicao}])
+     *
+     * @returns void
+     */
+    var setPosicaoTopBrindes = function(itemsToSend) {
+        callLoaderAnimation("Aguarde, reajustando...");
+        $.ajax({
+            type: "PUT",
+            url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
+            data: {
+                top_brindes: itemsToSend
+            },
+            dataType: "JSON",
+            success: function(response) {},
+            error: function(response) {
+                closeLoaderAnimation();
+            },
+            complete: function(response) {
+                closeLoaderAnimation();
+            }
+        });
+    };
+
+    var showMainScreen = function() {
+        $("#dados").fadeIn(100);
+        $("#form-vinculo").fadeOut(100);
+    };
+
     var showAddTopBrinde = function() {
         var value = this.value;
         var item = $.grep(brindesList, function(brinde) {
@@ -218,12 +303,15 @@ $(function() {
         $("#modal-atribuir .modal-footer #confirmar").val(item.id);
     };
 
+    var showEditTopBrinde = function (topBrinde){
+
+        $(".top-brindes-details").fadeIn(200);
+
+        $(".img-top-brindes-details").attr("src", topBrinde.img);
+    }
+
     // Exibe modal brindes top nacional
-    $("#brindes-list tbody").on(
-        "click",
-        ".botao-add-top-brinde",
-        showAddTopBrinde
-    );
+    $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showAddTopBrinde);
 
     // Dispara adicionar top brindes nacional
 
@@ -298,16 +386,6 @@ $(function() {
 
     clientesSelectListBox.on("change", clientesSelectOnChange);
 
-    $(items).on("change", function(e) {
-        console.log(e);
-    });
-
-    items = [
-        {
-            id: 0
-        }
-    ];
-
     // Mostra Form de vinculação de top Brinde
     var showNew = function(e) {
         $("#dados").fadeOut(100);
@@ -323,5 +401,5 @@ $(function() {
     // Left Bar
     $("#novo").on("click", showNew);
 
-    getBrindesNacional();
+    getTopBrindesNacional();
 });
