@@ -1,6 +1,6 @@
 .box-container{
     /* height: 400px; */
-    width: 400px;
+    /* width: 400px; */
     /* background-color: #e8e8e8; */
     border: 1px color black;
     /* border-radius: 2px; */
@@ -12,11 +12,17 @@
   
 }
 
-.img-top-brindes-details {
+.top-brindes-details {
+  overflow-y: auto;
+  height: 100%;
+  min-height: 500px;
+}
+
+.top-brindes-details-img {
   max-width: 300px;
   max-height: 240px;
   display: block;
-  position: absolute;
+  /* position: absolute; */
 }
 
 .top-brindes-box-items-parent {

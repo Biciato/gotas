@@ -44,7 +44,7 @@ $(function() {
         }
         topBrindesSelectedItem = t;
 
-        showEditTopBrinde(topBrindesSelectedItem);
+        showDetailsTopBrinde(topBrindesSelectedItem);
     });
 
     /**
@@ -303,11 +303,13 @@ $(function() {
         $("#modal-atribuir .modal-footer #confirmar").val(item.id);
     };
 
-    var showEditTopBrinde = function (topBrinde){
+    var showDetailsTopBrinde = function (topBrinde){
 
         $(".top-brindes-details").fadeIn(200);
 
-        $(".img-top-brindes-details").attr("src", topBrinde.img);
+        $("#top-brindes-details-nome").val(topBrinde.nome);
+        $(".top-brindes-details-img").attr("src", topBrinde.img);
+
     }
 
     // Exibe modal brindes top nacional

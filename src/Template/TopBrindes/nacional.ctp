@@ -11,7 +11,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
-<nav class="col-lg-3 col-md-2" id="actions-sidebar">
+<nav class="col-lg-3 col-md-2 " id="actions-sidebar">
     <ul class="nav nav-pills nav-stacked">
         <li class="active"><a><?= __('Ações') ?></a></li>
         <li>
@@ -19,7 +19,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </li>
     </ul>
 </nav>
-<div class="clientes index col-lg-9 col-md-10 columns content">
+<div class="clientes index col-lg-9 col-md-10 columns content container-fluid">
     <div id="dados">
 
         <legend><?= $title ?></legend>
@@ -39,12 +39,23 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
             <div class="col-lg-8 top-brindes-details">
                 <h4>Dados do Top Brinde</h4>
-                <label for="nome">Nome do Brinde: </label>
-                <input type="text" class="disabled form-control" disabled="disabled" readonly value="" id="nome-top-brindes">
-                <label for="img">Imagem</label>
-                <img src="" alt="" class="img-top-brindes-details">
+                <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label for="top-brindes-details-nome">Nome do Brinde: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="top-brindes-details-nome" id="top-brindes-details-nome">
 
-                <div class="form-group text-right">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="nome">Tipo de Venda: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" id="top-brindes-details-tipo-venda">
+                    </div>
+                    <div class="col-lg-12">
+                        <label for="top-brindes-details-img">Imagem</label>
+                        <img src="" alt="" class="top-brindes-details-img img-fluid" name="top-brindes-details-img" id="top-brindes-details-img">
+                    </div>
+                </div>
+
+                <div class="form-group row text-right">
                     <div class="btn btn-danger"> <i class="fa fa-trash"></i> Excluir</div>
                 </div>
             </div>
