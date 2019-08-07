@@ -292,6 +292,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("TopBrindes", [
         "map" => [
+            "deleteTopBrindesAPI" => [
+                "action" => "deleteTopBrindesAPI",
+                "method" => "DELETE",
+                "path" => "delete_top_brindes"
+            ],
             "getTopBrindesNacionalAPI" => [
                 "action" => "getTopBrindesNacionalAPI",
                 "method" => "GET",

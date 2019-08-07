@@ -46,9 +46,21 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                     </div>
                     <div class="col-lg-6">
-                        <label for="nome">Tipo de Venda: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" id="top-brindes-details-tipo-venda">
+                        <label for="tipo-venda">Tipo de Venda: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="tipo-venda" id="top-brindes-details-tipo-venda">
                     </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label for="status-estoque">Status Estoque: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="status-estoque" id="top-brindes-details-esgotado">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="ilimitado">Ilimitado: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="ilimitado" id="top-brindes-details-ilimitado">
+                    </div>
+                </div>
+                <div class="form-group row">
                     <div class="col-lg-12">
                         <label for="top-brindes-details-img">Imagem</label>
                         <img src="" alt="" class="top-brindes-details-img img-fluid" name="top-brindes-details-img" id="top-brindes-details-img">
@@ -56,36 +68,37 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 </div>
 
                 <div class="form-group row text-right">
-                    <div class="btn btn-danger"> <i class="fa fa-trash"></i> Excluir</div>
+                    <div class="btn btn-danger" id='top-brindes-details-delete'> <i class="fa fa-trash"></i> Excluir</div>
+                    <div class="btn btn-primary" id='top-brindes-details-cancel'> <i class="fa fa-close"></i> Cancelar</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="form-vinculo" class="form-vinculo">
+        <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
+        <label for="postos_rede">Lista de Unidades:</label>
+        <select name="postos_rede" id="postos-rede" class="form-control"></select>
+
+        <div class="form-group">
+            <div class="brindes-container">
+                <h4>Brindes do Posto:</h4>
+                <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="brindes-list">
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Descrição</th>
+                            <th>Definir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<div id="form-vinculo" class="form-vinculo">
-    <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
-    <label for="postos_rede">Lista de Unidades:</label>
-    <select name="postos_rede" id="postos-rede" class="form-control"></select>
-
-    <div class="form-group">
-        <div class="brindes-container">
-            <h4>Brindes do Posto:</h4>
-            <table class="table table-striped table-hover table-condensed table-responsive brindes-list" id="brindes-list">
-                <thead>
-                    <tr>
-                        <th>Imagem</th>
-                        <th>Descrição</th>
-                        <th>Definir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-</div>
 
 
 <div id="modal-atribuir" class="modal fade" tabindex="-1">

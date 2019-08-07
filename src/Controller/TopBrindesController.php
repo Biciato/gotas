@@ -134,6 +134,64 @@ class TopBrindesController extends AppController
 
     #region REST Services
 
+    public function deleteTopBrindesAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            $id = 0;
+
+            if ($this->request->is("delete")) {
+                $data = $this->request->getData();
+
+                $id = $data["id"] ?? null;
+            }
+
+            if (empty($id)) {
+                throw new Exception(MESSAGE_ID_EMPTY);
+            }
+
+            $topBrinde = $this->TopBrindes->get($id);
+
+            if ($topBrinde->redes_id != $rede->id) {
+                throw new Exception(MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK);
+            }
+
+            $success = $this->TopBrindes->delete($topBrinde);
+
+            if (!$success) {
+                throw new Exception(MESSAGE_CONTACT_SUPPORT);
+            }
+
+            return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_DELETE_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_DELETE_EXCEPTION, [$th->getMessage()]);
+        }
+    }
+
+    /**
+     * TopBrindesController::getTopBrindesNacionalAPI
+     * 
+     * Obtem Top Brindes Nacional
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     *
+     * @param $data['brindes_id'] Id de Brinde 
+     * 
+     * @return json_encode $response success|fail Resposta 
+     */
     public function getTopBrindesNacionalAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -156,6 +214,14 @@ class TopBrindesController extends AppController
             }
 
             $topBrindesNacional = $this->TopBrindes->getTopBrindes($rede->id, null, null, null, TOP_BRINDES_TYPE_NATIONAL);
+
+            // Verifica se o brinde está esgotado ou não
+
+            foreach ($topBrindesNacional as $topBrinde) {
+                $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($topBrinde->brinde->id);
+
+                $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
+            }
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['top_brindes' => $topBrindesNacional]);
         } catch (\Throwable $th) {
@@ -233,6 +299,16 @@ class TopBrindesController extends AppController
         }
     }
 
+    /**
+     * TopBrindesController::setPosicoesTopBrindesNacionalAPI
+     * 
+     * Define as posições dos top brindes nacionais
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-07
+     *
+     * @return json_encode $response success|fail Resposta 
+     */
     public function setPosicoesTopBrindesNacionalAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -275,8 +351,6 @@ class TopBrindesController extends AppController
             }
 
             return ResponseUtil::success(MESSAGE_SAVED_SUCCESS);
-            
-
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
