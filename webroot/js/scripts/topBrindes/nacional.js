@@ -1,3 +1,4 @@
+'use strict';
 $(function() {
     var brindesList = [];
     var brindesSelectedItem = {};
@@ -15,7 +16,14 @@ $(function() {
     // #region Functions
 
     /**
+     * nacional.js::top-brindes-box-items.sortable()
+     * 
      * Habilita sortable
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     * 
+     * @returns void
      */
     $(".top-brindes-box-items").sortable({
         start: function(event, ui) {
@@ -39,6 +47,17 @@ $(function() {
             }
         }
     });
+
+    /**
+     * nacional.js::top-brindes-box-items.onClick
+     * 
+     * pega o objeto selecionado e exibe os detalhes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     * 
+     * @returns void
+     */
     $(".top-brindes-box-items").on("click", "li", function() {
         var item = this.value;
 
@@ -49,10 +68,31 @@ $(function() {
         if (t.length > 0) {
             t = t[0];
         }
+        
         topBrindesSelectedItem = t;
 
-        showDetailsTopBrinde(topBrindesSelectedItem);
+        showTopBrindeDetails(topBrindesSelectedItem);
     });
+
+    /**
+     * nacional.js::clientesSelectOnChange
+     * 
+     * Dispara event ao selecionar cliente
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-06
+     *
+     * @param {Event} e
+     * 
+     * @returns void
+     */
+    var clientesSelectOnChange = function(e) {
+        callLoaderAnimation("Obtendo brindes de unidade...");
+
+        var clientesId = e.target.value;
+        closeLoaderAnimation();
+        getBrindesPosto(clientesId);
+    };
 
     /**
      * nacional.js::compareItemsSortable
@@ -85,15 +125,17 @@ $(function() {
     };
 
     /**
+     * nacional.js::closeTopBrindesDetails
+     * 
      * Fecha a tela de detalhes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-07
+     * 
+     * @returns void
      */
     var closeTopBrindesDetails = function() {
         $(".top-brindes-details").fadeOut(500);
-    };
-
-    var confirmTopBrindesDelete = function() {
-        $("#modal-remover #nome-registro").text(topBrindesSelectedItem.nome);
-        $("#modal-remover").modal();
     };
 
     /**
@@ -107,12 +149,10 @@ $(function() {
      * @returns void
      */
     var deleteTopBrinde = function() {
-
         $("#modal-remover").modal("hide");
 
-        callLoaderAnimation();
-
         if(topBrindesSelectedItem !== undefined && topBrindesSelectedItem.id > 0) {
+            callLoaderAnimation();
             var data = { id: topBrindesSelectedItem.id };
 
             $.ajax({
@@ -123,9 +163,7 @@ $(function() {
                 success: function(response) {
                     closeLoaderAnimation();
                     callModalGeneric(response.mensagem.message);
-
                     getTopBrindesNacional();
-
                     closeTopBrindesDetails();
                 },
                 error: function(response) {
@@ -136,15 +174,23 @@ $(function() {
                         callModalError(error.message, error.errors);
                     } else {
                         error = response.responseJSON;
-
                         callModalError(error.message, []);
                     }
                 }
             });
         }
-
     };
 
+    /**
+     * nacional.js::getTopBrindesNacional
+     * 
+     * Obtem Top Brindes Nacional
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     * @since 2019-08-06
+     * 
+     * @returns void
+     */
     var getTopBrindesNacional = function() {
         callLoaderAnimation("Aguarde... Obtendo Top Brindes...");
         var dataJson = {};
@@ -190,37 +236,23 @@ $(function() {
                         esgotado :element.brinde.status_estoque
                     };
 
-                    var esgotado =
-                        item.esgotado !== undefined &&
-                        item.esgotado == "Esgotado";
-
-                    var template =
-                        "<li class='item-box' name='item-box" +
-                        count +
-                        "' id='item-box" +
-                        count +
-                        "' value='" +
-                        item.id +
-                        "'>";
+                    var esgotado = item.esgotado !== undefined && item.esgotado == "Esgotado";
+                    var template = "<li class='item-box' name='item-box" + count + "' id='item-box" + count + "' value='" + item.id + "'>";
 
                     if (esgotado) {
                         // Se for esgotado, mostra a span de 'esgotado' e modifica a imagem para grayscale
-                        template +=
-                            "<span id='item-box-esgotado-" +
-                            count +
-                            "' class='item-box-esgotado-text'>" +
-                            item.esgotado +
-                            "</span>";
+                        template += "<span id='item-box-esgotado-" + count + "' class='item-box-esgotado-text'>" + item.esgotado + "</span>";
                     }
                     template += "<img src='" + item.img + "'";
+
                     if (esgotado) {
                         template += "class='item-box-esgotado-img-disabled'";
                     }
+
                     template += " />";
                     template += "</li>";
 
                     topBrindesSortable.append(template);
-
                     count++;
                     rows.push(item);
                 });
@@ -230,6 +262,18 @@ $(function() {
         });
     };
 
+    /**
+     * nacional.js::getBrindesPosto
+     * 
+     * Obtem os Brindes do Posto selecionado
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     * @since 2019-08-04
+     * 
+     * @param {int} clientesId Id de Clientes selecionado (Posto)
+     * 
+     * @returns void
+     */
     var getBrindesPosto = function(clientesId) {
         brindesSelectList.empty();
 
@@ -248,8 +292,16 @@ $(function() {
                 error: function(response) {
                     closeLoaderAnimation();
 
+                    console.log(response);
                     var error = response.responseJSON.mensagem;
-                    callModalError(error.message, error.errors);
+    
+                    if (error !== undefined) {
+                        callModalError(error.message, error.errors);
+                    } else {
+                        error = response.responseJSON;
+    
+                        callModalError(error.message, []);
+                    }
                 },
                 success: function(response) {
                     closeLoaderAnimation();
@@ -272,183 +324,74 @@ $(function() {
                         var esgotado = item.esgotado !== undefined && item.esgotado == "Esgotado";
 
                         var template = "<tr><td>";
+
                         if (esgotado) {
                             // Se for esgotado, mostra a span de 'esgotado' e modifica a imagem para grayscale
-                            template +=
-                                "<span class='brindes-postos-img-text-esgotado'>" + item.esgotado + "</span>";
+                            template += "<span class='brindes-postos-img-text-esgotado'>" + item.esgotado + "</span>";
                         }
                         template += "<img src='" + item.img + "' ";
+
                         if (esgotado) {
                             template += "class='brindes-postos-img-esgotado-disabled'";
                         }
+
                         template += "</td>";
-                        template +=
-                            "<td><div class='text'> <strong>" +
-                            item.nome +
-                            "</strong></div> </td>";
-                        template +=
-                            "<td><div class='text'> <strong>" +
-                            item.precoGotas +
-                            "</strong></div> </td>";
-                        template +=
-                            "<td><div class='text'> <strong>" +
-                            item.precoReaisFormatado +
-                            "</strong></div> </td>";
-                        template +=
-                            "<td><button class='btn btn-primary botao-add-top-brinde'  value='" +
-                            item.id +
-                            "' ><i class='fa fa-check'></i></<button></td>";
+                        template += "<td><div class='text'> <strong>" + item.nome + "</strong></div> </td>";
+                        template +=  "<td><div class='text'> <strong>" + item.precoGotas + "</strong></div> </td>";
+                        template +=  "<td><div class='text'> <strong>" + item.precoReaisFormatado + "</strong></div> </td>";
+                        template += "<td><button class='btn btn-primary botao-add-top-brinde'  value='" + item.id + "' ><i class='fa fa-check'></i></<button></td>";
                         template += "</tr>";
                         itemsBrindes.push(item);
                         rowsTemplate.push(template);
                     });
 
                     brindesList = itemsBrindes;
-
                     brindesSelectList.append(rowsTemplate);
                 }
             });
         }
     };
 
+    /**
+     * nacional.js::getCurrentItemsSortable
+     * 
+     * Obtem o top brinde selecionado atualmente
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     * @since 2019-08-06
+     * 
+     * @param {int} clientesId Id de Clientes selecionado (Posto)
+     * 
+     * @returns void
+     */
     var getCurrentItemsSortable = function(elementClass) {
         topBrindesElementSortable = $(elementClass).sortable("toArray");
-
-        var itemsPosition = [];
         var position = 1;
+        var itemsPosition = [];
+
         topBrindesElementSortable.forEach(element => {
             var id = $("#" + element).val();
-
             var item = {
                 id: id,
                 posicao: position
             };
-            position++;
 
             itemsPosition.push(item);
+            position++;
         });
 
         return itemsPosition;
     };
 
-    var setTopBrindeNacional = function(e) {
-        callLoaderAnimation("Aguarde, atribuindo Top Brinde...");
-        $.ajax({
-            type: "POST",
-            url: "/api/top_brindes/set_top_brinde_nacional",
-            data: { brindes_id: e },
-            dataType: "JSON",
-            success: function(response) {
-                closeLoaderAnimation();
-
-                // Fecha tela de adicionar e recarrega tela principal
-                showMainScreen();
-                getTopBrindesNacional();
-            },
-            error: function(response) {
-                closeLoaderAnimation();
-
-                var error = response.responseJSON.mensagem;
-                callModalError(error.message, error.errors);
-            }
-        });
-    };
-
     /**
-     * nacional.js::setPosicaoTopBrindes
-     *
+     * nacional.js::getPostosRede
+     * 
+     * Obtem os Postos de uma rede
+     * 
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2019-08-06
-     *
-     * @param {array} itemsToSend Lista para guardar (estrutura: [{ id: id, posicao: posicao}])
-     *
-     * @returns void
-     */
-    var setPosicaoTopBrindes = function(itemsToSend) {
-        callLoaderAnimation("Aguarde, reajustando...");
-        $.ajax({
-            type: "PUT",
-            url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
-            data: {
-                top_brindes: itemsToSend
-            },
-            dataType: "JSON",
-            success: function(response) {
-                closeLoaderAnimation();
-            },
-            error: function(response) {
-                closeLoaderAnimation();
-            }
-        });
-    };
-
-    var showMainScreen = function() {
-        $("#dados").fadeIn(100);
-        $("#form-vinculo").fadeOut(100);
-    };
-
-    var showAddTopBrinde = function() {
-        var value = this.value;
-        var item = $.grep(brindesList, function(brinde) {
-            return brinde.id == value;
-        });
-
-        if (item.length > 0) {
-            item = item[0];
-        }
-
-        brindesSelectedItem = item;
-
-        // Chama modal de atribuição
-        $("#modal-atribuir").modal();
-        $("#modal-atribuir #nome-registro").text(item.nome);
-        $("#modal-atribuir .modal-footer #confirmar").val(item.id);
-    };
-
-    /**
-     * nacional.js::showDetailsTopBrinde
-     *
-     * Exibe detalhes do Top Brinde selecionado
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * 
      * @since 2019-08-07
-     *
-     * @param {object} topBrinde Top Brinde Selecionado
-     *
      * @returns void
-     */
-    var showDetailsTopBrinde = function(topBrinde) {
-        $(".top-brindes-details").hide();
-        $(".top-brindes-details").fadeIn(500);
-        $("#top-brindes-details-img").hide();
-        $("#top-brindes-details-img").fadeIn(700);
-        $("#top-brindes-details-nome").val(topBrinde.nome);
-        $("#top-brindes-details-tipo-venda").val(topBrinde.tipoVenda);
-        $("#top-brindes-details-esgotado").val(topBrinde.esgotado);
-        $("#top-brindes-details-preco-gotas").val(topBrinde.precoGotas);
-        $("#top-brindes-details-preco-reais").val(topBrinde.precoReaisFormatado);
-        $("#top-brindes-details-ilimitado").val(
-            topBrinde.ilimitado ? "Sim" : "Não"
-        );
-        $("#top-brindes-details-img").attr("src", topBrinde.img);
-    };
-
-    // Exibe modal brindes top nacional
-    $("#brindes-list tbody").on(
-        "click",
-        ".botao-add-top-brinde",
-        showAddTopBrinde
-    );
-
-    // Dispara adicionar top brindes nacional
-
-    $("#modal-atribuir .modal-footer #confirmar").on("click", function() {
-        $("#modal-atribuir").modal("hide");
-        setTopBrindeNacional(brindesSelectedItem.id);
-    });
-
-    /**
-     *
      */
     var getPostosRede = function() {
         callLoaderAnimation();
@@ -497,14 +440,188 @@ $(function() {
         });
     };
 
-    var clientesSelectOnChange = function(e) {
-        callLoaderAnimation("Obtendo brindes de unidade...");
+    /**
+     * nacional.js::setTopBrindeNacional
+     * 
+     * Define Brinde selecionado como Top Brinde Nacional
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     * @since 2019-08-06
+     * 
+     * @param {int} brindesId Id do Brinde
+     * 
+     * @returns void
+     */
+    var setTopBrindeNacional = function(brindesId) {
+        callLoaderAnimation("Aguarde, atribuindo Top Brinde...");
+        $.ajax({
+            type: "POST",
+            url: "/api/top_brindes/set_top_brinde_nacional",
+            data: { brindes_id: brindesId },
+            dataType: "JSON",
+            success: function(response) {
+                closeLoaderAnimation();
 
-        var clientesId = e.target.value;
-        console.log(e);
-        closeLoaderAnimation();
-        getBrindesPosto(clientesId);
+                // Fecha tela de adicionar e recarrega tela principal
+                showMainScreen();
+                getTopBrindesNacional();
+            },
+            error: function(response) {
+                closeLoaderAnimation();
+
+                console.log(response);
+                var error = response.responseJSON.mensagem;
+
+                if (error !== undefined) {
+                    callModalError(error.message, error.errors);
+                } else {
+                    error = response.responseJSON;
+
+                    callModalError(error.message, []);
+                }
+            }
+        });
     };
+
+    /**
+     * nacional.js::setPosicaoTopBrindes
+     *
+     * Define posição dos topBrindes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-06
+     *
+     * @param {array} itemsToSend Lista para guardar (estrutura: [{ id: id, posicao: posicao}])
+     *
+     * @returns void
+     */
+    var setPosicaoTopBrindes = function(itemsToSend) {
+        callLoaderAnimation("Aguarde, reajustando...");
+        $.ajax({
+            type: "PUT",
+            url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
+            data: {
+                top_brindes: itemsToSend
+            },
+            dataType: "JSON",
+            success: function(response) {
+                closeLoaderAnimation();
+            },
+            error: function(response) {
+                closeLoaderAnimation();
+
+                console.log(response);
+                var error = response.responseJSON.mensagem;
+
+                if (error !== undefined) {
+                    callModalError(error.message, error.errors);
+                } else {
+                    error = response.responseJSON;
+
+                    callModalError(error.message, []);
+                }
+            }
+        });
+    };
+
+    /**
+     * nacional.js::showMainScreen
+     * 
+     * Exibe tela principal
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-08
+     * 
+     * @returns void
+     */
+    var showMainScreen = function() {
+        $("#dados").fadeIn(100);
+        $("#form-vinculo").fadeOut(100);
+    };
+
+    /**
+     * nacional.js::showTopBrindeAdd
+     * 
+     * Exibe tela de adicionar topBrindes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-08
+     * 
+     * @returns void
+     */
+    var showTopBrindeAdd = function() {
+        var value = this.value;
+        var item = $.grep(brindesList, function(brinde) {
+            return brinde.id == value;
+        });
+
+        if (item.length > 0) {
+            item = item[0];
+        }
+
+        brindesSelectedItem = item;
+
+        // Chama modal de atribuição
+        $("#modal-atribuir").modal();
+        $("#modal-atribuir #nome-registro").text(item.nome);
+        $("#modal-atribuir .modal-footer #confirmar").val(item.id);
+    };
+
+    /**
+     * nacional.js::showTopBrindeDetails
+     *
+     * Exibe detalhes do Top Brinde selecionado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-07
+     *
+     * @param {object} topBrinde Top Brinde Selecionado
+     *
+     * @returns void
+     */
+    var showTopBrindeDetails = function(topBrinde) {
+        $(".top-brindes-details").hide();
+        $(".top-brindes-details").fadeIn(500);
+        $("#top-brindes-details-img").hide();
+        $("#top-brindes-details-img").fadeIn(700);
+        $("#top-brindes-details-nome").val(topBrinde.nome);
+        $("#top-brindes-details-tipo-venda").val(topBrinde.tipoVenda);
+        $("#top-brindes-details-esgotado").val(topBrinde.esgotado);
+        $("#top-brindes-details-preco-gotas").val(topBrinde.precoGotas);
+        $("#top-brindes-details-preco-reais").val(topBrinde.precoReaisFormatado);
+        $("#top-brindes-details-ilimitado").val(
+            topBrinde.ilimitado ? "Sim" : "Não"
+        );
+        $("#top-brindes-details-img").attr("src", topBrinde.img);
+    };
+
+    /**
+     * nacional.js::showTopBrindesModalDelete
+     * 
+     * Exibe Modal de Remoção Top Brindes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-07
+     * 
+     * @returns void
+     */
+    var showTopBrindesModalDelete = function() {
+        $("#modal-remover #nome-registro").text(topBrindesSelectedItem.nome);
+        $("#modal-remover").modal();
+    };
+
+    // Exibe modal brindes top nacional
+    $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindeAdd);
+
+    // Dispara adicionar top brindes nacional
+
+    $("#modal-atribuir .modal-footer #confirmar").on("click", function() {
+        $("#modal-atribuir").modal("hide");
+        setTopBrindeNacional(brindesSelectedItem.id);
+    });
+
+   
+
 
     /**
      * Bind de elementos e atributos
@@ -529,7 +646,7 @@ $(function() {
 
     // Top Brindes Details
 
-    $("#top-brindes-details-delete").on("click", confirmTopBrindesDelete);
+    $("#top-brindes-details-delete").on("click", showTopBrindesModalDelete);
     $("#top-brindes-details-cancel").on("click", closeTopBrindesDetails);
 
     // Remove
