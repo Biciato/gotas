@@ -327,6 +327,30 @@ class BrindesTable extends GenericTable
         }
     }
 
+
+    public function getBrindesPostoNotIn(int $clientesId, array $brindesIdNotIn = [])
+    {
+        try {
+            $where = [];
+
+            $where[] = ["Brindes.clientes_id" => $clientesId];
+            $where[] = ["Brindes.habilitado" => 1];
+
+            if (count($brindesIdNotIn) > 0) {
+                $where[] = ["Brindes.id NOT IN " => $brindesIdNotIn];
+            }
+
+            return $this->find("all")
+                ->where($where)
+                ->contain(["CategoriaBrinde", "PrecoAtual"]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            Log::write('error', $message);
+
+            throw new Exception($message);
+        }
+    }
+
     /**
      * BrindesTable::getList
      * 

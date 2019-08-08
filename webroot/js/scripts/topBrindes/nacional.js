@@ -176,16 +176,19 @@ $(function() {
                 var rows = [];
 
                 data.forEach(element => {
-                    var item = {};
-
-                    item.id = element.id;
-                    item.img = element.brinde.nome_img_completo;
-                    item.nome = element.brinde.nome;
-                    item.posicao = element.posicao;
-                    item.tipoVenda = element.brinde.tipo_venda;
-                    item.tipoEquipamento = element.brinde.tipo_equipamento;
-                    item.ilimitado = element.brinde.ilimitado;
-                    item.esgotado = element.brinde.status_estoque;
+                    var item = {
+                        id : element.id,
+                        img : element.brinde.nome_img_completo,
+                        nome : element.brinde.nome,
+                        posicao : element.posicao,
+                        tipoVenda : element.brinde.tipo_venda,
+                        tipoEquipamento : element.brinde.tipo_equipamento,
+                        ilimitado : element.brinde.ilimitado,
+                        precoGotas: element.brinde.preco_atual.preco,
+                        precoReais: element.brinde.preco_atual.valor_moeda_venda,
+                        precoReaisFormatado: element.brinde.preco_atual.valor_moeda_venda_formatado !== null ? element.brinde.preco_atual.valor_moeda_venda_formatado : "" ,
+                        esgotado :element.brinde.status_estoque
+                    };
 
                     var esgotado =
                         item.esgotado !== undefined &&
@@ -238,8 +241,8 @@ $(function() {
             callLoaderAnimation();
 
             $.ajax({
-                type: "POST",
-                url: "/api/brindes/get_brindes_unidade",
+                type: "GET",
+                url: "/api/brindes/get_brindes_unidades_para_top_brindes",
                 data: data,
                 dataType: "json",
                 error: function(response) {
@@ -251,28 +254,45 @@ $(function() {
                 success: function(response) {
                     closeLoaderAnimation();
 
-                    var brindes = response.brindes.data;
-
+                    var brindes = response.data.brindes;
                     var rowsTemplate = [];
                     var itemsBrindes = [];
-
-                    // var template = "<li> ";
-                    // template += "<img src='"+item.img+"' /> <div class='text'> <strong>" + item.nome+ "</strong></div>";
-                    // template += "<div class='button-area'><div class='btn btn-primary'><i class='fa fa-check'></i></div></div>";
-                    // template += "</li>";
 
                     brindes.forEach(element => {
                         var item = {
                             id: element.id,
                             nome: element.nome_brinde_detalhado,
-                            img: element.nome_img_completo
+                            img: element.nome_img_completo,
+                            precoGotas: element.preco_atual.preco,
+                            precoReais: element.preco_atual.valor_moeda_venda,
+                            precoReaisFormatado: element.preco_atual.valor_moeda_venda_formatado !== null ? element.preco_atual.valor_moeda_venda_formatado : "" ,
+                            esgotado: element.status_estoque,
                         };
 
-                        var template = "<tr>";
-                        template += "<td><img src='" + item.img + "' /></td>";
+                        var esgotado = item.esgotado !== undefined && item.esgotado == "Esgotado";
+
+                        var template = "<tr><td>";
+                        if (esgotado) {
+                            // Se for esgotado, mostra a span de 'esgotado' e modifica a imagem para grayscale
+                            template +=
+                                "<span class='brindes-postos-img-text-esgotado'>" + item.esgotado + "</span>";
+                        }
+                        template += "<img src='" + item.img + "' ";
+                        if (esgotado) {
+                            template += "class='brindes-postos-img-esgotado-disabled'";
+                        }
+                        template += "</td>";
                         template +=
                             "<td><div class='text'> <strong>" +
                             item.nome +
+                            "</strong></div> </td>";
+                        template +=
+                            "<td><div class='text'> <strong>" +
+                            item.precoGotas +
+                            "</strong></div> </td>";
+                        template +=
+                            "<td><div class='text'> <strong>" +
+                            item.precoReaisFormatado +
                             "</strong></div> </td>";
                         template +=
                             "<td><button class='btn btn-primary botao-add-top-brinde'  value='" +
@@ -405,6 +425,8 @@ $(function() {
         $("#top-brindes-details-nome").val(topBrinde.nome);
         $("#top-brindes-details-tipo-venda").val(topBrinde.tipoVenda);
         $("#top-brindes-details-esgotado").val(topBrinde.esgotado);
+        $("#top-brindes-details-preco-gotas").val(topBrinde.precoGotas);
+        $("#top-brindes-details-preco-reais").val(topBrinde.precoReaisFormatado);
         $("#top-brindes-details-ilimitado").val(
             topBrinde.ilimitado ? "Sim" : "Não"
         );

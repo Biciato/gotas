@@ -59,7 +59,7 @@ class Brinde extends Entity
             return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["nome_img"]);
         }
 
-        return null;
+        return __("{0}{1}", Configure::read("appAddress"), IMG_NOT_AVAILABLE);
     }
 
     protected function _getNomeBrindeDetalhado()

@@ -61,6 +61,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     </div>
                 </div>
                 <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label for="preco-gotas">Preço Atual em Gotas: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-gotas" id="top-brindes-details-preco-gotas">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="preco-reais">Preço Atual em Reais: </label>
+                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-reais" id="top-brindes-details-preco-reais">
+                    </div>
+                </div>
+                <div class="form-group row">
                     <div class="col-lg-12">
                         <label for="top-brindes-details-img">Imagem</label>
                         <img src="" alt="" class="top-brindes-details-img img-fluid" name="top-brindes-details-img" id="top-brindes-details-img">
@@ -88,6 +98,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <tr>
                             <th>Imagem</th>
                             <th>Descrição</th>
+                            <th>Valor Gotas</th>
+                            <th>Valor Reais</th>
                             <th>Definir</th>
                         </tr>
                     </thead>
@@ -99,8 +111,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     </div>
 </div>
 
-
-
+<!-- Modais -->
 <div id="modal-atribuir" class="modal fade" tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -114,8 +125,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <p>Deseja atribuir o registro: <span id='nome-registro'></span> ?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="confirmar">Atribuir</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
@@ -134,16 +145,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <p>Deseja remover o registro: <span id='nome-registro'></span> ?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="confirmar">Remover</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
-
-</div>
-
-
 
 <?php
 

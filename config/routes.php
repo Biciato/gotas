@@ -96,6 +96,11 @@ Router::scope("/api", function ($routes) {
                     "action" => "getBrindesUnidadeAPI",
                     "method" => "POST",
                     "path" => "/get_brindes_unidade"
+                ],
+                "getBrindesUnidadesParaTopBrindesAPI" => [
+                    "action" => "getBrindesUnidadesParaTopBrindesAPI",
+                    "method" => "GET",
+                    "path" => "/get_brindes_unidades_para_top_brindes"
                 ]
             ]
         ]

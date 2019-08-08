@@ -16,7 +16,7 @@ use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
-use Cake\Core\Exception\Exception;
+use \Exception;
 
 /**
  * Brindes Controller
@@ -115,7 +115,6 @@ class BrindesController extends AppController
             // DebugUtil::printArray($brindes);
             $brindes = $this->Paginate($brindes, array("limit" => 10));
             $this->set(compact($arraySet));
-            
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $messageString = __("Erro ao exibir lista de brindes!");
@@ -1213,6 +1212,64 @@ class BrindesController extends AppController
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
+    }
+
+    /**
+     * Brindes::getBrindesUnidadesParaTopBrindesAPI
+     * 
+     * Obtem os brindes disponíveis para Top Brindes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-08
+     * 
+     * @param $clientes_id Id do Cliente (Posto)
+     *
+     * @return json_encode Brindes
+     */
+    public function getBrindesUnidadesParaTopBrindesAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $rede = $sessaoUsuario["rede"];
+
+        try {
+            $clientesId = 0;
+
+            if ($this->request->is("GET")) {
+                $data = $this->request->getQueryParams();
+
+                $clientesId = $data["clientes_id"] ?? 0;
+            }
+
+            if (empty($clientesId)) {
+                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+            }
+
+            $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);
+            $topBrindesAtuais = $topBrindesAtuais->select("Brinde.id");
+            $idsTopBrindes = [];
+
+            foreach ($topBrindesAtuais as $topBrinde) {
+                $idsTopBrindes[] = $topBrinde->Brinde->id;
+            }
+
+            $brindesPosto = $this->Brindes->getBrindesPostoNotIn($clientesId, $idsTopBrindes);
+            $brindesPosto = $brindesPosto->toArray();
+           
+            foreach ($brindesPosto as $brinde) {
+                $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($brinde->id);
+                $brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$brinde->ilimitado) ? "Esgotado" : "Normal";
+            }
+            
+            $data = ["brindes" => $brindesPosto];
+
+            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+        }
     }
 
     #endregion

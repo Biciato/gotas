@@ -43,10 +43,10 @@ class BrindesPreco extends Entity
 
     protected function _getValorMoedaVendaFormatado()
     {
-
         if (!empty($this->_properties["valor_moeda_venda"])) {
             return Number::currency($this->_properties["valor_moeda_venda"]);
         }
+        
         return null;
     }
 }

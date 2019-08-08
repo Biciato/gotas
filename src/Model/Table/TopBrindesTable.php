@@ -170,7 +170,7 @@ class TopBrindesTable extends Table
             }
 
             return $this->find("all")->where($where)
-                ->contain(["Rede", "Cliente", "Brinde", "UsuarioCadastro"])
+                ->contain(["Rede", "Cliente", "Brinde.PrecoAtual", "UsuarioCadastro"])
                 ->order(["TopBrindes.posicao" => "ASC"]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
@@ -180,7 +180,7 @@ class TopBrindesTable extends Table
     }
 
     /**
-     * Obtem Top Brindes
+     * Obtem Quantidade Top Brindes
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04

@@ -317,6 +317,7 @@ const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 #region Genérica
 
+const IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
@@ -449,10 +450,11 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 #region Top Brindes
 
+const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
+const MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
 const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";
-const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
 const TOP_BRINDES_TYPE_NATIONAL = 'Nacional';
 const TOP_BRINDES_TYPE_LOCAL = 'Posto';
 

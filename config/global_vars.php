@@ -83,6 +83,7 @@ Configure::write(
             "RedesHasClientesAdministradores",
             "TiposBrindesRedes",
             "TiposBrindesClientes",
+            "TopBrindes",
             "Transportadoras",
             "TransportadorasHasUsuarios",
             "UsuariosEncrypted",
