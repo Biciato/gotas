@@ -71,7 +71,7 @@ $(function() {
         
         topBrindesSelectedItem = t;
 
-        showTopBrindeDetails(topBrindesSelectedItem);
+        showTopBrindesDetails(topBrindesSelectedItem);
     });
 
     /**
@@ -86,7 +86,7 @@ $(function() {
      * 
      * @returns void
      */
-    var clientesSelectOnChange = function(e) {
+    function clientesSelectOnChange(e) {
         callLoaderAnimation("Obtendo brindes de unidade...");
 
         var clientesId = e.target.value;
@@ -105,7 +105,7 @@ $(function() {
      *
      * @returns {array} List Lista com valores diferentes
      */
-    var compareItemsSortable = function(list1, list2) {
+    function compareItemsSortable(list1, list2) {
         // as listas terão sempre o mesmo tamanho
         var indexCheck = 0;
         var maxCheck = list1.length;
@@ -134,7 +134,7 @@ $(function() {
      * 
      * @returns void
      */
-    var closeTopBrindesDetails = function() {
+    function closeTopBrindesDetails() {
         $(".top-brindes-details").fadeOut(500);
     };
 
@@ -148,7 +148,7 @@ $(function() {
      * 
      * @returns void
      */
-    var deleteTopBrinde = function() {
+    function deleteTopBrinde() {
         $("#modal-remover").modal("hide");
 
         if(topBrindesSelectedItem !== undefined && topBrindesSelectedItem.id > 0) {
@@ -191,7 +191,7 @@ $(function() {
      * 
      * @returns void
      */
-    var getTopBrindesNacional = function() {
+    function getTopBrindesNacional() {
         callLoaderAnimation("Aguarde... Obtendo Top Brindes...");
         var dataJson = {};
         topBrindesSortable.empty();
@@ -274,7 +274,7 @@ $(function() {
      * 
      * @returns void
      */
-    var getBrindesPosto = function(clientesId) {
+    function getBrindesPosto(clientesId) {
         brindesSelectList.empty();
 
         if (clientesId !== undefined && clientesId > 0) {
@@ -364,7 +364,7 @@ $(function() {
      * 
      * @returns void
      */
-    var getCurrentItemsSortable = function(elementClass) {
+    function getCurrentItemsSortable(elementClass) {
         topBrindesElementSortable = $(elementClass).sortable("toArray");
         var position = 1;
         var itemsPosition = [];
@@ -393,7 +393,7 @@ $(function() {
      * @since 2019-08-07
      * @returns void
      */
-    var getPostosRede = function() {
+    function getPostosRede() {
         callLoaderAnimation();
 
         $.ajax({
@@ -452,7 +452,7 @@ $(function() {
      * 
      * @returns void
      */
-    var setTopBrindeNacional = function(brindesId) {
+    function setTopBrindeNacional(brindesId) {
         callLoaderAnimation("Aguarde, atribuindo Top Brinde...");
         $.ajax({
             type: "POST",
@@ -495,7 +495,7 @@ $(function() {
      *
      * @returns void
      */
-    var setPosicaoTopBrindes = function(itemsToSend) {
+    function setPosicaoTopBrindes(itemsToSend) {
         callLoaderAnimation("Aguarde, reajustando...");
         $.ajax({
             type: "PUT",
@@ -534,13 +534,13 @@ $(function() {
      * 
      * @returns void
      */
-    var showMainScreen = function() {
+    function showMainScreen() {
         $("#dados").fadeIn(100);
         $("#form-vinculo").fadeOut(100);
     };
 
     /**
-     * nacional.js::showTopBrindeAdd
+     * nacional.js::showTopBrindesAdd
      * 
      * Exibe tela de adicionar topBrindes
      * 
@@ -549,7 +549,7 @@ $(function() {
      * 
      * @returns void
      */
-    var showTopBrindeAdd = function() {
+    function showTopBrindesAdd() {
         var value = this.value;
         var item = $.grep(brindesList, function(brinde) {
             return brinde.id == value;
@@ -568,7 +568,7 @@ $(function() {
     };
 
     /**
-     * nacional.js::showTopBrindeDetails
+     * nacional.js::showTopBrindesDetails
      *
      * Exibe detalhes do Top Brinde selecionado
      *
@@ -579,7 +579,7 @@ $(function() {
      *
      * @returns void
      */
-    var showTopBrindeDetails = function(topBrinde) {
+    function showTopBrindesDetails(topBrinde) {
         $(".top-brindes-details").hide();
         $(".top-brindes-details").fadeIn(500);
         $("#top-brindes-details-img").hide();
@@ -605,13 +605,13 @@ $(function() {
      * 
      * @returns void
      */
-    var showTopBrindesModalDelete = function() {
+    function showTopBrindesModalDelete() {
         $("#modal-remover #nome-registro").text(topBrindesSelectedItem.nome);
         $("#modal-remover").modal();
     };
 
     // Exibe modal brindes top nacional
-    $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindeAdd);
+    $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindesAdd);
 
     // Dispara adicionar top brindes nacional
 
@@ -619,9 +619,6 @@ $(function() {
         $("#modal-atribuir").modal("hide");
         setTopBrindeNacional(brindesSelectedItem.id);
     });
-
-   
-
 
     /**
      * Bind de elementos e atributos
