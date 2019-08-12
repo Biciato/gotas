@@ -182,15 +182,13 @@ class TopBrindesController extends AppController
 
     /**
      * TopBrindesController::getTopBrindesNacionalAPI
-     * 
+     *
      * Obtem Top Brindes Nacional
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
      *
-     * @param $data['brindes_id'] Id de Brinde 
-     * 
-     * @return json_encode $response success|fail Resposta 
+     * @return json_encode $response success|fail Resposta
      */
     public function getTopBrindesNacionalAPI()
     {
@@ -205,25 +203,68 @@ class TopBrindesController extends AppController
         }
 
         try {
-            $brindesId = 0;
+            if ($this->request->is("get")) {
+                $topBrindesNacional = $this->TopBrindes->getTopBrindes($rede->id, null, null, null, TOP_BRINDES_TYPE_NATIONAL);
+
+                // Verifica se o brinde está esgotado ou não
+                foreach ($topBrindesNacional as $topBrinde) {
+                    $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($topBrinde->brinde->id);
+                    $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
+                }
+
+                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['top_brindes' => $topBrindesNacional]);
+            }
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+        }
+    }
+
+    /**
+     * TopBrindesController::getTopBrindesPostoAPI
+     *
+     * Obtem Top Brindes Nacional
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-04
+     *
+     * @return json_encode $response success|fail Resposta 
+     */
+    public function getTopBrindesPostoAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            $clientesId = 0;
 
             if ($this->request->is("get")) {
-                $data = $this->request->getData();
+                $data = $this->request->getQueryParams();
+                $clientesId = $data["clientes_id"] ?? 0;
 
-                $brindesId = $data["brindes_id"] ?? null;
+                if (empty($clientesId)) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                }
+
+                $topBrindes = $this->TopBrindes->getTopBrindes($rede->id, $clientesId, null, null, TOP_BRINDES_TYPE_LOCAL);
+
+                // Verifica se o brinde está esgotado ou não
+                foreach ($topBrindes as $topBrinde) {
+                    $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($topBrinde->brinde->id);
+                    $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
+                }
+
+                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['top_brindes' => $topBrindes]);
             }
-
-            $topBrindesNacional = $this->TopBrindes->getTopBrindes($rede->id, null, null, null, TOP_BRINDES_TYPE_NATIONAL);
-
-            // Verifica se o brinde está esgotado ou não
-
-            foreach ($topBrindesNacional as $topBrinde) {
-                $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($topBrinde->brinde->id);
-
-                $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
-            }
-
-            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['top_brindes' => $topBrindesNacional]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -291,6 +332,86 @@ class TopBrindesController extends AppController
             }
 
             return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+        }
+    }
+
+    /**
+     * TopBrindesController::setTopBrindePostoAPI
+     *
+     * Define um brinde como Top Brinde Posto
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-12
+     *
+     * @param $data['clientes_id'] Id de Clientes
+     * @param $data['brindes_id'] Id de Brinde
+     * 
+     * @return json_encode $response success|fail Resposta 
+     */
+    public function setTopBrindePostoAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $rede = $sessaoUsuario["rede"];
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            $brindesId = 0;
+            $clientesId = 0;
+
+            if ($this->request->is("post")) {
+                $data = $this->request->getData();
+
+                $brindesId = $data["brindes_id"] ?? null;
+                $clientesId = $data["clientes_id"] ?? null;
+
+                $errors = [];
+
+                if (empty($brindesId)) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY);
+                }
+
+                if (empty($clientesId)) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(implode(" - ", $errors));
+                }
+
+                $brinde = $this->Brindes->get($brindesId);
+                $topBrindesPostoQte = $this->TopBrindes->countTopBrindes($rede->id, null, TOP_BRINDES_TYPE_LOCAL);
+
+                if ($topBrindesPostoQte >= MESSAGE_TOP_BRINDES_MAX) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_MAX_DEFINED);
+                }
+
+                $topBrinde = new TopBrindes();
+                $topBrinde->redes_id = $rede->id;
+                $topBrinde->clientes_id = $brinde->clientes_id;
+                $topBrinde->brindes_id = $brinde->id;
+                $topBrinde->posicao = $topBrindesPostoQte + 1;
+                $topBrinde->tipo = TOP_BRINDES_TYPE_LOCAL;
+                $topBrinde->data = new DateTime('now');
+                $topBrinde->audit_user_insert_id = $usuarioLogado->id;
+                $topBrinde = $this->TopBrindes->saveUpdate($topBrinde);
+
+                if (!$topBrinde && count($topBrinde->errors()) > 0) {
+                    throw new Exception(implode("\n", $topBrinde->errors));
+                }
+
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+            }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

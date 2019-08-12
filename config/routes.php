@@ -307,10 +307,20 @@ Router::scope("/api", function ($routes) {
                 "method" => "GET",
                 "path" => "get_top_brindes_nacional"
             ],
+            "getTopBrindesPostoAPI" => [
+                "action" => "getTopBrindesPostoAPI",
+                "method" => "GET",
+                "path" => "get_top_brindes_posto"
+            ],
             "setTopBrindeNacionalAPI" => [
                 "action" => "setTopBrindeNacionalAPI",
                 "method" => "POST",
                 "path" => "set_top_brinde_nacional"
+            ],
+            "setTopBrindePostoAPI" => [
+                "action" => "setTopBrindePostoAPI",
+                "method" => "POST",
+                "path" => "set_top_brinde_posto"
             ],
             "setPosicoesTopBrindesNacionalAPI" => [
                 "action" => "setPosicoesTopBrindesNacionalAPI",
