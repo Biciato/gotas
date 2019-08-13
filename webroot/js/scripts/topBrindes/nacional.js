@@ -35,6 +35,7 @@ $(function() {
      * @returns void
      */
     topBrindesSortable.sortable({
+        distance: 20,
         start: function(event, ui) {
             topBrindesSortableStart = getCurrentItemsSortable(
                 ".top-brindes-box-items"
@@ -226,7 +227,7 @@ $(function() {
             success: function(response) {
                 closeLoaderAnimation();
 
-                var data = response.top_brindes;
+                var data = response.data.top_brindes;
                 var count = 0;
                 var rows = [];
 
@@ -430,7 +431,7 @@ $(function() {
                 clientesSelectListBox.empty();
                 var rows = [];
                 var options = [];
-                option = $("<option value=''>Selecionar...</option>");
+                var option = new Option("Selecionar...", null);
                 options.push(option);
 
                 data.forEach(element => {
@@ -441,13 +442,7 @@ $(function() {
                     item.razaoSocial = element.razao_social;
                     rows.push(item);
 
-                    var option = $(
-                        "<option value='" +
-                            item.id +
-                            "'>" +
-                            item.nomeFantasia +
-                            "</option>"
-                    );
+                    var option = new Option(item.nomeFantasia, item.id);
                     options.push(option);
                 });
                 // alimenta o data source de clientes

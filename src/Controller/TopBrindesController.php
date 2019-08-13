@@ -238,7 +238,8 @@ class TopBrindesController extends AppController
                     $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
                 }
 
-                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['top_brindes' => $topBrindesNacional]);
+                $data = ['top_brindes' => $topBrindesNacional];
+                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ["data" => $data]);
             }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
@@ -289,7 +290,8 @@ class TopBrindesController extends AppController
                     $topBrinde->brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$topBrinde->brinde->ilimitado) ? "Esgotado" : "Normal";
                 }
 
-                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['top_brindes' => $topBrindes]);
+                $data = ['top_brindes' => $topBrindes];
+                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
             }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());

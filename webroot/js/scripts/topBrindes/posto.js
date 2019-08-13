@@ -35,6 +35,7 @@ $(function() {
      * @returns void
      */
     topBrindesSortable.sortable({
+        distance: 20,
         start: function(event, ui) {
             topBrindesSortableStart = getCurrentItemsSortable(
                 ".top-brindes-box-items"
@@ -256,7 +257,7 @@ $(function() {
                 success: function(response) {
                     closeLoaderAnimation();
 
-                    var data = response.top_brindes;
+                    var data = response.data.top_brindes;
                     var count = 0;
                     var rows = [];
 
@@ -493,7 +494,6 @@ $(function() {
                     item.razaoSocial = element.razao_social;
                     rows.push(item);
 
-                    // var option = $("<option value='" + item.id + "'>" + item.nomeFantasia + "</option>" );
                     var option = new Option(item.nomeFantasia, item.id);
                     options.push(option);
                 });
@@ -704,7 +704,10 @@ $(function() {
     $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindesAdd);
 
     // Oculta dados do top brinde e exibe a tabela de brindes disponível
-    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", closeTopBrindesAvailableTable);
+    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", function () {  
+        closeTopBrindesDetails();
+        showTopBrindesAvailableTable();
+    });
 
     // Dispara adicionar top brindes nacional
 
