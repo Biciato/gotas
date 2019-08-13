@@ -120,18 +120,18 @@
     display: none;
 }
 
-.form-vinculo img {
+.top-brindes-table img {
     max-width: 160px;
     max-height: 120px;
 }
 
-.form-vinculo ul {
+.top-brindes-table ul {
     overflow-y: scroll;
     height: 300px;
     width: auto;
 }
 
-.form-vinculo li {
+.top-brindes-table li {
     display: flex;
     /* padding: 10px; */
     height: 120px;
@@ -139,19 +139,19 @@
     /* border: 1px solid black; */
 }
 
-.form-vinculo th {
+.top-brindes-table th {
     text-align: center !important;
     margin: auto;
     vertical-align: middle !important;
 }
 
-.form-vinculo td {
+.top-brindes-table td {
     text-align: center !important;
     margin: auto;
     vertical-align: middle !important;
 }
 
-.form-vinculo td .text {
+.top-brindes-table td .text {
     text-justify: center;
     font-size: 22px;
 }

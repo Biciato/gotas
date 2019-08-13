@@ -115,7 +115,6 @@ $(function() {
             }
 
             clientesSelectedItem = cliente;
-            
             $(".box-items").fadeIn(500);
             $("#clientes-selected-name").text(clientesSelectedItem.nomeFantasia);
         }
@@ -156,6 +155,20 @@ $(function() {
     };
 
     /**
+     * posto.js::closeTopBrindesAvailableTable
+     * 
+     * Esconde tabela de Top Brindes Disponiveis
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-13
+     * 
+     * @returns void
+     */
+    function closeTopBrindesAvailableTable() {
+        $(".top-brindes-table").hide();
+    }
+
+    /**
      * posto.js::closeTopBrindesDetails
      * 
      * Fecha a tela de detalhes
@@ -194,8 +207,10 @@ $(function() {
                 success: function(response) {
                     closeLoaderAnimation();
                     callModalGeneric(response.mensagem.message);
-                    getTopBrindesPosto();
+                    getTopBrindesPosto(clientesSelectedItem.id);
+                    getBrindesPosto(clientesSelectedItem.id);
                     closeTopBrindesDetails();
+                    showTopBrindesAvailableTable();
                 },
                 error: function(response) {
                     closeLoaderAnimation();
@@ -288,7 +303,6 @@ $(function() {
                     });
 
                     topBrindesList = rows;
-
                 }, error: function(response) {
                     closeLoaderAnimation();
                     console.log(response);
@@ -392,6 +406,19 @@ $(function() {
                     });
 
                     brindesList = itemsBrindes;
+
+                    if (brindesList.length == 0){
+                        var row = document.createElement("tr");
+                        var cell = document.createElement("td");
+                        cell.colSpan = 5;
+                        var span = document.createElement("span");
+                        span.textContent = "Não há registros à exibir";
+                        cell.append(span);
+
+                        row.append(cell);
+                        rowsTemplate.push(row);
+                    }
+
                     brindesSelectList.append(rowsTemplate);
                 }
             });
@@ -481,10 +508,6 @@ $(function() {
             }
         });
     };
-
-    function hideTopBrindesTable() {
-        $(".form-vinculo").fadeIn(500);
-    }
 
     /**
      * posto.js::setTopBrindePosto
@@ -588,7 +611,7 @@ $(function() {
      */
     function showMainScreen() {
         $("#dados").fadeIn(100);
-        // $("#form-vinculo").hide();
+        // $("#top-brindes-table").hide();
     };
 
     /**
@@ -632,7 +655,7 @@ $(function() {
      * @returns void
      */
     function showTopBrindesDetails(topBrinde) {
-        $(".form-vinculo").hide();
+        $(".top-brindes-table").hide();
         $(".top-brindes-details").hide();
         $(".top-brindes-details").fadeIn(500);
         $("#top-brindes-details-img").hide();
@@ -663,11 +686,25 @@ $(function() {
         $("#modal-remover").modal();
     };
 
+    /**
+     * posto.js::showTopBrindesAvailableTable
+     * 
+     * Mostra tabela de Top Brindes Disponiveis
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-13
+     * 
+     * @returns void
+     */
+    function showTopBrindesAvailableTable() {
+        $(".top-brindes-table").fadeIn(500);
+    }
+
     // Exibe modal brindes top nacional
     $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindesAdd);
 
     // Oculta dados do top brinde e exibe a tabela de brindes disponível
-    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", hideTopBrindesTable);
+    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", closeTopBrindesAvailableTable);
 
     // Dispara adicionar top brindes nacional
 
@@ -685,7 +722,7 @@ $(function() {
     // Mostra Form de vinculação de top Brinde
     var showNew = function(e) {
         $("#dados").hide();
-        // $("#form-vinculo").fadeIn(100);
+        // $("#top-brindes-table").fadeIn(100);
         getClientes();
         brindesSelectList.empty();
     };

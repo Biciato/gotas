@@ -35,12 +35,10 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
         <legend><?= $title ?></legend>
 
         <div id="clientes-list">
-            <div class="form-group row">
-                <label for="clientes-list-box col-lg-12">
-                    Lista de Postos:
-                </label>
-                <select name="clientes-select-list" id="clientes-select-list" class="form-control"></select>
-            </div>
+            <label for="clientes-list-box col-lg-12">
+                Lista de Postos:
+            </label>
+            <select name="clientes-select-list" id="clientes-select-list" class="form-control"></select>
         </div>
 
         <div id="items" class="box-items">
@@ -56,7 +54,7 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
                     </div>
             </div>
 
-            <div id="form-vinculo" class="form-vinculo col-lg-8">
+            <div id="top-brindes-table" class="top-brindes-table col-lg-8">
                 <div class="form-group">
                     <div class="brindes-container">
                         <h4>Adicionar Brinde para Top-Brindes do Posto</h4>
@@ -72,6 +70,7 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
                             </thead>
                             <tbody>
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>

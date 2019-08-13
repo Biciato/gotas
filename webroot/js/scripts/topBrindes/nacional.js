@@ -355,6 +355,19 @@ $(function() {
                     });
 
                     brindesList = itemsBrindes;
+
+                    if (brindesList.length == 0){
+                        var row = document.createElement("tr");
+                        var cell = document.createElement("td");
+                        cell.colSpan = 5;
+                        var span = document.createElement("span");
+                        span.textContent = "Não há registros à exibir";
+                        cell.append(span);
+
+                        row.append(cell);
+                        rowsTemplate.push(row);
+                    }
+                    
                     brindesSelectList.append(rowsTemplate);
                 }
             });

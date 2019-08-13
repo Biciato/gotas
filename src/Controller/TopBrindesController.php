@@ -171,6 +171,32 @@ class TopBrindesController extends AppController
                 throw new Exception(MESSAGE_CONTACT_SUPPORT);
             }
 
+            /**
+             * Reordena os brindes pós remoção.
+             * Primeiro é necessário identificar qual o tipo do brinde,
+             * para depois identificar quais brindes devem ser reajustados.
+             */
+            $redesId = $topBrinde->redes_id;
+            $clientesId = null;
+            $tipo = null;
+            if ($topBrinde->tipo == TOP_BRINDES_TYPE_NATIONAL) {
+                $tipo = TOP_BRINDES_TYPE_NATIONAL;
+            } else {
+                $clientesId = $topBrinde->clientes_id;
+                $tipo = TOP_BRINDES_TYPE_LOCAL;
+            }
+
+            $topBrindes = $this->TopBrindes->getTopBrindes($redesId, $clientesId, null, null, $tipo);
+            $posicao = 1;
+
+            // Grava novas posições
+            foreach ($topBrindes as $key => $topBrinde) {
+                $topBrinde = new TopBrindes($topBrinde->toArray());
+                $topBrinde->posicao = $posicao;
+                $this->TopBrindes->saveUpdate($topBrinde);
+                $posicao++;
+            }
+
             return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_DELETE_EXCEPTION, $th->getMessage());
