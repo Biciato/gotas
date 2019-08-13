@@ -347,15 +347,15 @@ class SefazUtil
             $itemsNodesHtml = array();
             foreach ($items->childNodes as $node) {
                 $texto = $node->textContent;
+                $textoQuantidade = "Qtde total de ítens: ";
 
                 // Captura do gotas.nome_parametro
-                $posicaoParentese = strpos($texto, "(");
+                $posicaoParentese = strpos($texto, $textoQuantidade);
                 $gota = substr($texto, 0, $posicaoParentese);
                 $gota = trim($gota);
                 $item["gota"] = $gota;
 
                 // Captura de quantidade
-                $textoQuantidade = "Qtde total de ítens: ";
                 $posicaoFimTextoQuantidade = strlen($textoQuantidade);
                 $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
                 $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
