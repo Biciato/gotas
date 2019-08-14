@@ -272,12 +272,14 @@ if (empty($usuarioLogado)) {
                             <a href="/brindes/escolherPostoConfigurarBrinde">Cadastro de Brindes</a>
                         </li>
 
-                        <li>
-                            <a href="/topBrindes/nacional">Cadastro Top Brindes Nacional</a>
-                        </li>
-                        <li>
-                            <a href="/topBrindes/posto">Cadastro Top Brindes Posto</a>
-                        </li>
+                        <?php if ($rede->app_personalizado): ?> 
+                            <li>
+                                <a href="/topBrindes/nacional">Cadastro Top Brindes Nacional</a>
+                            </li>
+                            <li>
+                                <a href="/topBrindes/posto">Cadastro Top Brindes Posto</a>
+                            </li>
+                        <?php endif;?>
                     <?php endif; ?>
 
                     <?php

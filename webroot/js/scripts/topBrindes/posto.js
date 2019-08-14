@@ -521,9 +521,8 @@ $(function() {
      * 
      * @returns void
      */
-    function setTopBrindePosto(clientesId, brindesId) {
+    function setTopBrindePosto(brindesId) {
         var data = {
-            clientes_id: clientesId,
             brindes_id: brindesId
         };
 
@@ -713,7 +712,7 @@ $(function() {
 
     $("#modal-atribuir .modal-footer #confirmar").on("click", function() {
         $("#modal-atribuir").modal("hide");
-        setTopBrindePosto(clientesSelectedItem.id, brindesSelectedItem.id);
+        setTopBrindePosto(brindesSelectedItem.id);
     });
 
     /**

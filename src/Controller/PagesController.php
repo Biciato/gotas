@@ -174,15 +174,16 @@ class PagesController extends AppController
     {
         try {
             $brindes_aguardando_autorizacao = [];
+            $sessaoUsuario = $this->getSessionUserVariables();
 
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
             }
 
-            $rede = $this->request->session()->read('Rede.Grupo');
+            $rede = $sessaoUsuario["rede"];
 
             // Pega unidades que tem acesso
             $clientesIds = [];

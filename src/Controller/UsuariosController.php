@@ -2876,6 +2876,8 @@ class UsuariosController extends AppController
             $user = $this->Auth->identify();
 
             if ($user) {
+                $user = new Usuario($user);
+
                 // Só autentica JWT se logou
                 $user["token"] = JWT::encode(
                     array(

@@ -134,11 +134,22 @@ class TopBrindesController extends AppController
 
     #region REST Services
 
+    /**
+     * TopBrindesController::deleteTopBrindesAPI
+     * 
+     * Remove um Top Brinde e reoordena posições dos registros restantes
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-14
+     *
+     * @param $id Id do registro Top Brinde
+     * 
+     * @return json_encode $response success|fail Resposta
+     */
     public function deleteTopBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
-
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
@@ -214,23 +225,41 @@ class TopBrindesController extends AppController
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
      *
+     * @param $redes_id Id da Rede (se usuário for PROFILE_TYPE_USER)
+     * 
      * @return json_encode $response success|fail Resposta
      */
     public function getTopBrindesNacionalAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
-        $rede = $sessaoUsuario["rede"];
-
+        $rede = $sessaoUsuario["rede"] ?? null;
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-
-        if ($usuarioAdministrar) {
-            $usuarioLogado = $usuarioAdministrar;
-        }
 
         try {
+
             if ($this->request->is("get")) {
-                $topBrindesNacional = $this->TopBrindes->getTopBrindes($rede->id, null, null, null, TOP_BRINDES_TYPE_NATIONAL);
+                $redesId = 0;
+
+                $redesId = $this->request->getQuery("redes_id");
+
+                // Se for funcionário, está vinculado à uma rede.
+                if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_DEVELOPER && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                    $redesId = $rede->id;
+                }
+
+                // Se não for funcionário E a Id de redes não for informada, retorna erro
+                if (empty($redesId)) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY);
+                }
+
+                // Se a rede não tiver a configuração de app_personalizado, throw error
+                $rede = $this->Redes->getRedeById($rede->id);
+
+                if (!$rede->app_personalizado) {
+                    throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
+                }
+
+                $topBrindesNacional = $this->TopBrindes->getTopBrindes($redesId, null, null, null, TOP_BRINDES_TYPE_NATIONAL);
 
                 // Verifica se o brinde está esgotado ou não
                 foreach ($topBrindesNacional as $topBrinde) {
@@ -257,26 +286,40 @@ class TopBrindesController extends AppController
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
      *
-     * @return json_encode $response success|fail Resposta 
+     * @return json_encode $response success|fail Resposta
      */
     public function getTopBrindesPostoAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
-
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-
-        if ($usuarioAdministrar) {
-            $usuarioLogado = $usuarioAdministrar;
-        }
 
         try {
             $clientesId = 0;
 
             if ($this->request->is("get")) {
+                $redesId = 0;
+
                 $data = $this->request->getQueryParams();
+                $redesId = $data["redes_id"] ?? 0;
                 $clientesId = $data["clientes_id"] ?? 0;
+
+                // Se for funcionário, está vinculado à uma rede.
+                if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_DEVELOPER && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                    $redesId = $rede->id;
+                }
+
+                // Se não for funcionário E a Id de redes não for informada, retorna erro
+                if (empty($redesId)) {
+                    throw new Exception(MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY);
+                }
+
+                // Se a rede não tiver a configuração de app_personalizado, throw error
+                $rede = $this->Redes->getRedeById($rede->id);
+
+                if (!$rede->app_personalizado) {
+                    throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
+                }
 
                 if (empty($clientesId)) {
                     throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
@@ -303,21 +346,20 @@ class TopBrindesController extends AppController
 
     /**
      * TopBrindesController::setTopBrindeNacionalAPI
-     * 
-     * Define um brinde como Nacional 
-     * 
+     *
+     * Define um brinde como Nacional
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
      *
-     * @param $data['brindes_id'] Id de Brinde 
-     * 
-     * @return json_encode $response success|fail Resposta 
+     * @param $brindes_id Id de Brinde
+     *
+     * @return json_encode $response success|fail Resposta
      */
     public function setTopBrindeNacionalAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
-
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
@@ -334,6 +376,10 @@ class TopBrindesController extends AppController
                 $brindesId = $data["brindes_id"] ?? null;
             }
 
+            if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_NETWORK) {
+                throw new Exception(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            }
+
             if (empty($brindesId)) {
                 throw new Exception(MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY);
             }
@@ -343,6 +389,13 @@ class TopBrindesController extends AppController
 
             if ($topBrindesNacionalQte >= MESSAGE_TOP_BRINDES_MAX) {
                 throw new Exception(MESSAGE_TOP_BRINDES_MAX_DEFINED);
+            }
+
+            // Verifica se o brinde em questão já está definido. Só atribui se não estiver
+            $topBrindeCheck = $this->TopBrindes->getTopBrindes($rede->id, null, $brinde->id, null, TOP_BRINDES_TYPE_NATIONAL)->first();
+
+            if (!empty($topBrindeCheck)) {
+                throw new Exception("Este brinde já foi definido como Top Brindes Nacional!");
             }
 
             $topNacional = new TopBrindes();
@@ -376,18 +429,17 @@ class TopBrindesController extends AppController
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-12
      *
-     * @param $data['clientes_id'] Id de Clientes
-     * @param $data['brindes_id'] Id de Brinde
-     * 
-     * @return json_encode $response success|fail Resposta 
+     * @param $brindes_id Id de Brinde
+     *
+     * @return json_encode $response success|fail Resposta
      */
     public function setTopBrindePostoAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $rede = $sessaoUsuario["rede"];
-
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $errors = [];
 
         if ($usuarioAdministrar) {
             $usuarioLogado = $usuarioAdministrar;
@@ -395,33 +447,35 @@ class TopBrindesController extends AppController
 
         try {
             $brindesId = 0;
-            $clientesId = 0;
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
-
                 $brindesId = $data["brindes_id"] ?? null;
-                $clientesId = $data["clientes_id"] ?? null;
-
-                $errors = [];
 
                 if (empty($brindesId)) {
-                    throw new Exception(MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY);
-                }
-
-                if (empty($clientesId)) {
-                    throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                    $errors[] = MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY;
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(implode(" - ", $errors));
+                    throw new Exception(MESSAGE_SAVED_EXCEPTION);
                 }
 
                 $brinde = $this->Brindes->get($brindesId);
                 $topBrindesPostoQte = $this->TopBrindes->countTopBrindes($rede->id, null, TOP_BRINDES_TYPE_LOCAL);
 
                 if ($topBrindesPostoQte >= MESSAGE_TOP_BRINDES_MAX) {
-                    throw new Exception(MESSAGE_TOP_BRINDES_MAX_DEFINED);
+                    $errors[] = MESSAGE_TOP_BRINDES_MAX_DEFINED;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_SAVED_EXCEPTION);
+                }
+
+                // Verifica se o brinde em questão já está definido. Só atribui se não estiver
+                $topBrindeCheck = $this->TopBrindes->getTopBrindes($rede->id, $brinde->clientes_id, $brinde->id, null, TOP_BRINDES_TYPE_LOCAL)->first();
+
+                if (!empty($topBrindeCheck)) {
+                    throw new Exception("Este brinde já foi definido como Top Brindes Nacional!");
                 }
 
                 $topBrinde = new TopBrindes();
@@ -444,7 +498,7 @@ class TopBrindesController extends AppController
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors);
         }
     }
 
@@ -460,22 +514,11 @@ class TopBrindesController extends AppController
      */
     public function setPosicoesTopBrindesNacionalAPI()
     {
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $rede = $sessaoUsuario["rede"];
-
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-
-        if ($usuarioAdministrar) {
-            $usuarioLogado = $usuarioAdministrar;
-        }
-
         try {
             $topBrindes = [];
 
             if ($this->request->is("put")) {
                 $data = $this->request->getData();
-
                 $topBrindes = $data["top_brindes"] ?? [];
             }
 

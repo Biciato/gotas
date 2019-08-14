@@ -444,6 +444,7 @@ const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID d
 #region Redes
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
+const MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED = "Funcionalidade não permitida para rede sem configuração de APP_PERSONALIZADO!";
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 #endregion
@@ -451,6 +452,7 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 #region Top Brindes
 
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
+const MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY = "O campo REDES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
