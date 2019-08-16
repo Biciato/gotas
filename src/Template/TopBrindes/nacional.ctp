@@ -25,7 +25,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <ul class="nav nav-pills nav-stacked">
         <li class="active"><a><?= __('Ações') ?></a></li>
         <li>
-            <a href="#" id="novo"><span>Novo</span></a>
+            <a href="#" id="back-button"><span><i class="fas fa-arrow-alt-circle-left"></i> Voltar</span></a>
+        </li>
+        <li>
+            <a href="#" id="new-button"><span><i class="fas fa-plus-circle"></i> Novo</span></a>
         </li>
     </ul>
 </nav>
@@ -95,7 +98,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <div id="form-vinculo" class="form-vinculo">
+    <div id="top-brindes-add" class="top-brindes-add">
         <legend>Adicionar Brinde aos Top-Brindes Nacional</legend>
         <label for="postos_rede">Lista de Unidades:</label>
         <select name="postos_rede" id="postos-rede" class="form-control"></select>

@@ -13,6 +13,7 @@
  * @since     0.2.9
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace App\Controller;
 
 use Cake\Core\Configure;
@@ -91,7 +92,7 @@ class PagesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar->toArray();
         }
 
-        $this->setDashboard($this->usuarioLogado);
+        $this->setDashboard($usuarioLogado);
 
         $count = count($path);
         if (!$count) {
@@ -127,16 +128,16 @@ class PagesController extends AppController
      *
      * @return void
      */
-    public function setDashboard(array $usuarioLogado = null)
+    public function setDashboard(\App\Model\Entity\Usuario $usuarioLogado = null)
     {
         if (!empty($usuarioLogado)) {
-            if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+            if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
                 $this->dashboardDesenvolvedor();
-            } else if ($usuarioLogado['tipo_perfil'] >= Configure::read('profileTypes')['AdminNetworkProfileType'] && $usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminLocalProfileType']) {
+            } elseif ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_LOCAL) {
                 $this->dashboardAdministrador();
-            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['ManagerProfileType']) {
+            } elseif ($usuarioLogado->tipo_perfil == PROFILE_TYPE_MANAGER) {
                 $this->dashboardGestor();
-            } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            } elseif ($usuarioLogado->tipo_perfil == PROFILE_TYPE_WORKER) {
                 $this->dashboardFuncionario();
             } else {
                 $this->dashboardCliente();
@@ -144,7 +145,6 @@ class PagesController extends AppController
         } else {
             $this->dashboardCliente();
         }
-
     }
 
     /**
@@ -160,7 +160,7 @@ class PagesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
-        if ($this->usuarioLogado['tipo_perfil'] > 0) {
+        if ($this->usuarioLogado->tipo_perfil > 0) {
             $this->flash->warning('Esta dashboard só pode ser visualizada por um desenvolvedor');
             $this->redirectUrl(['controller' => 'pages', ['action' => 'index']]);
         }
@@ -301,7 +301,7 @@ class PagesController extends AppController
 
             if (count($unidades_ids) > 0) {
 
-            // obtem o id de redes através dos ids de clientes, de forma distinta
+                // obtem o id de redes através dos ids de clientes, de forma distinta
 
                 $redes_array = $this->RedesHasClientes->getRedesHasClientesByClientesIds($unidades_ids);
 
@@ -311,7 +311,7 @@ class PagesController extends AppController
                     $redes_ids[] = $value->redes_id;
                 }
 
-            /* agora tenho o id das redes que o usuário está vinculado.
+                /* agora tenho o id das redes que o usuário está vinculado.
                  * Pegar informações de cada rede, total de
                  * pontos acumulados, e brindes fornecidos
                  */
@@ -324,7 +324,7 @@ class PagesController extends AppController
 
                     $rede->nome_img = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
 
-                // pega o id das unidades para obter a soma de pontos
+                    // pega o id das unidades para obter a soma de pontos
                     $unidades_ids = [];
                     foreach ($rede->redes_has_clientes as $key => $value) {
                         $unidades_ids[] = $value->clientes_id;
@@ -335,7 +335,6 @@ class PagesController extends AppController
                     $rede['soma_pontos'] = Number::precision($soma_pontos, 2);
                     $redes[] = $rede;
                 }
-
             }
 
             // debug($redes);
@@ -344,7 +343,7 @@ class PagesController extends AppController
             $this->set('_serialize', ['redes']);
         }
     }
-    
+
     public function test()
     {
         $this->viewBuilder()->setLayout(false);
@@ -368,7 +367,6 @@ class PagesController extends AppController
         $this->set(compact("usuarioLogado"));
     }
 
-    public function eula(){
-
-    }
+    public function eula()
+    { }
 }

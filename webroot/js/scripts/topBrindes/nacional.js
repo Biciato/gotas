@@ -553,7 +553,7 @@ $(function() {
      */
     function showMainScreen() {
         $("#dados").fadeIn(100);
-        $("#form-vinculo").fadeOut(100);
+        $("#top-brindes-add").fadeOut(100);
     };
 
     /**
@@ -644,19 +644,32 @@ $(function() {
     clientesSelectListBox.on("change", clientesSelectOnChange);
 
     // Mostra Form de vinculação de top Brinde
-    var showNew = function(e) {
+    var newNavigation = function(e) {
         $("#dados").fadeOut(100);
-        $("#form-vinculo").fadeIn(100);
+        $("#top-brindes-add").fadeIn(100);
+        $("#new-button").hide();
+        $("#back-button").css("display", "block");
         getClientes();
         brindesSelectList.empty();
     };
+
+    function backNavigation() {
+        $("#top-brindes-add").hide();
+        $("#dados").fadeIn(500);
+        getTopBrindesNacional();
+        brindesSelectList.empty();
+        clientesSelectListBox.empty();
+        $("#new-button").show();
+        $("#back-button").hide();
+    }
 
     // exibe tela principal
 
     // #endregion
 
     // Left Bar
-    $("#novo").on("click", showNew);
+    $("#new-button").on("click", newNavigation);
+    $("#back-button").on("click", backNavigation);
 
     // Top Brindes Details
 
