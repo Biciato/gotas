@@ -503,7 +503,7 @@ class TopBrindesController extends AppController
     }
 
     /**
-     * TopBrindesController::setPosicoesTopBrindesNacionalAPI
+     * TopBrindesController::setPosicoesTopBrindesAPI
      * 
      * Define as posições dos top brindes nacionais
      * 
@@ -512,7 +512,7 @@ class TopBrindesController extends AppController
      *
      * @return json_encode $response success|fail Resposta 
      */
-    public function setPosicoesTopBrindesNacionalAPI()
+    public function setPosicoesTopBrindesAPI()
     {
         try {
             $topBrindes = [];
@@ -542,7 +542,7 @@ class TopBrindesController extends AppController
                 $this->TopBrindes->saveUpdate($topBrindesSave);
             }
 
-            return ResponseUtil::success(MESSAGE_SAVED_SUCCESS);
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

@@ -573,7 +573,7 @@ $(function() {
         callLoaderAnimation("Aguarde, reajustando...");
         $.ajax({
             type: "PUT",
-            url: "/api/top_brindes/set_posicoes_top_brindes_nacional",
+            url: "/api/top_brindes/set_posicoes_top_brindes",
             data: {
                 top_brindes: itemsToSend
             },
