@@ -128,7 +128,7 @@ class PagesController extends AppController
      *
      * @return void
      */
-    public function setDashboard( $usuarioLogado = null)
+    public function setDashboard(\App\Model\Entity\Usuario $usuarioLogado = null)
     {
         if (!empty($usuarioLogado)) {
             if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
