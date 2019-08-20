@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Classe de Utilidades para objetos do tipo crypt
  *
@@ -107,15 +108,19 @@ class CryptUtil
         $calculoSenha = str_split($calculoSenha);
         $calculoSenha = $calculoSenha[0] + $calculoSenha[1];
 
-        $restoSenha = (int)($calculoSenha % 7);
+        $restoSenha = (int) ($calculoSenha % 7);
         $checkSum = $restoSenha + 1;
 
         // Cálculo AB
 
-        $checkSumCC = sprintf("%s%s%s", $checkSum, '0', $cc);
+        $cc = str_pad($cc, 3, '0', STR_PAD_LEFT);
+        $checkSumCC = sprintf("%s%s", $checkSum, $cc);
 
-        $a = self::calculateASCII($checkSumCC, 0);
-        $b = self::calculateASCII($checkSumCC, 1);
+        // echo "checkSumCC: ";
+        // echo $checkSumCC;
+
+        $a = calculaASCII($checkSumCC, 0);
+        $b = calculaASCII($checkSumCC, 1);
 
         // Calculo CD
         $c = "";
@@ -130,21 +135,21 @@ class CryptUtil
         $c = ($c * 1024) + ($mes * 32) + $dia + $checkSum;
         $x = $c;
 
-        $c = self::calculateASCII($c, 0);
-        $d = self::calculateASCII($x, 1);
+        $c = calculaASCII($c, 0);
+        $d = calculaASCII($x, 1);
 
         // Calculo EF
         $auxiliarTmp = str_pad($auxiliar, 2, '0', STR_PAD_LEFT);
         $checkSumTipoPrimarioSecundario = sprintf("%s%s%s", $checkSum, $tipo, $auxiliarTmp);
 
-        $e = self::calculateASCII($checkSumTipoPrimarioSecundario, 0);
-        $f = self::calculateASCII($checkSumTipoPrimarioSecundario, 1);
+        $e = calculaASCII($checkSumTipoPrimarioSecundario, 0);
+        $f = calculaASCII($checkSumTipoPrimarioSecundario, 1);
 
         // Cálculo GH
         $checkSumGH = sprintf("%s%s", $checkSum, $senha);
 
-        $g = self::calculateASCII($checkSumGH, 0);
-        $h = self::calculateASCII($checkSumGH, 1);
+        $g = calculaASCII($checkSumGH, 0);
+        $h = calculaASCII($checkSumGH, 1);
 
         $cripto = sprintf("%s%s%s%s%s%s%s%s", $a, $b, $c, $d, $e, $f, $g, $h);
 
