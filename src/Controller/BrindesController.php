@@ -192,6 +192,12 @@ class BrindesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
+        if (empty($cliente)) {
+            $cliente = $this->Clientes->get($clientesId);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
+            $rede = $redeHasCliente->rede;
+        }
+
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
         $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
 
@@ -380,6 +386,12 @@ class BrindesController extends AppController
 
         if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
+        }
+
+        if (empty($cliente)) {
+            $cliente = $this->Clientes->get($clientesId);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
+            $rede = $redeHasCliente->rede;
         }
 
         $brinde = $this->Brindes->getBrindeById($id);
