@@ -1,0 +1,138 @@
+/**
+ * Estilos para menu de navegação
+ */
+
+#back-button {
+  display: none;
+}
+
+.box-container{
+    border: 1px color black;
+}
+
+.box-details {
+  display: none;
+}
+
+/* Estilo para Tabela de Brindes do Posto */
+.brindes-postos-img-text-esgotado {
+  /* display: flex; */
+  font-size: 20px;
+  position: absolute;
+  padding-top: 35px;
+  transform: rotate(315deg) scale3d(1.3, 1.5, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.brindes-postos-img-esgotado-disabled{
+  opacity: 0.5 !important;
+  z-index: 0;
+  filter: grayscale(100%);
+}
+
+.top-brindes-details {
+  display: none;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 500px;
+}
+
+.top-brindes-details-img {
+  max-width: 300px;
+  max-height: 240px;
+  display: block;
+}
+
+.top-brindes-box-items-parent .top-brindes-box-items {
+    border: 2px solid black;
+    /* height: 260px; */
+    border-radius: 20px;
+    margin: auto;
+    height: 240px;
+}
+
+.top-brindes-box-items li {
+    margin: 10px 10px 5px 5px;
+    padding: 1px;
+    float: left;
+    width: 100px;
+    height: 100px;
+    font-size: 4em;
+    text-align: center;
+}
+
+.top-brindes-box-items li img {
+  max-height: auto;
+  max-width: auto;
+  width: 100px;
+  height: 100px;
+  opacity: 1;
+}
+
+.item-box:hover {
+    opacity: 1.0;
+}
+
+.item-box-esgotado-text {
+  display: flex;
+  font-size: 17px;
+  position: absolute;
+  padding-top: 36px;
+  transform: rotate(315deg) scale3d(1.3, 1.5, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.item-box-esgotado-img-disabled {
+  opacity: 0.5 !important;
+  z-index: 0;
+  filter: grayscale(100%);
+}
+
+/**
+ * Estilo de tela de adicionar
+ */
+
+ .top-brindes-add {
+     display: none;
+ }
+
+ .top-brindes-add img {
+    max-width: 160px;
+    max-height: 120px;
+  
+  }
+
+  .top-brindes-add  ul {
+    overflow-y: scroll;
+    height: 300px;
+    width: auto;
+  }
+  
+  .top-brindes-add li {
+    display: flex;
+    /* padding: 10px; */
+    height: 120px;
+    /* background-color: #aaaaaa; */
+    /* border: 1px solid black; */
+  }
+
+  .top-brindes-add th {
+    text-align: center !important;
+    margin: auto;
+    vertical-align: middle !important;
+  }
+
+  .top-brindes-add td {
+    text-align: center !important;
+    margin: auto;
+    vertical-align: middle !important;
+  }
+  
+  .top-brindes-add td .text {
+    text-justify: center;
+    font-size: 22px;
+  }
+  
+  

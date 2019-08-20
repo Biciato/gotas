@@ -66,6 +66,7 @@ Configure::write(
         'models' =>
             [
             "Brindes",
+            "CategoriasBrindes",
             "Clientes",
             "BrindesEstoque",
             "BrindesPrecos",
@@ -82,6 +83,7 @@ Configure::write(
             "RedesHasClientesAdministradores",
             "TiposBrindesRedes",
             "TiposBrindesClientes",
+            "TopBrindes",
             "Transportadoras",
             "TransportadorasHasUsuarios",
             "UsuariosEncrypted",

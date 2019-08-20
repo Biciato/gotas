@@ -32,42 +32,6 @@ class RedesTable extends GenericTable
 {
 
     /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-    protected $redes_table = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of Redes table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getRedesTable()
-    {
-        if (is_null($this->redes_table)) {
-            $this->_setRedesTable();
-        }
-        return $this->redes_table;
-    }
-
-    /**
-     * Method set of Redes table property
-     *
-     * @return void
-     */
-    private function _setRedesTable()
-    {
-        $this->redes_table = TableRegistry::get('Redes');
-    }
-
-    /**
      * Initialize method
      *
      * @param array $config The configuration for the Table.
@@ -89,6 +53,15 @@ class RedesTable extends GenericTable
                 'foreignKey' => 'redes_id',
                 'join' => 'LEFT'
             )
+        );
+
+        $this->hasMany(
+            "CategoriasBrindes",
+            [
+                "className" => "CategoriasBrindes",
+                "foreignKey" => "redes_id",
+                "join" => "LEFT"
+            ]
         );
     }
 
@@ -126,6 +99,14 @@ class RedesTable extends GenericTable
         $validator
             ->integer("quantidade_consumo_usuarios_dia")
             ->notEmpty("quantidade_consumo_usuarios_dia");
+
+        $validator
+            ->integer("qte_gotas_minima_bonificacao")
+            ->allowEmpty("qte_gotas_minima_bonificacao");
+
+        $validator
+            ->integer("qte_gotas_bonificacao")
+            ->allowEmpty("qte_gotas_bonificacao");
 
         $validator
             ->dateTime('audit_insert')
@@ -318,7 +299,7 @@ class RedesTable extends GenericTable
                 $whereConditions[] = array("Redes.media_assiduidade_clientes" => $mediaAssiduidadeClientes);
             }
 
-            return $this->_getRedesTable()->find('list')
+            return $this->find('list')
                 ->where($whereConditions)
                 ->select(['id', 'nome_rede'])
                 ->order(array("nome_rede" => "asc"));
@@ -422,7 +403,7 @@ class RedesTable extends GenericTable
                 array_push($conditions, [$key => $value]);
             }
 
-            $redesQuery = $this->_getRedesTable()->find('all')
+            $redesQuery = $this->find('all')
                 ->where($conditions);
 
             if (sizeof($selectFields) > 0) {
@@ -567,7 +548,7 @@ class RedesTable extends GenericTable
     {
         try {
 
-            $rede = $this->_getRedesTable()->find('all')
+            $rede = $this->find('all')
                 ->where(['id' => $id])
                 ->contain(['RedesHasClientes'])
                 ->first();
@@ -590,7 +571,7 @@ class RedesTable extends GenericTable
 
             $rede->ativado = $ativado;
 
-            return $this->_getRedesTable()->save($rede);
+            return $this->save($rede);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -621,7 +602,7 @@ class RedesTable extends GenericTable
     {
         try {
 
-            return $this->_getRedesTable()->save($rede);
+            return $this->save($rede);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -657,7 +638,7 @@ class RedesTable extends GenericTable
         try {
 
             return
-                $this->_getRedesTable()->deleteAll(['id' => $id]);
+                $this->deleteAll(['id' => $id]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

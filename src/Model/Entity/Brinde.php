@@ -1,15 +1,18 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use App\Custom\RTI\DebugUtil;
+use stdClass;
 
 /**
  * Brinde Entity
  *
  * @property int $id
  * @property int $clientes_id
+ * @property int $categorias_brindes_id
  * @property string $nome
  * @property int $ilimitado
  * @property string $tipo_venda
@@ -37,7 +40,18 @@ class Brinde extends Entity
         'id' => false
     ];
 
-    protected $_virtual = array("nome_img_completo", "nome_brinde_detalhado");
+    protected $_virtual = array("nome_img_completo", "nome_brinde_detalhado", "categoria_brinde");
+
+    protected function _getCategoriaBrinde()
+    {
+        if (empty($this->_properties["categoria_brinde"]) ) {
+            $obj = new stdClass();
+            $obj->nome = "Sem Categoria";
+            return $obj;
+        }
+
+        return $this->_properties["categoria_brinde"];
+    }
 
     protected function _getNomeImgCompleto()
     {
@@ -45,7 +59,7 @@ class Brinde extends Entity
             return __("{0}{1}{2}", Configure::read("appAddress"), Configure::read("imageGiftPath"), $this->_properties["nome_img"]);
         }
 
-        return null;
+        return __("{0}{1}", Configure::read("appAddress"), IMG_NOT_AVAILABLE);
     }
 
     protected function _getNomeBrindeDetalhado()
@@ -53,11 +67,11 @@ class Brinde extends Entity
         $codigoPrimario = 0;
         $nome = "";
 
-        if (!empty($this->_properties["codigo_primario"])){
+        if (!empty($this->_properties["codigo_primario"])) {
             $codigoPrimario = $this->_properties["codigo_primario"];
         }
 
-        if (!empty($this->_properties["nome"])){
+        if (!empty($this->_properties["nome"])) {
             $nome = $this->_properties["nome"];
         }
 

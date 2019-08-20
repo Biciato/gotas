@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use \Exception;
+use App\Model\Entity\Brinde;
 
 /**
  * Brindes Model
@@ -43,6 +44,15 @@ class BrindesTable extends GenericTable
         $this->setTable('brindes');
         $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo(
+            "CategoriaBrinde",
+            [
+                "className" => "CategoriasBrindes",
+                "foreignKey" => "categorias_brindes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
+            ]
+        );
 
         // relacionamento de brindes com posto
         $this->belongsToMany(
@@ -191,48 +201,6 @@ class BrindesTable extends GenericTable
 
     #region Create
 
-    /**
-     * BrindesTable::saveBrinde
-     *
-     * Insere/Atualiza um registro
-     *
-     * @param array $brinde Informações de Brinde
-     *
-     * @return \App\Model\Entity\Brinde Brinde
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2018-12-02
-     */
-    public function insertBrinde(int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg = null)
-    {
-        try {
-            $brindeSave = $this->newEntity();
-
-            $brindeSave["clientes_id"] = $clientesId;
-            $brindeSave["nome"] = $nome;
-            $brindeSave["codigo_primario"] = $codigoPrimario;
-            $brindeSave["tempo_uso_brinde"] = $tempoUsoBrinde;
-            $brindeSave["ilimitado"] = $ilimitado;
-            $brindeSave["habilitado"] = $habilitado;
-            $brindeSave["tipo_equipamento"] = $tipoEquipamento;
-            $brindeSave["tipo_venda"] = $tipoVenda;
-            $brindeSave["tipo_codigo_barras"] = $tipoCodigoBarras;
-            $brindeSave["preco_padrao"] = $precoPadrao;
-            $brindeSave["valor_moeda_venda_padrao"] = $valorMoedaVendaPadrao;
-            $brindeSave["nome_img"] = $nomeImg;
-
-            return $this->save($brindeSave);
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao gravar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-
-            throw new Exception($stringError);
-        }
-    }
-
     #endregion
 
     #region Read
@@ -336,7 +304,7 @@ class BrindesTable extends GenericTable
             }
 
             $whereConditions = $where;
-            $contains = array("PrecoAtual");
+            $contains = array("PrecoAtual", "CategoriaBrinde");
 
             $brindes = $this->find('all')
                 ->contain($contains)
@@ -354,6 +322,30 @@ class BrindesTable extends GenericTable
 
             Log::write('error', $message);
             Log::write('debug', $messageTrace);
+
+            throw new Exception($message);
+        }
+    }
+
+
+    public function getBrindesPostoNotIn(int $clientesId, array $brindesIdNotIn = [])
+    {
+        try {
+            $where = [];
+
+            $where[] = ["Brindes.clientes_id" => $clientesId];
+            $where[] = ["Brindes.habilitado" => 1];
+
+            if (count($brindesIdNotIn) > 0) {
+                $where[] = ["Brindes.id NOT IN " => $brindesIdNotIn];
+            }
+
+            return $this->find("all")
+                ->where($where)
+                ->contain(["CategoriaBrinde", "PrecoAtual"]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            Log::write('error', $message);
 
             throw new Exception($message);
         }
@@ -402,7 +394,6 @@ class BrindesTable extends GenericTable
             $brindes = $this->find("list")->where($where);
 
             return $brindes;
-
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
 
@@ -537,7 +528,7 @@ class BrindesTable extends GenericTable
      *
      * @param int $clientes_id Id de Clientes
      *
-     * @return \App\Model\Entity\Brindes $brinde
+     * @return \App\Model\Entity\Brinde $brinde
      **/
     public function getBrindeById($brindesId)
     {
@@ -631,41 +622,14 @@ class BrindesTable extends GenericTable
     /**
      * Undocumented function
      *
-     * @param integer $id
-     * @param integer $clientesId
-     * @param string $nome
-     * @param integer $codigoPrimario
-     * @param integer $tempoUsoBrinde
-     * @param boolean $ilimitado
-     * @param boolean $habilitado
-     * @param string $tipoEquipamento
-     * @param string $tipoVenda
-     * @param string $tipoCodigoBarras
-     * @param float $precoPadrao
-     * @param float $valorMoedaVendaPadrao
-     * @param string $nomeImg
-     * @return void
+     * @param Brinde $brinde
+     
+     * @return int|bool
      */
-    public function updateBrinde(int $id, int $clientesId, string $nome, int $codigoPrimario, int $tempoUsoBrinde, bool $ilimitado, bool $habilitado, string $tipoEquipamento, string $tipoVenda, string $tipoCodigoBarras, float $precoPadrao, float $valorMoedaVendaPadrao, string $nomeImg = null)
+    public function saveUpdate(Brinde $brinde)
     {
         try {
-            $brindeSave = $this->get($id);
-
-            $brindeSave["id"] = $id;
-            $brindeSave["clientes_id"] = $clientesId;
-            $brindeSave["nome"] = $nome;
-            $brindeSave["codigo_primario"] = $codigoPrimario;
-            $brindeSave["tempo_uso_brinde"] = $tempoUsoBrinde;
-            $brindeSave["ilimitado"] = $ilimitado;
-            $brindeSave["habilitado"] = $habilitado;
-            $brindeSave["tipo_equipamento"] = $tipoEquipamento;
-            $brindeSave["tipo_venda"] = $tipoVenda;
-            $brindeSave["tipo_codigo_barras"] = $tipoCodigoBarras;
-            $brindeSave["preco_padrao"] = $precoPadrao;
-            $brindeSave["valor_moeda_venda_padrao"] = $valorMoedaVendaPadrao;
-            $brindeSave["nome_img"] = $nomeImg;
-
-            return $this->save($brindeSave);
+            return $this->save($brinde);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao gravar brinde: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

@@ -5,7 +5,7 @@
  *
  */
 
-$(document).ready(function () {
+$(document).ready(function() {
     // ------------------------------------------------------------------
     // Métodos de inicialização
     // ------------------------------------------------------------------
@@ -16,14 +16,36 @@ $(document).ready(function () {
 
     $("#custo_referencia_gotas").maskMoney();
 
-    $("#nome-img").on("change", function (image) {
+    fixMoneyValue($("#custo_referencia_gotas"));
 
+    var redeAppPersonalizadoDisableAllOnClick = function(e) {
+        var checked = $("#app_personalizado").prop("checked");
+
+        if (!checked) {
+            $(".items_app_personalizado").prop("checked", false);
+        }
+        $(".items_app_personalizado").prop("readonly", checked ? "readonly" : "");
+        $(".items_app_personalizado").prop("disabled", !checked ? "disabled" : "");
+    };
+
+    var redeAppPersonalizadoOnLoad = function(val) {
+        // $(".items_app_personalizado").prop("disabled", val ? "disabled" : null);
+        $(".items_app_personalizado").prop("disabled", !val);
+    };
+
+    $("#app_personalizado").on("click", redeAppPersonalizadoDisableAllOnClick);
+
+    redeAppPersonalizadoOnLoad($("#app_personalizado").prop("checked"));
+
+    $("#nome-img").on("change", function(image) {
         var formData = new FormData();
 
         var file = image.target.files[0];
 
-        if (file.size >= (2 * (1024 * 1024))) {
-            callModalError("É permitido apenas o envio de imagens menores que 2MB!");
+        if (file.size >= 2 * (1024 * 1024)) {
+            callModalError(
+                "É permitido apenas o envio de imagens menores que 2MB!"
+            );
             return;
         }
 
@@ -31,39 +53,47 @@ $(document).ready(function () {
 
         $.ajax({
             url: "/Redes/enviaImagemRede",
-            type: 'POST',
+            type: "POST",
             data: formData,
             cache: false,
             contentType: false,
             processData: false,
             mimeType: "application/x-www-form-urlencoded",
             cache: false,
-            xhr: function () {  // Custom XMLHttpRequest
+            xhr: function() {
+                // Custom XMLHttpRequest
                 var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) { // Avalia se tem suporte a propriedade upload
-                    myXhr.upload.addEventListener('progress', function (event) {
-                        var percentComplete = event.loaded / event.total;
-                        percentComplete = parseInt(percentComplete * 100);
-                        console.log(percentComplete);
+                if (myXhr.upload) {
+                    // Avalia se tem suporte a propriedade upload
+                    myXhr.upload.addEventListener(
+                        "progress",
+                        function(event) {
+                            var percentComplete = event.loaded / event.total;
+                            percentComplete = parseInt(percentComplete * 100);
+                            console.log(percentComplete);
 
-                        callLoaderAnimation("Enviando Imagem... " + percentComplete + "% ");
+                            callLoaderAnimation(
+                                "Enviando Imagem... " + percentComplete + "% "
+                            );
 
-                        /* faz alguma coisa durante o progresso do upload */
-                    }, false);
+                            /* faz alguma coisa durante o progresso do upload */
+                        },
+                        false
+                    );
                 }
                 return myXhr;
             },
-            beforeSend: function (xhr) {
+            beforeSend: function(xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
             },
-            success: function (e) {
+            success: function(e) {
                 // console.log(e);
             },
-            error: function (e) {
+            error: function(e) {
                 console.log(e);
                 closeLoaderAnimation();
             },
-            complete: function (e) {
+            complete: function(e) {
                 closeLoaderAnimation();
                 var result = JSON.parse(e.responseText);
                 if (result.mensagem.status) {
@@ -74,14 +104,16 @@ $(document).ready(function () {
 
                     var arquivos = null;
 
-                    if (result.arquivos != undefined && result.arquivos.filesUploaded != undefined && result.arquivos.filesUploaded.length > 0) {
-
+                    if (
+                        result.arquivos != undefined &&
+                        result.arquivos.filesUploaded != undefined &&
+                        result.arquivos.filesUploaded.length > 0
+                    ) {
                         result.arquivos.filesUploaded.forEach(element => {
                             arquivo = element;
                         });
 
                         if (arquivo != undefined) {
-
                             callLoaderAnimation("Carregando imagem...");
 
                             $(".img-crop").attr("src", arquivo.path);
@@ -89,11 +121,11 @@ $(document).ready(function () {
 
                             var image = $(".img-crop");
 
-                            $(".img-crop").on("load", function () {
+                            $(".img-crop").on("load", function() {
                                 closeLoaderAnimation();
                             });
 
-                            $(".img-crop").cropper('destroy');
+                            $(".img-crop").cropper("destroy");
                             image.cropper({
                                 // aspectRatio: 1/1,
                                 preview: ".img-crop-preview",
@@ -103,25 +135,22 @@ $(document).ready(function () {
                                 resizable: true,
                                 // zoomable: false,
                                 zoomable: true,
-                                crop: function (event) {
+                                crop: function(event) {
                                     coordenadas(event.detail);
-                                },
+                                }
                             });
 
                             var cropper = image.data("cropper");
                         }
                     }
-                }
-                else {
+                } else {
                     callModalError(result.mensagem.message);
                 }
             }
         });
     });
 
-
-    var coordenadas = function (c) {
-
+    var coordenadas = function(c) {
         $("#crop-height").val(c.height);
         $("#crop-width").val(c.width);
         $("#crop-x1").val(c.x);
@@ -129,6 +158,5 @@ $(document).ready(function () {
         $("#crop-y1").val(c.y);
         $("#crop-y2").val(c.scaleY);
         console.log(c);
-
-    }
+    };
 });

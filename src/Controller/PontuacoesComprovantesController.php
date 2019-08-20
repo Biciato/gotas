@@ -1412,7 +1412,7 @@ class PontuacoesComprovantesController extends AppController
                         "resumo" => $retorno["resumo"]
                     );
 
-                    ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
+                    return ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
                 } else {
 
                     $arrayData = array();
@@ -1423,7 +1423,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
-                    ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
+                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
                 }
             }
 
@@ -1566,7 +1566,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Validação CNPJ e CPF
@@ -1582,7 +1582,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Posto de atendimento
@@ -1609,14 +1609,14 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (sizeof($errors) > 0) {
-                    ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
                 } else {
                     $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
                 }
             }
 
             if (sizeof($errors) > 0) {
-                ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Fim de Validação
@@ -1722,7 +1722,7 @@ class PontuacoesComprovantesController extends AppController
                     "comprovantes_resumo" => $comprovanteResumo
                 )
             );
-            ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
         }
     }
 
@@ -1800,7 +1800,7 @@ class PontuacoesComprovantesController extends AppController
         }
 
         $validacaoQRCode = $this->validarUrlQrCode($url);
-        
+
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
         if ($validacaoQRCode["status"] == false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
@@ -1808,10 +1808,10 @@ class PontuacoesComprovantesController extends AppController
             $arraySet = array("mensagem");
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-            
+
             return array("mensagem" => $mensagem);
         }
-        
+
         $url = $validacaoQRCode["url_real"];
         $chaveNfe = !empty($data["chave_nfe"]) ? $data["chave_nfe"] : null;
         $estado = $validacaoQRCode["estado"];
@@ -1884,7 +1884,6 @@ class PontuacoesComprovantesController extends AppController
         // $webContent["statusCode"] = 400;
 
         if ($webContent["statusCode"] == 200) {
-
             // Caso Mobile: Cliente não é informado
             if (empty($cliente)) {
                 /**
@@ -1904,7 +1903,6 @@ class PontuacoesComprovantesController extends AppController
                         $cnpjArray[] = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value["cnpj"]);
                     }
                 } else {
-
                     foreach ($cnpjQuery as $key => $value) {
                         $cnpjArray[] = $value['cnpj'];
                     }
@@ -1912,10 +1910,9 @@ class PontuacoesComprovantesController extends AppController
 
                 $cnpjEncontrado = null;
                 foreach ($cnpjArray as $key => $cnpj) {
-
                     $cnpjFormatado = NumberUtil::formatarCNPJ($cnpj);
-                    Log::write('debug', __("CNPJ {$cnpj}"));
-                    Log::write('debug', __("CNPJ {$cnpjFormatado}"));
+                    // Log::write('debug', __("CNPJ {$cnpj}"));
+                    // Log::write('debug', __("CNPJ {$cnpjFormatado}"));
                     $cnpjPos = strpos($webContent["response"], $cnpj) !== false;
                     $cnpjPosFormatado = strpos($webContent["response"], $cnpjFormatado) !== false;
 
@@ -2006,10 +2003,9 @@ class PontuacoesComprovantesController extends AppController
 
             // obtem todos os multiplicadores (gotas)
             $gotas = $this->Gotas->findGotasByClientesId(array($cliente["id"]));
-
             $gotas = $gotas->toArray();
 
-            Log::write("debug", $webContent);
+            // Log::write("debug", $webContent);
 
             $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, $webContent["response"]);
 
@@ -2030,23 +2026,48 @@ class PontuacoesComprovantesController extends AppController
 
                 $pontuacaoComprovanteId = $pontuacaoComprovante["id"];
                 $dataProcessamento = $pontuacaoComprovante["data"];
-
                 $pontuacoesTemp = $retorno["pontuacoes"];
                 $pontuacoesSave = array();
+                $somaMultiplicador = 0;
 
                 foreach ($pontuacoesTemp as $pontuacaoItem) {
 
-                    $pontuacao = array(
-                        "pontuacoes_comprovante_id" => $pontuacaoComprovanteId,
-                        "clientes_id" => $cliente["id"],
-                        "usuarios_id" => $usuario["id"],
-                        "funcionarios_id" => $funcionario["id"],
-                        "gotas_id" => $pontuacaoItem["gotas_id"],
-                        "quantidade_multiplicador" => floor($pontuacaoItem["quantidade_multiplicador"]),
-                        "quantidade_gotas" => floor($pontuacaoItem["quantidade_gotas"]),
-                        "data" => $dataProcessamento
-                    );
+                    $pontuacao = $this->Pontuacoes->newEntity();
+                    $pontuacao->pontuacoes_comprovante_id =  $pontuacaoComprovanteId;
+                    $pontuacao->clientes_id =  $cliente["id"];
+                    $pontuacao->usuarios_id =  $usuario["id"];
+                    $pontuacao->funcionarios_id =  $funcionario["id"];
+                    $pontuacao->gotas_id =  $pontuacaoItem["gotas_id"];
+                    $pontuacao->quantidade_multiplicador =  floor($pontuacaoItem["quantidade_multiplicador"]);
+                    $pontuacao->quantidade_gotas =  floor($pontuacaoItem["quantidade_gotas"]);
+                    $pontuacao->data =  $dataProcessamento;
 
+                    $pontuacoesSave[] = $pontuacao;
+
+                    $somaMultiplicador += $pontuacao->quantidade_multiplicador;
+                }
+
+                /**
+                 * @todo Adicionar bonificação extra se o mínimo de litros for atingido.
+                 * Utilizar o campo 'quantidade_multiplicador', somar todos os valores 
+                 * e conferir se atingiu a pontuação necessária
+                 *
+                 * @todo criar uma 'gota' "BONIFICAÇÃO SEFAZ" para indicar que são de bonificação da SEFAZ
+                 */
+
+                $rede = $cliente->rede_has_cliente->rede;
+
+                if ($rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
+                    $gotaBonificacaoSistema = $this->Gotas->getGotaBonificacaoSefaz($cliente->id);
+                    $pontuacao = $this->Pontuacoes->newEntity();
+                    $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
+                    $pontuacao->clientes_id = $cliente->id;
+                    $pontuacao->usuarios_id = $usuario->id;
+                    $pontuacao->funcionarios_id = $funcionario->id;
+                    $pontuacao->gotas_id = $gotaBonificacaoSistema->id;
+                    $pontuacao->quantidade_multiplicador = 1;
+                    $pontuacao->quantidade_gotas = $gotaBonificacaoSistema->multiplicador_gota;
+                    $pontuacao->data = $dataProcessamento;
                     $pontuacoesSave[] = $pontuacao;
                 }
 
@@ -2078,7 +2099,6 @@ class PontuacoesComprovantesController extends AppController
                 $comprovanteResumo["soma_pontuacoes"] = floor($pontuacaoComprovante["soma_pontuacoes"]);
 
                 foreach ($pontuacaoComprovante["pontuacoes"] as $pontuacao) {
-
                     $item = array(
                         "nome_gota" => $pontuacao["gota"]["nome_parametro"],
                         "quantidade_gotas" => floor($pontuacao["quantidade_gotas"]),
@@ -2159,16 +2179,7 @@ class PontuacoesComprovantesController extends AppController
             );
         }
 
-        // @todo: remover ao finalizar
-        // $webContent = $this->webTools->getPageContent("http://localhost:8080/gasolinacomum.1.html");
-
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
-
-        $arraySet = [
-            'mensagem',
-            'pontuacoes_comprovantes',
-            "resumo"
-        ];
 
         return array(
             'mensagem' => $mensagem,
@@ -2219,7 +2230,7 @@ class PontuacoesComprovantesController extends AppController
 
         // Verifica se conteúdo é URL real
 
-        if (!filter_var($url, FILTER_VALIDATE_URL)){
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
             $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $status = 0;
             $errors = array("QR Code Inválido!");

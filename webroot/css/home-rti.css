@@ -655,3 +655,21 @@ body {
     text-overflow: ellipsis !important;
     padding-right: 40px;
   }
+
+/** Estilo para PaginationJS */
+.paginationjs {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+}
+
+.paginationjs ul {
+    position: absolute;
+    width: 400px;
+    left: 40%;
+    right: 40%;
+}
+
+.paginationjs ul li {
+    padding-left: 0em;
+}

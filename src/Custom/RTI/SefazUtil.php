@@ -350,6 +350,8 @@ class SefazUtil
                 $textoQuantidade = "Qtde total de ítens: ";
 
                 // Captura do gotas.nome_parametro
+                $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
+                $gota = substr($texto, 0, $posicaoQuantidade);
                 $posicaoParentese = strpos($texto, $textoQuantidade);
                 $gota = substr($texto, 0, $posicaoParentese);
                 $gota = trim($gota);

@@ -1030,10 +1030,7 @@ class RedesHasClientesController extends AppController
                         $message = __("Não há clientes cadastrados para a unidade selecionada!");
                         $status = false;
                         $mensagem = array('status' => $status, "message" => $message);
-
-
                     } else {
-
                         $whereConditions = array();
                         $whereConditions[] = array("Clientes.id in " => $clientesIds);
 
@@ -1050,7 +1047,6 @@ class RedesHasClientesController extends AppController
                         }
 
                         $resultado = $this->Clientes->getClientes($whereConditions, $usuario["id"], $orderConditions, $paginationConditions);
-
                         $clientes = $resultado["clientes"];
                         $resumo_gotas = $resultado["resumo_gotas"];
 
@@ -1072,16 +1068,16 @@ class RedesHasClientesController extends AppController
                 }
             }
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $messageString = __("Não foi possível obter dados de unidades de uma rede!");
+            $trace = $e->getTraceAsString();
+            // @todo Padronizar log
+            $messageString = __("Não foi possível obter dados de unidades de rede!");
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
+            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => []];
 
             $messageStringDebug =
                 __("{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
         }
 
         $arraySet = ['clientes', "mensagem"];

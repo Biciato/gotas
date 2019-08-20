@@ -63,6 +63,7 @@ echo $this->Breadcrumbs->render(
             <thead>
                 <tr>
                     <th><?= $this->Paginator->sort('nome') ?></th>
+                    <th><?= $this->Paginator->sort('categorias_brindes_id', ["label" => "Categoria"]) ?></th>
                     <th><?= $this->Paginator->sort('ilimitado') ?></th>
                     <th><?= $this->Paginator->sort('habilitado') ?></th>
                     <th><?= $this->Paginator->sort('tipo_equipamento', array("label" => "Equipamento")) ?></th>
@@ -81,6 +82,7 @@ echo $this->Breadcrumbs->render(
                 <?php foreach ($brindes as $brinde) : ?>
                     <tr>
                         <td><?php echo h($brinde->nome) ?></td>
+                        <td><?php echo $brinde->categoria_brinde->nome ?></td>
                         <td><?php echo $this->Boolean->convertBooleanToString($brinde["ilimitado"]) ?></td>
                         <td><?php echo $this->Boolean->convertBooleanToString($brinde["habilitado"]) ?></td>
                         <td><?php echo $brinde["tipo_equipamento"] ?></td>

@@ -241,7 +241,6 @@ class CuponsTransacoesTable extends GenericTable
         } catch (Exception $e) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
             Log::write("error", $message);
-            Log::write("debug", sprintf("Error: %s/ Trace: %s", $message, $e->getTraceAsString()));
             throw new Exception($message);
         }
     }

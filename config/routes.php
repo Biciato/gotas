@@ -90,20 +90,56 @@ Router::scope("/api", function ($routes) {
                     "action" => "findBrindes",
                     "method" => "POST",
                     "path" => "/findBrindes"
+                ],
+                // utilizado pelo APP Mobile. Cuidado ao mexer
+                "getBrindesUnidadeAPI" => [
+                    "action" => "getBrindesUnidadeAPI",
+                    "method" => "POST",
+                    "path" => "/get_brindes_unidade"
+                ],
+                "getBrindesUnidadesParaTopBrindesAPI" => [
+                    "action" => "getBrindesUnidadesParaTopBrindesAPI",
+                    "method" => "GET",
+                    "path" => "/get_brindes_unidades_para_top_brindes"
                 ]
             ]
         ]
     );
 
     $routes->resources(
-        "Brindes",
+        "CategoriasBrindes",
         [
-            "map" => [
-                // utilizado pelo APP Mobile. Cuidado ao mexer
-                "getBrindesUnidadeAPI" => [
-                    "action" => "getBrindesUnidadeAPI",
+            "map" =>
+            [
+                "getCategoriaBrinde" => [
+                    "action" => "getCategoriaBrindeAPI",
+                    "method" => "GET",
+                    "path" => "/get_categoria_brinde"
+                ],
+                "getCategoriasBrindes" => [
+                    "action" => "getCategoriasBrindesAPI",
+                    "method" => "GET",
+                    "path" => "/get_categorias_brindes"
+                ],
+                "setCategoriasBrindes" => [
+                    "action" => "setCategoriasBrindesAPI",
                     "method" => "POST",
-                    "path" => "/get_brindes_unidade"
+                    "path" => "/set_categorias_brindes"
+                ],
+                "updateCategoriasBrindes" => [
+                    "action" => "updateCategoriasBrindesAPI",
+                    "method" => "PUT",
+                    "path" => "/update_categorias_brindes"
+                ],
+                "updateStatusCategoriasBrindes" => [
+                    "action" => "updateStatusCategoriasBrindesAPI",
+                    "method" => "PUT",
+                    "path" => "/update_status_categorias_brindes"
+                ],
+                "deleteCategoriasBrindes" => [
+                    "action" => "deleteCategoriasBrindesAPI",
+                    "method" => "DELETE",
+                    "path" => "/delete_categorias_brindes"
                 ]
             ]
         ]
@@ -224,7 +260,7 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo Angular
             "getClientesListAPI" => array(
                 "action" => "getClientesListAPI",
-                "method" => "POST",
+                "method" => "GET",
                 "path" => "/get_clientes_list"
             ),
             "getPostoFuncionarioAPI" => array(
@@ -257,6 +293,41 @@ Router::scope("/api", function ($routes) {
             )
         )
 
+    ]);
+
+    $routes->resources("TopBrindes", [
+        "map" => [
+            "deleteTopBrindesAPI" => [
+                "action" => "deleteTopBrindesAPI",
+                "method" => "DELETE",
+                "path" => "delete_top_brindes"
+            ],
+            "getTopBrindesNacionalAPI" => [
+                "action" => "getTopBrindesNacionalAPI",
+                "method" => "GET",
+                "path" => "get_top_brindes_nacional"
+            ],
+            "getTopBrindesPostoAPI" => [
+                "action" => "getTopBrindesPostoAPI",
+                "method" => "GET",
+                "path" => "get_top_brindes_posto"
+            ],
+            "setTopBrindeNacionalAPI" => [
+                "action" => "setTopBrindeNacionalAPI",
+                "method" => "POST",
+                "path" => "set_top_brinde_nacional"
+            ],
+            "setTopBrindePostoAPI" => [
+                "action" => "setTopBrindePostoAPI",
+                "method" => "POST",
+                "path" => "set_top_brinde_posto"
+            ],
+            "setPosicoesTopBrindesAPI" => [
+                "action" => "setPosicoesTopBrindesAPI",
+                "method" => "PUT",
+                "path" => "set_posicoes_top_brindes"
+            ]
+        ]
     ]);
 
     $routes->resources("Transportadoras", [
@@ -487,9 +558,6 @@ Router::scope("/api", function ($routes) {
             ]
         ]
     ]);
-
-
-
 });
 
 // Router::prefix('api', function ($routes) {

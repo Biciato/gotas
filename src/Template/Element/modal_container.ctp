@@ -10,6 +10,8 @@
 
 
 <?= $this->element('modal_howitworks') ?>
+<?= $this->element('modal_generic') ?>
+<?= $this->element("modal_change_status") ?>
 <?= $this->element('modal_save') ?>
 <?= $this->element('modal_error') ?>
 <?= $this->element('modal_delete') ?>

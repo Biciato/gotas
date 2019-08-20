@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -12,6 +13,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Exception;
 
 /**
  * Gotas Model
@@ -177,6 +179,49 @@ class GotasTable extends GenericTable
         }
     }
 
+    /**
+     * GotasTable::saveUpdateBonificacaoExtraSefaz
+     * 
+     * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-21
+     *
+     * @param array $clientesIds Ids de Clientes
+     * @param integer $qteGotasBonificacao Qte Bonificação
+     * 
+     * @return \App\Model\Entity\Gota $gota
+     */
+    public function saveUpdateBonificacaoExtraSefaz(array $clientesIds, int $qteGotasBonificacao)
+    {
+        try {
+            foreach ($clientesIds as $clienteId) {
+                $gotaBonificacaoSistema = $this->find("all")
+                    ->where(array(
+                        "clientes_id" => $clienteId,
+                        "nome_parametro" => GOTAS_BONUS_SEFAZ
+                    ))
+                    ->first();
+
+                if (empty($gotaBonificacaoSistema)) {
+                    $gotaBonificacaoSistema = $this->newEntity();
+                    $gotaBonificacaoSistema->clientes_id = $clienteId;
+                    $gotaBonificacaoSistema->nome_parametro = GOTAS_BONUS_SEFAZ;
+                    $gotaBonificacaoSistema->habilitado = 1;
+                    $gotaBonificacaoSistema->tipo_cadastro = GOTAS_REGISTER_TYPE_AUTOMATIC;
+                }
+
+                $gotaBonificacaoSistema->multiplicador_gota = $qteGotasBonificacao;
+                $this->save($gotaBonificacaoSistema);
+            }
+        } catch (\Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            Log::error($message);
+
+            throw new Exception($message);
+        }
+    }
+
     #region Read
 
     /**
@@ -193,7 +238,9 @@ class GotasTable extends GenericTable
             $conditionsSql = array();
 
             $conditionsSql[] = [
-                'clientes_id IN ' => $clientesIds
+                'clientes_id IN ' => $clientesIds,
+                // Exibir somente cadastro manual
+                "tipo_cadastro" => 0
             ];
 
             foreach ($whereConditions as $key => $value) {
@@ -203,7 +250,6 @@ class GotasTable extends GenericTable
             return $this->find('all')
                 ->where($conditionsSql)
                 ->contain(['Clientes']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -290,6 +336,41 @@ class GotasTable extends GenericTable
 
             $error = [false, $stringError];
             return $error;
+        }
+    }
+
+    /**
+     * GotasTable::getGotaBonificacaoSefaz
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-21
+     * 
+     * Obtem Gota de Bonificação Sefaz do Posto
+     *
+     * @param integer $clientesId
+     * 
+     * @return \App\Model\Entity\Gota
+     */
+    public function getGotaBonificacaoSefaz(int $clientesId)
+    {
+        try {
+            return $this->find("all")->where(
+                [
+                    "clientes_id" => $clientesId,
+                    "nome_parametro" => GOTAS_BONUS_SEFAZ,
+                    "tipo_cadastro" => GOTAS_REGISTER_TYPE_AUTOMATIC,
+                    "habilitado" => 1
+                ]
+            )->select(
+                [
+                    "id",
+                    "multiplicador_gota"
+                ]
+            )->first();
+        } catch (Exception $ex) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $ex->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 

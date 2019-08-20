@@ -206,50 +206,45 @@ class ClientesController extends AppController
         $arraySet = array('cliente', 'clientes', 'rede', "redesId", 'usuarioLogado');
 
         $cliente = $this->Clientes->newEntity();
-
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
-        $usuarioLogado = $this->usuarioLogado;
 
+        $usuarioLogado = $this->usuarioLogado;
         $rede = $this->Redes->getRedeById($redes_id);
 
         if ($this->request->is('post')) {
-
             $data = $this->request->getData();
-
-            // DebugUtil::print($data);
             $cliente = $this->Clientes->patchEntity($cliente, $data);
 
             // Verifica se ja tem um registro antes
-
             $cnpj = !empty($cliente["cnpj"]) ? NumberUtil::limparFormatacaoNumeros($cliente["cnpj"]) : null;
 
             if ($cnpj) {
                 $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
 
                 if ($clienteJaExistente) {
-
                     $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
-                    $this->Flash->error($message);
 
+                    $this->Flash->error($message);
                     $this->set(compact($arraySet));
                     $this->set('_serialize', $arraySet);
                     return;
                 }
             }
 
-            if ($this->Clientes->addClient($redes_id, $cliente)) {
-
+            if ($cliente = $this->Clientes->addClient($redes_id, $cliente)) {
                 $qteTurnos = $data["quantidade_turnos"];
                 $horarioInicial = $data["horario"];
                 $horarios = $this->calculaTurnos($qteTurnos, $horarioInicial);
-
                 $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
 
+                // Adiciona bonificação extra sefaz para novo posto
+                $this->Gotas->saveUpdateBonificacaoExtraSefaz([$cliente->id], $rede->qte_gotas_bonificacao);
+              
                 // Adiciona o funcionário de sistema como o primeiro funcionário da rede
                 // Ele será necessário para funções automáticas de venda de brinde via API
                 $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
@@ -715,7 +710,7 @@ class ClientesController extends AppController
     /**
      * ClientesController::getClientesListAPI
      *
-     * Obtem lista de Clientes
+     * Obtem lista de Clientes (da Rede informada ou da sessão do usuário)
      *
      * @param int $redesId Id da Rede (opcional)
      *
@@ -730,35 +725,44 @@ class ClientesController extends AppController
         $rede = $sessao["rede"];
         $redesId = $rede["id"];
 
-        // Caso o método seja chamado via post
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
+        try {
+            // Caso o método seja chamado via get
+            if ($this->request->is("get")) {
+                $data = $this->request->getData();
 
-            if (!empty($data["redesId"])) {
-                $redesId = $data["redesId"];
+                if (!empty($data["redesId"])) {
+                    $redesId = $data["redesId"];
+                }
             }
-        }
 
-        $selectList = array(
-            "Clientes.id",
-            "Clientes.nome_fantasia",
-            "Clientes.razao_social",
-            "Clientes.propaganda_img"
-        );
+            $selectList = array(
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.propaganda_img"
+            );
 
-        // @todo Gustavo, se a redesId for nulo, não pode retornar ninguém!
-        $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            if (empty($redesId)) {
+                throw new Exception(MESSAGE_ID_EMPTY);
+            }
 
-        $clientes = array();
+            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            $clientes = [];
 
-        foreach ($redeHasClientes as $redeHasCliente) {
-            $clientes[] = $redeHasCliente["cliente"];
-        }
+            foreach ($redeHasClientes as $redeHasCliente) {
+                $clientes[] = $redeHasCliente["cliente"];
+            }
 
-        if (sizeof($clientes) > 0) {
-            ResponseUtil::success($clientes);
-        } else {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+            if (count($clientes) == 0) {
+                return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
+            }
+
+            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 

@@ -61,6 +61,15 @@ class UsuariosTable extends GenericTable
         $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
 
+        $this->hasMany(
+            "CategoriasBrindes",
+            [
+                "className" => "CategoriasBrindes",
+                "foreignKey" => "audit_user_insert_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
+            ]
+        );
+
         $this->hasOne(
             'ClienteHasUsuario',
             [

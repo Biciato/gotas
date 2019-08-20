@@ -257,6 +257,11 @@ FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss'); // For any immutable DateT
 
 const DATA_TYPE_MESSAGE_JSON = "json";
 const DATA_TYPE_MESSAGE_XML = "xml";
+const STRING_YES = 'Sim';
+const STRING_NO = 'Não';
+const TYPE_BARCODE_QRCODE = "QRCode";
+const TYPE_BARCODE_CODE128 = 'Code128';
+const TYPE_BARCODE_PDF417 = 'PDF417';
 
 #region Relatórios
 
@@ -265,12 +270,12 @@ const REPORT_TYPE_SYNTHETIC = "Sintético";
 
 #endregion
 
-// status de Job
+#region status de Job
 
 const JOB_STATUS_INIT = "Inicializando...";
 const JOB_STATUS_END = "Finalizando...";
 
-
+#endregion
 
 #region Caminhos
 
@@ -292,17 +297,11 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 #region Comuns ao Sistema
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
-
-
+const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
 
 #endregion
 
-#region Entidades
-
-// Genérica
-
-const LOGIN_API = "API";
-const LOGIN_WEB = "WEB";
+#region Exceções
 
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
@@ -312,21 +311,27 @@ const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
 const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
+#endregion
+
+#region Entidades
+
+#region Genérica
+
+const IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
+const LOGIN_API = "API";
+const LOGIN_WEB = "WEB";
+
+const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
-const TYPE_BARCODE_QRCODE = "QRCode";
-const TYPE_BARCODE_CODE128 = 'Code128';
-const TYPE_BARCODE_PDF417 = 'PDF417';
+const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
 
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
 
+#endregion
 
-const STRING_YES = 'Sim';
-const STRING_NO = 'Não';
-
-
-// Brindes
+#region Brindes
 
 const MESSAGE_CLIENTE_DOES_NOT_HAVE_BRINDE = "O posto/loja selecionado(a) não possui o brinde desejado!";
 const MESSAGE_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
@@ -334,22 +339,22 @@ const MESSAGE_BRINDES_CLIENTES_ID_REQUIRED = "Necessário informar o Posto de At
 const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
 const MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
 const MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
-const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
-const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
 const STATUS_AUTHORIZATION_PRICE_DENIED = "Negado";
+const TYPE_EQUIPMENT_RTI = "Equipamento RTI";
+const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 
-// Brindes Estoque
+#endregion
+
+#region Brindes Estoque
+
 const MESSAGE_BRINDES_ESTOQUE_QUANTITY_EMPTY = "Campo QUANTIDADE não informado!";
-
 const TYPE_OPERATION_INITIALIZE = "Criação";
 const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";
 const TYPE_OPERATION_SELL_BRINDE = "Saída Brinde";
 const TYPE_OPERATION_SELL_CURRENCY = "Saída Venda";
 const TYPE_OPERATION_RETURN = "Retornado";
-
-
 const TYPE_SELL_FREE = 0;
 const TYPE_SELL_FREE_TEXT = "Isento";
 const TYPE_SELL_DISCOUNT = 1;
@@ -358,7 +363,17 @@ const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
 const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
-// Clientes
+#endregion
+
+#region Categorias Brindes
+
+const MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MESSAGE_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
+const MESSAGE_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+
+#endregion
+
+#region Clientes
 
 const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimento à gerenciar!";
 
@@ -372,14 +387,15 @@ const STOCK_OPERATION_TYPES_SELL_TYPE_GIFT = 1;
 const STOCK_OPERATION_TYPES_SELL_TYPE_SALE = 2;
 const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
 
-// Cupom
+#endregion
+
+#region Cupom
 
 // Máximo de intervalo de horas ao gerar relatório de caixa de funcionários
 const MAX_TIME_COUPONS_REPORT_TIME = 16;
 // Tempo padrão caso funcionário gerar o relatório completo de caixa de funcionários
 const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
 const MESSAGE_WARNING_GENERATE_REPORT = "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
-
 const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
 const MESSAGE_CUPOM_ALREADY_USED = "Cupom já foi validado, não é possível novo uso!";
 const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
@@ -393,21 +409,31 @@ const MESSAGE_CUPOM_PRINTED_CANCELLED = "O cupom informado foi cancelado com suc
 const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
 const MESSAGE_REDEEM_COUPON_REDEEMED = "Cupom resgatado!";
 const MESSAGE_REDEEM_COUPON_USED = "Cupom usado!";
-
 const TYPE_OPERATION_RETRIEVE = 'Resgate';
 const TYPE_OPERATION_USE = 'Uso';
 const TYPE_OPERATION_RETRIEVED = 'Resgatado';
 const TYPE_OPERATION_USED = 'Usado';
-
 const TYPE_PAYMENT_POINTS = "Gotas";
 const TYPE_PAYMENT_MONEY = "Dinheiro";
 
+#endregion
 
-// Pontuações
+#region Gotas
+
+// Nome Comum Gota Bonificacao
+const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
+const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
+const GOTAS_REGISTER_TYPE_MANUAL = 0;
+
+#endregion
+
+#region Pontuações
 
 const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
 const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
 const MESSAGE_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
+
+#endregion
 
 #region Pontuacoes Comprovantes
 
@@ -415,17 +441,29 @@ const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID d
 
 #endregion
 
-// Redes
+#region Redes
 
 const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
-
+const MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED = "Funcionalidade não permitida para rede sem configuração de APP_PERSONALIZADO!";
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
-// Tipos de Brindes de Clientes
+#endregion
 
-const MESSAGE_TYPE_GIFTS_POINT_OF_SERVICE_FOUND = "O estabelecimento selecionado não possui tipo de brinde definido. Defina antes de continuar!";
+#region Top Brindes
 
-// Usuários
+const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
+const MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY = "O campo REDES_ID deve ser informado!";
+const MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
+const MESSAGE_TOP_BRINDES_MAX = 4;
+const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";
+const TOP_BRINDES_TYPE_NATIONAL = 'Nacional';
+const TOP_BRINDES_TYPE_LOCAL = 'Posto';
+
+
+#endregion
+
+#region Usuários
 const MESSAGE_USUARIO_NEW_PASSWORD_DOESNT_MATCH = "Nova senha não confere!";
 const MESSAGE_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
 const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
@@ -443,10 +481,10 @@ const MESSAGE_USUARIO_PROFILE_ON_DATE = "Perfil está atualizado!";
 const MESSAGE_USUARIO_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
 const MESSAGE_USUARIO_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
 const MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
-
 const MESSAGE_CPF_LENGTH_INVALID = "Tamanho do CPF inválido!";
 const CPF_LENGTH = 11;
 
+#endregion
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
@@ -469,6 +507,7 @@ const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível co
 const MESSAGE_GENERIC_ERROR = "Houve um erro!";
 const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
 const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
+
 #endregion
 
 #endregion

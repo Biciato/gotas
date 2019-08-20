@@ -20,6 +20,8 @@ use App\Custom\RTI\TimeUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\ShiftUtil;
 use App\Model\Entity\CuponsTransacoes;
+use App\Custom\RTI\NumberUtil;
+use Cake\I18n\Number;
 
 /**
  * Cupons Controller
@@ -2764,6 +2766,9 @@ class CuponsController extends AppController
             $quantidade = 1;
             $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
             $tipoPagamento = $data["tipo_pagamento"];
+            $confirmaDistancia = $data["confirma_distancia"] ?? false;
+            $latitudeUsuario = $data["latitude"] ?? null;
+            $longitudeUsuario = $data["longitude"] ?? null;
 
             $retorno = $this->trataCompraCupom(
                 $brindesId,
@@ -2774,7 +2779,10 @@ class CuponsController extends AppController
                 $tipoPagamento,
                 false,
                 "",
-                true
+                true,
+                $confirmaDistancia, 
+                $latitudeUsuario,
+                $longitudeUsuario
             );
 
             $arraySet = $retorno["arraySet"];
@@ -2954,13 +2962,16 @@ class CuponsController extends AppController
      * @param bool $vendaAvulsa Indica se é usuário avulso no sistema
      * @param string $senhaAtualUsuario Senha atual do usuário (quando via Web)
      * @param bool $usoViaMobile Via Mobile ou via Web (Uso via mobile não pede confirmação de senha)
+     * @param bool $confirmaDistancia Confirma a compra (Só utilizado se a rede solicita confirmação de distância)
+     * @param float $latitudeUsuario Latitude do Usuário
+     * @param float $longitudeUsuario
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @date 03/07/2018
      *
      * @return array $dados Tratados
      */
-    private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoPagamento = "", $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false)
+    private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoPagamento = "", $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false, bool $confirmaDistancia = false, float $latitudeUsuario = null, float $longitudeUsuario = null)
     {
         $retorno = array();
         $mensagem = array();
@@ -3051,6 +3062,21 @@ class CuponsController extends AppController
                 "is_brinde_smart_shower" => null,
             );
             return $retorno;
+        }
+
+
+        // Verifica se a rede possui APP personalizado, se precisa exibir confirmação de mensagem de distância
+        // e se não confirmou distância
+        if ($rede->app_personalizado && $rede->msg_distancia_compra_brinde && !$confirmaDistancia) {
+
+            if (empty($latitudeUsuario) || empty($longitudeUsuario)) {
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MESSAGE_ERROR_GPS_VALIDATION]);
+            }
+
+            $distancia = NumberUtil::calculaDistanciaLatitudeLongitude($latitudeUsuario, $longitudeUsuario, $cliente->latitude, $cliente->longitude);
+            $message = sprintf("Você está à aproximados %s KM de distância do Posto. Confirma a compra do Brinde %s?", number_format($distancia, 2), $brinde->nome);
+
+            return ResponseUtil::errorAPI($message, [], []);
         }
 
         $tipoVendaBrinde = $brinde["tipo_venda"];

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author   Gustavo Souza Gonçalves
  * @file     src/Template/Pontuacoes/editar_brinde_rede.ctp
@@ -49,15 +50,15 @@ echo $this->Breadcrumbs->render(
     <legend><?= $titleCurrentPage ?></legend>
     <?= $this->Form->create($brinde) ?>
     <fieldset>
-    <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
+        <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
         <?= $this->Form->hidden("edit-mode", ["id" => null, "value" => $editMode]) ?>
         <div class="form-group row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="nome">Nome*</label>
                 <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="tipo_codigo_barras">Código de Barras*</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
@@ -75,6 +76,22 @@ echo $this->Breadcrumbs->render(
                             TYPE_BARCODE_QRCODE => TYPE_BARCODE_QRCODE,
                         )
                     )
+                ); ?>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="categorias_brindes">Categoria</label>
+                <?= $this->Form->input(
+                    "categorias_brindes_id",
+                    [
+                        "id" => "categorias_brindes_id",
+                        "value" => $brinde["categorias_brindes_id"],
+                        "class" => "categorias-brindes-id",
+                        "label" => false,
+                        "empty" => "Sem Categoria",
+                        "selected" => $brinde['categorias_brindes_id'],
+                        "options" => $categoriasBrindesList
+                    ]
                 ); ?>
             </div>
         </div>
@@ -174,36 +191,19 @@ echo $this->Breadcrumbs->render(
 
             <div class="col-lg-3">
                 <label for="preco_padrao">Preço Padrão Gotas*</label>
-                <input type="text"
-                    name="preco_padrao"
-                    required="required"
-                    placeholder="Preço Padrão em Gotas..."
-                    id="preco_padrao"
-                    class="form-control"
-                    value="<?= $brinde['preco_padrao'] ?>">
+                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
             </div>
             <div class="col-lg-3">
                 <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
-                <input type="text"
-                    name="valor_moeda_venda_padrao"
-                    required="required"
-                    placeholder="Preço Padrão de Venda Avulsa (R$)..."
-                    id="valor_moeda_venda_padrao"
-                    class="form-control"
-                    value="<?= $brinde['valor_moeda_venda_padrao'] ?>"
-                    >
+                <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>">
             </div>
-                <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
+            <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
         </div>
         <?php if ($imagemExibicao) : ?>
             <div class="form-group row">
                 <div class="col-lg-12">
                     <label>Imagem Atual do Brinde</label>
-                    <div><img src="<?= $imagemExibicao ?>"
-                        alt="Imagem do Brinde"
-                        class="imagem-brinde"
-                        width="400px"
-                        height="300px"></div>
+                    <div><img src="<?= $imagemExibicao ?>" alt="Imagem do Brinde" class="imagem-brinde" width="400px" height="300px"></div>
                 </div>
             </div>
         <?php endif; ?>
@@ -269,7 +269,7 @@ echo $this->Breadcrumbs->render(
                     </span>
                     Salvar
                 </button>
-                <a href="<?= sprintf("/brindes/index/%s", $clientesId)?>" class="btn btn-danger botao-cancelar">
+                <a href="<?= sprintf("/brindes/index/%s", $clientesId) ?>" class="btn btn-danger botao-cancelar">
                     <span class="fa fa-window-close"></span>
                     Cancelar
                 </a>
@@ -289,4 +289,3 @@ echo $this->Breadcrumbs->render(
 <?php endif; ?>
 
 <?= $this->fetch('script'); ?>
-
