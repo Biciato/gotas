@@ -388,13 +388,14 @@ class BrindesController extends AppController
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
+        $brinde = $this->Brindes->getBrindeById($id);
+
         if (empty($cliente)) {
-            $cliente = $this->Clientes->get($clientesId);
+            $cliente = $this->Clientes->get($brinde->clientes_id);
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
             $rede = $redeHasCliente->rede;
         }
 
-        $brinde = $this->Brindes->getBrindeById($id);
         $imagemExibicao = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde->nome_img) : null;
         $imagemOriginal = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde->nome_img) : null;
         $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
