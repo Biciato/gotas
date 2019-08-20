@@ -77,7 +77,7 @@ class CryptUtil
     }
 
     /**
-     * CryptUtil::encryptCupom
+     * CryptUtil::encryptCupomRTI
      *
      * Utilizado para criptografar um cupom
      *
@@ -94,7 +94,7 @@ class CryptUtil
      *
      * @return string encrypted
      */
-    public static function encryptCupom(int $cc, int $dia, int $mes, int $ano, int $tipo, int $auxiliar, int $senha)
+    public static function encryptCupomRTI(int $cc, int $dia, int $mes, int $ano, int $tipo, int $auxiliar, int $senha)
     {
         // cálculo senha
 
@@ -180,5 +180,45 @@ class CryptUtil
         $input = chr($input);
 
         return $input;
+    }
+
+    /**
+     * CryptUtil::encryptProductsServices
+     *
+     * Gera uma string criptografada para cupons do tipo Produtos/Serviços
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-20
+     *
+     * @param integer $tamanho Tamanho da string (Default 13 dígitos)
+     * @param string $codigoPrimario Código Primário do Brinde
+     * @param string $codigoSecundario Código Secundário do Brinde
+     * @param string $delimitadores Delimitadores da palavra
+     *
+     * @return string
+     */
+    public static function encryptProductsServices(int $tamanho = 13, string $codigoPrimario = null, string $codigoSecundario = null, string $delimitadores = "%")
+    {
+        if (empty($codigoPrimario)) {
+            $codigoPrimario = 0;
+
+            while ($codigoPrimario <= 4) {
+                $codigoPrimario = substr(md5(mt_rand()), 0, 1);
+            }
+        }
+
+        $tamanho = $tamanho - strlen($codigoPrimario);
+
+        if (empty($codigoSecundario)) {
+            $codigoSecundario = substr(md5(mt_rand()), 0, 2);
+        } else {
+            $codigoSecundario = str_pad($codigoSecundario, 2, "0", STR_PAD_LEFT);
+        }
+
+        $tamanho = $tamanho - strlen($codigoSecundario);
+
+        $stringAleatoria = sprintf("%s%s%s", $codigoPrimario, $codigoSecundario, substr(md5(mt_rand()), 0, $tamanho));
+
+        return str_pad($stringAleatoria, 15, $delimitadores, STR_PAD_BOTH);
     }
 }

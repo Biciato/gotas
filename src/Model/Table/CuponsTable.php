@@ -335,13 +335,13 @@ class CuponsTable extends GenericTable
             // cupom que não é equipamento RTI deve ser gerado o código de forma proprietária
             if (!empty($codigoPrimario) && $brinde["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
 
-                $cupom->cupom_emitido = CryptUtil::encryptCupom($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
+                $cupom->cupom_emitido = CryptUtil::encryptCupomRTI($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
-                $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
+                $novoCupomAleatorio = "";
 
-                while (count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
-                    $novoCupomAleatorio = StringUtil::gerarStringAleatoria(14);
+                while (empty($novoCupomAleatorio) && count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
+                    $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
                 }
 
                 $cupom->cupom_emitido = $novoCupomAleatorio;
