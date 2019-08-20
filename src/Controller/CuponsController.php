@@ -2260,6 +2260,7 @@ class CuponsController extends AppController
     public function efetuarBaixaCupomAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
+        // ResponseUtil::successAPI("", $sessaoUsuario);
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
@@ -2274,8 +2275,11 @@ class CuponsController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                // DebugUtil::printArray($data);
                 $confirmar = !empty($data["confirmar"]) ? (bool) $data["confirmar"] : false;
-                $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : "";
+                $cupomEmitido = !empty($data["cupom_emitido"]) ? $data["cupom_emitido"] : null;
+                $codigoPrimario = !empty($data["codigo_primario"]) ?? null;
+                $codigoSecundario = !empty($data["codigo_secundario"]) ?? null;
 
                 // Validação de funcionário logado
                 $funcionarioId = $this->Auth->user()["id"];
@@ -2426,10 +2430,33 @@ class CuponsController extends AppController
                 $verificado = false;
                 $usados = array();
 
+                /**
+                 * @todo: Gustavo Souza Gonçalves 2019-08-19
+                 *
+                 * Quando o sistema foi projetado, ele foi projetado para que o sistema de compras de brindes (carrinho) pudesse ser 1 cupom
+                 * para N brindes. Só que hoje (e de acordo com o Samuel) será somente 1 para 1.
+                 *
+                 * Só que, quando isso foi levantado em discussão, a parte do cliente Mobile já estava pronta, e foi definido que não iriamos
+                 * modificar o que já estava pronto na parte Mobile.
+                 *
+                 * Como ficará esta questão?
+                 */
+
+                $validarCodigosOperacaoBrinde = !empty($codigoPrimario) && !empty($codigoSecundario);
+                $errors = array();
+
                 // Processa somente os cupons pendentes
                 foreach ($cuponsPendentes as $cupom) {
+                    $brinde = $this->Brindes->get($cupom->brindes_id);
                     $brindesEstoque = $this->BrindesEstoque->getActualStockForBrindesEstoque($cupom["brindes_id"]);
-                    $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]);
+
+                    $validacaoCodigos = true;
+                    if ($validarCodigosOperacaoBrinde) {
+                        $validacaoCodigos = ($brinde->codigo_primario == $codigoPrimario && $brinde->tempo_uso_brinde == $codigoSecundario);
+                    }
+
+                    // Se o brinde é ilimitado ou tem estoque atual, ou a validação passou, pode prosseguir
+                    $prosseguir = ($cupom["brinde"]["ilimitado"] || $brindesEstoque["estoque_atual"] >= $cupom["quantidade"]) && $validacaoCodigos;
 
                     if ($prosseguir) {
                         $tipoSaida = "";
@@ -2448,43 +2475,40 @@ class CuponsController extends AppController
                             $tipoSaida
                         );
 
-                        // diminuiu estoque, considera o item do cupom como resgatado
-                        if ($estoque) {
-                            $cupomSave = null;
+                        $cupomSave = null;
 
-                            // Equipamento RTI?
-                            if ($cupom["brinde"]["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
-                                $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
-                            } else {
-                                $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                        // Equipamento RTI?
+                        if ($cupom["brinde"]["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
+                            $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
+                        } else {
+                            $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
 
-                                // Gera nova transação
+                            // Gera nova transação
 
-                                $transacao = new CuponsTransacoes();
-                                $transacao->redes_id = $rede->id;
-                                $transacao->clientes_id = $cliente->id;
-                                $transacao->cupons_id = $cupom->id;
-                                $transacao->brindes_id = $cupom->brindes_id;
-                                $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
-                                $transacao->funcionarios_id = $usuarioLogado["id"];
-                                $transacao->tipo_operacao = TYPE_OPERATION_USE;
-                                $transacao->data = new DateTime();
+                            $transacao = new CuponsTransacoes();
+                            $transacao->redes_id = $rede->id;
+                            $transacao->clientes_id = $cliente->id;
+                            $transacao->cupons_id = $cupom->id;
+                            $transacao->brindes_id = $cupom->brindes_id;
+                            $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                            $transacao->funcionarios_id = $usuarioLogado["id"];
+                            $transacao->tipo_operacao = TYPE_OPERATION_USE;
+                            $transacao->data = new DateTime();
 
-                                $this->CuponsTransacoes->saveUpdate($transacao);
-                            }
-
-                            // adiciona novo registro de pontuação
-
-                            $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                                $cupom->clientes_id,
-                                $cupom->usuarios_id,
-                                $cupom->brindes_id,
-                                $cupom->valor_pago_gotas,
-                                $cupom->valor_pago_reais,
-                                $usuarioLogado["id"],
-                                true
-                            );
+                            $this->CuponsTransacoes->saveUpdate($transacao);
                         }
+
+                        // adiciona novo registro de pontuação
+
+                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                            $cupom->clientes_id,
+                            $cupom->usuarios_id,
+                            $cupom->brindes_id,
+                            $cupom->valor_pago_gotas,
+                            $cupom->valor_pago_reais,
+                            $usuarioLogado["id"],
+                            true
+                        );
 
                         // Obtem dados de retorno
 
@@ -2497,6 +2521,8 @@ class CuponsController extends AppController
                         $dadoCupom["quantidade"] = $cupom["quantidade"];
                         $dadoCupom["preco_brinde_gotas"] = (float) $cupom["valor_pago_gotas"];
                         $dadoCupom["preco_brinde_reais"] = (float) $cupom["valor_pago_reais"];
+                        $dadoCupom["codigo_primario"] = $brinde->codigo_primario;
+                        $dadoCupom["codigo_secundario"] = $brinde->tempo_uso_brinde;
                         // imagem brinde
                         $dadoCupom["nome_img_completo"] = $cupom["brinde"]["nome_img_completo"];
                         $dadoCupom["data_resgate"] = !empty($cupom["data"]) ? $cupom["data"]->format("d/m/Y H:i:s") : null;
@@ -2507,10 +2533,15 @@ class CuponsController extends AppController
                             "nome" => $cupom["brinde"]["nome"],
                             "quantidade" => $cupom["quantidade"]
                         );
+
+                        if (!$validacaoCodigos) {
+                            // @todo ver com samuel como ficará o retorno do erro
+                            $errors[] = "Código do Cupom não corresponde ao código do equipamento!";
+                            break;
+                        }
                     }
                 }
 
-                $errors = array();
 
                 if (count($brindesNaoUsados) > 0) {
                     $errors[] = "Alguns brindes não foram usados pois não há estoque suficiente. Verifique com o estabelecimento!";
@@ -2780,7 +2811,7 @@ class CuponsController extends AppController
                 false,
                 "",
                 true,
-                $confirmaDistancia, 
+                $confirmaDistancia,
                 $latitudeUsuario,
                 $longitudeUsuario
             );
