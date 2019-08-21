@@ -401,7 +401,7 @@ body {
 .sprite .logo_footer {
     background-position: -2px -2px;
     width: 228px;
-    height: 65px;
+    height: 64px;
     background-color: red;
 }
 
@@ -421,7 +421,7 @@ body {
     position: relative;
     float: left;
     background: linear-gradient( to right, rgba(52, 179, 201, 1) 0%, rgba(82, 183, 144, 1) 100%);
-    height: 30px;
+    height: 20px;
 }
 
 #footer_worker {
@@ -430,7 +430,7 @@ body {
     position: relative;
     float: left;
     background: linear-gradient( to right, rgba(52, 179, 201, 1) 0%, rgba(82, 183, 144, 1) 100%);
-    height: 220px;
+    height: 219px;
 }
 
 #footer_content {

@@ -36,7 +36,29 @@ $(document).ready(function () {
             validacaoGenericaForm();
         }
     }
+    
+    /**
+     * brindes_form.js::brindeRedeOnChange
+     *
+     * Ações executadas ao alterar opção "Brinde de Rede?"
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-21
+     *
+     * @return void
+     */
+    function brindeRedeOnChange(){
+        var value = $("#brinde-rede").val() == 1 ? true : false;
 
+        if (value){
+            $("#ilimitado").val(1);
+            $("#ilimitado").prop("disabled", true);
+        } else {
+            $("#ilimitado").prop("disabled", false);
+        }
+    }
+
+    $("#brinde-rede").on("change", brindeRedeOnChange).change();
 
     /**
      * brindes_form.js::tipo-equipamento-onchange
@@ -386,6 +408,4 @@ $(document).ready(function () {
         $("#crop-y2").val(c.scaleY);
         console.log(c);
     };
-
-
 });

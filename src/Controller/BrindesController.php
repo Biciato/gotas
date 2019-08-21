@@ -2,24 +2,28 @@
 
 namespace App\Controller;
 
-use App\Controller\AppController;
-use Cake\Core\Configure;
-use Cake\Event\Event;
-use Cake\Log\Log;
-use Cake\Routing\Router;
-use Cake\Mailer\Email;
-use Cake\View\Helper\UrlHelper;
+#region References
+
 use \DateTime;
+use \Exception;
+use App\Controller\AppController;
 use App\Custom\RTI\Security;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
-use \Exception;
+use Cake\Core\Configure;
+use Cake\Event\Event;
+use Cake\Log\Log;
+
+#endregion
 
 /**
- * Brindes Controller
+ * Controller para Brindes
+ *
+ * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2017-08-01
  *
  * @property \App\Model\Table\BrindesTable $Brindes
  *
@@ -179,7 +183,15 @@ class BrindesController extends AppController
      */
     public function adicionar($clientesId)
     {
-        $arraySet = array("editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "categoriasBrindesList");
+        $arraySet = [
+            "editMode",
+            "brinde",
+            "clientesId",
+            "permiteCadastrarBrindeRede",
+            "redesId",
+            "textoCodigoSecundario",
+            "categoriasBrindesList"
+        ];
         $editMode = 0;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -190,6 +202,7 @@ class BrindesController extends AppController
 
         if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
         }
 
         if (empty($cliente)) {
@@ -197,6 +210,12 @@ class BrindesController extends AppController
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
             $rede = $redeHasCliente->rede;
         }
+
+        /**
+         * Se o posto (clientes) for matriz e o usuário logado for <= PROFILE_TYPE_ADMIN_NETWORK,
+         * permite cadastrar brinde rede
+         */
+        $permiteCadastrarBrindeRede = $usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_NETWORK && $cliente->matriz;
 
         $textoCodigoSecundario = $this->usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER ? "Tempo / Cód. Secundário*" : "Tempo (min.)";
         $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
@@ -244,6 +263,7 @@ class BrindesController extends AppController
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
+                $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -308,7 +328,8 @@ class BrindesController extends AppController
                     $brinde->nome = $nome;
                     $brinde->codigo_primario = $codigoPrimario;
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
-                    $brinde->ilimitado = $ilimitado;
+                    $brinde->brinde_rede = $brindeRede;
+                    $brinde->ilimitado = $brindeRede ? true : $ilimitado;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -375,7 +396,18 @@ class BrindesController extends AppController
      */
     public function editar($id)
     {
-        $arraySet = ["editMode", "brinde", "clientesId", "redesId", "textoCodigoSecundario", "imagemOriginal", "imagemExibicao", "categoriasBrindesList"];
+        $arraySet = [
+            "editMode",
+            "brinde",
+            "clientesId",
+            "permiteCadastrarBrindeRede",
+            "redesId",
+            "textoCodigoSecundario",
+            "imagemOriginal",
+            "imagemExibicao",
+            "categoriasBrindesList"
+        ];
+
         $editMode = 1;
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -395,6 +427,12 @@ class BrindesController extends AppController
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
             $rede = $redeHasCliente->rede;
         }
+
+        /**
+         * Se o posto (clientes) for matriz e o usuário logado for <= PROFILE_TYPE_ADMIN_NETWORK,
+         * permite cadastrar brinde rede
+         */
+        $permiteCadastrarBrindeRede = $usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_NETWORK && $cliente->matriz;
 
         $imagemExibicao = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_READ_BRINDES, $brinde->nome_img) : null;
         $imagemOriginal = !empty($brinde->nome_img) ? sprintf("%s%s", PATH_IMAGES_BRINDES, $brinde->nome_img) : null;
@@ -463,6 +501,7 @@ class BrindesController extends AppController
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
+                $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
@@ -538,7 +577,8 @@ class BrindesController extends AppController
                     $brinde->nome = $nome;
                     $brinde->codigo_primario = $codigoPrimario;
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
-                    $brinde->ilimitado = $ilimitado;
+                    $brinde->brinde_rede = $brindeRede;
+                    $brinde->ilimitado = $brindeRede ? true : $ilimitado;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -1268,12 +1308,12 @@ class BrindesController extends AppController
 
             $brindesPosto = $this->Brindes->getBrindesPostoNotIn($clientesId, $idsTopBrindes);
             $brindesPosto = $brindesPosto->toArray();
-           
+
             foreach ($brindesPosto as $brinde) {
                 $estoqueAtual = $this->BrindesEstoque->getActualStockForBrindesEstoque($brinde->id);
                 $brinde->status_estoque = ($estoqueAtual["estoque_atual"] <= 0 && !$brinde->ilimitado) ? "Esgotado" : "Normal";
             }
-            
+
             $data = ["brindes" => $brindesPosto];
 
             return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);

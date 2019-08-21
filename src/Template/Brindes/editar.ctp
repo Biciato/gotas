@@ -97,10 +97,10 @@ echo $this->Breadcrumbs->render(
         </div>
 
         <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
-            <div class="form-group row">
-                <div class="col-lg-4">
-                    <label for="tipo_equipamento">Tipo de Equipamento*</label>
-                    <?= $this->Form->input(
+        <div class="form-group row">
+            <div class="col-lg-4">
+                <label for="tipo_equipamento">Tipo de Equipamento*</label>
+                <?= $this->Form->input(
                         "tipo_equipamento",
                         array(
                             "id" => "tipo_equipamento",
@@ -116,77 +116,167 @@ echo $this->Breadcrumbs->render(
                             )
                         )
                     ); ?>
-                </div>
-                <div class="col-lg-4">
-                    <label for="codigo_primario">Código Primário*</label>
-                    <input type="number" name="codigo_primario" id="codigo_primario" class="form-control codigo-primario" required="false" min="1" max="99" title="Código Primario de Equipamento RTI" placeHolder="Código Primario..." value="<?= $brinde["codigo_primario"] ?>">
-                </div>
-                <div class="col-lg-4">
-                    <label for="tempo_uso_brinde"><?= $textoCodigoSecundario ?></label>
-                    <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="99" title="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
-                </div>
             </div>
+            <div class="col-lg-4">
+                <label for="codigo_primario">Código Primário*</label>
+                <input type="number" name="codigo_primario" id="codigo_primario" class="form-control codigo-primario" required="false" min="1" max="99" title="Código Primario de Equipamento RTI" placeHolder="Código Primario..." value="<?= $brinde["codigo_primario"] ?>">
+            </div>
+            <div class="col-lg-4">
+                <label for="tempo_uso_brinde"><?= $textoCodigoSecundario ?></label>
+                <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="99" title="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
+            </div>
+        </div>
         <?php else : ?>
-            <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
+        <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
         <?php endif; ?>
 
+        <?php if ($permiteCadastrarBrindeRede) : ?>
+        <div class="form-group row">
+            <div class="col-lg-4">
+                <label for="brinde-rede">Brinde de Rede?*</label>
+                <?= $this->Form->input(
+                        "brinde_rede",
+                        array(
+                            "id" => "brinde-rede",
+                            "value" => $brinde->brinde_rede,
+                            "required" => "required",
+                            "label" => false,
+                            "default" => 0,
+                            "options" => array(
+                                1 => "Sim",
+                                0 => "Não",
+                            )
+                        )
+                    ); ?>
+            </div>
+            <div class="col-lg-4">
+                <label for="ilimitado">Ilimitado*</label>
+                <?= $this->Form->input(
+                        "ilimitado",
+                        array(
+                            "id" => "ilimitado",
+                            "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
+                            "required" => "required",
+                            "class" => "ilimitado",
+                            // "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "options" => array(
+                                1 => "Sim",
+                                0 => "Não",
+                            )
+                        )
+                    ); ?>
+            </div>
+            <div class="col-lg-4">
+                <label for="habilitado">Habilitado*</label>
+                <?= $this->Form->input(
+                        "habilitado",
+                        array(
+                            "id" => "habilitado",
+                            "value" => $brinde['habilitado'],
+                            "required" => "required",
+                            "class" => "habilitado",
+                            "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "options" => array(
+                                1 => "Sim",
+                                0 => "Não",
+                            )
+                        )
+                    ); ?>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-lg-4">
+                <label for="tipo_venda">Tipo de Venda*</label>
+                <?= $this->Form->input(
+                        "tipo_venda",
+                        array(
+                            "id" => "tipo_venda",
+                            "value" => $brinde['tipo_venda'],
+                            "required" => "required",
+                            "class" => "tipo-venda disabled",
+                            // "disabled",
+                            // "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "empty" => true,
+                            "options" => array(
+                                TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
+                                TYPE_SELL_DISCOUNT_TEXT => TYPE_SELL_DISCOUNT_TEXT,
+                                TYPE_SELL_CURRENCY_OR_POINTS_TEXT => TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                            )
+                        )
+                    ); ?>
+            </div>
+
+            <div class="col-lg-4">
+                <label for="preco_padrao">Preço Padrão Gotas*</label>
+                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
+            </div>
+            <div class="col-lg-4">
+                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
+                <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>">
+            </div>
+        </div>
+        <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
+        <?php else : ?>
         <div class="form-group row">
             <div class="col-lg-2">
                 <label for="ilimitado">Ilimitado*</label>
                 <?= $this->Form->input(
-                    "ilimitado",
-                    array(
-                        "id" => "ilimitado",
-                        "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
-                        "required" => "required",
-                        "class" => "ilimitado",
-                        // "readonly" => $editMode == 1 ? 'readonly' : '',
-                        "label" => false,
-                        "options" => array(
-                            1 => "Sim",
-                            0 => "Não",
+                        "ilimitado",
+                        array(
+                            "id" => "ilimitado",
+                            "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
+                            "required" => "required",
+                            "class" => "ilimitado",
+                            // "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "options" => array(
+                                1 => "Sim",
+                                0 => "Não",
+                            )
                         )
-                    )
-                ); ?>
+                    ); ?>
             </div>
             <div class="col-lg-2">
                 <label for="habilitado">Habilitado*</label>
                 <?= $this->Form->input(
-                    "habilitado",
-                    array(
-                        "id" => "habilitado",
-                        "value" => $brinde['habilitado'],
-                        "required" => "required",
-                        "class" => "habilitado",
-                        "readonly" => $editMode == 1 ? 'readonly' : '',
-                        "label" => false,
-                        "options" => array(
-                            1 => "Sim",
-                            0 => "Não",
+                        "habilitado",
+                        array(
+                            "id" => "habilitado",
+                            "value" => $brinde['habilitado'],
+                            "required" => "required",
+                            "class" => "habilitado",
+                            "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "options" => array(
+                                1 => "Sim",
+                                0 => "Não",
+                            )
                         )
-                    )
-                ); ?>
+                    ); ?>
             </div>
             <div class="col-lg-2">
                 <label for="tipo_venda">Tipo de Venda*</label>
                 <?= $this->Form->input(
-                    "tipo_venda",
-                    array(
-                        "id" => "tipo_venda",
-                        "value" => $brinde['tipo_venda'],
-                        "required" => "required",
-                        "class" => "tipo-venda disabled",
-                        // "disabled",
-                        // "readonly" => $editMode == 1 ? 'readonly' : '',
-                        "label" => false,
-                        "empty" => true,
-                        "options" => array(
-                            TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
-                            TYPE_SELL_DISCOUNT_TEXT => TYPE_SELL_DISCOUNT_TEXT,
-                            TYPE_SELL_CURRENCY_OR_POINTS_TEXT => TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                        "tipo_venda",
+                        array(
+                            "id" => "tipo_venda",
+                            "value" => $brinde['tipo_venda'],
+                            "required" => "required",
+                            "class" => "tipo-venda disabled",
+                            // "disabled",
+                            // "readonly" => $editMode == 1 ? 'readonly' : '',
+                            "label" => false,
+                            "empty" => true,
+                            "options" => array(
+                                TYPE_SELL_FREE_TEXT => TYPE_SELL_FREE_TEXT,
+                                TYPE_SELL_DISCOUNT_TEXT => TYPE_SELL_DISCOUNT_TEXT,
+                                TYPE_SELL_CURRENCY_OR_POINTS_TEXT => TYPE_SELL_CURRENCY_OR_POINTS_TEXT
+                            )
                         )
-                    )
-                ); ?>
+                    ); ?>
             </div>
 
             <div class="col-lg-3">
@@ -199,13 +289,14 @@ echo $this->Breadcrumbs->render(
             </div>
             <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
         </div>
+        <?php endif; ?>
         <?php if ($imagemExibicao) : ?>
-            <div class="form-group row">
-                <div class="col-lg-12">
-                    <label>Imagem Atual do Brinde</label>
-                    <div><img src="<?= $imagemExibicao ?>" alt="Imagem do Brinde" class="imagem-brinde" width="400px" height="300px"></div>
-                </div>
+        <div class="form-group row">
+            <div class="col-lg-12">
+                <label>Imagem Atual do Brinde</label>
+                <div><img src="<?= $imagemExibicao ?>" alt="Imagem do Brinde" class="imagem-brinde" width="400px" height="300px"></div>
             </div>
+        </div>
         <?php endif; ?>
 
         <div class="form-group row">
@@ -281,11 +372,11 @@ echo $this->Breadcrumbs->render(
 </div>
 
 <?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_form') ?>
-    <?= $this->Html->css("styles/brindes/brindes_form") ?>
+<?= $this->Html->script('scripts/brindes/brindes_form') ?>
+<?= $this->Html->css("styles/brindes/brindes_form") ?>
 <?php else : ?>
-    <?= $this->Html->script('scripts/brindes/brindes_form.min') ?>
-    <?= $this->Html->css("styles/brindes/brindes_form.min") ?>
+<?= $this->Html->script('scripts/brindes/brindes_form.min') ?>
+<?= $this->Html->css("styles/brindes/brindes_form.min") ?>
 <?php endif; ?>
 
 <?= $this->fetch('script'); ?>
