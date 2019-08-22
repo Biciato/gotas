@@ -241,7 +241,10 @@ class BrindesTable extends GenericTable
             }
 
             if (!empty($clientesId)) {
-                $where[] = array("Brindes.clientes_id" => $clientesId);
+                $where[] = ["OR" => [
+                    "Brindes.brinde_rede" => 1,
+                    "Brindes.clientes_id" => $clientesId
+                ]];
             }
 
             if (!empty($codigoPrimario)) {

@@ -120,6 +120,8 @@ echo $this->Breadcrumbs->render(
                                 <i class="fa fa-trash"></i>
                             </a>
                             <?php endif; ?>
+                        <?php else : ?>
+                            <span class="strong">Editável na matriz</span>
                         <?php endif; ?>
                     </td>
                 </tr>
