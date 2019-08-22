@@ -8,6 +8,7 @@
  *
  * Arquivo que exibe brindes do cliente
  */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use App\Custom\RTI\DateTimeUtil;
@@ -81,20 +82,21 @@ echo $this->Breadcrumbs->render(
             </thead>
             <tbody>
                 <?php foreach ($brindes as $brinde) : ?>
-                    <tr>
-                        <td><?php echo h($brinde->nome) ?></td>
-                        <td><?php echo $brinde->categoria_brinde->nome ?></td>
-                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
-                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->brinde_rede) ?></td>
-                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->habilitado) ?></td>
-                        <td><?php echo $brinde["tipo_equipamento"] ?></td>
-                        <td><?php echo $brinde["tipo_codigo_barras"] ?></td>
-                        <td><?php echo Number::precision($brinde["preco_atual"]["preco"], 2) ?></td>
-                        <td><?php echo Number::currency($brinde["preco_atual"]["valor_moeda_venda"]) ?></td>
+                <tr>
+                    <td><?php echo h($brinde->nome) ?></td>
+                    <td><?php echo $brinde->categoria_brinde->nome ?></td>
+                    <td><?php echo $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
+                    <td><?php echo $this->Boolean->convertBooleanToString($brinde->brinde_rede) ?></td>
+                    <td><?php echo $this->Boolean->convertBooleanToString($brinde->habilitado) ?></td>
+                    <td><?php echo $brinde["tipo_equipamento"] ?></td>
+                    <td><?php echo $brinde["tipo_codigo_barras"] ?></td>
+                    <td><?php echo Number::precision($brinde["preco_atual"]["preco"], 2) ?></td>
+                    <td><?php echo Number::currency($brinde["preco_atual"]["valor_moeda_venda"]) ?></td>
 
-                        <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
+                    <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
 
-                        <td class="actions" style="white-space:nowrap">
+                    <td class="actions" style="white-space:nowrap">
+                        <?php if (!$brinde->brinde_rede || ($brinde->brinde_rede && $brinde->clientes_id == $clientesId)) : ?>
                             <a href="<?php echo sprintf('/brindes/view/%s', $brinde['id']) ?>" class="btn btn-primary btn-xs botao-navegacao-tabela">
                                 <i class="fa fa-cogs" title="Configurar"></i>
                             </a>
@@ -102,45 +104,25 @@ echo $this->Breadcrumbs->render(
                                 <i class="fa fa-edit" title="Editar"></i>
                             </a>
                             <?php if ($brinde["habilitado"]) : ?>
-                                <a href="#"
-                                    class="btn btn-xs btn-primary btn-danger"
-                                    title="Desabilitar"
-                                    data-toggle="modal"
-                                    data-target="#modal-confirm-with-message"
-                                    data-message="<?php echo sprintf(MESSAGE_DISABLE_QUESTION, $brinde["nome"])?>"
-                                    data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"])?>"
-                                    >
-                                    <i class="fa fa-power-off"></i>
-                                </a>
+                            <a href="#" class="btn btn-xs btn-primary btn-danger" title="Desabilitar" data-toggle="modal" data-target="#modal-confirm-with-message" data-message="<?php echo sprintf(MESSAGE_DISABLE_QUESTION, $brinde["nome"]) ?>" data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"]) ?>">
+                                <i class="fa fa-power-off"></i>
+                            </a>
                             <?php else : ?>
-                                <a href="#"
-                                    class="btn btn-xs btn-primary btn-confirm"
-                                    title="Habilitar"
-                                    data-toggle="modal"
-                                    data-target="#modal-confirm-with-message"
-                                    data-message="<?php echo sprintf(MESSAGE_ENABLE_QUESTION, $brinde["nome"])?>"
-                                    data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"])?>"
-                                    >
-                                    <i class="fa fa-power-off"></i>
-                                </a>
+                            <a href="#" class="btn btn-xs btn-primary btn-confirm" title="Habilitar" data-toggle="modal" data-target="#modal-confirm-with-message" data-message="<?php echo sprintf(MESSAGE_ENABLE_QUESTION, $brinde["nome"]) ?>" data-action="<?php echo sprintf("/Brindes/alterarEstadoBrinde?id=%s", $brinde["id"]) ?>">
+                                <i class="fa fa-power-off"></i>
+                            </a>
 
                             <?php endif; ?>
 
-                            <?php if ($brinde["tipo_equipamento"] == TYPE_EQUIPMENT_PRODUCT_SERVICES || $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER):?>
+                            <?php if ($brinde["tipo_equipamento"] == TYPE_EQUIPMENT_PRODUCT_SERVICES || $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
                             <!-- Se usuário for admin rti ou o brinde é produtos serviços, exibe a opção de 'deletar' -->
-                            <a href="#"
-                                    class="btn btn-xs btn-primary btn-danger"
-                                    title="Apagar"
-                                    data-toggle="modal"
-                                    data-target="#modal-confirm-with-message"
-                                    data-message="<?php echo sprintf(MESSAGE_DELETE_QUESTION, $brinde["nome"])?>"
-                                    data-action="<?php echo sprintf("/brindes/delete/%s", $brinde["id"])?>"
-                                    >
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            <?php endif;?>
-                        </td>
-                    </tr>
+                            <a href="#" class="btn btn-xs btn-primary btn-danger" title="Apagar" data-toggle="modal" data-target="#modal-confirm-with-message" data-message="<?php echo sprintf(MESSAGE_DELETE_QUESTION, $brinde["nome"]) ?>" data-action="<?php echo sprintf("/brindes/delete/%s", $brinde["id"]) ?>">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
+                </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>

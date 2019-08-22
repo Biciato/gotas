@@ -464,6 +464,7 @@ class BrindesEstoqueController extends AppController
             $cliente = null;
             foreach ($clientesIds as $key => $clienteId) {
 
+                // $brindesHabilitadosArray = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId(
                 $brindesHabilitadosArray = $this->ClientesHasBrindesHabilitados->getBrindesHabilitadosByClienteId(
                     [$clienteId],
                     $arrayWhereConditions
