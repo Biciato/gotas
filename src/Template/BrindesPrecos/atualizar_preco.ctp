@@ -66,7 +66,7 @@ echo $this->element(
     <div class="form-group row">
         <div class="col-lg-12 text-right">
             <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
-            <a href="/clientesHasBrindesHabilitados/configurarBrinde/<?= $brindesId?>"
+            <a href="/brindes/view/<?= $brindesId?>"
                 class="btn btn-danger botao-cancelar">
                 <i class="fa fa-window-close">
                 </i>
