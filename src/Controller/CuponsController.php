@@ -3456,7 +3456,7 @@ class CuponsController extends AppController
                     "usuario" => $usuario,
                     "tempo" => $brinde["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brinde["tipo_codigo_barras"],
-                    "is_brinde_smart_shower" => $brinde->codigo_primario <= 4,
+                    "is_brinde_smart_shower" => ($brinde->codigo_primario >= 1 && $brinde->codigo_primario <= 4),
                 );
 
                 return $retorno;
