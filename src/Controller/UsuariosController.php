@@ -2652,18 +2652,25 @@ class UsuariosController extends AppController
 
         $listaPermissoes = array();
         if ($usuario["tipo_perfil"] == PROFILE_TYPE_WORKER) {
-            $listaPermissoes[] = array(
-                "funcao" => "VALIDAR_BRINDE",
-                "status" => 1
-            );
-            $listaPermissoes[] = array(
-                "funcao" => "CADASTRAR_USUARIO",
-                "status" => 1
-            );
-            $listaPermissoes[] = array(
-                "funcao" => "PONTUAR_USUARIO",
-                "status" => 1
-            );
+
+            $listaPermissoes = [
+                [
+                    "funcao" => "VALIDAR_BRINDE",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "CADASTRAR_USUARIO",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "PONTUAR_USUARIO",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "CONFIG_HARDWARE_APP_POSTO",
+                    "status" => 1
+                ]
+            ];
         }
 
         $usuario = array(

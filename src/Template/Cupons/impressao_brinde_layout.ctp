@@ -45,6 +45,8 @@ use Cake\Core\Configure;
                     <?= $this->Html->tag('span', 'Data emissão: ', ['class' => 'pull-right']) ?>
                     <br />
                     <?= $this->Html->tag('span', isset($data_impressao) ? $data_impressao : null, ['id' => 'print_data_emissao']) ?>
+                    <br />
+                    <?= "Validade: 24 horas" ?>
                 </div>
             </div>
         </div>
