@@ -2651,8 +2651,7 @@ class UsuariosController extends AppController
         );
 
         $listaPermissoes = array();
-        if ($usuario["tipo_perfil"] == PROFILE_TYPE_WORKER) {
-
+        if ($usuario["tipo_perfil"] >= PROFILE_TYPE_MANAGER && $usuario->tipo_perfil <= PROFILE_TYPE_WORKER) {
             $listaPermissoes = [
                 [
                     "funcao" => "VALIDAR_BRINDE",
