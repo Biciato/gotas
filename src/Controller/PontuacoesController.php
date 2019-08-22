@@ -315,7 +315,7 @@ class PontuacoesController extends AppController
             }
 
             // TODO: Ajustar
-            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds)->select(['id', 'nome']);
+            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds, null, null, null, PROFILE_TYPE_WORKER)->select(['id', 'nome']);
             $funcionarios = array();
 
             foreach ($funcionariosQuery as $key => $value) {
