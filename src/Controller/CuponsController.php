@@ -3110,7 +3110,7 @@ class CuponsController extends AppController
             return ResponseUtil::errorAPI($message, [], []);
         }
 
-        $tipoVendaBrinde = $brinde["tipo_venda"];
+        $tipoVendaBrinde = $brinde->tipo_venda;
 
         $precoGotas = 0;
         $precoReais = 0;
@@ -3120,14 +3120,14 @@ class CuponsController extends AppController
             $precoReais = 0;
         } elseif ($tipoVendaBrinde == TYPE_SELL_DISCOUNT_TEXT) {
             // Se brinde com desconto
-            $precoGotas = $brinde["preco_atual"]["preco"];
-            $precoReais = $brinde["preco_atual"]["valor_moeda_venda"];
+            $precoGotas = $brinde->preco_atual->preco;
+            $precoReais = $brinde->preco_atual->valor_moeda_venda;
         } else {
             // Se brinde = cobrança normal
             if ($tipoPagamento == TYPE_PAYMENT_MONEY) {
-                $precoReais = $brinde["preco_atual"]["valor_moeda_venda"];
+                $precoReais = $brinde->preco_atual->valor_moeda_venda;
             } else {
-                $precoGotas = $brinde["preco_atual"]["preco"];
+                $precoGotas = $brinde->preco_atual->preco;
             }
         }
         // Verifica se o brinde em questão está com preço zerado.
@@ -3213,7 +3213,6 @@ class CuponsController extends AppController
             // Venda Avulsa não precisa de confirmação de senha, conforme solicitação do Samuel
             $senhaValida = true;
         } elseif (($usuario["tipo_perfil"] < Configure::read('profileTypes')['DummyUserProfileType']) || !$vendaAvulsa) {
-
             if ((new DefaultPasswordHasher)->check($senhaAtualUsuario, $usuario->senha)) {
                 $senhaValida = true;
             }

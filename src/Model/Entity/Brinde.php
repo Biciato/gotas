@@ -14,6 +14,7 @@ use stdClass;
  * @property int $clientes_id
  * @property int $categorias_brindes_id
  * @property string $nome
+ * @property bool $brinde_rede
  * @property int $ilimitado
  * @property string $tipo_venda
  * @property float $preco_padrao

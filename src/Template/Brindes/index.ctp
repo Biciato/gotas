@@ -65,6 +65,7 @@ echo $this->Breadcrumbs->render(
                     <th><?= $this->Paginator->sort('nome') ?></th>
                     <th><?= $this->Paginator->sort('categorias_brindes_id', ["label" => "Categoria"]) ?></th>
                     <th><?= $this->Paginator->sort('ilimitado') ?></th>
+                    <th><?= $this->Paginator->sort('brinde_rede', ['label' => 'Brinde Rede?']) ?></th>
                     <th><?= $this->Paginator->sort('habilitado') ?></th>
                     <th><?= $this->Paginator->sort('tipo_equipamento', array("label" => "Equipamento")) ?></th>
                     <th><?= $this->Paginator->sort('tipo_codigo_barras', array("label" => "Código de Barras")) ?></th>
@@ -83,8 +84,9 @@ echo $this->Breadcrumbs->render(
                     <tr>
                         <td><?php echo h($brinde->nome) ?></td>
                         <td><?php echo $brinde->categoria_brinde->nome ?></td>
-                        <td><?php echo $this->Boolean->convertBooleanToString($brinde["ilimitado"]) ?></td>
-                        <td><?php echo $this->Boolean->convertBooleanToString($brinde["habilitado"]) ?></td>
+                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->ilimitado) ?></td>
+                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->brinde_rede) ?></td>
+                        <td><?php echo $this->Boolean->convertBooleanToString($brinde->habilitado) ?></td>
                         <td><?php echo $brinde["tipo_equipamento"] ?></td>
                         <td><?php echo $brinde["tipo_codigo_barras"] ?></td>
                         <td><?php echo Number::precision($brinde["preco_atual"]["preco"], 2) ?></td>
