@@ -249,7 +249,7 @@ class BrindesEstoqueController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        $brinde = $this->ClientesHasBrindesHabilitados->getBrindeHabilitadoById($brindesId);
+        $brinde = $this->Brindes->getBrindeById($brindesId);
 
         $clientes_id = $brinde->clientes_id;
 
