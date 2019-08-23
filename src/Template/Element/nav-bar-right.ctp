@@ -318,15 +318,15 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Definição de Propaganda', ['controller' => 'redes_has_clientes', 'action' => 'propaganda_escolha_unidades']) ?>
                     </li>
 
-                    <li class="divider"></li>
+                    <!-- <li class="divider"></li> -->
 
                     <!-- <li>
                                                                                                                                                                                     <a href="#!/relatorios">Relatórios</a>
                                                                                                                                                                                 </li> -->
                     <!-- Ativar relatórios aqui -->
-                    <li>
+                    <!-- <li>
                         <a href="/usuarios/relatorios">Relatórios</a>
-                    </li>
+                    </li> -->
 
                 </ul>
             </li>

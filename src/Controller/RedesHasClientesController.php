@@ -244,7 +244,7 @@ class RedesHasClientesController extends AppController
                     $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
                     $this->BrindesEstoque->deleteAllBrindesEstoqueByClientesIds($clientesIds);
                     $this->BrindesPrecos->deleteAllBrindesPrecosByClientesIds($clientesIds);
-                    $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
+                    // $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
                     $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
 
                     $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds,$deleteConditionsUsuarios);

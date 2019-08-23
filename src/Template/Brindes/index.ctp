@@ -96,7 +96,7 @@ echo $this->Breadcrumbs->render(
                     <td><?php echo DateTimeUtil::convertDateTimeToLocal($brinde["audit_insert"]) ?></td>
 
                     <td class="actions" style="white-space:nowrap">
-                        <?php if (!$brinde->brinde_rede || ($brinde->brinde_rede && $brinde->clientes_id == $clientesId)) : ?>
+                        <?php if (!$brinde->brinde_rede || (($brinde->brinde_rede && $brinde->clientes_id == $clientesId) && ($usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_NETWORK))) : ?>
                             <a href="<?php echo sprintf('/brindes/view/%s', $brinde['id']) ?>" class="btn btn-primary btn-xs botao-navegacao-tabela">
                                 <i class="fa fa-cogs" title="Configurar"></i>
                             </a>
