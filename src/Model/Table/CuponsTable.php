@@ -338,9 +338,9 @@ class CuponsTable extends GenericTable
                 $cupom->cupom_emitido = CryptUtil::encryptCupomRTI($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
-                $novoCupomAleatorio = "";
+                $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
 
-                while (empty($novoCupomAleatorio) && count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
+                while (count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
                     $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
                 }
 
