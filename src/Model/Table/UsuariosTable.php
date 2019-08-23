@@ -1034,6 +1034,32 @@ class UsuariosTable extends GenericTable
     }
 
     /**
+     * Usuarios::getUsuarioFicticio
+     *
+     * Obtem funcionário fictício utilizado para Vendas em Mobile API
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @date 2018/05/08
+     *
+     * @return Usuario $usuario
+     */
+    public function getUsuarioFicticio()
+    {
+        try {
+            return $this->find('all')
+                ->where(['tipo_perfil' => PROFILE_TYPE_DUMMY_USER])->first();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao consultar usuários: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
      * Obtem todos os usuários por Name
      *
      * @param string $nome             Nome do usuário

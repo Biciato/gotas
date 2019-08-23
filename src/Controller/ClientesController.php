@@ -249,6 +249,9 @@ class ClientesController extends AppController
                 // Ele será necessário para funções automáticas de venda de brinde via API
                 $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
+                
+                $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
 
                 $this->Flash->success(__("Registro gravado com sucesso."));
 
