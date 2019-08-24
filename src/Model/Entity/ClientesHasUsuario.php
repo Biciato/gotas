@@ -7,9 +7,10 @@ use Cake\ORM\Entity;
  * ClientesHasUsuario Entity
  *
  * @property int $id
- * @property int $matriz_id
  * @property int $clientes_id
  * @property int $usuarios_id
+ * @property int $audit_user_insert_id
+ * @property bool $conta_ativa
  *
  * @property \App\Model\Entity\Cliente $cliente
  * @property \App\Model\Entity\Usuario $usuario

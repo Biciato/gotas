@@ -267,7 +267,6 @@ class UsuariosController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
@@ -371,7 +370,8 @@ class UsuariosController extends AppController
                     }
 
                     if (isset($cliente_id)) {
-                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente_id, $usuario->id);
+                        $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente_id, $usuario->id, true, $usuarioInsercaoId);
                     }
                 }
 
@@ -878,7 +878,8 @@ class UsuariosController extends AppController
                      * será considerado equipe
                      */
 
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario->id);
+                    $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuario->id, true, $usuarioInsercaoId);
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -947,6 +948,11 @@ class UsuariosController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $cliente = $sessaoUsuario["cliente"];
         $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
 
         $usuario = $this->Usuarios->newEntity();
         $unidadesRede = array();
@@ -1069,7 +1075,9 @@ class UsuariosController extends AppController
                      * será considerado equipe
                      */
 
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true);
+                    // Define qual foi o usuário que cadastrou o novo funcionário
+                    $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -2358,11 +2366,11 @@ class UsuariosController extends AppController
     public function registrarAPI()
     {
         $usuario = $this->Usuarios->newEntity();
-
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"] ?? null;
+        $cliente = $sessaoUsuario["cliente"] ?? null;
         $mensagem = array();
-
         $usuarioRegistrado = null;
-
         $errors = array();
 
         if ($this->request->is(['post', 'put'])) {
@@ -2537,6 +2545,12 @@ class UsuariosController extends AppController
                     $usuario = $this->Usuarios->save($usuario);
 
                     if ($usuario) {
+                        // Se usuarioLogado, significa que foi registrado através de um funcionário
+                        // Faz vinculação
+                        if (!empty($usuarioLogado)) {
+                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
+                        }
+
                         // Realiza login de autenticação
                         $usuario = [
                             'id' => $usuario->id,

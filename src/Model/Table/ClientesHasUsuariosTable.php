@@ -32,23 +32,6 @@ use App\Custom\RTI\ResponseUtil;
  */
 class ClientesHasUsuariosTable extends Table
 {
-
-    /**
-     * -------------------------------------------------------------
-     * Fields
-     * -------------------------------------------------------------
-     */
-
-    protected $clienteHasUsuarioQuery = null;
-
-    protected $clienteHasUsuarioTable = null;
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
     /**
      * Initialize method
      *
@@ -664,14 +647,18 @@ class ClientesHasUsuariosTable extends Table
 
     /**
      * Adiciona novo Usuário em cliente
+     * 
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-10-11
      *
      * @param int $usuariosId Id do cliente
      * @param int $clientesId Id do usuário
      * @param int $contaAtiva Conta do usuário Ativa
+     * @param int $audit_user_insert_id Id do Usuário que fez o cadastro
      *
      * @return \App\Model\Entity\ClienteHasUsuario
      */
-    public function saveClienteHasUsuario(int $clientesId, int $usuariosId, bool $contaAtiva = true)
+    public function saveClienteHasUsuario(int $clientesId, int $usuariosId, bool $contaAtiva = true, int $funcionariosId = null)
     {
         // @todo gustavosg: Ajustar todas as ocorrências
         try {
@@ -688,10 +675,14 @@ class ClientesHasUsuariosTable extends Table
                 $clientesHasUsuario = $this->newEntity();
             }
 
-            $clientesHasUsuario["clientes_id"] = (int)$clientesId;
-            $clientesHasUsuario["usuarios_id"] = (int)$usuariosId;
+            $clientesHasUsuario->clientes_id = (int)$clientesId;
+            $clientesHasUsuario->usuarios_id = (int)$usuariosId;
             // $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
-            $clientesHasUsuario["conta_ativa"] = (int)$contaAtiva;
+            $clientesHasUsuario->conta_ativa = (int)$contaAtiva;
+
+            if (!empty($funcionariosId)) {
+                $clientesHasUsuario->audit_user_insert_id = $funcionariosId;
+            }
 
             return $this->save($clientesHasUsuario);
         } catch (\Exception $e) {
@@ -905,7 +896,7 @@ class ClientesHasUsuariosTable extends Table
                 )
                 ->first();
 
-            $result = $clienteHasUsuarioTable->delete($clientesHasUsuario);
+            $result = $this->delete($clientesHasUsuario);
 
             if ($result) {
                 // se adicionou o registro, atualiza o perfil do admin
