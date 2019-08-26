@@ -20,8 +20,7 @@ echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );
 
-
-$max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['UserProfileType']) ? 6 : 8;
+$maxLength = ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['UserProfileType']) ? 6 : 8;
 ?>
 <?= $this->element('../Usuarios/left_menu', ['controller' => 'pages', 'action' => 'display', 'mode' => 'back']) ?>
 
@@ -31,38 +30,65 @@ $max_length = ($usuario->tipo_perfil == (int)Configure::read('profileTypes')['Us
     <fieldset>
         <legend><?= __('Alterar senha') ?> </legend>
 
+        <?php if ($id == $usuarioLogado->id) : ?>
+        <!-- Se o usuário à ser alterado é o mesmo logado -->
+        <div class="form-group">
+            <label for="senha_antiga">Senha Antiga*</label>
+            <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
 
-            <?= $this->Form->input(
-                'senha',
-                [
-                    "label" => "Nova Senha*",
-                    'type' => 'password',
-                    'required' => true,
-                    'autofocus' => true,
-                    'maxLength' => $max_length
-                ]
-            ); ?>
+        <div class="form-group">
+            <label for="senha">Nova Senha*</label>
+            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
 
-            <?= $this->Form->input(
-                'confirm_senha',
-                [
-                    "label" => "Confirmar Nova Senha*",
-                    'type' => 'password',
-                    'required' => true,
-                    'maxLength' => $max_length
-                ]
-            ); ?>
+        <div class="form-group">
+            <label for="confirm_senha">Confirmar Nova Senha*</label>
+            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
+        <?php elseif (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_MANAGER, PROFILE_TYPE_WORKER])) : ?>
+        <!-- Se é gerente ou funcionário -->
+        <div class="form-group">
+            <label for="senha_antiga">Senha Antiga*</label>
+            <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
 
+        <div class="form-group">
+            <label for="senha">Nova Senha*</label>
+            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_senha">Confirmar Nova Senha*</label>
+            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
+        <?php elseif ($usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_LOCAL) : ?>
+        <!-- Se é outro usuário alterando a senha, não precisa de confirmar -->
+        <div class="form-group">
+            <label for="senha">Nova Senha*</label>
+            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_senha">Confirmar Nova Senha*</label>
+            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+        </div>
+        <?php endif; ?>
 
     </fieldset>
 
-        <button type="submit" class="btn btn-primary botao-confirmar" id="user_submit">
-            <i class="fa fa-save"></i>
-            Salvar
-        </button>
-        <a onclick="window.history.go(-1); return false;" class="btn btn-danger botao-cancelar">
-            <i class="fa fa-window-close"></i>
-            Cancelar
-        </a>
+    <div class="form-group row">
+        <div class="col-lg-12 text-right">
+            <button type="submit" class="btn btn-primary botao-confirmar" id="user_submit">
+                <i class="fa fa-save"></i>
+                Salvar
+            </button>
+            <a onclick="window.history.go(-1); return false;" class="btn btn-danger botao-cancelar">
+                <i class="fa fa-window-close"></i>
+                Cancelar
+            </a>
+        </div>
+
+    </div>
     <?php echo $this->Form->end(); ?>
 </div>

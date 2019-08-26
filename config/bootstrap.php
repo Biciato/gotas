@@ -464,7 +464,6 @@ const TOP_BRINDES_TYPE_LOCAL = 'Posto';
 #endregion
 
 #region Usuários
-const MESSAGE_USUARIO_NEW_PASSWORD_DOESNT_MATCH = "Nova senha não confere!";
 const MESSAGE_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
 const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
 const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
@@ -474,7 +473,8 @@ const MESSAGE_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
 const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
 const MESSAGE_USUARIO_PASSWORD_LENGTH = "Tamanho da senha deve ser de %s dígitos!";
-const MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR = "Alteração de senha não foi realizada, confira se a senha e nova senha conferem!";
+const MESSAGE_USUARIO_OLD_PASSWORD_DOESNT_MATCH = "Senha antiga não confere!";
+const MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR = "Senha não foi alterada, por favor confira se a senha e nova senha conferem!";
 const MESSAGE_USUARIO_PASSWORD_UPDATED = "Alteração de senha realizada com sucesso!";
 const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
 const MESSAGE_USUARIO_PROFILE_ON_DATE = "Perfil está atualizado!";

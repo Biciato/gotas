@@ -335,7 +335,7 @@ class UsuariosController extends AppController
                 }
             }
 
-            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+            $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
 
             if (!empty($usuarioData["doc_estrangeiro"]) && strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, [
@@ -358,7 +358,7 @@ class UsuariosController extends AppController
 
             if ($usuario) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
+                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                 if (isset($this->usuarioLogado)) {
                     if ($transportadora) {
@@ -564,7 +564,7 @@ class UsuariosController extends AppController
 
             $this->Flash->success(__(Configure::read('messageDeleteSuccess')));
             return $this->redirect($return_url);
-        } else if ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        } elseif ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
 
             // admin rti / desenvolvedor não há problema
             // em ser removido, pois não realizam atendimento
@@ -834,13 +834,13 @@ class UsuariosController extends AppController
                     );
             }
 
-            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+            $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
+                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                 if ($transportadora) {
                     $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
@@ -1039,13 +1039,13 @@ class UsuariosController extends AppController
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-            $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+            $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             // $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
             if ($usuarioSave = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuarioSave['id'], $password_encrypt);
+                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuarioSave['id'], $passwordEncrypt);
 
                 // a vinculação só será feita se não for um Admin RTI
                 if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
@@ -1086,7 +1086,7 @@ class UsuariosController extends AppController
                 // caso contrário, retorna à usuários da rede
                 if ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['UserProfileType']) {
                     return $this->redirect(['action' => 'meus_clientes']);
-                } else if ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                } elseif ($usuarioSave['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                     return $this->redirect(['action' => 'index']);
                 } else {
                     if (isset($redesId)) {
@@ -1511,53 +1511,84 @@ class UsuariosController extends AppController
      */
     public function alterarSenha($id = null)
     {
+        $arraySet = ["id", "usuario", "usuarioLogado"];
+
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        if (empty($id)) {
+            return $this->redirect(array("controller" => "pages", "action" => "display"));
+        }
+
+        $usuario = $this->Usuarios->get($id);
+
+        if ($this->request->is('get')) {
+            $usuario->senha = null;
+        }
+
         try {
-            if (empty($id)) {
-                return $this->redirect(array("controller" => "pages", "action" => "display"));
-            }
-            $usuario = $this->Usuarios->get($id);
-
-            if ($this->request->is('get')) {
-                $usuario->senha = null;
-            }
-
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-            if ($usuarioAdministrador) {
-                $this->usuarioLogado = $usuarioAdministrar;
-            }
-
-            $this->set('usuario', $usuario);
             if ($this->request->is(['post', 'put'])) {
                 $usuario = $this->Usuarios->getUsuarioById($id);
 
                 if ($usuario) {
                     if (!empty($this->request->getData())) {
-                        $password_encrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
+                        $passwordEncrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
 
                         // Limpa campos de requisição de token
                         $this->request->data['token_senha'] = null;
                         $this->request->data['data_expiracao_senha'] = null;
                         $this->request->data['tipo_perfil'] = $usuario['tipo_perfil'];
 
-                        $usuario = $this->Usuarios->patchEntity($usuario, $this->request->data);
+                        $data = $this->request->getData();
+                        $senhaAntiga = $data["senha_antiga"] ?? null;
+                        $senha = $data["senha"];
+                        $confirmSenha = $data["confirm_senha"] ?? null;
+                        $senhaAntigaConfere = false;
+                        $errors = array();
 
-                        if ($this->Usuarios->save($usuario)) {
-                            $this->Flash->success(__('A senha foi atualizada.'));
+                        if ($usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_LOCAL) {
+                            $senhaAntigaConfere = true;
+                        } else {
+                            $senhaAntigaConfere = ((new DefaultPasswordHasher)->check($senhaAntiga, $usuario->senha));
+                        }
 
-                            // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
-                            $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $password_encrypt);
+                        if (!$senhaAntigaConfere) {
+                            $errors[] = MESSAGE_USUARIO_OLD_PASSWORD_DOESNT_MATCH;
+                        }
 
-                            if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-                                return $this->redirect(array('action' => 'index'));
-                            } else if ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['WorkerProfileType']) {
-                                return $this->redirect(['controller' => 'pages', 'action' => 'index']);
-                            } else {
-                                return $this->redirect(['controller' => 'usuarios', 'action' => 'meu_perfil']);
+                        if ($senha != $confirmSenha) {
+                            $errors[] = MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR;
+                        }
+
+                        if (count($errors) > 0) {
+                            foreach ($errors as $error) {
+                                $this->Flash->error($error);
                             }
                         } else {
-                            $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
+                            $usuario = $this->Usuarios->patchEntity($usuario, $this->request->data);
+
+                            if ($this->Usuarios->save($usuario)) {
+                                $this->Flash->success(__('A senha foi atualizada.'));
+
+                                // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
+                                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+
+                                if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+                                    return $this->redirect(array('action' => 'index'));
+                                } elseif ($this->usuarioLogado['tipo_perfil'] >= (int) Configure::read('profileTypes')['AdminNetworkProfileType'] && $this->usuarioLogado['tipo_perfil'] <= (int) Configure::read('profileTypes')['WorkerProfileType']) {
+                                    return $this->redirect(['controller' => 'pages', 'action' => 'index']);
+                                } else {
+                                    return $this->redirect(['controller' => 'usuarios', 'action' => 'meu_perfil']);
+                                }
+                            } else {
+                                $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
+                            }
                         }
                     }
                 } else {
@@ -1565,8 +1596,9 @@ class UsuariosController extends AppController
                     $this->redirect(['action' => 'alterar_senha']);
                 }
                 unset($usuario->password);
-                $this->set(compact('usuario'));
             }
+            $this->set("_serialize", $arraySet);
+            $this->set(compact($arraySet));
         } catch (\Exception $e) {
             $stringError = __("Erro ao realizar procedimento de troca de senha: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -1621,7 +1653,7 @@ class UsuariosController extends AppController
                 }
 
                 if ($novaSenha != $confirmSenha) {
-                    $errors[] = MESSAGE_USUARIO_NEW_PASSWORD_DOESNT_MATCH;
+                    $errors[] = MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR;
                 }
 
                 $tamanhoSenha = 8;
@@ -2533,7 +2565,7 @@ class UsuariosController extends AppController
                     $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
 
                     if (!empty($senha)) {
-                        $password_encrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                        $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
                     }
 
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
@@ -3279,19 +3311,19 @@ class UsuariosController extends AppController
 
                 if ($dataInicial > $dataFinal) {
                     $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                } else if ($dataInicial > $dataHoje) {
+                } elseif ($dataInicial > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                 }
-            } else if (strlen($data['auditInsertInicio']) > 0) {
+            } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicial];
                 }
-            } else if (strlen($data['auditInsertFim']) > 0) {
+            } elseif (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinal > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -3398,19 +3430,19 @@ class UsuariosController extends AppController
 
                 if ($dataInicialNascimento > $dataFinalNascimento) {
                     $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                } else if ($dataInicial > $dataHoje) {
+                } elseif ($dataInicial > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                 } else {
                     $whereConditions[] = ['usuarios.data_nasc BETWEEN "' . $dataInicialNascimento . '" and "' . $dataFinalNascimento . '"'];
                 }
-            } else if (strlen($data['dataNascimentoInicio']) > 0) {
+            } elseif (strlen($data['dataNascimentoInicio']) > 0) {
 
                 if ($dataInicialNascimento > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                 } else {
                     $whereConditions[] = ['usuarios.data_nasc >= ' => $dataInicialNascimento];
                 }
-            } else if (strlen($data['dataNascimentoFim']) > 0) {
+            } elseif (strlen($data['dataNascimentoFim']) > 0) {
 
                 if ($dataFinalNascimento > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -3427,19 +3459,19 @@ class UsuariosController extends AppController
 
                 if ($dataInicialInsercao > $dataFinalInsercao) {
                     $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                } else if ($dataInicialInsercao > $dataHoje) {
+                } elseif ($dataInicialInsercao > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicialInsercao . '" and "' . $dataFinalInsercao . '"'];
                 }
-            } else if (strlen($data['auditInsertInicio']) > 0) {
+            } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicialInsercao > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                 } else {
                     $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicialInsercao];
                 }
-            } else if (strlen($data['auditInsertFim']) > 0) {
+            } elseif (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinalInsercao > $dataHoje) {
                     $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -3534,19 +3566,19 @@ class UsuariosController extends AppController
 
                     if ($dataInicialNascimento > $dataFinalNascimento) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['usuarios.data_nasc BETWEEN "' . $dataInicialNascimento . '" and "' . $dataFinalNascimento . '"'];
                     }
-                } else if (strlen($data['dataNascimentoInicio']) > 0) {
+                } elseif (strlen($data['dataNascimentoInicio']) > 0) {
 
                     if ($dataInicialNascimento > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['usuarios.data_nasc >= ' => $dataInicialNascimento];
                     }
-                } else if (strlen($data['dataNascimentoFim']) > 0) {
+                } elseif (strlen($data['dataNascimentoFim']) > 0) {
 
                     if ($dataFinalNascimento > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -3563,19 +3595,19 @@ class UsuariosController extends AppController
 
                     if ($dataInicialInsercao > $dataFinalInsercao) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicialInsercao . '" and "' . $dataFinalInsercao . '"'];
                     }
-                } else if (strlen($data['auditInsertInicio']) > 0) {
+                } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicialInsercao > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicialInsercao];
                     }
-                } else if (strlen($data['auditInsertFim']) > 0) {
+                } elseif (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinalInsercao > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
