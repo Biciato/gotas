@@ -1952,7 +1952,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             // Valida se a rede está ativa
-            if (!$cliente["rede_has_cliente"]["rede"]["ativado"]) {
+            if (!$cliente->rede_has_cliente->rede->ativado) {
                 $message = MESSAGE_GENERIC_COMPLETED_ERROR;
                 $errors = array(
                     MESSAGE_NETWORK_DESACTIVATED
@@ -2075,7 +2075,12 @@ class PontuacoesComprovantesController extends AppController
 
                 if ($pontuacoesSave) {
                     // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], true);
+
+                    $usuarioClienteCheck = $this->ClientesHasUsuarios->getClienteUsuario($cliente->id, $usuario->id);
+
+                    if (empty($usuarioClienteCheck)) {
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], true, $funcionario->id);
+                    }
                 }
 
                 $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);

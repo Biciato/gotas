@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -14,6 +15,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use Exception;
 
 /**
  * ClientesHasUsuarios Model
@@ -601,6 +603,36 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * ClientesHasUsuariosTable::getClienteUsuario
+     *
+     * Obtem vinculo de usuário no posto
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-08-27
+     * 
+     * @param integer $clientesId Id de Clientes/Posto
+     * @param integer $usuariosId Id de usuário
+     *
+     * @return \App\Model\Entity\ClientesHasUsuario
+     */
+    public function getClienteUsuario(int $clientesId, int $usuariosId)
+    {
+        try {
+            return $this->find("all")
+                ->where(
+                    [
+                        "clientes_id" => $clientesId,
+                        "usuarios_id" => $usuariosId
+                    ]
+                )->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+    /**
      * Obtem o vínculo de clientes a um usuário
      *
      * @param integer $usuariosId Id de Usuário
@@ -675,10 +707,10 @@ class ClientesHasUsuariosTable extends Table
                 $clientesHasUsuario = $this->newEntity();
             }
 
-            $clientesHasUsuario->clientes_id = (int)$clientesId;
-            $clientesHasUsuario->usuarios_id = (int)$usuariosId;
+            $clientesHasUsuario->clientes_id = (int) $clientesId;
+            $clientesHasUsuario->usuarios_id = (int) $usuariosId;
             // $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
-            $clientesHasUsuario->conta_ativa = (int)$contaAtiva;
+            $clientesHasUsuario->conta_ativa = (int) $contaAtiva;
 
             if (!empty($funcionariosId)) {
                 $clientesHasUsuario->audit_user_insert_id = $funcionariosId;
