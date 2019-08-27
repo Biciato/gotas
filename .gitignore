@@ -5,4 +5,6 @@
 /webroot/img/tmp/*
 /webroot/img/gifts/*
 /webroot/img/networks/*
+/webroot/tmp/*
+/webroot/phpMyAdmin/tmp/*
 /config/definitions.php
