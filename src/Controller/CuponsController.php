@@ -2344,8 +2344,9 @@ class CuponsController extends AppController
 
                 if (count($cupons) == 0) {
                     $errors = array(MESSAGE_RECORD_NOT_FOUND);
+                    $errorCodes = [MESSAGE_RECORD_NOT_FOUND_CODE];
 
-                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
 
                 // Verifica se este cupom já foi usado

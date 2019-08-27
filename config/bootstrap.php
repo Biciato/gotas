@@ -322,6 +322,8 @@ const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
+const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
+// const MESSAGE_RECORD_NOT_FOUND_CODE = 0x0B0000002;
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
@@ -396,6 +398,7 @@ const MAX_TIME_COUPONS_REPORT_TIME = 16;
 // Tempo padrão caso funcionário gerar o relatório completo de caixa de funcionários
 const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
 const MESSAGE_WARNING_GENERATE_REPORT = "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
+const MESSAGE_CUPOM_ALREADY_RETRIEVED_CODE = 0x00000002;
 const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
 const MESSAGE_CUPOM_ALREADY_USED = "Cupom já foi validado, não é possível novo uso!";
 const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";

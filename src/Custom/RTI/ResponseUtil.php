@@ -130,7 +130,7 @@ class ResponseUtil
      *
      * @return json_encode Dados json
      */
-    public static function errorAPI(string $msg, array $errors = array(), array $data = array())
+    public static function errorAPI(string $msg, array $errors = array(), array $data = array(), array $errorCodes = array())
     {
         header("HTTP/1.0 400");
         header("Content-Type: application/json");
@@ -139,7 +139,8 @@ class ResponseUtil
         $mensagem = array(
             "status" => 0,
             "message" => $msg,
-            "errors" => $errors
+            "errors" => $errors,
+            "error_codes" => $errorCodes
         );
         $arraySet = array();
         $arraySet["mensagem"] = $mensagem;
