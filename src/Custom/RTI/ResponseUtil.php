@@ -103,7 +103,8 @@ class ResponseUtil
         $mensagem = array(
             "status" => 1,
             "message" => $msg,
-            "errors" => array()
+            "errors" => array(),
+            "error_codes" => []
         );
         $arraySet = array();
         $arraySet["mensagem"] = $mensagem;
