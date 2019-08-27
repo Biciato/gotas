@@ -2735,6 +2735,7 @@ class UsuariosController extends AppController
         ];
 
         $this->Auth->logout();
+        $this->clearCredentials();
 
         $arraySet = [
             'mensagem'

@@ -318,6 +318,7 @@ class AppController extends Controller
         $this->request->session()->delete("Usuario.Administrar");
         $this->request->session()->delete('Rede.Grupo');
         $this->request->session()->delete('Rede.PontoAtendimento');
+        $this->request->session()->destroy();
     }
 
     /**
