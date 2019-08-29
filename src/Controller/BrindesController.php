@@ -287,11 +287,11 @@ class BrindesController extends AppController
                 }
 
                 if (empty($tipoEquipamento)) {
-                    $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY;
+                    $errors[] = MSG_BRINDES_TYPE_EQUIPMENT_EMPTY;
                 }
 
                 if ($tipoEquipamento == TYPE_EQUIPMENT_RTI && empty($codigoPrimario)) {
-                    $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
+                    $errors[] = MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -523,15 +523,15 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
 
                 if (!in_array($tipoEquipamento, array(TYPE_EQUIPMENT_PRODUCT_SERVICES, TYPE_EQUIPMENT_RTI))) {
-                    $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT;
+                    $errors[] = MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT;
                 }
 
                 if (empty($tipoEquipamento)) {
-                    $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY;
+                    $errors[] = MSG_BRINDES_TYPE_EQUIPMENT_EMPTY;
                 }
 
                 if ($tipoEquipamento == TYPE_EQUIPMENT_RTI && empty($codigoPrimario)) {
-                    $errors[] = MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
+                    $errors[] = MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -1087,7 +1087,7 @@ class BrindesController extends AppController
             $desconto = !empty($data['desconto']) ? $data["desconto"] : false;
 
             if (empty($clientesId)) {
-                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MESSAGE_BRINDES_CLIENTES_ID_REQUIRED));
+                ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MSG_BRINDES_CLIENTES_ID_REQUIRED));
             }
 
             if (empty($tipoVenda)) {

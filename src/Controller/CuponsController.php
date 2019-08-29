@@ -1639,7 +1639,7 @@ class CuponsController extends AppController
                 }
                 if (empty($tipoPagamento) || !in_array($tipoPagamento, array(TYPE_PAYMENT_MONEY, TYPE_PAYMENT_POINTS))) {
                     // Evita se o usuário alterar diretamente no html de conitnuar e submeter
-                    $errors[] = __(MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED);
+                    $errors[] = __(MSG_CUPONS_TYPE_PAYMENT_REQUIRED);
                 }
 
                 if (count($errors) > 0) {
@@ -2329,26 +2329,20 @@ class CuponsController extends AppController
                 }
 
                 if (empty($cupomEmitido)) {
-                    $errors = array(__(Configure::read("messageFieldEmptyDefault"), "CUPOM EMITIDO"));
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                        "errors" => $errors
-                    );
-                    $arraySet = array("mensagem");
 
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
+                    // (string $msg, array $errors = array(), array $data = array(), array $errorCodes = array())
+                    $errors = [MSG_CUPONS_CUPOM_EMITIDO_EMPTY];
+                    $errorCodes = [MSG_CUPONS_CUPOM_EMITIDO_EMPTY_CODE];
+                    $data = [];
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
 
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
                 $cupons = $cupons->toArray();
 
                 if (count($cupons) == 0) {
-                    $errors = array(MESSAGE_CUPOM_NOT_FOUND);
-                    $errorCodes = [MESSAGE_CUPOM_NOT_FOUND_CODE];
+                    $errors = array(MSG_CUPONS_NOT_FOUND);
+                    $errorCodes = [MSG_CUPONS_NOT_FOUND_CODE];
 
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
@@ -2364,8 +2358,8 @@ class CuponsController extends AppController
 
                 foreach ($cupons as $cupom) {
                     if (!in_array($cupom["clientes_id"], $todasUnidadesIds)) {
-                        $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
-                        $errorCodes = [MESSAGE_CUPOM_ANOTHER_NETWORK_CODE];
+                        $errors = array(MSG_CUPONS_ANOTHER_NETWORK);
+                        $errorCodes = [MSG_CUPONS_ANOTHER_NETWORK_CODE];
 
                         return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                     }
@@ -2557,7 +2551,7 @@ class CuponsController extends AppController
                     "message" => __(
                         "{0} {1}",
                         MESSAGE_PROCESSING_COMPLETED,
-                        MESSAGE_COUPON_USED
+                        MSG_CUPONS_USED
                     ),
                     "errors" => $errors
                 );
@@ -2612,19 +2606,19 @@ class CuponsController extends AppController
             $confirmacao = !empty($data["confirmar"]) ? $data["confirmar"] : 0;
 
             if (empty($cupomEmitido)) {
-                $errors = array(MESSAGE_CUPOM_PRINTED_EMPTY);
+                $errors = array(MSG_CUPONS_PRINTED_EMPTY);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
             }
 
             $cupom = $this->Cupons->getCupomByCupomEmitido($cupomEmitido, 0);
 
             if (empty($cupom)) {
-                $errors = array(MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED);
+                $errors = array(MSG_CUPONS_PRINTED_ALREADY_CANCELLED);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
             }
 
             if (empty($cupomEmitido)) {
-                $errors = array(MESSAGE_CUPOM_NOT_FOUND);
+                $errors = array(MSG_CUPONS_NOT_FOUND);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
             }
 
@@ -2665,8 +2659,8 @@ class CuponsController extends AppController
                     // 1 - O usuário que está tentando estornar é do tipo funcionário e não está na lista
                     // 2 - É outro usuário
 
-                    $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
-                    $errorCodes = [MESSAGE_CUPOM_ANOTHER_NETWORK_CODE];
+                    $errors = array(MSG_CUPONS_ANOTHER_NETWORK);
+                    $errorCodes = [MSG_CUPONS_ANOTHER_NETWORK_CODE];
 
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
@@ -2684,7 +2678,7 @@ class CuponsController extends AppController
                 // Se o cupom já tiver sido resgatado e usado, não é possível estorno
 
                 if ($cupom["resgatado"] && $cupom["usado"]) {
-                    $errors = array(MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED);
+                    $errors = array(MSG_CUPONS_PRINTED_CANNOT_BE_CANCELLED);
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
                 } else {
                     return $this->realizaProcessamentoEstornoCupom($cupom, $usuarioLogado);
@@ -2712,7 +2706,7 @@ class CuponsController extends AppController
         $tipoBrindeRede = $cupom["clientes_has_brindes_habilitado"]["brinde"]["tipo_brinde_rede"];
 
         if ($tipoBrindeRede["equipamento_rti"]) {
-            $errors = array(MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED);
+            $errors = array(MSG_CUPONS_PRINTED_CANNOT_BE_CANCELLED);
             return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
         } else {
             $brindesCupomEstornados = array();
@@ -2741,7 +2735,7 @@ class CuponsController extends AppController
 
             // Se teve ou não teve registro, retorna informando que foi cancelado, pois
             // o registro terá sido removido e se teve, estoque foi adicionado
-            return ResponseUtil::successAPI(MESSAGE_CUPOM_PRINTED_CANCELLED, $retorno);
+            return ResponseUtil::successAPI(MSG_CUPONS_PRINTED_CANCELLED, $retorno);
         }
     }
 
@@ -2783,7 +2777,7 @@ class CuponsController extends AppController
 
             if (empty($data['tipo_pagamento']) || !in_array($data['tipo_pagamento'], array(TYPE_PAYMENT_MONEY, TYPE_PAYMENT_POINTS))) {
                 // Evita se o usuário alterar diretamente no html de conitnuar e submeter
-                $errors[] = __(MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED);
+                $errors[] = __(MSG_CUPONS_TYPE_PAYMENT_REQUIRED);
             }
 
             if (count($errors) > 0) {
@@ -3083,7 +3077,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(MESSAGE_BRINDES_CLIENTE_DOESNT_OFFER)
+                "errors" => array(MSG_BRINDES_CLIENTE_DOESNT_OFFER)
             );
 
             $arraySet = array("mensagem");
@@ -3602,7 +3596,7 @@ class CuponsController extends AppController
                     // Qualquer cupom resgatado do código signifca que o cupom inteiro já foi resgatado
                     $result = array(
                         'status' => false,
-                        'message' => MESSAGE_CUPOM_ALREADY_USED
+                        'message' => MSG_CUPONS_ALREADY_USED
                     );
 
                     return $result;

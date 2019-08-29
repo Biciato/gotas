@@ -140,7 +140,7 @@ class ResponseUtil
             "status" => 0,
             "message" => $msg,
             "errors" => $errors,
-            "error_codes" => $errorCodes
+            "error_codes" => !empty($errorCodes) ? $errorCodes : []
         );
         $arraySet = array();
         $arraySet["mensagem"] = $mensagem;

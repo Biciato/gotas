@@ -136,7 +136,7 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($id)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY);
             }
 
             $categoriaBrinde = $this->CategoriasBrindes->get($id);
@@ -211,7 +211,7 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($nome)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_NOME_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_NOME_EMPTY);
             }
 
             $categoriaBrinde = new CategoriasBrinde();
@@ -262,7 +262,7 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($id)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY);
             }
 
             $categoriaBrinde = $this->CategoriasBrindes->get($id);
@@ -276,7 +276,7 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($nome)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_NOME_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_NOME_EMPTY);
             }
 
             $categoriaBrinde->nome = $nome;
@@ -321,11 +321,11 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($id)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY);
             }
 
             if (!isset($habilitado)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_HABILITADO_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY);
             }
 
             $categoriaBrinde = $this->CategoriasBrindes->get($id);
@@ -375,7 +375,7 @@ class CategoriasBrindesController extends AppController
             }
 
             if (empty($id)) {
-                throw new Exception(MESSAGE_CATEGORIAS_BRINDES_ID_EMPTY);
+                throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY);
             }
 
             $categoriaBrinde = $this->CategoriasBrindes->get($id);
