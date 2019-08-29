@@ -1407,6 +1407,8 @@ class CuponsController extends AppController
                             $qteUsuarioUsados = 0;
 
                             foreach ($queryCupons as $key => $item) {
+                                $qteResgatesUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteUsadosUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
                                 $cupom = array(
                                     "cupons_id" => $item->id,
                                     "brindes_id" => $brinde["id"],
@@ -1415,8 +1417,8 @@ class CuponsController extends AppController
                                     "valor_pago_reais" => $item->valor_pago_reais,
                                     "tipo_venda" => $item->tipo_venda,
                                     "data" => $item->data,
-                                    "resgatado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa),
-                                    "usado" => $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa),
+                                    "resgatado" => $qteResgatesUsuario,
+                                    "usado" => $qteUsadosUsuario,
                                     // Se Com Desconto / Gotas ou Reais (sendo pago em reais)
                                     "compras" => ($item->tipo_venda == TYPE_SELL_DISCOUNT_TEXT || ($item->tipo_venda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT && !empty($item->valor_pago_reais))) ? 1 : 0,
                                     // Se cupom = Isento / Gotas ou Reais (sendo pago em gotas)
@@ -1430,6 +1432,8 @@ class CuponsController extends AppController
                                 $somaUsuarioCompras += $cupom["compras"];
                                 $somaUsuarioBrindes += $cupom["brindes"];
 
+                                $qteUsuarioResgatados += $qteResgatesUsuario;
+                                $qteUsuarioUsados += $qteUsadosUsuario;
                                 $cupons[] = $cupom;
                             }
 
@@ -2343,8 +2347,8 @@ class CuponsController extends AppController
                 $cupons = $cupons->toArray();
 
                 if (count($cupons) == 0) {
-                    $errors = array(MESSAGE_RECORD_NOT_FOUND);
-                    $errorCodes = [MESSAGE_RECORD_NOT_FOUND_CODE];
+                    $errors = array(MESSAGE_CUPOM_NOT_FOUND);
+                    $errorCodes = [MESSAGE_CUPOM_NOT_FOUND_CODE];
 
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
@@ -2361,8 +2365,9 @@ class CuponsController extends AppController
                 foreach ($cupons as $cupom) {
                     if (!in_array($cupom["clientes_id"], $todasUnidadesIds)) {
                         $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
+                        $errorCodes = [MESSAGE_CUPOM_ANOTHER_NETWORK_CODE];
 
-                        return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                        return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                     }
 
                     $dadoCupom = array();
@@ -2552,7 +2557,7 @@ class CuponsController extends AppController
                     "message" => __(
                         "{0} {1}",
                         MESSAGE_PROCESSING_COMPLETED,
-                        MESSAGE_REDEEM_COUPON_USED
+                        MESSAGE_COUPON_USED
                     ),
                     "errors" => $errors
                 );
@@ -2619,7 +2624,7 @@ class CuponsController extends AppController
             }
 
             if (empty($cupomEmitido)) {
-                $errors = array(MESSAGE_CUPOM_PRINTED_DOES_NOT_EXIST);
+                $errors = array(MESSAGE_CUPOM_NOT_FOUND);
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, array());
             }
 
@@ -2661,8 +2666,9 @@ class CuponsController extends AppController
                     // 2 - É outro usuário
 
                     $errors = array(MESSAGE_CUPOM_ANOTHER_NETWORK);
+                    $errorCodes = [MESSAGE_CUPOM_ANOTHER_NETWORK_CODE];
 
-                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors);
+                    return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, [], $errorCodes);
                 }
 
                 // Pertence a rede, fazer procedimento de estorno
@@ -3077,7 +3083,7 @@ class CuponsController extends AppController
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
-                "errors" => array(MESSAGE_CLIENTE_DOES_NOT_HAVE_BRINDE)
+                "errors" => array(MESSAGE_BRINDES_CLIENTE_DOESNT_OFFER)
             );
 
             $arraySet = array("mensagem");

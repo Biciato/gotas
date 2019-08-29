@@ -296,20 +296,50 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 #region Comuns ao Sistema
 
-const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
+// Erros
+
+const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
+const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
+const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
+const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
+const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK_CODE = 0x00000002;
+const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
+const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE = 0x00000003;
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
+
+// Sucesso / Aviso
+
+const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
+
 
 #endregion
 
 #region Exceções
 
+// Erros
+const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
+const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
+const MESSAGE_SAVED_EXCEPTION_CODE = 0x00000005;
+const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
+const MESSAGE_DELETE_EXCEPTION_CODE = 0x00000006;
+const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
+const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
+const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
+
+// Sucesso / Aviso
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
-const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
-const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
-const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
-const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
+
+#endregion
+
+
+
+#region Pontuacoes Comprovantes
+
+
+
+#endregion
 
 #endregion
 
@@ -317,16 +347,12 @@ const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 #region Genérica
 
-const IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
+const PATH_IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
-const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
-const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
-// const MESSAGE_RECORD_NOT_FOUND_CODE = 0x0B0000002;
-const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
-const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
+
 
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
@@ -335,12 +361,19 @@ const FILTER_TYPE_SHIFT = "Turno";
 
 #region Brindes
 
-const MESSAGE_CLIENTE_DOES_NOT_HAVE_BRINDE = "O posto/loja selecionado(a) não possui o brinde desejado!";
-const MESSAGE_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
-const MESSAGE_BRINDES_CLIENTES_ID_REQUIRED = "Necessário informar o Posto de Atendimento!";
-const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
-const MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MESSAGE_BRINDES_CLIENTE_DOESNT_OFFER_CODE = 0x00010001;
+const MESSAGE_BRINDES_CLIENTE_DOESNT_OFFER = "O posto/loja selecionado(a) não possui o brinde desejado!";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY_CODE = 0x00010002;
 const MESSAGE_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
+const MESSAGE_BRINDES_CLIENTES_ID_EMPTY_CODE = 0x00010003;
+const MESSAGE_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
+const MESSAGE_BRINDES_CLIENTES_ID_REQUIRED_CODE = 0x00010004;
+const MESSAGE_BRINDES_CLIENTES_ID_REQUIRED = "Necessário informar o Posto de Atendimento!";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT_CODE = 0x00010005;
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY_CODE = 0x00010006;
+const MESSAGE_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
 const STATUS_AUTHORIZATION_PRICE_DENIED = "Negado";
@@ -391,27 +424,40 @@ const STOCK_OPERATION_TYPES_RETURN_TYPE = 3;
 
 #endregion
 
-#region Cupom
+#region Cupons
+
+// Erros
+const MESSAGE_CUPOM_ALREADY_RETRIEVED_CODE = 0x00080001;
+const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já resgatado!";
+const MESSAGE_CUPOM_ALREADY_USED_CODE = 0x00080002;
+const MESSAGE_CUPOM_ALREADY_USED = "Cupom já utilizado!";
+const MESSAGE_CUPOM_ANOTHER_NETWORK_CODE = 0x00080003;
+const MESSAGE_CUPOM_ANOTHER_NETWORK = "Cupom pertence a outra rede!";
+const MESSAGE_CUPOM_NOT_FOUND_CODE = 0x00080004;
+const MESSAGE_CUPOM_NOT_FOUND = "Cupom não encontrado!";
+const MESSAGE_CUPOM_PRINTED_EMPTY_CODE = 0x00080005;
+const MESSAGE_CUPOM_PRINTED_EMPTY = "Necessário informar o cupom!";
+const MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED_CODE = 0x00080006;
+const MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
+const MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED_CODE = 0x00080007;
+const MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED = "O cupom já está cancelado!";
+const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED_CODE = 0x00080008;
+const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
+
+// Sucesso / Aviso
+
+const MESSAGE_CUPOM_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
+const MESSAGE_COUPON_REDEEMED = "Cupom resgatado!";
+const MESSAGE_COUPON_USED = "Cupom usado!";
+
+
+// Entidade / Definições
 
 // Máximo de intervalo de horas ao gerar relatório de caixa de funcionários
 const MAX_TIME_COUPONS_REPORT_TIME = 16;
 // Tempo padrão caso funcionário gerar o relatório completo de caixa de funcionários
 const DEFAULT_TIME_COUPONS_REPORT_TIME = 16;
 const MESSAGE_WARNING_GENERATE_REPORT = "Relatório Parcial de Caixa do Funcionário, não vale como Relatório Oficial!";
-const MESSAGE_CUPOM_ALREADY_RETRIEVED_CODE = 0x00000002;
-const MESSAGE_CUPOM_ALREADY_RETRIEVED = "Cupom já foi resgatado, não é possível novo resgate!";
-const MESSAGE_CUPOM_ALREADY_USED = "Cupom já foi validado, não é possível novo uso!";
-const MESSAGE_CUPOM_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
-const MESSAGE_CUPOM_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
-const MESSAGE_CUPOM_PRINTED_EMPTY = "Necessário informar o CUPOM!";
-const MESSAGE_CUPOM_PRINTED_DOES_NOT_EXIST = "Cupom não existe no sistema!";
-const MESSAGE_CUPOM_PRINTED_CANNOT_BE_CANCELLED = "O cupom informado não pode ser cancelado!";
-const MESSAGE_CUPOM_ANOTHER_NETWORK = "O cupom informado pertence a outra rede!";
-const MESSAGE_CUPOM_PRINTED_ALREADY_CANCELLED = "O cupom informado já está cancelado no sistema!";
-const MESSAGE_CUPOM_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
-const MESSAGE_CUPOM_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
-const MESSAGE_REDEEM_COUPON_REDEEMED = "Cupom resgatado!";
-const MESSAGE_REDEEM_COUPON_USED = "Cupom usado!";
 const TYPE_OPERATION_RETRIEVE = 'Resgate';
 const TYPE_OPERATION_USE = 'Uso';
 const TYPE_OPERATION_RETRIEVED = 'Resgatado';
@@ -440,6 +486,17 @@ const MESSAGE_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 
 #region Pontuacoes Comprovantes
 
+// Erros
+const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY_CODE = 0x00130001;
+const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
+const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+
+// Sucesso / Avisos
+
+// Entidades / Definições
+
+const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY_CODE = 0x00130003;
 const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
 
 #endregion
