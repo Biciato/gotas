@@ -482,6 +482,8 @@ $(function() {
                 // Fecha tela de adicionar e recarrega tela principal
                 showMainScreen();
                 getTopBrindesNacional();
+                $("#new-button").css("display", "block");
+                $("#back-button").css("display", "none");
             },
             error: function(response) {
                 closeLoaderAnimation();
