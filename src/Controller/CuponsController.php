@@ -2392,7 +2392,8 @@ class CuponsController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Este cupom já foi usado pelo usuário!")
+                        "errors" => array("Este cupom já foi usado pelo usuário!"),
+                        "error_codes" => []
                     );
                     $resultado = array(
                         "recibo_baixa_cupons" => $dadosCupons
@@ -2411,7 +2412,9 @@ class CuponsController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
-                        "errors" => array("Deseja confirmar o resgate dos brindes à seguir?")
+                        "errors" => array("Deseja confirmar o resgate dos brindes à seguir?"),
+                        "error_codes" => []
+
                     );
                     $resultado = array(
                         "recibo_baixa_cupons" => $dadosCupons
@@ -2553,7 +2556,9 @@ class CuponsController extends AppController
                         MESSAGE_PROCESSING_COMPLETED,
                         MSG_CUPONS_USED
                     ),
-                    "errors" => $errors
+                    "errors" => $errors,
+                    "error_codes" => []
+
                 );
                 $resultado = array(
                     "soma_gotas" => $somaTotalGotas,

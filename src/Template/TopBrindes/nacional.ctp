@@ -1,4 +1,5 @@
 <?php
+
 /**
  * nacional.ctp
  *
@@ -38,7 +39,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <legend><?= $title ?></legend>
 
         <div id="items">
-            <div class="box-container col-lg-4">
+            <div class="box-container div-items">
                 <h4 class="text-center">Top Brindes Nacional Cadastrados</>
                     <div id="box-parent" class="top-brindes-box-items-parent">
                         <ul class="top-brindes-box-items" id="top-brindes-box-items" name="top-brindes-box-items">
@@ -50,49 +51,51 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     </div>
             </div>
 
-            <div class="col-lg-8 top-brindes-details">
-                <h4>Dados do Top Brinde</h4>
-                <div class="form-group row">
-                    <div class="col-lg-6">
-                        <label for="top-brindes-details-nome">Nome do Brinde: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="top-brindes-details-nome" id="top-brindes-details-nome">
+            <div class="div-item-details top-brindes-details">
+                <div class="col-lg-12">
+                    <h4>Dados do Top Brinde</h4>
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <label for="top-brindes-details-nome">Nome do Brinde: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="top-brindes-details-nome" id="top-brindes-details-nome">
 
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="tipo-venda">Tipo de Venda: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="tipo-venda" id="top-brindes-details-tipo-venda">
+                        </div>
                     </div>
-                    <div class="col-lg-6">
-                        <label for="tipo-venda">Tipo de Venda: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="tipo-venda" id="top-brindes-details-tipo-venda">
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <label for="status-estoque">Status Estoque: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="status-estoque" id="top-brindes-details-esgotado">
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="ilimitado">Ilimitado: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="ilimitado" id="top-brindes-details-ilimitado">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-lg-6">
-                        <label for="status-estoque">Status Estoque: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="status-estoque" id="top-brindes-details-esgotado">
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <label for="preco-gotas">Preço Atual em Gotas: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-gotas" id="top-brindes-details-preco-gotas">
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="preco-reais">Preço Atual em Reais: </label>
+                            <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-reais" id="top-brindes-details-preco-reais">
+                        </div>
                     </div>
-                    <div class="col-lg-6">
-                        <label for="ilimitado">Ilimitado: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="ilimitado" id="top-brindes-details-ilimitado">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label for="top-brindes-details-img">Imagem</label>
+                            <img src="" alt="" class="top-brindes-details-img img-fluid" name="top-brindes-details-img" id="top-brindes-details-img">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-lg-6">
-                        <label for="preco-gotas">Preço Atual em Gotas: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-gotas" id="top-brindes-details-preco-gotas">
-                    </div>
-                    <div class="col-lg-6">
-                        <label for="preco-reais">Preço Atual em Reais: </label>
-                        <input type="text" class="disabled form-control" disabled="disabled" readonly value="" name="preco-reais" id="top-brindes-details-preco-reais">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-lg-12">
-                        <label for="top-brindes-details-img">Imagem</label>
-                        <img src="" alt="" class="top-brindes-details-img img-fluid" name="top-brindes-details-img" id="top-brindes-details-img">
-                    </div>
-                </div>
 
-                <div class="form-group row text-right">
-                    <div class="btn btn-danger" id='top-brindes-details-delete'> <i class="fa fa-trash"></i> Excluir</div>
-                    <div class="btn btn-primary" id='top-brindes-details-cancel'> <i class="fa fa-close"></i> Cancelar</div>
+                    <div class="form-group row text-right">
+                        <div class="btn btn-danger" id='top-brindes-details-delete'> <i class="fa fa-trash"></i> Excluir</div>
+                        <div class="btn btn-primary" id='top-brindes-details-cancel'> <i class="fa fa-close"></i> Cancelar</div>
+                    </div>
                 </div>
             </div>
         </div>
