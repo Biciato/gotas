@@ -1603,9 +1603,9 @@ class PontuacoesComprovantesController extends AppController
                 }
             } else {
                 if (empty($qrCode)) {
-                    $errors[] = MESSAGE_COUPON_EMPTY;
+                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_EMPTY;
                 } else if (strpos($qrCode, "sefaz.") == 0) {
-                    $errors[] = MESSAGE_COUPON_MISMATCH_FORMAT;
+                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT;
                 }
 
                 if (sizeof($errors) > 0) {

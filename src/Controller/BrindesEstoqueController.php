@@ -210,7 +210,7 @@ class BrindesEstoqueController extends AppController
 
             $quantidade = !empty($data["quantidade"]) ? $data["quantidade"] : null;
             if (empty($quantidade)) {
-                $this->Flash->error(MESSAGE_BRINDES_ESTOQUE_QUANTITY_EMPTY);
+                $this->Flash->error(MSG_BRINDES_ESTOQUE_QUANTITY_EMPTY);
 
                 $this->set(compact($arraySet));
                 return;
