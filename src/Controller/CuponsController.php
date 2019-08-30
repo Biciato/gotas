@@ -2409,6 +2409,15 @@ class CuponsController extends AppController
 
                 // Se não confirmar, exibir somente os dados de cupom de resgate e perguntar se é o cupom
                 if (!$confirmar) {
+
+                    $error = MSG_WARNING;
+                    $errors = [
+                        MSG_BRINDES_CONFIRM_PURCHASE
+                    ];
+                    $errorCodes = [
+                        MSG_BRINDES_CONFIRM_PURCHASE_CODE
+                    ];
+
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageWarningDefault"),
@@ -2420,12 +2429,7 @@ class CuponsController extends AppController
                         "recibo_baixa_cupons" => $dadosCupons
                     );
 
-                    $arraySet = array("mensagem", "resultado");
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
+                    return ResponseUtil::errorAPI($error, $errors, ['resultado' => $resultado], $errorCodes);
                 }
 
                 $brindesNaoUsados = array();
@@ -2553,7 +2557,7 @@ class CuponsController extends AppController
                     "status" => 1,
                     "message" => __(
                         "{0} {1}",
-                        MESSAGE_PROCESSING_COMPLETED,
+                        MSG_PROCESSING_COMPLETED,
                         MSG_CUPONS_USED
                     ),
                     "errors" => $errors,
@@ -2568,15 +2572,8 @@ class CuponsController extends AppController
                     "brindes_nao_resgatados" => $brindesNaoUsados
                 );
 
-                $arraySet = array(
-                    "mensagem",
-                    "resultado"
-                );
-
-                $this->set(compact($arraySet));
-                $this->set("_serialize", $arraySet);
-
-                return;
+                $msg = sprintf("%s %s", MSG_PROCESSING_COMPLETED, MSG_CUPONS_USED);
+                return ResponseUtil::successAPI($msg, ['resultado' => $resultado], $errors);
             }
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();

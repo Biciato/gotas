@@ -316,6 +316,10 @@ const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
 
 #region Exceções
 
+// Titulos
+
+const MSG_WARNING = "Atenção!";
+
 // Erros
 const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
 const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
@@ -330,6 +334,28 @@ const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
+
+// Mensagens de Suporte
+const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
+
+// Mensagens de Questionamento e Avisos
+const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
+const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
+const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
+const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
+const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
+const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
+const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
+
+// Mensagens de processamento
+const MSG_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
+const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+// Títulos de mensagem
+
+const MESSAGE_GENERIC_ERROR = "Houve um erro!";
+const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
+const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
 
 #endregion
 
@@ -373,6 +399,8 @@ const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT_CODE = 0x00010005;
 const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY_CODE = 0x00010006;
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MSG_BRINDES_CONFIRM_PURCHASE_CODE = 0x00010007;
+const MSG_BRINDES_CONFIRM_PURCHASE = "Deseja confirmar o resgate dos brindes à seguir?";
 
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
@@ -549,27 +577,7 @@ const CPF_LENGTH = 11;
 
 #endregion
 
-// Mensagens de Suporte
-const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 
-// Mensagens de Questionamento e Avisos
-const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
-const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
-const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
-const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
-const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
-const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
-const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
-
-// Mensagens de processamento
-const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
-const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
-
-// Títulos de mensagem
-
-const MESSAGE_GENERIC_ERROR = "Houve um erro!";
-const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
-const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
 
 #endregion
 

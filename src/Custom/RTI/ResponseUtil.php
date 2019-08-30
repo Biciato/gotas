@@ -88,13 +88,14 @@ class ResponseUtil
      *
      * @param string $msg Mensagem de sucesso
      * @param array $contentArray Array contendo todos os dados
+     * @param array $warnings Mensagens de aviso
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018/12/29
      *
      * @return json_encode Dados json
      */
-    public static function successAPI($msg, $contentArray = [])
+    public static function successAPI($msg, $contentArray = [], $warnings = [])
     {
         header("HTTP/1.0 200");
         header("Content-Type: application/json");
@@ -103,7 +104,7 @@ class ResponseUtil
         $mensagem = array(
             "status" => 1,
             "message" => $msg,
-            "errors" => array(),
+            "errors" => $warnings,
             "error_codes" => []
         );
         $arraySet = array();
