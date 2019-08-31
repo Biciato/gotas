@@ -2713,7 +2713,7 @@ class UsuariosController extends AppController
                 ],
                 [
                     "funcao" => "CONFIG_HARDWARE_APP_POSTO",
-                    "status" => 1
+                    "status" => $usuario->tipo_perfil == PROFILE_TYPE_WORKER ? 0 : 1
                 ]
             ];
         }
