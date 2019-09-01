@@ -1048,6 +1048,7 @@ class GotasController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
+
     }
 
     /**
