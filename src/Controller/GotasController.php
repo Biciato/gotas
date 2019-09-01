@@ -1039,6 +1039,17 @@ class GotasController extends AppController
         $this->set(compact($arraySet));
     }
 
+    public function relatorioEntradaSaida()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+    }
+
     /**
      * ------------------------------------------------------------
      * AJAX Methods
