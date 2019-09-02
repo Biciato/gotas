@@ -52,7 +52,7 @@ class RedesHasClientesTable extends GenericTable
                 'joinType' => 'LEFT'
             )
         );
-        
+
         $this->belongsTo(
             'Rede',
             array(
@@ -66,7 +66,7 @@ class RedesHasClientesTable extends GenericTable
             'RedesHasClientesAdministradores',
             [
                 'foreignKey' => 'redes_has_clientes_id',
-                'joinTyp' => 'INNER'
+                'joinType' => 'INNER'
             ]
         );
 
@@ -83,6 +83,15 @@ class RedesHasClientesTable extends GenericTable
         );
 
         $this->belongsTo(
+            'Cliente',
+            [
+                "className" => "Clientes",
+                'foreignKey' => 'id',
+                'joinType' => Query::JOIN_TYPE_LEFT
+            ]
+        );
+
+        $this->belongsToMany(
             'Clientes',
             [
                 "className" => "Clientes",
@@ -411,7 +420,7 @@ class RedesHasClientesTable extends GenericTable
         try {
             return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
-                ->contain(['Redes', 'Clientes'])->first();
+                ->contain(['Redes', 'Cliente'])->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -483,7 +492,7 @@ class RedesHasClientesTable extends GenericTable
 
             return $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Cliente']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

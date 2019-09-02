@@ -244,12 +244,12 @@ class ClientesController extends AppController
 
                 // Adiciona bonificação extra sefaz para novo posto
                 $this->Gotas->saveUpdateBonificacaoExtraSefaz([$cliente->id], $rede->qte_gotas_bonificacao);
-              
+
                 // Adiciona o funcionário de sistema como o primeiro funcionário da rede
                 // Ele será necessário para funções automáticas de venda de brinde via API
                 $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
-                
+
                 $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
 
@@ -726,34 +726,45 @@ class ClientesController extends AppController
     {
         $sessao = $this->getSessionUserVariables();
         $rede = $sessao["rede"];
-        $redesId = $rede["id"];
+        $redesId = $rede->id;
+        $cliente = $sessao["cliente"];
+        $clientesIds = [];
+        $clientesId = !empty($cliente) && !empty($cliente->id) ? $cliente->id : null;
+
+        if (!empty($clientesId)) {
+            $clientesIds[] = $clientesId;
+        }
 
         try {
             // Caso o método seja chamado via get
             if ($this->request->is("get")) {
-                $data = $this->request->getData();
+                $data = $this->request->getQueryParams();
 
-                if (!empty($data["redesId"])) {
-                    $redesId = $data["redesId"];
+                if (!empty($data["redes_id"])) {
+                    $redesId = $data["redes_id"];
                 }
             }
 
             $selectList = array(
-                "Clientes.id",
-                "Clientes.nome_fantasia",
-                "Clientes.razao_social",
-                "Clientes.propaganda_img"
+                "cliente.id",
+                "cliente.nome_fantasia",
+                "cliente.razao_social",
+                "cliente.propaganda_img"
             );
 
             if (empty($redesId)) {
                 throw new Exception(MESSAGE_ID_EMPTY);
             }
 
-            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, $clientesIds);
+
+            $redeHasClientes = $redeHasClientes->select($selectList);
+
+            // return ResponseUtil::successAPI("", [$redeHasClientes->sql()]);
             $clientes = [];
 
             foreach ($redeHasClientes as $redeHasCliente) {
-                $clientes[] = $redeHasCliente["cliente"];
+                $clientes[] = $redeHasCliente->cliente;
             }
 
             if (count($clientes) == 0) {

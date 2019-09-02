@@ -12,6 +12,8 @@
 use Cake\Core\Configure;
 
 $debug = Configure::read("debug");
+// $debugExtension = $debug ? ".min" : "";
+$debugExtension = $debug ? "" : "";
 
 $title = "Relatório de Gotas - Entrada e Saída";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
@@ -46,22 +48,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <div class="form-group row">
                             <div class="col-lg-4">
 
-                                <label for="funcionario">Funcionário:</label>
-                                <?= $this->Form->input(
-                                    "funcionario",
-                                    array(
-                                        "type" => "select",
-                                        "name" => "funcionario",
-                                        "id" => "funcionario",
-                                        "empty" => "Selecionar...",
-                                        "placeholder" => "Funcionário...",
-                                        "label" => false,
-                                        "options" => $funcionariosList,
-                                        "value" => $funcionarioSelecionado,
-                                    )
-                                );
-                                ?>
-
+                                <label for="funcionario">Posto:</label>
+                                <select name="clientesList" id="clientesList" class="form-control"></select>
                             </div>
                             <div class="col-lg-4">
 
@@ -136,6 +124,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/gotas/relatorio_entrada_saida<?= $debug ?>.js"></script>
-
-<link rel="stylesheet" href="/webroot/css/styles/gotas/relatorio_entrada_saida<?= $debug ?>.css" />
+<script src="/webroot/js/scripts/gotas/relatorio_entrada_saida<?= $debugExtension ?>.js"></script>
+<link rel="stylesheet" href="/webroot/css/styles/gotas/relatorio_entrada_saida<?= $debugExtension ?>.css" />
