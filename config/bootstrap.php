@@ -318,6 +318,7 @@ const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
 
 // Titulos
 
+const MSG_ERROR = "Erro!";
 const MSG_WARNING = "Atenção!";
 
 // Erros
@@ -461,6 +462,8 @@ const MSG_CUPONS_ALREADY_USED_CODE = 0x00080002;
 const MSG_CUPONS_ALREADY_USED = "Cupom já utilizado!";
 const MSG_CUPONS_ANOTHER_NETWORK_CODE = 0x00080003;
 const MSG_CUPONS_ANOTHER_NETWORK = "Cupom pertence a outra rede!";
+const MSG_CUPONS_ANOTHER_STATION_CODE = 0x0008000A;
+const MSG_CUPONS_ANOTHER_STATION = "Brindes deste Cupom pertencem a outra unidade de atendimento, não será possível resgatar!";
 const MSG_CUPONS_NOT_FOUND_CODE = 0x00080004;
 const MSG_CUPONS_NOT_FOUND = "Cupom não encontrado!";
 const MSG_CUPONS_PRINTED_EMPTY_CODE = 0x00080005;
@@ -482,7 +485,7 @@ const MSG_CUPONS_USED = "Cupom usado!";
 // Entidade / Definições
 
 const MSG_CUPONS_CUPOM_EMITIDO_EMPTY_CODE = 0x00080009;
-const MSG_CUPONS_CUPOM_EMITIDO_EMPTY = "O Campo CUPOM_EMITIDO deve ser informado!"; 
+const MSG_CUPONS_CUPOM_EMITIDO_EMPTY = "O Campo CUPOM_EMITIDO deve ser informado!";
 
 // Máximo de intervalo de horas ao gerar relatório de caixa de funcionários
 const MAX_TIME_COUPONS_REPORT_TIME = 16;

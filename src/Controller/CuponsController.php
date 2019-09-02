@@ -2286,10 +2286,10 @@ class CuponsController extends AppController
                 $codigoSecundario = !empty($data["codigo_secundario"]) ?? null;
 
                 // Validação de funcionário logado
-                $funcionarioId = $this->Auth->user()["id"];
+                $funcionarioId = $usuarioLogado->id;
 
-                $tipoPerfil = $this->Auth->user()["tipo_perfil"];
-                $funcionario["nome"] = $this->Auth->user()["nome"];
+                $tipoPerfil = $usuarioLogado->tipo_perfil;
+                $funcionario["nome"] = $usuarioLogado->nome;
                 $isFuncionario = false;
                 $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente["id"]);
                 $turnos = $turnos->toArray();
@@ -2357,6 +2357,13 @@ class CuponsController extends AppController
                 $cuponsPendentes = array();
 
                 foreach ($cupons as $cupom) {
+                    if (($cupom->clientes_id != $cliente->id) || !$cupom->brinde->brinde_rede) {
+                        // Impede resgate de brinde se o brinde não for do mesmo posto ou se o brinde não for de rede
+                        $errors = [MSG_CUPONS_ANOTHER_STATION];
+                        $errorCodes = [MSG_CUPONS_ANOTHER_STATION_CODE];
+                        return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], $errorCodes);
+                    }
+
                     if (!in_array($cupom["clientes_id"], $todasUnidadesIds)) {
                         $errors = array(MSG_CUPONS_ANOTHER_NETWORK);
                         $errorCodes = [MSG_CUPONS_ANOTHER_NETWORK_CODE];
