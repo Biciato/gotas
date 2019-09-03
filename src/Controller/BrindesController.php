@@ -48,7 +48,14 @@ class BrindesController extends AppController
     public function index($clientesId = null)
     {
         try {
-            $arraySet = array("redesId", "clientesId", "brindes", "usuario", "dataPost");
+            $arraySet = [
+                "categoriasBrindesList",
+                "redesId",
+                "clientesId",
+                "brindes",
+                "usuario",
+                "dataPost"
+            ];
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
             $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -78,6 +85,8 @@ class BrindesController extends AppController
                 $redesId = $rede["redes_id"];
             }
 
+            $categoriasBrindesList = $this->CategoriasBrindes->getCategoriasBrindesList($rede->id);
+
             $categoriasBrindesId = null;
             $nome = null;
             $codigoPrimario = 0;
@@ -95,7 +104,7 @@ class BrindesController extends AppController
             if ($this->request->is('post')) {
                 $dataPost = $this->request->getData();
 
-                $categoriasBrindesId = $dataPost["categorias_brindes_id"] ?? null;
+                $categoriasBrindesId = !empty($dataPost["categorias_brindes_id"]) ? $dataPost["categorias_brindes_id"] : null;
                 $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
                 $codigoPrimario = !empty($dataPost["codigo_primario"]) ? $dataPost["codigo_primario"] : 0;
                 $tempoUsoBrindeMin = !empty($dataPost["tempo_uso_brinde_min"]) ? $dataPost["tempo_uso_brinde_min"] : null;
