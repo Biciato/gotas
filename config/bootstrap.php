@@ -332,7 +332,7 @@ const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 // Sucesso / Aviso
-const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
+const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
 
@@ -431,9 +431,14 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 #region Categorias Brindes
 
+const MSG_CATEGORIAS_BRINDES_ID_EMPTY_CODE = 0x00040001;
 const MSG_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY_CODE = 0x00040002;
 const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
+const MSG_CATEGORIAS_BRINDES_NOME_EMPTY_CODE = 0x00040003;
 const MSG_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY_CODE = 0x00040004;
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
 
 #endregion
 

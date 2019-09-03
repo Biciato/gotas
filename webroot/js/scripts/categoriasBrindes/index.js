@@ -143,7 +143,7 @@ $(function() {
         //     $("#tabela-dados").pagination("destroy");
         // }
         $("#tabela-dados").pagination({
-            pageSize: 1,
+            pageSize: 10,
             showPrevious: true,
             showNext: true,
             dataSource: function(done) {
@@ -163,7 +163,7 @@ $(function() {
                         closeLoaderAnimation();
 
                         var dataReceived =
-                            success.responseJSON.categorias_brindes;
+                            success.responseJSON.data.categorias_brindes;
 
                         var rows = [];
                         dataReceived.forEach(element => {
@@ -264,7 +264,7 @@ $(function() {
             complete: function(resultComplete) {
                 closeLoaderAnimation();
                 var categoriaBrinde =
-                    resultComplete.responseJSON.categoria_brinde;
+                    resultComplete.responseJSON.data.categoria_brinde;
                 $("#titulo").text("Editar Categoria " + categoriaBrinde.nome);
                 $("#id").val(categoriaBrinde.id);
                 $("#nome").val(categoriaBrinde.nome);

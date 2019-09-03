@@ -452,6 +452,8 @@ class ClientesHasBrindesHabilitadosTable extends GenericTable
     /**
      * Obtêm todos os brindes de um cliente conforme tipo
      *
+     * @deprecated 1.0 Consulta não é mais utilizada
+     *
      * @param int  $clientes_id Id de CLiente
      * @param int $tiposBrindesClientesIds Ids de Tipo
      * @param array $whereConditionsBrindes

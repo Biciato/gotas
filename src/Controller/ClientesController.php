@@ -244,12 +244,12 @@ class ClientesController extends AppController
 
                 // Adiciona bonificação extra sefaz para novo posto
                 $this->Gotas->saveUpdateBonificacaoExtraSefaz([$cliente->id], $rede->qte_gotas_bonificacao);
-              
+
                 // Adiciona o funcionário de sistema como o primeiro funcionário da rede
                 // Ele será necessário para funções automáticas de venda de brinde via API
                 $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $funcionarioSistema->id, true);
-                
+
                 $usuarioFicticio = $this->Usuarios->getUsuarioFicticio();
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuarioFicticio->id, true);
 
@@ -760,7 +760,7 @@ class ClientesController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
             }
 
-            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -784,7 +784,7 @@ class ClientesController extends AppController
                 if (!empty($posto) && !empty($posto["cliente"])) {
                     $posto = $posto["cliente"];
 
-                    return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
                 } else {
                     $errors = array();
                     $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE : MESSAGE_USUARIO_CANT_SEARCH;

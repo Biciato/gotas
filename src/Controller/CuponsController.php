@@ -915,7 +915,7 @@ class CuponsController extends AppController
 
             // Obtem os brindes habilitados do posto de atendimento
 
-            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
+            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, null, array(), null, null, null, null, null, -1);
             $brindes = $brindes->toArray();
             $brindesCliente = array();
 
@@ -1300,7 +1300,7 @@ class CuponsController extends AppController
 
             $brindes = array();
             if (empty($brindeSelecionado)) {
-                $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
+                $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, null, array(), null, null, null, null, null, -1);
                 $brindes = $brindes->toArray();
             } else {
                 $brinde = $this->Brindes->getBrindeById($brindeSelecionado);

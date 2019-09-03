@@ -78,6 +78,7 @@ class BrindesController extends AppController
                 $redesId = $rede["redes_id"];
             }
 
+            $categoriasBrindesId = null;
             $nome = null;
             $codigoPrimario = 0;
             $tempoUsoBrindeMin = null;
@@ -94,6 +95,7 @@ class BrindesController extends AppController
             if ($this->request->is('post')) {
                 $dataPost = $this->request->getData();
 
+                $categoriasBrindesId = $dataPost["categorias_brindes_id"] ?? null;
                 $nome = !empty($dataPost["nome"]) ? $dataPost["nome"] : null;
                 $codigoPrimario = !empty($dataPost["codigo_primario"]) ? $dataPost["codigo_primario"] : 0;
                 $tempoUsoBrindeMin = !empty($dataPost["tempo_uso_brinde_min"]) ? $dataPost["tempo_uso_brinde_min"] : null;
@@ -114,7 +116,7 @@ class BrindesController extends AppController
                 $tipoVenda = array($tipoVenda);
             }
 
-            $brindes = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
+            $brindes = $this->Brindes->findBrindes(0, $clientesId, $categoriasBrindesId, $nome, $codigoPrimario, $tempoUsoBrindeMin, $tempoUsoBrindeMax, $ilimitado, $tipoEquipamento, $tipoVenda, $tipoCodigoBarras, $precoPadraoMin, $precoPadraoMax, $valorMoedaVendaPadraoMin, $valorMoedaVendaPadraoMax);
 
             // DebugUtil::printArray($brindes);
             $brindes = $this->Paginate($brindes, array("limit" => 10));
@@ -256,7 +258,7 @@ class BrindesController extends AppController
                 $data["clientes_id"] = $clientesId;
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
-                $categoriaBrindeId = $data["categorias_brindes_id"] ?? null;
+                $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
@@ -313,7 +315,7 @@ class BrindesController extends AppController
                 $precoPadrao = (float) $precoPadrao;
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome,
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $categoriasBrindesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
                 if ($brindeCheck->first()) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
                 } else {
@@ -324,7 +326,7 @@ class BrindesController extends AppController
                     }
 
                     $brinde->clientes_id = $clientesId;
-                    $brinde->categorias_brindes_id = $categoriaBrindeId;
+                    $brinde->categorias_brindes_id = $categoriasBrindesId;
                     $brinde->nome = $nome;
                     $brinde->codigo_primario = $codigoPrimario;
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
@@ -495,7 +497,7 @@ class BrindesController extends AppController
                 $errors = array();
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
-                $categoriaBrindeId = $data["categorias_brindes_id"] ?? null;
+                $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -551,7 +553,7 @@ class BrindesController extends AppController
                 }
 
                 // Procura o brinde NA UNIDADE e Verifica se tem o mesmo nome, mas com outro Id
-                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
+                $brindeCheck = $this->Brindes->findBrindes(0, $clientesId, $categoriasBrindesId, $nome, $codigoPrimario, $tempoUsoBrinde, $tempoUsoBrinde, $ilimitado, $tipoEquipamento, array($tipoVenda), $tipoCodigoBarras);
                 $brindeCheck = $brindeCheck->first();
                 if ($brindeCheck && $brindeCheck["id"] != $brinde["id"]) {
                     $this->Flash->warning(__('Já existe um registro com o nome {0}', $brinde['nome']));
@@ -573,7 +575,7 @@ class BrindesController extends AppController
                     // $brinde = $this->Brindes->patchEntity($brinde, $data);
 
                     $brinde->clientes_id = $clientesId;
-                    $brinde->categorias_brindes_id = $categoriaBrindeId;
+                    $brinde->categorias_brindes_id = $categoriasBrindesId;
                     $brinde->nome = $nome;
                     $brinde->codigo_primario = $codigoPrimario;
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
@@ -1142,8 +1144,9 @@ class BrindesController extends AppController
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
                 $clientesId = isset($data['clientes_id']) ? $data['clientes_id'] : null;
+                $categoriasBrindesId = $data['categorias_brindes_id'] ?? null;
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
-                // $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : null;
+                $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tipoVenda = TYPE_SELL_CURRENCY_OR_POINTS_TEXT;
 
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
@@ -1200,6 +1203,7 @@ class BrindesController extends AppController
                 $resultado = $this->Brindes->findBrindes(
                     $redesId,
                     $clientesId,
+                    $categoriasBrindesId,
                     $nome,
                     null,
                     null,
@@ -1269,12 +1273,12 @@ class BrindesController extends AppController
 
     /**
      * Brindes::getBrindesUnidadesParaTopBrindesAPI
-     * 
+     *
      * Obtem os brindes disponíveis para Top Brindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-08
-     * 
+     *
      * @param $clientes_id Id do Cliente (Posto)
      *
      * @return json_encode Brindes
@@ -1316,7 +1320,7 @@ class BrindesController extends AppController
 
             $data = ["brindes" => $brindesPosto];
 
-            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

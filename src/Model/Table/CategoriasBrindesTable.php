@@ -133,7 +133,10 @@ class CategoriasBrindesTable extends GenericTable
                 $where[] = ["habilitado" => $habilitado];
             }
 
-            return $this->find("all")->where($where);
+            return $this->find("all")->where($where)
+                ->order([
+                    "CategoriasBrindes.nome" => "ASC"
+                ]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

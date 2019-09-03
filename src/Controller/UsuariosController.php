@@ -2968,6 +2968,9 @@ class UsuariosController extends AppController
                             $this->request->session()->write('Rede.Grupo', $rede);
                         }
                     }
+                } else {
+                    $this->request->session()->delete('Rede.PontoAtendimento');
+                    $this->request->session()->delete('Rede.Grupo');
                 }
                 return array(
                     "usuario" => $user,
@@ -4184,7 +4187,7 @@ class UsuariosController extends AppController
                 }
             }
             $return = array("user" => $user);
-            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, $return);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $return);
             // $arraySet = ['user', "mensagem"];
 
             $this->set(compact($arraySet));
