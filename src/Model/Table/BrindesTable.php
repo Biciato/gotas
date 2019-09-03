@@ -210,6 +210,7 @@ class BrindesTable extends GenericTable
      *
      * @param integer $redesId Id da Rede
      * @param integer $clientesId Id do posto/loja
+     * @param integer $categoriasBrindesId Id de Categorias Brindes
      * @param string $nome Nome do Brinde
      * @param integer $tempoUsoBrindeMin Tempo Uso Brinde Minimo
      * @param integer $tempoUsoBrindeMax Tempo Uso Brinde Maximo
@@ -230,7 +231,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
+    public function findBrindes(int $redesId = null, int $clientesId = null, int $categoriasBrindesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
     {
         try {
 
@@ -245,6 +246,10 @@ class BrindesTable extends GenericTable
                     "Brindes.brinde_rede" => 1,
                     "Brindes.clientes_id" => $clientesId
                 ]];
+            }
+
+            if (!empty($categoriasBrindesId)) {
+                $where[] = ["Brindes.categorias_brindes_id" => $categoriasBrindesId];
             }
 
             if (!empty($codigoPrimario)) {
@@ -356,16 +361,16 @@ class BrindesTable extends GenericTable
 
     /**
      * BrindesTable::getList
-     * 
+     *
      * Obtem a lista de brindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-01
      *
      * @param integer $redesId Redes Id
      * @param integer $clientesId Clientes Id
      * @param integer $apagado Apagado
-     * 
+     *
      * @return array[int, string] Lista de Brindes
      */
     public function getList(int $redesId = null, int $clientesId = null, int $apagado = null)
@@ -626,7 +631,7 @@ class BrindesTable extends GenericTable
      * Undocumented function
      *
      * @param Brinde $brinde
-     
+
      * @return int|bool
      */
     public function saveUpdate(Brinde $brinde)

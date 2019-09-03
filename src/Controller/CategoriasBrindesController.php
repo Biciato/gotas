@@ -114,6 +114,18 @@ class CategoriasBrindesController extends AppController
 
     #region REST Services
 
+    /**
+     * CategoriasBrindesController.php::getCategoriaBrindeAPI
+     *
+     * Obtem uma CategoriaBrinde
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param int $id Id do Registro
+     *
+     * @return json_encode(App\Model\Entity\CategoriasBrinde) JSON
+     */
     public function getCategoriaBrindeAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -149,7 +161,8 @@ class CategoriasBrindesController extends AppController
                 throw new Exception(MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK);
             }
 
-            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['categoria_brinde' => $categoriaBrinde]);
+            $retorno = ['categoria_brinde' => $categoriaBrinde];
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $retorno]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -158,6 +171,20 @@ class CategoriasBrindesController extends AppController
         }
     }
 
+    /**
+     * CategoriasBrindesController.php::getCategoriasBrindesAPI
+     *
+     * Obtem CategoriasBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param int redes_id Id da Rede (se cliente APP)
+     * @param string nome Filtro de nome
+     * @param bool habilitado Se registro habilitado ou não
+     *
+     * @return json_encode(App\Model\Entity\CategoriasBrinde[]) JSON
+     */
     public function getCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -165,30 +192,57 @@ class CategoriasBrindesController extends AppController
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"] ?? null;
         $rede = $sessaoUsuario["rede"];
+        $redesId = !empty($rede) ? $rede->id : 0;
 
         if (!empty($usuarioAdministrar)) {
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        $nome = null;
-        $habilitado = null;
+        try {
+            $nome = null;
+            $habilitado = null;
 
-        if ($this->request->is("get")) {
-            $data = $this->request->getQueryParams();
+            if ($this->request->is("get")) {
+                $data = $this->request->getQueryParams();
 
-            $nome = $data["nome"] ?? null;
-            $habilitado = $data["habilitado"] ?? null;
+                $nome = $data["nome"] ?? null;
+                $habilitado = $data["habilitado"] ?? null;
+
+                if (empty($rede)) {
+                    $redesId = $data["redes_id"] ?? 0;
+
+                    if (empty($redesId)) {
+                        throw new Exception(MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY, MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY_CODE);
+                    }
+                }
+            }
+
+            $dataRetorno = array();
+            $categoriasBrindes = $this->CategoriasBrindes->getCategoriasBrindes($redesId, $nome, $habilitado);
+            $categoriasBrindes = $categoriasBrindes->toArray();
+            $dataRetorno["categorias_brindes"] = $categoriasBrindes;
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
         }
-
-        $dataRetorno = array();
-        $categoriasBrindes = $this->CategoriasBrindes->getCategoriasBrindes($rede->id, $nome, $habilitado);
-        $categoriasBrindes = $categoriasBrindes->toArray();
-
-        $dataRetorno["categorias_brindes"] = $categoriasBrindes;
-
-        ResponseUtil::successAPI("Sucesso", $dataRetorno);
     }
 
+    /**
+     * CategoriasBrindesController.php::setCategoriasBrindesAPI
+     *
+     * Insere uma CategoriasBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param string nome Nome da Categoria
+     *
+     * @return json_encode(App\Model\Entity\CategoriasBrinde) JSON
+     */
     public function setCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -201,12 +255,11 @@ class CategoriasBrindesController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        try {
-            $nome = null;
+        $nome = null;
 
+        try {
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
-
                 $nome = $data["nome"] ?? null;
             }
 
@@ -216,18 +269,19 @@ class CategoriasBrindesController extends AppController
 
             $categoriaBrinde = new CategoriasBrinde();
             $categoriaBrinde->redes_id = $rede->id;
-            $categoriaBrinde->nome = $nome;
+            $categoriaBrinde->nome = trim($nome);
             $categoriaBrinde->habilitado = true;
             $categoriaBrinde->data = new DateTime('now');
             $categoriaBrinde->audit_user_insert_id = $usuarioLogado->id;
-
             $categoriaBrinde = $this->CategoriasBrindes->saveUpdate($categoriaBrinde);
 
             if (!$categoriaBrinde) {
                 throw new Exception(implode("\n", $categoriaBrinde->errors()));
             }
 
-            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['categoria_brinde' => $categoriaBrinde]);
+            $retorno = ['categoria_brinde' => $categoriaBrinde];
+
+            return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['data' => $retorno]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -236,6 +290,20 @@ class CategoriasBrindesController extends AppController
         }
     }
 
+    /**
+     * CategoriasBrindesController.php::updateCategoriasBrindesAPI
+     *
+     * Atualiza um registro CategoriasBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param int $id Id do Registro
+     * @param string $nome Nome
+     * @param bool $habilitado Registro habilitado / desabilitado
+     *
+     * @return json_encode(App\Model\Entity\CategoriasBrinde) JSON
+     */
     public function updateCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -251,52 +319,70 @@ class CategoriasBrindesController extends AppController
         try {
             $id = 0;
             $nome = null;
-            $habilitado = null;
+            $habilitado = false;
 
             if ($this->request->is("put")) {
                 $data = $this->request->getData();
-
                 $id = $data["id"] ?? 0;
                 $nome = $data["nome"] ?? null;
                 $habilitado = $data["habilitado"] ?? true;
-            }
 
-            if (empty($id)) {
-                throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY);
-            }
+                if (empty($id)) {
+                    throw new Exception(MSG_CATEGORIAS_BRINDES_ID_EMPTY, MSG_CATEGORIAS_BRINDES_ID_EMPTY_CODE);
+                }
 
-            $categoriaBrinde = $this->CategoriasBrindes->get($id);
+                if (empty($nome)) {
+                    throw new Exception(MSG_CATEGORIAS_BRINDES_NOME_EMPTY, MSG_CATEGORIAS_BRINDES_NOME_EMPTY_CODE);
+                }
 
-            if (empty($categoriaBrinde)) {
-                throw new Exception(MESSAGE_RECORD_NOT_FOUND);
-            }
+                $categoriaBrinde = $this->CategoriasBrindes->get($id);
 
-            if ($categoriaBrinde->redes_id != $rede->id) {
-                throw new Exception(MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK);
-            }
+                if (empty($categoriaBrinde)) {
+                    throw new Exception(MESSAGE_RECORD_NOT_FOUND);
+                }
 
-            if (empty($nome)) {
-                throw new Exception(MSG_CATEGORIAS_BRINDES_NOME_EMPTY);
-            }
+                if ($categoriaBrinde->redes_id != $rede->id) {
+                    throw new Exception(MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK);
+                }
 
-            $categoriaBrinde->nome = $nome;
-            // $categoriaBrinde->habilitado = $habilitado;
-            // $categoriaBrinde->data = new DateTime('now');
-            // $categoriaBrinde->audit_user_insert_id = $usuarioLogado->id;
+                if (empty($nome)) {
+                    throw new Exception(MSG_CATEGORIAS_BRINDES_NOME_EMPTY);
+                }
 
-            $categoriaBrinde = $this->CategoriasBrindes->saveUpdate($categoriaBrinde);
+                $categoriaBrinde->nome = trim($nome);
+                $categoriaBrinde->habilitado = $habilitado;
+                $categoriaBrinde = $this->CategoriasBrindes->saveUpdate($categoriaBrinde);
 
-            if ($categoriaBrinde) {
-                ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['categoria_brinde' => $categoriaBrinde]);
+                if (!$categoriaBrinde) {
+                    throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
+                }
+
+                $retorno = ['categoria_brinde' => $categoriaBrinde];
+
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS, ['data' => $retorno]);
             }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
+            $errorCodes = $th->getCode();
 
-            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$errorCodes]);
         }
     }
 
+    /**
+     * CategoriasBrindesController.php::updateStatusCategoriasBrindesAPI
+     *
+     * Atualiza o estado de habilitado de um CategoriasBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param int $id Id do Registro
+     * @param bool $habilitado Registro habilitado / desabilitado
+     *
+     * @return json_encode(App\Model\Entity\CategoriasBrinde) JSON
+     */
     public function updateStatusCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -352,7 +438,19 @@ class CategoriasBrindesController extends AppController
             return ResponseUtil::errorAPI(MESSAGE_SAVED_ERROR, [$th->getMessage()]);
         }
     }
-    
+
+    /**
+     * CategoriasBrindesController.php::deleteCategoriasBrindesAPI
+     *
+     * Remove um CategoriasBrindes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-07-28
+     *
+     * @param int $id Id do Registro
+     *
+     * @return json_encode JSON
+     */
     public function deleteCategoriasBrindesAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -370,7 +468,6 @@ class CategoriasBrindesController extends AppController
 
             if ($this->request->is("DELETE")) {
                 $data = $this->request->getData();
-
                 $id = $data["id"] ?? null;
             }
 

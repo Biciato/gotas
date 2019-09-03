@@ -638,8 +638,8 @@ class PontuacoesController extends AppController
                 $data = $this->request->getData();
 
                 // Condições de Pesquisa
-                $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
-                $clientesId = isset($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $redesId = !empty($data["redes_id"]) ?$data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ?$data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
                 $brindesNome = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
                 $gotasNomeParametro = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";

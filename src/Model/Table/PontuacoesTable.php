@@ -1197,7 +1197,7 @@ class PontuacoesTable extends GenericTable
             $clientesBrindesHabilitadosIds = array();
 
             // Se for por rede, pega o id de todas as redes da rede
-            if ($redesId > 0) {
+            if ($redesId > 0 && count($clientesIds) == 0) {
                 $redesHasClientesTable = TableRegistry::get("RedesHasClientes");
 
                 $clientesIds = $redesHasClientesTable->getClientesIdsFromRedesHasClientes($redesId);

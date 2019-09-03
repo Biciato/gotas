@@ -316,6 +316,11 @@ const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
 
 #region Exceções
 
+// Titulos
+
+const MSG_ERROR = "Erro!";
+const MSG_WARNING = "Atenção!";
+
 // Erros
 const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
 const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
@@ -327,9 +332,31 @@ const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 // Sucesso / Aviso
-const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
+const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
+
+// Mensagens de Suporte
+const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
+
+// Mensagens de Questionamento e Avisos
+const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
+const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
+const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
+const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
+const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
+const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
+const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
+
+// Mensagens de processamento
+const MSG_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
+const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
+
+// Títulos de mensagem
+
+const MESSAGE_GENERIC_ERROR = "Houve um erro!";
+const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
+const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
 
 #endregion
 
@@ -373,6 +400,8 @@ const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT_CODE = 0x00010005;
 const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY_CODE = 0x00010006;
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MSG_BRINDES_CONFIRM_PURCHASE_CODE = 0x00010007;
+const MSG_BRINDES_CONFIRM_PURCHASE = "Deseja confirmar o resgate dos brindes à seguir?";
 
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
@@ -402,9 +431,14 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 #region Categorias Brindes
 
+const MSG_CATEGORIAS_BRINDES_ID_EMPTY_CODE = 0x00040001;
 const MSG_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY_CODE = 0x00040002;
 const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
+const MSG_CATEGORIAS_BRINDES_NOME_EMPTY_CODE = 0x00040003;
 const MSG_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY_CODE = 0x00040004;
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
 
 #endregion
 
@@ -433,6 +467,8 @@ const MSG_CUPONS_ALREADY_USED_CODE = 0x00080002;
 const MSG_CUPONS_ALREADY_USED = "Cupom já utilizado!";
 const MSG_CUPONS_ANOTHER_NETWORK_CODE = 0x00080003;
 const MSG_CUPONS_ANOTHER_NETWORK = "Cupom pertence a outra rede!";
+const MSG_CUPONS_ANOTHER_STATION_CODE = 0x0008000A;
+const MSG_CUPONS_ANOTHER_STATION = "Brindes deste Cupom pertencem a outra unidade de atendimento, não será possível resgatar!";
 const MSG_CUPONS_NOT_FOUND_CODE = 0x00080004;
 const MSG_CUPONS_NOT_FOUND = "Cupom não encontrado!";
 const MSG_CUPONS_PRINTED_EMPTY_CODE = 0x00080005;
@@ -454,7 +490,7 @@ const MSG_CUPONS_USED = "Cupom usado!";
 // Entidade / Definições
 
 const MSG_CUPONS_CUPOM_EMITIDO_EMPTY_CODE = 0x00080009;
-const MSG_CUPONS_CUPOM_EMITIDO_EMPTY = "O Campo CUPOM_EMITIDO deve ser informado!"; 
+const MSG_CUPONS_CUPOM_EMITIDO_EMPTY = "O Campo CUPOM_EMITIDO deve ser informado!";
 
 // Máximo de intervalo de horas ao gerar relatório de caixa de funcionários
 const MAX_TIME_COUPONS_REPORT_TIME = 16;
@@ -549,27 +585,7 @@ const CPF_LENGTH = 11;
 
 #endregion
 
-// Mensagens de Suporte
-const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
 
-// Mensagens de Questionamento e Avisos
-const MESSAGE_ENABLE_QUESTION = 'Deseja realmente habilitar o registro %s ?';
-const MESSAGE_DISABLE_QUESTION = 'Deseja realmente desabilitar o registro %s ?';
-const MESSAGE_DELETE_ERROR = 'Não foi possível apagar o registro!';
-const MESSAGE_DELETE_QUESTION = 'Deseja realmente apagar o registro %s ?';
-const MESSAGE_DELETE_SUCCESS = 'O registro foi removido com sucesso!';
-const MESSAGE_SAVED_ERROR = "Exceção ao Salvar!";
-const MESSAGE_SAVED_SUCCESS = "O registro foi gravado com sucesso!";
-
-// Mensagens de processamento
-const MESSAGE_PROCESSING_COMPLETED = "Processamento realizado com sucesso!";
-const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível concluir a operação devido os seguintes erros:";
-
-// Títulos de mensagem
-
-const MESSAGE_GENERIC_ERROR = "Houve um erro!";
-const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
-const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
 
 #endregion
 
