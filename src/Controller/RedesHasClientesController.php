@@ -819,8 +819,9 @@ class RedesHasClientesController extends AppController
                 $whereConditions[] = array(
                     "Clientes.ativado" => 1,
                     "Redes.ativado" => 1,
-                    "latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
-                    "longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
+                    "Redes.app_personalizado" => 0,
+                    "Clientes.latitude BETWEEN {$latitudeMin} AND {$latitudeMax}",
+                    "Clientes.longitude  BETWEEN {$longitudeMin} AND {$longitudeMax}",
                 );
 
 
