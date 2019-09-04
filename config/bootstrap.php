@@ -480,6 +480,7 @@ const MSG_CUPONS_PRINTED_ALREADY_CANCELLED = "O cupom já está cancelado!";
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED_CODE = 0x00080008;
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
 
+
 // Sucesso / Aviso
 
 const MSG_CUPONS_PRINTED_CANCELLED = "O cupom informado foi cancelado com sucesso!";
@@ -585,6 +586,12 @@ const CPF_LENGTH = 11;
 
 #endregion
 
+#region Usuarios Has Brindes
+
+const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT_CODE = 0x0019000B;
+const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) unidade por usuário! Não é possível novo resgate!";
+
+#endregion
 
 
 #endregion

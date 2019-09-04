@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -9,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Exception;
 
 /**
  * UsuariosHasBrindes Model
@@ -48,6 +50,15 @@ class UsuariosHasBrindesTable extends GenericTable
             'foreignKey' => 'brindes_id',
             'joinType' => 'INNER'
         ]);
+
+        $this->belongsTo(
+            "Cliente",
+            [
+                "className" => "Clientes",
+                "foreignKey" => "clientes_id",
+                "joinType" => Query::JOIN_TYPE_INNER
+            ]
+        );
     }
 
     /**
@@ -65,7 +76,7 @@ class UsuariosHasBrindesTable extends GenericTable
             ->numeric('preco_gotas')
             ->allowEmpty("preco_gotas");
 
-            $validator
+        $validator
             ->numeric('preco_reais')
             ->allowEmpty("preco_reais");
 
@@ -132,7 +143,7 @@ class UsuariosHasBrindesTable extends GenericTable
             $brindeUsuario["clientes_id"] = $clientesId;
             $brindeUsuario["usuarios_id"] = $usuariosId;
             $brindeUsuario["brindes_id"] = $brindesId;
-            $brindeUsuario["quantidade"] = (int)$quantidade;
+            $brindeUsuario["quantidade"] = (int) $quantidade;
             $brindeUsuario["preco_gotas"] = !empty($precoGotas) && $precoGotas > 0 ? $precoGotas * $quantidade : 0;
             $brindeUsuario["preco_reais"] = !empty($precoReais) && $precoReais > 0 ? $precoReais * $quantidade : 0;
             $brindeUsuario["tipo_pagamento"] = $tipoPagamento;
@@ -189,30 +200,6 @@ class UsuariosHasBrindesTable extends GenericTable
      * @param integer $usuarios_has_brindes_id Id do brinde de usuário
      * @return \App\Model\Entity\UsuariosHasBrindes
      */
-    public function getUsuariosHasBrindesById(int $usuarios_has_brindes_id)
-    {
-        try {
-            return $this
-                ->find('all')
-                ->contain(['Brindes'])
-                ->where(['UsuariosHasBrindes.id' => $usuarios_has_brindes_id])
-                ->first();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-    /**
-     * Obtem detalhes de brinde de usuário pelo Id
-     *
-     * @param integer $usuarios_has_brindes_id Id do brinde de usuário
-     * @return \App\Model\Entity\UsuariosHasBrindes
-     */
     public function getUsuariosHasBrindesByCuponsId(int $cuponsId)
     {
         try {
@@ -228,8 +215,7 @@ class UsuariosHasBrindesTable extends GenericTable
                         "Brindes.nome"
                     )
                 )
-                ->toArray()
-                ;
+                ->toArray();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -270,6 +256,25 @@ class UsuariosHasBrindesTable extends GenericTable
         }
     }
 
+    public function getUsuarioHasBrinde(int $usuariosId, int $brindesId)
+    {
+        try {
+            return $this->find("all")
+                ->where(
+                    [
+                        "usuarios_id" => $usuariosId,
+                        "brindes_id" => $brindesId
+                    ]
+                )
+                ->contain(['Cliente', 'Usuarios'])
+                ->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MESSAGE_LOAD_EXCEPTION_CODE);
+        }
+    }
+
     #region Update
 
     #region Delete
@@ -303,7 +308,6 @@ class UsuariosHasBrindesTable extends GenericTable
             } else {
                 return true;
             }
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
