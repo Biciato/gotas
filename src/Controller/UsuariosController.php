@@ -1516,6 +1516,7 @@ class UsuariosController extends AppController
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($usuarioAdministrar) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -1572,8 +1573,9 @@ class UsuariosController extends AppController
                             }
                         } else {
                             $usuario = $this->Usuarios->patchEntity($usuario, $this->request->data);
+                            $usuarioSave = $this->Usuarios->save($usuario);
 
-                            if ($this->Usuarios->save($usuario)) {
+                            if ($usuarioSave) {
                                 $this->Flash->success(__('A senha foi atualizada.'));
 
                                 // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
@@ -1588,6 +1590,14 @@ class UsuariosController extends AppController
                                 }
                             } else {
                                 $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
+
+                                $errors = $usuario->errors();
+
+                                foreach ($errors as $key => $error) {
+                                    foreach ($error as $key => $errorItem) {
+                                        $this->Flash->error($errorItem);
+                                    }
+                                }
                             }
                         }
                     }

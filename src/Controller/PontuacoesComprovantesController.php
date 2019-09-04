@@ -2049,7 +2049,7 @@ class PontuacoesComprovantesController extends AppController
 
                 /**
                  * @todo Adicionar bonificação extra se o mínimo de litros for atingido.
-                 * Utilizar o campo 'quantidade_multiplicador', somar todos os valores 
+                 * Utilizar o campo 'quantidade_multiplicador', somar todos os valores
                  * e conferir se atingiu a pontuação necessária
                  *
                  * @todo criar uma 'gota' "BONIFICAÇÃO SEFAZ" para indicar que são de bonificação da SEFAZ
@@ -2057,7 +2057,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $rede = $cliente->rede_has_cliente->rede;
 
-                if ($rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
+                if (!empty($rede->qte_gotas_minima_bonificacao) && $rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
                     $gotaBonificacaoSistema = $this->Gotas->getGotaBonificacaoSefaz($cliente->id);
                     $pontuacao = $this->Pontuacoes->newEntity();
                     $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
