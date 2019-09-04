@@ -267,7 +267,7 @@ class BrindesController extends AppController
                 $data["clientes_id"] = $clientesId;
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
-                $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
+                $categoriasBrindesId = !empty($data["categorias_brindes_id"]) ? $data["categorias_brindes_id"] : null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
