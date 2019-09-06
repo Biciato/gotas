@@ -441,6 +441,7 @@ class AppController extends Controller
         }
 
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
+        $cliente = $this->Clientes->get($cliente["id"]);
         $rede = $this->request->session()->read("Rede.Grupo");
 
         if (empty($usuarioLogado)) {
