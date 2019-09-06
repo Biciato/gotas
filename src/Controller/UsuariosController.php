@@ -2741,18 +2741,6 @@ class UsuariosController extends AppController
             ];
         }
 
-        $usuario = array(
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 604800
-                ],
-                Security::salt()
-            )
-        );
-
         $usuario["lista_permissoes"] = $listaPermissoes;
 
         return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
@@ -2971,9 +2959,9 @@ class UsuariosController extends AppController
                         'id' => $user['id'],
                         'sub' => $user['id'],
                         'email' => $usuario->email,
-                        'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
+                        'exp' => time()
                     ),
-                    Security::salt()
+                    Security::getSalt()
                 );
             }
 
