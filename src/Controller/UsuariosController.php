@@ -3024,8 +3024,8 @@ class UsuariosController extends AppController
                         $this->request->session()->write("Usuario.UsuarioLogado", $user);
                     }
                 } else {
-                    $this->request->session()->delete('Rede.PontoAtendimento');
-                    $this->request->session()->delete('Rede.Grupo');
+                    // $this->request->session()->delete('Rede.PontoAtendimento');
+                    // $this->request->session()->delete('Rede.Grupo');
                 }
 
 
