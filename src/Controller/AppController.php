@@ -233,9 +233,13 @@ class AppController extends Controller
             exit(0);
         }
 
+        $isMobile = $this->request->header('IsMobile');
 
         $this->_initializeUtils();
-        $this->_setUserTemplatePath();
+
+        if (!$isMobile) {
+            $this->setUserTemplatePath();
+        }
 
         $user = $this->Auth->user();
 
@@ -244,7 +248,6 @@ class AppController extends Controller
             $token = !empty($user["token"]) ? $user["token"] : null;
             $userToken = $this->UsuariosTokens->getTokenUsuario($id, $token);
 
-            $isMobile = $this->request->header('IsMobile');
 
             if (empty($userToken)) {
                 // Redireciona o usuário se não tiver mais o token
@@ -364,7 +367,7 @@ class AppController extends Controller
      *
      * @return void
      */
-    private function _setUserTemplatePath()
+    private function setUserTemplatePath()
     {
         $usuarioLogado = $this->getUserLogged();
 
