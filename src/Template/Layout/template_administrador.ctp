@@ -25,7 +25,7 @@ use Cake\Core\Configure;
 $titlePage = 'GOTAS - Administrador';
 
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br" ng-app="GotasApp">
 <head>
 	<meta charset="utf-8">

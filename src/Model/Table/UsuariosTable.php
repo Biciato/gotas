@@ -1227,12 +1227,12 @@ class UsuariosTable extends GenericTable
 
     /**
      * UsuariosTable::findAllUsuarios
-     * 
+     *
      * Busca todos os usuários conforme parâmetros
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-05
-     * 
+     *
      * @param integer $redesId
      * @param array $clientesIds
      * @param string $nome
@@ -1245,7 +1245,7 @@ class UsuariosTable extends GenericTable
      * @param integer $contaAtiva
      * @param boolean $join
      * @param array $usuariosIds
-     * 
+     *
      * @return Entity\Model\Usuarios[] $usuarios
      */
     public function findAllUsuarios(
@@ -2094,73 +2094,6 @@ class UsuariosTable extends GenericTable
             $this->addUpdateUsuario($usuario);
         } catch (\Exception $e) {
             $stringError = __("Erro ao reativar conta: " . $e->getMessage() . ", em: " . $trace[1]);
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-    /**
-     * Atualiza login sem sucesso
-     *
-     * @param entity\usuario $usuario
-     * @param boolean $sucessoLogin
-     *
-     * @author Gustavo Souza Gonçalves
-     * @since 2017-08-01
-     *
-     * @return string $message
-     */
-    public function updateLoginRetry(int $usuariosId = 0, int $sucessoLogin = 0)
-    {
-        try {
-            $message = '';
-            $usuario = $this->getUsuarioById($usuariosId);
-            $usuarioIsChanged = true;
-
-            if ($sucessoLogin) {
-                $usuario["tentativas_login"] = 0;
-                $usuario["ultima_tentativa_login"] = null;
-            } else {
-                if (!empty($usuario)) {
-                    $tentativasLogin = $usuario['tentativas_login'];
-                    $ultimaTentativaLogin = $usuario['ultima_tentativa_login'];
-
-                    if (is_null($ultimaTentativaLogin)) {
-                        $ultimaTentativaLogin = new \DateTime('now');
-                    }
-
-                    $fromTime = strtotime($ultimaTentativaLogin->format('Y-m-d H:i:s'));
-                    $toTime = strtotime(date('Y-m-d H:i:s'));
-                    $diff = round(abs($fromTime - $toTime) / 60, 0);
-
-                    if ($tentativasLogin >= 5 && ($diff < 10)) {
-                        $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
-                        $usuarioIsChanged = false;
-                    } else {
-                        if ($tentativasLogin >= 5) {
-                            $tentativasLogin = 0;
-                        } else {
-                            $ultimaTentativaLogin = date("Y-m-d H:i:s");
-                            $usuario['ultima_tentativa_login'] = $ultimaTentativaLogin;
-                        }
-
-                        $tentativasLogin = $tentativasLogin + 1;
-                        $usuario['tentativas_login'] = $tentativasLogin;
-                        $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
-                    }
-                }
-            }
-
-            if ($usuarioIsChanged) {
-                $usuario = $this->addUpdateUsuario($usuario);
-            }
-
-            return $message;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao atualizar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
 

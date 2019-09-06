@@ -17,7 +17,7 @@ use Cake\Core\Configure;
 
 $cakeDescription = 'GOTAS';
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 <head>
 	<meta charset="utf-8">

@@ -32,7 +32,7 @@ use Cake\Network\Exception\NotFoundException;
 $titlePage = 'GOTAS';
 
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
     <?= $this->Html->charset() ?>

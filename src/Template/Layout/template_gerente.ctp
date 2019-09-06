@@ -24,7 +24,7 @@ use Cake\Core\Configure;
 $titlePage = 'GOTAS - Gerente';
 
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8">
