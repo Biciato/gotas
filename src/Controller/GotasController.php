@@ -1047,6 +1047,11 @@ class GotasController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
+        $clientesId = $cliente->id;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet)) ;
+        $this->set("_serialize", $arraySet);
     }
 
     /**

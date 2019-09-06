@@ -1127,6 +1127,28 @@ class BrindesController extends AppController
     #region REST Services
 
     /**
+     * Obtêm lista de brindes conforme parâmetros informados
+     *
+     * @return void
+     */
+    public function getBrindesListAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        // $cliente
+
+        if ($this->request->is("GET")) {
+            $data = $this->request->getQueryParams();
+
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+
+        }
+    }
+
+    /**
      * Brindes::getBrindesUnidadeAPI
      *
      * Obtem todos os Brindes de uma Unidade

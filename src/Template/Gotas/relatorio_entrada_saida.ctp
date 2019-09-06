@@ -45,6 +45,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <form action="/cupons/relatorioCaixaFuncionariosGerente/" method="post">
+
+                    <!-- campos ocultos  -->
+
+                    <input type="hidden" name="clienteSelected" id="clienteSelected" value="<?= $clientesId ?>">
                         <div class="form-group row">
                             <div class="col-lg-4">
 
@@ -54,20 +58,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <div class="col-lg-4">
 
                                 <label for="brinde">Brinde:</label>
-                                <?= $this->Form->input(
-                                    "brinde",
-                                    array(
-                                        "type" => "select",
-                                        "name" => "brinde",
-                                        "id" => "brinde",
-                                        "empty" => "Selecionar...",
-                                        "placeholder" => "Brinde...",
-                                        "label" => false,
-                                        "options" => $brindesList,
-                                        "value" => $brindeSelecionado,
-                                    )
-                                );
-                                ?>
+                                <select name="brindesList" id="brindesList" class="form-control"></select>
 
                             </div>
 

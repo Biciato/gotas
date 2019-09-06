@@ -8,3 +8,4 @@
 /webroot/tmp/*
 /webroot/phpMyAdmin/tmp/*
 /config/definitions.php
+/tools/*
