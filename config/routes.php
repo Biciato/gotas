@@ -79,7 +79,8 @@ Router::scope('/', function (RouteBuilder $routes) {
 
 Router::scope("/api", function ($routes) {
 
-    $routes->extensions(['json', 'xml']);
+    // $routes->extensions(['json', 'xml']);
+    $routes->extensions(['json']);
 
     $routes->resources(
         "Brindes",
