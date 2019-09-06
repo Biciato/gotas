@@ -48,7 +48,7 @@ class AppController extends Controller
      * Campos
      * ------------------------------------------------------------
      */
-    var $persistModel = true;
+    protected $persistModel = true;
     protected $securityUtil = null;
     protected $datetime_util = null;
     protected $emailUtil = null;
@@ -136,7 +136,6 @@ class AppController extends Controller
         );
 
         if ($this->getUserLogged()) {
-
             $this->usuarioLogado = $this->getUserLogged();
             $this->set('usuarioLogado', $this->getUserLogged());
         }
