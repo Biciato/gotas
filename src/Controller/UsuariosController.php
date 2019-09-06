@@ -2970,7 +2970,8 @@ class UsuariosController extends AppController
                     array(
                         'id' => $user['id'],
                         'sub' => $user['id'],
-                        'exp' => time() + 604800
+                        'email' => $usuario->email,
+                        'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
                     ),
                     Security::salt()
                 );
