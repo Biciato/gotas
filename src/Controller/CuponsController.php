@@ -2285,6 +2285,9 @@ class CuponsController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ?? null;
                 $codigoSecundario = !empty($data["codigo_secundario"]) ?? null;
 
+                DebugUtil::printArray($usuarioLogado);
+                die();
+
                 // Validação de funcionário logado
                 $funcionarioId = $usuarioLogado->id;
 
