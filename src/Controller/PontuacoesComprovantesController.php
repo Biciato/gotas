@@ -1558,7 +1558,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (empty($cpf)) {
-                $errors[] = MESSAGE_USUARIOS_CPF_EMPTY;
+                $errors[] = MSG_USUARIOS_CPF_EMPTY;
             }
 
             if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
@@ -2049,7 +2049,7 @@ class PontuacoesComprovantesController extends AppController
 
                 /**
                  * @todo Adicionar bonificação extra se o mínimo de litros for atingido.
-                 * Utilizar o campo 'quantidade_multiplicador', somar todos os valores 
+                 * Utilizar o campo 'quantidade_multiplicador', somar todos os valores
                  * e conferir se atingiu a pontuação necessária
                  *
                  * @todo criar uma 'gota' "BONIFICAÇÃO SEFAZ" para indicar que são de bonificação da SEFAZ
@@ -2057,18 +2057,22 @@ class PontuacoesComprovantesController extends AppController
 
                 $rede = $cliente->rede_has_cliente->rede;
 
-                if ($rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
+                if (!empty($rede->qte_gotas_minima_bonificacao) && $rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
                     $gotaBonificacaoSistema = $this->Gotas->getGotaBonificacaoSefaz($cliente->id);
-                    $pontuacao = $this->Pontuacoes->newEntity();
-                    $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
-                    $pontuacao->clientes_id = $cliente->id;
-                    $pontuacao->usuarios_id = $usuario->id;
-                    $pontuacao->funcionarios_id = $funcionario->id;
-                    $pontuacao->gotas_id = $gotaBonificacaoSistema->id;
-                    $pontuacao->quantidade_multiplicador = 1;
-                    $pontuacao->quantidade_gotas = $gotaBonificacaoSistema->multiplicador_gota;
-                    $pontuacao->data = $dataProcessamento;
-                    $pontuacoesSave[] = $pontuacao;
+
+                    // só adiciona a bonificação se o registro existir na tabela.
+                    if (!empty($gotaBonificacaoSistema)) {
+                        $pontuacao = $this->Pontuacoes->newEntity();
+                        $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
+                        $pontuacao->clientes_id = $cliente->id;
+                        $pontuacao->usuarios_id = $usuario->id;
+                        $pontuacao->funcionarios_id = $funcionario->id;
+                        $pontuacao->gotas_id = $gotaBonificacaoSistema->id;
+                        $pontuacao->quantidade_multiplicador = 1;
+                        $pontuacao->quantidade_gotas = $gotaBonificacaoSistema->multiplicador_gota;
+                        $pontuacao->data = $dataProcessamento;
+                        $pontuacoesSave[] = $pontuacao;
+                    }
                 }
 
                 $pontuacoesSave = $this->Pontuacoes->insertPontuacoesCupons($pontuacoesSave);

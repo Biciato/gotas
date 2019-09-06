@@ -26,7 +26,7 @@ $usuarioLogado = $this->Auth->User();
 $cakeDescription = 'GOTAS - Desenvolvedor ' . $usuarioLogado['nome'];
 
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 <head>
 	<meta charset="utf-8">

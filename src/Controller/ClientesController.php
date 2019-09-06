@@ -771,7 +771,7 @@ class ClientesController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
             }
 
-            return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -795,10 +795,10 @@ class ClientesController extends AppController
                 if (!empty($posto) && !empty($posto["cliente"])) {
                     $posto = $posto["cliente"];
 
-                    return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, array("cliente" => $posto));
                 } else {
                     $errors = array();
-                    $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE : MESSAGE_USUARIO_CANT_SEARCH;
+                    $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MSG_USUARIOS_WORKER_NOT_ASSOCIATED_CLIENTE : MSG_USUARIOS_CANT_SEARCH;
 
                     return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
                 }

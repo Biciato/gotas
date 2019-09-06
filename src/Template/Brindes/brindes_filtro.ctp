@@ -5,6 +5,7 @@
  * @file     src/Template/Brindes/brindes_filtro.ctp
  * @date     09/08/2017
  */
+
 use Cake\Core\Configure;
 ?>
 
@@ -28,15 +29,21 @@ use Cake\Core\Configure;
                     <div class="form-group row">
                         <div class="col-lg-4">
                             <label for="nome">Nome:</label>
-                            <input
-                                type="text"
-                                name="nome"
-                                class="input-control form-control"
-                                value="<?php echo !empty($dataPost['nome']) ? $dataPost["nome"] : null ?>"
-                                placeholder="Nome"
-                            />
-
-
+                            <input type="text" name="nome" class="input-control form-control" value="<?php echo !empty($dataPost['nome']) ? $dataPost["nome"] : null ?>" placeholder="Nome" />
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="categorias_brindes_id">Categorias de Brindes:</label>
+                            <?= $this->Form->input(
+                                "categorias_brindes_id",
+                                array(
+                                    "id" => "categorias_brindes_id",
+                                    "type" => "select",
+                                    "empty" => "<Todos>",
+                                    "label" => false,
+                                    "value" => !empty($dataPost["categorias_brindes_id"]) ? $dataPost["categorias_brindes_id"] : null,
+                                    "options" => $categoriasBrindesList
+                                )
+                            ); ?>
                         </div>
 
                         <div class="col-lg-2">
@@ -68,56 +75,25 @@ use Cake\Core\Configure;
                             ); ?>
                         </div>
 
+                    </div>
+                    <div class="form-group row">
                         <div class="col-lg-2">
                             <label for="preco_padrao_min">Preço Mín. Gotas:</label>
-                            <input
-                                type="text"
-                                name="preco_padrao_min"
-                                class="input-control form-control"
-                                id="preco_padrao_min"
-                                placeholder="Preço Mínimo em Gotas"
-                                value="<?php echo !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null?>"
-
-                            />
+                            <input type="text" name="preco_padrao_min" class="input-control form-control" id="preco_padrao_min" placeholder="Preço Mínimo em Gotas" value="<?php echo !empty($dataPost["preco_padrao_min"]) ? $dataPost["preco_padrao_min"] : null ?>" />
                         </div>
 
                         <div class="col-lg-2">
                             <label for="preco_padrao_max">Preço Máx. Gotas:</label>
-                            <input
-                                type="text"
-                                name="preco_padrao_max"
-                                class="input-control form-control"
-                                id="preco_padrao_max"
-                                placeholder="Preço Máximo em Gotas"
-                                value="<?php echo !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null?>"
-
-                            />
+                            <input type="text" name="preco_padrao_max" class="input-control form-control" id="preco_padrao_max" placeholder="Preço Máximo em Gotas" value="<?php echo !empty($dataPost["preco_padrao_max"]) ? $dataPost["preco_padrao_max"] : null ?>" />
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="preco_reais_min">Preço Min. Reais:</label>
-                            <input
-                                type="text"
-                                name="preco_reais_min"
-                                id="preco_reais_min"
-                                class="input-control form-control"
-                                placeholder="Preço Mínimo em Reais"
-                                value="<?php echo !empty($dataPost["preco_reais_min"]) ? $dataPost["preco_reais_min"] : null?>"
-
-                                />
+                            <input type="text" name="preco_reais_min" id="preco_reais_min" class="input-control form-control" placeholder="Preço Mínimo em Reais" value="<?php echo !empty($dataPost["preco_reais_min"]) ? $dataPost["preco_reais_min"] : null ?>" />
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label for="preco_reais_max">Preço max. Reais:</label>
-                            <input
-                                type="text"
-                                name="preco_reais_max"
-                                id="preco_reais_max"
-                                class="input-control form-control"
-                                placeholder="Preço Máximo em Reais"
-                                value="<?php echo !empty($dataPost["preco_reais_max"]) ? $dataPost["preco_reais_max"] : null?>"
-                            />
+                            <input type="text" name="preco_reais_max" id="preco_reais_max" class="input-control form-control" placeholder="Preço Máximo em Reais" value="<?php echo !empty($dataPost["preco_reais_max"]) ? $dataPost["preco_reais_max"] : null ?>" />
                         </div>
 
                         <div class="col-lg-2">
@@ -144,34 +120,27 @@ use Cake\Core\Configure;
                         <?php if ($tipoPerfil <= PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
                             <div class="col-lg-2">
                                 <label for="codigo_primario">Cód. Primário:</label>
-                                <input type="number"
-                                    name="codigo_primario"
-                                    placeholder="Código Primário"
-                                    title="Código Primário"
-                                    id="codigo_primario"
-                                    class="form-control codigo-primario"
-                                    value="<?php echo !empty($dataPost['codigo_primario']) ? $dataPost['codigo_primario'] : null?>"
-                                    >
+                                <input type="number" name="codigo_primario" placeholder="Código Primário" title="Código Primário" id="codigo_primario" class="form-control codigo-primario" value="<?php echo !empty($dataPost['codigo_primario']) ? $dataPost['codigo_primario'] : null ?>">
                             </div>
                             <div class="col-lg-2">
                                 <label for="tipo_equipamento">Equipamento:</label>
                                 <?= $this->Form->input(
-                                    "tipo_equipamento",
-                                    array(
-                                        "id" => "tipo_equipamento",
-                                        "type" => "select",
-                                        "label" => false,
-                                        "class" => "input-control",
-                                        "empty" => "<Todos>",
-                                        "value" => !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null,
+                                        "tipo_equipamento",
+                                        array(
+                                            "id" => "tipo_equipamento",
+                                            "type" => "select",
+                                            "label" => false,
+                                            "class" => "input-control",
+                                            "empty" => "<Todos>",
+                                            "value" => !empty($dataPost["tipo_equipamento"]) ? $dataPost["tipo_equipamento"] : null,
 
-                                        "options" => array(
-                                            TYPE_EQUIPMENT_RTI,
-                                            TYPE_EQUIPMENT_PRODUCT_SERVICES
+                                            "options" => array(
+                                                TYPE_EQUIPMENT_RTI,
+                                                TYPE_EQUIPMENT_PRODUCT_SERVICES
+                                            )
                                         )
-                                    )
-                                );
-                                ?>
+                                    );
+                                    ?>
                             </div>
                         <?php endif; ?>
                     </div>

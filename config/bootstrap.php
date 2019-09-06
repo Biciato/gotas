@@ -332,7 +332,7 @@ const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 // Sucesso / Aviso
-const MESSAGE_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
+const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
 const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
 
@@ -431,9 +431,14 @@ const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
 #region Categorias Brindes
 
+const MSG_CATEGORIAS_BRINDES_ID_EMPTY_CODE = 0x00040001;
 const MSG_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY_CODE = 0x00040002;
 const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
+const MSG_CATEGORIAS_BRINDES_NOME_EMPTY_CODE = 0x00040003;
 const MSG_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY_CODE = 0x00040004;
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
 
 #endregion
 
@@ -474,6 +479,7 @@ const MSG_CUPONS_PRINTED_ALREADY_CANCELLED_CODE = 0x00080007;
 const MSG_CUPONS_PRINTED_ALREADY_CANCELLED = "O cupom já está cancelado!";
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED_CODE = 0x00080008;
 const MSG_CUPONS_TYPE_PAYMENT_REQUIRED = "O campo TIPO DE PAGAMENTO deve ser informado!";
+
 
 // Sucesso / Aviso
 
@@ -558,28 +564,60 @@ const TOP_BRINDES_TYPE_LOCAL = 'Posto';
 #endregion
 
 #region Usuários
-const MESSAGE_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
-const MESSAGE_USUARIOS_CPF_EMPTY = "Campo CPF não informado!";
-const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
-const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
-const MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro com este documento estrangeiro, informe um outro documento!";
-const MESSAGE_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
-const MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
-const MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
-const MESSAGE_USUARIO_PASSWORD_LENGTH = "Tamanho da senha deve ser de %s dígitos!";
-const MESSAGE_USUARIO_OLD_PASSWORD_DOESNT_MATCH = "Senha antiga não confere!";
-const MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR = "Senha não foi alterada, por favor confira se a senha e nova senha conferem!";
-const MESSAGE_USUARIO_PASSWORD_UPDATED = "Alteração de senha realizada com sucesso!";
-const MESSAGE_USUARIO_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
-const MESSAGE_USUARIO_PROFILE_ON_DATE = "Perfil está atualizado!";
-const MESSAGE_USUARIO_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
-const MESSAGE_USUARIO_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
-const MESSAGE_USUARIO_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
-const MESSAGE_CPF_LENGTH_INVALID = "Tamanho do CPF inválido!";
+
+const MSG_USUARIOS_CPF_EMPTY_CODE = 0x00170001;
+const MSG_USUARIOS_CPF_EMPTY = "O campo CPF deve ser informado!";
+const MSG_USUARIOS_CPF_LENGTH_INVALID_CODE = 0x00170002;
+const MSG_USUARIOS_CPF_LENGTH_INVALID = "Tamanho do CPF inválido!";
+const MSG_USUARIOS_CANT_SEARCH_CODE = 0x00170003;
+const MSG_USUARIOS_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
+const MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS_CODE = 0x00170004;
+const MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro com este documento estrangeiro, informe um outro documento!";
+const MSG_USUARIOS_DOC_ESTRANGEIRO_EMPTY_CODE = 0x00170005;
+const MSG_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
+const MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY_CODE = 0x00170006;
+const MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
+const MSG_USUARIOS_EMAIL_EMPTY_CODE = 0x00170007;
+const MSG_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
+const MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY_CODE = 0x00170008;
+const MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
+const MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE = 0x00170009;
+const MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
+const MSG_USUARIOS_NOT_AUTHENTICATED_CODE = 0x00170010;
+const MSG_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
+const MSG_USUARIOS_OLD_PASSWORD_DOESNT_MATCH_CODE = 0x00170011;
+const MSG_USUARIOS_OLD_PASSWORD_DOESNT_MATCH = "Senha antiga não confere!";
+const MSG_USUARIOS_PASSWORD_INCORRECT_CODE = 0x00170012;
+const MSG_USUARIOS_PASSWORD_INCORRECT = "Senha do usuário incorreta! Tente novamente!";
+const MSG_USUARIOS_PASSWORD_LENGTH_CODE = 0x00170013;
+const MSG_USUARIOS_PASSWORD_LENGTH = "Tamanho da senha deve ser de %s dígitos!";
+const MSG_USUARIOS_PASSWORD_UPDATE_ERROR_CODE = 0x00170014;
+const MSG_USUARIOS_PASSWORD_UPDATE_ERROR = "Senha não foi alterada, por favor confira se a senha e nova senha conferem!";
+const MSG_USUARIOS_PASSWORD_UPDATED_CODE = 0x00170015;
+const MSG_USUARIOS_PASSWORD_UPDATED = "Alteração de senha realizada com sucesso!";
+const MSG_USUARIOS_PROFILE_ON_DATE_CODE = 0x00170016;
+const MSG_USUARIOS_PROFILE_ON_DATE = "Perfil está atualizado!";
+const MSG_USUARIOS_PROFILE_OUT_DATE_CODE = 0x00170017;
+const MSG_USUARIOS_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
+const MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP_CODE = 0x00170018;
+const MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP = "Não é possível efetuar login neste aplicativo, Funcionário pertence à outro aplicativo específico!";
+const MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP_CODE = 0x00170019;
+const MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP = "Funcionário pertence à uma rede com aplicativo personalizado, não é possível fazer login no Gotas!";
+const MSG_USUARIOS_WORKER_BELONGS_GENERIC_APP_CODE = 0x00170020;
+const MSG_USUARIOS_WORKER_BELONGS_GENERIC_APP = "Funcionário pertence à uma rede que não possui aplicativo personalizado, ele deve fazer o login no aplicativo Gotas!";
+const MSG_USUARIOS_WORKER_NOT_ASSOCIATED_CLIENTE_CODE = 0x00170021;
+const MSG_USUARIOS_WORKER_NOT_ASSOCIATED_CLIENTE = "Este funcionário não está associado à nenhum Posto do Sistema!";
+
 const CPF_LENGTH = 11;
 
 #endregion
 
+#region Usuarios Has Brindes
+
+const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT_CODE = 0x0019000B;
+const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) unidade por usuário! Não é possível novo resgate!";
+
+#endregion
 
 
 #endregion

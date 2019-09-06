@@ -915,7 +915,7 @@ class CuponsController extends AppController
 
             // Obtem os brindes habilitados do posto de atendimento
 
-            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
+            $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, null, array(), null, null, null, null, null, -1);
             $brindes = $brindes->toArray();
             $brindesCliente = array();
 
@@ -1300,7 +1300,7 @@ class CuponsController extends AppController
 
             $brindes = array();
             if (empty($brindeSelecionado)) {
-                $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, array(), null, null, null, null, null, -1);
+                $brindes = $this->Brindes->findBrindes(null, $cliente["id"], null, null, null, null, null, null, null, array(), null, null, null, null, null, -1);
                 $brindes = $brindes->toArray();
             } else {
                 $brinde = $this->Brindes->getBrindeById($brindeSelecionado);
@@ -2805,7 +2805,7 @@ class CuponsController extends AppController
             $clientesId = $data["clientes_id"];
             // Definido pelo Samuel, cliente só pode retirar 1 por vez
             $quantidade = 1;
-            $funcionario = $this->Usuarios->getUsuariosByProfileType(Configure::read("profileTypes")["DummyWorkerProfileType"], 1);
+            $funcionario = $this->Usuarios->getUsuariosByProfileType(PROFILE_TYPE_DUMMY_WORKER, 1);
             $tipoPagamento = $data["tipo_pagamento"];
             $confirmaDistancia = $data["confirma_distancia"] ?? false;
             $latitudeUsuario = $data["latitude"] ?? null;
@@ -3028,7 +3028,6 @@ class CuponsController extends AppController
 
         // Validação acontecerá somente se for usuário identificado
         if (!empty($usuariosId)) {
-
             $retornoCompras = $this->UsuariosHasBrindes->checkNumberRescuesUsuarioRede($rede["id"], $usuariosId);
 
             if ($retornoCompras >= $rede["quantidade_consumo_usuarios_dia"]) {
@@ -3105,11 +3104,20 @@ class CuponsController extends AppController
             return $retorno;
         }
 
+        // Valida se o brinde é ISENTO e se o usuário já fez o resgate dele
+
+        if ($brinde->tipo_venda == TYPE_SELL_FREE_TEXT) {
+
+            $usuarioBrinde = $this->UsuariosHasBrindes->getUsuarioHasBrinde($usuariosId, $brindesId);
+
+            if (!empty($usuarioBrinde)) {
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT], [], [MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT_CODE]);
+            }
+        }
 
         // Verifica se a rede possui APP personalizado, se precisa exibir confirmação de mensagem de distância
         // e se não confirmou distância
         if ($rede->app_personalizado && $rede->msg_distancia_compra_brinde && !$confirmaDistancia) {
-
             if (empty($latitudeUsuario) || empty($longitudeUsuario)) {
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MESSAGE_ERROR_GPS_VALIDATION]);
             }
