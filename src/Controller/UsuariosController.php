@@ -2975,12 +2975,18 @@ class UsuariosController extends AppController
                     $rede = null;
 
                     // DebugUtil::printArray($postoFuncionario->cliente);
+                    $this->request->session()->delete('Rede.PontoAtendimento');
+                    $this->request->session()->delete('Rede.Grupo');
 
                     if (!empty($postoFuncionario)) {
                         $cliente = $postoFuncionario->cliente;
                         // verifica qual rede o usuário se encontra
                         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
                         $rede = $redeHasCliente->rede;
+
+                          // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                          $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+                          $this->request->session()->write('Rede.Grupo', $rede);
 
                         if ($tipoLogin == LOGIN_API) {
                             $message = null;
@@ -3015,12 +3021,6 @@ class UsuariosController extends AppController
 
                         $this->request->session()->write("Usuario.UsuarioLogado", $user);
 
-                        // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
-                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-
-
-                        $this->request->session()->write('Rede.Grupo', $rede);
                     }
                 } else {
                     $this->request->session()->delete('Rede.PontoAtendimento');
