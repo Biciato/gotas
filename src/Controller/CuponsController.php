@@ -2357,6 +2357,12 @@ class CuponsController extends AppController
                 $cuponsPendentes = array();
 
                 foreach ($cupons as $cupom) {
+
+                    Log::write("info", "cupom");
+                    Log::write("info", $cupom);
+                    Log::write("info", "cliente");
+                    Log::write("info", $cliente);
+
                     if (($cupom["clientes_id"] != $cliente["id"]) && !$cupom["brinde"]["brinde_rede"]) {
                         // Impede resgate de brinde se o brinde não for do mesmo posto ou se o brinde não for de rede
                         $errors = [MSG_CUPONS_ANOTHER_STATION];
