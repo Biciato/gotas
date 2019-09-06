@@ -128,7 +128,7 @@ class AppController extends Controller
                         'fields' => [
                             'email' => 'id'
                         ],
-                        'queryDatasource' => false
+                        'queryDatasource' => true
                     ]
                 ],
                 'checkAuthIn' => 'Controller.initialize'
@@ -431,7 +431,15 @@ class AppController extends Controller
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
         // $usuarioLogado = $this->getUserLogged();
-        $usuarioLogado = $this->Auth->user();
+        $usuarioLogado = $this->request->session()->read("Usuario.UsuarioLogado");
+
+        if (empty($usuarioLogado)) {
+            $usuarioLogado = $this->Auth->user();
+
+            $usuarioLogado = $this->Usuarios->get($usuarioLogado["id"]);
+            $this->request->session()->write("Usuario.UsuarioLogado", $usuarioLogado);
+        }
+
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
         $rede = $this->request->session()->read("Rede.Grupo");
 

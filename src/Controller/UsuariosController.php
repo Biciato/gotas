@@ -3009,6 +3009,8 @@ class UsuariosController extends AppController
                             }
                         }
 
+                        $this->request->session()->write("Usuario.UsuarioLogado", $user);
+
                         // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
                         // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
                         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
