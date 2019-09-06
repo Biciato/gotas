@@ -189,7 +189,7 @@ class UsuariosController extends AppController
                     $result = ((new DefaultPasswordHasher)->check($senhaUsuario, $usuario->senha));
 
                     if (!$result) {
-                        $this->Flash->error(MESSAGE_USUARIO_PASSWORD_INCORRECT);
+                        $this->Flash->error(MSG_USUARIOS_PASSWORD_INCORRECT);
                         $this->set(compact($arraySet));
                         $this->set('_serialize', $arraySet);
                         return;
@@ -1572,11 +1572,11 @@ class UsuariosController extends AppController
                         }
 
                         if (!$senhaAntigaConfere) {
-                            $errors[] = MESSAGE_USUARIO_OLD_PASSWORD_DOESNT_MATCH;
+                            $errors[] = MSG_USUARIOS_OLD_PASSWORD_DOESNT_MATCH;
                         }
 
                         if ($senha != $confirmSenha) {
-                            $errors[] = MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR;
+                            $errors[] = MSG_USUARIOS_PASSWORD_UPDATE_ERROR;
                         }
 
                         if (count($errors) > 0) {
@@ -1651,7 +1651,7 @@ class UsuariosController extends AppController
                 $usuario = $this->Auth->user();
 
                 if (empty($usuario)) {
-                    $errors = array(MESSAGE_USUARIOS_NOT_AUTHENTICATED);
+                    $errors = array(MSG_USUARIOS_NOT_AUTHENTICATED);
                     return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $errors);
                 }
 
@@ -1671,11 +1671,11 @@ class UsuariosController extends AppController
                 }
 
                 if (!$senhaValida) {
-                    $errors[] = MESSAGE_USUARIO_PASSWORD_INCORRECT;
+                    $errors[] = MSG_USUARIOS_PASSWORD_INCORRECT;
                 }
 
                 if ($novaSenha != $confirmSenha) {
-                    $errors[] = MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR;
+                    $errors[] = MSG_USUARIOS_PASSWORD_UPDATE_ERROR;
                 }
 
                 $tamanhoSenha = 8;
@@ -1684,7 +1684,7 @@ class UsuariosController extends AppController
                 }
 
                 if (strlen($novaSenha) != $tamanhoSenha) {
-                    $errors[] = sprintf(MESSAGE_USUARIO_PASSWORD_LENGTH, $tamanhoSenha);
+                    $errors[] = sprintf(MSG_USUARIOS_PASSWORD_LENGTH, $tamanhoSenha);
                 }
 
                 if (count($errors) > 0) {
@@ -1712,9 +1712,9 @@ class UsuariosController extends AppController
                     ];
                     $this->Auth->logout();
 
-                    return ResponseUtil::successAPI(MESSAGE_USUARIO_PASSWORD_UPDATED, array("usuario" => $usuario));
+                    return ResponseUtil::successAPI(MSG_USUARIOS_PASSWORD_UPDATED, array("usuario" => $usuario));
                 }
-                return ResponseUtil::errorAPI(MESSAGE_USUARIO_PASSWORD_UPDATE_ERROR);
+                return ResponseUtil::errorAPI(MSG_USUARIOS_PASSWORD_UPDATE_ERROR);
             }
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
@@ -2663,7 +2663,7 @@ class UsuariosController extends AppController
 
             if (empty($email) || empty($senha)) {
                 // Retorna mensagem de erro se campos estiverem vazios
-                $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+                $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
 
                 return ResponseUtil::errorAPI($message);
             }
@@ -2679,7 +2679,7 @@ class UsuariosController extends AppController
 
                 if (strlen($cpf) != CPF_LENGTH) {
                     $error = array();
-                    $error[] = MESSAGE_CPF_LENGTH_INVALID;
+                    $error[] = MSG_USUARIOS_CPF_LENGTH_INVALID;
 
                     return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $error);
                 }
@@ -2687,7 +2687,7 @@ class UsuariosController extends AppController
                 $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
 
                 if (empty($usuario)) {
-                    return ResponseUtil::errorAPI(MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT);
+                    return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
                 }
 
                 $email = $usuario["email"];
@@ -2709,9 +2709,9 @@ class UsuariosController extends AppController
             $this->Auth->logout();
             $this->clearCredentials();
 
-            $message = empty($message) ? MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT : $message;
+            $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
 
-            return ResponseUtil::errorAPI($message);
+            return ResponseUtil::errorAPI($message, $retornoLogin['errors'], [], $retornoLogin["errorCodes"]);
         }
 
         $mensagem = array(
@@ -2755,7 +2755,7 @@ class UsuariosController extends AppController
 
         $usuario["lista_permissoes"] = $listaPermissoes;
 
-        return ResponseUtil::successAPI(MESSAGE_USUARIO_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
+        return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
     }
 
     /**
@@ -2822,9 +2822,9 @@ class UsuariosController extends AppController
                 $infoUltimaAtualizacao = array("ultima_atualizacao" => $ultimaAtualizacao);
 
                 if ($validacao) {
-                    ResponseUtil::successAPI(MESSAGE_USUARIO_PROFILE_ON_DATE, $infoUltimaAtualizacao);
+                    ResponseUtil::successAPI(MSG_USUARIOS_PROFILE_ON_DATE, $infoUltimaAtualizacao);
                 } else {
-                    ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIO_PROFILE_OUT_DATE), $infoUltimaAtualizacao);
+                    ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_PROFILE_OUT_DATE), $infoUltimaAtualizacao);
                 }
             }
         } catch (\Exception $e) {
@@ -2863,7 +2863,7 @@ class UsuariosController extends AppController
             $statusUsuario = 0;
 
             if (is_null($usuario)) {
-                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
                 $statusUsuario = 1;
 
                 return array('message' => $message, 'actionNeeded' => $statusUsuario);
@@ -2956,6 +2956,8 @@ class UsuariosController extends AppController
         // Obtem o usuário para gravar a falha de login ou reset das tentativas
         $usuario = $this->Usuarios->getUsuarioByEmail($email);
         $result = $this->checkUsuarioIsLocked($usuario);
+        $errors = [];
+        $errorCodes = [];
 
         if ($result['actionNeeded'] == 0) {
             $user = $this->Auth->identify();
@@ -2989,13 +2991,21 @@ class UsuariosController extends AppController
 
                         if ($tipoLogin == LOGIN_API) {
                             $message = null;
+                            $errors = [];
+                            $errorCodes = [];
 
                             if (!empty($redesIdPost) && $rede->id != $redesIdPost) {
-                                $message = "Não é possível efetuar login neste aplicativo, Funcionário pertence à outro aplicativo específico!";
-                            } else if ((empty($redesIdPost) && $rede->app_personalizado)) {
-                                $message = "Funcionário pertence à uma rede com aplicativo personalizado, não é possível fazer login no Gotas!";
+                                $message = MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP;
+                                $errors[] = MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP;
+                                $errorCodes[] = MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP_CODE;
+                            } elseif ((empty($redesIdPost) && $rede->app_personalizado)) {
+                                $message = MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP;
+                                $errors[] = MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP;
+                                $errorCodes[] = MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP_CODE;
                             } elseif (!empty($redesIdPost) && !$rede->app_personalizado) {
-                                $message = "Funcionário pertence à uma rede que não possui aplicativo personalizado, ele deve fazer o login no aplicativo Gotas!";
+                                $message = MSG_USUARIOS_WORKER_BELONGS_GENERIC_APP;
+                                $errors[] = MSG_USUARIOS_WORKER_BELONGS_GENERIC_APP;
+                                $errorCodes[] = MSG_USUARIOS_WORKER_BELONGS_GENERIC_APP_CODE;
                             }
 
                             if (!empty($message)) {
@@ -3003,11 +3013,12 @@ class UsuariosController extends AppController
                                     "usuario" => null,
                                     "status" => 0,
                                     "message" => $message,
+                                    "errors" => $errors,
+                                    "errorCodes" => $errorCodes,
                                     "recoverAccount" => null
                                 );
                             }
                         }
-
 
                         // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
                         // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
@@ -3065,7 +3076,9 @@ class UsuariosController extends AppController
                 }
 
                 $status = 0;
-                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
+                $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
+                $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
                 $usuario = null;
             }
         } else {
@@ -3086,7 +3099,9 @@ class UsuariosController extends AppController
             "usuario" => $usuario,
             "status" => $status,
             "message" => $message,
-            "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+            "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null,
+            "errors" => $errors,
+            "errorCodes" => $errorCodes
         );
     }
 
@@ -3923,12 +3938,12 @@ class UsuariosController extends AppController
             $documentoEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
 
             if (empty($documentoEstrangeiro)) {
-                ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
+                ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
             }
             $usuario = $this->Usuarios->getUsuarioByDocumentoEstrangeiro($documentoEstrangeiro);
 
             if ($usuario) {
-                ResponseUtil::error("", "Aviso!", array(MESSAGE_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
+                ResponseUtil::error("", "Aviso!", array(MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
             }
             ResponseUtil::success(0);
         }
@@ -4244,7 +4259,7 @@ class UsuariosController extends AppController
                 $cpf = empty($data["cpf"]) ? null : $data["cpf"];
 
                 if (empty($cpf)) {
-                    return ResponseUtil::errorAPI(MESSAGE_USUARIOS_CPF_EMPTY, array());
+                    return ResponseUtil::errorAPI(MSG_USUARIOS_CPF_EMPTY, array());
                 }
 
                 $result = NumberUtil::validarCPF($data["cpf"]);
@@ -4296,7 +4311,7 @@ class UsuariosController extends AppController
                 $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
 
                 if (empty($email)) {
-                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MESSAGE_USUARIOS_EMAIL_EMPTY));
+                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_EMAIL_EMPTY));
                 }
 
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
