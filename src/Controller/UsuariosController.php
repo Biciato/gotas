@@ -2984,9 +2984,11 @@ class UsuariosController extends AppController
                         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
                         $rede = $redeHasCliente->rede;
 
-                          // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                          $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-                          $this->request->session()->write('Rede.Grupo', $rede);
+                        Log::write("info", "cliente");
+                        Log::write("info", $cliente);
+                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+                        $this->request->session()->write('Rede.Grupo', $rede);
 
                         if ($tipoLogin == LOGIN_API) {
                             $message = null;
@@ -3020,7 +3022,6 @@ class UsuariosController extends AppController
                         }
 
                         $this->request->session()->write("Usuario.UsuarioLogado", $user);
-
                     }
                 } else {
                     $this->request->session()->delete('Rede.PontoAtendimento');
