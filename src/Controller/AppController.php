@@ -441,7 +441,8 @@ class AppController extends Controller
         }
 
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
-        $cliente = $this->Clientes->get($cliente["id"]);
+        // DebugUtil::printArray($cliente);
+        // $cliente = $this->Clientes->get($cliente["id"]);
         $rede = $this->request->session()->read("Rede.Grupo");
 
         if (empty($usuarioLogado)) {
@@ -452,7 +453,7 @@ class AppController extends Controller
         // Certifica que o usuário em questão está vinculado a uma rede
         if (empty($rede) && !empty($cliente)) {
             // verifica qual rede o usuário se encontra (somente funcionários)
-            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
             $rede = $redeHasCliente["rede"];
             $this->request->session()->write("Rede.Grupo", $rede);
         }
