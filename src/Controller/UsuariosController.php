@@ -2959,7 +2959,7 @@ class UsuariosController extends AppController
                         'id' => $user['id'],
                         'sub' => $user['id'],
                         'email' => $usuario->email,
-                        'exp' => time()
+                        'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
                     ),
                     Security::getSalt()
                 );

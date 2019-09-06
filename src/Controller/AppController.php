@@ -128,7 +128,7 @@ class AppController extends Controller
                         'fields' => [
                             'email' => 'id'
                         ],
-                        'queryDatasource' => true
+                        'queryDatasource' => false
                     ]
                 ],
                 'checkAuthIn' => 'Controller.initialize'
