@@ -314,6 +314,7 @@ class AppController extends Controller
      */
     public function clearCredentials()
     {
+        $this->request->session()->delete("Auth.User");
         $this->request->session()->delete("Usuario.AdministradorLogado");
         $this->request->session()->delete("Usuario.Administrar");
         $this->request->session()->delete('Rede.Grupo');
@@ -426,18 +427,25 @@ class AppController extends Controller
     {
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $usuarioLogado = $this->getUserLogged();
+        // $usuarioLogado = $this->getUserLogged();
+        $usuarioLogado = $this->Auth->user();
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
         $rede = $this->request->session()->read("Rede.Grupo");
+
+        if (empty($usuarioLogado)) {
+            $this->clearCredentials();
+            $this->Auth->logout();
+        }
 
         // Certifica que o usuário em questão está vinculado a uma rede
         if (empty($rede) && !empty($cliente)) {
             // verifica qual rede o usuário se encontra (somente funcionários)
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
             $rede = $redeHasCliente["rede"];
+            $this->request->session()->write("Rede.Grupo", $rede);
         }
 
-        if ($usuarioAdministrar && $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
+        if ($usuarioAdministrar && $usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }

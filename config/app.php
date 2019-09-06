@@ -1,4 +1,5 @@
 <?php
+
 use Cake\Log\Log;
 
 require_once("definitions.php");
