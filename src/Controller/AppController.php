@@ -451,7 +451,7 @@ class AppController extends Controller
         // Certifica que o usuário em questão está vinculado a uma rede
         if (empty($rede) && !empty($cliente)) {
             // verifica qual rede o usuário se encontra (somente funcionários)
-            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente->id);
             $rede = $redeHasCliente["rede"];
             $this->request->session()->write("Rede.Grupo", $rede);
         }

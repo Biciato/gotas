@@ -2264,7 +2264,7 @@ class CuponsController extends AppController
     public function efetuarBaixaCupomAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
-        // ResponseUtil::successAPI("", $sessaoUsuario);
+        // ResponseUtil::successAPI("", $sessaosUsuario);
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
@@ -2291,7 +2291,7 @@ class CuponsController extends AppController
                 $tipoPerfil = $usuarioLogado->tipo_perfil;
                 $funcionario["nome"] = $usuarioLogado->nome;
                 $isFuncionario = false;
-                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente["id"]);
+                $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
                 $turnos = $turnos->toArray();
                 $turnoAtual = ShiftUtil::obtemTurnoAtual($turnos);
 

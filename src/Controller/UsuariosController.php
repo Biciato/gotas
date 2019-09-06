@@ -2971,6 +2971,10 @@ class UsuariosController extends AppController
                 if (in_array($user->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
 
                     $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+                    $cliente = null;
+                    $rede = null;
+
+                    // DebugUtil::printArray($postoFuncionario->cliente);
 
                     if (!empty($postoFuncionario)) {
                         $cliente = $postoFuncionario->cliente;
