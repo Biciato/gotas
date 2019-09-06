@@ -4,6 +4,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 
 /**
  * Usuario Entity
@@ -24,6 +25,8 @@ use Cake\Core\Configure;
  * @property string $municipio
  * @property string $estado
  * @property string $cep
+ * @property int $tentativas_login
+ * @property \Cake\I18n\FrozenDate $ultima_tentativa_login
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  */

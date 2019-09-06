@@ -1,5 +1,5 @@
 .password {
-    -webkit-text-security: disc;
-    -moz-text-security: circle;
-    text-security: circle;
+    text-security: disc !important;
+    -webkit-text-security: disc !important;
+    -moz-text-security: disc !important;
 }

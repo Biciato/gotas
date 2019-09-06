@@ -1396,23 +1396,21 @@ class UsuariosController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $retornoLogin = $this->verificaTentativaLoginUsuario($data["email"], $data["senha"], LOGIN_WEB);
+            $retornoLogin = $this->checkLoginUser($data["email"], $data["senha"], LOGIN_WEB);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
             $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
             $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
 
-            if (strlen($message) > 0) {
+            if (empty($retornoLogin["usuario"])) {
                 $this->Flash->error(__($message));
             }
         }
 
-        $this->set('recoverAccount', $recoverAccount);
-        $this->set('email', $email);
-        $this->set('message', $message);
-        $this->set('_serialize', ['message']);
-
+        $arraySet = ['recoverAccount', 'email', 'message'];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
 
         if (isset($status) && ($status == 0)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
@@ -1477,19 +1475,33 @@ class UsuariosController extends AppController
         if ($tokenSenha) {
             $usuario = $this->Usuarios->findUsuarioAwaitingPasswordReset($tokenSenha, time());
             if ($usuario) {
-                if (!empty($this->request->data)) {
-                    // Limpa campos de requisição de token
-                    $this->request->data['token_senha'] = null;
-                    $this->request->data['data_expiracao_senha'] = null;
-                    $this->request->data['tipo_perfil'] = $usuario['tipo_perfil'];
+                if ($this->request->is(["POST", "PUT"])) {
 
-                    $usuario = $this->Usuarios->patchEntity($usuario, $this->request->data);
+                    $data = $this->request->getData();
+                    if (!empty($data)) {
+                        // Limpa campos de requisição de token
+                        $data['token_senha'] = null;
+                        $data['data_expiracao_senha'] = null;
+                        $data['tipo_perfil'] = $usuario->tipo_perfil;
+                        $data["conta_bloqueada"] = 0;
+                        $data["tentativas_login"] = 0;
 
-                    if ($this->Usuarios->save($usuario)) {
-                        $this->Flash->set(__('Sua senha foi atualizada.'));
-                        return $this->redirect(array('action' => 'login'));
-                    } else {
-                        $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
+                        $usuario = $this->Usuarios->patchEntity($usuario, $data);
+                        $usuarioSave = $this->Usuarios->save($usuario);
+                        if ($usuarioSave) {
+                            $this->Flash->set(__('Sua senha foi atualizada.'));
+                            return $this->redirect(array('action' => 'login'));
+                        } else {
+                            $this->Flash->error(__('A senha não pode ser atualizada. Tente novamente.'));
+
+                            $errorsSave = $usuario->errors();
+
+                            foreach ($errorsSave as  $errorList) {
+                                foreach ($errorList as $error) {
+                                    $this->Flash->error($error);
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -2647,6 +2659,7 @@ class UsuariosController extends AppController
 
             $email = !empty($data["email"]) ? $data["email"] : null;
             $senha = !empty($data["senha"]) ? $data["senha"] : null;
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
 
             if (empty($email) || empty($senha)) {
                 // Retorna mensagem de erro se campos estiverem vazios
@@ -2681,7 +2694,7 @@ class UsuariosController extends AppController
                 $this->request->data["email"] = $email;
             }
 
-            $retornoLogin = $this->verificaTentativaLoginUsuario($email, $senha, LOGIN_API);
+            $retornoLogin = $this->checkLoginUser($email, $senha, LOGIN_API, $redesId);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
@@ -2927,12 +2940,21 @@ class UsuariosController extends AppController
         }
     }
 
-    private function verificaTentativaLoginUsuario(string $email, string $senha, string $tipoLogin)
+    /**
+     * Executa processo de validação de Usuário
+     *
+     * @param string $email Email do usuário
+     * @param string $senha Senha informada
+     * @param string $tipoLogin Se Login WEB ou API
+     * @param integer $redesIdPost Id da Rede
+     * @return void
+     */
+    private function checkLoginUser(string $email, string $senha, string $tipoLogin, int $redesIdPost = null)
     {
         $credenciais = array("email" => $email, "senha" => $senha);
 
+        // Obtem o usuário para gravar a falha de login ou reset das tentativas
         $usuario = $this->Usuarios->getUsuarioByEmail($email);
-
         $result = $this->checkUsuarioIsLocked($usuario);
 
         if ($result['actionNeeded'] == 0) {
@@ -2953,48 +2975,98 @@ class UsuariosController extends AppController
             }
 
             if ($user) {
-                $this->Auth->setUser($user);
 
-                $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
+                // Usuário logou, verifica se o mesmo é funcionário e de rede que tem APP_PERSONALIZADO
+                if (in_array($user->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
 
-                $message = $this->Usuarios->updateLoginRetry($user["id"], 1);
-                $status = 0;
+                    $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
 
-                if (($user['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK) && $user['tipo_perfil'] <= PROFILE_TYPE_WORKER) {
-                    $vinculoCliente = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+                    if (!empty($postoFuncionario)) {
+                        $cliente = $postoFuncionario->cliente;
+                        // verifica qual rede o usuário se encontra
+                        $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                        $rede = $redeHasCliente->rede;
 
-                    if (!empty($vinculoCliente)) {
-                        $cliente = $vinculoCliente["cliente"];
+                        if ($tipoLogin == LOGIN_API) {
+                            $message = null;
 
-                        if ($cliente) {
-                            // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
-                            // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                            $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+                            if (!empty($redesIdPost) && $rede->id != $redesIdPost) {
+                                $message = "Não é possível efetuar login neste aplicativo, Funcionário pertence à outro aplicativo específico!";
+                            } else if ((empty($redesIdPost) && $rede->app_personalizado)) {
+                                $message = "Funcionário pertence à uma rede com aplicativo personalizado, não é possível fazer login no Gotas!";
+                            } elseif (!empty($redesIdPost) && !$rede->app_personalizado) {
+                                $message = "Funcionário pertence à uma rede que não possui aplicativo personalizado, ele deve fazer o login no aplicativo Gotas!";
+                            }
 
-                            // verifica qual rede o usuário se encontra
-                            $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
-                            $rede = $redeHasCliente->rede;
-
-                            $this->request->session()->write('Rede.Grupo', $rede);
+                            if (!empty($message)) {
+                                return array(
+                                    "usuario" => null,
+                                    "status" => 0,
+                                    "message" => $message,
+                                    "recoverAccount" => null
+                                );
+                            }
                         }
+
+
+                        // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
+                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+
+
+                        $this->request->session()->write('Rede.Grupo', $rede);
                     }
                 } else {
                     $this->request->session()->delete('Rede.PontoAtendimento');
                     $this->request->session()->delete('Rede.Grupo');
                 }
+
+
+                $this->Auth->setUser($user);
+
+                // Reset de tentativas de login
+                $usuario->tentatias_login = 0;
+                $usuario->ultima_tentativa_login = null;
+                $this->Usuarios->save($usuario);
+
+                // Grava token gerado
+                $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
+                $status = 0;
+
+
                 return array(
                     "usuario" => $user,
                     "status" => 0,
-                    "message" => $message,
+                    "message" => "",
                     "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
                 );
-            } else {
-                $retornoLogin = $this->Usuarios->updateLoginRetry($usuario["id"], 0);
-                $status = 1;
-                $message = $retornoLogin;
-                $usuario = null;
+            } elseif (!empty($usuario)) {
+                // se não logou
+                if (is_null($usuario->ultima_tentativa_login)) {
+                    $usuario->ultima_tentativa_login = new \DateTime('now');
+                }
 
-                // $this->Flash->error($retornoLogin);
+                $fromTime = strtotime($usuario->ultima_tentativa_login->format('Y-m-d H:i:s'));
+                $toTime = strtotime(date('Y-m-d H:i:s'));
+                $diff = round(abs($fromTime - $toTime) / 60, 0);
+
+                if ($usuario->tentativas_login >= 5 && ($diff < 10)) {
+                    $message = __('Você já tentou realizar 5 tentativas de autenticação, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
+                } else {
+                    // Grava falha de tentativa de login
+                    if ($usuario->tentativas_login >= 5) {
+                        $$usuario->tentativas_login = 0;
+                    } else {
+                        $usuario->ultima_tentativa_login = new DateTime("now");
+                    }
+
+                    $usuario->tentativas_login = $usuario->tentativas_login + 1;
+                    $this->Usuarios->save($usuario);
+                }
+
+                $status = 0;
+                $message = MESSAGE_USUARIO_LOGIN_PASSWORD_INCORRECT;
+                $usuario = null;
             }
         } else {
             $message = $result['message'];
