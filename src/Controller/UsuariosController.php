@@ -2741,18 +2741,6 @@ class UsuariosController extends AppController
             ];
         }
 
-        $usuario = array(
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 604800
-                ],
-                Security::salt()
-            )
-        );
-
         $usuario["lista_permissoes"] = $listaPermissoes;
 
         return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
@@ -2970,9 +2958,10 @@ class UsuariosController extends AppController
                     array(
                         'id' => $user['id'],
                         'sub' => $user['id'],
-                        'exp' => time() + 604800
+                        'email' => $usuario->email,
+                        'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
                     ),
-                    Security::salt()
+                    Security::getSalt()
                 );
             }
 
@@ -2982,12 +2971,24 @@ class UsuariosController extends AppController
                 if (in_array($user->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
 
                     $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
+                    $cliente = null;
+                    $rede = null;
+
+                    // DebugUtil::printArray($postoFuncionario->cliente);
+                    $this->request->session()->delete('Rede.PontoAtendimento');
+                    $this->request->session()->delete('Rede.Grupo');
 
                     if (!empty($postoFuncionario)) {
                         $cliente = $postoFuncionario->cliente;
                         // verifica qual rede o usuário se encontra
                         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
                         $rede = $redeHasCliente->rede;
+
+                        Log::write("info", "cliente");
+                        Log::write("info", $cliente);
+                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
+                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
+                        $this->request->session()->write('Rede.Grupo', $rede);
 
                         if ($tipoLogin == LOGIN_API) {
                             $message = null;
@@ -3020,16 +3021,11 @@ class UsuariosController extends AppController
                             }
                         }
 
-                        // @todo correção!!! Se ele for Adm Geral ou regional, é só a rede que tem que ficar armazenada.
-                        // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
-                        $this->request->session()->write('Rede.PontoAtendimento', $cliente);
-
-
-                        $this->request->session()->write('Rede.Grupo', $rede);
+                        $this->request->session()->write("Usuario.UsuarioLogado", $user);
                     }
                 } else {
-                    $this->request->session()->delete('Rede.PontoAtendimento');
-                    $this->request->session()->delete('Rede.Grupo');
+                    // $this->request->session()->delete('Rede.PontoAtendimento');
+                    // $this->request->session()->delete('Rede.Grupo');
                 }
 
 
