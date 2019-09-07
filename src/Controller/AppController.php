@@ -433,17 +433,34 @@ class AppController extends Controller
         // $usuarioLogado = $this->getUserLogged();
         $usuarioLogado = $this->request->session()->read("Usuario.UsuarioLogado");
 
+        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
+        $rede = $this->request->session()->read("Rede.Grupo");
+
         if (empty($usuarioLogado)) {
             $usuarioLogado = $this->Auth->user();
 
-            $usuarioLogado = $this->Usuarios->get($usuarioLogado["id"]);
-            $this->request->session()->write("Usuario.UsuarioLogado", $usuarioLogado);
-        }
+            if (empty($usuarioLogado)) {
+                return array(
+                    "usuarioAdministrador" => null,
+                    "usuarioAdministrar" => null,
+                    "usuarioLogado" => null,
+                    "rede" => null,
+                    "cliente" => null,
+                );
+            }
 
-        $cliente = $this->request->session()->read("Rede.PontoAtendimento");
-        // DebugUtil::printArray($cliente);
-        // $cliente = $this->Clientes->get($cliente["id"]);
-        $rede = $this->request->session()->read("Rede.Grupo");
+            $usuarioLogado = $this->Usuarios->get($usuarioLogado["id"]);
+            $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarioLogado->id, true);
+            $cliente = null;
+            $rede = null;
+
+            if (!empty($postoFuncionario)) {
+                $cliente = $postoFuncionario->cliente;
+                // verifica qual rede o usuário se encontra
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                $rede = $redeHasCliente->rede;
+            }
+        }
 
         if (empty($usuarioLogado)) {
             $this->clearCredentials();
