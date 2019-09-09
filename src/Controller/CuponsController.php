@@ -2264,7 +2264,7 @@ class CuponsController extends AppController
     public function efetuarBaixaCupomAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
-        // ResponseUtil::successAPI("", $sessaoUsuario);
+        // ResponseUtil::successAPI("", $sessaosUsuario);
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
@@ -2357,7 +2357,13 @@ class CuponsController extends AppController
                 $cuponsPendentes = array();
 
                 foreach ($cupons as $cupom) {
-                    if (($cupom->clientes_id != $cliente->id) || !$cupom->brinde->brinde_rede) {
+
+                    Log::write("info", "cupom");
+                    Log::write("info", $cupom);
+                    Log::write("info", "cliente");
+                    Log::write("info", $cliente);
+
+                    if (($cupom["clientes_id"] != $cliente["id"]) && !$cupom["brinde"]["brinde_rede"]) {
                         // Impede resgate de brinde se o brinde não for do mesmo posto ou se o brinde não for de rede
                         $errors = [MSG_CUPONS_ANOTHER_STATION];
                         $errorCodes = [MSG_CUPONS_ANOTHER_STATION_CODE];
@@ -2501,7 +2507,7 @@ class CuponsController extends AppController
 
                             $transacao = new CuponsTransacoes();
                             $transacao->redes_id = $rede->id;
-                            $transacao->clientes_id = $cliente->id;
+                            $transacao->clientes_id = $cliente["id"];
                             $transacao->cupons_id = $cupom->id;
                             $transacao->brindes_id = $cupom->brindes_id;
                             $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];

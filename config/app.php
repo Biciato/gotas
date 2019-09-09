@@ -1,4 +1,5 @@
 <?php
+
 use Cake\Log\Log;
 
 require_once("definitions.php");
@@ -251,7 +252,8 @@ return [
             'driver' => 'Cake\Database\Driver\Mysql',
             // 'persistent' => false,
             'persistent' => true,
-            'host' => __HOST__,
+            // 'host' => __HOST__,
+            'host' => 'localhost',
             // 'host' => 'sistema.gotas.com.br',
             /**
              * CakePHP will use the default DB port based on the driver selected
@@ -259,7 +261,8 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rti_gotas',
+            'username' => __DATABASE__,
+            // 'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,
@@ -445,5 +448,7 @@ return [
         // 'timeout' => 1
         // uma semana
         'timeout' => 60 * 24 * 7 * 7
+        // 'timeout' => TIME_EXPIRATION_TOKEN_MINUTES
+        // 'timeout' => 1
     ],
 ];

@@ -232,9 +232,13 @@ class AppController extends Controller
             exit(0);
         }
 
+        $isMobile = $this->request->header('IsMobile');
 
         $this->_initializeUtils();
-        $this->_setUserTemplatePath();
+
+        if (!$isMobile) {
+            $this->setUserTemplatePath();
+        }
 
         $user = $this->Auth->user();
 
@@ -243,7 +247,6 @@ class AppController extends Controller
             $token = !empty($user["token"]) ? $user["token"] : null;
             $userToken = $this->UsuariosTokens->getTokenUsuario($id, $token);
 
-            $isMobile = $this->request->header('IsMobile');
 
             if (empty($userToken)) {
                 // Redireciona o usuário se não tiver mais o token
@@ -313,6 +316,7 @@ class AppController extends Controller
      */
     public function clearCredentials()
     {
+        $this->request->session()->delete("Auth.User");
         $this->request->session()->delete("Usuario.AdministradorLogado");
         $this->request->session()->delete("Usuario.Administrar");
         $this->request->session()->delete('Rede.Grupo');
@@ -362,7 +366,7 @@ class AppController extends Controller
      *
      * @return void
      */
-    private function _setUserTemplatePath()
+    private function setUserTemplatePath()
     {
         $usuarioLogado = $this->getUserLogged();
 
@@ -425,18 +429,52 @@ class AppController extends Controller
     {
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-        $usuarioLogado = $this->getUserLogged();
+        // $usuarioLogado = $this->getUserLogged();
+        $usuarioLogado = $this->request->session()->read("Usuario.UsuarioLogado");
+
         $cliente = $this->request->session()->read("Rede.PontoAtendimento");
         $rede = $this->request->session()->read("Rede.Grupo");
+
+        if (empty($usuarioLogado)) {
+            $usuarioLogado = $this->Auth->user();
+
+            if (empty($usuarioLogado)) {
+                return array(
+                    "usuarioAdministrador" => null,
+                    "usuarioAdministrar" => null,
+                    "usuarioLogado" => null,
+                    "rede" => null,
+                    "cliente" => null,
+                );
+            }
+
+            $usuarioLogado = $this->Usuarios->get($usuarioLogado["id"]);
+            $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($usuarioLogado->id, true);
+            $cliente = null;
+            $rede = null;
+
+            if (!empty($postoFuncionario)) {
+                $cliente = $postoFuncionario->cliente;
+                // verifica qual rede o usuário se encontra
+                $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
+                $rede = $redeHasCliente->rede;
+            }
+        }
+
+        if (empty($usuarioLogado)) {
+            $this->clearCredentials();
+            $this->Auth->logout();
+        }
 
         // Certifica que o usuário em questão está vinculado a uma rede
         if (empty($rede) && !empty($cliente)) {
             // verifica qual rede o usuário se encontra (somente funcionários)
             $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
             $rede = $redeHasCliente["rede"];
+            $this->request->session()->write("Rede.Grupo", $rede);
         }
 
-        if ($usuarioAdministrar && $usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
+        if ($usuarioAdministrar && $usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }
