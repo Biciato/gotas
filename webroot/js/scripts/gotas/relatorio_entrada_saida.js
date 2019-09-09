@@ -183,13 +183,16 @@ $(function() {
             data.brindes_id = brindesId;
         }
 
+        callLoaderAnimation();
         $.ajax({
             type: "GET",
-            url: "/api/gotas/get_gotas_report",
+            url: "/api/gotas/get_gotas_entrada_saida",
             data: data,
             dataType: "JSON",
             success: function (response) {
 
+            }, complete: function (response) {
+                closeLoaderAnimation();
             }
         });
 
