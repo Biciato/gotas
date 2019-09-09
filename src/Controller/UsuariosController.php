@@ -994,7 +994,7 @@ class UsuariosController extends AppController
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = (int) $data['clientes_id'];
 
-            if (empty($redesId)) {
+            if (empty($redesId) && in_array($data["tipo_perfil"], [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
                 $redesId = $data["redes_id"];
                 $rede = $this->Redes->getRedeById($redesId);
             }

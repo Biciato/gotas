@@ -220,15 +220,15 @@ class RedesHasClientesTable extends GenericTable
             $whereCondition[] = array('redes_id' => $redesId);
 
             if (!empty($nomeFantasia)) {
-                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
+                $whereCondition[] = array("Cliente.nome_fantasia like '%{$nomeFantasia}%'");
             }
 
             if (!empty($razaoSocial)) {
-                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
+                $whereCondition[] = array("Cliente.razao_social like '%{$razaoSocial}%'");
             }
 
             if (!empty($cnpj)) {
-                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
+                $whereCondition[] = array("Cliente.cnpj like '%{$cnpj}%'");
             }
 
             if (count($clientesIds) > 0) {
@@ -237,7 +237,7 @@ class RedesHasClientesTable extends GenericTable
 
             $redesHasClientes = $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Cliente']);
 
             return $redesHasClientes;
         } catch (\Exception $e) {
