@@ -6,9 +6,8 @@ $(function() {
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
 
-    // var dataInicio = $("#data-inicio").dateTimePicker();
-    var dataInicio = initializeDatePicker("data-inicio", "data-inicio-envio");
-    var dataFim = initializeDatePicker("data-fim", "data-fim-envio");
+    var dataInicio = null;
+    var dataFim = null;
 
     // #endregion
 
@@ -25,6 +24,13 @@ $(function() {
 
         brindesSelectListBox.empty();
         brindesSelectListBox.append(brindesList);
+
+        // Inicializa campos date
+
+        var dataAtual = moment();
+        // var dataInicio = $("#data-inicio").dateTimePicker();
+        dataInicio = initializeDatePicker("data-inicio", "data-inicio-e ", dataAtual );
+        dataFim = initializeDatePicker("data-fim", "data-fim-envio", dataAtual, null, dataAtual);
 
         getClientesList();
 
@@ -164,6 +170,29 @@ $(function() {
                 closeLoaderAnimation();
             }
         });
+    }
+
+    function getEntradaSaida(clientesId, brindesId, dataInicio, dataFim) {
+        var data = {
+            clientes_id: clientesId,
+            dataInicio: dataInicio,
+            dataFim: dataFim
+        };
+
+        if (brindesId !== undefined) {
+            data.brindes_id = brindesId;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/api/gotas/get_gotas_report",
+            data: data,
+            dataType: "JSON",
+            success: function (response) {
+
+            }
+        });
+
     }
 
     // #endregion

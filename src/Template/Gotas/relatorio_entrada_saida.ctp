@@ -63,7 +63,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
-                                <input type="text" name="data-inicio-envio" id='data-fim-envio'>
+                                <input type="text" name="data-inicio-envio" id='data-inicio-envio'>
                             </div>
                             <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
