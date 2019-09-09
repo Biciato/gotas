@@ -1,13 +1,14 @@
 $(function() {
-
-    getClientesList();
-
     // #region Properties
 
-    var clientesSelectListBox = $("#clientesList");
+    var clientesSelectListBox = $("#clientes-list");
     var clientesList = [];
-    var brindesSelectListBox = $("#brindesList");
+    var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
+
+    // var dataInicio = $("#data-inicio").dateTimePicker();
+    var dataInicio = initializeDatePicker("data-inicio", "data-inicio-envio");
+    var dataFim = initializeDatePicker("data-fim", "data-fim-envio");
 
     // #endregion
 
@@ -24,6 +25,10 @@ $(function() {
 
         brindesSelectListBox.empty();
         brindesSelectListBox.append(brindesList);
+
+        getClientesList();
+
+        clientesSelectListBoxOnChange();
     }
 
     init();
@@ -31,16 +36,17 @@ $(function() {
     function clientesSelectListBoxOnChange() {
         var clienteSelected = this.value;
 
-        if (clienteSelected !== undefined) {
-            // Obtem Brindes
-
-            // Obtem
+        if (isNaN(clienteSelected)) {
+            clienteSelected = $("#cliente-selected").val();
         }
 
-    };
+        if (clienteSelected !== "undefined") {
+            // Obtem Brindes
+            getBrindesList(clienteSelected);
+        }
+    }
 
     clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
-
 
     // #region Get / Set REST Services
 
@@ -50,11 +56,48 @@ $(function() {
             type: "POST",
             url: "/api/brindes/get_brindes_unidade",
             data: {
-                clientes: clientesId
+                clientes_id: clientesId
             },
             dataType: "JSON",
-            success: function (response) {
+            success: function(response) {
+                console.log(response);
 
+                if (response.brindes !== undefined) {
+                    brindesSelectListBox.empty();
+
+                    var data = response.brindes.data;
+                    var collection = [];
+                    var options = [];
+                    var option = document.createElement("option");
+                    option.title = "Selecionar Brinde para filtro específico";
+                    option.textContent = "Todos";
+                    options.push(option);
+
+                    data.forEach(dataItem => {
+                        var option = document.createElement("option");
+                        var item = {
+                            id: dataItem.id,
+                            nome: dataItem.nome_brinde_detalhado
+                        };
+
+                        option.value = item.id;
+                        option.textContent = item.nome;
+                        collection.push(item);
+                        options.push(option);
+                    });
+
+                    brindesSelectListBox.append(options);
+                    brindesList = collection;
+                }
+            },
+            error: function(response) {
+                callModalError(
+                    response.mensagem.message,
+                    response.mensagem.error
+                );
+            },
+            complete: function(response) {
+                closeLoaderAnimation();
             }
         });
     }
@@ -69,16 +112,14 @@ $(function() {
      *
      * return SelectListBox
      */
-    function getClientesList(){
-
+    function getClientesList() {
         callLoaderAnimation();
         $.ajax({
             type: "GET",
             url: "/api/clientes/get_clientes_list",
             data: {},
             dataType: "JSON",
-            success: function (res) {
-
+            success: function(res) {
                 if (res.clientes.length > 0) {
                     clientesList = [];
                     clientesSelectListBox.empty();
@@ -103,20 +144,24 @@ $(function() {
                     });
 
                     clientesSelectListBox.append(clientesList);
-                    var clienteSelected = $("#clienteSelected").val() ;
+                    var clienteSelected = $("#cliente-selected").val();
 
                     if (clienteSelected !== undefined && clienteSelected > 0) {
                         clientesSelectListBox.val(clienteSelected);
+                    }
+
+                    // Option vazio e mais um posto? Desabilita pois só tem uma seleção possível
+                    if (clientesList.length == 2) {
+                        $(clientesSelectListBox).attr("disabled", true);
                     }
                 }
                 console.log(res);
 
                 closeLoaderAnimation();
             },
-            error: function (res) {
+            error: function(res) {
                 console.log(res);
                 closeLoaderAnimation();
-
             }
         });
     }
@@ -124,6 +169,4 @@ $(function() {
     // #endregion
 
     // #endregion
-
-
 });

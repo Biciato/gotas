@@ -46,47 +46,39 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <div class="panel-body">
                     <form action="/cupons/relatorioCaixaFuncionariosGerente/" method="post">
 
-                    <!-- campos ocultos  -->
-
-                    <input type="hidden" name="clienteSelected" id="clienteSelected" value="<?= $clientesId ?>">
+                        <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
                         <div class="form-group row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
 
                                 <label for="funcionario">Posto:</label>
-                                <select name="clientesList" id="clientesList" class="form-control"></select>
+                                <select name="clientes-list" id="clientes-list" class="form-control"></select>
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
 
                                 <label for="brinde">Brinde:</label>
-                                <select name="brindesList" id="brindesList" class="form-control"></select>
+                                <select name="brindes-list" id="brindes-list" class="form-control"></select>
 
                             </div>
 
                             <div class="col-lg-2">
-                                <label for="dataInicio">Data de Pesquisa:</label>
-                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data_pesquisa" id="data_pesquisa" placeholder="Data Início...">
+                                <label for="data-inicio">Data Início:</label>
+                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
+                                <input type="text" name="data-inicio-envio" id='data-fim-envio'>
+                            </div>
+                            <div class="col-lg-2">
+                                <label for="data-fim">Data Fim:</label>
+                                <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
+                                <input type="text" name="data-fim-envio" id='data-fim-envio'>
                             </div>
 
                             <div class="col-lg-2">
                                 <label for="tipo_relatorio">Tipo de Relatório:</label>
-                                <?= $this->Form->input(
-                                    "tipo_relatorio",
-                                    array(
-                                        "type" => "select",
-                                        "name" => "tipo_relatorio",
-                                        "id" => "tipo_relatorio",
-                                        "label" => false,
-                                        "options" => array(
-                                            REPORT_TYPE_ANALYTICAL => REPORT_TYPE_ANALYTICAL,
-                                            REPORT_TYPE_SYNTHETIC => REPORT_TYPE_SYNTHETIC
-                                        ),
-                                        "value" => $tipoRelatorio
-                                    )
-                                ); ?>
+
+                                <select name="tipoRelatorio" id="tipoRelatorio" class="form-control">
+                                    <option value="analitico">Analítico</option>
+                                    <option value="sintético" selected>Sintético</option>
+                                </select>
                             </div>
-
-                            <input type="hidden" name="data_pesquisa_envio" id="data_pesquisa_envio" value="<?= $dataPesquisa ?>" class="data-pesquisa-envio">
-
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
@@ -94,16 +86,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <span class="fa fa-search"></span>
                                     Pesquisar
                                 </button>
-                                <?php if (count($dadosRelatorio) > 0) : ?>
-                                    <button type="button" class="imprimir btn btn-default print-button-thermal" id="imprimir">
-                                        <i class="fa fa-print"></i>
-                                        Impressora Térmica
-                                    </button>
-                                    <button type="button" class="imprimir btn btn-default print-button-common" id="imprimir">
-                                        <i class="fa fa-print"></i>
-                                        Impressora Comum
-                                    </button>
-                                <?php endif; ?>
+                                <button type="button" class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                    <i class="fa fa-print"></i>
+                                    Imprimir
+                                </button>
                             </div>
                         </div>
                     </form>
