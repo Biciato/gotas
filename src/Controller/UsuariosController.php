@@ -2085,6 +2085,7 @@ class UsuariosController extends AppController
 
         $rede = $redeHasCliente->rede;
 
+        $this->request->session()->write("Usuario.UsuarioLogado", $usuarioAdministrar);
         $this->request->session()->write('Rede.Grupo', $rede);
         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
 
