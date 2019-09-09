@@ -2104,8 +2104,10 @@ class UsuariosController extends AppController
     {
         $this->request->session()->delete("Usuario.AdministradorLogado");
         $this->request->session()->delete("Usuario.Administrar");
+        $this->request->session()->delete("Usuario.UsuarioLogado");
         $this->request->session()->delete('Rede.Grupo');
         $this->request->session()->delete('Rede.PontoAtendimento');
+        $this->request->session()->write("Usuario.UsuarioLogado", $this->Auth->user());
 
         return $this->redirect(['controller' => 'pages', 'action' => 'display']);
     }
