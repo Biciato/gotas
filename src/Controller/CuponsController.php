@@ -2442,7 +2442,8 @@ class CuponsController extends AppController
                         "recibo_baixa_cupons" => $dadosCupons
                     );
 
-                    return ResponseUtil::errorAPI($error, $errors, ['resultado' => $resultado], $errorCodes);
+                    return ResponseUtil::questionAPI($error, ["resultado" => $resultado], $errors, $errorCodes);
+                    // return ResponseUtil::errorAPI($error, $errors, ['resultado' => $resultado], $errorCodes);
                 }
 
                 $brindesNaoUsados = array();

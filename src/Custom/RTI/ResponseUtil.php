@@ -157,6 +157,46 @@ class ResponseUtil
         die();
     }
 
+    /**
+     * ResponseUtil::errorAPI
+     *
+     * Retorna erro para API Mobile
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018/12/29
+     *
+     * @param string $msg String da mensagem de erro
+     * @param array $data Dados adicionais de retorno
+     * @param array $errors Array de Erros
+     * @param array $errorCodes
+
+     * @return json_encode Dados json
+     */
+    public static function questionAPI(string $msg, array $data = array(), array $errors = array(), array $errorCodes = array())
+    {
+        header("HTTP/1.0 200");
+        header("Content-Type: application/json");
+
+        $arrayKeys = array_keys($data);
+        $mensagem = array(
+            "status" => 0,
+            "message" => $msg,
+            "errors" => $errors,
+            "error_codes" => !empty($errorCodes) ? $errorCodes : []
+        );
+        $arraySet = array();
+        $arraySet["mensagem"] = $mensagem;
+
+        if (count($data) > 0) {
+            foreach ($arrayKeys as $key => $item) {
+                $arraySet[$item] = $data[$item];
+            }
+        }
+
+        echo json_encode($arraySet);
+        die();
+    }
+
     public static function logoutResponseAPI($responseType = null)
     {
         header("HTTP/1.0 401");
