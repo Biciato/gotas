@@ -260,7 +260,8 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rti_gotas',
+            'username' => __DATABASE__,
+            // 'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,
