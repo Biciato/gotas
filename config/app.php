@@ -447,8 +447,8 @@ return [
         // 'timeout' => 30
         // 'timeout' => 1
         // uma semana
-        // 'timeout' => 60 * 24 * 7 * 7
-        'timeout' => TIME_EXPIRATION_TOKEN_MINUTES
+        'timeout' => 60 * 24 * 7 * 7
+        // 'timeout' => TIME_EXPIRATION_TOKEN_MINUTES
         // 'timeout' => 1
     ],
 ];
