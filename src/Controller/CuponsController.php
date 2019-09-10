@@ -2355,15 +2355,23 @@ class CuponsController extends AppController
                 $verificado = false;
                 $usados = array();
                 $cuponsPendentes = array();
+                $clientesCupom = [];
 
                 foreach ($cupons as $cupom) {
-
                     Log::write("info", "cupom");
                     Log::write("info", $cupom);
                     Log::write("info", "cliente");
                     Log::write("info", $cliente);
 
-                    if (($cupom["clientes_id"] != $cliente["id"]) && !$cupom["brinde"]["brinde_rede"]) {
+                    if (count($clientesCupom) == 0) {
+                        $clientesCupomQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($cupom->clientes_id);
+
+                        foreach ($clientesCupomQuery as $value) {
+                            $clientesCupom[] = $value["clientes_id"];
+                        }
+                    }
+
+                    if (!in_array($cliente->id, $clientesCupom) || ($cupom->clientes_id != $cliente->id) && !$cupom->brinde->brinde_rede) {
                         // Impede resgate de brinde se o brinde não for do mesmo posto ou se o brinde não for de rede
                         $errors = [MSG_CUPONS_ANOTHER_STATION];
                         $errorCodes = [MSG_CUPONS_ANOTHER_STATION_CODE];
