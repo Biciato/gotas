@@ -231,7 +231,7 @@ class BrindesTable extends GenericTable
      * @return \App\Model\Entity\Brindes[] $brindes
      */
 
-    public function findBrindes(int $redesId = null, int $clientesId = null, int $categoriasBrindesId = null, string $nome = null, int $codigoPrimario = null,  int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
+    public function findBrindes(int $redesId = null, int $clientesId = null, int $categoriasBrindesId = null, string $nome = null, int $codigoPrimario = null, int $tempoUsoBrindeMin = null, int $tempoUsoBrindeMax = null, int $ilimitado = null, string $tipoEquipamento = null, array $tiposVendas = array(), string $tipoCodigoBarras = null, float $precoPadraoMin = null, float $precoPadraoMax = null, float $valorMoedaVendaPadraoMin = null, float $valorMoedaVendaPadraoMax = null, int $apagado = null, array $orderBy = array())
     {
         try {
 

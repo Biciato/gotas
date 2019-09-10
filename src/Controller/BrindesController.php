@@ -1229,6 +1229,8 @@ class BrindesController extends AppController
                     $orderConditions
                 );
 
+                $resultado = $resultado->where(["Brindes.habilitado" => 1]);
+
                 $todosBrindes = $resultado;
                 $brindesAtuais = $resultado;
                 if (count($pagination) > 0) {
