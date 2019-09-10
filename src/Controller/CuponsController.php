@@ -2888,7 +2888,7 @@ class CuponsController extends AppController
 
                 $whereConditions = array("Cupons.usuarios_id" => $usuariosId);
 
-                if (!empty($tipoVenda)) {
+                if (!empty($tiposVendas)) {
                     $whereConditions[] = array("Brindes.tipo_venda IN " => $tiposVendas);
                 }
 
