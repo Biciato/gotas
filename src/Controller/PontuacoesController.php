@@ -743,6 +743,60 @@ class PontuacoesController extends AppController
         return;
     }
 
+    public function getPontuacoesRelatorioEntradaSaida()
+    {
+        $error = [];
+        $errorCodes = [];
+
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $rede = $sessaoUsuario["rede"];
+            $cliente = $sessaoUsuario["cliente"];
+            $clientesIdSession = !empty($cliente) ? $cliente->id : null;
+            $clientesIds = [];
+
+            if (!empty($usuarioAdministrar)) {
+                $usuarioLogado = $usuarioAdministrar;
+            }
+
+            if ($this->request->is(Request::METHOD_GET)) {
+                // Obtenção dos dados
+                $data = $this->request->getQueryParams();
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
+                if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
+                    $clientesId = $clientesIdSession;
+                } elseif ($usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
+                    // Caso o operador não especifique a loja, pega as lojas que ele tem acesso e faz pesquisa
+
+                    if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) {
+                        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+                    }
+                }
+
+                // As gotas que entram/saem do sistema ficam na tabela pontuacoes
+                // Existem dois tipos de relatorio: ANALITICO E SINTETICO
+
+                // SINTETICO traz apenas a soma, o periodo, e a unidade
+                // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
+
+                //code...
+            }
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            $error = $th->getCode();
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, [$message], [], [$error]);
+        }
+    }
+
     public function relUsuariosFrequenciaMediaAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
