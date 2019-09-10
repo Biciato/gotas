@@ -2355,15 +2355,23 @@ class CuponsController extends AppController
                 $verificado = false;
                 $usados = array();
                 $cuponsPendentes = array();
+                $clientesCupom = [];
 
                 foreach ($cupons as $cupom) {
-
                     Log::write("info", "cupom");
                     Log::write("info", $cupom);
                     Log::write("info", "cliente");
                     Log::write("info", $cliente);
 
-                    if (($cupom["clientes_id"] != $cliente["id"]) && !$cupom["brinde"]["brinde_rede"]) {
+                    if (count($clientesCupom) == 0) {
+                        $clientesCupomQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($cupom->clientes_id);
+
+                        foreach ($clientesCupomQuery as $value) {
+                            $clientesCupom[] = $value["clientes_id"];
+                        }
+                    }
+
+                    if (!in_array($cliente->id, $clientesCupom) || ($cupom->clientes_id != $cliente->id) && !$cupom->brinde->brinde_rede) {
                         // Impede resgate de brinde se o brinde não for do mesmo posto ou se o brinde não for de rede
                         $errors = [MSG_CUPONS_ANOTHER_STATION];
                         $errorCodes = [MSG_CUPONS_ANOTHER_STATION_CODE];
@@ -2869,19 +2877,19 @@ class CuponsController extends AppController
                 $dataInicio = !empty($data["data_inicio"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_inicio"]), "Y-m-d") : null;
                 $dataFim = !empty($data["data_fim"]) ? date_format(DateTime::createFromFormat("d/m/Y", $data["data_fim"]), "Y-m-d") : null;
                 $brindesNome = !empty($data["brindes_nome"]) ? $data["brindes_nome"] : null;
-                $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : TYPE_SELL_CURRENCY_OR_POINTS_TEXT;
+                $tiposVendas = !empty($data["tipo_venda"]) ? [$data["tipo_venda"]] : [TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT];
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
-                if (!in_array($tipoVenda, array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT))) {
+                if (count($tiposVendas) == 0) {
                     $message = MESSAGE_LOAD_DATA_WITH_ERROR;
                     ResponseUtil::errorAPI($message, array(TYPE_SELL_EMPTY));
                 }
 
                 $whereConditions = array("Cupons.usuarios_id" => $usuariosId);
 
-                if (!empty($tipoVenda)) {
-                    $whereConditions[] = array("Brindes.tipo_venda" => $tipoVenda);
+                if (!empty($tiposVendas)) {
+                    $whereConditions[] = array("Brindes.tipo_venda IN " => $tiposVendas);
                 }
 
                 $orderConditions = array();
