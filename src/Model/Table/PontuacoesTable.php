@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -518,7 +519,7 @@ class PontuacoesTable extends GenericTable
             array_push($conditions, ['utilizado != ' => Configure::read('dropletsUsageStatus')['FullyUsed']]);
 
             if (!is_null($ultimoIdProcessado)) {
-                array_push($conditions, ['id >= ' => (int)$ultimoIdProcessado]);
+                array_push($conditions, ['id >= ' => (int) $ultimoIdProcessado]);
             }
 
             $result = $this
@@ -1148,6 +1149,74 @@ class PontuacoesTable extends GenericTable
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
+        }
+    }
+
+    /**
+     * PontuacoesTable.php::getPontuacoesInOutForClientes
+     *
+     * Obtem dados de pontuações de entrada e saída para relatório
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-10
+     *
+     * @param array $clientesIds
+     * @param integer $brindesId
+     * @param DateTime $dataInicio
+     * @param DateTime $dataFim
+     * @param string $tipoRelatorio
+     *
+     * @return void
+     */
+    public function getPontuacoesInOutForClientes(array $clientesIds, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    {
+        try {
+            $whereConditions = [];
+            $groupConditions = [
+                "periodo",
+                "Pontuacoes.clientes_id"
+            ];
+
+            $selectList = [
+                "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data)) AS periodo",
+                "SUM(Pontuacoes.quantidade_gotas AS somaGotas",
+                "Cliente.id",
+                "Cliente.nome_fantasia"
+            ];
+
+
+            // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
+            $whereConditions[] = ["Pontuacoes.clientes_id IN " => $clientesIds];
+
+            if (!empty($brindesId)) {
+                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            }
+
+            if (!empty($dataInicio)) {
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+            }
+
+            if (!empty($dataFim)) {
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
+            }
+
+            $pontuacoes = $this;
+
+            if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
+
+
+
+            } else {
+
+            }
+
+
+            return $pontuacoes->select($selectList);
+
+
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+
         }
     }
 
