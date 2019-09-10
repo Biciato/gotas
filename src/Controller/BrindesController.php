@@ -506,7 +506,7 @@ class BrindesController extends AppController
                 $errors = array();
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
-                $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
+                $categoriasBrindesId = !empty($data["categorias_brindes_id"]) ? $data["categorias_brindes_id"] : null;
                 $tipoCodigoBarras = !empty($data["tipo_codigo_barras"]) ? $data["tipo_codigo_barras"] : null;
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -1247,9 +1247,11 @@ class BrindesController extends AppController
                     null,
                     null,
                     null,
-                    null,
+                    0,
                     $orderConditions
                 );
+
+                $resultado = $resultado->where(["Brindes.habilitado" => 1]);
 
                 $todosBrindes = $resultado;
                 $brindesAtuais = $resultado;
