@@ -1225,7 +1225,7 @@ class BrindesController extends AppController
                     null,
                     null,
                     null,
-                    null,
+                    0,
                     $orderConditions
                 );
 
