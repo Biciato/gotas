@@ -2881,7 +2881,7 @@ class CuponsController extends AppController
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
-                if (!in_array($tipoVenda, array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT))) {
+                if (!in_array($tiposVendas, array(TYPE_SELL_FREE_TEXT, TYPE_SELL_DISCOUNT_TEXT, TYPE_SELL_CURRENCY_OR_POINTS_TEXT))) {
                     $message = MESSAGE_LOAD_DATA_WITH_ERROR;
                     ResponseUtil::errorAPI($message, array(TYPE_SELL_EMPTY));
                 }
