@@ -26,6 +26,7 @@ use App\Model\Table\ClientesTable;
 use App\Custom\RTI\GeolocalizationUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
+use App\Model\Entity\Usuario;
 
 /**
  * RedesHasClientes Controller
@@ -715,7 +716,7 @@ class RedesHasClientesController extends AppController
             $redes = null;
 
             if ($this->request->is('post')) {
-                $usuario = $this->Auth->user();
+                $usuario = new Usuario($this->Auth->user());
 
                 $data = $this->request->getData();
 
@@ -866,6 +867,12 @@ class RedesHasClientesController extends AppController
                 if (isset($data["cnpj"])) {
                     $whereConditions[] = array("Clientes.cnpj like '%{$data["cnpj"]}%'");
                 }
+
+                // Neste serviço, somente os postos que o usuário está vinculado pode retornar
+
+                $clientesUsuarioIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($usuario->id, $usuario->tipo_perfil);
+
+                $whereConditions["Clientes.id IN "] = count($clientesUsuarioIds) > 0 ? $clientesUsuarioIds : [0];
 
                 // "nome_img",
                 // "nome_img_completo"
