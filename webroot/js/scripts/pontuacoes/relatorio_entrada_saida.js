@@ -5,6 +5,10 @@ $(function() {
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
+    var form = {};
+
+    var pesquisarBtn = $("#btn-pesquisar");
+    var imprimirBtn = $("#btn-imprimir");
 
     var dataInicio = null;
     var dataFim = null;
@@ -47,6 +51,8 @@ $(function() {
         }
 
         if (clienteSelected !== "undefined") {
+
+            form.clientesId = clienteSelected;
             // Obtem Brindes
             getBrindesList(clienteSelected);
         }
@@ -186,10 +192,13 @@ $(function() {
         callLoaderAnimation();
         $.ajax({
             type: "GET",
-            url: "/api/pontuacoes/get_gotas_entrada_saida",
+            url: "/api/pontuacoes/get_pontuacoes_relatorio_entrada_saida",
             data: data,
             dataType: "JSON",
             success: function (response) {
+                console.log(response);
+
+            }, error: function(response) {
 
             }, complete: function (response) {
                 closeLoaderAnimation();
@@ -197,6 +206,14 @@ $(function() {
         });
 
     }
+
+    // #endregion
+
+    // #region Bindings
+
+    brindesSelectListBox.on("change", brindesOnChange() );
+
+    pesquisarBtn.on("click", getEntradaSaida(clientesId, brindesId, dataInicio, dataFim));
 
     // #endregion
 

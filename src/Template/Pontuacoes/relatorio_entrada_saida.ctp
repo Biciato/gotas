@@ -44,7 +44,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
             <div id="filter-coupons" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    <form action="/cupons/relatorioCaixaFuncionariosGerente/" method="post">
+                    <form id="form">
 
                         <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
                         <div class="form-group row">
@@ -82,7 +82,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <button type="submit" class="btn btn-primary botao-pesquisar">
+                                <button type="submit" class="btn btn-primary botao-pesquisar" id="btn-pesquisar">
                                     <span class="fa fa-search"></span>
                                     Pesquisar
                                 </button>
