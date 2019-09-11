@@ -470,11 +470,11 @@ class ClientesTable extends GenericTable
 
             return $retorno;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
-            $stringExplode = implode(";", $trace);
+            // $stringExplode = implode(";", $trace);
 
-            $stringError = __("Erro ao realizar pesquisa de clientes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4} / Errors: ]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__, $stringExplode);
+            $stringError = __("Erro ao realizar pesquisa de clientes: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4} ]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
 
