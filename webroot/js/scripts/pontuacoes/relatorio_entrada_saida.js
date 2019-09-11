@@ -36,21 +36,62 @@ $(function() {
         dataInicio = initializeDatePicker("data-inicio", "data-inicio-e ", dataAtual );
         dataFim = initializeDatePicker("data-fim", "data-fim-envio", dataAtual, null, dataAtual);
 
+        $(dataInicio).on("change", function(){
+            form.dataInicio = this.value;
+            console.log(form);
+        });
+
+        $(dataInicio).change();
+
+
+
+
         getClientesList();
 
         clientesSelectListBoxOnChange();
+
+        brindesSelectListBoxOnChange();
     }
 
     init();
 
+
+    /**
+     * relatorio_entrada_saida.js::brindesSelectListBoxOnChange()
+     *
+     * Comportamento ao trocar o brinde selecionado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
+    function brindesSelectListBoxOnChange() {
+        var brinde = parseInt(brindesSelectListBox.val());
+
+        brinde = isNaN(brinde) ? undefined : brinde;
+        form.brindesId = brinde;
+        console.log(form);
+    }
+
+    /**
+     * relatorio_entrada_saida.js::clientesSelectListBoxOnChange()
+     *
+     * Comportamento ao trocar o cliente selecionado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
     function clientesSelectListBoxOnChange() {
         var clienteSelected = this.value;
 
         if (isNaN(clienteSelected)) {
-            clienteSelected = $("#cliente-selected").val();
+            clienteSelected = parseInt($("#cliente-selected").val());
         }
 
-        if (clienteSelected !== "undefined") {
+        if (!isNaN(clienteSelected)) {
 
             form.clientesId = clienteSelected;
             // Obtem Brindes
@@ -211,9 +252,9 @@ $(function() {
 
     // #region Bindings
 
-    brindesSelectListBox.on("change", brindesOnChange() );
+    brindesSelectListBox.on("change", brindesSelectListBoxOnChange );
 
-    pesquisarBtn.on("click", getEntradaSaida(clientesId, brindesId, dataInicio, dataFim));
+    pesquisarBtn.on("click", getEntradaSaida(form.clientesId, form.brindesId, form. dataInicio, form.dataFim));
 
     // #endregion
 
