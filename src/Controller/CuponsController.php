@@ -3131,8 +3131,8 @@ class CuponsController extends AppController
         }
 
         // Verifica se a rede possui APP personalizado, se precisa exibir confirmação de mensagem de distância
-        // e se não confirmou distância
-        if ($rede->app_personalizado && $rede->msg_distancia_compra_brinde && !$confirmaDistancia) {
+        // e se não confirmou distância, isto, se for via Mobile
+        if ($usoViaMobile && ($rede->app_personalizado && $rede->msg_distancia_compra_brinde && !$confirmaDistancia)) {
             if (empty($latitudeUsuario) || empty($longitudeUsuario)) {
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MESSAGE_ERROR_GPS_VALIDATION]);
             }
@@ -3142,6 +3142,7 @@ class CuponsController extends AppController
 
             return ResponseUtil::errorAPI($message, [], []);
         }
+
 
         $tipoVendaBrinde = $brinde->tipo_venda;
 
