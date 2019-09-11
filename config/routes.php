@@ -193,7 +193,12 @@ Router::scope("/api", function ($routes) {
                     "action" => "getExtratoPontuacoesAPI",
                     "method" => "POST",
                     "path" => "/get_extrato_pontuacoes"
-                )
+                ),
+                "getPontuacoesRelatorioEntradaSaidaAPI" => [
+                    "action" => "getPontuacoesRelatorioEntradaSaidaAPI",
+                    "method" => "GET",
+                    "path" => "/get_pontuacoes_relatorio_entrada_saida"
+                ]
             ]
         ]
     );

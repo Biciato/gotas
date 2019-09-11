@@ -1178,12 +1178,17 @@ class PontuacoesTable extends GenericTable
             ];
 
             $selectList = [
-                "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data)) AS periodo",
                 "SUM(Pontuacoes.quantidade_gotas AS somaGotas",
+                "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data)) AS periodo",
                 "Cliente.id",
                 "Cliente.nome_fantasia"
             ];
 
+            $join = [
+                "Gotas",
+                "Usuario",
+                "Cliente"
+            ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
             $whereConditions[] = ["Pontuacoes.clientes_id IN " => $clientesIds];
@@ -1202,20 +1207,18 @@ class PontuacoesTable extends GenericTable
 
             $pontuacoes = $this;
 
-            if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
-
-
-
-            } else {
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
 
             }
 
 
             return $pontuacoes->select($selectList);
-
-
         } catch (\Throwable $th) {
-            $message = $th->getMessage();
+
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            Log::write("error", sprintf("%s - %s", $code, $message));
+            throw new Exception($message, $code);
 
         }
     }

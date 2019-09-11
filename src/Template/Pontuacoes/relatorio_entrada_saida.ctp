@@ -101,5 +101,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/gotas/relatorio_entrada_saida<?= $debugExtension ?>.js"></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/relatorio_entrada_saida<?= $debugExtension ?>.css" />
+<script src="/webroot/js/scripts/pontuacoes/relatorio_entrada_saida<?= $debugExtension ?>.js"></script>
+<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/relatorio_entrada_saida<?= $debugExtension ?>.css" />

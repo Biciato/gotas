@@ -1036,27 +1036,6 @@ class GotasController extends AppController
     }
 
     /**
-     * Relatório de Entrada e Saída de Gotas
-     *
-     * @return void
-     */
-    public function relatorioEntradaSaida()
-    {
-        $sessaoUsuario = $this->getSessionUserVariables();
-
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
-        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
-        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
-        $rede = $sessaoUsuario["rede"];
-        $cliente = $sessaoUsuario["cliente"];
-        $clientesId = $cliente->id;
-
-        $arraySet = ["clientesId"];
-        $this->set(compact($arraySet));
-        $this->set("_serialize", $arraySet);
-    }
-
-    /**
      * ------------------------------------------------------------
      * AJAX Methods
      * ------------------------------------------------------------

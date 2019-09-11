@@ -186,7 +186,7 @@ $(function() {
         callLoaderAnimation();
         $.ajax({
             type: "GET",
-            url: "/api/gotas/get_gotas_entrada_saida",
+            url: "/api/pontuacoes/get_gotas_entrada_saida",
             data: data,
             dataType: "JSON",
             success: function (response) {

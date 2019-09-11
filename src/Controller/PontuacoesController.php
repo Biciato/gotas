@@ -510,6 +510,32 @@ class PontuacoesController extends AppController
     }
 
     /**
+     * PontuacoesController.php::relatorioEntradaSaida
+     *
+     * View para Relatório de Entrada e Saída de Pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
+    public function relatorioEntradaSaida()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $clientesId = $cliente->id;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
      * ------------------------------------------------------------
      * Serviços REST
      * ------------------------------------------------------------
@@ -743,7 +769,7 @@ class PontuacoesController extends AppController
         return;
     }
 
-    public function getPontuacoesRelatorioEntradaSaida()
+    public function getPontuacoesRelatorioEntradaSaidaAPI()
     {
         $error = [];
         $errorCodes = [];
