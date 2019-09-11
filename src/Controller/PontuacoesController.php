@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -10,7 +11,10 @@ use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use Exception;
 
 /**
  * Pontuacoes Controller
@@ -278,11 +282,11 @@ class PontuacoesController extends AppController
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
-                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesIds[] = (int) $data['filtrar_unidade'];
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
-                    $arrayOptions[] = array('funcionarios_id' => (int)$data['funcionarios_id']);
+                    $arrayOptions[] = array('funcionarios_id' => (int) $data['funcionarios_id']);
                 }
 
                 if (strlen($data['requer_auditoria']) > 0) {
@@ -457,7 +461,7 @@ class PontuacoesController extends AppController
         return $this->redirect(
             [
                 'action' => 'detalhes_cupom',
-                (int)$pontuacao->pontuacoes_comprovante_id
+                (int) $pontuacao->pontuacoes_comprovante_id
             ]
         );
     }
@@ -664,8 +668,8 @@ class PontuacoesController extends AppController
                 $data = $this->request->getData();
 
                 // Condições de Pesquisa
-                $redesId = !empty($data["redes_id"]) ?$data["redes_id"] : null;
-                $clientesId = !empty($data["clientes_id"]) ?$data["clientes_id"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
                 $brindesNome = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
                 $gotasNomeParametro = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
@@ -795,16 +799,25 @@ class PontuacoesController extends AppController
                 $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : null;
+                $clientesIds = [];
+
+
+                if (empty($tipoRelatorio)) {
+                    throw new Exception(MSG_REPORT_TYPE_EMPTY, MSG_REPORT_TYPE_EMPTY_CODE);
+                }
 
                 // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
                 if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
                     $clientesId = $clientesIdSession;
+                    $clientesIds[] = $clientesId;
                 } elseif ($usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
                     // Caso o operador não especifique a loja, pega as lojas que ele tem acesso e faz pesquisa
-
                     if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) {
                         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
                     }
+                } else {
+                    $clientesIds[] = $clientesId;
                 }
 
                 // As gotas que entram/saem do sistema ficam na tabela pontuacoes
@@ -813,7 +826,9 @@ class PontuacoesController extends AppController
                 // SINTETICO traz apenas a soma, o periodo, e a unidade
                 // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
 
+                $data = $this->Pontuacoes->getPontuacoesInOutForClientes($clientesIds, $brindesId, $dataInicio, $dataFim, $tipoRelatorio);
                 //code...
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             }
         } catch (\Throwable $th) {
             $message = $th->getMessage();
@@ -842,12 +857,11 @@ class PontuacoesController extends AppController
             $tipoFrequencia = !empty($data["tipo_frequencia"]) ? $data["tipo_frequencia"] : null;
 
             if (($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_WORKER)
-                && (empty($rede))){
-                    $erros = array();
-                    // É necessário informar uma rede
+                && (empty($rede))
+            ) {
+                $erros = array();
+                // É necessário informar uma rede
             }
-
-
         }
     }
 }

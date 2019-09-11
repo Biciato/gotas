@@ -307,6 +307,9 @@ const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à e
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE = 0x00000003;
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
 
+const MSG_REPORT_TYPE_EMPTY = "Campo TIPO_RELATORIO não informado!";
+const MSG_REPORT_TYPE_EMPTY_CODE = 0x00000009;
+
 // Sucesso / Aviso
 
 const MESSAGE_QUERY_DOES_NOT_CONTAIN_DATA = "A consulta não retornou dados!";
@@ -385,6 +388,8 @@ const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
+
+
 
 #endregion
 

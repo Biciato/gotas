@@ -1,17 +1,43 @@
 $(function() {
     // #region Properties
 
+    var form = {};
+    var data = {};
     var clientesSelectListBox = $("#clientes-list");
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
-    var form = {};
 
+    var tipoRelatorio = $("#tipo-relatorio");
     var pesquisarBtn = $("#btn-pesquisar");
     var imprimirBtn = $("#btn-imprimir");
 
-    var dataInicio = null;
-    var dataFim = null;
+    var dataAtual = moment().format("DD/MM/YYYY");
+
+    var dataInicio = $("#data-inicio").datepicker({
+        minView: 2,
+        maxView: 2,
+        clearBtn: true,
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        forceParse: false,
+        language: "pt-BR",
+        format: "dd/mm/yyyy",
+        initialDate: new Date()
+    });
+    var dataFim = $("#data-fim").datepicker({
+        minView: 2,
+        maxView: 2,
+        clearBtn: true,
+        autoclose: true,
+        todayBtn: true,
+        todayHighlight: true,
+        forceParse: false,
+        language: "pt-BR",
+        format: "dd/mm/yyyy",
+        initialDate: new Date()
+    });
 
     // #endregion
 
@@ -21,7 +47,6 @@ $(function() {
         brindesList = [];
         var option = document.createElement("option");
         option.value = undefined;
-        // option.textContent = "Selecionar";
         option.textContent = "Selecione um Posto para continuar...";
         option.title = "Selecione um Posto para continuar...";
         brindesList.push(option);
@@ -31,29 +56,17 @@ $(function() {
 
         // Inicializa campos date
 
-        var dataAtual = moment();
-        // var dataInicio = $("#data-inicio").dateTimePicker();
-        dataInicio = initializeDatePicker("data-inicio", "data-inicio-e ", dataAtual );
-        dataFim = initializeDatePicker("data-fim", "data-fim-envio", dataAtual, null, dataAtual);
+        dataInicio.datepicker().datepicker("setDate", dataAtual);
+        dataFim.datepicker().datepicker("setDate", dataAtual);
 
-        $(dataInicio).on("change", function(){
-            form.dataInicio = this.value;
-            console.log(form);
-        });
-
-        $(dataInicio).change();
-
-
-
-
+        // Dispara todos os eventos que precisam de inicializar
+        dataInicioOnChange();
+        dataFimOnChange();
+        tipoRelatorioOnChange();
         getClientesList();
-
         clientesSelectListBoxOnChange();
-
         brindesSelectListBoxOnChange();
     }
-
-    init();
 
 
     /**
@@ -92,14 +105,28 @@ $(function() {
         }
 
         if (!isNaN(clienteSelected)) {
-
             form.clientesId = clienteSelected;
             // Obtem Brindes
             getBrindesList(clienteSelected);
         }
     }
 
-    clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
+    function dataInicioOnChange() {
+        var date = moment(this.value).format("YYYY-MM-DD");
+        form.dataInicio = date;
+        console.log('1');
+    }
+
+    function dataFimOnChange() {
+        var date = moment(this.value).format("YYYY-MM-DD");
+        form.dataFim = date;
+        console.log('2');
+
+    }
+
+    function tipoRelatorioOnChange() {
+        form.tipoRelatorio = tipoRelatorio.val();
+    }
 
     // #region Get / Set REST Services
 
@@ -219,16 +246,21 @@ $(function() {
         });
     }
 
-    function getEntradaSaida(clientesId, brindesId, dataInicio, dataFim) {
+    function getEntradaSaida(
+        clientesId,
+        brindesId,
+        dataInicio,
+        dataFim,
+        tipoRelatorio
+    ) {
+        console.log("oi");
         var data = {
             clientes_id: clientesId,
-            dataInicio: dataInicio,
-            dataFim: dataFim
+            brindes_id: brindesId,
+            data_inicio: dataInicio,
+            data_fim: dataFim,
+            tipo_relatorio: tipoRelatorio
         };
-
-        if (brindesId !== undefined) {
-            data.brindes_id = brindesId;
-        }
 
         callLoaderAnimation();
         $.ajax({
@@ -236,27 +268,46 @@ $(function() {
             url: "/api/pontuacoes/get_pontuacoes_relatorio_entrada_saida",
             data: data,
             dataType: "JSON",
-            success: function (response) {
+            success: function(response) {
                 console.log(response);
-
-            }, error: function(response) {
-
-            }, complete: function (response) {
+            },
+            error: function(response) {},
+            complete: function(response) {
                 closeLoaderAnimation();
             }
         });
-
     }
 
     // #endregion
 
     // #region Bindings
 
-    brindesSelectListBox.on("change", brindesSelectListBoxOnChange );
+    brindesSelectListBox.on("change", brindesSelectListBoxOnChange);
+    clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
 
-    pesquisarBtn.on("click", getEntradaSaida(form.clientesId, form.brindesId, form. dataInicio, form.dataFim));
+    dataInicio.on("change", dataInicioOnChange);
+    dataFim.on("change", dataFimOnChange);
+
+    tipoRelatorio.on("change", tipoRelatorioOnChange);
+
+    $(pesquisarBtn).on("click", function() {
+        console.log(form);
+        getEntradaSaida(
+            form.clientesId,
+            form.brindesId,
+            form.dataInicio,
+            form.dataFim,
+            form.tipoRelatorio
+        );
+    });
+    // pesquisarBtn.on("click", function() { alert('oi') });
+    console.log("oi");
 
     // #endregion
 
     // #endregion
+
+    // 'Constroi' a tela
+    init();
+
 });

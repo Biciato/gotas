@@ -63,33 +63,31 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
-                                <input type="text" name="data-inicio-envio" id='data-inicio-envio'>
                             </div>
                             <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
-                                <input type="text" name="data-fim-envio" id='data-fim-envio'>
                             </div>
 
                             <div class="col-lg-2">
                                 <label for="tipo_relatorio">Tipo de Relatório:</label>
 
-                                <select name="tipoRelatorio" id="tipoRelatorio" class="form-control">
-                                    <option value="analitico">Analítico</option>
-                                    <option value="sintético" selected>Sintético</option>
+                                <select name="tipo_relatorio" id="tipo-relatorio" class="form-control">
+                                    <option value="<?= REPORT_TYPE_ANALYTICAL ?>"><?= REPORT_TYPE_ANALYTICAL ?></option>
+                                    <option value="<?= REPORT_TYPE_SYNTHETIC ?>" selected><?= REPORT_TYPE_SYNTHETIC ?></option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <button type="submit" class="btn btn-primary botao-pesquisar" id="btn-pesquisar">
+                                <div class="btn btn-primary" id="btn-pesquisar">
                                     <span class="fa fa-search"></span>
                                     Pesquisar
-                                </button>
-                                <button type="button" class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                </div>
+                                <div class="imprimir btn btn-default print-button-thermal" id="imprimir">
                                     <i class="fa fa-print"></i>
                                     Imprimir
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </form>
