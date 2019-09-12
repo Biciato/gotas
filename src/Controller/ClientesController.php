@@ -753,7 +753,7 @@ class ClientesController extends AppController
             );
 
             if (empty($redesId)) {
-                throw new Exception(MESSAGE_ID_EMPTY);
+                throw new Exception(MSG_ID_EMPTY);
             }
 
             $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, $clientesIds);

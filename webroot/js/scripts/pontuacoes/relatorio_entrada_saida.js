@@ -112,13 +112,13 @@ $(function() {
     }
 
     function dataInicioOnChange() {
-        var date = moment(this.value).format("YYYY-MM-DD");
+        var date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
         form.dataInicio = date;
         console.log('1');
     }
 
     function dataFimOnChange() {
-        var date = moment(this.value).format("YYYY-MM-DD");
+        var date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
         form.dataFim = date;
         console.log('2');
 
@@ -253,12 +253,27 @@ $(function() {
         dataFim,
         tipoRelatorio
     ) {
-        console.log("oi");
+        // Validação
+        var dataInicioEnvio = moment(dataInicio);
+        var dataFimEnvio = moment(dataFim);
+
+        if(!dataInicioEnvio.isValid()) {
+            dataInicioEnvio = undefined;
+        } else {
+            dataInicioEnvio = dataInicio;
+        }
+
+        if (!dataFimEnvio.isValid()) {
+            dataFimEnvio = undefined;
+        } else {
+            dataFimEnvio =  dataFim;
+        }
+
         var data = {
             clientes_id: clientesId,
             brindes_id: brindesId,
-            data_inicio: dataInicio,
-            data_fim: dataFim,
+            data_inicio: dataInicioEnvio,
+            data_fim: dataFimEnvio,
             tipo_relatorio: tipoRelatorio
         };
 
@@ -271,7 +286,9 @@ $(function() {
             success: function(response) {
                 console.log(response);
             },
-            error: function(response) {},
+            error: function(response) {
+                closeLoaderAnimation();
+            },
             complete: function(response) {
                 closeLoaderAnimation();
             }

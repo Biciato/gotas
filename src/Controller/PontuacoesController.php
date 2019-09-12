@@ -775,7 +775,7 @@ class PontuacoesController extends AppController
 
     public function getPontuacoesRelatorioEntradaSaidaAPI()
     {
-        $error = [];
+        $errors = [];
         $errorCodes = [];
 
         try {
@@ -802,10 +802,27 @@ class PontuacoesController extends AppController
                 $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : null;
                 $clientesIds = [];
 
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
 
                 if (empty($tipoRelatorio)) {
-                    throw new Exception(MSG_REPORT_TYPE_EMPTY, MSG_REPORT_TYPE_EMPTY_CODE);
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
                 }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
 
                 // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
                 if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
@@ -820,21 +837,48 @@ class PontuacoesController extends AppController
                     $clientesIds[] = $clientesId;
                 }
 
+                $clientes = [];
+                foreach ($clientesIds as $cliente) {
+                    $clientes[] = $this->Clientes->get($cliente);
+                }
+
                 // As gotas que entram/saem do sistema ficam na tabela pontuacoes
                 // Existem dois tipos de relatorio: ANALITICO E SINTETICO
 
                 // SINTETICO traz apenas a soma, o periodo, e a unidade
                 // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
 
-                $data = $this->Pontuacoes->getPontuacoesInOutForClientes($clientesIds, $brindesId, $dataInicio, $dataFim, $tipoRelatorio);
-                //code...
-                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+                $data = [];
+                foreach ($clientes as $cliente) {
+
+                    $entrada = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
+                    $saida = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
+
+                    $data[] = [
+                        "cliente" => $cliente,
+                        "entrada" => $entrada,
+                        "saida" => $saida
+                    ];
+
+                }
+                // $data = ['entrada' => $entrada, 'saida' => $saida];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
             }
         } catch (\Throwable $th) {
-            $message = $th->getMessage();
-            $error = $th->getCode();
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, [$message], [], [$error]);
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 

@@ -664,7 +664,7 @@ class BrindesController extends AppController
 
             $errors = array();
             if (empty($brindesId)) {
-                $errors[] = MESSAGE_ID_EMPTY;
+                $errors[] = MSG_ID_EMPTY;
             }
 
             if (count($errors) > 0) {

@@ -1160,38 +1160,38 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      *
-     * @param array $clientesIds
-     * @param integer $brindesId
-     * @param DateTime $dataInicio
-     * @param DateTime $dataFim
-     * @param string $tipoRelatorio
+     * @param int $clientesId Clientes (Postos)
+     * @param integer $brindesId Id de Brinde
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data fim
+     * @param string $tipoMovimentacao Entrada / Saída
+     * @param string $tipoRelatorio Tipo Relatório Analítico / Sintético
      *
-     * @return void
+     * \App\Model\Entity\Pontuaco[] Array de pontuacoes
      */
-    public function getPontuacoesInOutForClientes(array $clientesIds, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = PONTUACOES_TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
             $groupConditions = [
                 "periodo",
-                "Pontuacoes.clientes_id"
+                "Pontuacoes.clientes_id",
+                "Clientes.id"
             ];
 
             $selectList = [
-                "SUM(Pontuacoes.quantidade_gotas AS somaGotas",
-                "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data)) AS periodo",
-                "Cliente.id",
-                "Cliente.nome_fantasia"
+                "somaGotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                "periodo" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))"
             ];
 
             $join = [
                 "Gotas",
-                "Usuario",
-                "Cliente"
+                "Usuarios",
+                "Clientes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
-            $whereConditions[] = ["Pontuacoes.clientes_id IN " => $clientesIds];
+            $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
 
             if (!empty($brindesId)) {
                 $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
@@ -1205,7 +1205,13 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
-            $pontuacoes = $this;
+            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
+            } else {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
+            }
+
+            $pontuacoes = $this->find("all")->where($whereConditions)->contain($join)->group($groupConditions);
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
 
