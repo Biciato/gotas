@@ -73,22 +73,27 @@ class PontuacoesTable extends GenericTable
             'Usuarios',
             array(
                 'foreignKey' => 'usuarios_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
             )
         );
 
         $this->belongsTo(
             "Brindes",
-            array("className" => "Brindes")
-        )
-            ->setForeignKey("brindes_id")
-            ->setJoinType(Query::JOIN_TYPE_INNER);
+            [
+                "className" => "Brindes",
+                "foreignKey" => "brindes_id",
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
+            ]
+        );
 
         $this->belongsTo(
             'Gotas',
             [
                 'foreignKey' => 'gotas_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
             ]
         );
 
@@ -1180,14 +1185,20 @@ class PontuacoesTable extends GenericTable
             ];
 
             $selectList = [
-                "somaGotas" => "SUM(Pontuacoes.quantidade_gotas)",
-                "periodo" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))"
+                "periodo" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
+                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
             ];
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $selectList["periodo"] = "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data), '/', DAY(Pontuacoes.data))";
+                $selectList[] = "Brindes.nome";
+            }
 
             $join = [
                 "Gotas",
                 "Usuarios",
-                "Clientes"
+                "Clientes",
+                "Brindes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
@@ -1213,9 +1224,7 @@ class PontuacoesTable extends GenericTable
 
             $pontuacoes = $this->find("all")->where($whereConditions)->contain($join)->group($groupConditions);
 
-            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-
-            }
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) { }
 
 
             return $pontuacoes->select($selectList);
@@ -1225,7 +1234,6 @@ class PontuacoesTable extends GenericTable
             $code = MESSAGE_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
             throw new Exception($message, $code);
-
         }
     }
 

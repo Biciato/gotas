@@ -91,6 +91,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
                         </div>
                     </form>
+
+                    <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
+                        <tbody>
+                            <span></span>
+                        </tbody>
+
+                    </table>
                 </div>
             </div>
         </div>

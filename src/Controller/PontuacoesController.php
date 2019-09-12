@@ -12,6 +12,7 @@ use App\Custom\RTI\Security;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Cliente;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use Exception;
@@ -838,8 +839,15 @@ class PontuacoesController extends AppController
                 }
 
                 $clientes = [];
+
                 foreach ($clientesIds as $cliente) {
-                    $clientes[] = $this->Clientes->get($cliente);
+                    $cliente = $this->Clientes->get($cliente);
+
+                    $clientes[] = new Cliente([
+                        "id" => $cliente->id,
+                        "nome_fantasia" => $cliente->nome_fantasia,
+                        "razao_social" => $cliente->razao_social
+                    ]);
                 }
 
                 // As gotas que entram/saem do sistema ficam na tabela pontuacoes
@@ -851,19 +859,74 @@ class PontuacoesController extends AppController
                 $data = [];
                 foreach ($clientes as $cliente) {
 
-                    $entrada = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
-                    $saida = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
+                    $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
+                    $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
+
+                    $entradas = $entradas->toArray();
+                    $saidas = $saidas->toArray();
+                    $somaEntradas = 0;
+                    $somaSaidas = 0;
+
+                    /**
+                     * Processo de verificação que analiza se os dois conjuntos de registro estão com os
+                     * mesmos periodos informados
+                     */
+                    foreach ($entradas as $entrada) {
+                        // verifica se o periodo de entrada possui em saída
+
+                        $registroEncontrado = false;
+                        foreach ($saidas as $saida) {
+
+                            if ($saida["periodo"] == $entrada["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $saidas[] = ["periodo" => $entrada["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaEntradas += $entrada["qte_gotas"];
+                    }
+
+                    foreach ($saidas as $saida) {
+                        // verifica se o periodo de entrada possui em saída
+
+                        $registroEncontrado = false;
+
+                        foreach ($entradas as $entrada) {
+                            if ($entrada["periodo"] == $saida["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $entradas[] = ["periodo" => $saida["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaSaidas += $saida["qte_gotas"];
+                    }
+
+                    usort($entradas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    usort($saidas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
 
                     $data[] = [
                         "cliente" => $cliente,
-                        "entrada" => $entrada,
-                        "saida" => $saida
+                        "pontuacoes_entradas" => $entradas,
+                        "pontuacoes_saidas" => $saidas,
+                        "soma_entradas" => $somaEntradas,
+                        "soma_saidas" => $somaSaidas,
                     ];
-
                 }
-                // $data = ['entrada' => $entrada, 'saida' => $saida];
+                $dadosRelatorio = ['pontuacoes_report' => $data];
+                $data = ["data" => $dadosRelatorio];
 
-                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
