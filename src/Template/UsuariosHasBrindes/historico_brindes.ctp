@@ -24,14 +24,14 @@ echo $this->Breadcrumbs->render(
 
 ?>
 
-<?= $this->element('../UsuariosHasBrindes/left_menu') ?> 
+<?= $this->element('../UsuariosHasBrindes/left_menu') ?>
 
 <div class="redes form col-lg-9 col-md-8 columns content">
 
     <?php if ($usuarioLogado['tipo_perfil'] <= (int)Configure::read('profileTypes')['WorkerProfileType']) : ?>
         <legend>Cupons de Brindes do Usuário</legend>
 
-    <?php else : ?> 
+    <?php else : ?>
         <legend>Meu Histórico de Cupons de Brindes</legend>
 
     <?php endif; ?>
@@ -44,7 +44,7 @@ echo $this->Breadcrumbs->render(
                 <th scope="col"><?= $this->Paginator->sort('quantidade', ['label' => 'Quantidade']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('preco', ['label' => 'Preço (em Gotas)']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('data', ['label' => 'Data']) ?></th>
-                
+
                 <th class="actions">
                     <?= __('Ações') ?>
                     <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes" ><span class=" fa fa-book"> Legendas</span></div>
@@ -52,19 +52,19 @@ echo $this->Breadcrumbs->render(
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($brindes as $key => $brinde) : ?> 
+            <?php foreach ($usuariosHasBrindes as $key => $usuarioHasBrinde) : ?>
             <tr>
                 <td>
-                    <?= h($brinde->clientes_has_brindes_habilitado->brinde->nome) ?>
+                    <?= h($usuarioHasBrinde->brinde->nome) ?>
                 </td>
                 <td>
-                    <?= $brinde->quantidade ?>
+                    <?= $usuarioHasBrinde->brinde->quantidade ?>
                 </td>
                 <td>
-                    <?= $brinde->preco ?>
+                    <?= $usuarioHasBrinde->brinde->preco ?>
                 </td>
                 <td>
-                    <?= $brinde->data->format('d/m/Y H:i:s') ?>
+                    <?= $usuarioHasBrinde->data->format('d/m/Y H:i:s') ?>
                 </td>
                 <td class="actions" style="white-space:nowrap">
                     <?=
@@ -76,7 +76,7 @@ echo $this->Breadcrumbs->render(
                         [
                             'controller' => 'cupons',
                             'action' => 'ver_detalhes',
-                            $brinde->cupons_id
+                            $usuarioHasBrinde->cupons_id
                         ],
                         [
                             'title' => 'Ver detalhes',
