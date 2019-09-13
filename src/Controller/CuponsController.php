@@ -720,10 +720,14 @@ class CuponsController extends AppController
      */
     public function verDetalhes(int $cupons_id)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
 
-        if ($usuarioAdministrador) {
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar   = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
