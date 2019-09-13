@@ -325,13 +325,14 @@ $(function() {
                         // Dados do posto
                         var rowCliente = document.createElement("tr");
 
-                        var cellLabelCliente = document.createElement("td");
-                        var labelCliente = document.createElement("span");
+                        var labelCliente = document.createElement("strong");
                         labelCliente.textContent = "Posto: ";
+                        var cellLabelCliente = document.createElement("td");
+                        cellLabelCliente.classList.add("font-weight-bold");
                         cellLabelCliente.append(labelCliente);
 
                         var cellInfoCliente = document.createElement("td");
-                        var infoCliente = document.createElement("span");
+                        var infoCliente = document.createElement("strong");
                         infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
                         cellInfoCliente.colSpan = 2;
 
@@ -345,19 +346,19 @@ $(function() {
                         var rowHeaderPeriodo = document.createElement("tr");
 
                         var cellLabelPeriodo = document.createElement("td");
-                        var labelPeriodo = document.createElement("span");
+                        var labelPeriodo = document.createElement("strong");
                         labelPeriodo.textContent = "Período";
 
                         cellLabelPeriodo.append(labelPeriodo);
 
                         var cellLabelEntrada = document.createElement("td");
-                        var labelEntrada = document.createElement("span");
+                        var labelEntrada = document.createElement("strong");
                         labelEntrada.textContent = "Entrada";
 
                         cellLabelEntrada.append(labelEntrada);
 
                         var cellLabelSaida = document.createElement("td");
-                        var labelSaida = document.createElement("span");
+                        var labelSaida = document.createElement("strong");
                         labelSaida.textContent = "Saida";
 
                         cellLabelSaida.append(labelSaida);
@@ -458,14 +459,16 @@ $(function() {
                     labelTotal.textContent = "Total";
                     cellLabelTotal.append(labelTotal);
 
-                    var cellTotalEntradas = document.createElement("td");
                     var textTotalEntradas = document.createElement("strong");
                     textTotalEntradas.textContent = data.total_entradas;
+                    var cellTotalEntradas = document.createElement("td");
+                    cellTotalEntradas.classList.add("text-right");
                     cellTotalEntradas.append(textTotalEntradas);
 
-                    var cellTotalSaidas = document.createElement("td");
                     var textTotalSaidas = document.createElement("strong");
                     textTotalSaidas.textContent = data.total_saidas;
+                    var cellTotalSaidas = document.createElement("td");
+                    cellTotalSaidas.classList.add("text-right");
                     cellTotalSaidas.append(textTotalSaidas);
 
                     rowTotal.append(cellLabelTotal);
