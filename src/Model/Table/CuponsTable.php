@@ -721,8 +721,8 @@ class CuponsTable extends GenericTable
             return $cupons;
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
-            echo $e->getMessage();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            // echo $e->getMessage();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 

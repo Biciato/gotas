@@ -1967,6 +1967,21 @@ class PontuacoesComprovantesController extends AppController
                 return array("mensagem" => $mensagem);
             }
 
+            // Verifica se usuário estourou o limite de pontuações diarias
+
+            $rede = $cliente->rede_has_cliente->rede;
+
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+
+            $qteInsercaoGotas = $this->PontuacoesComprovantes->getCountPontuacoesComprovantesOfUsuario($usuario->id, $clientesIds);
+
+            if ($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) {
+
+                $error = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED];
+                $errorCodes = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE];
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);
+            }
 
             // $arrayInexistentes = array(
             //     "NOTA FISCAL ELETR&Ocirc;NICA INEXISTENTE",
