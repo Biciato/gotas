@@ -70,7 +70,6 @@ $(function() {
         brindesSelectListBoxOnChange();
     }
 
-
     /**
      * relatorio_entrada_saida.js::brindesSelectListBoxOnChange()
      *
@@ -278,7 +277,7 @@ $(function() {
         var dataInicioEnvio = moment(dataInicio);
         var dataFimEnvio = moment(dataFim);
 
-        if(!dataInicioEnvio.isValid()) {
+        if (!dataInicioEnvio.isValid()) {
             dataInicioEnvio = undefined;
         } else {
             dataInicioEnvio = dataInicio;
@@ -287,7 +286,7 @@ $(function() {
         if (!dataFimEnvio.isValid()) {
             dataFimEnvio = undefined;
         } else {
-            dataFimEnvio =  dataFim;
+            dataFimEnvio = dataFim;
         }
 
         var data = {
@@ -318,8 +317,32 @@ $(function() {
 
                 var rows = [];
 
-                if(form.tipoRelatorio == "Analítico") {
+                if (form.tipoRelatorio == "Analítico") {
+                    data.pontuacoes.forEach(element => {
+                        // Dados do posto
+                        var rowCliente = document.createElement("tr");
 
+                        var labelCliente = document.createElement("strong");
+                        labelCliente.textContent = "Posto: ";
+                        var cellLabelCliente = document.createElement("td");
+                        cellLabelCliente.classList.add("font-weight-bold");
+                        cellLabelCliente.append(labelCliente);
+
+                        var cellInfoCliente = document.createElement("td");
+                        var infoCliente = document.createElement("strong");
+                        infoCliente.textContent =
+                            element.cliente.nome_fantasia +
+                            " / " +
+                            element.cliente.razao_social;
+                        cellInfoCliente.colSpan = 2;
+
+                        cellInfoCliente.append(infoCliente);
+
+                        rowCliente.append(cellLabelCliente);
+                        rowCliente.append(cellInfoCliente);
+
+                        rows.push(rowCliente);
+                    });
                 } else {
                     data.pontuacoes.forEach(element => {
                         // Dados do posto
@@ -376,17 +399,22 @@ $(function() {
 
                         for (let index = 0; index < pontuacoesEntradas.length; index++) {
                             var item = {
-                                periodo: pontuacoesEntradas[index].periodo,
-                                gotasEntradas: pontuacoesEntradas[index].qte_gotas,
+                                periodo: moment(pontuacoesEntradas[index].periodo, "YYYY-MM").format("MM/YYYY"),
+                                gotasEntradas:
+                                    pontuacoesEntradas[index].qte_gotas,
                                 gotasSaidas: pontuacoesSaidas[index].qte_gotas
                             };
 
                             var rowPeriodo = document.createElement("tr");
 
-                            var labelItemPeriodo = document.createElement("span");
+                            var labelItemPeriodo = document.createElement(
+                                "span"
+                            );
                             labelItemPeriodo.textContent = item.periodo;
 
-                            var cellItemLabelPeriodo = document.createElement("td");
+                            var cellItemLabelPeriodo = document.createElement(
+                                "td"
+                            );
                             cellItemLabelPeriodo.append(labelItemPeriodo);
                             cellItemLabelPeriodo.classList.add("text-right");
 
@@ -421,17 +449,28 @@ $(function() {
                         var cellLabelSomaPeriodo = document.createElement("td");
                         cellLabelSomaPeriodo.append(labelSomaPeriodo);
 
-                        var textSomaPeriodoEntrada = document.createElement("span");
-                        textSomaPeriodoEntrada.textContent = element.soma_entradas;
+                        var textSomaPeriodoEntrada = document.createElement(
+                            "span"
+                        );
+                        textSomaPeriodoEntrada.textContent =
+                            element.soma_entradas;
 
-                        var cellTextSomaPeriodoEntrada = document.createElement("td");
-                        cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
+                        var cellTextSomaPeriodoEntrada = document.createElement(
+                            "td"
+                        );
+                        cellTextSomaPeriodoEntrada.append(
+                            textSomaPeriodoEntrada
+                        );
                         cellTextSomaPeriodoEntrada.classList.add("text-right");
 
-                        var textSomaPeriodoSaida = document.createElement("span");
+                        var textSomaPeriodoSaida = document.createElement(
+                            "span"
+                        );
                         textSomaPeriodoSaida.textContent = element.soma_saidas;
 
-                        var cellTextSomaPeriodoSaida = document.createElement("td");
+                        var cellTextSomaPeriodoSaida = document.createElement(
+                            "td"
+                        );
                         cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
                         cellTextSomaPeriodoSaida.classList.add("text-right");
 
@@ -519,5 +558,4 @@ $(function() {
 
     // "Constroi" a tela
     init();
-
 });

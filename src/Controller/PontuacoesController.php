@@ -875,10 +875,9 @@ class PontuacoesController extends AppController
                      */
                     foreach ($entradas as $entrada) {
                         // verifica se o periodo de entrada possui em saída
-
                         $registroEncontrado = false;
-                        foreach ($saidas as $saida) {
 
+                        foreach ($saidas as $saida) {
                             if ($saida["periodo"] == $entrada["periodo"]) {
                                 $registroEncontrado = true;
                             }
@@ -893,7 +892,6 @@ class PontuacoesController extends AppController
 
                     foreach ($saidas as $saida) {
                         // verifica se o periodo de entrada possui em saída
-
                         $registroEncontrado = false;
 
                         foreach ($entradas as $entrada) {
@@ -910,6 +908,7 @@ class PontuacoesController extends AppController
                     }
 
                     usort($entradas, function ($a, $b) {
+
                         return $a["periodo"] > $b["periodo"];
                     });
 
@@ -917,7 +916,30 @@ class PontuacoesController extends AppController
                         return $a["periodo"] > $b["periodo"];
                     });
 
-                    $data[] = [
+                    $entradasAnalitico = [];
+                    $saidasAnalitico = [];
+
+                    // Se o relatório é analítico, o agrupamento dos registros será pelo mês
+                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+
+                        foreach ($entradas as $entrada) {
+                            $dataAgrupamento = new DateTime($entrada["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $entradasAnalitico[$dataAgrupamento][] = $entrada;
+                        }
+
+                        foreach ($saidas as $saida) {
+                            $dataAgrupamento = new DateTime($saida["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $saidasAnalitico[$dataAgrupamento][] = $saida;
+                        }
+
+                        DebugUtil::printArray($entradasAnalitico);
+
+                    }
+
+
+                    $clientesPontuacoes[] = [
                         "cliente" => $cliente,
                         "pontuacoes_entradas" => $entradas,
                         "pontuacoes_saidas" => $saidas,
@@ -929,11 +951,11 @@ class PontuacoesController extends AppController
                     $totalSaidas += $somaSaidas;
                 }
 
-                $data1 = ["pontuacoes" => $data, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
-                $dadosRelatorio = ['pontuacoes_report' => $data1];
-                $data = ["data" => $dadosRelatorio];
+                $pontuacoesReport = ["pontuacoes" => $clientesPontuacoes, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
+                $dadosRelatorio = ['pontuacoes_report' => $pontuacoesReport];
+                $dataRetorno = ["data" => $dadosRelatorio];
 
-                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataRetorno);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();

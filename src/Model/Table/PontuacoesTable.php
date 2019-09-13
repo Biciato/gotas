@@ -1185,12 +1185,12 @@ class PontuacoesTable extends GenericTable
             ];
 
             $selectList = [
-                "periodo" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
+                "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
                 "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
             ];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                $selectList["periodo"] = "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data), '/', DAY(Pontuacoes.data))";
+                $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
                 $selectList[] = "Brindes.nome";
             }
 
@@ -1222,12 +1222,24 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
             }
 
-            $pontuacoes = $this->find("all")->where($whereConditions)->contain($join)->group($groupConditions);
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $groupConditions[] = "Brindes.id";
+                $groupConditions[] = "Usuarios.id";
+                $groupConditions[] = "Gotas.id";
+                $selectList[] = "Brindes.id";
+                $selectList[] = "Brindes.nome";
+                $selectList[] = "Usuarios.id";
+                $selectList[] = "Usuarios.nome";
+                $selectList[] = "Gotas.id";
+                $selectList[] = "Gotas.nome_parametro";
+            }
 
-            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) { }
-
-
-            return $pontuacoes->select($selectList);
+            return $this
+                ->find("all")
+                ->where($whereConditions)
+                ->contain($join)
+                ->group($groupConditions)
+                ->select($selectList);
         } catch (\Throwable $th) {
 
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
