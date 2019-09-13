@@ -8,6 +8,7 @@
  */
 
 use Cake\Core\Configure;
+use Cake\I18n\Number;
 use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
@@ -40,9 +41,10 @@ echo $this->Breadcrumbs->render(
     <table class="table table-striped table-hover table-condensed table-responsive">
         <thead>
             <tr>
-                <th scope="col"><?= $this->Paginator->sort('clientes_has_brindes_habilitados.brindes.nome', ['label' => 'Brinde']) ?></th>
+                <th scope="col"><?= $this->Paginator->sort('brindes.nome', ['label' => 'Brinde']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('quantidade', ['label' => 'Quantidade']) ?></th>
-                <th scope="col"><?= $this->Paginator->sort('preco', ['label' => 'Preço (em Gotas)']) ?></th>
+                <th scope="col"><?= $this->Paginator->sort('preco_gotas', ['label' => 'Preço (em Gotas)']) ?></th>
+                <th scope="col"><?= $this->Paginator->sort('preco_reais', ['label' => 'Preço (em Reais)']) ?></th>
                 <th scope="col"><?= $this->Paginator->sort('data', ['label' => 'Data']) ?></th>
 
                 <th class="actions">
@@ -58,10 +60,13 @@ echo $this->Breadcrumbs->render(
                     <?= h($usuarioHasBrinde->brinde->nome) ?>
                 </td>
                 <td>
-                    <?= $usuarioHasBrinde->brinde->quantidade ?>
+                    <?= $usuarioHasBrinde->quantidade ?>
                 </td>
                 <td>
-                    <?= $usuarioHasBrinde->brinde->preco ?>
+                    <?= $usuarioHasBrinde->preco_gotas ?>
+                </td>
+                <td>
+                    <?= Number::currency($usuarioHasBrinde->preco_reais) ?>
                 </td>
                 <td>
                     <?= $usuarioHasBrinde->data->format('d/m/Y H:i:s') ?>
