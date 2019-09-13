@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Gustavo Souza Gonçalves
  * @since 25/09/2017
@@ -13,16 +14,14 @@ use DOMDocument;
 
 /**
  * Classe para operações de conteúdo da SEFAZ
- * 
+ *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2018-06-01
  */
 class SefazUtil
 {
     public function __construct()
-    { 
-
-    }
+    { }
 
     /**
      * SefazUtil::obtemDadosHTMLCupomSefaz
@@ -60,7 +59,7 @@ class SefazUtil
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 10/11/2018
-     * 
+     *
      * @param string $content               Endereço do site
      * @param int    $gotas                 Array de gotas
      * @param object $pontuacao_comprovante Objeto preparado de Comprovante de Pontuacao
@@ -300,7 +299,7 @@ class SefazUtil
                             $pontuacao["gotas_id"] = $gota["id"];
                             $pontuacao["quantidade_multiplicador"] = $quantidade;
                             $pontuacao["valor"] = $valor;
-                            $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$quantidade;
+                            $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float) $quantidade;
 
                             $pontuacoes[] = $pontuacao;
                         }
@@ -347,31 +346,37 @@ class SefazUtil
             $itemsNodesHtml = array();
             foreach ($items->childNodes as $node) {
                 $texto = $node->textContent;
-                $textoQuantidade = "Qtde total de ítens: ";
 
-                // Captura do gotas.nome_parametro
-                $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
-                $gota = substr($texto, 0, $posicaoQuantidade);
-                $posicaoParentese = strpos($texto, $textoQuantidade);
-                $gota = substr($texto, 0, $posicaoParentese);
-                $gota = trim($gota);
-                $item["gota"] = $gota;
+                $texto = trim($texto);
 
-                // Captura de quantidade
-                $posicaoFimTextoQuantidade = strlen($textoQuantidade);
-                $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
-                $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
-                $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
-                $item["quantidade"] = $quantidade;
+                if (strlen($texto) > 0) {
 
-                // Captura de valor
-                $textoReais = "R$ ";
-                $posicaoFimTextoReais = strlen($textoReais);
-                $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+                    $textoQuantidade = "Qtde total de ítens: ";
 
-                $valor = substr($texto, $posicaoReaisInicio);
-                $item["valor"] = $valor;
-                $itemsNodesHtml[] = $item;
+                    // Captura do gotas.nome_parametro
+                    $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
+                    $gota = substr($texto, 0, $posicaoQuantidade);
+                    $posicaoParentese = strpos($texto, $textoQuantidade);
+                    $gota = substr($texto, 0, $posicaoParentese);
+                    $gota = trim($gota);
+                    $item["gota"] = $gota;
+
+                    // Captura de quantidade
+                    $posicaoFimTextoQuantidade = strlen($textoQuantidade);
+                    $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
+                    $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
+                    $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
+                    $item["quantidade"] = $quantidade;
+
+                    // Captura de valor
+                    $textoReais = "R$ ";
+                    $posicaoFimTextoReais = strlen($textoReais);
+                    $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+
+                    $valor = substr($texto, $posicaoReaisInicio);
+                    $item["valor"] = $valor;
+                    $itemsNodesHtml[] = $item;
+                }
             }
 
             $pontuacoes = array();
@@ -383,7 +388,7 @@ class SefazUtil
                         $pontuacao["gotas_id"] = $gota["id"];
                         $pontuacao["quantidade_multiplicador"] = $itemProcessar["quantidade"];
                         $pontuacao["valor"] = trim($itemProcessar["valor"]);
-                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float)$itemProcessar["quantidade"];
+                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float) $itemProcessar["quantidade"];
 
                         $pontuacoes[] = $pontuacao;
                     }
@@ -503,7 +508,7 @@ class SefazUtil
     public static function obtemDadosXMLCupomSefaz(string $xml)
     {
         $xmlDataReturn = simplexml_load_string($xml);
-        $xmlData = json_decode(json_encode((array)$xmlDataReturn), true);
+        $xmlData = json_decode(json_encode((array) $xmlDataReturn), true);
 
         $emitente = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["emit"];
         $produtosListaXml = $xmlData["proc"]["nfeProc"]["NFe"]["infNFe"]["det"];

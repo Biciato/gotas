@@ -37,7 +37,7 @@ echo $this->Breadcrumbs->render(
             <tr>
                 <th scope="row"><?= __('Brinde') ?></th>
                 <td>
-                    <?= h($cupom->clientes_has_brindes_habilitado->brinde->nome) ?>
+                    <?= h($cupom->brinde->nome) ?>
                 </td>
             </tr>
             <tr>
@@ -65,12 +65,12 @@ echo $this->Breadcrumbs->render(
                 </td>
             </tr>
 
-            <tr>
+            <!-- <tr>
                 <th scope="row"><?= __("Cupom Resgatado?") ?></th>
                 <td><?= $this->Boolean->convertBooleanToString($cupom->resgatado) ?></td>
-            </tr>
+            </tr> -->
 
-            <?php if (!$cupom->restatado) : ?>
+            <!-- <?php if (!$cupom->restatado) : ?>
                 <tr>
                     <th scope="row"><?= __("Reimprimir?") ?></th>
                     <td>
@@ -92,7 +92,7 @@ echo $this->Breadcrumbs->render(
                         ?>
                     </td>
                 </tr>
-            <?php endif; ?>
+            <?php endif; ?> -->
 
 
         </thead>

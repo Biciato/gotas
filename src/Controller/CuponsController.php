@@ -720,10 +720,14 @@ class CuponsController extends AppController
      */
     public function verDetalhes(int $cupons_id)
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $sessaoUsuario = $this->getSessionUserVariables();
 
-        if ($usuarioAdministrador) {
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar   = $sessaoUsuario["usuarioAdministrar"];
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
             $this->usuarioLogado = $usuarioAdministrar;
         }
 
@@ -3283,10 +3287,6 @@ class CuponsController extends AppController
             return $retorno;
         }
 
-        // if ($vendaAvulsa) {
-        //     $usuario["pontuacoes"] = 0;
-        // } else {
-        // $usuario = $this->Usuarios->getUsuarioById($usuariosId);
         $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
             $usuariosId,
             $rede["id"],
@@ -3294,8 +3294,6 @@ class CuponsController extends AppController
         );
 
         $usuario['pontuacoes'] = $detalhesPontuacaoResultado["resumo_gotas"]["saldo"];
-        // }
-
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
         if (($usuario["pontuacoes"] >= $brinde["preco_atual"]["preco"] * $quantidade) || $vendaAvulsa) {
