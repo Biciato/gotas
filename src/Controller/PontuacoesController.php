@@ -857,8 +857,10 @@ class PontuacoesController extends AppController
                 // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
 
                 $data = [];
-                foreach ($clientes as $cliente) {
+                $totalEntradas = 0;
+                $totalSaidas = 0;
 
+                foreach ($clientes as $cliente) {
                     $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
                     $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
 
@@ -922,8 +924,13 @@ class PontuacoesController extends AppController
                         "soma_entradas" => $somaEntradas,
                         "soma_saidas" => $somaSaidas,
                     ];
+
+                    $totalEntradas += $somaEntradas;
+                    $totalSaidas += $somaSaidas;
                 }
-                $dadosRelatorio = ['pontuacoes_report' => $data];
+
+                $data1 = ["pontuacoes" => $data, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
+                $dadosRelatorio = ['pontuacoes_report' => $data1];
                 $data = ["data" => $dadosRelatorio];
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);

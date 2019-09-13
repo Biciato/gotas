@@ -309,7 +309,7 @@ $(function() {
 
                 var data = response.data.pontuacoes_report;
 
-                if (data.length > 0) {
+                if (data.pontuacoes.length > 0) {
                     conteudoTabela.empty();
 
                     $(tabela).hide();
@@ -321,7 +321,7 @@ $(function() {
                 if(form.tipoRelatorio == "Analítico") {
 
                 } else {
-                    data.forEach(element => {
+                    data.pontuacoes.forEach(element => {
                         // Dados do posto
                         var rowCliente = document.createElement("tr");
 
@@ -332,7 +332,8 @@ $(function() {
 
                         var cellInfoCliente = document.createElement("td");
                         var infoCliente = document.createElement("span");
-                        infoCliente.textContent = element.cliente.nome_fantasia;
+                        infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                        cellInfoCliente.colSpan = 2;
 
                         cellInfoCliente.append(infoCliente);
 
@@ -437,7 +438,6 @@ $(function() {
                         rowSomaPeriodo.append(cellTextSomaPeriodoEntrada);
                         rowSomaPeriodo.append(cellTextSomaPeriodoSaida);
 
-
                         rows.push(rowCliente);
                         rows.push(rowHeaderPeriodo);
 
@@ -448,6 +448,31 @@ $(function() {
                         rows.push(rowSomaPeriodo);
                     });
 
+                    // Linha de soma total
+
+                    var rowTotal = document.createElement("tr");
+                    var cellLabelTotal = document.createElement("td");
+                    var labelTotal = document.createElement("strong");
+
+                    labelTotal.classList.add("text-bold");
+                    labelTotal.textContent = "Total";
+                    cellLabelTotal.append(labelTotal);
+
+                    var cellTotalEntradas = document.createElement("td");
+                    var textTotalEntradas = document.createElement("strong");
+                    textTotalEntradas.textContent = data.total_entradas;
+                    cellTotalEntradas.append(textTotalEntradas);
+
+                    var cellTotalSaidas = document.createElement("td");
+                    var textTotalSaidas = document.createElement("strong");
+                    textTotalSaidas.textContent = data.total_saidas;
+                    cellTotalSaidas.append(textTotalSaidas);
+
+                    rowTotal.append(cellLabelTotal);
+                    rowTotal.append(cellTotalEntradas);
+                    rowTotal.append(cellTotalSaidas);
+
+                    rows.push(rowTotal);
                 }
                 conteudoTabela.append(rows);
             },
