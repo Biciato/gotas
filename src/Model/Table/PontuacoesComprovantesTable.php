@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use App\Custom\RTI\ResponseUtil;
@@ -7,6 +8,7 @@ use Cake\Log\Log;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Exception;
 
 /**
  * PontuacoesComprovantes Model
@@ -618,6 +620,31 @@ class PontuacoesComprovantesTable extends GenericTable
             Log::write('error', $stringError);
 
             return $stringError;
+        }
+    }
+
+    public function getCountPontuacoesComprovantesOfUsuario(int $usuariosId, array $clientesIds = array())
+    {
+        try {
+            $where = [
+                "PontuacoesComprovantes.usuarios_id" => $usuariosId,
+                "DATE_FORMAT(PontuacoesComprovantes.data, '%Y-%m-%d') = CURDATE()"
+            ];
+
+            if (!empty($clientesIds)) {
+                $where["clientes_id IN"] = $clientesIds;
+            }
+
+            $selectList = ["PontuacoesComprovantes.id"];
+
+            return $this->find()
+                ->where($where)
+                ->select($selectList)->count();
+
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MESSAGE_LOAD_EXCEPTION_CODE);
         }
     }
 

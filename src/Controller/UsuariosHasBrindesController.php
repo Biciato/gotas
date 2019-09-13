@@ -11,6 +11,7 @@ use Cake\Routing\Router;
 use Cake\Mailer\Email;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * UsuariosHasBrindes Controller
@@ -146,11 +147,12 @@ class UsuariosHasBrindesController extends AppController
 
         $usuario_id = is_null($usuarios_id) ? $usuario->id : $usuarios_id;
 
-        $brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(['UsuariosHasBrindes.usuarios_id' => $usuario_id], ['UsuariosHasBrindes.id' => 'DESC']);
+        $usuariosHasBrindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(['UsuariosHasBrindes.usuarios_id' => $usuario_id], ['UsuariosHasBrindes.id' => 'DESC']);
 
-        $this->paginate($brindes, ['limit' => 10]);
+        // DebugUtil::printArray($usuariosHasBrindes->toArray());
+        $this->paginate($usuariosHasBrindes, ['limit' => 10]);
 
-        $this->set(compact('brindes', 'usuarioLogado'));
+        $this->set(compact('usuariosHasBrindes', 'usuarioLogado'));
         $this->set('_serialize', ['brindes', 'usuarioLogado']);
     }
 

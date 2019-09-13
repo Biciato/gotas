@@ -712,16 +712,17 @@ class CuponsTable extends GenericTable
                 )
                 ->contain(
                     [
-                        'ClientesHasBrindesHabilitados',
+                        'Brindes',
                         'Clientes',
-                        'Usuarios', 'ClientesHasBrindesHabilitados.Brindes'
+                        'Usuarios'
                     ]
                 )->first();
 
             return $cupons;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $trace = $e->getTraceAsString();
+            // echo $e->getMessage();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage());
 
             Log::write('error', $stringError);
 
