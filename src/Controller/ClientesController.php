@@ -730,8 +730,9 @@ class ClientesController extends AppController
         $cliente = $sessao["cliente"];
         $clientesIds = [];
         $clientesId = !empty($cliente) && !empty($cliente->id) ? $cliente->id : null;
+        $usuarioLogado = $sessao["usuarioLogado"];
 
-        if (!empty($clientesId)) {
+        if (!empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
             $clientesIds[] = $clientesId;
         }
 

@@ -533,7 +533,12 @@ class PontuacoesController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
         $cliente = $sessaoUsuario["cliente"];
-        $clientesId = $cliente->id;
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL ? $cliente->id : null;
 
         $arraySet = ["clientesId"];
         $this->set(compact($arraySet));
@@ -818,18 +823,27 @@ class PontuacoesController extends AppController
                     $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
                 }
 
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
 
-                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
-                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
 
                 // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
                 if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
                     $clientesId = $clientesIdSession;
                     $clientesIds[] = $clientesId;
-                } elseif ($usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
+                } elseif (empty($clientesId) && $usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
                     // Caso o operador não especifique a loja, pega as lojas que ele tem acesso e faz pesquisa
                     if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) {
                         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
@@ -925,19 +939,45 @@ class PontuacoesController extends AppController
                         foreach ($entradas as $entrada) {
                             $dataAgrupamento = new DateTime($entrada["periodo"]);
                             $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                            $entradasAnalitico[$dataAgrupamento][] = $entrada;
+                            $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
                         }
 
                         foreach ($saidas as $saida) {
                             $dataAgrupamento = new DateTime($saida["periodo"]);
                             $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                            $saidasAnalitico[$dataAgrupamento][] = $saida;
+                            $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
                         }
 
-                        DebugUtil::printArray($entradasAnalitico);
+                        $entradasAnaliticoTemp = [];
+                        foreach ($entradasAnalitico as $entrada) {
+                            $somaEntradasAnalitico = 0;
 
+                            foreach ($entrada["data"] as $registroAnalitico) {
+                                $somaEntradasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $entrada["soma_entradas"] = $somaEntradasAnalitico;
+                            $entradasAnaliticoTemp[] = $entrada;
+                        }
+
+                        $saidasAnaliticoTemp = [];
+                        foreach ($saidasAnalitico as $saida) {
+                            $somaSaidasAnalitico = 0;
+
+                            foreach ($saida["data"] as $registroAnalitico) {
+                                $somaSaidasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $saida["soma_saidas"] = $somaSaidasAnalitico;
+                            $saidasAnaliticoTemp[] = $saida;
+                        }
+
+                        $entradasAnalitico = $entradasAnaliticoTemp;
+                        $saidasAnalitico = $saidasAnaliticoTemp;
+
+                        $entradas = $entradasAnalitico;
+                        $saidas = $saidasAnalitico;
                     }
-
 
                     $clientesPontuacoes[] = [
                         "cliente" => $cliente,

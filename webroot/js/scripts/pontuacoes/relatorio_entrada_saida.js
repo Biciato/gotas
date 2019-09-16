@@ -49,8 +49,8 @@ $(function() {
         brindesList = [];
         var option = document.createElement("option");
         option.value = undefined;
-        option.textContent = "Selecione um Posto para continuar...";
-        option.title = "Selecione um Posto para continuar...";
+        option.textContent = "Selecione um Estabelecimento para continuar...";
+        option.title = "Selecione um Estabelecimento para continuar...";
         brindesList.push(option);
 
         brindesSelectListBox.empty();
@@ -101,21 +101,24 @@ $(function() {
     function clientesSelectListBoxOnChange() {
         var clienteSelected = this.value;
 
-        if (isNaN(clienteSelected)) {
-            clienteSelected = parseInt($("#cliente-selected").val());
-        }
+        // Se não tiver seleção, será feito via backend.
+        clienteSelected = parseInt(clienteSelected);
 
-        if (!isNaN(clienteSelected)) {
-            form.clientesId = clienteSelected;
-            // Obtem Brindes
-            getBrindesList(clienteSelected);
-        }
+        form.clientesId = isNaN(clienteSelected) ? 0 : clienteSelected;
+
+        // Obtem Brindes
+        getBrindesList(form.clientesId);
     }
 
     function dataInicioOnChange() {
         var date = this.value;
 
         if (date !== undefined) {
+            if (date.length == 8 && date.indexOf("/") == -1) {
+                date = moment(date, "DDMMYYYY").format("DD/MM/YYYY");
+                this.value = date;
+            }
+
             date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
             form.dataInicio = date;
         }
@@ -125,9 +128,20 @@ $(function() {
         var date = this.value;
 
         if (date !== undefined) {
+            if (date.length == 8 && date.indexOf("/") == -1) {
+                date = moment(date, "DDMMYYYY").format("DD/MM/YYYY");
+                this.value = date;
+            }
+
             date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
             form.dataFim = date;
         }
+    }
+
+    function imprimirRelatorio() {
+        setTimeout(tabela.printThis({
+            importCss: false
+        }), 100);
     }
 
     function tipoRelatorioOnChange() {
@@ -139,8 +153,8 @@ $(function() {
     function getBrindesList(clientesId) {
         callLoaderAnimation();
         $.ajax({
-            type: "POST",
-            url: "/api/brindes/get_brindes_unidade",
+            type: "GET",
+            url: "/api/brindes/get_brindes_list",
             data: {
                 clientes_id: clientesId
             },
@@ -148,10 +162,11 @@ $(function() {
             success: function(response) {
                 console.log(response);
 
-                if (response.brindes !== undefined) {
+                if (response.data !== undefined) {
                     brindesSelectListBox.empty();
 
-                    var data = response.brindes.data;
+                    var data = response.data.brindes;
+                    console.log(data);
                     var collection = [];
                     var options = [];
                     var option = document.createElement("option");
@@ -212,7 +227,7 @@ $(function() {
 
                     var option = document.createElement("option");
                     option.value = undefined;
-                    option.textContent = "Selecionar";
+                    option.textContent = "Todos";
 
                     clientesList.push(option);
 
@@ -236,7 +251,7 @@ $(function() {
                         clientesSelectListBox.val(clienteSelected);
                     }
 
-                    // Option vazio e mais um posto? Desabilita pois só tem uma seleção possível
+                    // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
                     if (clientesList.length == 2) {
                         $(clientesSelectListBox).attr("disabled", true);
                     }
@@ -253,6 +268,8 @@ $(function() {
     }
 
     /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getDataPontuacoesEntradaSaida
+     *
      * Obtem os dados de relatório do servidor
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -266,7 +283,7 @@ $(function() {
      *
      * @returns HtmlTable
      */
-    function getEntradaSaida(
+    function getDataPontuacoesEntradaSaida(
         clientesId,
         brindesId,
         dataInicio,
@@ -319,22 +336,20 @@ $(function() {
 
                 if (form.tipoRelatorio == "Analítico") {
                     data.pontuacoes.forEach(element => {
-                        // Dados do posto
+                        // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
 
                         var labelCliente = document.createElement("strong");
-                        labelCliente.textContent = "Posto: ";
+                        labelCliente.textContent = "Estabelecimento: ";
                         var cellLabelCliente = document.createElement("td");
                         cellLabelCliente.classList.add("font-weight-bold");
                         cellLabelCliente.append(labelCliente);
 
                         var cellInfoCliente = document.createElement("td");
                         var infoCliente = document.createElement("strong");
-                        infoCliente.textContent =
-                            element.cliente.nome_fantasia +
-                            " / " +
-                            element.cliente.razao_social;
-                        cellInfoCliente.colSpan = 2;
+                        infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                        cellInfoCliente.colSpan = 6;
+                        cellInfoCliente.classList.add("text-right");
 
                         cellInfoCliente.append(infoCliente);
 
@@ -342,14 +357,245 @@ $(function() {
                         rowCliente.append(cellInfoCliente);
 
                         rows.push(rowCliente);
+
+                        // Fim dados Estabelecimento
+
+                        // Linhas periodos
+
+                        var rowsPeriodos = [];
+                        var pontuacoesLength = element.pontuacoes_entradas.length;
+                        var pontuacoesEntradas = element.pontuacoes_entradas;
+                        var pontuacoesSaidas = element.pontuacoes_saidas;
+
+                        for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
+                            var pontuacoesEntradaPeriodoList = pontuacoesEntradas[pontuacoesIndex];
+                            var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
+
+                            var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
+                            var pontuacoesEntradaDataList = pontuacoesEntradaPeriodoList.data;
+                            var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
+
+                            var mesAtual = '';
+                            var ultimaData = '';
+
+                            for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
+                                var entrada = pontuacoesEntradaDataList[indexData];
+                                var saida = pontuacoesSaidaDataList[indexData];
+                                var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+
+                                // O header deve ser construído se a data muda
+                                if (ultimaData !== periodoAtual) {
+                                    ultimaData = periodoAtual;
+                                    // Linha que indica o cabeçalho dos períodos
+                                    var rowPeriodo = document.createElement("tr");
+
+                                    var cellPeriodoLabel = document.createElement("td");
+                                    var labelPeriodo = document.createElement("strong");
+                                    labelPeriodo.textContent = "Data";
+                                    cellPeriodoLabel.append(labelPeriodo);
+
+                                    var cellPeriodoTextoLabel = document.createElement("td");
+                                    var labelPeriodoValue = document.createElement("strong");
+
+                                    mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
+                                    labelPeriodoValue.textContent = periodoAtual;
+                                    cellPeriodoTextoLabel.append(labelPeriodoValue);
+                                    cellPeriodoTextoLabel.colSpan = 6;
+                                    cellPeriodoTextoLabel.classList.add("text-right");
+
+                                    rowPeriodo.append(cellPeriodoLabel);
+                                    rowPeriodo.append(cellPeriodoTextoLabel);
+
+                                    rowsPeriodos.push(rowPeriodo);
+
+                                    // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
+                                    var headerDadosPeriodoRow = document.createElement("tr");
+
+                                    var cellLabelGota = document.createElement("td");
+                                    var textlabelGota = document.createElement("strong");
+                                    textlabelGota.textContent = "Gota:";
+                                    cellLabelGota.append(textlabelGota);
+
+                                    var cellLabelUsuarioEntrada = document.createElement("td");
+                                    var textUsuarioEntrada = document.createElement("strong");
+                                    textUsuarioEntrada.textContent = "Usuário:";
+                                    cellLabelUsuarioEntrada.append(textUsuarioEntrada);
+
+                                    var cellLabelGotasEntrada = document.createElement("td");
+                                    var textEntradaGotas = document.createElement("strong");
+                                    textEntradaGotas.textContent = "Gotas";
+                                    cellLabelGotasEntrada.append(textEntradaGotas);
+
+                                    var cellLabelUsuarioSaida = document.createElement("td");
+                                    var textUsuarioSaida = document.createElement("strong");
+                                    textUsuarioSaida.textContent = "Usuário:";
+                                    cellLabelUsuarioSaida.append(textUsuarioSaida);
+
+                                    var cellLabelBrindesSaida = document.createElement("td");
+                                    var textBrindesSaida = document.createElement("strong");
+                                    textBrindesSaida.textContent = "Brindes";
+                                    cellLabelBrindesSaida.append(textBrindesSaida);
+
+                                    var cellLabelGotasSaida = document.createElement("td");
+                                    var textSaidaGotas = document.createElement("strong");
+                                    textSaidaGotas.textContent = "Gotas";
+                                    cellLabelGotasSaida.append(textSaidaGotas);
+
+                                    headerDadosPeriodoRow.append(document.createElement("td"));
+                                    headerDadosPeriodoRow.append(cellLabelGota);
+                                    headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
+                                    headerDadosPeriodoRow.append(cellLabelGotasEntrada);
+                                    headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
+                                    headerDadosPeriodoRow.append(cellLabelBrindesSaida);
+                                    headerDadosPeriodoRow.append(cellLabelGotasSaida);
+
+                                    rowsPeriodos.push(headerDadosPeriodoRow);
+                                }
+
+                                // Info de entrada
+                                var row = document.createElement("tr");
+                                var cellEmpty = document.createElement("td");
+
+                                row.append(cellEmpty);
+
+                                var cellEntradaGota = document.createElement("td");
+
+                                var labelEntradaGota = document.createElement("span");
+                                labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
+                                cellEntradaGota.append(labelEntradaGota);
+
+                                var cellEntradaUsuario = document.createElement("td");
+                                var labelEntradaUsuario = document.createElement("span");
+                                labelEntradaUsuario.textContent = entrada.usuario !== undefined ? entrada.usuario.nome : "";
+                                cellEntradaUsuario.append(labelEntradaUsuario);
+
+                                var cellEntradaQteGota = document.createElement("td");
+                                var labelEntradaQteGota = document.createElement("span");
+                                labelEntradaQteGota.textContent = entrada.qte_gotas;
+                                cellEntradaQteGota.classList.add("text-right");
+                                cellEntradaQteGota.append(labelEntradaQteGota);
+
+                                // Info de Saida
+                                var cellSaidaUsuario = document.createElement("td");
+                                var labelSaidaUsuario = document.createElement("span");
+
+                                labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
+                                cellSaidaUsuario.append(labelSaidaUsuario);
+
+                                var cellSaidaBrinde = document.createElement("td");
+                                var labelSaidaBrinde = document.createElement("span");
+                                labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
+                                cellSaidaBrinde.append(labelSaidaBrinde);
+
+                                var cellSaidaQteGota = document.createElement("td");
+                                var labelSaidaQteGota = document.createElement("span");
+                                labelSaidaQteGota.textContent = saida.qte_gotas;
+                                cellSaidaQteGota.classList.add("text-right");
+                                cellSaidaQteGota.append(labelSaidaQteGota);
+
+
+                                row.append(cellEntradaGota);
+                                row.append(cellEntradaUsuario);
+                                row.append(cellEntradaQteGota);
+                                row.append(cellSaidaUsuario);
+                                row.append(cellSaidaBrinde);
+                                row.append(cellSaidaQteGota);
+
+                                rowsPeriodos.push(row);
+                            }
+
+                            // Total periodo
+
+                            var rowTotalPeriodo = document.createElement("tr");
+                            var cellLabelTotal = document.createElement("td");
+                            var labelTotal = document.createElement("strong");
+
+                            labelTotal.textContent = "Total Período: " + mesAtual;
+                            cellLabelTotal.append(labelTotal);
+
+                            var cellLabelEntradaTotal = document.createElement("td");
+                            var labelEntradaTotal = document.createElement("strong");
+                            labelEntradaTotal.textContent = pontuacoesEntradaPeriodoList.soma_entradas;
+                            cellLabelEntradaTotal.classList.add("text-right");
+                            cellLabelEntradaTotal.colSpan = 3;
+                            cellLabelEntradaTotal.append(labelEntradaTotal);
+
+                            var cellLabelSaidaTotal = document.createElement("td");
+                            var labelSaidaTotal = document.createElement("strong");
+                            labelSaidaTotal.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
+                            cellLabelSaidaTotal.classList.add("text-right");
+                            cellLabelSaidaTotal.colSpan = 3;
+                            cellLabelSaidaTotal.append(labelSaidaTotal);
+
+
+                            rowTotalPeriodo.append(cellLabelTotal);
+                            rowTotalPeriodo.append(cellLabelEntradaTotal);
+                            rowTotalPeriodo.append(cellLabelSaidaTotal);
+
+                            rowsPeriodos.push(rowTotalPeriodo);
+                        }
+
+                        if(pontuacoesLength == 0) {
+                            // Se não teve registro, adiciona uma linha informando que não teve movimentação
+
+                            var rowEmpty = document.createElement("tr");
+                            var cell = document.createElement("td");
+                            var label = document.createElement("strong");
+
+                            label.textContent = "Não há registros à serem exibidos!"
+                            ;
+                            cell.append(label);
+                            cell.colSpan = 7;
+                            cell.classList.add("text-center");
+                            rowEmpty.append(cell);
+                            rowsPeriodos.push(rowEmpty);
+                        }
+
+                        // Linhas Periodo
+
+                        // Linha Total Geral
+
+                        var rowTotal = document.createElement("tr");
+                        var cellLabelTotal = document.createElement("td");
+                        var labelTotal = document.createElement("strong");
+
+                        labelTotal.classList.add("text-bold");
+                        labelTotal.textContent = "Total Geral";
+                        cellLabelTotal.append(labelTotal);
+
+                        var textTotalEntradas = document.createElement("strong");
+                        textTotalEntradas.textContent = data.total_entradas;
+                        var cellTotalEntradas = document.createElement("td");
+                        cellTotalEntradas.classList.add("text-right");
+                        cellTotalEntradas.colSpan = 3;
+                        cellTotalEntradas.append(textTotalEntradas);
+
+                        var textTotalSaidas = document.createElement("strong");
+                        textTotalSaidas.textContent = data.total_saidas;
+                        var cellTotalSaidas = document.createElement("td");
+                        cellTotalSaidas.classList.add("text-right");
+                        cellTotalSaidas.colSpan = 3;
+                        cellTotalSaidas.append(textTotalSaidas);
+
+                        rowTotal.append(cellLabelTotal);
+                        rowTotal.append(cellTotalEntradas);
+                        rowTotal.append(cellTotalSaidas);
+
+                        rowsPeriodos.push(rowTotal);
+
+                        rowsPeriodos.forEach(element => {
+                            rows.push(element);
+                        });
+
+
                     });
                 } else {
                     data.pontuacoes.forEach(element => {
-                        // Dados do posto
+                        // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
 
                         var labelCliente = document.createElement("strong");
-                        labelCliente.textContent = "Posto: ";
+                        labelCliente.textContent = "Estabelecimento: ";
                         var cellLabelCliente = document.createElement("td");
                         cellLabelCliente.classList.add("font-weight-bold");
                         cellLabelCliente.append(labelCliente);
@@ -520,6 +766,8 @@ $(function() {
             },
             error: function(response) {
                 closeLoaderAnimation();
+                var data = response.responseJSON;
+                callModalError(data.mensagem.message, data.mensagem.errors);
             },
             complete: function(response) {
                 closeLoaderAnimation();
@@ -540,8 +788,7 @@ $(function() {
     tipoRelatorio.on("change", tipoRelatorioOnChange);
 
     $(pesquisarBtn).on("click", function() {
-        console.log(form);
-        getEntradaSaida(
+        getDataPontuacoesEntradaSaida(
             form.clientesId,
             form.brindesId,
             form.dataInicio,
@@ -549,8 +796,8 @@ $(function() {
             form.tipoRelatorio
         );
     });
-    // pesquisarBtn.on("click", function() { alert("oi") });
-    console.log("oi");
+
+    imprimirBtn.on("click", imprimirRelatorio);
 
     // #endregion
 

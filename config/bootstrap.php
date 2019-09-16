@@ -300,6 +300,10 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
+
+const MSG_MAX_FILTER_TIME_ONE_YEAR = "Período máximo de filtro permitido é 1 (UM) ano!";
+const MSG_MAX_FILTER_TIME_ONE_YEAR_CODE = 0x0000000D;
+
 const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK_CODE = 0x00000002;

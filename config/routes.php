@@ -92,6 +92,11 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/findBrindes"
                 ],
+                "getBrindesList" => [
+                    "action" => "getBrindesListAPI",
+                    "method" => "GET",
+                    "path" => "get_brindes_list"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getBrindesUnidadeAPI" => [
                     "action" => "getBrindesUnidadeAPI",

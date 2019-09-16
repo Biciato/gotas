@@ -3,7 +3,7 @@
 /**
  * src\Template\Gotas\relatorio_entrada_saida.ctp
  *
- * Tela de Relatório de Caixa dos Funcionários de um Posto. Visualizado por um gerente
+ * Tela de Relatório de Caixa dos Funcionários de um Estabelecimento. Visualizado por um gerente
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-08-30
@@ -50,7 +50,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         <div class="form-group row">
                             <div class="col-lg-3">
 
-                                <label for="funcionario">Posto:</label>
+                                <label for="funcionario">Estabelecimento:</label>
                                 <select name="clientes-list" id="clientes-list" class="form-control"></select>
                             </div>
                             <div class="col-lg-3">
@@ -84,7 +84,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <span class="fa fa-search"></span>
                                     Pesquisar
                                 </div>
-                                <div class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                <div class="imprimir btn btn-default print-button-thermal" id="btn-imprimir">
                                     <i class="fa fa-print"></i>
                                     Imprimir
                                 </div>
@@ -92,16 +92,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         </div>
                     </form>
 
-                    <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
-                        <tbody>
-                            <span></span>
-                        </tbody>
-
-                    </table>
                 </div>
             </div>
         </div>
     </div>
+    <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
+        <tbody>
+            <span></span>
+        </tbody>
+
+    </table>
 
 </div>
 

@@ -378,8 +378,12 @@ class BrindesTable extends GenericTable
         try {
             $where = array();
 
+            $join = [];
+
             if (!empty($redesId)) {
-                $where["Brindes.redes_id"] = $redesId;
+                // $where["Brindes.redes_id"] = $redesId;
+                $join = ["Cliente.RedesHasClientes.Rede"];
+                $where["Rede.id"] = $redesId;
             }
 
             if (!empty($clientesId)) {
@@ -390,6 +394,8 @@ class BrindesTable extends GenericTable
                 throw new Exception("Informe um dos seguintes argumentos para obter a lista de brindes: [REDES_ID, CLIENTES_ID]!");
             }
 
+            $where["Brindes.habilitado"] = 1;
+
             // Só mostra os registros não apagados
             if (!isset($apagado)) {
                 $where[] = array("Brindes.apagado" => 0);
@@ -399,7 +405,16 @@ class BrindesTable extends GenericTable
                 $where[] = array("Brindes.apagado" => $apagado);
             }
 
-            $brindes = $this->find("list")->where($where);
+            $brindes = $this->find("all")
+                ->where($where)
+                ->select([
+                    "Brindes.id",
+                    "Brindes.nome"
+                ]);
+
+            if (!empty($join) > 0) {
+                $brindes = $brindes->contain($join);
+            }
 
             return $brindes;
         } catch (Exception $e) {
