@@ -2793,6 +2793,10 @@ class CuponsController extends AppController
         $arraySet = array();
 
         if ($this->request->is(['post'])) {
+
+            $sessao = $this->getSessionUserVariables();
+            $usuario = $sessao["usuarioLogado"];
+
             $data = $this->request->getData();
 
             // Log::write("info", $data);
@@ -2824,8 +2828,6 @@ class CuponsController extends AppController
             }
 
             $brindesId = $data["brindes_id"];
-            $usuario = $this->Auth->user();
-            $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
             $usuariosId = $usuario["id"];
             $clientesId = $data["clientes_id"];
             // Definido pelo Samuel, cliente só pode retirar 1 por vez

@@ -61,8 +61,8 @@ $(function() {
         dataFim.datepicker().datepicker("setDate", dataAtual);
 
         // Dispara todos os eventos que precisam de inicializar
-        dataInicioOnChange();
-        dataFimOnChange();
+        // dataInicioOnChange();
+        // dataFimOnChange();
         tipoRelatorioOnChange();
         getClientesList();
         clientesSelectListBoxOnChange();
@@ -300,7 +300,8 @@ $(function() {
                 closeLoaderAnimation();
             },
             error: function(response) {
-                callModalError(response.mensagem.message, response.mensagem.error);
+                var data = response.responseJSON;
+                callModalError(data.mensagem.message, data.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();

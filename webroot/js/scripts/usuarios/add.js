@@ -234,6 +234,7 @@ $(document).ready(function () {
 
         // Gerente
         var tipoPerfilSelecionado = $("#tipo_perfil").val();
+
         if (tipoPerfilSelecionado >= 5) {
             $("#telefone").attr("required", null);
             $("#label-telefone").text("Telefone");
@@ -244,12 +245,19 @@ $(document).ready(function () {
 
         if (tipoPerfil !== undefined) {
             if (tipoPerfil >= 0 && tipoPerfil <= 2) {
-                if ($(data).val() < 1 || $(data).val() > 5) {
+                // if ($(data).val() < 1 || $(data).val() > 5) {
+                if (tipoPerfilSelecionado < 1 || tipoPerfilSelecionado > 5) {
                     hideRedesInput();
                 } else {
                     showRedesInput();
                 }
             }
+        }
+
+        if (tipoPerfilSelecionado > 2) {
+            $("#clientes_rede").attr("required", true);
+        } else {
+            $("#clientes_rede").removeAttr("required");
         }
 
         if ($(data).val() != 6) {

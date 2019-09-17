@@ -747,10 +747,10 @@ class ClientesController extends AppController
             }
 
             $selectList = array(
-                "cliente.id",
-                "cliente.nome_fantasia",
-                "cliente.razao_social",
-                "cliente.propaganda_img"
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.propaganda_img"
             );
 
             if (empty($redesId)) {
@@ -761,11 +761,11 @@ class ClientesController extends AppController
 
             $redeHasClientes = $redeHasClientes->select($selectList);
 
-            // return ResponseUtil::successAPI("", [$redeHasClientes->sql()]);
+            // return ResponseUtil::successAPI("", [$redeHasClientes->toArray()]);
             $clientes = [];
 
             foreach ($redeHasClientes as $redeHasCliente) {
-                $clientes[] = $redeHasCliente->cliente;
+                $clientes[] = $redeHasCliente->Clientes;
             }
 
             if (count($clientes) == 0) {

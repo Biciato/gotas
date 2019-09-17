@@ -83,10 +83,10 @@ class RedesController extends AppController
                 $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
             }
 
-            $redes_has_clientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
-            $this->paginate($redes_has_clientes, ['limit' => 10]);
+            $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
+            $this->paginate($redesHasClientes, ['limit' => 10]);
 
-            $arraySet = ['rede', 'redes_has_clientes', 'imagem'];
+            $arraySet = ['rede', 'redesHasClientes', 'imagem'];
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

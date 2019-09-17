@@ -365,7 +365,7 @@ class RedesHasClientesController extends AppController
                 $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede["id"]);
 
                 foreach ($redesHasClientes->toArray() as $key => $redeHasCliente) {
-                    $clientes[] = $redeHasCliente["cliente"];
+                    $clientes[] = $redeHasCliente->cliente;
                 }
             }
 

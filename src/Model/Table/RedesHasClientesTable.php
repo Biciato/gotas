@@ -70,28 +70,7 @@ class RedesHasClientesTable extends GenericTable
             ]
         );
 
-        $this->hasOne(
-            "Cliente",
-            array(
-                "className" => "Clientes",
-                "foreignKey" => "id",
-                "joinType" => Query::JOIN_TYPE_INNER,
-                "conditions" => array(
-                    "RedesHasClientes.clientes_id = Cliente.id"
-                )
-            )
-        );
-
         $this->belongsTo(
-            'Cliente',
-            [
-                "className" => "Clientes",
-                'foreignKey' => 'id',
-                'joinType' => Query::JOIN_TYPE_LEFT
-            ]
-        );
-
-        $this->belongsToMany(
             'Clientes',
             [
                 "className" => "Clientes",
@@ -100,6 +79,7 @@ class RedesHasClientesTable extends GenericTable
             ]
         );
 
+        // @todo ver onde isto está sendo usado
         $this->belongsToMany(
             'ClientesHasUsuarios',
             [
@@ -220,15 +200,15 @@ class RedesHasClientesTable extends GenericTable
             $whereCondition[] = array('redes_id' => $redesId);
 
             if (!empty($nomeFantasia)) {
-                $whereCondition[] = array("Cliente.nome_fantasia like '%{$nomeFantasia}%'");
+                $whereCondition[] = array("Clientes.nome_fantasia like '%{$nomeFantasia}%'");
             }
 
             if (!empty($razaoSocial)) {
-                $whereCondition[] = array("Cliente.razao_social like '%{$razaoSocial}%'");
+                $whereCondition[] = array("Clientes.razao_social like '%{$razaoSocial}%'");
             }
 
             if (!empty($cnpj)) {
-                $whereCondition[] = array("Cliente.cnpj like '%{$cnpj}%'");
+                $whereCondition[] = array("Clientes.cnpj like '%{$cnpj}%'");
             }
 
             if (count($clientesIds) > 0) {
@@ -237,7 +217,7 @@ class RedesHasClientesTable extends GenericTable
 
             $redesHasClientes = $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Cliente']);
+                ->contain(['Redes', 'Clientes']);
 
             return $redesHasClientes;
         } catch (\Exception $e) {
@@ -420,7 +400,7 @@ class RedesHasClientesTable extends GenericTable
         try {
             return $this->find('all')
                 ->where(['clientes_id' => $clientes_id])
-                ->contain(['Redes', 'Cliente'])->first();
+                ->contain(['Redes', 'Clientes'])->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;
@@ -484,15 +464,15 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesByRedesId(int $redesId = 0, array $clientesIds = [])
     {
         try {
-            $whereCondition = array('redes_id' => $redesId);
+            $whereCondition = array('RedesHasClientes.redes_id' => $redesId);
 
             if (isset($clientesIds) && sizeof($clientesIds) > 0) {
-                $whereCondition[] = array('clientes_id in ' => $clientesIds);
+                $whereCondition[] = array('RedesHasClientes.clientes_id in ' => $clientesIds);
             }
 
             return $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Cliente']);
+                ->contain(['Redes', 'Clientes']);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
