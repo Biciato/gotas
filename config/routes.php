@@ -92,6 +92,11 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/findBrindes"
                 ],
+                "getBrindesList" => [
+                    "action" => "getBrindesListAPI",
+                    "method" => "GET",
+                    "path" => "get_brindes_list"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getBrindesUnidadeAPI" => [
                     "action" => "getBrindesUnidadeAPI",
@@ -193,7 +198,12 @@ Router::scope("/api", function ($routes) {
                     "action" => "getExtratoPontuacoesAPI",
                     "method" => "POST",
                     "path" => "/get_extrato_pontuacoes"
-                )
+                ),
+                "getPontuacoesRelatorioEntradaSaidaAPI" => [
+                    "action" => "getPontuacoesRelatorioEntradaSaidaAPI",
+                    "method" => "GET",
+                    "path" => "/get_pontuacoes_relatorio_entrada_saida"
+                ]
             ]
         ]
     );

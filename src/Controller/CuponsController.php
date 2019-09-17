@@ -1228,7 +1228,13 @@ class CuponsController extends AppController
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
         // DebugUtil::printArray($funcionariosList);
         $funcionarioSelecionado = 0;
-        $brindesList = $this->Brindes->getList(null, $cliente->id, -1);
+        $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1);
+        $brindesList = [];
+
+        foreach ($brindesQuery as $brinde) {
+            $brindesList[$brinde->id] = $brinde->nome;
+        }
+
         $brindeSelecionado = 0;
         $tipoRelatorio = REPORT_TYPE_SYNTHETIC;
         $tituloTurno = "";

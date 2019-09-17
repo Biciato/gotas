@@ -139,8 +139,8 @@ $(document).ready(function () {
         $(".redes_input").hide();
         $(".redes_list").val(null);
         $(".clientes_rede").val(null);
-        $("#redes_id").prop("required", true);
-        $("#clientes_rede").prop("required", true);
+        $("#redes_id").prop("required", false);
+        $("#clientes_rede").prop("required", false);
 
     }
 
@@ -469,40 +469,9 @@ $(document).ready(function () {
                 callModalError("Este CPF já está em uso!");
                 $("#user_submit").attr('disabled', true);
 
-            // }
             } else {
                 $("#user_submit").attr("disabled", false);
             }
-
-            //     var isValid = checkCPFIsValid(cleanIdentity(cpf.value));
-
-            //     $("#cpf_validation").text("");
-            //     $("#cpf_validation").hide();
-            //     if (!isValid) {
-            //         $("#user_submit").attr('disabled', true);
-            //         $("#cpf_validation").text("CPF não é válido!");
-            //         $("#cpf_validation").show();
-
-            //         if (occurrencesInvalidCpf >= 1 && (previousCPF == cpf.value)) {
-            //             // $("#cpf_validation").text("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
-            //             callModalError("Mesmo CPF digitado inválido duas vezes. Apresente o documento para autorização posterior.");
-
-            //             startScanDocument();
-            //         } else {
-            //             occurrencesInvalidCpf = occurrencesInvalidCpf + 1;
-            //             previousCPF = cpf.value;
-            //             // $("#cpf").val("");
-            //         }
-            //     } else {
-            //         $("#cpf_validation").text("");
-            //         $("#cpf_validation").hide();
-
-            //         previousCPF = "";
-            //         occurrencesInvalidCpf = 0;
-
-            //         $("#user_submit").attr('disabled', false);
-            //     }
-            // }
         });
     };
 
@@ -512,12 +481,10 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            // url: "/api/usuarios/getUsuarioByDocEstrangeiroAPI",
             url: "/api/usuarios/get_usuario_by_doc_estrangeiro",
             data: JSON.stringify({
                 doc_estrangeiro: param.target.value
             }),
-            // dataType: "json",
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
                 xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -553,9 +520,7 @@ $(document).ready(function () {
         $("#doc_estrangeiro").val(null);
 
         if (this.value.length == 14) {
-
             checkCPFRepeated();
-
         };
     });
 

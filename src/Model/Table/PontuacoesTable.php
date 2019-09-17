@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -72,22 +73,27 @@ class PontuacoesTable extends GenericTable
             'Usuarios',
             array(
                 'foreignKey' => 'usuarios_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
             )
         );
 
         $this->belongsTo(
             "Brindes",
-            array("className" => "Brindes")
-        )
-            ->setForeignKey("brindes_id")
-            ->setJoinType(Query::JOIN_TYPE_INNER);
+            [
+                "className" => "Brindes",
+                "foreignKey" => "brindes_id",
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
+            ]
+        );
 
         $this->belongsTo(
             'Gotas',
             [
                 'foreignKey' => 'gotas_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
+                // 'joinType' => Query::JOIN_TYPE_INNER
             ]
         );
 
@@ -518,7 +524,7 @@ class PontuacoesTable extends GenericTable
             array_push($conditions, ['utilizado != ' => Configure::read('dropletsUsageStatus')['FullyUsed']]);
 
             if (!is_null($ultimoIdProcessado)) {
-                array_push($conditions, ['id >= ' => (int)$ultimoIdProcessado]);
+                array_push($conditions, ['id >= ' => (int) $ultimoIdProcessado]);
             }
 
             $result = $this
@@ -1148,6 +1154,98 @@ class PontuacoesTable extends GenericTable
 
             Log::write('error', $stringError);
             Log::write('error', $trace);
+        }
+    }
+
+    /**
+     * PontuacoesTable.php::getPontuacoesInOutForClientes
+     *
+     * Obtem dados de pontuações de entrada e saída para relatório
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-10
+     *
+     * @param int $clientesId Clientes (Postos)
+     * @param integer $brindesId Id de Brinde
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data fim
+     * @param string $tipoMovimentacao Entrada / Saída
+     * @param string $tipoRelatorio Tipo Relatório Analítico / Sintético
+     *
+     * \App\Model\Entity\Pontuaco[] Array de pontuacoes
+     */
+    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = PONTUACOES_TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    {
+        try {
+            $whereConditions = [];
+            $groupConditions = [
+                "periodo",
+                "Pontuacoes.clientes_id",
+                "Clientes.id"
+            ];
+
+            $selectList = [
+                "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
+                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
+            ];
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
+                $selectList[] = "Brindes.nome";
+            }
+
+            $join = [
+                "Gotas",
+                "Usuarios",
+                "Clientes",
+                "Brindes"
+            ];
+
+            // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
+            $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
+
+            if (!empty($brindesId)) {
+                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            }
+
+            if (!empty($dataInicio)) {
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+            }
+
+            if (!empty($dataFim)) {
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
+            }
+
+            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
+            } else {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
+            }
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $groupConditions[] = "Brindes.id";
+                $groupConditions[] = "Usuarios.id";
+                $groupConditions[] = "Gotas.id";
+                $selectList[] = "Brindes.id";
+                $selectList[] = "Brindes.nome";
+                $selectList[] = "Usuarios.id";
+                $selectList[] = "Usuarios.nome";
+                $selectList[] = "Gotas.id";
+                $selectList[] = "Gotas.nome_parametro";
+            }
+
+            return $this
+                ->find("all")
+                ->where($whereConditions)
+                ->contain($join)
+                ->group($groupConditions)
+                ->select($selectList);
+        } catch (\Throwable $th) {
+
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            Log::write("error", sprintf("%s - %s", $code, $message));
+            throw new Exception($message, $code);
         }
     }
 

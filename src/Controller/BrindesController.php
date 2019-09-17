@@ -664,7 +664,7 @@ class BrindesController extends AppController
 
             $errors = array();
             if (empty($brindesId)) {
-                $errors[] = MESSAGE_ID_EMPTY;
+                $errors[] = MSG_ID_EMPTY;
             }
 
             if (count($errors) > 0) {
@@ -1125,6 +1125,55 @@ class BrindesController extends AppController
     #endregion
 
     #region REST Services
+
+    /**
+     * Brindes::getBrindesUnidadesParaTopBrindesAPI
+     *
+     * Obtêm lista de brindes conforme parâmetros informados
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-16
+     *
+     * @param int $redesId Id da Rede (Opcional)
+     * @param $clientes_id Id do Cliente (Posto)
+     *
+     * @return json_encode Brindes
+     */
+    public function getBrindesListAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        // $cliente
+
+        try {
+            if ($this->request->is("GET")) {
+                $data = $this->request->getQueryParams();
+                $redesId = 0;
+                $brindes = null;
+
+                if ($usuario->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    // Só permite especificar a rede se for RTI/Desenvolvedor
+                    $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+                } else {
+                    $redesId = $rede->id;
+                }
+
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+
+                $brindes = $this->Brindes->getList($redesId, $clientesId, 0);
+                $brindes = ["brindes" => $brindes->toArray()];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $brindes]);
+            }
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+        }
+    }
 
     /**
      * Brindes::getBrindesUnidadeAPI

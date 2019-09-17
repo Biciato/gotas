@@ -726,34 +726,46 @@ class ClientesController extends AppController
     {
         $sessao = $this->getSessionUserVariables();
         $rede = $sessao["rede"];
-        $redesId = $rede["id"];
+        $redesId = $rede->id;
+        $cliente = $sessao["cliente"];
+        $clientesIds = [];
+        $clientesId = !empty($cliente) && !empty($cliente->id) ? $cliente->id : null;
+        $usuarioLogado = $sessao["usuarioLogado"];
+
+        if (!empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+            $clientesIds[] = $clientesId;
+        }
 
         try {
             // Caso o método seja chamado via get
             if ($this->request->is("get")) {
-                $data = $this->request->getData();
+                $data = $this->request->getQueryParams();
 
-                if (!empty($data["redesId"])) {
-                    $redesId = $data["redesId"];
+                if (!empty($data["redes_id"])) {
+                    $redesId = $data["redes_id"];
                 }
             }
 
             $selectList = array(
-                "Clientes.id",
-                "Clientes.nome_fantasia",
-                "Clientes.razao_social",
-                "Clientes.propaganda_img"
+                "cliente.id",
+                "cliente.nome_fantasia",
+                "cliente.razao_social",
+                "cliente.propaganda_img"
             );
 
             if (empty($redesId)) {
-                throw new Exception(MESSAGE_ID_EMPTY);
+                throw new Exception(MSG_ID_EMPTY);
             }
 
-            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, $clientesIds);
+
+            $redeHasClientes = $redeHasClientes->select($selectList);
+
+            // return ResponseUtil::successAPI("", [$redeHasClientes->sql()]);
             $clientes = [];
 
             foreach ($redeHasClientes as $redeHasCliente) {
-                $clientes[] = $redeHasCliente["cliente"];
+                $clientes[] = $redeHasCliente->cliente;
             }
 
             if (count($clientes) == 0) {

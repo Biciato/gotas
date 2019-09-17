@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -12,6 +13,8 @@ use App\Custom\RTI\Security;
 use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use Cake\Http\Client\Request;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Gotas Controller
@@ -296,7 +299,7 @@ class GotasController extends AppController
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
-                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesIds[] = (int) $data['filtrar_unidade'];
                     $clientesId = $data["filtrar_unidade"];
                 }
             }
@@ -602,7 +605,6 @@ class GotasController extends AppController
                     'controller' => 'gotas', 'action' => 'gotas_minha_rede'
                 ]
             );
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao editar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -795,7 +797,7 @@ class GotasController extends AppController
 
                 // registro habilitado?
                 if (strlen($data['habilitado']) > 0) {
-                    $whereConditions[] = ["gotas.habilitado" => (bool)$data['habilitado']];
+                    $whereConditions[] = ["gotas.habilitado" => (bool) $data['habilitado']];
                 }
 
                 // Data de Criação Início e Fim
@@ -808,21 +810,19 @@ class GotasController extends AppController
 
                     if ($dataInicial > $dataFinal) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-
-                } else if (strlen($data['auditInsertInicio']) > 0) {
+                } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert >= ' => $dataInicial];
                     }
-
-                } else if (strlen($data['auditInsertFim']) > 0) {
+                } elseif (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -840,7 +840,7 @@ class GotasController extends AppController
 
                 $redesHasClientesIds = array();
 
-                $rede = $this->Redes->getRedeById((int)$value);
+                $rede = $this->Redes->getRedeById((int) $value);
 
                 $redeItem = array();
 
@@ -874,7 +874,6 @@ class GotasController extends AppController
             ];
 
             $this->set(compact($arraySet));
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -920,7 +919,7 @@ class GotasController extends AppController
 
                 // registro habilitado?
                 if (strlen($data['habilitado']) > 0) {
-                    $whereConditions[] = ["gotas.habilitado" => (bool)$data['habilitado']];
+                    $whereConditions[] = ["gotas.habilitado" => (bool) $data['habilitado']];
                 }
 
                 // Data de Criação Início e Fim
@@ -933,21 +932,19 @@ class GotasController extends AppController
 
                     if ($dataInicial > $dataFinal) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-
-                } else if (strlen($data['auditInsertInicio']) > 0) {
+                } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert >= ' => $dataInicial];
                     }
-
-                } else if (strlen($data['auditInsertFim']) > 0) {
+                } elseif (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -957,7 +954,7 @@ class GotasController extends AppController
                 }
             }
 
-             // Monta o Array para apresentar em tela
+            // Monta o Array para apresentar em tela
             $redes = array();
 
             foreach ($redesArrayIds as $key => $value) {
@@ -965,7 +962,7 @@ class GotasController extends AppController
 
                 $redesHasClientesIds = array();
 
-                $rede = $this->Redes->getRedeById((int)$value);
+                $rede = $this->Redes->getRedeById((int) $value);
 
                 $redeItem = array();
 
@@ -1020,7 +1017,6 @@ class GotasController extends AppController
                     array_push($redes, $redeItem);
                 }
             }
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1083,7 +1079,6 @@ class GotasController extends AppController
 
             $this->set(compact(['gotas']));
             $this->set("_serialize", ['gotas']);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao retornar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);

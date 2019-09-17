@@ -300,12 +300,22 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
+
+const MSG_MAX_FILTER_TIME_ONE_YEAR = "Período máximo de filtro permitido é 1 (UM) ano!";
+const MSG_MAX_FILTER_TIME_ONE_YEAR_CODE = 0x0000000D;
+
+const MSG_DATE_BEGIN_GREATER_THAN_DATE_END = "DATA_INICIO não pode ser maior que DATA_FIM";
+const MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE = 0x0000000E;
+
 const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK_CODE = 0x00000002;
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE = 0x00000003;
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
+
+const MSG_REPORT_TYPE_EMPTY = "Campo TIPO_RELATORIO não informado!";
+const MSG_REPORT_TYPE_EMPTY_CODE = 0x00000009;
 
 // Sucesso / Aviso
 
@@ -360,14 +370,6 @@ const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenc
 
 #endregion
 
-
-
-#region Pontuacoes Comprovantes
-
-
-
-#endregion
-
 #endregion
 
 #region Entidades
@@ -378,13 +380,20 @@ const PATH_IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
-const MESSAGE_ID_EMPTY = "Campo ID não informado!";
+const MSG_ID_EMPTY = "Campo ID não informado!";
+const MSG_ID_EMPTY_CODE = 0x0000000A;
+const MSG_DATE_BEGIN_EMPTY = "Campo DATA_INICIO não informado!";
+const MSG_DATE_BEGIN_EMPTY_CODE = 0x0000000B;
+const MSG_DATE_END_EMPTY = "Campo DATA_FIM não informado!";
+const MSG_DATE_END_EMPTY_CODE = 0x0000000C;
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
 const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
+
+
 
 #endregion
 

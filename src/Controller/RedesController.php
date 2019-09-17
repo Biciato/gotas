@@ -69,11 +69,8 @@ class RedesController extends AppController
     public function verDetalhes($id = null)
     {
         try {
-
             $rede = $this->Redes->getRedeById($id);
-
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
-
             $nomeFantasia = null;
             $razaoSocial = null;
             $cnpj = null;
@@ -81,23 +78,17 @@ class RedesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
-
                 $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
                 $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
                 $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
-
-                // debug($data);
-                // die();
             }
 
             $redes_has_clientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
-            // $redes_has_clientes = $rede["redes_has_clientes"];
-
-            // $this->paginate($rede["redes_has_clientes"], ['limit' => 10]);
             $this->paginate($redes_has_clientes, ['limit' => 10]);
 
-            $this->set(compact('rede', 'redes_has_clientes', 'imagem'));
-            $this->set('_serialize', ['rede', 'redes_has_clientes', 'imagem']);
+            $arraySet = ['rede', 'redes_has_clientes', 'imagem'];
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());

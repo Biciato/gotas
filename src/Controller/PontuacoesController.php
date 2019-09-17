@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -10,7 +11,11 @@ use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Cliente;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use Exception;
 
 /**
  * Pontuacoes Controller
@@ -278,11 +283,11 @@ class PontuacoesController extends AppController
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
-                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesIds[] = (int) $data['filtrar_unidade'];
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
-                    $arrayOptions[] = array('funcionarios_id' => (int)$data['funcionarios_id']);
+                    $arrayOptions[] = array('funcionarios_id' => (int) $data['funcionarios_id']);
                 }
 
                 if (strlen($data['requer_auditoria']) > 0) {
@@ -457,7 +462,7 @@ class PontuacoesController extends AppController
         return $this->redirect(
             [
                 'action' => 'detalhes_cupom',
-                (int)$pontuacao->pontuacoes_comprovante_id
+                (int) $pontuacao->pontuacoes_comprovante_id
             ]
         );
     }
@@ -507,6 +512,37 @@ class PontuacoesController extends AppController
 
             $this->Flash->error($stringError);
         }
+    }
+
+    /**
+     * PontuacoesController.php::relatorioEntradaSaida
+     *
+     * View para Relatório de Entrada e Saída de Pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
+    public function relatorioEntradaSaida()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL ? $cliente->id : null;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
     }
 
     /**
@@ -638,8 +674,8 @@ class PontuacoesController extends AppController
                 $data = $this->request->getData();
 
                 // Condições de Pesquisa
-                $redesId = !empty($data["redes_id"]) ?$data["redes_id"] : null;
-                $clientesId = !empty($data["clientes_id"]) ?$data["clientes_id"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
                 $brindesNome = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
                 $gotasNomeParametro = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
@@ -743,6 +779,246 @@ class PontuacoesController extends AppController
         return;
     }
 
+    public function getPontuacoesRelatorioEntradaSaidaAPI()
+    {
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $rede = $sessaoUsuario["rede"];
+            $cliente = $sessaoUsuario["cliente"];
+            $clientesIdSession = !empty($cliente) ? $cliente->id : null;
+            $clientesIds = [];
+
+            if (!empty($usuarioAdministrar)) {
+                $usuarioLogado = $usuarioAdministrar;
+            }
+
+            if ($this->request->is(Request::METHOD_GET)) {
+                // Obtenção dos dados
+                $data = $this->request->getQueryParams();
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : null;
+                $clientesIds = [];
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+
+                // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
+                if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
+                    $clientesId = $clientesIdSession;
+                    $clientesIds[] = $clientesId;
+                } elseif (empty($clientesId) && $usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
+                    // Caso o operador não especifique a loja, pega as lojas que ele tem acesso e faz pesquisa
+                    if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) {
+                        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+                    }
+                } else {
+                    $clientesIds[] = $clientesId;
+                }
+
+                $clientes = [];
+
+                foreach ($clientesIds as $cliente) {
+                    $cliente = $this->Clientes->get($cliente);
+
+                    $clientes[] = new Cliente([
+                        "id" => $cliente->id,
+                        "nome_fantasia" => $cliente->nome_fantasia,
+                        "razao_social" => $cliente->razao_social
+                    ]);
+                }
+
+                // As gotas que entram/saem do sistema ficam na tabela pontuacoes
+                // Existem dois tipos de relatorio: ANALITICO E SINTETICO
+
+                // SINTETICO traz apenas a soma, o periodo, e a unidade
+                // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
+
+                $data = [];
+                $totalEntradas = 0;
+                $totalSaidas = 0;
+
+                foreach ($clientes as $cliente) {
+                    $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
+                    $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
+
+                    $entradas = $entradas->toArray();
+                    $saidas = $saidas->toArray();
+                    $somaEntradas = 0;
+                    $somaSaidas = 0;
+
+                    /**
+                     * Processo de verificação que analiza se os dois conjuntos de registro estão com os
+                     * mesmos periodos informados
+                     */
+                    foreach ($entradas as $entrada) {
+                        // verifica se o periodo de entrada possui em saída
+                        $registroEncontrado = false;
+
+                        foreach ($saidas as $saida) {
+                            if ($saida["periodo"] == $entrada["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $saidas[] = ["periodo" => $entrada["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaEntradas += $entrada["qte_gotas"];
+                    }
+
+                    foreach ($saidas as $saida) {
+                        // verifica se o periodo de entrada possui em saída
+                        $registroEncontrado = false;
+
+                        foreach ($entradas as $entrada) {
+                            if ($entrada["periodo"] == $saida["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $entradas[] = ["periodo" => $saida["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaSaidas += $saida["qte_gotas"];
+                    }
+
+                    usort($entradas, function ($a, $b) {
+
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    usort($saidas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    $entradasAnalitico = [];
+                    $saidasAnalitico = [];
+
+                    // Se o relatório é analítico, o agrupamento dos registros será pelo mês
+                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+
+                        foreach ($entradas as $entrada) {
+                            $dataAgrupamento = new DateTime($entrada["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
+                        }
+
+                        foreach ($saidas as $saida) {
+                            $dataAgrupamento = new DateTime($saida["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
+                        }
+
+                        $entradasAnaliticoTemp = [];
+                        foreach ($entradasAnalitico as $entrada) {
+                            $somaEntradasAnalitico = 0;
+
+                            foreach ($entrada["data"] as $registroAnalitico) {
+                                $somaEntradasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $entrada["soma_entradas"] = $somaEntradasAnalitico;
+                            $entradasAnaliticoTemp[] = $entrada;
+                        }
+
+                        $saidasAnaliticoTemp = [];
+                        foreach ($saidasAnalitico as $saida) {
+                            $somaSaidasAnalitico = 0;
+
+                            foreach ($saida["data"] as $registroAnalitico) {
+                                $somaSaidasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $saida["soma_saidas"] = $somaSaidasAnalitico;
+                            $saidasAnaliticoTemp[] = $saida;
+                        }
+
+                        $entradasAnalitico = $entradasAnaliticoTemp;
+                        $saidasAnalitico = $saidasAnaliticoTemp;
+
+                        $entradas = $entradasAnalitico;
+                        $saidas = $saidasAnalitico;
+                    }
+
+                    $clientesPontuacoes[] = [
+                        "cliente" => $cliente,
+                        "pontuacoes_entradas" => $entradas,
+                        "pontuacoes_saidas" => $saidas,
+                        "soma_entradas" => $somaEntradas,
+                        "soma_saidas" => $somaSaidas,
+                    ];
+
+                    $totalEntradas += $somaEntradas;
+                    $totalSaidas += $somaSaidas;
+                }
+
+                $pontuacoesReport = ["pontuacoes" => $clientesPontuacoes, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
+                $dadosRelatorio = ['pontuacoes_report' => $pontuacoesReport];
+                $dataRetorno = ["data" => $dadosRelatorio];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataRetorno);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
     public function relUsuariosFrequenciaMediaAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -762,12 +1038,11 @@ class PontuacoesController extends AppController
             $tipoFrequencia = !empty($data["tipo_frequencia"]) ? $data["tipo_frequencia"] : null;
 
             if (($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_WORKER)
-                && (empty($rede))){
-                    $erros = array();
-                    // É necessário informar uma rede
+                && (empty($rede))
+            ) {
+                $erros = array();
+                // É necessário informar uma rede
             }
-
-
         }
     }
 }

@@ -214,7 +214,6 @@ class RedesHasClientesController extends AppController
                     $this->Flash->error(Configure::read('messageDeleteMainCompanyDeny'));
 
                     return $this->redirect($query['return_url']);
-
                 } else {
 
                     /**
@@ -248,7 +247,7 @@ class RedesHasClientesController extends AppController
                     // $this->ClientesHasBrindesHabilitados->deleteAllClientesHasBrindesHabilitadosByClientesIds($clientesIds);
                     $this->Brindes->deleteAllBrindesByClientesIds($clientesIds);
 
-                    $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds,$deleteConditionsUsuarios);
+                    $this->Usuarios->deleteAllUsuariosByClienteIds($clientesIds, $deleteConditionsUsuarios);
 
                     // Não apaga os usuários que estão vinculados, mas remove o vínculo
                     $this->ClientesHasUsuarios->deleteAllClientesHasUsuariosByClientesIds($clientesIds);
@@ -324,7 +323,6 @@ class RedesHasClientesController extends AppController
 
             return $this->redirect($query['return_url']);
         }
-
     }
 
     /**
@@ -383,7 +381,6 @@ class RedesHasClientesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $messageString = __("Não foi possível obter dados de Pontos de Atendimento!");
@@ -439,7 +436,6 @@ class RedesHasClientesController extends AppController
                 } else {
                     $whereConditions[] = ['Clientes.audit_insert BETWEEN "' . $dataInicial . '" AND "' . $dataFinal . '"'];
                 }
-
             } else if (strlen($data['auditInsertInicio']) > 0) {
 
                 if ($dataInicial > $dataHoje) {
@@ -447,7 +443,6 @@ class RedesHasClientesController extends AppController
                 } else {
                     $whereConditions[] = ['Clientes.audit_insert >= ' => $dataInicial];
                 }
-
             } else if (strlen($data['auditInsertFim']) > 0) {
 
                 if ($dataFinal > $dataHoje) {
@@ -455,9 +450,7 @@ class RedesHasClientesController extends AppController
                 } else {
                     $whereConditions[] = ['Clientes.audit_insert <= ' => $dataFinal];
                 }
-
             }
-
         }
 
         // Monta o Array para apresentar em tela
@@ -515,7 +508,7 @@ class RedesHasClientesController extends AppController
                 $data = $this->request->getData();
 
                 if ($data['redes_id'] != "") {
-                    $redes_list = $this->RedesHasClientes->getRedesHasClientesByRedesId((int)$data['redes_id']);
+                    $redes_list = $this->RedesHasClientes->getRedesHasClientesByRedesId((int) $data['redes_id']);
 
                     $redes = $redes_list->toArray();
                 }
@@ -525,7 +518,6 @@ class RedesHasClientesController extends AppController
 
             $this->set(compact($arraySet));
             $this->set("_serialize", $arraySet);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar unidades de uma rede: {0} em: {1} ", $e->getMessage(), $trace[1]);
@@ -644,7 +636,6 @@ class RedesHasClientesController extends AppController
                 $this->set("_serialize", $arraySet);
 
                 return;
-
             }
         } catch (\Exception $e) {
             $trace = $e->getTrace();
@@ -753,7 +744,6 @@ class RedesHasClientesController extends AppController
                     $latitudeMax = isset($arrayPosicionamento["latitude_max"]) ? $arrayPosicionamento["latitude_max"] : null;
                     $longitudeMin = isset($arrayPosicionamento["longitude_min"]) ? $arrayPosicionamento["longitude_min"] : null;
                     $longitudeMax = isset($arrayPosicionamento["longitude_max"]) ? $arrayPosicionamento["longitude_max"] : null;
-
                 } else if ($modoOperacao == "escala") {
                     $modoCalculo = isset($arrayPosicionamento["modo_calculo"]) ? $arrayPosicionamento["modo_calculo"] : "distancia";
                     $escala = isset($arrayPosicionamento["valor"]) ? $arrayPosicionamento["valor"] : 25;
@@ -854,7 +844,6 @@ class RedesHasClientesController extends AppController
                     }
 
                     $whereConditions[] = array("Clientes.id in " => $clientesIds);
-
                 }
                 if (isset($data["nome_fantasia"])) {
                     $whereConditions[] = array("Clientes.nome_fantasia like '%{$data["nome_fantasia"]}%'");
@@ -920,7 +909,6 @@ class RedesHasClientesController extends AppController
                     if ($redesId > 0) {
                         $resumo_gotas = $resultado["resumo_gotas"];
                     }
-
                 }
 
                 $arraySet = array(
@@ -1026,7 +1014,7 @@ class RedesHasClientesController extends AppController
                 }
 
                 if ($data['redes_id'] != "") {
-                    $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId((int)$data['redes_id']);
+                    $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId((int) $data['redes_id']);
 
                     $clientesIds = array();
 
