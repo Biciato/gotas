@@ -65,8 +65,7 @@ $(function() {
         // dataFimOnChange();
         tipoRelatorioOnChange();
         getClientesList();
-        clientesSelectListBoxOnChange();
-        brindesSelectListBoxOnChange();
+
 
         // Desabilita botão de imprimir até que usuário faça alguma consulta
         imprimirBtn.addClass("disabled");
@@ -102,7 +101,7 @@ $(function() {
      * @return void
      */
     function clientesSelectListBoxOnChange() {
-        var clienteSelected = this.value;
+        var clienteSelected = clientesSelectListBox.val();
 
         // Se não tiver seleção, será feito via backend.
         clienteSelected = parseInt(clienteSelected);
@@ -235,7 +234,8 @@ $(function() {
                 }
             },
             error: function(response) {
-                callModalError(response.mensagem.message, response.mensagem.error);
+                var data = response.responseJSON;
+                callModalError(data.mensagem.message, data.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();
@@ -305,6 +305,8 @@ $(function() {
             },
             complete: function(response) {
                 closeLoaderAnimation();
+                clientesSelectListBoxOnChange();
+                brindesSelectListBoxOnChange();
             }
         });
     }

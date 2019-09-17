@@ -382,8 +382,8 @@ class BrindesTable extends GenericTable
 
             if (!empty($redesId)) {
                 // $where["Brindes.redes_id"] = $redesId;
-                $join = ["Cliente.RedesHasClientes.Rede"];
-                $where["Rede.id"] = $redesId;
+                $join = ["Cliente.RedesHasClientes.Redes"];
+                $where["Redes.id"] = $redesId;
             }
 
             if (!empty($clientesId)) {

@@ -345,7 +345,7 @@ if (empty($usuarioLogado)) {
 
     }
     // Administrador da loja
-    else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+    else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
 
         ?>
         <ul class="nav navbar-nav navbar-right">
@@ -386,6 +386,9 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
                     </li>
 
+                    <li>
+                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                    </li>
                     <li role="separator" class="divider" />
                     <li>
                         <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
@@ -443,6 +446,10 @@ if (empty($usuarioLogado)) {
                     </li>
                     <li>
                         <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a>
+                    </li>
+
+                    <li>
+                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
                     </li>
 
                     <li role="separator" class="divider" />
