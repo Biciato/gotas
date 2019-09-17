@@ -1,8 +1,8 @@
 $(function() {
+    'use strict';
     // #region Properties
 
     var form = {};
-    var data = {};
     var clientesSelectListBox = $("#clientes-list");
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
@@ -51,13 +51,12 @@ $(function() {
         option.value = undefined;
         option.textContent = "Selecione um Estabelecimento para continuar...";
         option.title = "Selecione um Estabelecimento para continuar...";
-        brindesList.push(option);
 
+        brindesList.push(option);
         brindesSelectListBox.empty();
         brindesSelectListBox.append(brindesList);
 
         // Inicializa campos date
-
         dataInicio.datepicker().datepicker("setDate", dataAtual);
         dataFim.datepicker().datepicker("setDate", dataAtual);
 
@@ -68,6 +67,11 @@ $(function() {
         getClientesList();
         clientesSelectListBoxOnChange();
         brindesSelectListBoxOnChange();
+
+        // Desabilita botão de imprimir até que usuário faça alguma consulta
+        imprimirBtn.addClass("disabled");
+        imprimirBtn.addClass("readonly");
+        imprimirBtn.unbind("click");
     }
 
     /**
@@ -85,7 +89,6 @@ $(function() {
 
         brinde = isNaN(brinde) ? undefined : brinde;
         form.brindesId = brinde;
-        console.log(form);
     }
 
     /**
@@ -110,6 +113,14 @@ $(function() {
         getBrindesList(form.clientesId);
     }
 
+    /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::dataInicioOnChange
+     *
+     * Comportamento ao atualizar campo de data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-12
+     */
     function dataInicioOnChange() {
         var date = this.value;
 
@@ -124,6 +135,14 @@ $(function() {
         }
     }
 
+    /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::dataFimOnChange
+     *
+     * Comportamento ao atualizar campo de data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-12
+     */
     function dataFimOnChange() {
         var date = this.value;
 
@@ -138,18 +157,44 @@ $(function() {
         }
     }
 
+    /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::imprimirRelatorio
+     *
+     * Imprime relatório
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-12
+     */
     function imprimirRelatorio() {
         setTimeout(tabela.printThis({
             importCss: false
         }), 100);
     }
 
+    /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::tipoRelatorioOnChange
+     *
+     * Comportamento ao trocar o tipo de relatório
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-12
+     */
     function tipoRelatorioOnChange() {
         form.tipoRelatorio = tipoRelatorio.val();
     }
 
     // #region Get / Set REST Services
 
+    /**
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getBrindesList
+     *
+     * Obtem lista de Brindes do posto(s) selecionado(s)
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-12
+     *
+     * @returns SelectListBox Lista de Seleção
+     */
     function getBrindesList(clientesId) {
         callLoaderAnimation();
         $.ajax({
@@ -160,13 +205,11 @@ $(function() {
             },
             dataType: "JSON",
             success: function(response) {
-                console.log(response);
 
                 if (response.data !== undefined) {
                     brindesSelectListBox.empty();
 
                     var data = response.data.brindes;
-                    console.log(data);
                     var collection = [];
                     var options = [];
                     var option = document.createElement("option");
@@ -192,10 +235,7 @@ $(function() {
                 }
             },
             error: function(response) {
-                callModalError(
-                    response.mensagem.message,
-                    response.mensagem.error
-                );
+                callModalError(response.mensagem.message, response.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();
@@ -256,12 +296,13 @@ $(function() {
                         $(clientesSelectListBox).attr("disabled", true);
                     }
                 }
-                console.log(res);
 
                 closeLoaderAnimation();
             },
-            error: function(res) {
-                console.log(res);
+            error: function(response) {
+                callModalError(response.mensagem.message, response.mensagem.error);
+            },
+            complete: function(response) {
                 closeLoaderAnimation();
             }
         });
@@ -283,13 +324,7 @@ $(function() {
      *
      * @returns HtmlTable
      */
-    function getDataPontuacoesEntradaSaida(
-        clientesId,
-        brindesId,
-        dataInicio,
-        dataFim,
-        tipoRelatorio
-    ) {
+    function getDataPontuacoesEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
         // Validação
         var dataInicioEnvio = moment(dataInicio);
         var dataFimEnvio = moment(dataFim);
@@ -321,7 +356,9 @@ $(function() {
             data: data,
             dataType: "JSON",
             success: function(response) {
-                console.log(response);
+                imprimirBtn.removeClass("disabled");
+                imprimirBtn.removeClass("readonly");
+                imprimirBtn.on("click", imprimirRelatorio);
 
                 var data = response.data.pontuacoes_report;
 
@@ -459,7 +496,6 @@ $(function() {
                                 row.append(cellEmpty);
 
                                 var cellEntradaGota = document.createElement("td");
-
                                 var labelEntradaGota = document.createElement("span");
                                 labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
                                 cellEntradaGota.append(labelEntradaGota);
@@ -478,7 +514,6 @@ $(function() {
                                 // Info de Saida
                                 var cellSaidaUsuario = document.createElement("td");
                                 var labelSaidaUsuario = document.createElement("span");
-
                                 labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
                                 cellSaidaUsuario.append(labelSaidaUsuario);
 
@@ -492,7 +527,6 @@ $(function() {
                                 labelSaidaQteGota.textContent = saida.qte_gotas;
                                 cellSaidaQteGota.classList.add("text-right");
                                 cellSaidaQteGota.append(labelSaidaQteGota);
-
 
                                 row.append(cellEntradaGota);
                                 row.append(cellEntradaUsuario);
@@ -527,7 +561,6 @@ $(function() {
                             cellLabelSaidaTotal.colSpan = 3;
                             cellLabelSaidaTotal.append(labelSaidaTotal);
 
-
                             rowTotalPeriodo.append(cellLabelTotal);
                             rowTotalPeriodo.append(cellLabelEntradaTotal);
                             rowTotalPeriodo.append(cellLabelSaidaTotal);
@@ -542,8 +575,7 @@ $(function() {
                             var cell = document.createElement("td");
                             var label = document.createElement("strong");
 
-                            label.textContent = "Não há registros à serem exibidos!"
-                            ;
+                            label.textContent = "Não há registros à serem exibidos!";
                             cell.append(label);
                             cell.colSpan = 7;
                             cell.classList.add("text-center");
@@ -564,15 +596,15 @@ $(function() {
                         cellLabelTotal.append(labelTotal);
 
                         var textTotalEntradas = document.createElement("strong");
-                        textTotalEntradas.textContent = data.total_entradas;
                         var cellTotalEntradas = document.createElement("td");
+                        textTotalEntradas.textContent = data.total_entradas;
                         cellTotalEntradas.classList.add("text-right");
                         cellTotalEntradas.colSpan = 3;
                         cellTotalEntradas.append(textTotalEntradas);
 
                         var textTotalSaidas = document.createElement("strong");
-                        textTotalSaidas.textContent = data.total_saidas;
                         var cellTotalSaidas = document.createElement("td");
+                        textTotalSaidas.textContent = data.total_saidas;
                         cellTotalSaidas.classList.add("text-right");
                         cellTotalSaidas.colSpan = 3;
                         cellTotalSaidas.append(textTotalSaidas);
@@ -586,25 +618,21 @@ $(function() {
                         rowsPeriodos.forEach(element => {
                             rows.push(element);
                         });
-
-
                     });
                 } else {
                     data.pontuacoes.forEach(element => {
                         // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
 
+                        var cellLabelCliente = document.createElement("td");
                         var labelCliente = document.createElement("strong");
                         labelCliente.textContent = "Estabelecimento: ";
-                        var cellLabelCliente = document.createElement("td");
-                        cellLabelCliente.classList.add("font-weight-bold");
                         cellLabelCliente.append(labelCliente);
 
                         var cellInfoCliente = document.createElement("td");
                         var infoCliente = document.createElement("strong");
                         infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
                         cellInfoCliente.colSpan = 2;
-
                         cellInfoCliente.append(infoCliente);
 
                         rowCliente.append(cellLabelCliente);
@@ -613,24 +641,22 @@ $(function() {
                         // Cabeçalho de periodo
 
                         var rowHeaderPeriodo = document.createElement("tr");
-
                         var cellLabelPeriodo = document.createElement("td");
                         var labelPeriodo = document.createElement("strong");
                         labelPeriodo.textContent = "Período";
-
                         cellLabelPeriodo.append(labelPeriodo);
+
 
                         var cellLabelEntrada = document.createElement("td");
                         var labelEntrada = document.createElement("strong");
                         labelEntrada.textContent = "Entrada";
-
                         cellLabelEntrada.append(labelEntrada);
 
                         var cellLabelSaida = document.createElement("td");
                         var labelSaida = document.createElement("strong");
                         labelSaida.textContent = "Saida";
-
                         cellLabelSaida.append(labelSaida);
+
                         rowHeaderPeriodo.append(cellLabelPeriodo);
                         rowHeaderPeriodo.append(cellLabelEntrada);
                         rowHeaderPeriodo.append(cellLabelSaida);
@@ -640,10 +666,9 @@ $(function() {
                         var pontuacoesEntradas = element.pontuacoes_entradas;
                         var pontuacoesSaidas = element.pontuacoes_saidas;
                         var length = pontuacoesEntradas;
-
                         var rowsDadosPeriodos = [];
 
-                        for (let index = 0; index < pontuacoesEntradas.length; index++) {
+                        for (let index = 0; index < length; index++) {
                             var item = {
                                 periodo: moment(pontuacoesEntradas[index].periodo, "YYYY-MM").format("MM/YYYY"),
                                 gotasEntradas:
@@ -653,14 +678,10 @@ $(function() {
 
                             var rowPeriodo = document.createElement("tr");
 
-                            var labelItemPeriodo = document.createElement(
-                                "span"
-                            );
+                            var labelItemPeriodo = document.createElement("span");
                             labelItemPeriodo.textContent = item.periodo;
 
-                            var cellItemLabelPeriodo = document.createElement(
-                                "td"
-                            );
+                            var cellItemLabelPeriodo = document.createElement("td");
                             cellItemLabelPeriodo.append(labelItemPeriodo);
                             cellItemLabelPeriodo.classList.add("text-right");
 
@@ -695,28 +716,17 @@ $(function() {
                         var cellLabelSomaPeriodo = document.createElement("td");
                         cellLabelSomaPeriodo.append(labelSomaPeriodo);
 
-                        var textSomaPeriodoEntrada = document.createElement(
-                            "span"
-                        );
-                        textSomaPeriodoEntrada.textContent =
-                            element.soma_entradas;
+                        var textSomaPeriodoEntrada = document.createElement("span");
+                        textSomaPeriodoEntrada.textContent = element.soma_entradas;
 
-                        var cellTextSomaPeriodoEntrada = document.createElement(
-                            "td"
-                        );
-                        cellTextSomaPeriodoEntrada.append(
-                            textSomaPeriodoEntrada
-                        );
+                        var cellTextSomaPeriodoEntrada = document.createElement("td");
+                        cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
                         cellTextSomaPeriodoEntrada.classList.add("text-right");
 
-                        var textSomaPeriodoSaida = document.createElement(
-                            "span"
-                        );
+                        var textSomaPeriodoSaida = document.createElement("span");
                         textSomaPeriodoSaida.textContent = element.soma_saidas;
 
-                        var cellTextSomaPeriodoSaida = document.createElement(
-                            "td"
-                        );
+                        var cellTextSomaPeriodoSaida = document.createElement("td");
                         cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
                         cellTextSomaPeriodoSaida.classList.add("text-right");
 
@@ -781,20 +791,12 @@ $(function() {
 
     brindesSelectListBox.on("change", brindesSelectListBoxOnChange);
     clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
-
     dataInicio.on("change", dataInicioOnChange);
     dataFim.on("change", dataFimOnChange);
-
     tipoRelatorio.on("change", tipoRelatorioOnChange);
 
     $(pesquisarBtn).on("click", function() {
-        getDataPontuacoesEntradaSaida(
-            form.clientesId,
-            form.brindesId,
-            form.dataInicio,
-            form.dataFim,
-            form.tipoRelatorio
-        );
+        getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
     });
 
     imprimirBtn.on("click", imprimirRelatorio);

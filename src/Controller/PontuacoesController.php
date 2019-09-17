@@ -834,6 +834,11 @@ class PontuacoesController extends AppController
                     $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                 }
 
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
