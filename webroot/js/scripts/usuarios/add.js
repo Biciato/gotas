@@ -225,11 +225,11 @@ $(document).ready(function () {
      * @param {object} data
      */
     var changeProfileType = function (data) {
-        
+
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
-        
+
         var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
-        
+
         if (tipoPerfil == 5){
             $("#senha").val(123456);
             $("#confirm_senha").val(123456);
@@ -574,7 +574,8 @@ $(document).ready(function () {
             type: 'post',
             data: JSON.stringify({
                 id: 0,
-                email: this.value
+                email: this.value,
+                tipo_perfil: $("#tipo_perfil").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -594,7 +595,7 @@ $(document).ready(function () {
 
             },
             error: function (error) {
-                callModalError(error.responseJSON.title, error.responseJSON.errors);
+                callModalError(error.responseJSON.mensagem.message, error.responseJSON.mensagem.errors);
             }
         }).done(function () {
             closeLoaderAnimation();

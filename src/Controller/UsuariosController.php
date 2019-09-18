@@ -267,6 +267,16 @@ class UsuariosController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
+        $arraySet = array(
+            "usuario",
+            "usuarioLogado",
+            // "transportadoraPath",
+            // "veiculoPath",
+            "usuarioLogado",
+            "veiculo",
+            "transportadora"
+        );
+
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
@@ -354,6 +364,18 @@ class UsuariosController extends AppController
                 return;
             }
             $errors = $usuario->errors();
+
+            // validação de email
+            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+
+            if (!$validacaoEmail["status"]) {
+                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
+
             $usuario = $this->Usuarios->save($usuario);
 
             if ($usuario) {
@@ -400,15 +422,6 @@ class UsuariosController extends AppController
 
         $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
 
-        $arraySet = array(
-            "usuario",
-            "usuarioLogado",
-            // "transportadoraPath",
-            // "veiculoPath",
-            "usuarioLogado",
-            "veiculo",
-            "transportadora"
-        );
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -706,6 +719,7 @@ class UsuariosController extends AppController
             $usuarioLogado = $usuarioAdministrar;
         }
 
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Usuarios->TransportadorasHasUsuarios->newEntity();
         $veiculo = $this->Usuarios->UsuariosHasVeiculos->newEntity();
@@ -835,9 +849,20 @@ class UsuariosController extends AppController
                     );
             }
 
-            $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+            // $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
+
+            // validação de email
+            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+
+            if (!$validacaoEmail["status"]) {
+                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
 
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
@@ -927,7 +952,6 @@ class UsuariosController extends AppController
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
         $usuarioLogadoTipoPerfil = $usuarioLogado->tipo_perfil;
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -3587,9 +3611,7 @@ class UsuariosController extends AppController
         }
 
         // @todo Conferir se este relatório está sendo usado
-        $usuarios = $this->Usuarios->findAllUsuarios(
-            $whereConditions
-        );
+        // $usuarios = $this->Usuarios->findAllUsuarios($whereConditions);
 
         $arraySet = [
             'dataInicial',
@@ -4309,19 +4331,30 @@ class UsuariosController extends AppController
         try {
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+                // ResponseUtil::successAPI($data);
 
                 $id = !empty($data["id"]) ? $data["id"] : null;
                 $email = !empty($data["email"]) ? $data["email"] : null;
+                // Validação de email com base no perfil que está sendo criado
+                // Se não informou o campo, considera que é usuário final (pois está vindo do Mobile, e o Mobile não informa isto)
+                $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : PROFILE_TYPE_USER;
                 $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
 
                 if (empty($email)) {
                     ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_EMAIL_EMPTY));
                 }
 
+                if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
+                    $validacaoEmail = EmailUtil::validateEmail($email);
+
+                    if (!$validacaoEmail["status"]) {
+                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                    }
+                }
+
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
                 if ($data['id'] != 0) {
-
                     if ($user->id == $data['id']) {
                         $user = null;
                     }
