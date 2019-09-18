@@ -337,12 +337,12 @@ $(document).ready(function () {
 
             // se tem arroba e tem um ponto no e-mail
 
-            var email_invalid =
-                "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
+            // var email_invalid =
+            //     "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
 
-            if (contains_at == -1 || contains_dot.length == 0) {
-                callModalError(email_invalid);
-            } else {
+            // if (contains_at == -1 || contains_dot.length == 0) {
+            //     callModalError(email_invalid);
+            // } else {
                 // verifica se tem algum ponto APÓS o arroba
 
                 var found = false;
@@ -377,7 +377,7 @@ $(document).ready(function () {
                                 );
                                 $("#email_validation").show();
                                 $("#user_submit").attr("disabled", true);
-                                $("#email").focus();
+                                // $("#email").focus();
                             } else {
                                 $("#email_validation").text("");
                                 $("#email_validation").hide();
@@ -389,7 +389,7 @@ $(document).ready(function () {
                         }
                     });
                 }
-            }
+            // }
         }
     });
 
