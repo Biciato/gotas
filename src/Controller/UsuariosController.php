@@ -4387,7 +4387,7 @@ class UsuariosController extends AppController
 
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
-                if ($data['id'] != 0) {
+                if ($data['id'] != 0 && !empty($user)) {
                     if ($user->id == $data['id']) {
                         $user = null;
                     }
