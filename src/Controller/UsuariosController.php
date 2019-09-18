@@ -2270,7 +2270,15 @@ class UsuariosController extends AppController
         }
     }
 
-    public function getListaFuncionariosAPI()
+    /**
+     * Obtem lista de funcionários de uma determinada rede/cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-18
+     *
+     * @return json_encode
+     */
+    public function getFuncionariosListAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
@@ -2281,31 +2289,74 @@ class UsuariosController extends AppController
         }
 
         $rede = $sessaoUsuario["rede"];
+        $errors = [];
+        $errorCodes = [];
 
-        if ($this->request->is(Request::METHOD_GET)) {
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
 
-            $tipoPerfil = $usuarioLogado["tipo_perfil"];
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
-            if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
-                $redesId = $sessaoUsuario["rede"]["id"];
+                if ($usuarioLogado->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    $redesId = $sessaoUsuario["rede"]["id"];
+                }
+
+                // Se o usuário trabalha na rede, ele tem que ter vínculo, então não se muda a seleção
+                if ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                    $redesId = $rede->id;
+                }
+
+                // se não tiver especificado id da rede ou do cliente, retorna erro
+
+                if (empty($redesId) && $usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    $errors[] = MSG_REDES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($clientesId)) {
+                    $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+                $tipoPerfis = [];
+
+                if (empty($tipoPerfil)) {
+                    $tipoPerfis[] = [
+                        PROFILE_TYPE_ADMIN_NETWORK,
+                        PROFILE_TYPE_ADMIN_REGIONAL,
+                        PROFILE_TYPE_ADMIN_LOCAL,
+                        PROFILE_TYPE_MANAGER,
+                        PROFILE_TYPE_WORKER,
+                        PROFILE_TYPE_DUMMY_WORKER
+                        ];
+                }
+
+                // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
+                $usuariosList = $this->Usuarios->getfuncionariosRede();
+
+                // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
             }
 
-            $data = $this->request->getQueryParams();
-            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
-
-            // Se o usuário trabalha na rede, ele tem que ter vínculo, então não se muda a seleção
-            if ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
-                $redesId = $rede->id;
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            //
-
-
-
-
-
-            // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 
