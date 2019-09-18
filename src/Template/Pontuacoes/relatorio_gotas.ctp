@@ -19,8 +19,6 @@ $title = "Relatório de Gotas";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
-
-
 ?>
 
 <nav class="col-lg-3 col-md-2 " id="actions-sidebar">
