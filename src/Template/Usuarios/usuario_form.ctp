@@ -22,7 +22,7 @@ $listaPerfisRedirecionarCancelar = isset($listaPerfisRedirecionarCancelar) ? $li
 ?>
 
 <?php
-// if (isset($usuarioLogado)) : 
+// if (isset($usuarioLogado)) :
 if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER) :
     ?>
     <div class="usuarios form col-lg-12 col-md-8 columns content">
@@ -461,7 +461,7 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
 
                     <?php
                     echo $this->Form->hidden('id');
-                    echo $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => PROFILE_TYPE_USER, 'class' => 'usuarioLogadoTipoPerfil']);
+                    echo $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']);
                     echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
                     ?>
 
@@ -494,12 +494,12 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                     <div class="form-group row">
                         <div class="col-lg-6">
                             <label for="senha">Senha*</label>
-                            <input type="password" name="senha" required="true" maxlength="6" placeholder="Senha..." id="senha" class="form-control senha" />
+                            <input type="password" name="senha" required="true" maxlength="6" placeholder="Senha..." id="senha" class="form-control senha" value="123456" />
                         </div>
 
                         <div class="col-lg-6">
                             <label for="confirm_senha">Confirmar Senha*</label>
-                            <input type="password" name="confirm_senha" required="true" placeholder="Confirmar Senha..." maxlength="6" id="confirm_senha" class="form-control" />
+                            <input type="password" name="confirm_senha" required="true" placeholder="Confirmar Senha..." maxlength="6" id="confirm_senha" class="form-control" value="123456" />
                         </div>
                     </div>
                 </fieldset>

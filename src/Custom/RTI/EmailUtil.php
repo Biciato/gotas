@@ -114,9 +114,9 @@ class EmailUtil
     public static function validateEmail(string $email)
     {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return ["status" => 0, "message" => Configure::read("messageEmailInvalid")];
+            return ["status" => 0, "message" => MSG_USUARIOS_EMAIL_INVALID, "code" => MSG_USUARIOS_EMAIL_INVALID_CODE];
         }
 
-        return ["status" => 1, "message" => null];
+        return ["status" => 1, "message" => null, "code" => null];
     }
 }

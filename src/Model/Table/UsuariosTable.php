@@ -206,7 +206,7 @@ class UsuariosTable extends GenericTable
             ->allowEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create', "O campo E-mail precisa ser informado!")
             ->add(
                 'email',
@@ -346,7 +346,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create')
             ->add(
                 'email',
@@ -487,7 +487,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create')
             ->add('email', 'unique', [
                 'rule' => 'validateUnique',
@@ -920,7 +920,7 @@ class UsuariosTable extends GenericTable
         try {
             return $this
                 ->find('all')
-                ->where(['email like ' => $email])->first();
+                ->where(['email' => $email])->first();
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());
