@@ -740,6 +740,7 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+            // DebugUtil::printArray($data);
             $usuarioData = $data;
 
             // guarda qual é a unidade que está sendo cadastrada
@@ -924,7 +925,7 @@ class UsuariosController extends AppController
         }
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
+        $usuarioLogadoTipoPerfil = $usuarioLogado->tipo_perfil;
 
         $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
 
@@ -2587,11 +2588,15 @@ class UsuariosController extends AppController
                 } else {
                     // senão, grava no banco
 
-                    $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
+                    // Caso não seja informado senha de usuário no momento do cadastro, a senha padrão é 123456
+                    $usuarioData["senha"] = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : 123456;
+                    $usuarioData["confirm_senha"] = !empty($usuarioData["confirm_senha"]) ? $usuarioData["confirm_senha"] : 123456;
+                    $usuarioData["necessidades_especiais"] = (int) $usuarioData["necessidades_especiais"];
 
-                    if (!empty($senha)) {
-                        $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
-                    }
+                    // Desativado no momento pois não temos certeza que será desenvolvido o aplicativo desktop
+                    // if (!empty($senha)) {
+                    //     $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                    // }
 
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
 

@@ -225,12 +225,18 @@ $(document).ready(function () {
      * @param {object} data
      */
     var changeProfileType = function (data) {
-        $("#senha").val(null);
-        $("#confirm-senha").val(null);
-
+        
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
-
+        
         var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
+        
+        if (tipoPerfil == 5){
+            $("#senha").val(123456);
+            $("#confirm_senha").val(123456);
+        } else {
+            $("#senha").val(null);
+            $("#confirm_senha").val(null);
+        }
 
         // Gerente
         var tipoPerfilSelecionado = $("#tipo_perfil").val();
