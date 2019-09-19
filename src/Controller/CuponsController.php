@@ -2533,15 +2533,15 @@ class CuponsController extends AppController
 
                         // adiciona novo registro de pontuação
 
-                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cupom->clientes_id,
-                            $cupom->usuarios_id,
-                            $cupom->brindes_id,
-                            $cupom->valor_pago_gotas,
-                            $cupom->valor_pago_reais,
-                            $usuarioLogado["id"],
-                            true
-                        );
+                        // $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                        //     $cupom->clientes_id,
+                        //     $cupom->usuarios_id,
+                        //     $cupom->brindes_id,
+                        //     $cupom->valor_pago_gotas,
+                        //     $cupom->valor_pago_reais,
+                        //     $usuarioLogado["id"],
+                        //     true
+                        // );
 
                         // Obtem dados de retorno
 
