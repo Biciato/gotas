@@ -409,7 +409,8 @@ class BrindesTable extends GenericTable
         }
     }
 
-    public function getBrindesSell(int $clientesId, string $tipoVenda, string $tipoOperacao)
+    public function getBrindesSell(int $clientesId, array $tipoVenda, string $tipoOperacao)
+    // public function getBrindesSell(int $clientesId, string $tipoVenda, string $tipoOperacao)
     {
         try {
             $brindesList = $this->find(
@@ -420,8 +421,10 @@ class BrindesTable extends GenericTable
                             "Brindes.clientes_id" => $clientesId,
                             "Brindes.brinde_rede" => 1
                         ],
-                        "Brindes.tipo_venda" => $tipoVenda,
+                        "Brindes.tipo_venda IN " => $tipoVenda,
+                        // "Brindes.tipo_venda" => $tipoVenda,
                         "Brindes.apagado" => 0,
+                        "Brindes.habilitado" => 1
                     ),
                     "contain" => array("PrecoAtual")
                 )
@@ -429,7 +432,7 @@ class BrindesTable extends GenericTable
 
             $brindes = array();
 
-            if ($tipoVenda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) {
+            if (in_array($tipoVenda, [TYPE_SELL_CURRENCY_OR_POINTS_TEXT])) {
                 // Se for Gotas ou Reais
                 foreach ($brindesList as $brinde) {
                     if ($tipoOperacao == TYPE_PAYMENT_POINTS) {
