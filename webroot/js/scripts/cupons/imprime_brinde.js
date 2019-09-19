@@ -488,6 +488,7 @@ $(document).ready(function() {
 
                 if (result.mensagem.status == true) {
                     // console.log(result);
+                    var saldoGotas = 0;
 
                     if (result.is_brinde_smart_shower) {
                         // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
@@ -524,6 +525,9 @@ $(document).ready(function() {
                             tipoEmissaoCodigoBarras
                         );
 
+                        saldoGotas = result.resumo_gotas.saldo;
+                        $(".impressao-cupom").find("#saldo-gotas").text(saldoGotas);
+
                         setTimeout(
                             $(".impressao-cupom").printThis({
                                 importCss: false
@@ -555,6 +559,9 @@ $(document).ready(function() {
                                 cupom_emitido,
                                 tipoEmissaoCodigoBarras
                             );
+
+                            saldoGotas = result.resumo_gotas.saldo;
+                            $(".impressao-cupom").find("#saldo-gotas").text(saldoGotas);
 
                             setTimeout(
                                 $(".impressao-cupom").printThis({
@@ -606,15 +613,15 @@ $(document).ready(function() {
         //     callModalError("Tipo de Código de Barras ainda não foi configurado no sistema!");
         // }
 
-        $(".is-code128-barcode").show();
+        // $(".is-code128-barcode").show();
 
-        // Gera código code128
-        $("#print_barcode_ticket").barcode(cupom_emitido, "code128", {
-            barWidth: 2,
-            barHeight: 70,
-            showHRI: false,
-            output: "bmp"
-        });
+        // // Gera código code128
+        // $("#print_barcode_ticket").barcode(cupom_emitido, "code128", {
+        //     barWidth: 2,
+        //     barHeight: 70,
+        //     showHRI: false,
+        //     output: "bmp"
+        // });
 
         // gera codigo PDF 417
         $(".is-pdf417-barcode").show();

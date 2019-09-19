@@ -1681,6 +1681,7 @@ class CuponsController extends AppController
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
                 // @todo: temp
+                $resumo_gotas = $retorno["resumo_gotas"];
                 $tempo = $retorno["tempo"];
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
@@ -3468,12 +3469,21 @@ class CuponsController extends AppController
                         "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
                     );
                 }
+
+
+                $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                    $usuariosId,
+                    $rede["id"],
+                    $clientesIds
+                );
+
                 $arraySet = array(
                     'mensagem',
                     'ticket',
                     'cliente',
                     'usuario',
                     'tempo',
+                    'resumo_gotas',
                     'tipo_emissao_codigo_barras',
                     "is_brinde_smart_shower",
                     'dados_impressao'
@@ -3486,6 +3496,7 @@ class CuponsController extends AppController
                     "status" => $mensagem["status"],
                     "cliente" => $cliente,
                     "usuario" => $usuario,
+                    "resumo_gotas" => $detalhesPontuacaoResultado["resumo_gotas"],
                     "tempo" => $brinde["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brinde["tipo_codigo_barras"],
                     "is_brinde_smart_shower" => ($brinde->codigo_primario >= 1 && $brinde->codigo_primario <= 4),
@@ -3527,10 +3538,17 @@ class CuponsController extends AppController
                 'cliente',
                 'usuario',
                 'tempo',
+                "resumo_gotas",
                 'tipo_emissao_codigo_barras',
                 "is_brinde_smart_shower",
                 'dados_impressao'
             ];
+
+            $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                $usuariosId,
+                $rede["id"],
+                $clientesIds
+            );
 
             $retorno = array(
                 "arraySet" => $arraySet,
@@ -3539,6 +3557,7 @@ class CuponsController extends AppController
                 "status" => $status,
                 "cliente" => $cliente,
                 "usuario" => $usuario,
+                "resumo_gotas" => $detalhesPontuacaoResultado["resumo_gotas"],
                 "tempo" => $brinde["tempo_uso_brinde"],
                 "tipo_emissao_codigo_barras" => $brinde["tipo_codigo_barras"],
                 "is_brinde_smart_shower" => $isBrindeSmartShower,
@@ -3562,6 +3581,7 @@ class CuponsController extends AppController
                 "status" => null,
                 "cliente" => null,
                 "usuario" => null,
+                "resumo_gotas" => ["resumo_gotas" => ["saldo" => 0]],
                 "tempo" => null,
                 "tipo_emissao_codigo_barras" => null,
                 "is_brinde_smart_shower" => null,
