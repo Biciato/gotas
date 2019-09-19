@@ -18,19 +18,19 @@
         <div class="col-lg-4">
             <a href="<?= "/".strtolower(implode("/", array_values($urlRedirectConfirmacao))) ?>" class="btn btn-primary">
                 <i class="fa fa-check"></i>
-                Sim, Concluir sem Imp. Canhoto
+                Concluir
             </a>
         </div>
         <div class="col-lg-4">
             <button type="button" id="imprimir-canhoto" class="imprimir-canhoto btn btn-primary">
                 <i class="fa fa-check"></i>
-                Sim, Imprimir Canhoto
+                Imprimir Canhoto
             </button>
         </div>
         <div class="col-lg-4">
             <button type="button" id="reimpressao-cupom" class="reimpressao-cupom btn btn-danger">
                 <i class="fa fa-check"></i>
-                Não, Reimprimir
+                Reimprimir
             </button>
         </div>
 

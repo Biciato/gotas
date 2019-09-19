@@ -416,7 +416,10 @@ class BrindesTable extends GenericTable
                 'all',
                 array(
                     "conditions" => array(
-                        "Brindes.clientes_id" => $clientesId,
+                        "OR" => [
+                            "Brindes.clientes_id" => $clientesId,
+                            "Brindes.brinde_rede" => 1
+                        ],
                         "Brindes.tipo_venda" => $tipoVenda,
                         "Brindes.apagado" => 0,
                     ),
