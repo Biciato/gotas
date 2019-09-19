@@ -13,7 +13,8 @@
 <?= $this->Form->create() ?>
     <fieldset>
         <legend><?= __('Por favor informe seu e-mail e senha') ?></legend>
-        <?= $this->Form->input('email', ['placeholder' => 'Informe e-mail para logar', 'autofocus' => true]) ?>
+        <label for="email">Login</label>
+        <input type="text" name="email" required="required" id="email" class="form-control" placeholder="Informe um login para continuar..." autofocus="true" />
         <?= $this->Form->label('senha') ?>
         <?= $this->Form->password('senha', ['placeholder' => 'Informe sua senha de acesso']) ?>
     </fieldset>

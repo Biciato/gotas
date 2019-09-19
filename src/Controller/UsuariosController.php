@@ -713,6 +713,7 @@ class UsuariosController extends AppController
         $cliente = $sessaoUsuario["cliente"];
         $transportadoraNomeProcura = 'TransportadorasHasUsuarios_Transportadoras_';
         $veiculosNomeProcura = 'UsuariosHasVeiculos_Veiculos_';
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -849,6 +850,12 @@ class UsuariosController extends AppController
                     );
             }
 
+            // Se não informou senha, a senha padrão será 123456
+            if (empty($usuario->senha)) {
+                $usuario->senha = "123456";
+                $usuario->confirm_senha = "123456";
+            }
+
             // $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
@@ -866,7 +873,7 @@ class UsuariosController extends AppController
 
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+                // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                 if ($transportadora) {
                     $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
