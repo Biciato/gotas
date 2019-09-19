@@ -998,7 +998,7 @@ var popularDadosCupomResgate = function(data) {
         $(".nome-cliente-brinde-resgate").val(usuario.nome);
         $(".cpf-cliente-brinde-resgate").val(usuario.cpf);
         $(".data-nasc-cliente-brinde-resgate").val(
-            formatDateTimeToDate(usuario.data_nasc)
+            usuario.data_nasc !== undefined ? formatDateTimeToDate(usuario.data_nasc) : ""
         );
 
         $(
