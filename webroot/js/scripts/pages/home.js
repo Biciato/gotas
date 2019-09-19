@@ -517,7 +517,7 @@ var prepareContentPontuacoesDisplay = function(data) {
 };
 
 var formatDateTimeToDate = function(data) {
-    if (data !== undefined && data.length > 0) {
+    if (data !== undefined && data !== null && data.length > 0) {
 
         var dataToReturn = data.substr(0, data.indexOf("+"));
 
