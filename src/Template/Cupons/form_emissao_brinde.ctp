@@ -29,13 +29,13 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
 <?php if ($showMenu) : ?>
 
     <?= $this->element(
-        '../Cupons/left_menu',
-        [
-            'mode' => 'print',
-            'controller' => 'Cupons',
-            'action' => 'emissao_brinde'
-        ]
-    ) ?>
+            '../Cupons/left_menu',
+            [
+                'mode' => 'print',
+                'controller' => 'Cupons',
+                'action' => 'emissao_brinde'
+            ]
+        ) ?>
 
     <div class="col-lg-9 col-md-10 columns">
 
@@ -52,6 +52,8 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
             </div>
 
             <?= $this->Form->text('clientes_id', ['id' => 'clientes_id', 'value' => $cliente->id, 'style' => 'display: none;']); ?>
+
+            <input type="hidden" name='cupom-emitido' id="cupom-emitido">
 
             <?= $this->element('../Brindes/brindes_filtro_ajax', array('mostrarCheckboxDesconto' => $tipoPagamento)) ?>
 
@@ -87,24 +89,26 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
             ?>
         </div>
 
-    </div>
+        </div>
 
-    <?php
-    echo $this->element('../Cupons/impressao_brinde_layout');
-    ?>
+        <?php
+        echo $this->element('../Cupons/impressao_brinde_layout');
+        ?>
 
-    <?php
-    echo $this->element("../Cupons/impressao_canhoto_layout");
-    ?>
+        <?php
+        echo $this->element("../Cupons/impressao_canhoto_layout");
+        ?>
 
-    <?php if (Configure::read('debug') == true) : ?>
-        <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
-        <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
-    <?php else : ?>
-        <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
-        <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
-    <?php endif; ?>
+        <?= $this->element('../Cupons/validar_brinde_canhoto_impressao') ?>
+
+        <?php if (Configure::read('debug') == true) : ?>
+            <?= $this->Html->script('scripts/cupons/imprime_brinde') ?>
+            <?= $this->Html->css('styles/cupons/imprime_brinde') ?>
+        <?php else : ?>
+            <?= $this->Html->script('scripts/cupons/imprime_brinde.min') ?>
+            <?= $this->Html->css('styles/cupons/imprime_brinde.min') ?>
+        <?php endif; ?>
 
 
-    <?= $this->fetch('script') ?>
-    <?= $this->fetch('css') ?>
+        <?= $this->fetch('script') ?>
+        <?= $this->fetch('css') ?>

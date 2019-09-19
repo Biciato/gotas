@@ -672,7 +672,7 @@ class PontuacoesTable extends GenericTable
 
                 $sumTotalGotasUtilizadas = $queryTotalGotasUtilizadas->sum;
 
-                $totalGotasUtilizadas = !empty($sumTotalGotasUtilizadas->sum) ? $sumTotalGotasUtilizadas->sum : 0;
+                $totalGotasUtilizadas = !empty($sumTotalGotasUtilizadas) ? $sumTotalGotasUtilizadas : 0;
 
                 $queryTotalGotasExpiradas = $this->find();
                 $queryTotalGotasExpiradas = $this->find("all")
