@@ -517,21 +517,26 @@ var prepareContentPontuacoesDisplay = function(data) {
 };
 
 var formatDateTimeToDate = function(data) {
-    var dataToReturn = data.substr(0, data.indexOf("+"));
+    if (data !== undefined && data.length > 0) {
 
-    dataToReturn = new Date(dataToReturn);
+        var dataToReturn = data.substr(0, data.indexOf("+"));
 
-    var month =
+        dataToReturn = new Date(dataToReturn);
+
+        var month =
         dataToReturn.getMonth() < 10
-            ? "0" + (dataToReturn.getMonth() + 1)
-            : dataToReturn.getMonth() + 1;
-    var day =
+        ? "0" + (dataToReturn.getMonth() + 1)
+        : dataToReturn.getMonth() + 1;
+        var day =
         dataToReturn.getDay() < 10
-            ? "0" + (dataToReturn.getDay() + 1)
-            : dataToReturn.getDay() + 1;
-    var year = dataToReturn.getFullYear();
+        ? "0" + (dataToReturn.getDay() + 1)
+        : dataToReturn.getDay() + 1;
+        var year = dataToReturn.getFullYear();
 
-    return day + "/" + month + "/" + year;
+        return day + "/" + month + "/" + year;
+    }
+
+    return "";
 };
 
 var generateQRCode = function(element, value) {
