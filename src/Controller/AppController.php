@@ -404,6 +404,27 @@ class AppController extends Controller
             $usuarioLogado = $this->Auth->user();
 
             if (empty($usuarioLogado)) {
+                // tenta pegar pelo token... MEU DEOS!!! QUE GAMBIARRA!
+
+                $tokenObject = $this->request->getHeader('Authorization');
+
+                // Pega o token se ele estiver presente no header
+                if (!empty($tokenObject)) {
+                    $tokenArray = explode(" ", $tokenObject[0]);
+                    $tokenContent = $tokenArray[1];
+                    $tokenValue = explode(".", $tokenContent);
+                    $token = json_decode(base64_decode($tokenValue[1]));
+
+                    $id = $token->id;
+
+                    if (!empty($id)) {
+                        $usuarioLogado = $this->Usuarios->get($id);
+                    }
+                }
+                // Jesus amado!
+            }
+
+            if (empty($usuarioLogado)) {
                 return array(
                     "usuarioAdministrador" => null,
                     "usuarioAdministrar" => null,
