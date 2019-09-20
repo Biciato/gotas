@@ -10,7 +10,7 @@
 $(document).ready(function () {
 
     // Definição de regra: parâmetro deve ser required
-    $("label[for=parametro").text("Parãmetro*");
+    $("label[for=parametro").text("Parâmetro*");
     $("#parametro").prop("required", true);
 
     $("#print_gift").addClass("botao-confirmar");

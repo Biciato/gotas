@@ -8,6 +8,6 @@
 
 $(document).ready(function () {
 
-    $(".container-confirmacao-emissao-canhoto .reimpressao-canhoto").on('click', imprimirCanhotoResgate);
+    $(".container-confirmacao-emissao-canhoto #reimpressao-canhoto-validar-brinde").on('click', imprimirCanhotoResgate);
 
 });

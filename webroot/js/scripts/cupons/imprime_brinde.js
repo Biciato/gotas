@@ -10,9 +10,7 @@ $(document).ready(function() {
     // Métodos de inicialização
 
     // se há valor, significa que foi filtrado novamente (post de filtro)
-    if ($("#usuarios_id").val() !== undefined
-        && $("#usuarios_id").val().length > 0
-        && $("#usuarios_id").val() != "conta_avulsa") {
+    if ($("#usuarios_id").val() !== undefined && $("#usuarios_id").val().length > 0 && $("#usuarios_id").val() != "conta_avulsa") {
         callLoaderAnimation();
 
         $.ajax({
@@ -434,7 +432,7 @@ $(document).ready(function() {
     $(".reimpressao-cupom").on("click", reimprimirCupom);
 
     $(".imprimir-canhoto").on("click", imprimirCanhoto);
-    $(".reimpressao-canhoto").on("click", imprimirCanhoto);
+    $("#reimpressao-canhoto").on("click", imprimirCanhoto);
 
     $(".print-gift-cancel").on("click", function() {
         $(".opcoes").val("placa");
@@ -488,6 +486,7 @@ $(document).ready(function() {
 
                 if (result.mensagem.status == true) {
                     // console.log(result);
+                    var saldoGotas = 0;
 
                     if (result.is_brinde_smart_shower) {
                         // Se for Banho SMART, exibe tudo que é da div de is-cupom-shower
@@ -524,6 +523,10 @@ $(document).ready(function() {
                             tipoEmissaoCodigoBarras
                         );
 
+                        saldoGotas = result.resumo_gotas.saldo;
+                        $(".impressao-cupom").find("#saldo-gotas").text(saldoGotas);
+                        $(".container-emissao-cupom").find("#cupom-emitido").val(cupom_emitido);
+
                         setTimeout(
                             $(".impressao-cupom").printThis({
                                 importCss: false
@@ -556,6 +559,10 @@ $(document).ready(function() {
                                 tipoEmissaoCodigoBarras
                             );
 
+                            saldoGotas = result.resumo_gotas.saldo;
+                            $(".impressao-cupom").find("#saldo-gotas").text(saldoGotas);
+                            $(".container-emissao-cupom").find("#cupom-emitido").val(cupom_emitido);
+
                             setTimeout(
                                 $(".impressao-cupom").printThis({
                                     importCss: false
@@ -581,6 +588,56 @@ $(document).ready(function() {
         }
     });
 
+
+    /**
+     * Faz o resgate do cupom
+     */
+    $("#validar-brinde").on('click', function () {
+        var data = {
+            cupom_emitido: $("#cupom-emitido").val()
+        };
+
+        callLoaderAnimation();
+        $.ajax({
+            type: "POST",
+            url: "/Cupons/resgatarCupomAjax",
+            data: JSON.stringify(data),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            },
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (response) {
+                console.log(response);
+                callModalError(response.responseJSON.mensagem.message, response.responseJSON.mensagem.errors);
+                closeLoaderAnimation();
+            }
+
+        }).done(function (result) {
+            closeLoaderAnimation();
+            console.log(result);
+
+            if (result.status) {
+                // callModalSave();
+
+                exibirConfirmacaoImpressaoCanhoto();
+
+                imprimirCanhotoResgate();
+                // resetUserTab();
+                // resetRedeemTab();
+            } else {
+                callModalError(result.error);
+            }
+        });
+    });
+
+    var exibirConfirmacaoImpressaoCanhoto = function () {
+        $(".container-confirmacao-cupom").hide();
+        $(".container-confirmacao-emissao-canhoto").show();
+    };
+
     /**
      * Função que irá gerar o código de barras a ser emitido
      *
@@ -588,34 +645,6 @@ $(document).ready(function() {
      * @param {*} tipoEmissaoCodigoBarras
      */
     var geraCodigoBarras = function(cupom_emitido, tipoEmissaoCodigoBarras) {
-        // if (tipoEmissaoCodigoBarras == "Code128") {
-
-        //     $(".is-code128-barcode").show();
-
-        //     $("#print_barcode_ticket").barcode(cupom_emitido, 'code128', {
-        //         barWidth: 2,
-        //         barHeight: 70,
-        //         showHRI: false,
-        //         output: 'bmp'
-        //     });
-        // } else if (tipoEmissaoCodigoBarras == "PDF417") {
-        //     $(".is-pdf417-barcode").show();
-        //     $("#canvas_origin").height('auto');
-        //     generateNewPDF417Barcode(cupom_emitido, 'canvas_origin', 'canvas_destination', 'canvas_img');
-        // } else {
-        //     callModalError("Tipo de Código de Barras ainda não foi configurado no sistema!");
-        // }
-
-        $(".is-code128-barcode").show();
-
-        // Gera código code128
-        $("#print_barcode_ticket").barcode(cupom_emitido, "code128", {
-            barWidth: 2,
-            barHeight: 70,
-            showHRI: false,
-            output: "bmp"
-        });
-
         // gera codigo PDF 417
         $(".is-pdf417-barcode").show();
         $("#canvas_origin").height("auto");
@@ -631,5 +660,4 @@ $(document).ready(function() {
         generateQRCode("#print-qrcode-ticket", cupom_emitido);
     };
 
-    // geraCodigoBarras("10282227A10002", "");
 });
