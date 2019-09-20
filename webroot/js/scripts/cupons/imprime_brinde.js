@@ -432,7 +432,7 @@ $(document).ready(function() {
     $(".reimpressao-cupom").on("click", reimprimirCupom);
 
     $(".imprimir-canhoto").on("click", imprimirCanhoto);
-    $(".reimpressao-canhoto").on("click", imprimirCanhoto);
+    $("#reimpressao-canhoto").on("click", imprimirCanhoto);
 
     $(".print-gift-cancel").on("click", function() {
         $(".opcoes").val("placa");
@@ -632,6 +632,11 @@ $(document).ready(function() {
             }
         });
     });
+
+    var exibirConfirmacaoImpressaoCanhoto = function () {
+        $(".container-confirmacao-cupom").hide();
+        $(".container-confirmacao-emissao-canhoto").show();
+    };
 
     /**
      * Função que irá gerar o código de barras a ser emitido

@@ -2201,23 +2201,6 @@ class CuponsController extends AppController
 
                             $this->CuponsTransacoes->saveUpdate($transacao);
                         }
-
-                        // $this->CuponsTransacoes->redes
-                        // } else {
-                        // $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
-                        // }
-
-
-                        // adiciona novo registro de pontuação
-                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cupom["clientes_id"],
-                            $cupom["usuarios_id"],
-                            $cupom["brindes_id"],
-                            $cupom["valor_pago_gotas"],
-                            $cupom["valor_pago_reais"],
-                            $funcionariosId,
-                            true
-                        );
                     }
                 }
 

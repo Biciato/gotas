@@ -1024,7 +1024,7 @@ var popularDadosCupomResgate = function(data) {
 
 var imprimirCanhotoResgate = function() {
     setTimeout(
-        $(".impressao-resgate-cupom-canhoto-impressao .print_area").printThis({
+        $(".impressao-resgate-cupom-canhoto-impressao").find(".print_area").printThis({
             importCss: false
         }),
         100

@@ -125,7 +125,7 @@ use Cake\Core\Configure;
         <div class="text-center" id="print-qrcode-ticket"></div>
 
 
-        <div class="text-center saldo-gotas"><span>Saldo Disponível: </span><span id="saldo-gotas"></span> <span> Gotas</span></div>
+        <div class="text-center saldo-gotas"><span>Saldo Disponível: </span><br /><span id="saldo-gotas"></span> <span> Gotas</span></div>
 
         <div class="text-center contact">
 

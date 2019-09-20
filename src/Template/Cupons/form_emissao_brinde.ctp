@@ -87,6 +87,10 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
             <?php
             echo $this->element("../Cupons/confirmacao_canhoto");
             ?>
+
+            <?php
+            echo $this->element("../Cupons/validar_brinde_canhoto_confirmacao");
+            ?>
         </div>
 
         </div>
@@ -98,6 +102,8 @@ $tipoPagamento = !empty($tipoPagamento) ? $tipoPagamento : false;
         <?php
         echo $this->element("../Cupons/impressao_canhoto_layout");
         ?>
+
+
 
         <?= $this->element('../Cupons/validar_brinde_canhoto_impressao') ?>
 

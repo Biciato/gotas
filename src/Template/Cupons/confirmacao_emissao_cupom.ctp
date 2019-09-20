@@ -28,7 +28,7 @@
             </button>
         </div>
         <div class="col-lg-3">
-            <button type="button" id="validar-brinde" class="imprimir-canhoto btn btn-primary">
+            <button type="button" id="validar-brinde" class="btn btn-primary">
                 <i class="fas fa-check"></i>
                 Validar Brinde
             </button>
