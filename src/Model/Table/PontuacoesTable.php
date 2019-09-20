@@ -644,54 +644,58 @@ class PontuacoesTable extends GenericTable
 
                 // faz o tratamento se tem algum id de pontuacao
                 if (count($comprovantesIds) > 0) {
-                    $querytotalGotasAdquiridas = $this->find()->where(
+                    $queryTotalGotasAdquiridas = $this->find();
+                    $queryTotalGotasAdquiridas = $this->find("all")->where(
                         [
                             "pontuacoes_comprovante_id in " => $comprovantesIds
                         ]
-                    );
-
-                    $querytotalGotasAdquiridas = $querytotalGotasAdquiridas->select(
+                    )->select(
                         [
-                            'sum' => $querytotalGotasAdquiridas->func()->sum('quantidade_gotas')
+                            'sum' => $queryTotalGotasAdquiridas->func()->sum('quantidade_gotas')
                         ]
-                    );
+                    )->first();
 
-                    $totalGotasAdquiridas = !is_null($querytotalGotasAdquiridas->first()['sum']) ? $querytotalGotasAdquiridas->first()['sum'] : 0;
+                    $sumTotalGotasAdquiridas = $queryTotalGotasAdquiridas->sum;
+
+                    $totalGotasAdquiridas = !empty($sumTotalGotasAdquiridas) ? $sumTotalGotasAdquiridas : 0;
                 }
-                $queryTotalGotasUtilizadas = $this->find()->where(
-                    [
-                        "clientes_id in " => $clientesIds,
-                        "usuarios_id" => $usuariosId,
-                        "brindes_id IS NOT NULL"
-                    ]
-                );
-
-                $queryTotalGotasUtilizadas = $queryTotalGotasUtilizadas
+                $queryTotalGotasUtilizadas = $this->find();
+                $queryTotalGotasUtilizadas = $this->find("all")
+                    ->where(
+                        [
+                            "clientes_id in " => $clientesIds,
+                            "usuarios_id" => $usuariosId,
+                            "brindes_id IS NOT NULL"
+                        ]
+                    )
                     ->select(
+
                         [
                             'sum' => $queryTotalGotasUtilizadas->func()->sum("quantidade_gotas")
                         ]
-                    );
+                    )->first();
 
-                $totalGotasUtilizadas = !is_null($queryTotalGotasUtilizadas->first()['sum']) ? $queryTotalGotasUtilizadas->first()['sum'] : 0;
+                $sumTotalGotasUtilizadas = $queryTotalGotasUtilizadas->sum;
 
-                $queryTotalGotasExpiradas = $this
-                    ->find()->where(
+                $totalGotasUtilizadas = !empty($sumTotalGotasUtilizadas) ? $sumTotalGotasUtilizadas : 0;
+
+                $queryTotalGotasExpiradas = $this->find();
+                $queryTotalGotasExpiradas = $this->find("all")
+                    ->where(
                         [
                             "clientes_id in " => $clientesIds,
                             "usuarios_id" => $usuariosId,
                             "expirado" => 1
                         ]
-                    );
-
-                $queryTotalGotasExpiradas = $queryTotalGotasExpiradas
-                    ->select(
+                    )->select(
                         [
                             'sum' => $queryTotalGotasExpiradas->func()->sum("quantidade_gotas")
                         ]
-                    );
+                    )->first();
 
-                $totalGotasExpiradas = !is_null($queryTotalGotasExpiradas->first()['sum']) ? $queryTotalGotasExpiradas->first()['sum'] : 0;
+                $sumTotalGotasExpiradas = $queryTotalGotasExpiradas->sum;
+
+                $totalGotasExpiradas = !empty($sumTotalGotasExpiradas) ? $sumTotalGotasExpiradas : 0;
 
                 $mensagem = array(
                     "status" => 1,
@@ -720,7 +724,7 @@ class PontuacoesTable extends GenericTable
             );
             return $retorno;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);

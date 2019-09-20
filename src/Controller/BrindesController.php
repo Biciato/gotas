@@ -1094,7 +1094,8 @@ class BrindesController extends AppController
             $data = $this->request->getData();
             $clientesId = !empty($data["clientes_id"]) ? (int) $data['clientes_id'] : null;
             $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
-            $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
+            $tipoVenda = !empty($data['tipo_venda']) ? explode(",", $data['tipo_venda']) : null;
+            // $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
             $desconto = !empty($data['desconto']) ? $data["desconto"] : false;
 
             if (empty($clientesId)) {

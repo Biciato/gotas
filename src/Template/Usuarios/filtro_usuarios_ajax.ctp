@@ -34,7 +34,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
                     'doc_estrangeiro' => 'documento estrangeiro',
                     'placa' => 'placa'
                 ),
-                'default' => 'placa'
+                'default' => 'nome'
             )
         ) ?>
     </div>

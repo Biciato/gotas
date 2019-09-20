@@ -32,7 +32,7 @@ use Cake\Routing\Router;
         </div>
 
         <p class="text-center product">
-            <?= $this->Html->tag('span', 'CANHOTO DE BRINDES'); ?>
+            <?= $this->Html->tag('span', 'CANHOTO DE VALIDAÇÃO DE BRINDES'); ?>
         </p>
 
         <!-- Usuário Final -->

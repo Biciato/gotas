@@ -100,14 +100,14 @@ use Cake\Core\Configure;
             </table>
         </div>
 
-
+<!--
         <p>
             <div class="print-barcode-ticket">
                 <center>
                     <?= $this->Html->tag('span', '', ['id' => 'print_barcode_ticket']) ?>
                 </center>
             </div>
-        </p>
+        </p> -->
 
         <p>
             <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
@@ -125,33 +125,7 @@ use Cake\Core\Configure;
         <div class="text-center" id="print-qrcode-ticket"></div>
 
 
-        <!-- <p class="is-code128-barcode">
-            <div class="print_region">
-                <center>
-                    <?= $this->Html->tag('span', '', ['id' => 'print_barcode_ticket']) ?>
-                </center>
-            </div>
-        </p>
-
-        <p class="is-pdf417-barcode">
-            <center>
-                <span>Código de leitura para resgatar produto</span>
-            </center>
-
-            <div text="<?= isset($cupom_emitido) ? $cupom_emitido : null ?>"
-                class="cupom_emitido">
-                <div class="print_region">
-                    <center>
-                        <canvas id='canvas_origin'></canvas>
-
-                        <div id='canvas_destination'></div>
-
-                        <img id="canvas_img" src="" />
-
-                    </center>
-                </div>
-            </div>
-        </p> -->
+        <div class="text-center saldo-gotas"><span>Saldo Disponível: </span><br /><span id="saldo-gotas"></span> <span> Gotas</span></div>
 
         <div class="text-center contact">
 
