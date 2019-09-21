@@ -70,8 +70,6 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        // $this::chooseDatabaseConnection();
-
         $this->loadComponent(
             'Auth',
             [
@@ -81,18 +79,9 @@ class AppController extends Controller
                     'controller' => 'pages',
                     'action' => 'index', 'display'
                 ],
-
-                // 'unauthorizedRedirect' => true,
-                // 'unauthorizedRedirect' => [
-                //     'controller' => 'pages',
-                //     'action' => 'display'
-                // ],
-                // 'unauthorizedRedirect' => "/usuarios/login",
-                // 'unauthorizedRedirect' => $this->referer(),
                 'loginAction' => [
                     'controller' => 'usuarios',
                     'action' => 'login',
-                    // 'prefix' => false
                 ],
                 'loginRedirect' => [
                     'controller' => 'pages',
@@ -182,37 +171,12 @@ class AppController extends Controller
      */
     public function beforeRender(Event $event)
     {
-        // $user = $this->Auth->user();
-
-        // if (!empty($user)) {
-        //     $user = $this->Usuarios->get($user["id"]);
-        // }
-
-        // $getRequest = $this->request->is('get');
-
-        // if ($getRequest && (!empty($user))
-        //     && ($user["tipo_perfil"] == Configure::read("profileTypes")["UserProfileType"])
-        //     && (empty($user["cpf"]) == 1 && empty($user["doc_estrangeiro"] == 1))) {
-        //     $controllerAtual = $this->request->getParam("controller");
-        //     $actionAtual = $this->request->getParam("action");
-        //     $urlDestino = Router::url(array("controller" => "Usuarios", "action" => "editar"));
-
-        //     $urlAtual = strtolower(__("/{0}/{1}", $controllerAtual, $actionAtual));
-        //     if ($urlAtual != $urlDestino) {
-        //         $this->Flash->error(Configure::read("messageUsuarioProfileDocumentNotFoundError"));
-        //         return $this->redirect(array("controller" => "Usuarios", "action" => "editar" , $user["id"]));
-        //     }
-        // }
-
         // Trata resposta iOS
         if ($this->request->is('options')) {
             exit(0);
         }
 
-        if (
-            !array_key_exists('_serialize', $this->viewVars) &&
-            in_array($this->response->type(), ['application/json', 'application/xml'])
-        ) {
+        if (!array_key_exists('_serialize', $this->viewVars) && in_array($this->response->type(), ['application/json', 'application/xml'])) {
             $this->set('_serialize', true);
         }
     }
@@ -437,6 +401,27 @@ class AppController extends Controller
 
         if (empty($usuarioLogado)) {
             $usuarioLogado = $this->Auth->user();
+
+            if (empty($usuarioLogado)) {
+                // tenta pegar pelo token... MEU DEOS!!! QUE GAMBIARRA!
+
+                $tokenObject = $this->request->getHeader('Authorization');
+
+                // Pega o token se ele estiver presente no header
+                if (!empty($tokenObject)) {
+                    $tokenArray = explode(" ", $tokenObject[0]);
+                    $tokenContent = $tokenArray[1];
+                    $tokenValue = explode(".", $tokenContent);
+                    $token = json_decode(base64_decode($tokenValue[1]));
+
+                    $id = $token->id;
+
+                    if (!empty($id)) {
+                        $usuarioLogado = $this->Usuarios->get($id);
+                    }
+                }
+                // Jesus amado!
+            }
 
             if (empty($usuarioLogado)) {
                 return array(
