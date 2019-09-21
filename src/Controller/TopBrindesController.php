@@ -136,14 +136,14 @@ class TopBrindesController extends AppController
 
     /**
      * TopBrindesController::deleteTopBrindesAPI
-     * 
+     *
      * Remove um Top Brinde e reoordena posições dos registros restantes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-14
      *
      * @param $id Id do registro Top Brinde
-     * 
+     *
      * @return json_encode $response success|fail Resposta
      */
     public function deleteTopBrindesAPI()
@@ -226,7 +226,7 @@ class TopBrindesController extends AppController
      * @since 2019-08-04
      *
      * @param $redes_id Id da Rede (se usuário for PROFILE_TYPE_USER)
-     * 
+     *
      * @return json_encode $response success|fail Resposta
      */
     public function getTopBrindesNacionalAPI()
@@ -268,7 +268,7 @@ class TopBrindesController extends AppController
                 }
 
                 $data = ['top_brindes' => $topBrindesNacional];
-                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ["data" => $data]);
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $data]);
             }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
@@ -504,13 +504,13 @@ class TopBrindesController extends AppController
 
     /**
      * TopBrindesController::setPosicoesTopBrindesAPI
-     * 
+     *
      * Define as posições dos top brindes nacionais
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
      *
-     * @return json_encode $response success|fail Resposta 
+     * @return json_encode $response success|fail Resposta
      */
     public function setPosicoesTopBrindesAPI()
     {
