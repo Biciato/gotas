@@ -33,6 +33,7 @@ use App\Model\Entity\PontuacoesComprovante;
 use \DateTime;
 use App\Custom\RTI\WebTools;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 
 /**
  * Classe para execução em terminal (shell)
@@ -207,7 +208,13 @@ class PontuacoesComprovantesShell extends ExtendedShell
             }
 
             Log::write('info', 'Concluído o envio de Comprovantes dos Cupoms Fiscais inseridos manualmente...');
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+
+            $message =$e->getMessage();
+            $code = $e->getCode();
+
+            Log::write("error", sprintf("[Code: %s] %s - Message: %s", $code, MESSAGE_GENERIC_EXCEPTION, $message));
+        }
     }
 
     /**
@@ -267,6 +274,36 @@ class PontuacoesComprovantesShell extends ExtendedShell
         }
     }
 
+    public function testGetCouponMG()
+    {
+        try {
+            $url = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190721474382000165650010000138981454815307|2|1";
+            // $file = getcwd(). "/../tmp/1.html";
+            // $file = getcwd(). "/../tmp/2.html";
+
+            $cliente = $this->Clientes->get(9);
+            $gotasCliente = $this->Gotas->findGotasByClientesId([$cliente->id]);
+            $gotasCliente = $gotasCliente->toArray();
+            $conteudo = WebTools::getPageContent($url);
+            // $conteudo = file_get_contents($file);
+
+            Log::write("info", $conteudo);
+            $response = !empty($conteudo['response']) ? $conteudo['response'] : '';
+            // $response = $conteudo;
+
+            Log::write("info", $response);
+            $retorno = SefazUtil::obtemDadosHTMLCupomSefaz($response, $gotasCliente, $cliente->estado);
+
+            DebugUtil::printArray($retorno);
+
+        } catch (\Throwable $th) {
+            Log::write("error", $th->getMessage());
+            $this->out($th->getMessage());
+
+            ResponseUtil::errorAPI($th->getMessage());
+        }
+    }
+
     public function testGetCoupon()
     {
         try {
@@ -275,27 +312,29 @@ class PontuacoesComprovantesShell extends ExtendedShell
             // $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190419962067000135650010000012471028054644|2|1|1|FDEC36DF7F561504A77928F507564C3B40DDE9D5";
 
 
-            $cupom = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
+            // $cupom = "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190687700175000190650020007221271811401378|2|1|1|4F4DAAD878F88DFADDE401509A16B902AF816BBF";
 
-            $cupom = str_replace("|", "%7C", $cupom);
-            $cupom = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $cupom);
+            // $cupom = str_replace("|", "%7C", $cupom);
+            // $cupom = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $cupom);
             // echo $cupom;
 
             //  "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?p=43190687700175000190650020007221271811401378%7C2%7C1%7C1%7C4F4DAAD878F88DFADDE401509A16B902AF816BBF"
+
+            $cupom = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31190721474382000165650010000138981454815307|2|1";
 
             // die();
 
             $request = $cupom;
             $response = "";
 
-            exec("/usr/bin/phantomjs " . __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $response);
+            // exec("/usr/bin/phantomjs " . __DIR__ . "/../../webroot/js/phantomjs/getSefaz.js '" . $request . "' false 2>&1", $response);
 
             // echo gettype($response);
 
             if (gettype($response) == "array" && empty($response["response"])) {
                 $response = (array) json_decode($response[0]);
             }
-                
+
             $file = "test.html";
             // if (!file_exists($file)) {
             $fileHandle = fopen($file, "w");

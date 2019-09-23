@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Shell;
 
 use Cake\Console\Shell;
@@ -59,37 +60,47 @@ class PontuacoesPendentesShell extends ExtendedShell
      */
     public function startProcessPontuacoesPendentes()
     {
-        Log::write('info', 'Iniciando processamento de cupons pendentes de processamento...');
+        try {
+            Log::write('info', 'Iniciando processamento de cupons pendentes de processamento...');
 
-        $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
-        $pontuacoesPendentes = $pontuacoesPendentes->toArray();
+            $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
+            $pontuacoesPendentes = $pontuacoesPendentes->toArray();
 
-        $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "9735");
+            $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "25122016");
 
-        if (sizeof($pontuacoesPendentes) == 0) {
-            Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
+            // Log::write('info', 'Testando auth...');
+            // DebugUtil::printArray($auth);
+
+            if (sizeof($pontuacoesPendentes) == 0) {
+                Log::write('info', 'Não há processamento de cupons pendentes de processamento...');
+                return;
+            }
+
+            $apiUrl = Configure::read("appAddress") . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
+
+            foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
+                // para cada pontuacao pendente, pega a chave, faz a solicitação e trata como se fosse o fluxo normal
+                Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
+
+                $data = array(
+                    "qr_code" => $pontuacaoPendente["conteudo"],
+                    "processamento_pendente" => true
+                );
+
+
+                $result = WebTools::callAPI("POST", $apiUrl, $data, DATA_TYPE_MESSAGE_JSON, $auth["token"]);
+
+                // DebugUtil::print($result);
+                Log::write('info', __("Finalizado execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
+            }
+            Log::write('info', 'Finalizado processamento de cupons pendentes de processamento...');
+
             return;
+        } catch (\Throwable $th) {
+            $message = $th->getMessage();
+            $code =  $th->getCode();
+
+            Log::write("error", sprintf("[Code: %s] %s - Message: %s", $code, MESSAGE_GENERIC_EXCEPTION, $message));
         }
-
-        $apiUrl = Configure::read("appAddress") . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
-
-        foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
-            // para cada pontuacao pendente, pega a chave, faz a solicitação e trata como se fosse o fluxo normal
-            Log::write('info', __("Iniciando execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
-
-            $data = array(
-                "qr_code" => $pontuacaoPendente["conteudo"],
-                "processamento_pendente" => true
-            );
-
-
-            $result = WebTools::callAPI("POST", $apiUrl, $data, DATA_TYPE_MESSAGE_JSON, $auth["token"]);
-
-            // DebugUtil::print($result);
-            Log::write('info', __("Finalizado execução sob cupom pendente [{0}] do estado de [{1}]", $pontuacaoPendente->conteudo, $pontuacaoPendente->estado_nfe));
-        }
-        Log::write('info', 'Finalizado processamento de cupons pendentes de processamento...');
-
-        return;
     }
 }
