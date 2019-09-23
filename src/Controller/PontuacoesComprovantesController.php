@@ -1425,7 +1425,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
-                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
+                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData, $retorno["mensagem"]["error_codes"]);
                 }
             }
 
@@ -1795,7 +1795,7 @@ class PontuacoesComprovantesController extends AppController
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
         if ($validacaoQRCode["status"] == false) {
-            $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
+            $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
             $arraySet = array("mensagem");
             $this->set(compact($arraySet));
@@ -2287,38 +2287,124 @@ class PontuacoesComprovantesController extends AppController
             $explodeString = strpos($url, "|") !== false ? "|" : "%7C";
             $qrCodeArray = explode($explodeString, $qrCodeConteudo);
 
-            $keysQrCodeMG = array("chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode");
+            $tipoQrCode = count($qrCodeArray) > 6 ? "CONTINGENCIA" : "ONLINE";
+            $keysQrCode = [];
 
-            $indexQrCodeArray = 0;
-            $qrCodeArrayRetorno = array();
-            foreach ($keysQrCodeMG as $chave) {
-                if (!empty($qrCodeArray[$indexQrCodeArray])) {
-                    $qrCodeArrayRetorno[] = array(
-                        "key" => $chave,
-                        "content" => $qrCodeArray[$indexQrCodeArray]
-                    );
-                }
-                $indexQrCodeArray++;
-            }
-
-            // $estado = "MG";
+            /**
+             * chNFe = Chave Nota Fiscal Eletronica
+             * nVersao = Número da Versão do QR Code
+             * tpAmb = Tipo Ambiente
+             * dtEmi = Data Emissão (MG = dia emissão)
+             * vlTot = Valor Total
+             * digVal = Digest Value da NFC-e
+             * csc = Identificador do CSC
+             * cHashQRCode = Hash do QR Code
+             */
 
             $status = 1;
             $errorMessage = null;
-            $errors = array();
+            $errors = [];
+            $errorCodes = [];
+
+            if ($estado == "MG") {
+                $arrayConsistency = [];
+
+                if ($tipoQrCode == "ONLINE") {
+                    $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
+                    // Na verdade o Hash é requerido. Mas é possível acessar sem este campo na nota.
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
+                } else {
+                    // @todo
+                    $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 3, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cDest', "size" => 3, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'dhEmi', "size" => 50, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'vNF', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'vICMS', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cIdToken', "size" => 6, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                }
+
+                if ($tipoQrCode == "CONTINGENCIA") {
+                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "dtEmi", "vlTot", "digVal", "csc", "cHashQRCode"];
+                } else {
+                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode"];
+                }
+
+                $indexQrCodeArray = 0;
+                $qrCodeArrayRetorno = array();
+                foreach ($keysQrCode as $chave) {
+                    if (!empty($qrCodeArray[$indexQrCodeArray])) {
+                        $qrCodeArrayRetorno[] = array(
+                            "key" => $chave,
+                            "content" => $qrCodeArray[$indexQrCodeArray]
+                        );
+                    }
+                    $indexQrCodeArray++;
+                }
+
+                $arrayConsistencyReturn = [];
+                foreach ($arrayConsistency as $item) {
+                    foreach ($qrCodeArrayRetorno as $qrCodeItem) {
+                        if ($item["key"] == $qrCodeItem["key"]) {
+                            $a = $item;
+                            $a["content"] = $qrCodeItem["content"];
+                            $arrayConsistencyReturn[] = $a;
+                        }
+                    }
+                }
+
+                $arrayConsistency = $arrayConsistencyReturn;
+
+                // Valida por erros
+
+                $sefazErrors = [];
+
+                foreach ($arrayConsistency as $itemConsistency) {
+                    // Se não é opcional e está vazio o conteúdo, é um erro
+                    if (!$itemConsistency["isOptional"] && empty($itemConsistency["content"])) {
+                        $sefazErrors[] = $itemConsistency["key"];
+                    }
+
+                    // Se o tamanho é fixo e o tamanho real difere, também é erro
+                    if ($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) {
+                        $sefazErrors[] = $itemConsistency["key"];
+                    }
+                }
+
+                if (count($sefazErrors) > 0) {
+                    $status = 0;
+                    $errors = [MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN];
+                    $errorCodes = [MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE];
+                    $errorMessage = MESSAGE_GENERIC_EXCEPTION;
+
+                    $errors[] = sprintf("Campos com erro: [%s]", implode(" - ", $sefazErrors));
+                }
+            }
 
             $result = array(
                 "status" => $status,
                 "message" => $errorMessage,
                 "errors" => $errors,
-                "data" => $qrCodeArrayRetorno,
+                "error_codes" => $errorCodes,
+                "data" => $arrayConsistency,
                 "url_real" => $url,
-                "estado" => $estado
+                "estado" => $estado,
+                "tipo_operacao_sefaz" => $tipoQrCode
             );
+
+            // ResponseUtil::successAPI('', $result);
 
             // Retorna Array contendo erros de validações
             return $result;
         }
+
+        // código antigo para bahia ou rio grande do sul
 
         $stringSearch = "sefaz.";
         $index = stripos($url, $stringSearch) + strlen($stringSearch);
@@ -2337,21 +2423,6 @@ class PontuacoesComprovantesController extends AppController
         $arrayConsistency[] = ["key" => 'cIdToken', "size" => 6, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
         $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
 
-        if ($estado == "MG") {
-            $arrayConsistency = [];
-
-            // se é estado MG, há dois tipos de URL ONLINE e CONTINGÊNCIA
-
-            // Formato Online
-            // http://<dominio>/nfce/qrcode?p=<chave_acesso>|<versao_qrcode>|<tipo_ambiente>|<identificador_csc>|<codigo_hash>
-            // Formato Contingência
-            // http://<dominio>/nfce/qrcode/?p=<chave_acesso>|<versao_qrcode>|<tipo_ambiente>|<dia_data_emissao>|<valor_total_nfce>|<digVal>|<identificador_csc>|<codigo_hash>
-
-            $urlCheck = $url;
-            $indexInicioCF = strpos("?p=", $urlCheck) + 3;
-
-            DebugUtil::printArray(['index' => $indexInicioCF]);
-        }
 
         $hasErrors = false;
 
@@ -2422,7 +2493,7 @@ class PontuacoesComprovantesController extends AppController
         $errors = array();
 
         if (sizeof($arrayErrors) > 0) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $status = 0;
             $errors = $arrayErrors;
         }
