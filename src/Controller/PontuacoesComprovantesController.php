@@ -1462,7 +1462,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (empty($qrCode)) {
-                    $errors[] = MESSAGE_QR_CODE_EMPTY;
+                    $errors[] = MSG_QR_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -1874,7 +1874,7 @@ class PontuacoesComprovantesController extends AppController
 
         // @todo Só para carater de teste
         // $webContent["statusCode"] = 400;
-        $webContent["statusCode"] = 200;
+        // $webContent["statusCode"] = 200;
 
         if ($webContent["statusCode"] == 200) {
             // Caso Mobile: Cliente não é informado
@@ -2235,38 +2235,15 @@ class PontuacoesComprovantesController extends AppController
          * index: indice do registro na url
          */
 
-        if (empty($url) || strlen($url) == 0) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
+            // $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $errorMessage = MSG_WARNING;
             $status = 0;
-            $errors = array("QR Code não informado!");
+            // $errors = array("QR Code Inválido!");
+            $errors = [MSG_QR_CODE_READING_ERROR];
+            $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
 
-            $result = array(
-                "status" => $status,
-                "message" => $errorMessage,
-                "errors" => $errors,
-                "data" => array()
-            );
-
-            // Retorna Array contendo erros de validações
-            return $result;
-        }
-
-        // Verifica se conteúdo é URL real
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
-            $status = 0;
-            $errors = array("QR Code Inválido!");
-
-            $result = array(
-                "status" => $status,
-                "message" => $errorMessage,
-                "errors" => $errors,
-                "data" => array()
-            );
-
-            // Retorna Array contendo erros de validações
-            return $result;
+            return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], $errorCodes);
         }
 
         $arrayConsistency = array();
@@ -2359,6 +2336,22 @@ class PontuacoesComprovantesController extends AppController
         $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
         $arrayConsistency[] = ["key" => 'cIdToken', "size" => 6, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
         $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+
+        if ($estado == "MG") {
+            $arrayConsistency = [];
+
+            // se é estado MG, há dois tipos de URL ONLINE e CONTINGÊNCIA
+
+            // Formato Online
+            // http://<dominio>/nfce/qrcode?p=<chave_acesso>|<versao_qrcode>|<tipo_ambiente>|<identificador_csc>|<codigo_hash>
+            // Formato Contingência
+            // http://<dominio>/nfce/qrcode/?p=<chave_acesso>|<versao_qrcode>|<tipo_ambiente>|<dia_data_emissao>|<valor_total_nfce>|<digVal>|<identificador_csc>|<codigo_hash>
+
+            $urlCheck = $url;
+            $indexInicioCF = strpos("?p=", $urlCheck) + 3;
+
+            DebugUtil::printArray(['index' => $indexInicioCF]);
+        }
 
         $hasErrors = false;
 
