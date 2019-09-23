@@ -8,9 +8,9 @@
 
 namespace App\Custom\RTI;
 
-use Cake\Core\Exception\Exception;
 use Cake\Log\Log;
 use DOMDocument;
+use \Exception;
 
 /**
  * Classe para operações de conteúdo da SEFAZ
@@ -344,39 +344,47 @@ class SefazUtil
 
             $items = $dom->getElementById('myTable');
             $itemsNodesHtml = array();
-            foreach ($items->childNodes as $node) {
-                $texto = $node->textContent;
 
-                $texto = trim($texto);
+            if (!empty($items)) {
+                foreach ($items->childNodes as $node) {
+                    $texto = $node->textContent;
 
-                if (strlen($texto) > 0) {
+                    $texto = trim($texto);
 
-                    $textoQuantidade = "Qtde total de ítens: ";
+                    if (strlen($texto) > 0) {
 
-                    // Captura do gotas.nome_parametro
-                    $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
-                    $gota = substr($texto, 0, $posicaoQuantidade);
-                    $posicaoParentese = strpos($texto, $textoQuantidade);
-                    $gota = substr($texto, 0, $posicaoParentese);
-                    $gota = trim($gota);
-                    $item["gota"] = $gota;
+                        $textoQuantidade = "Qtde total de ítens: ";
 
-                    // Captura de quantidade
-                    $posicaoFimTextoQuantidade = strlen($textoQuantidade);
-                    $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
-                    $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
-                    $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
-                    $item["quantidade"] = $quantidade;
+                        // Captura do gotas.nome_parametro
+                        $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
+                        $gota = substr($texto, 0, $posicaoQuantidade);
+                        $posicaoParentese = strpos($texto, $textoQuantidade);
+                        $gota = substr($texto, 0, $posicaoParentese);
+                        $gota = trim($gota);
+                        $item["gota"] = $gota;
 
-                    // Captura de valor
-                    $textoReais = "R$ ";
-                    $posicaoFimTextoReais = strlen($textoReais);
-                    $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+                        // Captura de quantidade
+                        $posicaoFimTextoQuantidade = strlen($textoQuantidade);
+                        $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
+                        $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
+                        $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
+                        $item["quantidade"] = $quantidade;
 
-                    $valor = substr($texto, $posicaoReaisInicio);
-                    $item["valor"] = $valor;
-                    $itemsNodesHtml[] = $item;
+                        // Captura de valor
+                        $textoReais = "R$ ";
+                        $posicaoFimTextoReais = strlen($textoReais);
+                        $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+
+                        $valor = substr($texto, $posicaoReaisInicio);
+                        $item["valor"] = $valor;
+                        $itemsNodesHtml[] = $item;
+                    }
                 }
+            }
+
+
+            if (count($itemsNodesHtml) == 0) {
+                throw new Exception(MSG_SEFAZ_CONTINGENCY_MODE, MSG_SEFAZ_CONTINGENCY_MODE_CODE);
             }
 
             $pontuacoes = array();
@@ -397,13 +405,13 @@ class SefazUtil
 
             return $pontuacoes;
         } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao preparar conteúdo html: {0}", $e->getMessage());
+            $message = $e->getMessage();
+            $code = $e->getCode();
 
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
+            Log::write('error', $message);
+            // Log::write('error', $trace);
 
-            throw new Exception($stringError);
+            throw new Exception($message, $code);
         }
     }
 

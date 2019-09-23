@@ -15,6 +15,7 @@ use App\Custom\RTI\WebTools;
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Usuario;
 use App\Model\Entity\Gota;
+use App\Model\Entity\PontuacoesPendente;
 use App\View\Helper\AddressHelper;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Collection\Collection;
@@ -24,6 +25,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
+use Exception;
 
 /**
  * PontuacoesComprovantes Controller
@@ -1428,23 +1430,13 @@ class PontuacoesComprovantesController extends AppController
             }
 
             Log::write('info', 'Finalizado processamento de cupom...');
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            $messageLog = sprintf("%s", $th->getMessage(), $code);
+            Log::write("error", $messageLog);
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
-
-            $messageStringDebug = __(
-                "{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ",
-                $messageString,
-                $e->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                __LINE__
-            );
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
         }
     }
 
@@ -1882,9 +1874,18 @@ class PontuacoesComprovantesController extends AppController
 
         // @todo Só para carater de teste
         // $webContent["statusCode"] = 400;
+        $webContent["statusCode"] = 200;
 
         if ($webContent["statusCode"] == 200) {
             // Caso Mobile: Cliente não é informado
+
+            // DEBUG: Para teste sem retorno
+            // $cliente = $this->Clientes->get(9);
+            // $funcionario = $this->Usuarios->get(108);
+            // $usuario = $this->Usuarios->get(10);
+            // $gotas = $this->Gotas->findGotasByClientesId([$cliente->id])->toArray();
+            // $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, "");
+
             if (empty($cliente)) {
                 /**
                  * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
@@ -2172,8 +2173,6 @@ class PontuacoesComprovantesController extends AppController
             // Status está anormal, grava para posterior processamento
             $clientesId = empty($cliente) ? null : $cliente["id"];
 
-            // @todo: quando a pontuação pendente for processada, o usuário deve ser adicionado ao vínculo com aquele Ponto de Atendimento
-
             $pontuacaoPendente = $this
                 ->PontuacoesPendentes
                 ->createPontuacaoPendenteAwaitingProcessing(
@@ -2185,14 +2184,14 @@ class PontuacoesComprovantesController extends AppController
                     $estado
                 );
 
-            $errors = array(
-                Configure::read("messageNotPossibleToImportCouponAwaitingProcessing")
-            );
+            $errors = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING];
+            $errorCodes = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE];
             $data = array();
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageNotPossibleToImportCoupon"),
-                "errors" => $errors
+                "errors" => $errors,
+                "error_codes" => $errorCodes
             );
             $resumo = null;
 
@@ -2517,9 +2516,9 @@ class PontuacoesComprovantesController extends AppController
         $dataProcessamento = date("Y-m-d H:i:s");
         $isXML = StringUtil::validarConteudoXML($conteudo);
 
-        if (Configure::read("debug")) {
-            Log::write("debug", $conteudo);
-        }
+        // if (Configure::read("debug")) {
+        //     Log::write("debug", $conteudo);
+        // }
 
         if ($isXML) {
             $xml = SefazUtil::obtemDadosXMLCupomSefaz($conteudo);
@@ -2531,9 +2530,36 @@ class PontuacoesComprovantesController extends AppController
             return $retorno;
         } else {
             // É HTML
+            $pontuacoesHtml = [];
 
+            try {
+                // $conteudo = 'a';
+                if (strlen($conteudo) == 0) {
+                    // Site da SEFAZ possivelmente fora do ar ou em manutenção
+                    throw new Exception(MSG_NOT_POSSIBLE_TO_IMPORT_COUPON, MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE);
+                }
+
+                $pontuacoesHtml = SefazUtil::obtemDadosHTMLCupomSefaz($conteudo, $gotas, $estado);
+
+                if (count($pontuacoesHtml) == 0) {
+                    throw new Exception(sprintf(MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT, $estado, $chave), MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT_CODE);
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
+                    Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
+
+                    // gera novo registro de pontuação pendente
+                    $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $estado);
+
+                    Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id, $url, $estado));
+                }
+
+                throw new Exception($message, $code);
+            }
             // Obtem todos os dados de pontuações
-            $pontuacoesHtml = SefazUtil::obtemDadosHTMLCupomSefaz($conteudo, $gotas, $estado);
 
             // Prepara dados de cupom para gravar
             // Só gera o comprovante se tiver alguma pontuação
