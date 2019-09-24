@@ -2311,29 +2311,27 @@ class PontuacoesComprovantesController extends AppController
 
                 if ($tipoQrCode == "ONLINE") {
                     $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 3, "estado" => $estado];
                     // Na verdade o Hash é requerido. Mas é possível acessar sem este campo na nota.
-                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 4, "estado" => $estado];
                 } else {
                     // @todo
                     $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 3, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'cDest', "size" => 3, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'dhEmi', "size" => 50, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'vNF', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'vICMS', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'cIdToken', "size" => 6, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
-                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'dtEmi', "size" => 2, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 4, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'vlTot', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 5, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 7, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 8, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 9, "estado" => $estado];
                 }
 
-                if ($tipoQrCode == "CONTINGENCIA") {
-                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "dtEmi", "vlTot", "digVal", "csc", "cHashQRCode"];
-                } else {
+                if ($tipoQrCode == "ONLINE") {
                     $keysQrCode = ["chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode"];
+                } else {
+                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "dtEmi", "vlTot", "digVal", "csc", "cHashQRCode"];
                 }
 
                 $indexQrCodeArray = 0;
@@ -2361,8 +2359,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $arrayConsistency = $arrayConsistencyReturn;
 
-                // Valida por erros
-
+                #region Validação de erros
                 $sefazErrors = [];
 
                 foreach ($arrayConsistency as $itemConsistency) {
@@ -2372,19 +2369,22 @@ class PontuacoesComprovantesController extends AppController
                     }
 
                     // Se o tamanho é fixo e o tamanho real difere, também é erro
-                    if ($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) {
+                    if (($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) || (strlen($itemConsistency["content"]) > $itemConsistency["size"])) {
                         $sefazErrors[] = $itemConsistency["key"];
                     }
                 }
 
                 if (count($sefazErrors) > 0) {
                     $status = 0;
-                    $errors = [MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN];
-                    $errorCodes = [MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE];
+                    $errors = [MSG_QR_CODE_READING_ERROR];
+                    $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
                     $errorMessage = MESSAGE_GENERIC_EXCEPTION;
 
-                    $errors[] = sprintf("Campos com erro: [%s]", implode(" - ", $sefazErrors));
+                    Log::write("info", sprintf("[%s]: %s", MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE, MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN));
+                    Log::write("info", sprintf("Cupom com erro [%s] / Campos com erro: [%s].", $url, implode(" - ", $sefazErrors)));
                 }
+
+                #endregion
             }
 
             $result = array(
@@ -2507,6 +2507,8 @@ class PontuacoesComprovantesController extends AppController
             "estado" => $estado
         );
 
+        // debug
+        // return ResponseUtil::successAPI('', $result);
         // Retorna Array contendo erros de validações
         return $result;
     }
