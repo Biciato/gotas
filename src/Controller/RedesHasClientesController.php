@@ -711,12 +711,14 @@ class RedesHasClientesController extends AppController
         $status = true;
         $message = null;
         $errors = array();
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         try {
             $redes = null;
 
             if ($this->request->is('post')) {
-                $usuario = new Usuario($this->Auth->user());
+                $usuario = $usuarioLogado;
 
                 $data = $this->request->getData();
 
