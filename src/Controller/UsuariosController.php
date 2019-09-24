@@ -2696,6 +2696,8 @@ class UsuariosController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
+            // Log::write("info", $data);
+
             $email = !empty($data["email"]) ? $data["email"] : null;
             $senha = !empty($data["senha"]) ? $data["senha"] : null;
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;

@@ -341,6 +341,25 @@ const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE = 0x0000000F;
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON = "Não foi possível importar o CF, SEFAZ inoperante!";
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE = 0x00000010;
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING = "A Importação do Cupom Fiscal não pode ser realizada agora, há uma falha de comunicação com a SEFAZ. Mas não se preocupe, assim que tudo estiver certo os pontos serão atribuídos em seu cadastro!";
+
+const MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE = 0x00000015;
+const MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN = "O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!";
+
+const MSG_QR_CODE_READING_ERROR_CODE = 0x00000014;
+const MSG_QR_CODE_READING_ERROR = "Erro na Leitura do QR Code, tente novamente!";
+
+const MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT_CODE = 0x00000012;
+const MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT = "No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...";
+const MSG_SEFAZ_NOT_RESPONDING_CODE = 0x00000013;
+const MSG_SEFAZ_NOT_RESPONDING = "Sistema SEFAZ não está respondendo!";
+const MSG_SEFAZ_CONTINGENCY_MODE_CODE = 0x00000011;
+const MSG_SEFAZ_CONTINGENCY_MODE = "SEFAZ não está operando corretamente, suas pontuações serão atribuídas assim que tudo estiver normalizado.";
+
+
 // Sucesso / Aviso
 const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
 const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
@@ -531,7 +550,9 @@ const GOTAS_REGISTER_TYPE_MANUAL = 0;
 
 const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
 const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
-const MESSAGE_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
+const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
+
+
 
 #endregion
 
