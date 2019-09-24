@@ -9,6 +9,7 @@ use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
 use App\View\Helper;
 use App\Controller\AppController;
+use App\Custom\RTI\ResponseUtil;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Log\Log;
@@ -66,6 +67,7 @@ class PontuacoesPendentesShell extends ExtendedShell
             $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
             $pontuacoesPendentes = $pontuacoesPendentes->toArray();
 
+            // $auth = WebTools::loginAPIGotas("gustavosouzagoncalves@hotmail.com", "segacd85");
             $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "25122016");
 
             // Log::write('info', 'Testando auth...');
@@ -76,7 +78,7 @@ class PontuacoesPendentesShell extends ExtendedShell
                 return;
             }
 
-            $apiUrl = Configure::read("appAddress") . "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
+            $apiUrl = __SERVER__. "api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario";
 
             foreach ($pontuacoesPendentes as $key => $pontuacaoPendente) {
                 // para cada pontuacao pendente, pega a chave, faz a solicitação e trata como se fosse o fluxo normal
@@ -84,9 +86,13 @@ class PontuacoesPendentesShell extends ExtendedShell
 
                 $data = array(
                     "qr_code" => $pontuacaoPendente["conteudo"],
-                    "processamento_pendente" => true
+                    "processamento_pendente" => true,
+                    "usuarios_id" => $pontuacaoPendente->usuarios_id,
+                    "clientes_id" => $pontuacaoPendente->clientes_id,
+                    "funcionarios_id" => $pontuacaoPendente->funcionarios_id
                 );
 
+                // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
 
                 $result = WebTools::callAPI("POST", $apiUrl, $data, DATA_TYPE_MESSAGE_JSON, $auth["token"]);
 

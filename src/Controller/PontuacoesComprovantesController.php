@@ -1824,9 +1824,9 @@ class PontuacoesComprovantesController extends AppController
         // @todo: Apenas para carater de teste
         // $cupomPreviamenteImportado["status"] = true;
 
+        // return ResponseUtil::successAPI('', $cupomPreviamenteImportado);
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
-
             $mensagem = $cupomPreviamenteImportado;
             $resposta = array("mensagem" => $mensagem);
 
@@ -2047,7 +2047,6 @@ class PontuacoesComprovantesController extends AppController
                 $somaMultiplicador = 0;
 
                 foreach ($pontuacoesTemp as $pontuacaoItem) {
-
                     $pontuacao = $this->Pontuacoes->newEntity();
                     $pontuacao->pontuacoes_comprovante_id =  $pontuacaoComprovanteId;
                     $pontuacao->clientes_id =  $cliente["id"];
@@ -2142,7 +2141,7 @@ class PontuacoesComprovantesController extends AppController
                 $resumo = $resumo;
                 $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
 
-                if ($processamentoPendente) {
+                if ($processamentoPendente && $pontuacoesSave) {
                     $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
                     $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
                 }
@@ -2200,6 +2199,17 @@ class PontuacoesComprovantesController extends AppController
                 "pontuacao_pendente" => $pontuacaoPendente,
                 "resumo" => $resumo
             );
+        }
+
+        Log::write("info", "oro");
+
+        Log::write("info", "Pontuação Pendente: " . $pontuacaoPendente);
+
+        if ($processamentoPendente) {
+            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
+            $cliente = $pontuacaoPendente->cliente;
+            // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
+            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $cliente->estado));
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);

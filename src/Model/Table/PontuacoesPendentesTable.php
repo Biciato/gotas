@@ -268,13 +268,15 @@ class PontuacoesPendentesTable extends GenericTable
     public function findPontuacaoPendenteAwaitingProcessing(string $chave_nfe, string $estado_nfe)
     {
         try {
-            $pontuacao_pendente = $this->_getPontuacoesPendentesTable()->find('all')
+            $pontuacao_pendente = $this
+                ->find('all')
                 ->where(
                     [
-                        'chave_nfe' => $chave_nfe,
-                        'estado_nfe' => $estado_nfe
+                        'PontuacoesPendentes.chave_nfe' => $chave_nfe,
+                        'PontuacoesPendentes.estado_nfe' => $estado_nfe
                     ]
-                )->first();
+                )->contain(["Clientes"])
+                ->first();
 
             return $pontuacao_pendente;
         } catch (\Exception $e) {

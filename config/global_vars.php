@@ -17,13 +17,14 @@ $serverSuffix = $develHost ? ".local" : ".com.br";
 
 // $serverAddress = $debug? "sistema-devel.gotas.com.br" : "sistema.gotas.com.br";
 // $serverAddress = $debug ? "sistema.gotas.com.br" : "sistema.gotas.com.br";
-$serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
+// $serverAddress = $debug? "sistema-devel.gotas" : "sistema.gotas";
+$serverAddress = __SERVER__;
 
 $serverAddress = $serverAddress . $serverSuffix;
 
 
 
-// $server = empty($_SERVER) ? "sistema.gotas.com.br" : $_SERVER["HTTP_HOST"];
+// $server = empty($_SERVER) ? " .com.br" : $_SERVER["HTTP_HOST"];
 Configure::write(
     [
         // configuração de banco de dados:
