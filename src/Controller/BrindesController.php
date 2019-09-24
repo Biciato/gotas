@@ -1234,11 +1234,12 @@ class BrindesController extends AppController
 
                 $todosBrindes = $resultado;
                 $brindesAtuais = $resultado;
+                $todosBrindes = $todosBrindes->toArray();
+
                 if (count($pagination) > 0) {
                     $brindesAtuais = $brindesAtuais->limit($pagination["limit"])->page($pagination["page"]);
                 }
 
-                $todosBrindes = $todosBrindes->toArray();
                 $brindesAtuais = $brindesAtuais->toArray();
                 $resultado = ResponseUtil::prepareReturnDataPagination($todosBrindes, $brindesAtuais, "brindes", $pagination);
                 $mensagem = $resultado["mensagem"];
