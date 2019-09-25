@@ -12,7 +12,7 @@ $(function() {
     var form = {};
     var clientesSelectListBox = $("#clientes-list");
     var clientesList = [];
-    var funcionariosSelectListBox = $("#brindes-list");
+    var funcionariosSelectListBox = $("#funcionarios-list");
     var funcionariosList = [];
 
     var tabela = $("#tabela-dados");
@@ -209,15 +209,17 @@ $(function() {
             type: "GET",
             url: "/api/usuarios/get_funcionarios_list",
             data: {
-                clientes_id: clientesId
+                clientes_id: clientesId,
+                tipo_perfil: [5, 998]
             },
             dataType: "JSON",
             success: function(response) {
 
                 if (response.data !== undefined) {
                     funcionariosSelectListBox.empty();
+                    funcionariosList = [];
 
-                    var data = response.data.brindes;
+                    var data = response.data.usuarios;
                     var collection = [];
                     var options = [];
                     var option = document.createElement("option");
@@ -229,7 +231,7 @@ $(function() {
                         var option = document.createElement("option");
                         var item = {
                             id: dataItem.id,
-                            nome: dataItem.nome_brinde_detalhado
+                            nome: dataItem.nome
                         };
 
                         option.value = item.id;
@@ -239,7 +241,7 @@ $(function() {
                     });
 
                     funcionariosSelectListBox.append(options);
-                    brindesList = collection;
+                    funcionariosList = collection;
                 }
             },
             error: function(response) {

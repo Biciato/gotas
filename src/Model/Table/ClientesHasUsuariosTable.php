@@ -50,29 +50,20 @@ class ClientesHasUsuariosTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsTo(
-            'Cliente',
-            array(
-                'className' => 'Clientes',
-                'foreignKey' => 'clientes_id',
-                'joinType' => 'LEFT'
-            )
-        );
-
-        $this->hasMany(
             'Clientes',
             [
                 'className' => 'Clientes',
-                'foreignKey' => 'id',
-                'joinType' => 'LEFT'
+                'foreignKey' => 'clientes_id',
+                'joinType' => Query::JOIN_TYPE_LEFT
             ]
         );
 
-        // $this->belongsTo(
+        // $this->hasMany(
         //     'Clientes',
         //     [
         //         'className' => 'Clientes',
-        //         'foreignKey' => 'clientes_id',
-        //         'join' => 'INNER'
+        //         'foreignKey' => 'id',
+        //         'joinType' => 'LEFT'
         //     ]
         // );
 
@@ -159,7 +150,7 @@ class ClientesHasUsuariosTable extends Table
     {
         return $this->find('all')
             ->where($where_conditions)
-            ->contain(['Cliente', 'Usuario'])
+            ->contain(['Clientes', 'Usuario'])
             ->first();
     }
 
@@ -185,262 +176,6 @@ class ClientesHasUsuariosTable extends Table
             ->first();
 
         return $data;
-    }
-
-    /**
-     * ClientesHasUsuarios::getUsuariosFidelizadosClientes
-     *
-     * Obtem clientes fidelizados de postos/rede
-     *
-     * @param array $clientesIds
-     * @param string $nome
-     * @param string $cpf
-     * @param string $veiculo
-     * @param string $documentoEstrangeiro
-     * @param int $status
-     * @param string $dataInicial
-     * @param string $dataFinal
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 13/09/2018
-     *
-     * @return array
-     */
-    public function getUsuariosFidelizadosClientes(
-        array $clientesIds = array(),
-        string $nome = null,
-        string $cpf = null,
-        string $veiculo = null,
-        string $documentoEstrangeiro = null,
-        int $status = null,
-        string $dataInicial = null,
-        string $dataFinal = null
-    ) {
-
-        $whereConditions = array();
-
-        if (!empty($nome)) {
-            $whereConditions[] = array("Usuario.nome like '%$nome%'");
-        }
-
-        if (!empty($cpf)) {
-            $whereConditions[] = array("Usuario.cpf like '%$cpf%'");
-        }
-
-        if (!empty($veiculo)) {
-            $whereConditions[] = array("Veiculos.placa like '%$veiculo%'");
-        }
-
-        if (!empty($documentoEstrangeiro)) {
-            $whereConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
-        }
-
-        if (strlen($status) > 0) {
-            $whereConditions[] = array("Usuario.conta_ativa" => $status);
-        }
-
-        if (!empty($dataInicial)) {
-            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
-        }
-
-        if (!empty($dataFinal)) {
-            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
-        }
-
-        // ResponseUtil::success($whereConditions);
-        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
-
-        // Obtem os ids de usuarios
-        $usuariosCliente = $this->find()
-            ->select(array(
-                "ClientesHasUsuarios.usuarios_id",
-                "ClientesHasUsuarios.audit_insert",
-                "Usuario.id",
-                "Usuario.nome",
-                "Usuario.cpf",
-                "Usuario.doc_estrangeiro",
-                "Usuario.conta_ativa"
-            ))
-            ->where($whereConditions)
-            ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
-            ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
-            ->toArray();
-
-        $usuarios = array();
-        $usuariosIds = array();
-        $usuariosTable = TableRegistry::get("Usuarios");
-        $pontuacoesTable = TableRegistry::get("Pontuacoes");
-
-        // ResponseUtil::success($usuariosCliente);
-        if (count($usuariosCliente) > 0) {
-
-            foreach ($usuariosCliente as $clienteHasUsuario) {
-                if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
-                    $usuariosIds[] = $clienteHasUsuario["usuario"]["id"];
-                    $usuario["id"] = $clienteHasUsuario["usuarios_id"];
-                    $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
-                    $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
-                    $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
-                    $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
-                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
-                    $usuario["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
-                    $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
-                    $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
-                    $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
-                    $usuario["brindesVendidosReais"] = 0;
-                    $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
-
-                    $usuarios[] = $usuario;
-                }
-            }
-        }
-
-        return $usuarios;
-    }
-
-    /**
-     * Pega id de unidades que usuário pode filtrar
-     *
-     * @param int  $redesId         Id da Rede
-     * @param int  $usuariosId      Id de Usuário
-     * @param bool $descartarMatriz Retira ou Inclui matriz
-     *
-     * @return void
-     */
-    public function getClientesFilterAllowedByUsuariosId(int $redesId, int $usuariosId, bool $descartarMatriz = false)
-    {
-        try {
-
-            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
-
-            $usuario = $this->Usuarios->find('all')
-                ->where(['id' => $usuariosId])->first();
-
-            // Rede não tem cliente
-            if (count($clientesIds) == 0) {
-                return null;
-            }
-
-            if ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_NETWORK) {
-                // se for admin rti ou admin rede, pega o id de todas as unidades
-
-                if ($descartarMatriz) {
-                    $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientesIds, 'matriz' => false]);
-                } else {
-                    $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientesIds]);
-                }
-            } elseif ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
-
-                // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
-
-                // pega os id's aos quais ele tem permissão de admin
-
-                $clientesHasUsuariosList = $this
-                    ->find('all')
-                    ->where(
-                        [
-                            'clientes_id in ' => $clientesIds,
-                            'usuarios_id' => $usuario["id"],
-                            // 'Usuarios.tipo_perfil IN ' => [
-                            //     (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
-                            //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
-                            // ]
-                        ]
-                    )->select(array("clientes_id"));
-
-                $clientesIds = [];
-                foreach ($clientesHasUsuariosList as $key => $value) {
-                    $clientesIds[] = $value['clientes_id'];
-                }
-
-                if ($descartarMatriz) {
-
-                    $clientes = $this->Clientes
-                        ->find('list')
-                        ->where(
-                            [
-                                'id IN ' => $clientesIds,
-                                'matriz' => false
-                            ]
-                        );
-                } else {
-                    $clientes = $this->Clientes
-                        ->find('list')
-                        ->where(['id IN ' => $clientesIds]);
-                }
-            } else {
-
-                // pega os id's aos quais ele tem permissão de admin
-
-                $clientesHasUsuariosList = $this
-                    ->find('all')
-                    ->where(
-                        array(
-                            'clientes_id in ' => $clientesIds,
-                            'usuarios_id' => $usuario["id"]
-                        )
-                    )
-                    ->select(array("clientes_id"));
-
-                $clientesIds = [];
-                foreach ($clientesHasUsuariosList as $value) {
-                    $clientesIds[] = $value['clientes_id'];
-                }
-
-                $whereConditions = array("id IN " => $clientesIds);
-
-                if ($descartarMatriz) {
-                    $whereConditions[] = array("matriz" => false);
-                }
-
-                $clientes = $this->Clientes
-                    ->find('list')
-                    ->where($whereConditions);
-            }
-
-            return $clientes->select(array("id", "razao_social"));
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
-
-            Log::write('error', $stringError);
-
-            return $stringError;
-        }
-    }
-
-    /**
-     * Obtem todos os vínculos de um usuário pela rede
-     *
-     * @param integer $redesId    Id da Rede
-     * @param integer $usuariosId Id do usuário
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 01/10/2017
-     *
-     * @return \App\Model\Entity\ClientesHasUsuarios
-     */
-    public function getVinculoClienteUsuario(int $redesId, int $usuariosId)
-    {
-        $conditions = array(
-            "Redes.id" => $redesId,
-            "ClientesHasUsuarios.usuarios_id" => $usuariosId
-        );
-        $usuario = $this->find("all")
-            ->where($conditions)
-            ->contain("RedesHasClientes.Redes")
-            ->select(
-                array(
-                    "id",
-                    "clientes_id",
-                    "usuarios_id",
-                    "conta_ativa"
-                )
-            )->first();
-
-        return $usuario;
     }
 
     /**
@@ -631,6 +366,263 @@ class ClientesHasUsuariosTable extends Table
             Log::write("error", $message);
             throw new Exception($message);
         }
+    }
+
+    /**
+     * Pega id de unidades que usuário pode filtrar
+     *
+     * @param int  $redesId         Id da Rede
+     * @param int  $usuariosId      Id de Usuário
+     * @param bool $descartarMatriz Retira ou Inclui matriz
+     *
+     * @return void
+     */
+    public function getClientesFilterAllowedByUsuariosId(int $redesId, int $usuariosId, bool $descartarMatriz = false)
+    {
+        try {
+
+            $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
+
+            $usuario = $this->Usuarios->find('all')
+                ->where(['id' => $usuariosId])->first();
+
+            // Rede não tem cliente
+            if (count($clientesIds) == 0) {
+                return null;
+            }
+
+            if ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_NETWORK) {
+                // se for admin rti ou admin rede, pega o id de todas as unidades
+
+                if ($descartarMatriz) {
+                    $clientes = $this->Clientes->find('list')
+                        ->where(['id in' => $clientesIds, 'matriz' => false]);
+                } else {
+                    $clientes = $this->Clientes->find('list')
+                        ->where(['id in' => $clientesIds]);
+                }
+            } elseif ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
+
+                // se usuário tem permissão de admin regional ou de local, pega quais as unidades tem acesso
+
+                // pega os id's aos quais ele tem permissão de admin
+
+                $clientesHasUsuariosList = $this
+                    ->find('all')
+                    ->where(
+                        [
+                            'clientes_id in ' => $clientesIds,
+                            'usuarios_id' => $usuario["id"],
+                            // 'Usuarios.tipo_perfil IN ' => [
+                            //     (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
+                            //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
+                            // ]
+                        ]
+                    )->select(array("clientes_id"));
+
+                $clientesIds = [];
+                foreach ($clientesHasUsuariosList as $key => $value) {
+                    $clientesIds[] = $value['clientes_id'];
+                }
+
+                if ($descartarMatriz) {
+
+                    $clientes = $this->Clientes
+                        ->find('list')
+                        ->where(
+                            [
+                                'id IN ' => $clientesIds,
+                                'matriz' => false
+                            ]
+                        );
+                } else {
+                    $clientes = $this->Clientes
+                        ->find('list')
+                        ->where(['id IN ' => $clientesIds]);
+                }
+            } else {
+
+                // pega os id's aos quais ele tem permissão de admin
+
+                $clientesHasUsuariosList = $this
+                    ->find('all')
+                    ->where(
+                        array(
+                            'clientes_id in ' => $clientesIds,
+                            'usuarios_id' => $usuario["id"]
+                        )
+                    )
+                    ->select(array("clientes_id"));
+
+                $clientesIds = [];
+                foreach ($clientesHasUsuariosList as $value) {
+                    $clientesIds[] = $value['clientes_id'];
+                }
+
+                $whereConditions = array("id IN " => $clientesIds);
+
+                if ($descartarMatriz) {
+                    $whereConditions[] = array("matriz" => false);
+                }
+
+                $clientes = $this->Clientes
+                    ->find('list')
+                    ->where($whereConditions);
+            }
+
+            return $clientes->select(array("id", "razao_social"));
+        } catch (\Exception $e) {
+            $trace = $e->getTraceAsString();
+            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
+
+            Log::write('error', $stringError);
+
+            return $stringError;
+        }
+    }
+
+    /**
+     * ClientesHasUsuarios::getUsuariosFidelizadosClientes
+     *
+     * Obtem clientes fidelizados de postos/rede
+     *
+     * @param array $clientesIds
+     * @param string $nome
+     * @param string $cpf
+     * @param string $veiculo
+     * @param string $documentoEstrangeiro
+     * @param int $status
+     * @param string $dataInicial
+     * @param string $dataFinal
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 13/09/2018
+     *
+     * @return array
+     */
+    public function getUsuariosFidelizadosClientes(
+        array $clientesIds = array(),
+        string $nome = null,
+        string $cpf = null,
+        string $veiculo = null,
+        string $documentoEstrangeiro = null,
+        int $status = null,
+        string $dataInicial = null,
+        string $dataFinal = null
+    ) {
+
+        $whereConditions = array();
+
+        if (!empty($nome)) {
+            $whereConditions[] = array("Usuario.nome like '%$nome%'");
+        }
+
+        if (!empty($cpf)) {
+            $whereConditions[] = array("Usuario.cpf like '%$cpf%'");
+        }
+
+        if (!empty($veiculo)) {
+            $whereConditions[] = array("Veiculos.placa like '%$veiculo%'");
+        }
+
+        if (!empty($documentoEstrangeiro)) {
+            $whereConditions[] = array("Usuario.doc_estrangeiro like '%$documentoEstrangeiro%'");
+        }
+
+        if (strlen($status) > 0) {
+            $whereConditions[] = array("Usuario.conta_ativa" => $status);
+        }
+
+        if (!empty($dataInicial)) {
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+        }
+
+        if (!empty($dataFinal)) {
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+        }
+
+        // ResponseUtil::success($whereConditions);
+        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
+
+        // Obtem os ids de usuarios
+        $usuariosCliente = $this->find()
+            ->select(array(
+                "ClientesHasUsuarios.usuarios_id",
+                "ClientesHasUsuarios.audit_insert",
+                "Usuario.id",
+                "Usuario.nome",
+                "Usuario.cpf",
+                "Usuario.doc_estrangeiro",
+                "Usuario.conta_ativa"
+            ))
+            ->where($whereConditions)
+            ->contain("Usuario.UsuariosHasVeiculos.Veiculos")
+            ->order(array("ClientesHasUsuarios.audit_insert" => "ASC"))
+            ->toArray();
+
+        $usuarios = array();
+        $usuariosIds = array();
+        $usuariosTable = TableRegistry::get("Usuarios");
+        $pontuacoesTable = TableRegistry::get("Pontuacoes");
+
+        // ResponseUtil::success($usuariosCliente);
+        if (count($usuariosCliente) > 0) {
+
+            foreach ($usuariosCliente as $clienteHasUsuario) {
+                if (!in_array($clienteHasUsuario["usuario"]["id"], $usuariosIds)) {
+                    $usuariosIds[] = $clienteHasUsuario["usuario"]["id"];
+                    $usuario["id"] = $clienteHasUsuario["usuarios_id"];
+                    $usuario["dataVinculo"] = $clienteHasUsuario["audit_insert"];
+                    $usuario["nome"] = $clienteHasUsuario["usuario"]["nome"];
+                    $usuario["cpf"] = $clienteHasUsuario["usuario"]["cpf"];
+                    $usuario["docEstrangeiro"] = $clienteHasUsuario["usuario"]["doc_estrangeiro"];
+                    $saldoAtual = $pontuacoesTable->getSumPontuacoesOfUsuario($usuario["id"], null, $clientesIds);
+                    $usuario["gotasAdquiridas"] = $saldoAtual["resumo_gotas"]["total_gotas_adquiridas"];
+                    $usuario["gotasUtilizadas"] = $saldoAtual["resumo_gotas"]["total_gotas_utilizadas"];
+                    $usuario["gotasExpiradas"] = $saldoAtual["resumo_gotas"]["total_gotas_expiradas"];
+                    $usuario["saldoAtual"] = $saldoAtual["resumo_gotas"]["saldo"];
+                    $usuario["brindesVendidosReais"] = 0;
+                    $usuario["contaAtiva"] = $clienteHasUsuario["usuario"]["conta_ativa"];
+
+                    $usuarios[] = $usuario;
+                }
+            }
+        }
+
+        return $usuarios;
+    }
+
+
+    /**
+     * Obtem todos os vínculos de um usuário pela rede
+     *
+     * @param integer $redesId    Id da Rede
+     * @param integer $usuariosId Id do usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 01/10/2017
+     *
+     * @return \App\Model\Entity\ClientesHasUsuarios
+     */
+    public function getVinculoClienteUsuario(int $redesId, int $usuariosId)
+    {
+        $conditions = array(
+            "Redes.id" => $redesId,
+            "ClientesHasUsuarios.usuarios_id" => $usuariosId
+        );
+        $usuario = $this->find("all")
+            ->where($conditions)
+            ->contain("RedesHasClientes.Redes")
+            ->select(
+                array(
+                    "id",
+                    "clientes_id",
+                    "usuarios_id",
+                    "conta_ativa"
+                )
+            )->first();
+
+        return $usuario;
     }
 
     /**

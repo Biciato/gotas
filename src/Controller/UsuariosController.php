@@ -2209,9 +2209,6 @@ class UsuariosController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
-
-
-
     /**
      * UsuariosController::getUsuarioAPI
      *
@@ -2335,10 +2332,10 @@ class UsuariosController extends AppController
 
                 $tipoPerfis = [];
 
-                if (empty($tipoPerfil)) {
-
+                if (!empty($tipoPerfil)) {
+                    $tipoPerfis = $tipoPerfil;
                 } else {
-                    $tipoPerfis[] = $tipoPerfil;
+                    $tipoPerfis = [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER];
                 }
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
@@ -2533,6 +2530,68 @@ class UsuariosController extends AppController
             ResponseUtil::success($usuarios);
         } else {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+    }
+
+    /**
+     * src\Controller\UsuariosController.php::getUsuariosFidelizadosRedeAPI
+     *
+     * Obtem os Usuários Fidelizados pela Rede / Posto(s) da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return json_encode
+     */
+    public function getUsuariosFidelizadosRedeAPI()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $rede = $sessao["rede"];
+        $cliente = $sessao["cliente"];
+
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
+
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : $cliente->id;
+            $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+            $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
+            $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+
+
+            $errors = [];
+            $errorCodes = [];
+
+            #region Validação de parametros preenchidos
+
+            if (empty($redesId)) {
+                // @todo
+            }
+
+            if (empty($clientesId)) {
+                // @todo
+            }
+
+            if (empty($dataInicio)) {
+
+            }
+
+            if (empty($dataFim)) {
+
+            }
+
+            #endregion
+
+            #region Obtem a lista de funcionários e faz o agrupamento
+
+            $funcionarios = [];
+            try {
+                $funcionarios = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+            }
+
+            #endregion
+
         }
     }
 
@@ -3560,8 +3619,6 @@ class UsuariosController extends AppController
         }
     }
 
-
-
     /**
      * BeforeRender callback
      *
@@ -4022,6 +4079,27 @@ class UsuariosController extends AppController
             'dataFinal',
             'usuarios',
         ];
+
+        $this->set(compact($arraySet));
+    }
+
+    /**
+     * Relatório de Usuários Cadastrados pelos funcionários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function relatorioUsuariosCadastradosFuncionarios()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $cliente = $sessao["cliente"];
+
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+
+        $arraySet = ["clientesId"];
 
         $this->set(compact($arraySet));
     }
@@ -4712,6 +4790,4 @@ class UsuariosController extends AppController
     }
 
     #endregion
-
-
 }

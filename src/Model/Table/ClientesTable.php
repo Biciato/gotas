@@ -94,8 +94,9 @@ class ClientesTable extends GenericTable
             ]
         );
 
+        // @todo CONFERIR
         $this->hasOne(
-            'RedeHasCliente',
+            'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
@@ -262,7 +263,7 @@ class ClientesTable extends GenericTable
         try {
 
             $redesHasClientes = $this
-                ->RedeHasCliente->find('all')
+            ->RedesHasClientes->find('all')
                 ->where(
                     [
                         'redes_id' => $redes_id
@@ -295,12 +296,12 @@ class ClientesTable extends GenericTable
 
             // salvou o cliente
             if ($cliente) {
-                $redesHasCliente = $this->RedeHasCliente->newEntity();
+                $redesHasCliente = $this->RedesHasClientes->newEntity();
 
                 $redesHasCliente["redes_id"] = $redes_id;
                 $redesHasCliente["clientes_id"] = $cliente->id;
 
-                $result = $this->RedeHasCliente->save($redesHasCliente);
+                $result = $this->RedesHasClientes->save($redesHasCliente);
             }
 
             return $result;
@@ -734,7 +735,7 @@ class ClientesTable extends GenericTable
             ->contain("RedeHasCliente.Redes")
             ->select($this)
             ->select(array("RedeHasCliente.id"))
-            ->select($this->RedeHasCliente->Redes)
+            ->select($this->RedesHasClientes->Redes)
             ->first();
     }
 
