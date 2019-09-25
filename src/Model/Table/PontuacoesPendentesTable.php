@@ -87,7 +87,7 @@ class PontuacoesPendentesTable extends GenericTable
 
         $this->belongsTo('Clientes', [
             'foreignKey' => 'clientes_id',
-            'joinType' => 'INNER'
+            'joinType' => Query::JOIN_TYPE_LEFT
         ]);
         $this->belongsTo('Usuarios', [
             'foreignKey' => 'usuarios_id',

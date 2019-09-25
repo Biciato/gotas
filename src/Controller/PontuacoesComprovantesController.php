@@ -1828,7 +1828,7 @@ class PontuacoesComprovantesController extends AppController
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
             $mensagem = $cupomPreviamenteImportado;
-            $resposta = array("mensagem" => $mensagem);
+            $resposta = array("mensagem" => $mensagem, "error" => [], "error_codes" => []);
 
             return $resposta;
         }
@@ -1938,14 +1938,15 @@ class PontuacoesComprovantesController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
-                        "errors" => $errors
+                        "errors" => $errors,
+                        "error_codes" => []
                     );
 
                     $arraySet = [
                         "mensagem"
                     ];
 
-                    return ResponseUtil::errorAPI($mensagem["message"], $errors);
+                    return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
                     return;
@@ -2207,9 +2208,8 @@ class PontuacoesComprovantesController extends AppController
 
         if ($processamentoPendente) {
             $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
-            $cliente = $pontuacaoPendente->cliente;
             // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
-            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $cliente->estado));
+            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado));
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
@@ -2567,7 +2567,7 @@ class PontuacoesComprovantesController extends AppController
             $errors[] = "Este registro já foi importado previamente!";
         }
 
-        return array("status" => $status, "message" => $message, "errors" => $errors);
+        return array("status" => $status, "message" => $message, "errors" => $errors, "error_codes" => []);
     }
 
 
@@ -2645,7 +2645,8 @@ class PontuacoesComprovantesController extends AppController
                     "message" => __(Configure::read("messageNotPossibleToImportCoupon")),
                     "errors" => array(
                         __('No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...', $chave, $estado)
-                    )
+                    ),
+                    "error_codes" => []
                 );
 
                 return array(
@@ -2685,7 +2686,8 @@ class PontuacoesComprovantesController extends AppController
                 $mensagem = array(
                     "status" => 1,
                     "message" => __(Configure::read("messageCouponImportSuccess")),
-                    "errors" => array()
+                    "errors" => array(),
+                    "error_codes" => []
                 );
 
                 return array(
