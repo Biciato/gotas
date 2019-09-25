@@ -253,7 +253,7 @@ class TopBrindesController extends AppController
                 }
 
                 // Se a rede não tiver a configuração de app_personalizado, throw error
-                $rede = $this->Redes->getRedeById($rede->id);
+                $rede = $this->Redes->getRedeById($redesId);
 
                 if (!$rede->app_personalizado) {
                     throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
@@ -315,7 +315,7 @@ class TopBrindesController extends AppController
                 }
 
                 // Se a rede não tiver a configuração de app_personalizado, throw error
-                $rede = $this->Redes->getRedeById($rede->id);
+                $rede = $this->Redes->getRedeById($redesId);
 
                 if (!$rede->app_personalizado) {
                     throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
