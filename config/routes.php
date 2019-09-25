@@ -482,10 +482,10 @@ Router::scope("/api", function ($routes) {
                 "path" => "/get_usuario_by_doc_estrangeiro"
             ),
 
-            "getListaUsuariosRedeAPI" => array(
-                "action" => "getListaUsuariosRedeAPI",
-                "method" => "POST",
-                "path" => "/get_lista_usuarios_rede"
+            "getFuncionariosListAPI" => array(
+                "action" => "getFuncionariosListAPI",
+                "method" => "GET",
+                "path" => "/get_funcionarios_list"
             ),
 
             // utilizado pelo Angular

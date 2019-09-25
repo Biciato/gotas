@@ -546,6 +546,38 @@ class PontuacoesController extends AppController
     }
 
     /**
+     * PontuacoesController.php::relatorioGotas
+     *
+     * View para Relatório de Entrada e Saída de Pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-17
+     *
+     * @return void
+     */
+    public function relatorioGotas()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL || !empty($cliente) ? $cliente->id : null;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+
+    /**
      * ------------------------------------------------------------
      * Serviços REST
      * ------------------------------------------------------------

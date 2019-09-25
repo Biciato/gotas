@@ -475,6 +475,8 @@ const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
 #region Clientes
 
 const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimento à gerenciar!";
+const MSG_CLIENTES_FILTER_REQUIRED = "Necessário selecionar um estabelecimento para filtrar!";
+const MSG_CLIENTES_FILTER_REQUIRED_CODE = 0x00050001;
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
@@ -577,7 +579,11 @@ const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID d
 
 #region Redes
 
-const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
+const MSG_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
+const MSG_REDES_ID_EMPTY_CODE = 0x000F0001;
+const MSG_REDES_FILTER_REQUIRED = "Necessário selecionar uma rede para filtrar!";
+const MSG_REDES_FILTER_REQUIRED_CODE = 0x00F0002;
+
 const MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED = "Funcionalidade não permitida para rede sem configuração de APP_PERSONALIZADO!";
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
