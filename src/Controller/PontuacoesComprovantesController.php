@@ -2208,9 +2208,8 @@ class PontuacoesComprovantesController extends AppController
 
         if ($processamentoPendente) {
             $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
-            $cliente = $pontuacaoPendente->cliente;
             // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
-            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $cliente->estado));
+            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado));
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
@@ -2568,7 +2567,7 @@ class PontuacoesComprovantesController extends AppController
             $errors[] = "Este registro já foi importado previamente!";
         }
 
-        return array("status" => $status, "message" => $message, "errors" => $errors);
+        return array("status" => $status, "message" => $message, "errors" => $errors, "error_codes" => []);
     }
 
 
