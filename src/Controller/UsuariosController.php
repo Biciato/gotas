@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use \Exception;
 use App\Controller\AppController;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -2335,20 +2336,20 @@ class UsuariosController extends AppController
                 $tipoPerfis = [];
 
                 if (empty($tipoPerfil)) {
-                    $tipoPerfis[] = [
-                        PROFILE_TYPE_ADMIN_NETWORK,
-                        PROFILE_TYPE_ADMIN_REGIONAL,
-                        PROFILE_TYPE_ADMIN_LOCAL,
-                        PROFILE_TYPE_MANAGER,
-                        PROFILE_TYPE_WORKER,
-                        PROFILE_TYPE_DUMMY_WORKER
-                    ];
+
+                } else {
+                    $tipoPerfis[] = $tipoPerfil;
                 }
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->Usuarios->getfuncionariosRede();
+                $usuariosList = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], $tipoPerfis);
 
-                // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
+                if ($usuariosList) {
+                    $usuariosList = $usuariosList->toArray();
+                    $data = ["usuarios" => $usuariosList];
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $data]);
+                }
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();

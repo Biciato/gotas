@@ -86,7 +86,7 @@ class UsuariosTable extends GenericTable
             [
                 'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
-                "joinType" => "INNER"
+                "joinType" => Query::JOIN_TYPE_LEFT
 
             ]
         );
@@ -805,6 +805,53 @@ class UsuariosTable extends GenericTable
             Log::write('error', $stringError);
 
             return $stringError;
+        }
+    }
+
+    public function getFuncionariosRede(int $redesId, array $clientesIds, array $tipoPerfis)
+    {
+        try {
+
+            $where = [
+                "Redes.id" => $redesId
+            ];
+
+            if (count($clientesIds) > 0) {
+                $where["Cliente.id IN "] = $clientesIds;
+            }
+
+            if (count($tipoPerfis) > 0) {
+                $where["Usuarios.tipo_perfil IN "] = $tipoPerfis;
+            } else {
+                $where["Usuarios.tipo_perfil IN "] = [
+                    PROFILE_TYPE_ADMIN_NETWORK,
+                    PROFILE_TYPE_ADMIN_REGIONAL,
+                    PROFILE_TYPE_ADMIN_LOCAL,
+                    PROFILE_TYPE_MANAGER,
+                    PROFILE_TYPE_WORKER,
+                    PROFILE_TYPE_DUMMY_WORKER
+                ];
+            }
+
+            $usuarios = $this->find("all")
+            ->where($where)
+            ->contain(["ClienteHasUsuario.Cliente.RedeHasCliente.Redes"])
+            ->select(
+                [
+                    "Usuarios.id",
+                    "Usuarios.nome",
+                     "Usuarios.cpf"
+                ]
+            );
+
+            return $usuarios;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
         }
     }
 

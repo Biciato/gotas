@@ -1,8 +1,8 @@
 /**
- * Arquivo de funções para src\Template\Pontuacoes\relatorio_gotas.ctp
+ * Arquivo de funções para src\Template\Usuarios\relatorio_usuarios_cadastrados_funcionarios.ctp
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2019-09-17
+ * @since 2019-09-25
  */
 
 $(function() {
@@ -12,15 +12,16 @@ $(function() {
     var form = {};
     var clientesSelectListBox = $("#clientes-list");
     var clientesList = [];
-    var funcionariosSelectListBox = $("#funcionarios-list");
+    var funcionariosSelectListBox = $("#brindes-list");
     var funcionariosList = [];
-    var brindesList = [];
 
     var tabela = $("#tabela-dados");
     var conteudoTabela = $("#tabela-dados tbody");
     var tipoRelatorio = $("#tipo-relatorio");
     var pesquisarBtn = $("#btn-pesquisar");
     var imprimirBtn = $("#btn-imprimir");
+    // @todo analisar se vai exportar
+    var exportarBtn = "";
 
     var dataAtual = moment().format("DD/MM/YYYY");
 
@@ -54,15 +55,15 @@ $(function() {
     // #region Functions
 
     function init() {
-        brindesList = [];
+        funcionariosList = [];
         var option = document.createElement("option");
         option.value = undefined;
         option.textContent = "Selecione um Estabelecimento para continuar...";
         option.title = "Selecione um Estabelecimento para continuar...";
 
-        brindesList.push(option);
+        funcionariosList.push(option);
         funcionariosSelectListBox.empty();
-        funcionariosSelectListBox.append(brindesList);
+        funcionariosSelectListBox.append(funcionariosList);
 
         // Inicializa campos date
         dataInicio.datepicker().datepicker("setDate", dataAtual);
@@ -215,9 +216,8 @@ $(function() {
 
                 if (response.data !== undefined) {
                     funcionariosSelectListBox.empty();
-                    funcionariosList = [];
 
-                    var data = response.data.usuarios;
+                    var data = response.data.brindes;
                     var collection = [];
                     var options = [];
                     var option = document.createElement("option");
@@ -229,7 +229,7 @@ $(function() {
                         var option = document.createElement("option");
                         var item = {
                             id: dataItem.id,
-                            nome: dataItem.nome
+                            nome: dataItem.nome_brinde_detalhado
                         };
 
                         option.value = item.id;
@@ -239,12 +239,12 @@ $(function() {
                     });
 
                     funcionariosSelectListBox.append(options);
-                    funcionariosList = collection;
+                    brindesList = collection;
                 }
             },
             error: function(response) {
                 var data = response.responseJSON;
-                callModalError(data.mensagem.message, data.mensagem.errors);
+                callModalError(data.mensagem.message, data.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();
