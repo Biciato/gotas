@@ -2342,7 +2342,7 @@ class UsuariosController extends AppController
                         PROFILE_TYPE_MANAGER,
                         PROFILE_TYPE_WORKER,
                         PROFILE_TYPE_DUMMY_WORKER
-                        ];
+                    ];
                 }
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil

@@ -15,6 +15,7 @@ use App\Custom\RTI\WebTools;
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Usuario;
 use App\Model\Entity\Gota;
+use App\Model\Entity\PontuacoesPendente;
 use App\View\Helper\AddressHelper;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Collection\Collection;
@@ -24,6 +25,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
+use Exception;
 
 /**
  * PontuacoesComprovantes Controller
@@ -1423,28 +1425,18 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
-                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData);
+                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData, $retorno["mensagem"]["error_codes"]);
                 }
             }
 
             Log::write('info', 'Finalizado processamento de cupom...');
-        } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            $messageLog = sprintf("%s", $th->getMessage(), $code);
+            Log::write("error", $messageLog);
 
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
-
-            $messageStringDebug = __(
-                "{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ",
-                $messageString,
-                $e->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                __LINE__
-            );
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
         }
     }
 
@@ -1470,7 +1462,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (empty($qrCode)) {
-                    $errors[] = MESSAGE_QR_CODE_EMPTY;
+                    $errors[] = MSG_QR_CODE_EMPTY;
                 }
 
                 if (count($errors) > 0) {
@@ -1803,7 +1795,7 @@ class PontuacoesComprovantesController extends AppController
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
         if ($validacaoQRCode["status"] == false) {
-            $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"]);
+            $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
             $arraySet = array("mensagem");
             $this->set(compact($arraySet));
@@ -1832,11 +1824,11 @@ class PontuacoesComprovantesController extends AppController
         // @todo: Apenas para carater de teste
         // $cupomPreviamenteImportado["status"] = true;
 
+        // return ResponseUtil::successAPI('', $cupomPreviamenteImportado);
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
-
             $mensagem = $cupomPreviamenteImportado;
-            $resposta = array("mensagem" => $mensagem);
+            $resposta = array("mensagem" => $mensagem, "error" => [], "error_codes" => []);
 
             return $resposta;
         }
@@ -1882,9 +1874,18 @@ class PontuacoesComprovantesController extends AppController
 
         // @todo Só para carater de teste
         // $webContent["statusCode"] = 400;
+        // $webContent["statusCode"] = 200;
 
         if ($webContent["statusCode"] == 200) {
             // Caso Mobile: Cliente não é informado
+
+            // DEBUG: Para teste sem retorno
+            // $cliente = $this->Clientes->get(9);
+            // $funcionario = $this->Usuarios->get(108);
+            // $usuario = $this->Usuarios->get(10);
+            // $gotas = $this->Gotas->findGotasByClientesId([$cliente->id])->toArray();
+            // $retorno = $this->processaConteudoSefaz($cliente, $funcionario, $usuario, $gotas, $url, $chaveNfe, $estado, "");
+
             if (empty($cliente)) {
                 /**
                  * Diferente da API AJAX, onde na view é enviado o clientes_id a qual o funcionário
@@ -1937,14 +1938,15 @@ class PontuacoesComprovantesController extends AppController
                     $mensagem = array(
                         "status" => 0,
                         "message" => __(Configure::read("messageClienteNotFoundByCupomFiscal"), $chave),
-                        "errors" => $errors
+                        "errors" => $errors,
+                        "error_codes" => []
                     );
 
                     $arraySet = [
                         "mensagem"
                     ];
 
-                    return ResponseUtil::errorAPI($mensagem["message"], $errors);
+                    return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
                     $this->set(compact($arraySet));
                     $this->set("_serialize", $arraySet);
                     return;
@@ -2046,7 +2048,6 @@ class PontuacoesComprovantesController extends AppController
                 $somaMultiplicador = 0;
 
                 foreach ($pontuacoesTemp as $pontuacaoItem) {
-
                     $pontuacao = $this->Pontuacoes->newEntity();
                     $pontuacao->pontuacoes_comprovante_id =  $pontuacaoComprovanteId;
                     $pontuacao->clientes_id =  $cliente["id"];
@@ -2141,7 +2142,7 @@ class PontuacoesComprovantesController extends AppController
                 $resumo = $resumo;
                 $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
 
-                if ($processamentoPendente) {
+                if ($processamentoPendente && $pontuacoesSave) {
                     $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
                     $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
                 }
@@ -2172,8 +2173,6 @@ class PontuacoesComprovantesController extends AppController
             // Status está anormal, grava para posterior processamento
             $clientesId = empty($cliente) ? null : $cliente["id"];
 
-            // @todo: quando a pontuação pendente for processada, o usuário deve ser adicionado ao vínculo com aquele Ponto de Atendimento
-
             $pontuacaoPendente = $this
                 ->PontuacoesPendentes
                 ->createPontuacaoPendenteAwaitingProcessing(
@@ -2185,14 +2184,14 @@ class PontuacoesComprovantesController extends AppController
                     $estado
                 );
 
-            $errors = array(
-                Configure::read("messageNotPossibleToImportCouponAwaitingProcessing")
-            );
+            $errors = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING];
+            $errorCodes = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE];
             $data = array();
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageNotPossibleToImportCoupon"),
-                "errors" => $errors
+                "errors" => $errors,
+                "error_codes" => $errorCodes
             );
             $resumo = null;
 
@@ -2201,6 +2200,16 @@ class PontuacoesComprovantesController extends AppController
                 "pontuacao_pendente" => $pontuacaoPendente,
                 "resumo" => $resumo
             );
+        }
+
+        Log::write("info", "oro");
+
+        Log::write("info", "Pontuação Pendente: " . $pontuacaoPendente);
+
+        if ($processamentoPendente) {
+            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
+            // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
+            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado));
         }
 
         $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
@@ -2236,38 +2245,15 @@ class PontuacoesComprovantesController extends AppController
          * index: indice do registro na url
          */
 
-        if (empty($url) || strlen($url) == 0) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
+            // $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $errorMessage = MSG_WARNING;
             $status = 0;
-            $errors = array("QR Code não informado!");
+            // $errors = array("QR Code Inválido!");
+            $errors = [MSG_QR_CODE_READING_ERROR];
+            $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
 
-            $result = array(
-                "status" => $status,
-                "message" => $errorMessage,
-                "errors" => $errors,
-                "data" => array()
-            );
-
-            // Retorna Array contendo erros de validações
-            return $result;
-        }
-
-        // Verifica se conteúdo é URL real
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
-            $status = 0;
-            $errors = array("QR Code Inválido!");
-
-            $result = array(
-                "status" => $status,
-                "message" => $errorMessage,
-                "errors" => $errors,
-                "data" => array()
-            );
-
-            // Retorna Array contendo erros de validações
-            return $result;
+            return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], $errorCodes);
         }
 
         $arrayConsistency = array();
@@ -2311,38 +2297,124 @@ class PontuacoesComprovantesController extends AppController
             $explodeString = strpos($url, "|") !== false ? "|" : "%7C";
             $qrCodeArray = explode($explodeString, $qrCodeConteudo);
 
-            $keysQrCodeMG = array("chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode");
+            $tipoQrCode = count($qrCodeArray) > 6 ? "CONTINGENCIA" : "ONLINE";
+            $keysQrCode = [];
 
-            $indexQrCodeArray = 0;
-            $qrCodeArrayRetorno = array();
-            foreach ($keysQrCodeMG as $chave) {
-                if (!empty($qrCodeArray[$indexQrCodeArray])) {
-                    $qrCodeArrayRetorno[] = array(
-                        "key" => $chave,
-                        "content" => $qrCodeArray[$indexQrCodeArray]
-                    );
-                }
-                $indexQrCodeArray++;
-            }
-
-            // $estado = "MG";
+            /**
+             * chNFe = Chave Nota Fiscal Eletronica
+             * nVersao = Número da Versão do QR Code
+             * tpAmb = Tipo Ambiente
+             * dtEmi = Data Emissão (MG = dia emissão)
+             * vlTot = Valor Total
+             * digVal = Digest Value da NFC-e
+             * csc = Identificador do CSC
+             * cHashQRCode = Hash do QR Code
+             */
 
             $status = 1;
             $errorMessage = null;
-            $errors = array();
+            $errors = [];
+            $errorCodes = [];
+
+            if ($estado == "MG") {
+                $arrayConsistency = [];
+
+                if ($tipoQrCode == "ONLINE") {
+                    $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 3, "estado" => $estado];
+                    // Na verdade o Hash é requerido. Mas é possível acessar sem este campo na nota.
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 4, "estado" => $estado];
+                } else {
+                    // @todo
+                    $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'dtEmi', "size" => 2, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 4, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'vlTot', "size" => 15, "fixedSize" => false, "isOptional" => false, "content" => null, "index" => 5, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 7, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'csc', "size" => 6, "fixedSize" => false, "isOptional" => true, "content" => null, "index" => 8, "estado" => $estado];
+                    $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 9, "estado" => $estado];
+                }
+
+                if ($tipoQrCode == "ONLINE") {
+                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode"];
+                } else {
+                    $keysQrCode = ["chNFe", "nVersao", "tpAmb", "dtEmi", "vlTot", "digVal", "csc", "cHashQRCode"];
+                }
+
+                $indexQrCodeArray = 0;
+                $qrCodeArrayRetorno = array();
+                foreach ($keysQrCode as $chave) {
+                    if (!empty($qrCodeArray[$indexQrCodeArray])) {
+                        $qrCodeArrayRetorno[] = array(
+                            "key" => $chave,
+                            "content" => $qrCodeArray[$indexQrCodeArray]
+                        );
+                    }
+                    $indexQrCodeArray++;
+                }
+
+                $arrayConsistencyReturn = [];
+                foreach ($arrayConsistency as $item) {
+                    foreach ($qrCodeArrayRetorno as $qrCodeItem) {
+                        if ($item["key"] == $qrCodeItem["key"]) {
+                            $a = $item;
+                            $a["content"] = $qrCodeItem["content"];
+                            $arrayConsistencyReturn[] = $a;
+                        }
+                    }
+                }
+
+                $arrayConsistency = $arrayConsistencyReturn;
+
+                #region Validação de erros
+                $sefazErrors = [];
+
+                foreach ($arrayConsistency as $itemConsistency) {
+                    // Se não é opcional e está vazio o conteúdo, é um erro
+                    if (!$itemConsistency["isOptional"] && empty($itemConsistency["content"])) {
+                        $sefazErrors[] = $itemConsistency["key"];
+                    }
+
+                    // Se o tamanho é fixo e o tamanho real difere, também é erro
+                    if (($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) || (strlen($itemConsistency["content"]) > $itemConsistency["size"])) {
+                        $sefazErrors[] = $itemConsistency["key"];
+                    }
+                }
+
+                if (count($sefazErrors) > 0) {
+                    $status = 0;
+                    $errors = [MSG_QR_CODE_READING_ERROR];
+                    $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
+                    $errorMessage = MESSAGE_GENERIC_EXCEPTION;
+
+                    Log::write("info", sprintf("[%s]: %s", MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE, MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN));
+                    Log::write("info", sprintf("Cupom com erro [%s] / Campos com erro: [%s].", $url, implode(" - ", $sefazErrors)));
+                }
+
+                #endregion
+            }
 
             $result = array(
                 "status" => $status,
                 "message" => $errorMessage,
                 "errors" => $errors,
-                "data" => $qrCodeArrayRetorno,
+                "error_codes" => $errorCodes,
+                "data" => $arrayConsistency,
                 "url_real" => $url,
-                "estado" => $estado
+                "estado" => $estado,
+                "tipo_operacao_sefaz" => $tipoQrCode
             );
+
+            // ResponseUtil::successAPI('', $result);
 
             // Retorna Array contendo erros de validações
             return $result;
         }
+
+        // código antigo para bahia ou rio grande do sul
 
         $stringSearch = "sefaz.";
         $index = stripos($url, $stringSearch) + strlen($stringSearch);
@@ -2360,6 +2432,7 @@ class PontuacoesComprovantesController extends AppController
         $arrayConsistency[] = ["key" => 'digVal', "size" => 56, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
         $arrayConsistency[] = ["key" => 'cIdToken', "size" => 6, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
         $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
+
 
         $hasErrors = false;
 
@@ -2430,7 +2503,7 @@ class PontuacoesComprovantesController extends AppController
         $errors = array();
 
         if (sizeof($arrayErrors) > 0) {
-            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré- estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
+            $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $status = 0;
             $errors = $arrayErrors;
         }
@@ -2444,6 +2517,8 @@ class PontuacoesComprovantesController extends AppController
             "estado" => $estado
         );
 
+        // debug
+        // return ResponseUtil::successAPI('', $result);
         // Retorna Array contendo erros de validações
         return $result;
     }
@@ -2492,7 +2567,7 @@ class PontuacoesComprovantesController extends AppController
             $errors[] = "Este registro já foi importado previamente!";
         }
 
-        return array("status" => $status, "message" => $message, "errors" => $errors);
+        return array("status" => $status, "message" => $message, "errors" => $errors, "error_codes" => []);
     }
 
 
@@ -2517,9 +2592,9 @@ class PontuacoesComprovantesController extends AppController
         $dataProcessamento = date("Y-m-d H:i:s");
         $isXML = StringUtil::validarConteudoXML($conteudo);
 
-        if (Configure::read("debug")) {
-            Log::write("debug", $conteudo);
-        }
+        // if (Configure::read("debug")) {
+        //     Log::write("debug", $conteudo);
+        // }
 
         if ($isXML) {
             $xml = SefazUtil::obtemDadosXMLCupomSefaz($conteudo);
@@ -2531,9 +2606,36 @@ class PontuacoesComprovantesController extends AppController
             return $retorno;
         } else {
             // É HTML
+            $pontuacoesHtml = [];
 
+            try {
+                // $conteudo = 'a';
+                if (strlen($conteudo) == 0) {
+                    // Site da SEFAZ possivelmente fora do ar ou em manutenção
+                    throw new Exception(MSG_NOT_POSSIBLE_TO_IMPORT_COUPON, MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE);
+                }
+
+                $pontuacoesHtml = SefazUtil::obtemDadosHTMLCupomSefaz($conteudo, $gotas, $estado);
+
+                if (count($pontuacoesHtml) == 0) {
+                    throw new Exception(sprintf(MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT, $estado, $chave), MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT_CODE);
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
+                    Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
+
+                    // gera novo registro de pontuação pendente
+                    $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $estado);
+
+                    Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id, $url, $estado));
+                }
+
+                throw new Exception($message, $code);
+            }
             // Obtem todos os dados de pontuações
-            $pontuacoesHtml = SefazUtil::obtemDadosHTMLCupomSefaz($conteudo, $gotas, $estado);
 
             // Prepara dados de cupom para gravar
             // Só gera o comprovante se tiver alguma pontuação
@@ -2543,7 +2645,8 @@ class PontuacoesComprovantesController extends AppController
                     "message" => __(Configure::read("messageNotPossibleToImportCoupon")),
                     "errors" => array(
                         __('No Cupom Fiscal {0} da SEFAZ do estado {1} não há gotas à processar conforme configurações definidas!...', $chave, $estado)
-                    )
+                    ),
+                    "error_codes" => []
                 );
 
                 return array(
@@ -2583,7 +2686,8 @@ class PontuacoesComprovantesController extends AppController
                 $mensagem = array(
                     "status" => 1,
                     "message" => __(Configure::read("messageCouponImportSuccess")),
-                    "errors" => array()
+                    "errors" => array(),
+                    "error_codes" => []
                 );
 
                 return array(

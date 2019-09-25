@@ -334,7 +334,7 @@ class TopBrindesController extends AppController
                 }
 
                 $data = ['top_brindes' => $topBrindes];
-                return ResponseUtil::successAPI(MESSAGE_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
             }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
