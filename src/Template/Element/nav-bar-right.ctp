@@ -306,6 +306,7 @@ if (empty($usuarioLogado)) {
                     <li>
                         <?php echo $this->Html->link('Relatório de Pontuações', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
                         <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
 
                     <li role="separator" class="divider" />

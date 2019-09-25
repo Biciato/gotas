@@ -15,6 +15,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use DateTime;
 use Exception;
 
 /**
@@ -609,7 +610,7 @@ class ClientesHasUsuariosTable extends Table
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-27
-     * 
+     *
      * @param integer $clientesId Id de Clientes/Posto
      * @param integer $usuariosId Id de usuário
      *
@@ -679,7 +680,7 @@ class ClientesHasUsuariosTable extends Table
 
     /**
      * Adiciona novo Usuário em cliente
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-10-11
      *
@@ -711,6 +712,7 @@ class ClientesHasUsuariosTable extends Table
             $clientesHasUsuario->usuarios_id = (int) $usuariosId;
             // $clientesHasUsuario["tipo_perfil"] = (int)$tipoPerfil;
             $clientesHasUsuario->conta_ativa = (int) $contaAtiva;
+            $clientesHasUsuario->data = new DateTime('now');
 
             if (!empty($funcionariosId)) {
                 $clientesHasUsuario->audit_user_insert_id = $funcionariosId;
