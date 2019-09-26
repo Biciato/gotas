@@ -275,6 +275,7 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -341,6 +342,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -513,6 +515,7 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
@@ -590,6 +593,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;

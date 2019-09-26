@@ -699,7 +699,6 @@ class PontuacoesController extends AppController
         $status = false;
         $message = null;
         try {
-
             $usuario = $this->Auth->user();
 
             if ($this->request->is("post")) {
@@ -765,10 +764,12 @@ class PontuacoesController extends AppController
                     return;
                 }
 
+                $clientesIds = !empty($clientesId) ? [$clientesId] : [];
+
                 $retorno = $this->Pontuacoes->getExtratoPontuacoesOfUsuario(
                     $usuario["id"],
                     $redesId,
-                    array($clientesId),
+                    $clientesIds,
                     $tipoOperacao,
                     $brindesNome,
                     $gotasNomeParametro,
