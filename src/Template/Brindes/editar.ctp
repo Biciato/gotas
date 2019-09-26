@@ -132,7 +132,12 @@ echo $this->Breadcrumbs->render(
 
         <?php if ($permiteCadastrarBrindeRede) : ?>
         <div class="form-group row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
+                <label for="local">Local Secundário de Brinde: </label>
+                <input type="text" name="local" id="local" value="<?= $brinde->local ?>" class="form-control">
+            </div>
+            
+            <div class="col-lg-3">
                 <label for="brinde-rede">Brinde de Rede?*</label>
                 <?= $this->Form->input(
                         "brinde_rede",
@@ -149,7 +154,7 @@ echo $this->Breadcrumbs->render(
                         )
                     ); ?>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="ilimitado">Ilimitado*</label>
                 <?= $this->Form->input(
                         "ilimitado",
@@ -167,7 +172,7 @@ echo $this->Breadcrumbs->render(
                         )
                     ); ?>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="habilitado">Habilitado*</label>
                 <?= $this->Form->input(
                         "habilitado",
