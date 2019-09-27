@@ -181,15 +181,15 @@ class GotasTable extends GenericTable
 
     /**
      * GotasTable::saveUpdateBonificacaoExtraSefaz
-     * 
+     *
      * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-21
      *
      * @param array $clientesIds Ids de Clientes
      * @param integer $qteGotasBonificacao Qte Bonificação
-     * 
+     *
      * @return \App\Model\Entity\Gota $gota
      */
     public function saveUpdateBonificacaoExtraSefaz(array $clientesIds, int $qteGotasBonificacao)
@@ -341,14 +341,14 @@ class GotasTable extends GenericTable
 
     /**
      * GotasTable::getGotaBonificacaoSefaz
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-21
-     * 
+     *
      * Obtem Gota de Bonificação Sefaz do Posto
      *
      * @param integer $clientesId
-     * 
+     *
      * @return \App\Model\Entity\Gota
      */
     public function getGotaBonificacaoSefaz(int $clientesId)
@@ -368,7 +368,7 @@ class GotasTable extends GenericTable
                 ]
             )->first();
         } catch (Exception $ex) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $ex->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $ex->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }

@@ -362,7 +362,7 @@ class ClientesHasUsuariosTable extends Table
                     ]
                 )->first();
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }
@@ -375,12 +375,11 @@ class ClientesHasUsuariosTable extends Table
      * @param int  $usuariosId      Id de Usuário
      * @param bool $descartarMatriz Retira ou Inclui matriz
      *
-     * @return void
+     * @return Cake\ORM\Query
      */
     public function getClientesFilterAllowedByUsuariosId(int $redesId, int $usuariosId, bool $descartarMatriz = false)
     {
         try {
-
             $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
 
             $usuario = $this->Usuarios->find('all')
@@ -592,6 +591,63 @@ class ClientesHasUsuariosTable extends Table
         return $usuarios;
     }
 
+    /**
+     * ClientesHasUsuariosTable::getUsuariosCadastradosFuncionarios
+     *
+     * Obtem os usuários que foram cadastrados pelos funcionários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-27
+     *
+     * @param integer $redesId Redes Id
+     * @param integer $clientesId Clientes Id
+     * @param integer $funcionariosId Funcionarios Id
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data Fim
+     *
+     * @return Cake\ORM\Query<App\Model\Entity\ClientesHasUsuario[]>
+     */
+    public function getUsuariosCadastradosFuncionarios(int $redesId, int $clientesId = 0, int $funcionariosId = 0, DateTime $dataInicio = null, DateTime $dataFim = null)
+    {
+        try {
+            $where = [
+                "Redes.id" => $redesId
+            ];
+
+            if (!empty($clientesId)) {
+                $where["Clientes.id"] = $clientesId;
+            }
+
+            if (!empty($funcionariosId)) {
+                $where[] = ["ClientesHasUsuarios.audit_user_insert_id" => $funcionariosId];
+            }
+
+            if (!empty($dataInicio)) {
+                $where[] = ["ClientesHasUsuarios.data >= " => $dataInicio];
+            }
+
+            if (!empty($dataFim)) {
+                $where[] = ["ClientesHasUsuarios.data <= " => $dataFim];
+            }
+
+            // ResponseUtil::successAPI('', $where);
+
+
+            $contain = [
+                "Clientes.RedesHasClientes.Redes",
+                "Usuarios"
+            ];
+
+            return $this
+                ->find("all")
+                ->where($where)
+                ->contain($contain);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
+        }
+    }
 
     /**
      * Obtem todos os vínculos de um usuário pela rede

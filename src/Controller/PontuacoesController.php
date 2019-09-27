@@ -873,7 +873,7 @@ class PontuacoesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
 

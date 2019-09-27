@@ -863,7 +863,7 @@ class UsuariosTable extends GenericTable
 
             return $usuarios;
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
             $code = $th->getCode();

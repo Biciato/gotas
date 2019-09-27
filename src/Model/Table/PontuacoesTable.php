@@ -1246,8 +1246,8 @@ class PontuacoesTable extends GenericTable
                 ->select($selectList);
         } catch (\Throwable $th) {
 
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
-            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
             throw new Exception($message, $code);
         }

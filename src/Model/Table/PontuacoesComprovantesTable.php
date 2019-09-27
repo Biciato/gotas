@@ -642,9 +642,9 @@ class PontuacoesComprovantesTable extends GenericTable
                 ->select($selectList)->count();
 
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
-            throw new Exception($message, MESSAGE_LOAD_EXCEPTION_CODE);
+            throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
         }
     }
 

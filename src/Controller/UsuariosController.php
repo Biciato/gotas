@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use \Exception;
+use \Throwable;
 use App\Controller\AppController;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -2327,7 +2328,7 @@ class UsuariosController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
                 $tipoPerfis = [];
@@ -2555,6 +2556,7 @@ class UsuariosController extends AppController
 
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
             $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : $cliente->id;
+            $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
             $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
             $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
             $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
@@ -2565,33 +2567,106 @@ class UsuariosController extends AppController
 
             #region Validação de parametros preenchidos
 
-            if (empty($redesId)) {
-                // @todo
-            }
-
-            if (empty($clientesId)) {
-                // @todo
-            }
-
-            if (empty($dataInicio)) {
-
-            }
-
-            if (empty($dataFim)) {
-
-            }
-
-            #endregion
-
-            #region Obtem a lista de funcionários e faz o agrupamento
-
-            $funcionarios = [];
             try {
-                $funcionarios = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+                if (empty($redesId)) {
+                    // @todo
+                }
+
+                if (empty($clientesId)) {
+                    // @todo
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+                //code...
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+                $length = count($errors);
+
+                if ($length == 0) {
+                    $errorCodes[] = MSG_LOAD_EXCEPTION_CODE;
+                    $errors[] = MSG_LOAD_EXCEPTION;
+                    $length = count($errors);
+                }
+
+                for ($i = 0; $i < $length; $i++) {
+                    Log::write("error", sprintf("[%s] %s: %s.", MSG_LOAD_EXCEPTION, $errors[$i], $errorCodes[$i]));
+                }
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, $errors, [], $errorCodes);
             }
 
             #endregion
 
+            // Obtem a lista de funcionários e faz o agrupamento
+            $funcionarios = [];
+
+            try {
+                if (empty($funcionariosId)) {
+                    $funcionarios = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+                    $funcionarios = $funcionarios->toArray();
+                } else {
+                    $funcionario = $this->Usuarios->get($funcionariosId);
+                    $funcionarios[] = $funcionario;
+                }
+            } catch (Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            /**
+             * Com a lista de funcionários, verifica quais foram os clientes cadastrados pelos funcionários
+             * dentro daquela rede / posto
+             */
+
+            $dataRetorno = [];
+            try {
+                foreach ($funcionarios as $funcionario) {
+                    $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $clientesId, $funcionario->id, $dataInicio, $dataFim);
+                    $data = [
+                        "funcionario" => [
+                            "id" => $funcionario->id,
+                            "nome" => $funcionario->nome,
+                            "clientes_has_usuarios" => $usuarios->toArray()
+                        ]
+                    ];
+
+                    $dataRetorno[] = $data;
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => ["usuarios" => $dataRetorno]]);
         }
     }
 

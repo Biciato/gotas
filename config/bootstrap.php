@@ -332,8 +332,8 @@ const MSG_ERROR = "Erro!";
 const MSG_WARNING = "Atenção!";
 
 // Erros
-const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
-const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
+const MSG_LOAD_EXCEPTION_CODE = 0x00000004;
+const MSG_LOAD_EXCEPTION = "Exceção ao obter dados!";
 const MESSAGE_SAVED_EXCEPTION_CODE = 0x00000005;
 const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
 const MESSAGE_DELETE_EXCEPTION_CODE = 0x00000006;

@@ -336,7 +336,7 @@ class ClientesTable extends GenericTable
                 ->select("Clientes.id")
                 ->first();
         } catch (Exception $e) {
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $e->getMessage()));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage()));
 
             throw new Exception($e->getMessage());
         }
