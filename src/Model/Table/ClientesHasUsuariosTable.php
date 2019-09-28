@@ -671,10 +671,10 @@ class ClientesHasUsuariosTable extends Table
             ->contain("RedesHasClientes.Redes")
             ->select(
                 array(
-                    "id",
-                    "clientes_id",
-                    "usuarios_id",
-                    "conta_ativa"
+                    "ClientesHasUsuarios.id",
+                    "ClientesHasUsuarios.clientes_id",
+                    "ClientesHasUsuarios.usuarios_id",
+                    "ClientesHasUsuarios.conta_ativa"
                 )
             )->first();
 
@@ -700,7 +700,7 @@ class ClientesHasUsuariosTable extends Table
             );
             $clientesUsuarios = $this->find("all")
                 ->where($whereConditions)
-                ->contain("Cliente");
+                ->contain("Clientes");
             // ->order(
             //     array("tipo_perfil" => "ASC")
             // );

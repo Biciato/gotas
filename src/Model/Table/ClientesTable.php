@@ -732,9 +732,9 @@ class ClientesTable extends GenericTable
         return $this
             ->find('all')
             ->where(array('Clientes.cnpj' => $cnpj))
-            ->contain("RedeHasCliente.Redes")
+            ->contain("RedesHasClientes.Redes")
             ->select($this)
-            ->select(array("RedeHasCliente.id"))
+            ->select(array("RedesHasClientes.id"))
             ->select($this->RedesHasClientes->Redes)
             ->first();
     }

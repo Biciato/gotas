@@ -353,7 +353,7 @@ class RedesTable extends GenericTable
                     [
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
-                        'RedesHasClientes.Cliente'
+                        'RedesHasClientes.Clientes'
                     ]
                 );
             }
@@ -519,7 +519,7 @@ class RedesTable extends GenericTable
                     array(
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
-                        'RedesHasClientes.Cliente.Brindes'
+                        'RedesHasClientes.Clientes.Brindes'
                     )
                 )
                 ->first();

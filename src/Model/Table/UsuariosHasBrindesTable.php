@@ -296,15 +296,15 @@ class UsuariosHasBrindesTable extends GenericTable
                 ->where(['clientes_id in' => $clientesIds])
                 ->select(['id']);
 
-            $clientes_has_brindes_habilitados_ids = [];
+            $brindesIds = [];
 
             foreach ($brindesClientesIds as $key => $value) {
-                array_push($clientes_has_brindes_habilitados_ids, $value['id']);
+                array_push($brindesIds, $value['id']);
             }
 
-            if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
+            if (sizeof($brindesIds) > 0) {
                 return $this
-                    ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
+                    ->deleteAll(['brindes_id in' => $brindesIds]);
             } else {
                 return true;
             }
