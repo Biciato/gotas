@@ -24,6 +24,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
+use App\Custom\RTI\DebugUtil;
 
 /**
  * Usuarios Controller
@@ -2053,6 +2054,7 @@ class UsuariosController extends AppController
 
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
+            // DebugUtil::printArray($usuarios->toArray());
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
 
             $arraySet = array("usuarios", "perfisUsuariosList");
@@ -2647,11 +2649,12 @@ class UsuariosController extends AppController
             try {
                 foreach ($funcionarios as $funcionario) {
                     $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $clientesId, $funcionario->id, $dataInicio, $dataFim);
+                    $usuarios = $usuarios->toArray();
                     $data = [
                         "funcionario" => [
                             "id" => $funcionario->id,
                             "nome" => $funcionario->nome,
-                            "clientes_has_usuarios" => $usuarios->toArray()
+                            "clientes_has_usuarios" => $usuarios
                         ]
                     ];
 

@@ -124,8 +124,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <tbody>
         <?php foreach ($usuarios as $key => $usuario) : ?>
             <tr>
-                <td><?= h($usuario["cliente_has_usuario"]["cliente"]["redes_has_cliente"]["rede"]["nome_rede"]) ?></td>
-                <td><?= h($usuario["cliente_has_usuario"]["cliente"]["nome_fantasia"]) ?></td>
+                <td><?= h($usuario["clientes_has_usuario"]["cliente"]["redes_has_cliente"]["rede"]["nome_rede"]) ?></td>
+                <td><?= h($usuario["clientes_has_usuario"]["cliente"]["nome_fantasia"]) ?></td>
                 <td><?= h($this->UserUtil->getProfileType($usuario["tipo_perfil"])) ?></td>
                 <td><?= h($usuario->nome) ?></td>
                 <td><?= h($usuario->email) ?></td>
@@ -144,7 +144,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     'action' => 'iniciar_administracao_usuario',
                                     "?" =>
                                         array(
-                                        "clientesId" => $usuario["cliente_has_usuario"]["clientes_id"],
+                                        "clientesId" => $usuario["clientes_has_usuario"]["clientes_id"],
                                         'usuariosId' => $usuario["id"],
                                     )
                                 )

@@ -622,7 +622,7 @@ class ClientesTable extends GenericTable
                     [
                         'Clientes.id' => $clientes_id
                     ]
-                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes', "ClientesHasQuadroHorarios"]);
+                )->contain(['RedesHasClientes.Redes', "ClientesHasQuadroHorarios"]);
 
             if (sizeof($selectFields) > 0) {
                 $cliente = $cliente->select($selectFields);

@@ -1388,7 +1388,7 @@ class UsuariosTable extends GenericTable
                 ->order(array("Usuarios.nome" => "ASC"));
 
             if ($join) {
-                $arrayContain[] = 'ClientesHasUsuarios.Cliente.RedesHasClientes.Redes';
+                $arrayContain[] = 'ClientesHasUsuarios.Clientes.RedesHasClientes.Redes';
             }
 
             $usuarios->contain($arrayContain);
@@ -1446,7 +1446,7 @@ class UsuariosTable extends GenericTable
                     "Redes.nome_rede",
                     "Redes.nome_img",
                     "Redes.propaganda_img",
-                    "Cliente.nome_fantasia",
+                    "Clientes.nome_fantasia",
                 );
                 $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
             }
