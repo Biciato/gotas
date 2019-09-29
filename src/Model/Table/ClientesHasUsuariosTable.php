@@ -54,7 +54,7 @@ class ClientesHasUsuariosTable extends Table
             [
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
-                'joinType' => Query::JOIN_TYPE_LEFT
+                'joinType' => Query::JOIN_TYPE_INNER
             ]
         );
 

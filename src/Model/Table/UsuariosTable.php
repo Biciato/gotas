@@ -846,10 +846,10 @@ class UsuariosTable extends GenericTable
                 ];
             }
 
-            $usuarios = $this->find("all")
+            $usuarios = $this->ClientesHasUsuarios->find("all")
                 ->where($where)
                 ->contain(
-                    ["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"]
+                    ["Clientes.RedesHasClientes.Redes", "Usuarios"]
                 )
                 ->select(
                     [
@@ -859,7 +859,9 @@ class UsuariosTable extends GenericTable
                         "Clientes.id",
                         "Clientes.nome_fantasia",
                     ]
-                );
+                )
+                ;
+
 
             return $usuarios;
         } catch (\Throwable $th) {
@@ -884,7 +886,8 @@ class UsuariosTable extends GenericTable
     public function getUsuarioById($id)
     {
         try {
-            return $this->get($id);
+            // @todo testar
+            return $this->get($id)->contain("ClientesHasUsuarios.Clientes");
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());

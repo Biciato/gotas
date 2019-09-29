@@ -2647,13 +2647,15 @@ class UsuariosController extends AppController
 
             $dataRetorno = [];
             try {
-                foreach ($funcionarios as $funcionario) {
+                foreach ($funcionarios as $funcionarioItem) {
+                    $funcionario = $funcionarioItem->Usuarios;
                     $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $clientesId, $funcionario->id, $dataInicio, $dataFim);
                     $usuarios = $usuarios->toArray();
                     $data = [
                         "funcionario" => [
                             "id" => $funcionario->id,
                             "nome" => $funcionario->nome,
+                            "cliente" => $funcionarioItem->cliente,
                             "clientes_has_usuarios" => $usuarios
                         ]
                     ];

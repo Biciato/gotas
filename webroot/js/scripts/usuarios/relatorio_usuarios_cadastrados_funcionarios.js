@@ -636,8 +636,8 @@ $(function() {
                     //     });
                     // });
                 } else {
-                    data.pontuacoes.forEach(element => {
-                        // Dados do Estabelecimento
+                    data.forEach(element => {
+                        // Dados do Funcionário / Estabelecimento
                         var rowCliente = document.createElement("tr");
 
                         var cellLabelCliente = document.createElement("td");
@@ -651,107 +651,14 @@ $(function() {
                         cellInfoCliente.colSpan = 2;
                         cellInfoCliente.append(infoCliente);
 
+                        var cellLabelFuncionario = document.createElement("td");
+
                         rowCliente.append(cellLabelCliente);
                         rowCliente.append(cellInfoCliente);
 
-                        // Cabeçalho de periodo
 
-                        var rowHeaderPeriodo = document.createElement("tr");
-                        var cellLabelPeriodo = document.createElement("td");
-                        var labelPeriodo = document.createElement("strong");
-                        labelPeriodo.textContent = "Período";
-                        cellLabelPeriodo.append(labelPeriodo);
-
-
-                        var cellLabelEntrada = document.createElement("td");
-                        var labelEntrada = document.createElement("strong");
-                        labelEntrada.textContent = "Entrada";
-                        cellLabelEntrada.append(labelEntrada);
-
-                        var cellLabelSaida = document.createElement("td");
-                        var labelSaida = document.createElement("strong");
-                        labelSaida.textContent = "Saida";
-                        cellLabelSaida.append(labelSaida);
-
-                        rowHeaderPeriodo.append(cellLabelPeriodo);
-                        rowHeaderPeriodo.append(cellLabelEntrada);
-                        rowHeaderPeriodo.append(cellLabelSaida);
-
-                        // Periodos e valores
-
-                        var pontuacoesEntradas = element.pontuacoes_entradas;
-                        var pontuacoesSaidas = element.pontuacoes_saidas;
-                        var length = pontuacoesEntradas;
-                        var rowsDadosPeriodos = [];
-
-                        for (let index = 0; index < length; index++) {
-                            var item = {
-                                periodo: moment(pontuacoesEntradas[index].periodo, "YYYY-MM").format("MM/YYYY"),
-                                gotasEntradas:
-                                    pontuacoesEntradas[index].qte_gotas,
-                                gotasSaidas: pontuacoesSaidas[index].qte_gotas
-                            };
-
-                            var rowPeriodo = document.createElement("tr");
-
-                            var labelItemPeriodo = document.createElement("span");
-                            labelItemPeriodo.textContent = item.periodo;
-
-                            var cellItemLabelPeriodo = document.createElement("td");
-                            cellItemLabelPeriodo.append(labelItemPeriodo);
-                            cellItemLabelPeriodo.classList.add("text-right");
-
-                            var textEntrada = document.createElement("span");
-                            textEntrada.textContent = item.gotasEntradas;
-
-                            var cellItemEntrada = document.createElement("td");
-                            cellItemEntrada.append(textEntrada);
-                            cellItemEntrada.classList.add("text-right");
-
-                            var textSaida = document.createElement("span");
-                            textSaida.textContent = item.gotasSaidas;
-
-                            var cellItemSaida = document.createElement("td");
-                            cellItemSaida.append(textSaida);
-                            cellItemSaida.classList.add("text-right");
-
-                            rowPeriodo.append(cellItemLabelPeriodo);
-                            rowPeriodo.append(cellItemEntrada);
-                            rowPeriodo.append(cellItemSaida);
-
-                            rowsDadosPeriodos.push(rowPeriodo);
-                        }
-
-                        // Linha de soma
-
-                        var rowSomaPeriodo = document.createElement("tr");
-
-                        var labelSomaPeriodo = document.createElement("span");
-                        labelSomaPeriodo.textContent = "Soma Estabelecimento";
-
-                        var cellLabelSomaPeriodo = document.createElement("td");
-                        cellLabelSomaPeriodo.append(labelSomaPeriodo);
-
-                        var textSomaPeriodoEntrada = document.createElement("span");
-                        textSomaPeriodoEntrada.textContent = element.soma_entradas;
-
-                        var cellTextSomaPeriodoEntrada = document.createElement("td");
-                        cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
-                        cellTextSomaPeriodoEntrada.classList.add("text-right");
-
-                        var textSomaPeriodoSaida = document.createElement("span");
-                        textSomaPeriodoSaida.textContent = element.soma_saidas;
-
-                        var cellTextSomaPeriodoSaida = document.createElement("td");
-                        cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
-                        cellTextSomaPeriodoSaida.classList.add("text-right");
-
-                        rowSomaPeriodo.append(cellLabelSomaPeriodo);
-                        rowSomaPeriodo.append(cellTextSomaPeriodoEntrada);
-                        rowSomaPeriodo.append(cellTextSomaPeriodoSaida);
 
                         rows.push(rowCliente);
-                        rows.push(rowHeaderPeriodo);
 
                         rowsDadosPeriodos.forEach(item => {
                             rows.push(item);
