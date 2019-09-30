@@ -2627,10 +2627,14 @@ class PontuacoesComprovantesController extends AppController
                 if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
                     Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
 
-                    // gera novo registro de pontuação pendente
-                    $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $estado);
-
-                    Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id, $url, $estado));
+                    // Gera novo registro de pontuação pendente SE ainda não está pendente
+                    $pontuacaoPendenteExiste = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $estado);
+                    if (empty($pontuacaoPendenteExiste)) {
+                        $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $estado);
+                        Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id, $url, $estado));
+                    } else {
+                        Log::write("info", sprintf("Registro já aguardando processamento, não sendo necessário novo registro. [cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s]. ", $cliente->id, $usuario->id, $funcionario->id, $url, $estado));
+                    }
                 }
 
                 throw new Exception($message, $code);
