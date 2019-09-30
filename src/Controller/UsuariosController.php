@@ -25,6 +25,7 @@ use App\Custom\RTI\ImageUtil;
 use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
 use App\Custom\RTI\DebugUtil;
+use stdClass;
 
 /**
  * Usuarios Controller
@@ -2342,7 +2343,7 @@ class UsuariosController extends AppController
                 }
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], $tipoPerfis);
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$clientesId], null, $tipoPerfis);
 
                 if ($usuariosList) {
                     $usuariosList = $usuariosList->toArray();
@@ -2537,8 +2538,7 @@ class UsuariosController extends AppController
     }
 
     /**
-     * src\Controller\UsuariosController.php::getUsuariosFidelizadosRedeAPI
-     *
+     * @filesource src\Controller\UsuariosController.php::getUsuariosFidelizadosRedeAPI
      * Obtem os Usuários Fidelizados pela Rede / Posto(s) da Rede
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
@@ -2596,6 +2596,20 @@ class UsuariosController extends AppController
                 $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
                 $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
 
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                    // Máximo de tempo será 1 mês
+                    if ($dataDiferenca->m >= 1) {
+                        throw new Exception(MSG_MAX_FILTER_TIME_ONE_MONTH, MSG_MAX_FILTER_TIME_ONE_MONTH_CODE);
+                    }
+                } else {
+                    // Máximo de tempo será 1 ano
+                    if ($dataDiferenca->y >= 1) {
+                        throw new Exception(MSG_MAX_FILTER_TIME_ONE_YEAR, MSG_MAX_FILTER_TIME_ONE_YEAR_CODE);
+                    }
+                }
+
                 if (count($errors) > 0) {
                     throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
@@ -2624,13 +2638,27 @@ class UsuariosController extends AppController
             $funcionarios = [];
 
             try {
-                if (empty($funcionariosId)) {
-                    $funcionarios = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
-                    $funcionarios = $funcionarios->toArray();
+
+                $clientes = [];
+                if (empty($clientesId)) {
+                    $clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
                 } else {
-                    $funcionario = $this->Usuarios->get($funcionariosId);
-                    $funcionarios[] = $funcionario;
+                    $cliente = $this->Clientes->get($clientesId);
+                    $clientes[] = $cliente;
                 }
+
+                $clientesTemp = [];
+
+                foreach ($clientes as $cliente) {
+                    $funcionariosTemp = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$cliente->id], $funcionariosId, [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+                    $data = new stdClass();
+                    // $data->funcionarios = $funcionariosTemp->toArray();
+                    $data = $cliente;
+                    $data->funcionarios = $funcionariosTemp->toArray();
+                    $clientesTemp[] = $data;
+                }
+
+                $clientes = $clientesTemp;
             } catch (Throwable $th) {
                 $code = $th->getCode();
                 $message = $th->getMessage();
@@ -2640,27 +2668,22 @@ class UsuariosController extends AppController
                 return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
             }
 
+            // ResponseUtil::successAPI(null, ['data' => $clientesData]);
             /**
              * Com a lista de funcionários, verifica quais foram os clientes cadastrados pelos funcionários
              * dentro daquela rede / posto
              */
-
             $dataRetorno = [];
-            try {
-                foreach ($funcionarios as $funcionarioItem) {
-                    $funcionario = $funcionarioItem->Usuarios;
-                    $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $clientesId, $funcionario->id, $dataInicio, $dataFim);
-                    $usuarios = $usuarios->toArray();
-                    $data = [
-                        "funcionario" => [
-                            "id" => $funcionario->id,
-                            "nome" => $funcionario->nome,
-                            "cliente" => $funcionarioItem->cliente,
-                            "clientes_has_usuarios" => $usuarios
-                        ]
-                    ];
 
-                    $dataRetorno[] = $data;
+            try {
+                foreach ($clientes as $cliente) {
+                    foreach ($cliente->funcionarios as $funcionario) {
+                        $funcionario = $funcionario->usuario;
+                        $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
+                        $usuarios = $usuarios->toArray();
+                        $funcionario->clientes_has_usuarios = $usuarios;
+                    }
+                    // $cliente["clientes_has_usuarios"] = $usuarios;
                 }
             } catch (\Throwable $th) {
                 $code = $th->getCode();
@@ -2671,7 +2694,10 @@ class UsuariosController extends AppController
                 return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
             }
 
-            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => ["usuarios" => $dataRetorno]]);
+            $dataRetorno = new stdClass();
+            $dataRetorno->clientes = $clientes;
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
         }
     }
 

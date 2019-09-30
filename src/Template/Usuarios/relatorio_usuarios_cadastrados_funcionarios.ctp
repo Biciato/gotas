@@ -101,6 +101,12 @@ echo $this->Breadcrumbs->render(
     <!-- Botões de Exportar e Imprimir -->
 
     <!-- Tabela de dados -->
+    <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
+        <tbody>
+            <span></span>
+        </tbody>
+
+    </table>
 
 </div>
 

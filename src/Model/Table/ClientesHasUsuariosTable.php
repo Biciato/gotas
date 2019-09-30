@@ -481,6 +481,82 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * src\Model\Table\ClientesHasUsuariosTable.php::getFuncionariosRede
+     *
+     * Obtem os Funcionários de uma Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-30
+     *
+     * @param integer $redesId Id da Rede
+     * @param array $clientesIds Ids de clientes
+     * @param int $funcionariosId Id do Funcionário
+     * @param array $tipoPerfis Tipos de Perfis
+     *
+     * @return \App\Model\Entity\Usuario[] lista de Usuários
+     */
+    public function getFuncionariosRede(int $redesId, array $clientesIds, int $funcionariosId = null, array $tipoPerfis = [])
+    {
+        try {
+            $where = [];
+            $where[] = [
+                "Redes.id" => $redesId
+            ];
+
+            if (count($clientesIds) > 0) {
+                $where[] = ["Clientes.id IN " => $clientesIds];
+            }
+
+            if (count($tipoPerfis) > 0) {
+                $where[] = ["Usuarios.tipo_perfil IN " => $tipoPerfis];
+            } else {
+                $where[] = [
+                    "Usuarios.tipo_perfil IN " => [
+                        PROFILE_TYPE_ADMIN_NETWORK,
+                        PROFILE_TYPE_ADMIN_REGIONAL,
+                        PROFILE_TYPE_ADMIN_LOCAL,
+                        PROFILE_TYPE_MANAGER,
+                        PROFILE_TYPE_WORKER,
+                        PROFILE_TYPE_DUMMY_WORKER
+                    ]
+                ];
+            }
+
+            if (!empty($funcionariosId)) {
+                $where[] = ["Usuarios.id" => $funcionariosId];
+            }
+
+            $usuarios = $this->find("all")
+                ->where($where)
+                ->contain(
+                    ["Clientes.RedesHasClientes.Redes", "Usuarios"]
+                )
+                ->select(
+                    [
+                        "Usuarios.id",
+                        "Usuarios.nome",
+                        "Usuarios.cpf",
+                        "Usuarios.email",
+                        "Clientes.id",
+                        "Clientes.nome_fantasia",
+                        "ClientesHasUsuarios.clientes_id",
+                        "ClientesHasUsuarios.usuarios_id",
+                        "ClientesHasUsuarios.conta_ativa"
+                    ]
+                );
+
+            return $usuarios;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
+        }
+    }
+
+    /**
      * ClientesHasUsuarios::getUsuariosFidelizadosClientes
      *
      * Obtem clientes fidelizados de postos/rede

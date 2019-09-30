@@ -300,8 +300,8 @@ $(function() {
                     data.forEach(dataItem => {
                         var option = document.createElement("option");
                         var item = {
-                            id: dataItem.id,
-                            nome: dataItem.nome
+                            id: dataItem.usuario.id,
+                            nome: dataItem.usuario.nome
                         };
 
                         option.value = item.id;
@@ -372,11 +372,13 @@ $(function() {
             data: data,
             dataType: "JSON",
             success: function(response) {
+                // closeLoaderAnimation();
+
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
                 imprimirBtn.on("click", imprimirRelatorio);
 
-                var data = response.data.usuarios;
+                var data = response.data.clientes;
 
                 if (data.length > 0) {
                     conteudoTabela.empty();
@@ -636,8 +638,8 @@ $(function() {
                     //     });
                     // });
                 } else {
-                    data.forEach(element => {
-                        // Dados do Funcionário / Estabelecimento
+                    data.forEach(estabelecimento => {
+                        // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
 
                         var cellLabelCliente = document.createElement("td");
@@ -647,53 +649,149 @@ $(function() {
 
                         var cellInfoCliente = document.createElement("td");
                         var infoCliente = document.createElement("strong");
-                        infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                        infoCliente.textContent = estabelecimento.nome_fantasia + " / " + estabelecimento.razao_social;
                         cellInfoCliente.colSpan = 2;
                         cellInfoCliente.append(infoCliente);
 
-                        var cellLabelFuncionario = document.createElement("td");
 
                         rowCliente.append(cellLabelCliente);
                         rowCliente.append(cellInfoCliente);
+
+                        // Dados de Funcionário
+
+                        var rowsInfoFuncionario = [];
+
+                        estabelecimento.funcionarios.forEach(funcionario => {
+
+                            var rowFuncionario = document.createElement("tr");
+
+                            var cellTituloFuncionario = document.createElement("td");
+                            var textTituloFuncionario = document.createElement("strong");
+                            textTituloFuncionario.textContent = "Funcionário: ";
+                            cellTituloFuncionario.append(textTituloFuncionario);
+
+                            var cellLabelFuncionario = document.createElement("td");
+                            var textLabelFuncionario = document.createElement("strong");
+                            textLabelFuncionario.textContent = funcionario.usuario.nome + " (" + funcionario.usuario.email + ")";
+
+                            cellLabelFuncionario.append(textLabelFuncionario);
+                            // cellLabelFuncionario.colSpan = 2;
+
+                            rowFuncionario.append(cellTituloFuncionario);
+                            rowFuncionario.append(cellLabelFuncionario);
+
+
+                            // Dados de usuários cadastrados
+
+                            var rowsUsuarios = [];
+
+                            rowsInfoFuncionario.push(rowFuncionario);
+
+                            // Header de informações dos clientes (SE tiver), se não tiver, apenas um header informando que não há usuários cadastrados para aquele período)
+
+                            if(funcionario.usuario.clientes_has_usuarios.length > 0) {
+
+                                var rowHeaderUsuarios = document.createElement("tr");
+
+                                // nome email cpf data
+
+                                var cellNomeTitulo = document.createElement("td");
+                                var textNomeTitulo = document.createElement("strong");
+                                textNomeTitulo.textContent = "Nome:";
+                                cellNomeTitulo.append(textNomeTitulo);
+
+                                var cellEmailTitulo = document.createElement("td");
+                                var textEmailTitulo = document.createElement("strong");
+                                textEmailTitulo.textContent = "Email:";
+                                cellEmailTitulo.append(textEmailTitulo);
+
+                                var cellCPFTitulo = document.createElement("td");
+                                var textCPFTitulo = document.createElement("strong");
+                                textCPFTitulo.textContent = "CPF:";
+                                cellCPFTitulo.append(textCPFTitulo);
+
+                                var cellDataTitulo = document.createElement("td");
+                                var textDataTitulo = document.createElement("strong");
+                                textDataTitulo.textContent = "Data:";
+                                cellDataTitulo.append(textDataTitulo);
+
+                                rowHeaderUsuarios.append(cellNomeTitulo);
+                                rowHeaderUsuarios.append(cellEmailTitulo);
+                                rowHeaderUsuarios.append(cellCPFTitulo);
+                                rowHeaderUsuarios.append(cellDataTitulo);
+                                rowsUsuarios.push(rowHeaderUsuarios);
+
+                                funcionario.usuario.clientes_has_usuarios.forEach(clienteUsuario => {
+                                    var cellNomeUsuario = document.createElement("td");
+                                    var nomeUsuario = document.createElement("span");
+                                    nomeUsuario.textContent = clienteUsuario.usuario.nome;
+                                    cellNomeUsuario.append(nomeUsuario);
+
+                                    var cellDataCriacaoUsuario = document.createElement("td");
+                                    var dataCriacaoUsuario = document.createElement("span");
+                                    var data = moment(clienteUsuario.data, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                                    dataCriacaoUsuario.textContent = data;
+                                    cellDataCriacaoUsuario.append(dataCriacaoUsuario);
+
+                                    var rowUsuarioCadastrado = document.createElement("tr");
+                                    rowUsuarioCadastrado.append(cellNomeUsuario);
+                                    rowUsuarioCadastrado.append(cellDataCriacaoUsuario);
+
+                                    rowsUsuarios.push(rowUsuarioCadastrado);
+
+                                });
+                                rowsUsuarios.forEach(row => {
+                                    rowsInfoFuncionario.push(row);
+
+                                });
+
+                            } else {
+                                // @todo
+                            }
+
+
+
+
+                        });
+
 
 
 
                         rows.push(rowCliente);
 
-                        rowsDadosPeriodos.forEach(item => {
+                        rowsInfoFuncionario.forEach(item => {
                             rows.push(item);
                         });
 
-                        rows.push(rowSomaPeriodo);
                     });
 
                     // Linha de soma total
 
-                    var rowTotal = document.createElement("tr");
-                    var cellLabelTotal = document.createElement("td");
-                    var labelTotal = document.createElement("strong");
+                    // var rowTotal = document.createElement("tr");
+                    // var cellLabelTotal = document.createElement("td");
+                    // var labelTotal = document.createElement("strong");
 
-                    labelTotal.classList.add("text-bold");
-                    labelTotal.textContent = "Total";
-                    cellLabelTotal.append(labelTotal);
+                    // labelTotal.classList.add("text-bold");
+                    // labelTotal.textContent = "Total";
+                    // cellLabelTotal.append(labelTotal);
 
-                    var textTotalEntradas = document.createElement("strong");
-                    textTotalEntradas.textContent = data.total_entradas;
-                    var cellTotalEntradas = document.createElement("td");
-                    cellTotalEntradas.classList.add("text-right");
-                    cellTotalEntradas.append(textTotalEntradas);
+                    // var textTotalEntradas = document.createElement("strong");
+                    // textTotalEntradas.textContent = data.total_entradas;
+                    // var cellTotalEntradas = document.createElement("td");
+                    // cellTotalEntradas.classList.add("text-right");
+                    // cellTotalEntradas.append(textTotalEntradas);
 
-                    var textTotalSaidas = document.createElement("strong");
-                    textTotalSaidas.textContent = data.total_saidas;
-                    var cellTotalSaidas = document.createElement("td");
-                    cellTotalSaidas.classList.add("text-right");
-                    cellTotalSaidas.append(textTotalSaidas);
+                    // var textTotalSaidas = document.createElement("strong");
+                    // textTotalSaidas.textContent = data.total_saidas;
+                    // var cellTotalSaidas = document.createElement("td");
+                    // cellTotalSaidas.classList.add("text-right");
+                    // cellTotalSaidas.append(textTotalSaidas);
 
-                    rowTotal.append(cellLabelTotal);
-                    rowTotal.append(cellTotalEntradas);
-                    rowTotal.append(cellTotalSaidas);
+                    // rowTotal.append(cellLabelTotal);
+                    // rowTotal.append(cellTotalEntradas);
+                    // rowTotal.append(cellTotalSaidas);
 
-                    rows.push(rowTotal);
+                    // rows.push(rowTotal);
                 }
                 conteudoTabela.append(rows);
             },
