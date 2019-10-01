@@ -390,254 +390,6 @@ $(function() {
                 var rows = [];
 
                 if (form.tipoRelatorio == "Analítico") {
-                    // data.pontuacoes.forEach(element => {
-                    //     // Dados do Estabelecimento
-                    //     var rowCliente = document.createElement("tr");
-
-                    //     var labelCliente = document.createElement("strong");
-                    //     labelCliente.textContent = "Estabelecimento: ";
-                    //     var cellLabelCliente = document.createElement("td");
-                    //     cellLabelCliente.classList.add("font-weight-bold");
-                    //     cellLabelCliente.append(labelCliente);
-
-                    //     var cellInfoCliente = document.createElement("td");
-                    //     var infoCliente = document.createElement("strong");
-                    //     infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                    //     cellInfoCliente.colSpan = 6;
-                    //     cellInfoCliente.classList.add("text-right");
-
-                    //     cellInfoCliente.append(infoCliente);
-
-                    //     rowCliente.append(cellLabelCliente);
-                    //     rowCliente.append(cellInfoCliente);
-
-                    //     rows.push(rowCliente);
-
-                    //     // Fim dados Estabelecimento
-
-                    //     // Linhas periodos
-
-                    //     var rowsPeriodos = [];
-                    //     var pontuacoesLength = element.pontuacoes_entradas.length;
-                    //     var pontuacoesEntradas = element.pontuacoes_entradas;
-                    //     var pontuacoesSaidas = element.pontuacoes_saidas;
-
-                    //     for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
-                    //         var pontuacoesEntradaPeriodoList = pontuacoesEntradas[pontuacoesIndex];
-                    //         var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
-
-                    //         var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
-                    //         var pontuacoesEntradaDataList = pontuacoesEntradaPeriodoList.data;
-                    //         var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
-
-                    //         var mesAtual = '';
-                    //         var ultimaData = '';
-
-                    //         for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
-                    //             var entrada = pontuacoesEntradaDataList[indexData];
-                    //             var saida = pontuacoesSaidaDataList[indexData];
-                    //             var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
-
-                    //             // O header deve ser construído se a data muda
-                    //             if (ultimaData !== periodoAtual) {
-                    //                 ultimaData = periodoAtual;
-                    //                 // Linha que indica o cabeçalho dos períodos
-                    //                 var rowPeriodo = document.createElement("tr");
-
-                    //                 var cellPeriodoLabel = document.createElement("td");
-                    //                 var labelPeriodo = document.createElement("strong");
-                    //                 labelPeriodo.textContent = "Data";
-                    //                 cellPeriodoLabel.append(labelPeriodo);
-
-                    //                 var cellPeriodoTextoLabel = document.createElement("td");
-                    //                 var labelPeriodoValue = document.createElement("strong");
-
-                    //                 mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
-                    //                 labelPeriodoValue.textContent = periodoAtual;
-                    //                 cellPeriodoTextoLabel.append(labelPeriodoValue);
-                    //                 cellPeriodoTextoLabel.colSpan = 6;
-                    //                 cellPeriodoTextoLabel.classList.add("text-right");
-
-                    //                 rowPeriodo.append(cellPeriodoLabel);
-                    //                 rowPeriodo.append(cellPeriodoTextoLabel);
-
-                    //                 rowsPeriodos.push(rowPeriodo);
-
-                    //                 // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
-                    //                 var headerDadosPeriodoRow = document.createElement("tr");
-
-                    //                 var cellLabelGota = document.createElement("td");
-                    //                 var textlabelGota = document.createElement("strong");
-                    //                 textlabelGota.textContent = "Gota:";
-                    //                 cellLabelGota.append(textlabelGota);
-
-                    //                 var cellLabelUsuarioEntrada = document.createElement("td");
-                    //                 var textUsuarioEntrada = document.createElement("strong");
-                    //                 textUsuarioEntrada.textContent = "Usuário:";
-                    //                 cellLabelUsuarioEntrada.append(textUsuarioEntrada);
-
-                    //                 var cellLabelGotasEntrada = document.createElement("td");
-                    //                 var textEntradaGotas = document.createElement("strong");
-                    //                 textEntradaGotas.textContent = "Gotas";
-                    //                 cellLabelGotasEntrada.append(textEntradaGotas);
-
-                    //                 var cellLabelUsuarioSaida = document.createElement("td");
-                    //                 var textUsuarioSaida = document.createElement("strong");
-                    //                 textUsuarioSaida.textContent = "Usuário:";
-                    //                 cellLabelUsuarioSaida.append(textUsuarioSaida);
-
-                    //                 var cellLabelBrindesSaida = document.createElement("td");
-                    //                 var textBrindesSaida = document.createElement("strong");
-                    //                 textBrindesSaida.textContent = "Brindes";
-                    //                 cellLabelBrindesSaida.append(textBrindesSaida);
-
-                    //                 var cellLabelGotasSaida = document.createElement("td");
-                    //                 var textSaidaGotas = document.createElement("strong");
-                    //                 textSaidaGotas.textContent = "Gotas";
-                    //                 cellLabelGotasSaida.append(textSaidaGotas);
-
-                    //                 headerDadosPeriodoRow.append(document.createElement("td"));
-                    //                 headerDadosPeriodoRow.append(cellLabelGota);
-                    //                 headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
-                    //                 headerDadosPeriodoRow.append(cellLabelGotasEntrada);
-                    //                 headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
-                    //                 headerDadosPeriodoRow.append(cellLabelBrindesSaida);
-                    //                 headerDadosPeriodoRow.append(cellLabelGotasSaida);
-
-                    //                 rowsPeriodos.push(headerDadosPeriodoRow);
-                    //             }
-
-                    //             // Info de entrada
-                    //             var row = document.createElement("tr");
-                    //             var cellEmpty = document.createElement("td");
-
-                    //             row.append(cellEmpty);
-
-                    //             var cellEntradaGota = document.createElement("td");
-                    //             var labelEntradaGota = document.createElement("span");
-                    //             labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
-                    //             cellEntradaGota.append(labelEntradaGota);
-
-                    //             var cellEntradaUsuario = document.createElement("td");
-                    //             var labelEntradaUsuario = document.createElement("span");
-                    //             labelEntradaUsuario.textContent = entrada.usuario !== undefined ? entrada.usuario.nome : "";
-                    //             cellEntradaUsuario.append(labelEntradaUsuario);
-
-                    //             var cellEntradaQteGota = document.createElement("td");
-                    //             var labelEntradaQteGota = document.createElement("span");
-                    //             labelEntradaQteGota.textContent = entrada.qte_gotas;
-                    //             cellEntradaQteGota.classList.add("text-right");
-                    //             cellEntradaQteGota.append(labelEntradaQteGota);
-
-                    //             // Info de Saida
-                    //             var cellSaidaUsuario = document.createElement("td");
-                    //             var labelSaidaUsuario = document.createElement("span");
-                    //             labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
-                    //             cellSaidaUsuario.append(labelSaidaUsuario);
-
-                    //             var cellSaidaBrinde = document.createElement("td");
-                    //             var labelSaidaBrinde = document.createElement("span");
-                    //             labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
-                    //             cellSaidaBrinde.append(labelSaidaBrinde);
-
-                    //             var cellSaidaQteGota = document.createElement("td");
-                    //             var labelSaidaQteGota = document.createElement("span");
-                    //             labelSaidaQteGota.textContent = saida.qte_gotas;
-                    //             cellSaidaQteGota.classList.add("text-right");
-                    //             cellSaidaQteGota.append(labelSaidaQteGota);
-
-                    //             row.append(cellEntradaGota);
-                    //             row.append(cellEntradaUsuario);
-                    //             row.append(cellEntradaQteGota);
-                    //             row.append(cellSaidaUsuario);
-                    //             row.append(cellSaidaBrinde);
-                    //             row.append(cellSaidaQteGota);
-
-                    //             rowsPeriodos.push(row);
-                    //         }
-
-                    //         // Total periodo
-
-                    //         var rowTotalPeriodo = document.createElement("tr");
-                    //         var cellLabelTotal = document.createElement("td");
-                    //         var labelTotal = document.createElement("strong");
-
-                    //         labelTotal.textContent = "Total Período: " + mesAtual;
-                    //         cellLabelTotal.append(labelTotal);
-
-                    //         var cellLabelEntradaTotal = document.createElement("td");
-                    //         var labelEntradaTotal = document.createElement("strong");
-                    //         labelEntradaTotal.textContent = pontuacoesEntradaPeriodoList.soma_entradas;
-                    //         cellLabelEntradaTotal.classList.add("text-right");
-                    //         cellLabelEntradaTotal.colSpan = 3;
-                    //         cellLabelEntradaTotal.append(labelEntradaTotal);
-
-                    //         var cellLabelSaidaTotal = document.createElement("td");
-                    //         var labelSaidaTotal = document.createElement("strong");
-                    //         labelSaidaTotal.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
-                    //         cellLabelSaidaTotal.classList.add("text-right");
-                    //         cellLabelSaidaTotal.colSpan = 3;
-                    //         cellLabelSaidaTotal.append(labelSaidaTotal);
-
-                    //         rowTotalPeriodo.append(cellLabelTotal);
-                    //         rowTotalPeriodo.append(cellLabelEntradaTotal);
-                    //         rowTotalPeriodo.append(cellLabelSaidaTotal);
-
-                    //         rowsPeriodos.push(rowTotalPeriodo);
-                    //     }
-
-                    //     if(pontuacoesLength == 0) {
-                    //         // Se não teve registro, adiciona uma linha informando que não teve movimentação
-
-                    //         var rowEmpty = document.createElement("tr");
-                    //         var cell = document.createElement("td");
-                    //         var label = document.createElement("strong");
-
-                    //         label.textContent = "Não há registros à serem exibidos!";
-                    //         cell.append(label);
-                    //         cell.colSpan = 7;
-                    //         cell.classList.add("text-center");
-                    //         rowEmpty.append(cell);
-                    //         rowsPeriodos.push(rowEmpty);
-                    //     }
-
-                    //     // Linhas Periodo
-
-                    //     // Linha Total Geral
-
-                    //     var rowTotal = document.createElement("tr");
-                    //     var cellLabelTotal = document.createElement("td");
-                    //     var labelTotal = document.createElement("strong");
-
-                    //     labelTotal.classList.add("text-bold");
-                    //     labelTotal.textContent = "Total Geral";
-                    //     cellLabelTotal.append(labelTotal);
-
-                    //     var textTotalEntradas = document.createElement("strong");
-                    //     var cellTotalEntradas = document.createElement("td");
-                    //     textTotalEntradas.textContent = data.total_entradas;
-                    //     cellTotalEntradas.classList.add("text-right");
-                    //     cellTotalEntradas.colSpan = 3;
-                    //     cellTotalEntradas.append(textTotalEntradas);
-
-                    //     var textTotalSaidas = document.createElement("strong");
-                    //     var cellTotalSaidas = document.createElement("td");
-                    //     textTotalSaidas.textContent = data.total_saidas;
-                    //     cellTotalSaidas.classList.add("text-right");
-                    //     cellTotalSaidas.colSpan = 3;
-                    //     cellTotalSaidas.append(textTotalSaidas);
-
-                    //     rowTotal.append(cellLabelTotal);
-                    //     rowTotal.append(cellTotalEntradas);
-                    //     rowTotal.append(cellTotalSaidas);
-
-                    //     rowsPeriodos.push(rowTotal);
-
-                    //     rowsPeriodos.forEach(element => {
-                    //         rows.push(element);
-                    //     });
-                    // });
-                } else {
                     data.clientes.forEach(estabelecimento => {
                         // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
@@ -794,11 +546,129 @@ $(function() {
                             }
                         });
 
+                        rows.push(rowCliente);
+                        rowsInfoFuncionario.forEach(item => {
+                            rows.push(item);
+                        });
+
+                    });
+
+                    // Linha de soma total
+
+                    var rowTotal = document.createElement("tr");
+                    var cellLabelTotal = document.createElement("td");
+                    var labelTotal = document.createElement("strong");
+
+                    labelTotal.classList.add("text-bold");
+                    labelTotal.textContent = "Total";
+                    cellLabelTotal.append(labelTotal);
+
+                    var textTotal = document.createElement("strong");
+                    textTotal.textContent = data.clientes_has_usuarios_total;
+                    var cellTotal = document.createElement("td");
+                    cellTotal.classList.add("text-right");
+                    cellTotal.colSpan = 3;
+                    cellTotal.append(textTotal);
+
+                    rowTotal.append(cellLabelTotal);
+                    rowTotal.append(cellTotal);
+
+                    rows.push(rowTotal);
+                } else {
+                    data.clientes.forEach(estabelecimento => {
+                        // Dados do Estabelecimento
+                        var rowCliente = document.createElement("tr");
+
+                        var cellLabelCliente = document.createElement("td");
+                        var labelCliente = document.createElement("strong");
+                        labelCliente.textContent = "Estabelecimento: ";
+                        cellLabelCliente.colSpan = 2;
+                        cellLabelCliente.append(labelCliente);
+
+                        var cellInfoCliente = document.createElement("td");
+                        var infoCliente = document.createElement("strong");
+                        infoCliente.textContent = estabelecimento.nome_fantasia + " / " + estabelecimento.razao_social;
+                        cellInfoCliente.colSpan = 2;
+                        cellInfoCliente.append(infoCliente);
 
 
+                        rowCliente.append(cellLabelCliente);
+                        rowCliente.append(cellInfoCliente);
+
+                        // Dados de Funcionário
+
+                        var rowsInfoFuncionario = [];
+
+                        estabelecimento.funcionarios.forEach(funcionario => {
+
+                            var rowFuncionario = document.createElement("tr");
+
+                            var cellTituloFuncionario = document.createElement("td");
+                            var textTituloFuncionario = document.createElement("strong");
+                            textTituloFuncionario.textContent = "Funcionário: ";
+                            cellTituloFuncionario.colSpan = 2;
+                            cellTituloFuncionario.append(textTituloFuncionario);
+
+                            var cellLabelFuncionario = document.createElement("td");
+                            var textLabelFuncionario = document.createElement("strong");
+                            textLabelFuncionario.textContent = funcionario.usuario.nome + " (" + funcionario.usuario.email + ")";
+                            cellLabelFuncionario.append(textLabelFuncionario);
+                            cellLabelFuncionario.colSpan = 2;
+
+                            rowFuncionario.append(cellTituloFuncionario);
+                            rowFuncionario.append(cellLabelFuncionario);
+
+
+                            // Dados de usuários cadastrados
+
+                            var rowsUsuarios = [];
+
+                            rowsInfoFuncionario.push(rowFuncionario);
+
+                            // Header de informações dos clientes (SE tiver), se não tiver, apenas um header informando que não há usuários cadastrados para aquele período)
+
+                            if(funcionario.usuario.clientes_has_usuarios_soma > 0) {
+
+                                var rowTotalFuncionario = document.createElement("tr");
+
+                                var cellTotalFuncionario = document.createElement("td");
+                                var labelTotalFuncionario = document.createElement("strong");
+                                labelTotalFuncionario.textContent = "Soma: ";
+                                cellTotalFuncionario.colSpan = 2;
+                                cellTotalFuncionario.append(labelTotalFuncionario);
+
+                                var cellQteTotalFuncionario = document.createElement("td");
+                                var textTotalFuncionario = document.createElement("strong");
+                                textTotalFuncionario.textContent = funcionario.usuario.clientes_has_usuarios_soma;
+                                cellQteTotalFuncionario.classList.add("text-right");
+                                cellQteTotalFuncionario.colSpan = 2;
+                                cellQteTotalFuncionario.append(textTotalFuncionario);
+
+                                rowTotalFuncionario.append(cellTotalFuncionario);
+                                rowTotalFuncionario.append(cellQteTotalFuncionario);
+
+                                rowsUsuarios.forEach(row => {
+                                    rowsInfoFuncionario.push(row);
+                                });
+                                rowsInfoFuncionario.push(rowTotalFuncionario);
+
+                            } else {
+                                // Não há usuário para o funcionário em questão
+
+                                var rowInfoSemUsuario = document.createElement("tr");
+                                var cellInfoSemUsuario = document.createElement("td");
+                                var labelInfoSemUsuario = document.createElement("strong");
+                                labelInfoSemUsuario.textContent = "Não há usuários cadastrados no período para o funcionário: " + funcionario.usuario.nome;
+                                cellInfoSemUsuario.colSpan = 4;
+                                cellInfoSemUsuario.classList.add("text-center");
+                                cellInfoSemUsuario.append(labelInfoSemUsuario);
+                                rowInfoSemUsuario.append(cellInfoSemUsuario);
+
+                                rowsInfoFuncionario.push(rowInfoSemUsuario);
+                            }
+                        });
 
                         rows.push(rowCliente);
-
                         rowsInfoFuncionario.forEach(item => {
                             rows.push(item);
                         });

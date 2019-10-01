@@ -2601,12 +2601,14 @@ class UsuariosController extends AppController
                 if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                     // Máximo de tempo será 1 mês
                     if ($dataDiferenca->m >= 1) {
-                        throw new Exception(MSG_MAX_FILTER_TIME_ONE_MONTH, MSG_MAX_FILTER_TIME_ONE_MONTH_CODE);
+                        $errors[] = MSG_MAX_FILTER_TIME_ONE_MONTH;
+                        $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_MONTH_CODE;
                     }
                 } else {
                     // Máximo de tempo será 1 ano
                     if ($dataDiferenca->y >= 1) {
-                        throw new Exception(MSG_MAX_FILTER_TIME_ONE_YEAR, MSG_MAX_FILTER_TIME_ONE_YEAR_CODE);
+                        $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                        $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                     }
                 }
 
@@ -2681,10 +2683,10 @@ class UsuariosController extends AppController
                     foreach ($cliente->funcionarios as $funcionario) {
                         $funcionario = $funcionario->usuario;
                         $queryUsuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
-                        // if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                        if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                             $usuarios = $queryUsuarios->toArray();
                             $funcionario->clientes_has_usuarios = $usuarios;
-                        // }
+                        }
                         $count = $queryUsuarios->count();
                         $totalUsuarios += $count;
                         $funcionario->clientes_has_usuarios_soma = $count;
