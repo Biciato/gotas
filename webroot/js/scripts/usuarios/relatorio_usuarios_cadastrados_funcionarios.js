@@ -378,9 +378,9 @@ $(function() {
                 imprimirBtn.removeClass("readonly");
                 imprimirBtn.on("click", imprimirRelatorio);
 
-                var data = response.data.clientes;
+                var data = response.data;
 
-                if (data.length > 0) {
+                if (data.clientes_has_usuarios_total > 0) {
                     conteudoTabela.empty();
 
                     $(tabela).hide();
@@ -638,13 +638,14 @@ $(function() {
                     //     });
                     // });
                 } else {
-                    data.forEach(estabelecimento => {
+                    data.clientes.forEach(estabelecimento => {
                         // Dados do Estabelecimento
                         var rowCliente = document.createElement("tr");
 
                         var cellLabelCliente = document.createElement("td");
                         var labelCliente = document.createElement("strong");
                         labelCliente.textContent = "Estabelecimento: ";
+                        cellLabelCliente.colSpan = 2;
                         cellLabelCliente.append(labelCliente);
 
                         var cellInfoCliente = document.createElement("td");
@@ -668,14 +669,14 @@ $(function() {
                             var cellTituloFuncionario = document.createElement("td");
                             var textTituloFuncionario = document.createElement("strong");
                             textTituloFuncionario.textContent = "Funcionário: ";
+                            cellTituloFuncionario.colSpan = 2;
                             cellTituloFuncionario.append(textTituloFuncionario);
 
                             var cellLabelFuncionario = document.createElement("td");
                             var textLabelFuncionario = document.createElement("strong");
                             textLabelFuncionario.textContent = funcionario.usuario.nome + " (" + funcionario.usuario.email + ")";
-
                             cellLabelFuncionario.append(textLabelFuncionario);
-                            // cellLabelFuncionario.colSpan = 2;
+                            cellLabelFuncionario.colSpan = 2;
 
                             rowFuncionario.append(cellTituloFuncionario);
                             rowFuncionario.append(cellLabelFuncionario);
@@ -727,31 +728,70 @@ $(function() {
                                     nomeUsuario.textContent = clienteUsuario.usuario.nome;
                                     cellNomeUsuario.append(nomeUsuario);
 
+                                    var cellEmailUsuario = document.createElement("td");
+                                    var textEmailUsuario = document.createElement("span");
+                                    textEmailUsuario.textContent = clienteUsuario.usuario.email;
+                                    cellEmailUsuario.append(textEmailUsuario);
+
+                                    var cellCpfUsuario = document.createElement("td");
+                                    var textCpfUsuario = document.createElement("span");
+                                    textCpfUsuario.textContent = clienteUsuario.usuario.cpf_formatado;
+                                    cellCpfUsuario.classList.add("text-right");
+                                    cellCpfUsuario.append(textCpfUsuario);
+
                                     var cellDataCriacaoUsuario = document.createElement("td");
                                     var dataCriacaoUsuario = document.createElement("span");
                                     var data = moment(clienteUsuario.data, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
                                     dataCriacaoUsuario.textContent = data;
+                                    cellDataCriacaoUsuario.classList.add("text-right");
                                     cellDataCriacaoUsuario.append(dataCriacaoUsuario);
 
                                     var rowUsuarioCadastrado = document.createElement("tr");
                                     rowUsuarioCadastrado.append(cellNomeUsuario);
+                                    rowUsuarioCadastrado.append(cellEmailUsuario);
+                                    rowUsuarioCadastrado.append(cellCpfUsuario);
                                     rowUsuarioCadastrado.append(cellDataCriacaoUsuario);
 
                                     rowsUsuarios.push(rowUsuarioCadastrado);
 
                                 });
+
+                                var rowTotalFuncionario = document.createElement("tr");
+
+                                var cellTotalFuncionario = document.createElement("td");
+                                var labelTotalFuncionario = document.createElement("strong");
+                                labelTotalFuncionario.textContent = "Soma: ";
+                                cellTotalFuncionario.append(labelTotalFuncionario);
+
+                                var cellQteTotalFuncionario = document.createElement("td");
+                                var textTotalFuncionario = document.createElement("strong");
+                                textTotalFuncionario.textContent = funcionario.usuario.clientes_has_usuarios_soma;
+                                cellQteTotalFuncionario.classList.add("text-right");
+                                cellQteTotalFuncionario.colSpan = 3;
+                                cellQteTotalFuncionario.append(textTotalFuncionario);
+
+                                rowTotalFuncionario.append(cellTotalFuncionario);
+                                rowTotalFuncionario.append(cellQteTotalFuncionario);
+
                                 rowsUsuarios.forEach(row => {
                                     rowsInfoFuncionario.push(row);
-
                                 });
+                                rowsInfoFuncionario.push(rowTotalFuncionario);
 
                             } else {
-                                // @todo
+                                // Não há usuário para o funcionário em questão
+
+                                var rowInfoSemUsuario = document.createElement("tr");
+                                var cellInfoSemUsuario = document.createElement("td");
+                                var labelInfoSemUsuario = document.createElement("strong");
+                                labelInfoSemUsuario.textContent = "Não há usuários cadastrados no período para o funcionário: " + funcionario.usuario.nome;
+                                cellInfoSemUsuario.colSpan = 4;
+                                cellInfoSemUsuario.classList.add("text-center");
+                                cellInfoSemUsuario.append(labelInfoSemUsuario);
+                                rowInfoSemUsuario.append(cellInfoSemUsuario);
+
+                                rowsInfoFuncionario.push(rowInfoSemUsuario);
                             }
-
-
-
-
                         });
 
 
@@ -767,31 +807,25 @@ $(function() {
 
                     // Linha de soma total
 
-                    // var rowTotal = document.createElement("tr");
-                    // var cellLabelTotal = document.createElement("td");
-                    // var labelTotal = document.createElement("strong");
+                    var rowTotal = document.createElement("tr");
+                    var cellLabelTotal = document.createElement("td");
+                    var labelTotal = document.createElement("strong");
 
-                    // labelTotal.classList.add("text-bold");
-                    // labelTotal.textContent = "Total";
-                    // cellLabelTotal.append(labelTotal);
+                    labelTotal.classList.add("text-bold");
+                    labelTotal.textContent = "Total";
+                    cellLabelTotal.append(labelTotal);
 
-                    // var textTotalEntradas = document.createElement("strong");
-                    // textTotalEntradas.textContent = data.total_entradas;
-                    // var cellTotalEntradas = document.createElement("td");
-                    // cellTotalEntradas.classList.add("text-right");
-                    // cellTotalEntradas.append(textTotalEntradas);
+                    var textTotal = document.createElement("strong");
+                    textTotal.textContent = data.clientes_has_usuarios_total;
+                    var cellTotal = document.createElement("td");
+                    cellTotal.classList.add("text-right");
+                    cellTotal.colSpan = 3;
+                    cellTotal.append(textTotal);
 
-                    // var textTotalSaidas = document.createElement("strong");
-                    // textTotalSaidas.textContent = data.total_saidas;
-                    // var cellTotalSaidas = document.createElement("td");
-                    // cellTotalSaidas.classList.add("text-right");
-                    // cellTotalSaidas.append(textTotalSaidas);
+                    rowTotal.append(cellLabelTotal);
+                    rowTotal.append(cellTotal);
 
-                    // rowTotal.append(cellLabelTotal);
-                    // rowTotal.append(cellTotalEntradas);
-                    // rowTotal.append(cellTotalSaidas);
-
-                    // rows.push(rowTotal);
+                    rows.push(rowTotal);
                 }
                 conteudoTabela.append(rows);
             },

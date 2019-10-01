@@ -2674,14 +2674,20 @@ class UsuariosController extends AppController
              * dentro daquela rede / posto
              */
             $dataRetorno = [];
+            $totalUsuarios = 0;
 
             try {
                 foreach ($clientes as $cliente) {
                     foreach ($cliente->funcionarios as $funcionario) {
                         $funcionario = $funcionario->usuario;
-                        $usuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
-                        $usuarios = $usuarios->toArray();
-                        $funcionario->clientes_has_usuarios = $usuarios;
+                        $queryUsuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
+                        // if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                            $usuarios = $queryUsuarios->toArray();
+                            $funcionario->clientes_has_usuarios = $usuarios;
+                        // }
+                        $count = $queryUsuarios->count();
+                        $totalUsuarios += $count;
+                        $funcionario->clientes_has_usuarios_soma = $count;
                     }
                     // $cliente["clientes_has_usuarios"] = $usuarios;
                 }
@@ -2696,6 +2702,7 @@ class UsuariosController extends AppController
 
             $dataRetorno = new stdClass();
             $dataRetorno->clientes = $clientes;
+            $dataRetorno->clientes_has_usuarios_total = $totalUsuarios;
 
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
         }
