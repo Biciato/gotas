@@ -1168,7 +1168,7 @@ class BrindesController extends AppController
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
                 $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && empty($redesId)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
