@@ -1162,6 +1162,7 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tiposVenda = [TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT];
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
 
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
                 $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
