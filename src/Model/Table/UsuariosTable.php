@@ -1374,6 +1374,17 @@ class UsuariosTable extends GenericTable
                 ));
             }
 
+            if ($tipoPerfilMin == PROFILE_TYPE_ADMIN_REGIONAL || $tipoPerfilMax == PROFILE_TYPE_ADMIN_REGIONAL) {
+                $usuarios = $usuarios->group(array(
+                    // "ClientesHasUsuarios.usuarios_id"
+                    "Usuarios.id",
+                    "ClientesHasUsuarios.clientes_id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.id",
+                ));
+
+            }
+
             if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
 
                 $arrayTemp = array(

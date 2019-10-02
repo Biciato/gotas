@@ -260,9 +260,8 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
                     </li>
 
-                    <li role="separator" class="divider" />
-
                     <?php if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_NETWORK) : ?>
+                        <li role="separator" class="divider" />
                         <!-- brinde só pode ser cadastrado por um Administrador da Rede -->
                         <li>
                             <a href="/categoriasBrindes/index">Cadastro de Categorias de Brindes</a>
@@ -391,6 +390,7 @@ if (empty($usuarioLogado)) {
                     <li>
                         <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
                         <a href="/pontuacoes/relatorioGotas">Relatório de Gotas</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
                     <li role="separator" class="divider" />
                     <li>
@@ -454,6 +454,7 @@ if (empty($usuarioLogado)) {
                     <li>
                         <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
                         <a href="/pontuacoes/relatorioGotas">Relatório de Gotas</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
 
                     <li role="separator" class="divider" />

@@ -2325,7 +2325,7 @@ class UsuariosController extends AppController
                     $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
                 }
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
                     $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
                     $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
                 }
@@ -2342,8 +2342,10 @@ class UsuariosController extends AppController
                     $tipoPerfis = [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER];
                 }
 
+                $clientesIds = empty($clientesId) ? [] : [$clientesId];
+
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$clientesId], null, $tipoPerfis);
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, null, $tipoPerfis);
 
                 if ($usuariosList) {
                     $usuariosList = $usuariosList->toArray();
@@ -2610,6 +2612,12 @@ class UsuariosController extends AppController
                         $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
                         $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                     }
+                }
+
+                if (!$dataDiferenca->invert) {
+                    // Se a data fim for maior que a data início, erro.
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
                 }
 
                 if (count($errors) > 0) {

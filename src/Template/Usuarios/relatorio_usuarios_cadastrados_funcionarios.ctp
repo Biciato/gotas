@@ -11,7 +11,8 @@
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 
-$debugExtension = Configure::read("debug") ? ".min" : "";
+// $debugExtension = Configure::read("debug") ? ".min" : "";
+$debugExtension = Configure::read("debug") ? "" : "";
 $title = __("Relatório de Usuários Cadastrados por Funcionarios");
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
@@ -108,8 +109,11 @@ echo $this->Breadcrumbs->render(
 
     </table>
 
+    <div id="info-vazio" class="text-center"><span class="text-warning">A consulta não retornou dados!</span></div>
+
 </div>
 
 
 <!-- Libs -->
 <script src="/webroot/js/scripts/usuarios/relatorio_usuarios_cadastrados_funcionarios<?php $debugExtension?>.js"></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/relatorio_usuarios_cadastrados_funcionarios<?= $debugExtension ?>.css" />
