@@ -65,7 +65,7 @@ class BrindesTable extends GenericTable
         );
 
         $this->belongsTo(
-            'Cliente',
+            'Clientes',
             array(
                 "className" => "Clientes",
                 'foreignKey' => 'clientes_id',
@@ -312,7 +312,7 @@ class BrindesTable extends GenericTable
             }
 
             $whereConditions = $where;
-            $contains = array("PrecoAtual", "CategoriaBrinde");
+            $contains = array("PrecoAtual", "CategoriaBrinde", "Clientes.RedesHasClientes.Redes");
 
             $brindes = $this->find('all')
                 ->contain($contains)
