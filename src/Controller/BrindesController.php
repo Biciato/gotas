@@ -1154,6 +1154,7 @@ class BrindesController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                Log::write("info", $data);
                 // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
