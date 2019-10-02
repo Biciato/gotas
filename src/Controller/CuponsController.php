@@ -2882,7 +2882,7 @@ class CuponsController extends AppController
 
                 $orderConditions = array();
                 $paginationConditions = array();
-                $redesId = 0;
+                // $redesId = 0;
                 $clientesIds = array();
 
                 if (isset($data["order_by"])) {
