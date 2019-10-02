@@ -1453,7 +1453,11 @@ class PontuacoesComprovantesController extends AppController
                 $data = $this->request->getData();
                 $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
                 $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-                $funcionariosId = $this->Auth->user()["id"];
+                $sessaoUsuario = $this->getSessionUserVariables();
+                $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+                $cliente = $sessaoUsuario["cliente"];
+                $funcionariosId = $usuarioLogado->id;
+                $clientesId = $cliente->id;
 
                 $errors = array();
 
@@ -1477,7 +1481,9 @@ class PontuacoesComprovantesController extends AppController
 
                 $data = array(
                     "usuarios_id" => $usuariosId,
-                    "qr_code" => $qrCode
+                    "qr_code" => $qrCode,
+                    "funcionarios_id" => $funcionariosId,
+                    "clientes_id" => $clientesId
                 );
 
                 $retorno = $this->processaCupom($data);
@@ -1492,35 +1498,29 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if ($mensagem["status"]) {
+                    Log::write("info", "Finalizando Processamento de cupom...");
                     return ResponseUtil::successAPI($mensagem["message"], $responseData);
                 } else {
+                    Log::write("error", "Erro ao realizar processamento de cupom...");
+
+                    foreach ($mensagem["errors"] as $error) {
+                        Log::write("error", $error);
+                    }
+
                     return ResponseUtil::errorAPI($mensagem["message"], $mensagem["errors"], $responseData);
                 }
             }
         } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
+            $message = $e->getMessage();
+            $code = $e->getCode();
 
-            Log::write("error", $message);
+            $messageLog = sprintf("%s", $message, $code);
+            Log::write("error", sprintf("%s: %s", MESSAGE_GENERIC_EXCEPTION, $messageLog));
+            $errors = [$message];
 
-            $trace = $e->getTraceAsString();
-            $messageString = __("Erro ao obter conteúdo html de cupom fiscal!");
-
-            $mensagem = ['status' => false, 'message' => $messageString, 'errors' => $trace];
-
-            $messageStringDebug = __(
-                "{0} - {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ",
-                $messageString,
-                $e->getMessage(),
-                __FUNCTION__,
-                __FILE__,
-                __LINE__
-            );
-
-            Log::write("error", $messageStringDebug);
-            Log::write("error", $trace);
+            $errorCodes = [$code];
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
         }
-
-        Log::write("info", "Finalizando Processamento de cupom...");
     }
 
     /**
