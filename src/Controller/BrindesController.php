@@ -1203,6 +1203,7 @@ class BrindesController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                Log::write("info", $data);
                 // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
@@ -1211,11 +1212,12 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tiposVenda = [TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT];
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
 
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
                 $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && empty($redesId)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
