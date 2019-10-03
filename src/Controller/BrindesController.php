@@ -929,8 +929,12 @@ class BrindesController extends AppController
         $redesList = $this->Redes->getRedesList();
 
         $whereConditions = array();
-
         $redesArrayIds = array();
+        $redesId = null;
+        $nomeBrinde = null;
+        $ilimitado = null;
+        $habilitado = null;
+        $redes = array();
 
         foreach ($redesList as $key => $redeItem) {
             $redesArrayIds[] = $key;
@@ -939,87 +943,89 @@ class BrindesController extends AppController
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
 
-            if (strlen($data['redes_id']) > 0) {
-                $redesArrayIds = ['id' => $data['redes_id']];
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+            $nomeBrinde = !empty($data["nome"]) ? $data["nome"] : null;
+            $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : null;
+            $habilitado = $data["habilitado"] ?? null;
+
+            if (!empty($redesId)) {
+
+                $redesArrayIds = ['id' => $redesId];
             }
 
-            if (strlen($data['nome']) > 0) {
-                $whereConditions[] = ["nome like '%" . $data['nome'] . "%'"];
+            $dataInicio = null;
+            $dataFinal = null;
+
+            $dataInicioPost = !empty($data["auditInsertInicio"]) ? $data["auditInsertInicio"] : null;
+            $dataFimPost = !empty($data["auditInsertFim"]) ? $data["auditInsertFim"] : null;
+
+            if (!empty($dataInicioPost)) {
+                $dataInicioPost = DateTimeUtil::convertDateToUTC($dataInicioPost, 'd/m/Y');
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicioPost));
             }
 
-            if (strlen($data['ilimitado']) > 0) {
-                $whereConditions[] = ["ilimitado" => (bool) $data['ilimitado']];
+            if (!empty($dataFimPost)) {
+                $dataFimPost = DateTimeUtil::convertDateToUTC($dataFimPost, 'd/m/Y');
+                $dataFim = new DateTime(sprintf("%s 00:00:00", $dataFimPost));
             }
 
-            if (strlen($data['habilitado']) > 0) {
-                $whereConditions[] = ["habilitado" => (bool) $data['habilitado']];
-            }
 
-            $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
-            $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
-            $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
+            // Monta o Array para apresentar em tela
 
-            // Data de Criação Início e Fim
-            if (strlen($data['auditInsertInicio']) > 0 && strlen($data['auditInsertFim']) > 0) {
+            foreach ($redesArrayIds as $redeId) {
+                $arrayWhereConditions = $whereConditions;
 
-                if ($dataInicial > $dataFinal) {
-                    $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                } else if ($dataInicial > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
+                $redesHasClientesIds = array();
+
+                $usuariosIds = array();
+
+                $rede = $this->Redes->getRedeById((int) $redeId);
+
+                $redeItem = array();
+
+                $redeItem['id'] = $rede->id;
+                $redeItem['nome_rede'] = $rede->nome_rede;
+                $redeItem['brindes'] = array();
+
+                $unidades_ids = [];
+
+                // obtem os ids das unidades para saber quais brindes estão disponíveis
+                foreach ($rede->redes_has_clientes as $key => $value) {
+                    $unidades_ids[] = $value->clientes_id;
                 }
-            } else if (strlen($data['auditInsertInicio']) > 0) {
 
-                if ($dataInicial > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert >= ' => $dataInicial];
-                }
-            } else if (strlen($data['auditInsertFim']) > 0) {
+                $arrayWhereConditions[] = [
+                    'clientes_id in ' => $unidades_ids
+                ];
 
-                if ($dataFinal > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert <= ' => $dataFinal];
+                $brindes = [];
+
+                if (count($unidades_ids) > 0) {
+                    $brindes = $this->Brindes->findBrindes($rede->id, null, null, null, null, null, null, $ilimitado, null, [], null, null, null, null, null, 0, []);
+
+                    // @todo ajustar a consulta no futuro para permitir data
+
+                    if (!empty($dataInicio)) {
+                        $brindes = $brindes->where(["Brindes.audit_insert >= " => $dataInicio->format("Y-m-d H:i:s")]);
+                    }
+
+                    if (!empty($dataFim)) {
+                        $brindes = $brindes->where(["Brindes.audit_insert <= " => $dataFim->format("Y-m-d H:i:s")]);
+                    }
+
+                    $brindes = $brindes->toArray();
                 }
+
+                $redeItem['brindes'] = $brindes;
+                unset($arrayWhereConditions);
+
+                $redes[] = $redeItem;
             }
         }
 
-        // Monta o Array para apresentar em tela
-        $redes = array();
 
-        foreach ($redesArrayIds as $key => $value) {
-            $arrayWhereConditions = $whereConditions;
-
-            $redesHasClientesIds = array();
-
-            $usuariosIds = array();
-
-            $rede = $this->Redes->getRedeById((int) $value);
-
-            $redeItem = array();
-
-            $redeItem['id'] = $rede->id;
-            $redeItem['nome_rede'] = $rede->nome_rede;
-            $redeItem['brindes'] = array();
-
-            $unidades_ids = [];
-
-            // obtem os ids das unidades para saber quais brindes estão disponíveis
-            foreach ($rede->redes_has_clientes as $key => $value) {
-                $unidades_ids[] = $value->clientes_id;
-            }
-
-            $arrayWhereConditions[] = [
-                'clientes_id in ' => $unidades_ids
-            ];
-
-            $redeItem['brindes'] = $brindes;
-            unset($arrayWhereConditions);
-
-            $redes[] = $redeItem;
-        }
+        // DebugUtil::printArray($redes);
 
         $arraySet = [
             'redesList',

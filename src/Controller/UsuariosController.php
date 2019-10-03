@@ -438,11 +438,13 @@ class UsuariosController extends AppController
     public function editar($id = null)
     {
         try {
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
-            if ($usuarioAdministrador) {
+            if ($usuarioAdministrar) {
                 $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);

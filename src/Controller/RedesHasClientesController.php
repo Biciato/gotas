@@ -976,6 +976,9 @@ class RedesHasClientesController extends AppController
 
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
 
                 if (is_null($redesId) || ($redesId == 0)) {

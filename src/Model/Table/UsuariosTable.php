@@ -1589,7 +1589,7 @@ class UsuariosTable extends GenericTable
 
             $usuarios = $this->find('all')
                 ->where($conditions)
-                ->contain('ClientesHasUsuarios.Cliente')
+                ->contain('ClientesHasUsuarios.Clientes')
                 ->select(
                     array(
                         "Usuarios.id",

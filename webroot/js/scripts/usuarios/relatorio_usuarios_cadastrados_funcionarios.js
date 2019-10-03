@@ -707,6 +707,10 @@ $(function() {
                     // Dados do Estabelecimento
                     $(infoVazio).fadeIn(500);
 
+                    imprimirBtn.addClass("disabled");
+                    imprimirBtn.addClass("readonly");
+                    imprimirBtn.unbind("click");
+
                 }
 
             },

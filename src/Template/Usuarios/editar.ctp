@@ -61,7 +61,8 @@ if ($usuarioLogado['tipo_perfil'] == 0) {
             [
                 "type" => "text",
                 'value' => isset($cliente) ? $cliente->id : 0,
-                "novalidate"
+                "novalidate",
+                "required" => false
             ]
         ); ?>
 

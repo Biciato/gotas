@@ -70,13 +70,13 @@ echo $this->Breadcrumbs->render(
         ) ?>
     </div>
     <!-- <h4>Lista de Redes</h4> -->
-        <!-- <table> -->
+    <!-- <table> -->
     <div class='table-export'>
 
-    <?php foreach ($redes as $key => $rede) : ?> 
-        <?php if (sizeof($rede['gotas']) > 0) : ?>
-    
-        <h4><?= __("Gotas da Rede: {0}", $rede['nome_rede']) ?> </h4>
+        <?php foreach ($redes as $key => $rede) : ?>
+            <?php if (sizeof($rede['gotas']) > 0) : ?>
+
+                <h4><?= __("Gotas da Rede: {0}", $rede['nome_rede']) ?> </h4>
 
 
                 <table class="table table-hover table-striped table-condensed table-responsive">
@@ -91,8 +91,8 @@ echo $this->Breadcrumbs->render(
                     </thead>
                     <tbody>
                         <?php foreach ($rede['gotas'] as $key => $gota) : ?>
-                    
-                        
+
+
                             <tr>
                                 <td><?= $gota->cliente->nome_fantasia ?></td>
                                 <td><?= $gota->nome_parametro ?></td>
@@ -100,18 +100,17 @@ echo $this->Breadcrumbs->render(
                                 <td><?= $this->Boolean->convertEnabledToString($gota->habilitado) ?></td>
                                 <td><?= h($gota->audit_insert->format('d/m/Y')) ?></td>
 
-                            
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
 
-        <?php else : ?> 
+            <?php else : ?>
 
-            <h4>Não há registros à serem exibidos!</h4>
-        
-        <?php endif; ?>
+                <h4>Não há registros à serem exibidos!</h4>
 
-    <?php endforeach; ?>
-</div>
+            <?php endif; ?>
 
+        <?php endforeach; ?>
+    </div>

@@ -598,8 +598,14 @@ class PontuacoesController extends AppController
 
             $usuario = $this->Auth->user();
 
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuario = $sessaoUsuario["usuarioLogado"];
+
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 $redesId = $data["redes_id"];
                 // $redesId = 2;
@@ -703,6 +709,9 @@ class PontuacoesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 // Condições de Pesquisa
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
