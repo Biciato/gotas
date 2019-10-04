@@ -465,6 +465,11 @@ class AppController extends Controller
             $usuarioLogado = $usuarioAdministrar;
         }
 
+        if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_USER) {
+            $rede = null;
+            $cliente = null;
+        }
+
         $arraySet = array(
             "usuarioAdministrador",
             "usuarioAdministrar",
