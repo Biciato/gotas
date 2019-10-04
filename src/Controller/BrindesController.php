@@ -77,7 +77,9 @@ class BrindesController extends AppController
                 return $this->redirect("/");
             }
 
-            $cliente = $this->Clientes->get($clientesId);
+            if (empty($cliente)) {
+                $cliente = $this->Clientes->get($clientesId);
+            }
 
             if (empty($redesId)) {
                 if (empty($clientesId)) {
