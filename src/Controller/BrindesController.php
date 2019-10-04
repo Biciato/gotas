@@ -50,6 +50,7 @@ class BrindesController extends AppController
         try {
             $arraySet = [
                 "categoriasBrindesList",
+                "cliente",
                 "redesId",
                 "clientesId",
                 "brindes",
@@ -75,6 +76,8 @@ class BrindesController extends AppController
                 $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
                 return $this->redirect("/");
             }
+
+            $cliente = $this->Clientes->get($clientesId);
 
             if (empty($redesId)) {
                 if (empty($clientesId)) {
@@ -518,8 +521,8 @@ class BrindesController extends AppController
                 $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
