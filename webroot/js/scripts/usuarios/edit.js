@@ -436,6 +436,15 @@ $(document).ready(function () {
      */
     var showRedesInput = function () {
         $(".redes_input").show();
+
+        $("#clientes_rede").prop("required", required);
+
+        var unidadeLabel = "Unidade da Rede";
+
+        if (required) {
+            unidadeLabel = unidadeLabel + "*";
+        }
+        $("label[for=clientes_rede").text(unidadeLabel);
     };
 
     /**
@@ -550,7 +559,11 @@ $(document).ready(function () {
                 if ($(data).val() < 1 || $(data).val() > 5) {
                     hideRedesInput();
                 } else {
-                    showRedesInput();
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                        showRedesInput(true);
+                    } else {
+                        showRedesInput(false);
+                    }
                 }
             }
         }

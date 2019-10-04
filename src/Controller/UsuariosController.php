@@ -1002,6 +1002,11 @@ class UsuariosController extends AppController
         $redesId = $rede["id"];
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 
+        // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
+        if (count($unidadesRede) == 0) {
+            $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
+        }
+
         if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
             if (is_null($redesId) && isset($rede)) {
@@ -1088,15 +1093,23 @@ class UsuariosController extends AppController
                         if ($clientes_id == "") {
                             $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            if (!empty($rede_has_cliente)) {
+                                $clientes_id = $rede_has_cliente->clientes_id;
+                            }
                         } else {
                             $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
                         }
 
-                        $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
-                            $usuarioSave->id
-                        );
+                        // Só pode ser guardado o relacionamento se já tiver algum posto
+                        if (empty($rede_has_cliente)) {
+                            Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
+
+                        } else {
+                            $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
+                                $rede_has_cliente->id,
+                                $usuarioSave->id
+                            );
+                        }
                     }
 
                     /**
@@ -1107,7 +1120,11 @@ class UsuariosController extends AppController
 
                     // Define qual foi o usuário que cadastrou o novo funcionário
                     $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+
+                    // Só vincula se o posto tiver sido selecionado
+                    if (!empty($clientes_id)) {
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+                    }
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -1795,6 +1812,7 @@ class UsuariosController extends AppController
         $nome = null;
         $cpf = null;
         $docEstrangeiro = null;
+        $filtrarUnidade = null;
         $tipoPerfil = null;
         $tipoPerfilMin = null;
         $tipoPerfilMax = null;
@@ -1805,11 +1823,11 @@ class UsuariosController extends AppController
 
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
-            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
-            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-            if ($data['filtrar_unidade'] != "") {
+            if (!empty($filtrarUnidade)) {
                 $clientesIds = [];
                 $clientesIds[] = (int) $data['filtrar_unidade'];
             }
@@ -3892,6 +3910,262 @@ class UsuariosController extends AppController
             }
 
             // TODO: Se for usar mesmo serviço, será necessário criar novos campos de assinatura
+
+            $usuarios = [];
+
+            if (count($unidades_ids) > 0) {
+                $usuarios = $this->Usuarios->findFuncionariosRede(
+                    $rede->id,
+                    $unidades_ids
+                );
+                $usuarios = $usuarios->toArray();
+            }
+
+            $redeItem['usuarios'] = $usuarios;
+
+            unset($arrayWhereConditions);
+
+            $redes[] = $redeItem;
+        }
+
+        // DebugUtil::printArray($redes);
+
+        $arraySet = [
+            'redesList',
+            'redes'
+        ];
+
+        $this->set(compact($arraySet));
+    }
+
+    /**
+     * Altera estado de conta ativa de usuário
+     *
+     * @param int  $usuarios_id Id de usuário
+     * @param bool $status      Estado da conta
+     *
+     * @return \Cake\Http\Response|void
+     */
+    private function _alteraContaAtivaUsuario(int $usuarios_id, bool $status)
+    {
+        return $this->Usuarios->changeAccountEnabledByUsuarioId($usuarios_id, $status);
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Métodos para Funcionários (Dashboard de Funcionário)
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * Abre action para pesquisa de cliente (para abrir tela de alteração de cadastro,
+     * dados de veículos e transportadoras)
+     *
+     * @return void
+     */
+    public function pesquisarClienteAlterarDados()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrador) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $arraySet = array("usuarioLogado");
+
+        $this->set(compact($arraySet));
+        $this->set($arraySet);
+    }
+
+    /**
+     * Método para editar dados de usuário (modo de administrador)
+     *
+     * @param string|null $id Usuario id.
+     *
+     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+     *
+     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     */
+    public function editarCadastroUsuarioFinal($id = null)
+    {
+        try {
+
+            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
+            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+
+            if ($usuarioAdministrador) {
+                $this->usuarioLogado = $usuarioAdministrar;
+            }
+
+            $rede = $this->request->session()->read('Rede.Grupo');
+
+            $usuario = $this->Usuarios->get(
+                $id,
+                [
+                    'contain' => []
+                ]
+            );
+
+            if ($this->request->is(['post', 'put'])) {
+                $usuario = $this->Usuarios->patchEntity($usuario, $this->request->getData(), ['validate' => 'EditUsuarioInfo']);
+
+                $errors = $usuario->errors();
+
+                $usuario = $this->Usuarios->save($usuario);
+                if ($usuario) {
+                    $this->Flash->success(__(Configure::read('messageSavedSuccess')));
+
+                    $url = Router::url(['controller' => 'Pages', 'action' => 'display']);
+                    return $this->response = $this->response->withLocation($url);
+                }
+                $this->Flash->error(__(Configure::read('messageSavedError')));
+
+                // exibe os erros logo acima identificados
+                foreach ($errors as $key => $error) {
+                    $key = key($error);
+                    $this->Flash->error(__("{0}", $error[$key]));
+                }
+            }
+
+            $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
+
+            $this->set(compact(['usuario', 'usuarioLogadoTipoPerfil']));
+            $this->set('_serialize', ['usuario', 'usuarioLogadoTipoPerfil']);
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+
+            $stringError = __("Erro ao editar dados de usuário: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+
+            Log::write('error', $stringError);
+
+            $this->Flash->error($stringError);
+        }
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Métodos comuns para todos os usuários
+     * ------------------------------------------------------------
+     */
+
+    public function relatorios()
+    {
+        # code...
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Relatórios (Dashboard de Admin RTI)
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * Relatório de Equipe de cada Rede
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function relatorioEquipeRedes()
+    {
+        $redesList = $this->Redes->getRedesList();
+
+        $whereConditions = array();
+
+        $redesArrayIds = array();
+
+        foreach ($redesList as $key => $redeItem) {
+            $redesArrayIds[] = $key;
+        }
+
+        if ($this->request->is(['post'])) {
+            $data = $this->request->getData();
+
+            if (strlen($data['redes_id']) > 0) {
+                $redesArrayIds = ['id' => $data['redes_id']];
+            }
+
+            if (strlen($data['nome']) > 0) {
+                $whereConditions[] = ["nome like '%" . $data['nome'] . "%'"];
+            }
+
+            if (strlen($data['tipo_perfil']) > 0) {
+                $whereConditions[] = ["tipo_perfil " => $data['tipo_perfil']];
+            }
+
+            if (strlen($data['sexo']) > 0) {
+                $whereConditions[] = ['sexo' => (bool) $data['sexo']];
+            }
+
+            if (strlen($data['conta_ativa']) > 0) {
+                $whereConditions[] = ['conta_ativa' => (bool) $data['conta_ativa']];
+            }
+
+            if (strlen($data['conta_bloqueada']) > 0) {
+                $whereConditions[] = ['conta_bloqueada' => (bool) $data['conta_bloqueada']];
+            }
+
+            $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
+            $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
+            $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
+
+            // Data de Criação Início e Fim
+            if (strlen($data['auditInsertInicio']) > 0 && strlen($data['auditInsertFim']) > 0) {
+
+                if ($dataInicial > $dataFinal) {
+                    $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
+                } elseif ($dataInicial > $dataHoje) {
+                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
+                } else {
+                    $whereConditions[] = ['usuarios.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
+                }
+            } elseif (strlen($data['auditInsertInicio']) > 0) {
+
+                if ($dataInicial > $dataHoje) {
+                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
+                } else {
+                    $whereConditions[] = ['usuarios.audit_insert >= ' => $dataInicial];
+                }
+            } elseif (strlen($data['auditInsertFim']) > 0) {
+
+                if ($dataFinal > $dataHoje) {
+                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
+                } else {
+                    $whereConditions[] = ['usuarios.audit_insert <= ' => $dataFinal];
+                }
+            }
+        }
+
+        // Monta o Array para apresentar em tela
+        $redes = array();
+
+        foreach ($redesArrayIds as $key => $value) {
+            $arrayWhereConditions = $whereConditions;
+
+            $redesHasClientesIds = array();
+
+            $usuariosIds = array();
+
+            $rede = $this->Redes->getRedeById((int) $value);
+
+            $redeItem = array();
+
+            $redeItem['id'] = $rede->id;
+            $redeItem['nome_rede'] = $rede->nome_rede;
+            $redeItem['usuarios'] = array();
+
+            $unidades_ids = [];
+
+            // obtem os ids das unidades para saber quais brindes estão disponíveis
+            foreach ($rede->redes_has_clientes as $key => $value) {
+                $unidades_ids[] = $value->clientes_id;
+            }
+
+            // TODO: Se for usar mesmo serviço, será necessário criar novos campos de assinatura
             $usuarios = $this->Usuarios->findFuncionariosRede(
                 $rede->id,
                 $unidades_ids,
@@ -4433,7 +4707,7 @@ class UsuariosController extends AppController
                 $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
 
                 if (empty($email)) {
-                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_EMAIL_EMPTY));
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MSG_USUARIOS_EMAIL_EMPTY], [], []);
                 }
 
                 if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
