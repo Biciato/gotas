@@ -53,12 +53,12 @@ echo $this->Breadcrumbs->render(
         <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
         <?= $this->Form->hidden("edit-mode", ["id" => null, "value" => $editMode]) ?>
         <div class="form-group row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="nome">Nome*</label>
                 <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="tipo_codigo_barras">Código de Barras*</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
@@ -79,7 +79,7 @@ echo $this->Breadcrumbs->render(
                 ); ?>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="categorias_brindes">Categoria</label>
                 <?= $this->Form->input(
                     "categorias_brindes_id",
@@ -93,6 +93,11 @@ echo $this->Breadcrumbs->render(
                         "options" => $categoriasBrindesList
                     ]
                 ); ?>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="local">Local Secundário de Brinde: </label>
+                <input type="text" name="local" id="local" value="<?= $brinde->local ?>" class="form-control">
             </div>
         </div>
 
