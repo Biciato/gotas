@@ -149,10 +149,17 @@ $(document).ready(function () {
     /**
      * Mostra informações de redes
      */
-    var showRedesInput = function () {
+    var showRedesInput = function (required) {
         $(".redes_input").show();
         $("#redes_id").prop("required", true);
-        $("#clientes_rede").prop("required", true);
+        $("#clientes_rede").prop("required", required);
+
+        var unidadeLabel = "Unidade da Rede";
+
+        if (required) {
+            unidadeLabel = unidadeLabel + "*";
+        }
+        $("label[for=clientes_rede").text(unidadeLabel);
     }
 
     /**
@@ -253,7 +260,11 @@ $(document).ready(function () {
                 if ($(data).val() < 1 || $(data).val() > 5) {
                     hideRedesInput();
                 } else {
-                    showRedesInput();
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                        showRedesInput(true);
+                    } else {
+                        showRedesInput(false);
+                    }
                 }
             }
         }
