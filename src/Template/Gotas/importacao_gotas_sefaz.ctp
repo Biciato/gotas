@@ -30,7 +30,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
             <div class="form-group row ">
                 <div class="col-lg-2 pull-right">
-                    <button type="submit" class="btn btn-primary btn-block botao-pesquisar">
+                    <button type="button" class="btn btn-primary btn-block" id="botao-pesquisar">
                         <span class="fa fa-search"></span>
                         Pesquisar
                     </button>

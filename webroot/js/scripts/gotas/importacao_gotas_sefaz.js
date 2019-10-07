@@ -14,6 +14,7 @@ $(function() {
     var botaoCancelar = $("#botao-cancelar");
     var botaoConfirmar = $("#botao-confirmar");
     var botaoGravarGotas = $("#botao-gravar-gotas");
+    var botaoPesquisar = $("#botao-pesquisar");
 
     var dataSelecionado = {};
 
@@ -46,7 +47,7 @@ $(function() {
         dataSelecionado.multiplicador = multiplicador;
 
         data[index] = dataSelecionado;
-        loadData(data);
+        gerarTabelaGotas(data);
     }
 
     function init() {
@@ -54,6 +55,11 @@ $(function() {
 
         botaoCancelar.on("click", cancelarEdicaoGota);
         botaoConfirmar.on("click", confirmarEdicaoGota);
+
+        botaoPesquisar.on("click", function (e) {
+            var qrCode = $("#qr-code").val();
+            gerarTabelaGotas(qrCode);
+        });
 
         botaoGravarGotas.on("click", saveData);
 
@@ -89,7 +95,7 @@ $(function() {
         dataSelecionado.importar = habilitado;
         data[index] = dataSelecionado;
 
-        loadData(data);
+        gerarTabelaGotas(data);
     };
 
     /**
@@ -108,9 +114,14 @@ $(function() {
         $("#dados").fadeOut(100);
         $("#form-edicao").fadeIn(500);
         $("#form-edicao #nome").val(gotaSefaz.nome);
+
         $("#form-edicao #quantidade-multiplicador").val(
             gotaSefaz.multiplicador
         );
+
+        $("#form-edicao #quantidade-multiplicador").mask("####.###", {
+            reverse: true
+        });
     };
 
     var geraEditarButton = function(value, target) {
@@ -173,17 +184,27 @@ $(function() {
         });
     };
 
+    function loadData(qrCode) {
+        $.ajax({
+            type: "GET",
+            url: "/api/gotas/get_nf_sefaz_qrcode",
+            data: {
+                qr_code: qrCode
+            },
+            dataType: "JSON",
+            success: function (response) {
+
+            }
+        });
+    }
+
     /**
      * Obtem os dados de categorias de brindes e alimenta a tabela
      *
      */
-    function loadData(data) {
+    function gerarTabelaGotas(data) {
         callLoaderAnimation();
-        console.log("dados em função loadData");
-        console.log(data);
-
         $("#tabela-dados tbody").empty();
-
         $("#tabela-dados").pagination({
             pageSize: 10,
             showPrevious: true,
@@ -274,8 +295,6 @@ $(function() {
             }
         });
     }
-
-    loadData(data);
 
     init();
 });

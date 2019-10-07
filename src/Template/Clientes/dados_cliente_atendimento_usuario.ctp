@@ -32,7 +32,7 @@ $action_voltar = null;
 if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $controller_voltar = 'redes';
     $action_voltar = 'ver_detalhes';
-    $id_voltar = $cliente->rede_has_cliente->redes_id;
+    $id_voltar = $cliente->redes_has_cliente->redes_id;
 } else {
     $controller_voltar = 'pages';
     $action_voltar = 'display';
@@ -48,7 +48,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 ) ?>
 <div class="clientes view col-lg-9 col-md-10">
     <legend>
-        <?= h(__("{0} - {1}", $cliente->rede_has_cliente->rede->nome_rede, $cliente->nome_fantasia)) ?>
+        <?= h(__("{0} - {1}", $cliente->redes_has_cliente->rede->nome_rede, $cliente->nome_fantasia)) ?>
     </legend>
 
     <h4>Dados Cadastrais</h4>
@@ -56,7 +56,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
         <tr>
             <th>Nome da Rede</th>
             <td>
-                <?= h($cliente->rede_has_cliente->rede->nome_rede) ?>
+                <?= h($cliente->redes_has_cliente->rede->nome_rede) ?>
             </td>
             <th>Nome Fantasia</th>
             <td>
@@ -76,7 +76,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
     </table>
 
     <h4>Endereço:</h4>
-    
+
     <table class="table table-striped table-condensed table-responsive">
         <tr>
             <th>Endereco</th>
@@ -96,7 +96,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
                 <?= h($cliente->bairro) ?>
             </td>
         </tr>
-        
+
         <tr>
             <th>Municipio</th>
             <td>
@@ -134,7 +134,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
                 <?= h($this->Phone->formatPhone($cliente->tel_celular)) ?>
             </td>
         </tr>
-        
+
     </table>
-    
+
 </div>

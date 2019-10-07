@@ -292,7 +292,7 @@ class ClientesController extends AppController
             }
 
             $cliente = $this->Clientes->getClienteById($id);
-            $redesId = $cliente["rede_has_cliente"]["redes_id"];
+            $redesId = $cliente["redes_has_cliente"]["redes_id"];
 
             // Monta o quadro de horários
             $quantidadeTurnos = sizeof($cliente["clientes_has_quadro_horarios"]);
@@ -355,7 +355,7 @@ class ClientesController extends AppController
                         [
                             'controller' => 'redes',
                             'action' => 'ver_detalhes',
-                            $cliente->rede_has_cliente->redes_id
+                            $cliente->redes_has_cliente->redes_id
                         ]
                     );
                 }

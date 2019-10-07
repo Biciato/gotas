@@ -209,16 +209,16 @@ class RedesHasClientesAdministradoresTable extends GenericTable
     /**
      * Remove registros de Administradores
      *
-     * @param array $rede_has_cliente_ids Redes has Clientes Ids
+     * @param array $redes_has_cliente_ids Redes has Clientes Ids
      *
      * @return void
      */
-    public function deleteAllRedesHasClientesAdministradoresByClientesIds(array $rede_has_cliente_ids)
+    public function deleteAllRedesHasClientesAdministradoresByClientesIds(array $redes_has_cliente_ids)
     {
         try {
 
             return $this
-                ->deleteAll(['redes_has_clientes_id in' => $rede_has_cliente_ids]);
+                ->deleteAll(['redes_has_clientes_id in' => $redes_has_cliente_ids]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $object = null;

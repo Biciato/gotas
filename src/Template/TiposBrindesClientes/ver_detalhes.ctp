@@ -28,7 +28,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->redes_has_cliente->redes_id]);
 $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
 $this->Breadcrumbs->add('Tipos de Brindes Habilitados', array("action" => "tipos_brindes_cliente", $cliente["id"]));
 
