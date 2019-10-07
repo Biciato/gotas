@@ -688,6 +688,35 @@ class GotasController extends AppController
 
     /**
      * ------------------------------------------------------------
+     * Views para actions de API
+     * Nota: Temporária até a saída do projeto em Angular 8
+     * ------------------------------------------------------------
+     */
+
+    #region API Actions
+
+    public function importacaoGotasSefaz()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuario = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuario->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+
+        $arraySet = [
+            "usuario"
+        ];
+
+        $this->set(compact($arraySet));
+    }
+
+    #endregion
+
+    /**
+     * ------------------------------------------------------------
      * Métodos para view de funcionário
      * ------------------------------------------------------------
      */

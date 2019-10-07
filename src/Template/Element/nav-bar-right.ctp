@@ -36,7 +36,7 @@ if (empty($usuarioLogado)) {
 <?php
 
 } else {
-    if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+    if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
         ?>
 
         <ul class="nav navbar-nav navbar-right">
@@ -53,6 +53,11 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'index']) ?>
                     </li>
 
+                    <li role="separator" class="dividir">
+
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/gotas/importacaoGotasSefaz">Importação de Gotas da SEFAZ</a></li>
                     <li role="separator" class="divider"></li>
                     <li>
                         <?php echo $this->Html->link('Transportadoras', ['controller' => 'Transportadoras', 'action' => 'index']) ?>
@@ -233,7 +238,7 @@ if (empty($usuarioLogado)) {
 
                     <?php
                     // se o administrador não selecionou uma unidade para gerenciar
-                    // só permite ver os items de Cadastro de Usuários e Relatórios 
+                    // só permite ver os items de Cadastro de Usuários e Relatórios
                     ?>
                     <li>
                         <a href="/redes/configurarParametrosRede">Configurar Parâmetros da Rede</a>
@@ -272,7 +277,7 @@ if (empty($usuarioLogado)) {
                             <a href="/brindes/escolherPostoConfigurarBrinde">Cadastro de Brindes</a>
                         </li>
 
-                        <?php if ($rede->app_personalizado): ?> 
+                        <?php if ($rede->app_personalizado): ?>
                             <li>
                                 <a href="/topBrindes/nacional">Cadastro Top Brindes Nacional</a>
                             </li>
