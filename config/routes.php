@@ -20,6 +20,7 @@
  */
 
 use Cake\Core\Plugin;
+use Cake\Http\Client\Request;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Routing\Route\DashedRoute;
@@ -556,6 +557,16 @@ Router::scope("/api", function ($routes) {
                 "action" => "updateVeiculosUsuarioAPI",
                 "method" => "POST",
                 "path" => "/update_veiculos_usuario"
+            ]
+        ]
+    ]);
+
+    $routes->resources("Sefaz", [
+        "map" => [
+            "test" => [
+                "action" => "test",
+                "method" => Request::METHOD_GET,
+                "path" => "/test"
             ]
         ]
     ]);

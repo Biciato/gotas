@@ -14,6 +14,7 @@ use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use \DateTime;
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Pontuacao;
 use Exception;
 
 /**
@@ -286,21 +287,25 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
-     * Insere vários registros
+     * src\Model\Table\PontuacoesTable.php::saveUpdate
      *
-     * @param array $pontuacoes Pontuacoes de cupom
+     * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
+     *
+     * @param Pontuacao $pontuacao Entitade
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 04/11/2018
+     * @since 2019-10-08
      *
-     * @return void
+     * @return Pontuacao $pontuacao Registrada
      */
-    public function insertPontuacoesCupons(array $pontuacoes)
+    public function saveUpdate(Pontuacao $pontuacao)
     {
         try {
-            return $this->saveMany($pontuacoes);
-        } catch (Exception $ex) {
-            Log::write("error", $ex->getMessage());
+            return $this->save($pontuacao);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 

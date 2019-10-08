@@ -7,19 +7,28 @@ use Cake\ORM\Entity;
  * Pontuaco Entity
  *
  * @property int $id
+ * @property int $clientes_id *
  * @property int $usuarios_id
- * @property int $brindes_habilitados_id
+ * @property int $brindes_id
+ * @property int $funcionarios_id
  * @property int $gotas_id
- * @property int $quantidade
+ * @property float $quantidade_multiplicador
+ * @property double $quantidade_gotas
+ * @property double $valor_gota_sefaz
+ * @property float $valor_moeda_venda
+ * @property int $pontuacoes_comprovante_id
  * @property \Cake\I18n\FrozenTime $data
+ * @property int $expirado
+ * @property int $utilizado
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
  * @property \App\Model\Entity\Usuario $usuario
- * @property \App\Model\Entity\BrindesHabilitado $brindes_habilitado
+ * @property \App\Model\Entity\Usuario $funcionario
+ * @property \App\Model\Entity\Brinde $brinde
  * @property \App\Model\Entity\Gota $gota
  */
-class Pontuaco extends Entity
+class Pontuacao extends Entity
 {
 
     /**
