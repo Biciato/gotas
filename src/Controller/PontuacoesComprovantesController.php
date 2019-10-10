@@ -1089,6 +1089,17 @@ class PontuacoesComprovantesController extends AppController
         }
     }
 
+    public function lancamentoManual()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuario = $sessao["usuarioLogado"];
+
+        if ($usuario->tipo_perfil >= PROFILE_TYPE_MANAGER) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+    }
+
     #region REST Methods
 
     /**
@@ -1311,7 +1322,7 @@ class PontuacoesComprovantesController extends AppController
                 $errors = array();
 
                 if (empty($usuariosId)) {
-                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY;
+                    $errors[] = MSG_USUARIOS_ID_EMPTY;
                 }
 
                 if (empty($qrCode)) {
@@ -1472,10 +1483,12 @@ class PontuacoesComprovantesController extends AppController
 
             // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
             if ($usuario) {
+                // @todo se já tiver registro, não faz nada
                 $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], 0);
             }
 
             if (empty($funcionario)) {
+                // @todo isto deverá vir antes do saveClientesHasUsuario
                 $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
             }
 

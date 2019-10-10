@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -10,6 +11,7 @@ use Cake\Event\Event;
 use App\Custom\RTI\Security;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ResponseUtil;
 use Cake\I18n\Number;
 
 /**
@@ -278,11 +280,11 @@ class PontuacoesController extends AppController
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
-                    $clientesIds[] = (int)$data['filtrar_unidade'];
+                    $clientesIds[] = (int) $data['filtrar_unidade'];
                 }
 
                 if (strlen($data['funcionarios_id']) > 0) {
-                    $arrayOptions[] = array('funcionarios_id' => (int)$data['funcionarios_id']);
+                    $arrayOptions[] = array('funcionarios_id' => (int) $data['funcionarios_id']);
                 }
 
                 if (strlen($data['requer_auditoria']) > 0) {
@@ -457,7 +459,7 @@ class PontuacoesController extends AppController
         return $this->redirect(
             [
                 'action' => 'detalhes_cupom',
-                (int)$pontuacao->pontuacoes_comprovante_id
+                (int) $pontuacao->pontuacoes_comprovante_id
             ]
         );
     }
@@ -528,12 +530,14 @@ class PontuacoesController extends AppController
         $message = null;
         try {
 
-            $usuario = $this->Auth->user();
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuario = $sessaoUsuario["usuarioLogado"];
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
                 $redesId = $data["redes_id"];
+                $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
                 // $redesId = 2;
 
                 if (!isset($data["redes_id"])) {
@@ -550,6 +554,16 @@ class PontuacoesController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
+                }
+
+                // Se não for usuário e o id não tiver sido especificado
+                if (empty($usuariosId) && $usuario->tipo_perfil < PROFILE_TYPE_USER) {
+                    $errors = [MSG_USUARIOS_ID_EMPTY];
+                    $errorCodes = [MSG_USUARIOS_ID_EMPTY_CODE];
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+                } elseif ($usuario->tipo_perfil == PROFILE_TYPE_USER && empty($usuariosId)) {
+                    // Se é usuário, atribui o id de usuário
+                    $usuariosId = $usuario->id;
                 }
 
                 // Obtem os ids de clientes da rede selecionada
@@ -578,7 +592,7 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds);
+                $retorno = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuariosId, $redesId, $clientesIds);
 
 
                 $mensagem = $retorno["mensagem"];
@@ -637,8 +651,8 @@ class PontuacoesController extends AppController
                 $data = $this->request->getData();
 
                 // Condições de Pesquisa
-                $redesId = !empty($data["redes_id"]) ?$data["redes_id"] : null;
-                $clientesId = !empty($data["clientes_id"]) ?$data["clientes_id"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoOperacao = isset($data["tipo_operacao"]) ? $data["tipo_operacao"] : 2;
                 $brindesNome = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
                 $gotasNomeParametro = isset($data["nome_pesquisa"]) ? $data["nome_pesquisa"] : "";
@@ -763,12 +777,11 @@ class PontuacoesController extends AppController
             $tipoFrequencia = !empty($data["tipo_frequencia"]) ? $data["tipo_frequencia"] : null;
 
             if (($usuarioLogado["tipo_perfil"] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado["tipo_perfil"] <= PROFILE_TYPE_WORKER)
-                && (empty($rede))){
-                    $erros = array();
-                    // É necessário informar uma rede
+                && (empty($rede))
+            ) {
+                $erros = array();
+                // É necessário informar uma rede
             }
-
-
         }
     }
 }

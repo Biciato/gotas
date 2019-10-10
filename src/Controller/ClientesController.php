@@ -18,6 +18,7 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
+use Cake\Http\Client\Request;
 
 /**
  * Clientes Controller
@@ -730,12 +731,10 @@ class ClientesController extends AppController
 
         try {
             // Caso o método seja chamado via get
-            if ($this->request->is("get")) {
-                $data = $this->request->getData();
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
 
-                if (!empty($data["redesId"])) {
-                    $redesId = $data["redesId"];
-                }
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
             }
 
             $selectList = array(
@@ -760,7 +759,9 @@ class ClientesController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
             }
 
-            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+            $data = ["data" => ["clientes" => $clientes]];
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

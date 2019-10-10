@@ -1,0 +1,15 @@
+#dados {
+    min-height: 300px;
+    max-height: 400px;
+    overflow-x: auto;
+}
+
+.gotas-table {
+    min-height: 300px;
+    /* background-color: gold; */
+    max-height: 400px;
+    /* display: block; */
+    /* position: relative; */
+    /* overflow-y: scroll; */
+    /* float: right; */
+}

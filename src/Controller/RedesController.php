@@ -793,6 +793,73 @@ class RedesController extends AppController
      */
 
     /**
+     * src\Controller\RedesController.php::getRedesListAPI
+     *
+     * Retorna a lista de Redes cadastradas.
+     * Se usuário for Adm Rede ou menor que Funcionário, só retorna o posto vinculado.
+     *
+     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-09
+     */
+    public function getRedesListAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        $redes = [];
+        $perfisPosto = [
+            PROFILE_TYPE_ADMIN_NETWORK,
+            PROFILE_TYPE_ADMIN_REGIONAL,
+            PROFILE_TYPE_ADMIN_LOCAL,
+            PROFILE_TYPE_MANAGER,
+            PROFILE_TYPE_WORKER
+        ];
+
+        try {
+            //code...
+            if (in_array($usuario->tipo_perfil, $perfisPosto)) {
+                $redeTmp = new Rede();
+                $redeTmp->id = $rede->id;
+                $redeTmp->nome_rede = $rede->nome_rede;
+                $redes[] = $redeTmp;
+            } else {
+                $redes = $this->Redes->getRedesList(null, null, 1, null, null, null, null);
+
+                $redesTemp = [];
+
+                foreach ($redes as $id => $rede) {
+                    $redeTmp = new Rede();
+                    $redeTmp->id = $id;
+                    $redeTmp->nome_rede = $rede;
+                    $redesTemp[] = $redeTmp;
+                }
+                $redes = $redesTemp;
+            }
+
+            if (count($redes) > 0) {
+                $data = ["data" => ["redes" => $redes]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            } else {
+                throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
+            }
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+        }
+    }
+
+    /**
      * RedesController::getRedesAPI
      *
      * Obtem as redes que o usuário possui vínculo

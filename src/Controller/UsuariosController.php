@@ -1005,7 +1005,7 @@ class UsuariosController extends AppController
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 
         // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
-        if (count($unidadesRede) == 0) {
+        if (count($unidadesRede) == 0 && !empty($rede)) {
             $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
         }
 

@@ -179,6 +179,16 @@ Router::scope("/api", function ($routes) {
         ]
     );
 
+    $routes->resources("Gotas", [
+        "map" => [
+            "getGotasClientesAPI" => [
+                "action" => "getGotasClientesAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_gotas_clientes"
+            ]
+        ]
+    ]);
+
     $routes->resources(
         "Pontuacoes",
         [
@@ -243,6 +253,11 @@ Router::scope("/api", function ($routes) {
                 "action" => "getRedesAPI",
                 "method" => "POST",
                 "path" => "/get_redes"
+            ],
+            "getRedesListAPI" => [
+                "action" => "getRedesListAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_redes_list"
             ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",

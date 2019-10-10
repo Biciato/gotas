@@ -690,14 +690,6 @@ class GotasController extends AppController
         }
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Views para actions de API
-     * Nota: Temporária até a saída do projeto em Angular 8
-     * ------------------------------------------------------------
-     */
-
-    #region API Actions
 
     public function importacaoGotasSefaz()
     {
@@ -719,6 +711,45 @@ class GotasController extends AppController
         ];
 
         $this->set(compact($arraySet));
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Views para actions de API
+     * Nota: Temporária até a saída do projeto em Angular 8
+     * ------------------------------------------------------------
+     */
+
+    #region API Actions
+
+    public function getGotasClientesAPI()
+    {
+        if ($this->request->is(Request::METHOD_GET)) {
+            $errors = [];
+            $errorCodes = [];
+            $data = $this->request->getQueryParams();
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_DELETE, __CLASS__, __METHOD__, print_r($data, true)));
+            // Log::write("info", $data);
+
+            if (empty($clientesId)) {
+                // @todo gerar erro
+            }
+
+            try {
+                //code...
+                if (count($errors) > 0) {
+                    // @todo continuar
+                    throw new Exception();
+                }
+
+                // @todo fazer
+                $gotas = $this->Gotas->getGotasByCliente($clientesId);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+        }
     }
 
     #endregion

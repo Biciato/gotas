@@ -1,8 +1,8 @@
 /**
  * @file webroot\js\scripts\topBrindes\posto.js
- * 
+ *
  * Arquivo de funções para src\Template\TopBrindes\posto.ctp
- * 
+ *
  * @author  Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-08-01
  */
@@ -26,12 +26,12 @@ $(function() {
 
     /**
      * posto.js::top-brindes-box-items.sortable()
-     * 
+     *
      * Habilita sortable
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @returns void
      */
     topBrindesSortable.sortable({
@@ -60,12 +60,12 @@ $(function() {
 
     /**
      * posto.js::top-brindes-box-items.onClick
-     * 
+     *
      * pega o objeto selecionado e exibe os detalhes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @returns void
      */
     topBrindesSortable.on("click", "li", function() {
@@ -78,7 +78,7 @@ $(function() {
         if (t.length > 0) {
             t = t[0];
         }
-        
+
         topBrindesSelectedItem = t;
 
         showTopBrindesDetails(topBrindesSelectedItem);
@@ -86,14 +86,14 @@ $(function() {
 
     /**
      * posto.js::clientesSelectOnChange
-     * 
+     *
      * Dispara event ao selecionar cliente
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
      *
      * @param {Event} e
-     * 
+     *
      * @returns void
      */
     function clientesSelectOnChange(e) {
@@ -157,12 +157,12 @@ $(function() {
 
     /**
      * posto.js::closeTopBrindesAvailableTable
-     * 
+     *
      * Esconde tabela de Top Brindes Disponiveis
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-13
-     * 
+     *
      * @returns void
      */
     function closeTopBrindesAvailableTable() {
@@ -171,12 +171,12 @@ $(function() {
 
     /**
      * posto.js::closeTopBrindesDetails
-     * 
+     *
      * Fecha a tela de detalhes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function closeTopBrindesDetails() {
@@ -185,12 +185,12 @@ $(function() {
 
     /**
      * posto.js::deleteTopBrinde
-     * 
+     *
      * Remove um Top Brinde
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function deleteTopBrinde() {
@@ -230,12 +230,12 @@ $(function() {
 
     /**
      * posto.js::getTopBrindesPosto
-     * 
+     *
      * Obtem Top Brindes Nacional
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @returns void
      */
     function getTopBrindesPosto(clientesId) {
@@ -323,14 +323,14 @@ $(function() {
 
     /**
      * posto.js::getBrindesPosto
-     * 
+     *
      * Obtem os Brindes do Posto selecionado
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @param {int} clientesId Id de Clientes selecionado (Posto)
-     * 
+     *
      * @returns void
      */
     function getBrindesPosto(clientesId) {
@@ -355,12 +355,12 @@ $(function() {
 
                     console.log(response);
                     var error = response.responseJSON.mensagem;
-    
+
                     if (error !== undefined) {
                         callModalError(error.message, error.errors);
                     } else {
                         error = response.responseJSON;
-    
+
                         callModalError(error.message, []);
                     }
                 },
@@ -428,14 +428,14 @@ $(function() {
 
     /**
      * posto.js::getCurrentItemsSortable
-     * 
+     *
      * Obtem o top brinde selecionado atualmente
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @param {int} clientesId Id de Clientes selecionado (Posto)
-     * 
+     *
      * @returns void
      */
     function getCurrentItemsSortable(elementClass) {
@@ -459,11 +459,11 @@ $(function() {
 
     /**
      * posto.js::getClientes
-     * 
+     *
      * Obtem os Postos de uma rede
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * 
+     *
      * @since 2019-08-07
      * @returns void
      */
@@ -477,7 +477,7 @@ $(function() {
             dataType: "json",
             success: function(response) {
                 closeLoaderAnimation();
-                var data = response.clientes;
+                var data = response.data.clientes;
 
                 clientesSelectListBox.empty();
                 var rows = [];
@@ -511,14 +511,14 @@ $(function() {
 
     /**
      * posto.js::setTopBrindePosto
-     * 
+     *
      * Define Brinde selecionado como Top Brinde Nacional
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @param {int} brindesId Id do Brinde
-     * 
+     *
      * @returns void
      */
     function setTopBrindePosto(brindesId) {
@@ -561,7 +561,7 @@ $(function() {
      * posto.js::setPosicaoTopBrindes
      *
      * Define posição dos topBrindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
      *
@@ -600,12 +600,12 @@ $(function() {
 
     /**
      * posto.js::showMainScreen
-     * 
+     *
      * Exibe tela principal
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-08
-     * 
+     *
      * @returns void
      */
     function showMainScreen() {
@@ -615,12 +615,12 @@ $(function() {
 
     /**
      * posto.js::showTopBrindesAdd
-     * 
+     *
      * Exibe tela de adicionar topBrindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-08
-     * 
+     *
      * @returns void
      */
     function showTopBrindesAdd() {
@@ -672,12 +672,12 @@ $(function() {
 
     /**
      * posto.js::showTopBrindesModalDelete
-     * 
+     *
      * Exibe Modal de Remoção Top Brindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function showTopBrindesModalDelete() {
@@ -687,12 +687,12 @@ $(function() {
 
     /**
      * posto.js::showTopBrindesAvailableTable
-     * 
+     *
      * Mostra tabela de Top Brindes Disponiveis
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-13
-     * 
+     *
      * @returns void
      */
     function showTopBrindesAvailableTable() {
@@ -703,7 +703,7 @@ $(function() {
     $("#brindes-list tbody").on("click", ".botao-add-top-brinde", showTopBrindesAdd);
 
     // Oculta dados do top brinde e exibe a tabela de brindes disponível
-    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", function () {  
+    $(".top-brindes-details").on("click", "#top-brindes-details-cancel", function () {
         closeTopBrindesDetails();
         showTopBrindesAvailableTable();
     });

@@ -1,8 +1,8 @@
 /**
  * @file webroot\js\scripts\topBrindes\nacional.js
- * 
+ *
  * Arquivo de funções para src\Template\TopBrindes\nacional.ctp
- * 
+ *
  * @author  Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-08-01
  */
@@ -26,12 +26,12 @@ $(function() {
 
     /**
      * nacional.js::top-brindes-box-items.sortable()
-     * 
+     *
      * Habilita sortable
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @returns void
      */
     topBrindesSortable.sortable({
@@ -60,12 +60,12 @@ $(function() {
 
     /**
      * nacional.js::top-brindes-box-items.onClick
-     * 
+     *
      * pega o objeto selecionado e exibe os detalhes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @returns void
      */
     topBrindesSortable.on("click", "li", function() {
@@ -78,7 +78,7 @@ $(function() {
         if (t.length > 0) {
             t = t[0];
         }
-        
+
         topBrindesSelectedItem = t;
 
         showTopBrindesDetails(topBrindesSelectedItem);
@@ -86,14 +86,14 @@ $(function() {
 
     /**
      * nacional.js::clientesSelectOnChange
-     * 
+     *
      * Dispara event ao selecionar cliente
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
      *
      * @param {Event} e
-     * 
+     *
      * @returns void
      */
     function clientesSelectOnChange(e) {
@@ -136,12 +136,12 @@ $(function() {
 
     /**
      * nacional.js::closeTopBrindesDetails
-     * 
+     *
      * Fecha a tela de detalhes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function closeTopBrindesDetails() {
@@ -150,12 +150,12 @@ $(function() {
 
     /**
      * nacional.js::deleteTopBrinde
-     * 
+     *
      * Remove um Top Brinde
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function deleteTopBrinde() {
@@ -193,12 +193,12 @@ $(function() {
 
     /**
      * nacional.js::getTopBrindesNacional
-     * 
+     *
      * Obtem Top Brindes Nacional
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @returns void
      */
     function getTopBrindesNacional() {
@@ -274,14 +274,14 @@ $(function() {
 
     /**
      * nacional.js::getBrindesPosto
-     * 
+     *
      * Obtem os Brindes do Posto selecionado
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @param {int} clientesId Id de Clientes selecionado (Posto)
-     * 
+     *
      * @returns void
      */
     function getBrindesPosto(clientesId) {
@@ -304,12 +304,12 @@ $(function() {
 
                     console.log(response);
                     var error = response.responseJSON.mensagem;
-    
+
                     if (error !== undefined) {
                         callModalError(error.message, error.errors);
                     } else {
                         error = response.responseJSON;
-    
+
                         callModalError(error.message, []);
                     }
                 },
@@ -368,7 +368,7 @@ $(function() {
                         row.append(cell);
                         rowsTemplate.push(row);
                     }
-                    
+
                     brindesSelectList.append(rowsTemplate);
                 }
             });
@@ -377,14 +377,14 @@ $(function() {
 
     /**
      * nacional.js::getCurrentItemsSortable
-     * 
+     *
      * Obtem o top brinde selecionado atualmente
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @param {int} clientesId Id de Clientes selecionado (Posto)
-     * 
+     *
      * @returns void
      */
     function getCurrentItemsSortable(elementClass) {
@@ -408,11 +408,11 @@ $(function() {
 
     /**
      * nacional.js::getClientes
-     * 
+     *
      * Obtem os Postos de uma rede
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * 
+     *
      * @since 2019-08-07
      * @returns void
      */
@@ -426,7 +426,7 @@ $(function() {
             dataType: "json",
             success: function(response) {
                 closeLoaderAnimation();
-                var data = response.clientes;
+                var data = response.data.clientes;
 
                 clientesSelectListBox.empty();
                 var rows = [];
@@ -459,14 +459,14 @@ $(function() {
 
     /**
      * nacional.js::setTopBrindeNacional
-     * 
+     *
      * Define Brinde selecionado como Top Brinde Nacional
-     * 
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com> 
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
-     * 
+     *
      * @param {int} brindesId Id do Brinde
-     * 
+     *
      * @returns void
      */
     function setTopBrindeNacional(brindesId) {
@@ -506,7 +506,7 @@ $(function() {
      * nacional.js::setPosicaoTopBrindes
      *
      * Define posição dos topBrindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-06
      *
@@ -545,12 +545,12 @@ $(function() {
 
     /**
      * nacional.js::showMainScreen
-     * 
+     *
      * Exibe tela principal
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-08
-     * 
+     *
      * @returns void
      */
     function showMainScreen() {
@@ -560,12 +560,12 @@ $(function() {
 
     /**
      * nacional.js::showTopBrindesAdd
-     * 
+     *
      * Exibe tela de adicionar topBrindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-08
-     * 
+     *
      * @returns void
      */
     function showTopBrindesAdd() {
@@ -616,12 +616,12 @@ $(function() {
 
     /**
      * nacional.js::showTopBrindesModalDelete
-     * 
+     *
      * Exibe Modal de Remoção Top Brindes
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-07
-     * 
+     *
      * @returns void
      */
     function showTopBrindesModalDelete() {
