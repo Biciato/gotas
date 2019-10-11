@@ -21,6 +21,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\StringUtil;
 use Exception;
 use App\Model\Entity\Rede;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 
 /**
@@ -856,6 +857,52 @@ class RedesController extends AppController
             Log::write("error", $message);
 
             return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+        }
+    }
+
+    /**
+     * src/Controller/RedesController.php::getRedeAPI
+     *
+     * Obtem uma Rede pelo ID
+     *
+     * @param int @data["redes_id"] Id da Rede
+     *
+     * @return json_encode Resposta
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-11
+     */
+    public function getRedeAPI()
+    {
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_DELETE, __CLASS__, __METHOD__, print_r($data, true)));
+
+            try {
+
+                if (empty($redesId)) {
+                    throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
+                }
+
+                $rede = $this->Redes->get($redesId);
+
+                if (empty($rede)) {
+                    throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
+                }
+
+                $data = ["data" => ["rede" => $rede]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+                $messageLog = sprintf("%s", $th->getMessage(), $code);
+                Log::write("error", $messageLog);
+
+                return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
         }
     }
 

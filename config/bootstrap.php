@@ -400,6 +400,8 @@ const LOGIN_WEB = "WEB";
 const MESSAGE_ID_EMPTY = "Campo ID não informado!";
 const MSG_USUARIOS_ID_EMPTY_CODE = 0x00000017;
 const MSG_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
+const MSG_REDES_ID_EMPTY_CODE = 0x00000018;
+const MSG_REDES_ID_EMPTY = "O campo REDES_ID deve ser informado!";
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
@@ -563,13 +565,10 @@ const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130004;
 
 // Entidades / Definições
 
-
-
 #endregion
 
 #region Redes
 
-const MESSAGE_REDES_ID_EMPTY = "Campo ID de Rede não informado!";
 const MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED = "Funcionalidade não permitida para rede sem configuração de APP_PERSONALIZADO!";
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 

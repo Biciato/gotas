@@ -248,6 +248,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Redes", [
         "map" => [
+            "getRedeAPI" => [
+                "action" => "getRedeAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_rede"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getRedesAPI" => [
                 "action" => "getRedesAPI",
