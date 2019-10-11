@@ -92,21 +92,21 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         </div>
                         <div class="form-group">
                             <label for="quantidade_multiplicador">Quantidade de Litros Abastecidos</label>
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" name="quantidade_multiplicador" id="quantidade-multiplicador">
                         </div>
                         <div class="text-right">
-                            <button type="button" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" id="botao-inserir-gota">
                                 <i class="fas fa-check"></i> Inserir
                             </button>
 
                         </div>
                     </div>
                 </div>
-                <div class="gotas-table">
+                <div>
                     <div class="col-lg-6">
                         <h4>Dados à Serem Enviados</h4>
                         <div class="form-group">
-                            <table class="table table-responsive table-condensed table-bordered table-striped">
+                            <table class="table table-responsive table-condensed table-bordered table-striped" id="gotas-table">
                                 <thead>
                                     <tr>
                                         <th>Gota</th>

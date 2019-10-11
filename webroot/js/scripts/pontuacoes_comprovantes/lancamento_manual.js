@@ -14,6 +14,11 @@ $(function() {
     var usuarioNome = $("#usuario-nome");
     var usuarioSaldo = $("#usuario-saldo");
     var gotasEnvio = [];
+    var gotasSelectListBox = $("#gotas");
+    var gotaSelectedItem = {};
+    var gotaTabela = $("#gotas-table body");
+    var quantidadeMultiplicador = $("#quantidade-multiplicador");
+    var botaoInserirGota = $("#botao-inserir-gota");
 
     // var botaoRemover = $("#botao-remover");
     // botaoRemover.on("click", function() {
@@ -26,6 +31,8 @@ $(function() {
 
         redeSelectListBox.on("change", redesOnChange);
         clienteSelectListBox.on("change", clientesOnChange);
+        gotasSelectListBox.on("change", gotasOnChange);
+        botaoInserirGota.on("change", inserirGotaProcessamento);
 
         usuarioCpf.mask("###.###.###-##");
         usuarioCpf.on("keyup", cpfUsuarioOnChange);
@@ -89,6 +96,32 @@ $(function() {
         return string.join("");
     }
 
+    function gotasOnChange() {
+        var value = e.target.value;
+
+        if (!isNaN(value)) {
+            gotaSelectedItem = gotas.find(x => x.id == value);
+        } else {
+            gotaSelectedItem = {};
+        }
+    }
+
+    function inserirGotaProcessamento() {
+        var gota = gotaSelectedItem;
+        var litros = quantidadeMultiplicador.val();
+
+        if (gota == undefined) {
+            callModalError("Selecione uma Gota para continuar!");
+            return false;
+        }
+
+        var template = geraTemplateTabelaGotasEnviadas(gota.id, gota.nome, litros);
+        gotaTabela.append(template);
+
+        $("#botao-remover").on("click", removerGota);
+
+    }
+
     function redesOnChange(e) {
         var id = parseInt(e.target.value);
 
@@ -102,6 +135,13 @@ $(function() {
         } else {
             clienteSelectListBox.empty();
         }
+    }
+
+    function removerGota(e) {
+        var value = e.target.value;
+        // @todo continuar
+
+        alert("oi");
     }
 
     // #endregion
@@ -154,7 +194,9 @@ $(function() {
                     if (data.length == 1) {
                         var cliente = data[0];
                         clienteSelectedItem = cliente;
+                        clientes.push(clienteSelectedItem);
                         clienteSelectListBox.val(cliente.id);
+                        clienteSelectListBox.change();
                         clienteSelectListBox.addClass("disabled");
                         clienteSelectListBox.prop("disabled", true);
                         clienteSelectListBox.prop("readonly", true);
