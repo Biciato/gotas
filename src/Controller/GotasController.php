@@ -731,7 +731,7 @@ class GotasController extends AppController
             $data = $this->request->getQueryParams();
             $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
 
-            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_DELETE, __CLASS__, __METHOD__, print_r($data, true)));
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
             if (empty($clientesId)) {
                 $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;

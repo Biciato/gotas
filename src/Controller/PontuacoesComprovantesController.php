@@ -1252,7 +1252,112 @@ class PontuacoesComprovantesController extends AppController
      */
     public function setComprovanteFiscalUsuarioManualAPI()
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        // Verifica se o usuário tem permissão, se não tiver, já retorna erro
+        if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_LOCAL) {
+            $errors = [USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION];
+            $errorCodes = [USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE];
+            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+        }
+
         if ($this->request->is(Request::METHOD_POST)) {
+            $data = $this->request->getData();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+
+            // Variáveis
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+            $usuariosId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+            $pontuacoes = !empty($data["pontuacoes"]) ? $data["pontuacoes"] : null;
+            $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+
+            $dataProcessamento = new \DateTime('now');
+            $dataProcessamento = $dataProcessamento->format("Y-m-d H:i:s");
+
+            // Validação de conteudo
+
+            $errors = [];
+            $errorCodes = [];
+
+            if (empty($clientesId)) {
+                $errors[]  = MSG_CLIENTES_ID_NOT_EMPTY;
+                $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+            }
+
+            if (empty($usuariosId)) {
+                $errors[] = MSG_USUARIOS_ID_EMPTY;
+                $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
+            }
+
+            if (empty($pontuacoes) || count($pontuacoes) == 0) {
+                // @todo
+                $errors[] = "";
+                $errorCodes[] = "";
+            }
+
+            if (empty($qrCode)) {
+                $qrCode = sprintf("Importação manual em %s.", $dataProcessamento);
+            }
+
+            $cliente = $this->Clientes->get($clientesId);
+            $usuario = $this->Usuarios->get($usuariosId);
+            $funcionariosId = $usuarioLogado->id;
+
+            $comprovanteSave = new PontuacoesComprovante();
+            $comprovanteSave->clientes_id = $cliente->id;
+            $comprovanteSave->usuarios_id = $usuario->id;
+            $comprovanteSave->funcionarios_id = $funcionariosId;
+            $comprovanteSave->conteudo = $qrCode;
+            // @todo Fazer método que retorna isso
+
+            $chaveNfe = $qrCode;
+
+            if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
+                $result = QRCodeUtil::validarUrlQrCode($qrCode);
+
+                if ($result["status"]) {
+                    $var = array_search($result["data"], function($a) {
+                        return $a["key"] == "chNFe";
+                    });
+
+                    $chaveNfe = $var["content"];
+                }
+            }
+
+            $comprovanteSave->chave_nfe = $chaveNfe;
+            $comprovanteSave->estado_nfe = $cliente->estado;
+            $comprovanteSave->requer_auditoria = false;
+            $comprovanteSave->auditado = false;
+            $comprovanteSave->data = $dataProcessamento;
+            $comprovanteSave->registro_invalido = false;
+
+            // @todo Fazer método saveUpdate
+            $comprovante = $this->PontuacoesComprovantes->save($comprovanteSave);
+
+            foreach ($pontuacoes as $pontuacaoItem) {
+                $gota = $this->Gotas->get($pontuacaoItem["id"]);
+                $pontuacao = new Pontuacao();
+                $pontuacao->clientes_id = $cliente->id;
+                $pontuacao->usuarios_id = $usuario->id;
+                $pontuacao->funcionarios_id = $funcionariosId;
+                $pontuacao->data = $dataProcessamento;
+                $pontuacao->gotas_id = $gota->id;
+                $pontuacao->quantidade_multiplicador = $pontuacaoItem["quantidade_multiplicador"];
+                $pontuacao->quantidade_gotas = floor($pontuacaoItem["quantidade_multiplicador"] * $gota->multiplicador_gota);
+                $pontuacao->pontuacoes_comprovante_id = $comprovante->id;
+                $pontuacao->valor_gota_sefaz = $pontuacaoItem["valor"];
+                $pontuacao->expirado = 0;
+                $pontuacao->utilizado = 0;
+
+                $this->Pontuacoes->saveUpdate($pontuacao);
+            }
 
         }
     }
@@ -1927,7 +2032,7 @@ class PontuacoesComprovantesController extends AppController
                         // @todo conferir
                         $pontuacao->valor_gota_sefaz = trim($produto["valor"]);
 
-                        $pontuacao->quantidade_gotas = $gota->multiplicador_gota * (float) $produto["quantidade"];
+                        $pontuacao->quantidade_gotas = floor($gota->multiplicador_gota * (float) $produto["quantidade"]);
                         $pontuacao->pontuacoes_comprovante_id = 0;
                         $pontuacao->data = $dataProcessamento;
 
