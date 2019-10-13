@@ -9,6 +9,7 @@ $(function() {
     var gotasEnvio = [];
     var gotasSelectListBox = $("#gotas");
     var gotaSelectedItem = {};
+    var dadosDiv = $("#dados");
     var gotaTabela = $("#gotas-table tbody");
     var quantidadeMultiplicador = $("#quantidade-multiplicador");
     var gravarGotasBtn = $("#botao-gravar-gotas");
@@ -16,6 +17,7 @@ $(function() {
     var inserirGotaBtn = $("#botao-inserir-gota");
     var qrCodeText = $("#qr-code");
     var redes = [];
+    var reiniciarBtn = $("#reiniciar");
     var redeSelectedItem = {};
     var redeSelectListBox = $("#redes");
     var usuarioCpf = $("#usuario-cpf");
@@ -28,27 +30,53 @@ $(function() {
      * Constructor
      */
     function init() {
+
         getRedes();
 
+        reiniciarBtn.unbind("click");
+        reiniciarBtn.on("click", init);
+        redeSelectListBox.unbind("change");
         redeSelectListBox.on("change", redesOnChange);
+
+        clienteSelectListBox.unbind("change");
         clienteSelectListBox.on("change", clientesOnChange);
+        gotasSelectListBox.unbind("change");
         gotasSelectListBox.on("change", gotasOnChange);
+        inserirGotaBtn.unbind("click");
         inserirGotaBtn.on("click", inserirGotaProcessamento);
+        gravarGotasBtn.unbind("click");
         gravarGotasBtn.on("click", gravarGotasUsuario);
 
+        clienteSelectListBox.prop("readonly", false);
+        clienteSelectListBox.prop("disabled", false);
+        clienteSelectedItem = null;
+        clienteSelectListBox.val(null);
+
+        gotasSelectListBox.val(null);
         gotasSelectListBox.prop("disabled", true);
+        quantidadeMultiplicador.val(null);
         quantidadeMultiplicador.prop("disabled", true);
+        quantidadeMultiplicador.mask("####.###", { reverse: true });
+        valorReais.val(null);
         valorReais.prop("disabled", true);
         inserirGotaBtn.prop("disabled", true);
 
-        // Habilita/desabilita botão de gravar as gotas do cliente final
-        updateButtonGravarGotas();
+        gotasEnvio = [];
+        gotaTabela.empty();
 
+        usuarioSelectedItem = {};
+        usuarioCpf.val(null);
+        usuarioSaldo.val(null);
+        usuarioCpf.unbind("keyup");
+        usuarioCpf.unmask();
         usuarioCpf.mask("###.###.###-##");
         usuarioCpf.on("keyup", cpfUsuarioOnChange);
-        quantidadeMultiplicador.mask("####.###", { reverse: true });
         valorReais.maskMoney({ prefix: "R$ ", decimal: ",", thousands: "." });
+
+        // Habilita/desabilita botão de gravar as gotas do cliente final
+        updateButtonGravarGotas();
     }
+
 
     // #region Funções da tela
 
@@ -76,6 +104,8 @@ $(function() {
         } else {
             clienteSelectedItem = {};
         }
+
+        toggleGotasDiv();
     }
 
     /**
@@ -100,7 +130,10 @@ $(function() {
         if (cpf.length == 11) {
             console.log(moment());
             getUsuarioByCPF(cpf);
+        } else {
+            usuarioSelectedItem = {};
         }
+        toggleGotasDiv();
     }
 
     /**
@@ -281,6 +314,8 @@ $(function() {
 
         clienteSelectListBox.prop("readonly", false);
         clienteSelectListBox.prop("disabled", false);
+        clienteSelectedItem = null;
+        clienteSelectListBox.val(null);
 
         if (!isNaN(id)) {
             redeSelectedItem = redes.find(x => x.id == id);
@@ -289,6 +324,7 @@ $(function() {
         } else {
             clienteSelectListBox.empty();
         }
+        toggleGotasDiv();
     }
 
     /**
@@ -333,6 +369,14 @@ $(function() {
         console.log(gotasEnvio);
         // alert("oi");
         console.log(value);
+    }
+
+    function toggleGotasDiv() {
+        if (redeSelectedItem.id != undefined && clienteSelectedItem.id != undefined && usuarioSelectedItem.id != undefined) {
+            dadosDiv.fadeIn(500);
+        } else {
+            dadosDiv.fadeOut(500);
+        }
     }
 
     /**

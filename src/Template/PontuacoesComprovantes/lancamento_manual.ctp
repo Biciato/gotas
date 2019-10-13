@@ -25,7 +25,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <li class="active">
             <a>Menu</a>
         </li>
-
+        <li>
+            <a id="reiniciar">
+                <i class="fas fa-refresh"></i>
+                Reiniicar
+            </a>
+        </li>
     </nav>
 
 </div>

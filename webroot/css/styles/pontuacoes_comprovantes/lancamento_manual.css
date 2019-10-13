@@ -13,3 +13,7 @@
     /* overflow-y: scroll; */
     /* float: right; */
 }
+
+#dados {
+    display: none;
+}
