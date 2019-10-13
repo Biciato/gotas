@@ -24,6 +24,7 @@ use Cake\Auth\DefaultPasswordHasher;
 use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Http\Client\Request;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Routing\Router;
@@ -1240,6 +1241,24 @@ class PontuacoesComprovantesController extends AppController
     }
 
     /**
+     * Define pontuações de usuário
+     *
+     * Este método é utilizado para gravar as informações de pontos do usuário de forma manual,
+     * quando se deseja pontuar o usuário sem a intervenção da SEFAZ.
+     *
+     * src/Controller/PontuacoesComprovantesController.php::setComprovanteFiscalUsuarioManualAPI
+     *
+     * @return void
+     */
+    public function setComprovanteFiscalUsuarioManualAPI()
+    {
+        if ($this->request->is(Request::METHOD_POST)) {
+
+        }
+    }
+
+
+    /**
      * PontuacoesComprovantes::setComprovanteFiscalUsuarioAPI
      *
      * Serviço REST que processa uma Nota Fiscal Eletrônica
@@ -1521,14 +1540,14 @@ class PontuacoesComprovantesController extends AppController
                     // Confere quais gotas estão com preço desatualizado
 
                     if ($gotaUsuario["gotas_vl_unit"] != $gota["valor_atual"]) {
-                        $gotaPreco = array(
-                            "clientes_id" => $cliente["id"],
-                            "gotas_id" => $gota["id"],
-                            "preco" => $gotaUsuario["gotas_vl_unit"]
-                        );
+                        // $gotaPreco = array(
+                        //     "clientes_id" => $cliente["id"],
+                        //     "gotas_id" => $gota["id"],
+                        //     "preco" => $gotaUsuario["gotas_vl_unit"]
+                        // );
 
                         // @todo gustavosg: pendente!
-                        $gotasAtualizarPreco[] = $gotaPreco;
+                        // $gotasAtualizarPreco[] = $gotaPreco;
                     }
 
                     $pontuacoes[] = $item;

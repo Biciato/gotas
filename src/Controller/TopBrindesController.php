@@ -333,7 +333,7 @@ class TopBrindesController extends AppController
                 }
 
                 if (empty($clientesId)) {
-                    throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                    throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
                 }
 
                 $topBrindes = $this->TopBrindes->getTopBrindes($rede->id, $clientesId, null, null, TOP_BRINDES_TYPE_LOCAL);

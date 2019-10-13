@@ -1325,7 +1325,7 @@ class BrindesController extends AppController
             }
 
             if (empty($clientesId)) {
-                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
             $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);

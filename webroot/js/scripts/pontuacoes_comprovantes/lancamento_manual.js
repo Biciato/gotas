@@ -16,32 +16,56 @@ $(function() {
     var gotasEnvio = [];
     var gotasSelectListBox = $("#gotas");
     var gotaSelectedItem = {};
-    var gotaTabela = $("#gotas-table body");
+    var gotaTabela = $("#gotas-table tbody");
     var quantidadeMultiplicador = $("#quantidade-multiplicador");
-    var botaoInserirGota = $("#botao-inserir-gota");
+    var valorReais = $("#valor-reais");
+    var inserirGotaBtn = $("#botao-inserir-gota");
+    var gravarGotasBtn = $("#botao-gravar-gotas");
+    var idGotaTabela = 0;
 
-    // var botaoRemover = $("#botao-remover");
-    // botaoRemover.on("click", function() {
-    //     var a = this;
-    //     console.log(a);
-    // })
-
+    /**
+     * Constructor
+     */
     function init() {
         getRedes();
 
         redeSelectListBox.on("change", redesOnChange);
         clienteSelectListBox.on("change", clientesOnChange);
         gotasSelectListBox.on("change", gotasOnChange);
-        botaoInserirGota.on("change", inserirGotaProcessamento);
+        inserirGotaBtn.on("click", inserirGotaProcessamento);
+
+        gotasSelectListBox.prop("disabled", true);
+        quantidadeMultiplicador.prop("disabled", true);
+        valorReais.prop("disabled", true);
+        inserirGotaBtn.prop("disabled", true);
+
+        // Habilita/desabilita botão de gravar as gotas do cliente final
+        updateButtonGravarGotas();
 
         usuarioCpf.mask("###.###.###-##");
         usuarioCpf.on("keyup", cpfUsuarioOnChange);
+        quantidadeMultiplicador.mask("####.###", { reverse: true });
+        valorReais.maskMoney({ prefix: "R$ ", decimal: ",", thousands: "." });
     }
 
     // #region Funções da tela
 
-    function clientesOnChange(e) {
-        var id = parseInt(e.target.value);
+    /**
+     * Evento disparado ao trocar cliente selecionado
+     *
+     * Ao selecionar um cliente, chama o método de pesquisa das gotas do estabelecimento selecionado
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::clientesOnChange
+     *
+     * @param {Event} event Event
+     *
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
+    function clientesOnChange(event) {
+        var id = parseInt(event.target.value);
 
         if (!isNaN(id)) {
             var cliente = clientes.find(x => x.id == id);
@@ -52,6 +76,20 @@ $(function() {
         }
     }
 
+    /**
+     * Evento disparado ao digitar cpf do Usuário
+     *
+     * Ao digitar o cpf do usuário, busca o registro na base de dados se o CPF existir
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::cpfUsuarioOnChange
+     *
+     * @param {Event} event Event
+     *
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
     function cpfUsuarioOnChange(e) {
         var cpf = e.target.value;
 
@@ -63,29 +101,33 @@ $(function() {
     }
 
     /**
-     * webroot\js\scripts\pontuacoes_comprovantes\lancamento_manual.js::geraTemplateTabelaGotasEnviadas
+     * Gera template
      *
-     * Gera template de linhas ao adicionar gota na tabela
+     * Gera template para tabela de gotas a ser enviadas
+     *
+     * webroot\js\scripts\pontuacoes_comprovantes\lancamento_manual.js::geraTemplateTabelaGotasEnviadas
      *
      * @param {int} id
      * @param {string} gota
      * @param {float} quantidade
+     * @param {float} valor
      *
      * @returns {string} template
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-10-10
      */
-    function geraTemplateTabelaGotasEnviadas(id, gota, quantidade) {
+    function geraTemplateTabelaGotasEnviadas(id, gota, quantidade, valor) {
         var string = [];
 
         string.push("<tr>");
         string.push("<td>" + gota + "</td>");
         string.push("<td>" + quantidade + "</td>");
+        string.push("<td>" + valor + "</td>");
         string.push("<td>");
         string.push(
-            "<div class='btn btn-danger btn-xs' id='botao-remover' data-value='" +
-                id +
+            "<div class='btn btn-danger btn-xs botao-remover' id='botao-remover' data-value='" +
+                idGotaTabela +
                 "' title='Remover Gota'>"
         );
         string.push("<i class='fas fa-remove'></i>");
@@ -93,37 +135,109 @@ $(function() {
         string.push("</td>");
         string.push("</tr>");
 
+        idGotaTabela++;
+
         return string.join("");
     }
 
-    function gotasOnChange() {
-        var value = e.target.value;
+    /**
+     * Método disparado ao selecionar gotas
+     *
+     * Ao selecionar uma gota, permite/bloqueia os campos em questão.
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::gotasOnChange
+     *
+     * @param {Event} evt
+     *
+     * @returns {void}
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
+    function gotasOnChange(evt) {
+        var value = evt.target.value;
+
+        quantidadeMultiplicador.prop("disabled", true);
+        valorReais.prop("disabled", true);
+        inserirGotaBtn.prop("disabled", true);
 
         if (!isNaN(value)) {
             gotaSelectedItem = gotas.find(x => x.id == value);
+            quantidadeMultiplicador.prop("disabled", false);
+            valorReais.prop("disabled", false);
+            inserirGotaBtn.prop("disabled", false);
         } else {
             gotaSelectedItem = {};
         }
     }
 
+    function gravarGotasUsuario() {
+
+        var data = {
+
+        };
+    }
+
+    /**
+     * Insere Gota
+     *
+     * Insere gota na fila para pontuar usuário
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::inserirGotaProcessamento
+     *
+     * @returns {void}
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
     function inserirGotaProcessamento() {
         var gota = gotaSelectedItem;
         var litros = quantidadeMultiplicador.val();
+        var valor = valorReais.val();
 
-        if (gota == undefined) {
+        if (gota.id == undefined) {
             callModalError("Selecione uma Gota para continuar!");
             return false;
         }
 
-        var template = geraTemplateTabelaGotasEnviadas(gota.id, gota.nome, litros);
+        var template = geraTemplateTabelaGotasEnviadas(
+            gota.id,
+            gota.nome,
+            litros,
+            valor
+        );
         gotaTabela.append(template);
+        gotasEnvio.push({
+            id: gota.id,
+            nome: gota.nome,
+            quantidade_multiplicador: litros,
+            valor: valor
+        });
 
-        $("#botao-remover").on("click", removerGota);
+        // Habilita/desabilita botão de gravar as gotas do cliente final
+        updateButtonGravarGotas();
 
+        // Re-atribui a função de remover Gota ao clicar
+        $(".botao-remover").unbind("click");
+        $(".botao-remover").on("click", removerGotaProcessamento);
     }
 
-    function redesOnChange(e) {
-        var id = parseInt(e.target.value);
+    /**
+     * Insere Gota
+     *
+     * Insere gota na fila para pontuar usuário
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::inserirGotaProcessamento
+     *
+     * @param {Event} evt
+     *
+     * @returns {void}
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
+    function redesOnChange(evt) {
+        var id = parseInt(evt.target.value);
 
         clienteSelectListBox.prop("readonly", false);
         clienteSelectListBox.prop("disabled", false);
@@ -137,11 +251,66 @@ $(function() {
         }
     }
 
-    function removerGota(e) {
-        var value = e.target.value;
+     /**
+     * Remove Gota
+     *
+     * Remove gota da fila para pontuar usuário
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::inserirGotaProcessamento
+     *
+     * @param {Event} evt
+     *
+     * @returns {void}
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
+    function removerGotaProcessamento() {
+        var value = parseInt(this.getAttribute("data-value"));
+        idGotaTabela = 0;
+        gotasEnvio.splice(value, 1);
+        gotaTabela.empty();
+
+        gotasEnvio.forEach(element => {
+            var template = geraTemplateTabelaGotasEnviadas(
+                element.id,
+                element.nome,
+                element.quantidade_multiplicador,
+                element.valor
+            );
+            gotaTabela.append(template);
+        });
+
+        // Re-atribui a função de remover Gota ao clicar
+        $(".botao-remover").unbind("click");
+        $(".botao-remover").on("click", removerGotaProcessamento);
+
+        // Habilita/desabilita botão de gravar as gotas do cliente final
+        updateButtonGravarGotas();
+
         // @todo continuar
 
-        alert("oi");
+        console.log(gotasEnvio);
+        // alert("oi");
+        console.log(value);
+    }
+
+    /**
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::updateButtonGravarGotas
+     *
+     * Atualiza status habilitado de botão gravar gotas do usuário
+     *
+     * @returns void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-12
+     */
+    function updateButtonGravarGotas() {
+        gravarGotasBtn.prop("disabled", true);
+
+        if (gotasEnvio.length > 0) {
+            gravarGotasBtn.prop("disabled", false);
+        }
     }
 
     // #endregion
@@ -216,11 +385,46 @@ $(function() {
             clientes_id: clientesId
         };
         $.ajax({
-            type: "method",
-            url: "url",
+            type: "GET",
+            url: "/api/gotas/get_gotas_clientes",
             data: data,
-            dataType: "dataType",
-            success: function(response) {}
+            dataType: "JSON",
+            success: function(response) {
+                gotasSelectListBox.empty();
+
+                var data = response.data.gotas;
+
+                var emptyOption = document.createElement("option");
+                emptyOption.value = null;
+                emptyOption.textContent = "<Selecionar>";
+                gotasSelectListBox.append(emptyOption);
+                gotas = [];
+
+                data.forEach(element => {
+                    var gota = {
+                        id: element.id,
+                        nome: element.nome_parametro,
+                        multiplicador: element.multiplicador_gota
+                    };
+
+                    var option = document.createElement("option");
+                    option.value = gota.id;
+                    option.textContent =
+                        gota.nome + " - Multiplicador: " + gota.multiplicador;
+                    gotasSelectListBox.append(option);
+                    gotas.push(gota);
+                });
+
+                gotasSelectListBox.prop("disabled", true);
+
+                if (data.length > 0) {
+                    gotasSelectListBox.prop("disabled", false);
+                }
+            },
+            error: function(response) {
+                var msg = response.responseJSON.mensagem;
+                callModalError(msg.message, msg.errors);
+            }
         });
     }
 

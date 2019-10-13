@@ -14,6 +14,7 @@ use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\QRCodeUtil;
+use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\SefazUtil;
 use Cake\Http\Client\Request;
 use Exception;
@@ -731,23 +732,28 @@ class GotasController extends AppController
             $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_DELETE, __CLASS__, __METHOD__, print_r($data, true)));
-            // Log::write("info", $data);
 
             if (empty($clientesId)) {
-                // @todo gerar erro
+                $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
             }
 
             try {
-                //code...
                 if (count($errors) > 0) {
-                    // @todo continuar
-                    throw new Exception();
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
 
-                // @todo fazer
-                $gotas = $this->Gotas->getGotasByCliente($clientesId);
+                $gotas = $this->Gotas->getGotas($clientesId, null, null, null, 1);
+                $data = ["data" => ["gotas" => $gotas]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             } catch (\Throwable $th) {
-                //throw $th;
+
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::write("error", sprintf("", $errorCodes[$i], $errors[$i]));
+                }
+
+                return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
             }
         }
     }

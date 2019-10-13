@@ -402,6 +402,9 @@ const MSG_USUARIOS_ID_EMPTY_CODE = 0x00000017;
 const MSG_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
 const MSG_REDES_ID_EMPTY_CODE = 0x00000018;
 const MSG_REDES_ID_EMPTY = "O campo REDES_ID deve ser informado!";
+const MSG_CLIENTES_ID_NOT_EMPTY_CODE = 0x00000019;
+const MSG_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
@@ -578,7 +581,7 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY = "O campo REDES_ID deve ser informado!";
-const MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+
 const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
 const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";

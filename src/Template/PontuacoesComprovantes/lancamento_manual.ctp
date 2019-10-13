@@ -90,9 +90,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <label for="gotas">Gotas</label>
                             <select name="gotas" id="gotas" class="form-control"></select>
                         </div>
-                        <div class="form-group">
-                            <label for="quantidade_multiplicador">Quantidade de Litros Abastecidos</label>
-                            <input type="text" class="form-control" name="quantidade_multiplicador" id="quantidade-multiplicador">
+                        <div class="form-group row">
+                            <div class="col-lg-6">
+
+                                <label for="quantidade_multiplicador">Qte. Litros Abastecidos</label>
+                                <input type="text" class="form-control" name="quantidade_multiplicador" id="quantidade-multiplicador">
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="valor_reais">Valor Pago:</label>
+                                <input type="text" class="form-control" name="valor_reais" id="valor-reais">
+                            </div>
                         </div>
                         <div class="text-right">
                             <button type="button" class="btn btn-primary" id="botao-inserir-gota">
@@ -111,6 +118,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <tr>
                                         <th>Gota</th>
                                         <th>Qte.</th>
+                                        <th>Valor</th>
                                         <th class="actions">Ações
                                             <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes"><span class=" fa fa-book"> Legendas</span></div>
                                         </th>
@@ -122,8 +130,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </table>
                         </div>
                         <div class="text-right">
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-check"></i> Inserir
+                            <button type="button" class="btn btn-primary" id="botao-gravar-gotas">
+                                <i class="fas fa-save"></i> Gravar
                             </button>
 
                         </div>
