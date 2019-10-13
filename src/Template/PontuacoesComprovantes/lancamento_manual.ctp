@@ -112,7 +112,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <div>
                     <div class="col-lg-6">
                         <h4>Dados à Serem Enviados</h4>
-                        <div class="form-group">
+
+                        <div class="form-group row">
+                            <label for="qr_code">Informe QR Code se Existente</label>
+                            <input type="text" name="qr_code" id="qr-code" class="form-control" placeholder="Informe QR Code se Existente..." title="Informe QR Code se Existente" />
+                        </div>
+                        <div class="form-group row">
                             <table class="table table-responsive table-condensed table-bordered table-striped" id="gotas-table">
                                 <thead>
                                     <tr>

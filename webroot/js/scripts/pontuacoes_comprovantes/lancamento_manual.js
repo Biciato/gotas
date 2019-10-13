@@ -1,27 +1,28 @@
 var message = "";
 $(function() {
-    // "use strict";
-    console.log("oi");
+    "use strict";
 
-    var redes = [];
-    var redeSelectListBox = $("#redes");
-    var redeSelectedItem = {};
     var clienteSelectListBox = $("#clientes");
     var clientes = [];
     var clienteSelectedItem = {};
-    var usuarioSelectedItem = {};
-    var usuarioCpf = $("#usuario-cpf");
-    var usuarioNome = $("#usuario-nome");
-    var usuarioSaldo = $("#usuario-saldo");
+    var gotas = [];
     var gotasEnvio = [];
     var gotasSelectListBox = $("#gotas");
     var gotaSelectedItem = {};
     var gotaTabela = $("#gotas-table tbody");
     var quantidadeMultiplicador = $("#quantidade-multiplicador");
-    var valorReais = $("#valor-reais");
-    var inserirGotaBtn = $("#botao-inserir-gota");
     var gravarGotasBtn = $("#botao-gravar-gotas");
     var idGotaTabela = 0;
+    var inserirGotaBtn = $("#botao-inserir-gota");
+    var qrCodeText = $("#qr-code");
+    var redes = [];
+    var redeSelectedItem = {};
+    var redeSelectListBox = $("#redes");
+    var usuarioCpf = $("#usuario-cpf");
+    var usuarioNome = $("#usuario-nome");
+    var usuarioSaldo = $("#usuario-saldo");
+    var usuarioSelectedItem = {};
+    var valorReais = $("#valor-reais");
 
     /**
      * Constructor
@@ -33,6 +34,7 @@ $(function() {
         clienteSelectListBox.on("change", clientesOnChange);
         gotasSelectListBox.on("change", gotasOnChange);
         inserirGotaBtn.on("click", inserirGotaProcessamento);
+        gravarGotasBtn.on("click", gravarGotasUsuario);
 
         gotasSelectListBox.prop("disabled", true);
         quantidadeMultiplicador.prop("disabled", true);
@@ -96,6 +98,7 @@ $(function() {
         cpf = cpf.replace(/[^0-9]/g, "");
 
         if (cpf.length == 11) {
+            console.log(moment());
             getUsuarioByCPF(cpf);
         }
     }
@@ -157,6 +160,8 @@ $(function() {
     function gotasOnChange(evt) {
         var value = evt.target.value;
 
+        quantidadeMultiplicador.val(null);
+        valorReais.val(null);
         quantidadeMultiplicador.prop("disabled", true);
         valorReais.prop("disabled", true);
         inserirGotaBtn.prop("disabled", true);
@@ -171,11 +176,40 @@ $(function() {
         }
     }
 
+    /**
+     * Grava as gotas do Usuário
+     *
+     * Realiza a gravação dos dados inseridos pelo operador
+     *
+     * webroot/js/scripts/pontuacoes_comprovantes/lancamento_manual.js::gravarGotasUsuario
+     *
+     * @param {Event} evt
+     *
+     * @returns {void}
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-13
+     */
     function gravarGotasUsuario() {
+        var pontuacoes = [];
+
+        gotasEnvio.forEach(gota => {
+            var pontuacao = {
+                gotas_id: gota.id,
+                quantidade_multiplicador: gota.quantidadeMultiplicador,
+                valor: gota.valor
+            };
+            pontuacoes.push(pontuacao);
+        });
 
         var data = {
-
+            qr_code: qrCodeText.val(),
+            clientes_id: clienteSelectedItem.id,
+            usuarios_id: usuarioSelectedItem.id,
+            pontuacoes: pontuacoes
         };
+
+        setPontuacoesUsuario(data);
     }
 
     /**
@@ -200,6 +234,11 @@ $(function() {
             return false;
         }
 
+        if (litros.length == 0 || litros == 0) {
+            callModalError("Necessário informar <strong>Qte. Litros Abastecidos</strong>!");
+            return false;
+        }
+
         var template = geraTemplateTabelaGotasEnviadas(
             gota.id,
             gota.nome,
@@ -210,8 +249,9 @@ $(function() {
         gotasEnvio.push({
             id: gota.id,
             nome: gota.nome,
-            quantidade_multiplicador: litros,
-            valor: valor
+            quantidadeMultiplicador: litros,
+            // converte para double
+            valor: Number(valor.replace(/[^0-9_-]+/g, "")) / 100
         });
 
         // Habilita/desabilita botão de gravar as gotas do cliente final
@@ -251,7 +291,7 @@ $(function() {
         }
     }
 
-     /**
+    /**
      * Remove Gota
      *
      * Remove gota da fila para pontuar usuário
@@ -275,7 +315,7 @@ $(function() {
             var template = geraTemplateTabelaGotasEnviadas(
                 element.id,
                 element.nome,
-                element.quantidade_multiplicador,
+                element.quantidadeMultiplicador,
                 element.valor
             );
             gotaTabela.append(template);
@@ -543,6 +583,23 @@ $(function() {
         });
     }
 
+    function setPontuacoesUsuario(data) {
+        $.ajax({
+            type: "POST",
+            url:
+                "/api/pontuacoes_comprovantes/set_comprovante_fiscal_usuario_manual",
+            data: data,
+            dataType: "JSON",
+            success: function(response) {
+                callModalSave();
+            },
+            error: function(response) {
+                var msg = response.responseJSON.mensagem;
+
+                callModalError(msg.message, msg.errors);
+            }
+        });
+    }
     // #endregion
 
     init();

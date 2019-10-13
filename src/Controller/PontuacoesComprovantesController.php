@@ -1255,16 +1255,25 @@ class PontuacoesComprovantesController extends AppController
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $errors = [];
+        $errorCodes = [];
 
         if ($usuarioAdministrar) {
             $usuarioLogado = $usuarioAdministrar;
         }
 
-        // Verifica se o usuário tem permissão, se não tiver, já retorna erro
-        if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_LOCAL) {
-            $errors = [USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION];
-            $errorCodes = [USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE];
-            return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+        try {
+            // Verifica se o usuário tem permissão, se não tiver, já retorna erro
+            if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_LOCAL) {
+                throw new Exception(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION, USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE);
+            }
+        } catch (\Throwable $th) {
+            $errors[] = $th->getMessage();
+            $errorCodes[] = $th->getCode();
+            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
         }
 
         if ($this->request->is(Request::METHOD_POST)) {
@@ -1273,8 +1282,8 @@ class PontuacoesComprovantesController extends AppController
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Variáveis
-            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
-            $usuariosId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+            $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
             $pontuacoes = !empty($data["pontuacoes"]) ? $data["pontuacoes"] : null;
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
 
@@ -1283,82 +1292,116 @@ class PontuacoesComprovantesController extends AppController
 
             // Validação de conteudo
 
-            $errors = [];
-            $errorCodes = [];
+            try {
 
-            if (empty($clientesId)) {
-                $errors[]  = MSG_CLIENTES_ID_NOT_EMPTY;
-                $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                $errors = [];
+                $errorCodes = [];
+
+                if (empty($clientesId)) {
+                    $errors[]  = MSG_CLIENTES_ID_NOT_EMPTY;
+                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                }
+
+                if (empty($usuariosId)) {
+                    $errors[] = MSG_USUARIOS_ID_EMPTY;
+                    $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
+                }
+
+                if (empty($pontuacoes) || count($pontuacoes) == 0) {
+                    // @todo
+                    $errors[] = "";
+                    $errorCodes[] = "";
+                }
+            } catch (\Throwable $th) {
+                $count = count($errors);
+
+                for ($i = 0; $i < $count; $i++) {
+                    $error = $errors[$i];
+                    $errorCode = $errorCodes[$i];
+                    $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $errorCode, $error);
+                    Log::write("error", $message);
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
-            if (empty($usuariosId)) {
-                $errors[] = MSG_USUARIOS_ID_EMPTY;
-                $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
-            }
-
-            if (empty($pontuacoes) || count($pontuacoes) == 0) {
-                // @todo
-                $errors[] = "";
-                $errorCodes[] = "";
-            }
-
-            if (empty($qrCode)) {
+            // Se vazio ou não é um link, o titulo será definido automaticamente
+            if (empty($qrCode) || !filter_var($qrCode, FILTER_VALIDATE_URL)) {
                 $qrCode = sprintf("Importação manual em %s.", $dataProcessamento);
             }
 
-            $cliente = $this->Clientes->get($clientesId);
-            $usuario = $this->Usuarios->get($usuariosId);
+            $cliente = null;
+            $usuario = null;
+
+            try {
+                $cliente = $this->Clientes->get($clientesId);
+                $usuario = $this->Usuarios->get($usuariosId);
+            } catch (\Throwable $th) {
+                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                Log::write("error", $message);
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+            }
+
             $funcionariosId = $usuarioLogado->id;
 
-            $comprovanteSave = new PontuacoesComprovante();
-            $comprovanteSave->clientes_id = $cliente->id;
-            $comprovanteSave->usuarios_id = $usuario->id;
-            $comprovanteSave->funcionarios_id = $funcionariosId;
-            $comprovanteSave->conteudo = $qrCode;
-            // @todo Fazer método que retorna isso
+            try {
+                $comprovanteSave = new PontuacoesComprovante();
+                $comprovanteSave->clientes_id = $cliente->id;
+                $comprovanteSave->usuarios_id = $usuario->id;
+                $comprovanteSave->funcionarios_id = $funcionariosId;
+                $comprovanteSave->conteudo = $qrCode;
+                $chaveNfe = $qrCode;
 
-            $chaveNfe = $qrCode;
+                if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
+                    $result = QRCodeUtil::validarUrlQrCode($qrCode);
 
-            if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
-                $result = QRCodeUtil::validarUrlQrCode($qrCode);
+                    if ($result["status"]) {
+                        $var = array_filter($result["data"], function ($a) {
+                            if ($a["key"] == "chNFe") {
+                                return $a;
+                            }
+                        });
 
-                if ($result["status"]) {
-                    $var = array_search($result["data"], function($a) {
-                        return $a["key"] == "chNFe";
-                    });
-
-                    $chaveNfe = $var["content"];
+                        $chaveNfe = $var[0]["content"];
+                    }
                 }
+
+                $comprovanteSave->chave_nfe = $chaveNfe;
+                $comprovanteSave->estado_nfe = $cliente->estado;
+                $comprovanteSave->requer_auditoria = false;
+                $comprovanteSave->auditado = false;
+                $comprovanteSave->data = $dataProcessamento;
+                $comprovanteSave->registro_invalido = false;
+
+                // @todo Fazer método saveUpdate
+                $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovanteSave);
+
+                foreach ($pontuacoes as $pontuacaoItem) {
+                    $gota = $this->Gotas->get($pontuacaoItem["gotas_id"]);
+                    $pontuacao = new Pontuacao();
+                    $pontuacao->clientes_id = $cliente->id;
+                    $pontuacao->usuarios_id = $usuario->id;
+                    $pontuacao->funcionarios_id = $funcionariosId;
+                    $pontuacao->data = $dataProcessamento;
+                    $pontuacao->gotas_id = $gota->id;
+                    $pontuacao->quantidade_multiplicador = $pontuacaoItem["quantidade_multiplicador"];
+                    $pontuacao->quantidade_gotas = floor($pontuacaoItem["quantidade_multiplicador"] * $gota->multiplicador_gota);
+                    $pontuacao->pontuacoes_comprovante_id = $comprovante->id;
+                    $pontuacao->valor_gota_sefaz = $pontuacaoItem["valor"];
+                    $pontuacao->expirado = 0;
+                    $pontuacao->utilizado = 0;
+
+                    $this->Pontuacoes->saveUpdate($pontuacao);
+                }
+
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+            } catch (\Throwable $th) {
+                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                Log::write("error", $message);
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
             }
-
-            $comprovanteSave->chave_nfe = $chaveNfe;
-            $comprovanteSave->estado_nfe = $cliente->estado;
-            $comprovanteSave->requer_auditoria = false;
-            $comprovanteSave->auditado = false;
-            $comprovanteSave->data = $dataProcessamento;
-            $comprovanteSave->registro_invalido = false;
-
-            // @todo Fazer método saveUpdate
-            $comprovante = $this->PontuacoesComprovantes->save($comprovanteSave);
-
-            foreach ($pontuacoes as $pontuacaoItem) {
-                $gota = $this->Gotas->get($pontuacaoItem["id"]);
-                $pontuacao = new Pontuacao();
-                $pontuacao->clientes_id = $cliente->id;
-                $pontuacao->usuarios_id = $usuario->id;
-                $pontuacao->funcionarios_id = $funcionariosId;
-                $pontuacao->data = $dataProcessamento;
-                $pontuacao->gotas_id = $gota->id;
-                $pontuacao->quantidade_multiplicador = $pontuacaoItem["quantidade_multiplicador"];
-                $pontuacao->quantidade_gotas = floor($pontuacaoItem["quantidade_multiplicador"] * $gota->multiplicador_gota);
-                $pontuacao->pontuacoes_comprovante_id = $comprovante->id;
-                $pontuacao->valor_gota_sefaz = $pontuacaoItem["valor"];
-                $pontuacao->expirado = 0;
-                $pontuacao->utilizado = 0;
-
-                $this->Pontuacoes->saveUpdate($pontuacao);
-            }
-
         }
     }
 

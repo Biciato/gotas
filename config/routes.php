@@ -225,6 +225,12 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/set_comprovante_fiscal_usuario"
                 ],
+                "setComprovanteFiscalUsuarioManualAPI" => [
+                    "action" => "setComprovanteFiscalUsuarioManualAPI",
+                    "method" => "POST",
+                    "path" => "/set_comprovante_fiscal_usuario_manual"
+
+                ],
                 // utilizado por clientes REST de Sistemas de Postos. Cuidado ao mexer
                 "setPontuacoesUsuarioViaPostoAPI" => array(
                     "action" => "setPontuacoesUsuarioViaPostoAPI",
