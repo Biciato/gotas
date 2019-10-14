@@ -28,7 +28,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <li>
             <a id="reiniciar">
                 <i class="fas fa-refresh"></i>
-                Reiniicar
+                Reiniciar
             </a>
         </li>
     </nav>

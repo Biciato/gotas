@@ -4,7 +4,7 @@ $(function() {
 
     var clienteSelectListBox = $("#clientes");
     var clientes = [];
-    var clienteSelectedItem = {};
+    var clienteSelectedItem = null;
     var gotas = [];
     var gotasEnvio = [];
     var gotasSelectListBox = $("#gotas");
@@ -18,19 +18,18 @@ $(function() {
     var qrCodeText = $("#qr-code");
     var redes = [];
     var reiniciarBtn = $("#reiniciar");
-    var redeSelectedItem = {};
+    var redeSelectedItem = null;
     var redeSelectListBox = $("#redes");
     var usuarioCpf = $("#usuario-cpf");
     var usuarioNome = $("#usuario-nome");
     var usuarioSaldo = $("#usuario-saldo");
-    var usuarioSelectedItem = {};
+    var usuarioSelectedItem = null;
     var valorReais = $("#valor-reais");
 
     /**
      * Constructor
      */
     function init() {
-
         getRedes();
 
         reiniciarBtn.unbind("click");
@@ -63,8 +62,10 @@ $(function() {
 
         gotasEnvio = [];
         gotaTabela.empty();
+        qrCodeText.val(null);
 
-        usuarioSelectedItem = {};
+        usuarioSelectedItem = null;
+        usuarioNome.val(null);
         usuarioCpf.val(null);
         usuarioSaldo.val(null);
         usuarioCpf.unbind("keyup");
@@ -75,8 +76,8 @@ $(function() {
 
         // Habilita/desabilita botão de gravar as gotas do cliente final
         updateButtonGravarGotas();
+        toggleGotasDiv();
     }
-
 
     // #region Funções da tela
 
@@ -100,9 +101,8 @@ $(function() {
         if (!isNaN(id)) {
             var cliente = clientes.find(x => x.id == id);
             clienteSelectedItem = cliente;
-            getGotasEstabelecimento(clienteSelectedItem.id);
         } else {
-            clienteSelectedItem = {};
+            clienteSelectedItem = null;
         }
 
         toggleGotasDiv();
@@ -131,9 +131,9 @@ $(function() {
             console.log(moment());
             getUsuarioByCPF(cpf);
         } else {
-            usuarioSelectedItem = {};
+            usuarioSelectedItem = null;
         }
-        toggleGotasDiv();
+
     }
 
     /**
@@ -158,8 +158,8 @@ $(function() {
 
         string.push("<tr>");
         string.push("<td>" + gota + "</td>");
-        string.push("<td>" + quantidade + "</td>");
-        string.push("<td>" + valor + "</td>");
+        string.push("<td class='text-right'>" + quantidade + "</td>");
+        string.push("<td class='text-right'>" + valor + "</td>");
         string.push("<td>");
         string.push(
             "<div class='btn btn-danger btn-xs botao-remover' id='botao-remover' data-value='" +
@@ -268,16 +268,13 @@ $(function() {
         }
 
         if (litros.length == 0 || litros == 0) {
-            callModalError("Necessário informar <strong>Qte. Litros Abastecidos</strong>!");
+            callModalError(
+                "Necessário informar <strong>Qte. Litros Abastecidos</strong>!"
+            );
             return false;
         }
 
-        var template = geraTemplateTabelaGotasEnviadas(
-            gota.id,
-            gota.nome,
-            litros,
-            valor
-        );
+        var template = geraTemplateTabelaGotasEnviadas( gota.id, gota.nome, litros, valor);
         gotaTabela.append(template);
         gotasEnvio.push({
             id: gota.id,
@@ -289,6 +286,13 @@ $(function() {
 
         // Habilita/desabilita botão de gravar as gotas do cliente final
         updateButtonGravarGotas();
+
+        gotasSelectListBox.val(null);
+        quantidadeMultiplicador.val(null);
+        valorReais.val(null);
+        inserirGotaBtn.prop("disabled", true);
+        quantidadeMultiplicador.prop("disabled", true);
+        valorReais.prop("disabled", true);
 
         // Re-atribui a função de remover Gota ao clicar
         $(".botao-remover").unbind("click");
@@ -322,6 +326,10 @@ $(function() {
             console.log(redeSelectedItem);
             getClientes(id);
         } else {
+            usuarioSelectedItem = null;
+            usuarioCpf.val(null);
+            usuarioNome.val(null);
+            usuarioSaldo.val(null);
             clienteSelectListBox.empty();
         }
         toggleGotasDiv();
@@ -372,7 +380,12 @@ $(function() {
     }
 
     function toggleGotasDiv() {
-        if (redeSelectedItem.id != undefined && clienteSelectedItem.id != undefined && usuarioSelectedItem.id != undefined) {
+        if (redeSelectedItem != null && usuarioSelectedItem != null) {
+            getUsuarioPontuacoes(usuarioSelectedItem.id, redeSelectedItem.id);
+        }
+
+        if (redeSelectedItem != null && clienteSelectedItem!= null && usuarioSelectedItem!= null) {
+            getGotasEstabelecimento(clienteSelectedItem.id);
             dadosDiv.fadeIn(500);
         } else {
             dadosDiv.fadeOut(500);
@@ -435,7 +448,7 @@ $(function() {
                             nome: item.nome_fantasia
                         };
 
-                        redes.push(cliente);
+                        clientes.push(cliente);
                         var option = document.createElement("option");
                         option.value = cliente.id;
                         option.textContent = cliente.nome;
@@ -586,11 +599,7 @@ $(function() {
                 console.log(data);
                 usuarioSelectedItem = data;
                 usuarioNome.val(data.nome);
-
-                getUsuarioPontuacoes(
-                    usuarioSelectedItem.id,
-                    redeSelectedItem.id
-                );
+                toggleGotasDiv();
             },
             error: function(response) {
                 var mensagem = response.responseJSON.mensagem;
@@ -613,10 +622,7 @@ $(function() {
             data: data,
             dataType: "JSON",
             success: function(response) {
-                var saldo =
-                    response.resumo_gotas != undefined
-                        ? response.resumo_gotas.saldo
-                        : 0;
+                var saldo = response.resumo_gotas != undefined ? response.resumo_gotas.saldo : 0;
                 usuarioSaldo.val(saldo);
             },
             error: function(response) {
@@ -636,6 +642,8 @@ $(function() {
             dataType: "JSON",
             success: function(response) {
                 callModalSave();
+                // Uma vez gravado, recarrega a tela
+                init();
             },
             error: function(response) {
                 var msg = response.responseJSON.mensagem;
