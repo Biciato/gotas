@@ -82,7 +82,7 @@ class ClientesTable extends GenericTable
         parent::initialize($config);
 
         $this->setTable('clientes');
-        $this->setDisplayField('razao_social');
+        $this->setDisplayField('nome_fantasia_razao_social');
         $this->setPrimaryKey('id');
 
         $this->belongsTo(

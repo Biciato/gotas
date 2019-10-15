@@ -62,7 +62,7 @@ if (empty($usuarioLogado)) {
                     </li>
                     <li role="separator" class="divider"></li>
                     <li>
-                        <a href="/pontuacoesComprovantes/lancamento_manual">Lançamento Manual de Gotas para Cliente Final</a>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
                     <li role="separator" class="divider"></li>
                     <li>
@@ -269,7 +269,7 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
-                        <a href="/pontuacoesComprovantes/lancamento_manual">Lançamento Manual de Gotas para Cliente Final</a>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
 
                     <li role="separator" class="divider" />
@@ -356,7 +356,7 @@ if (empty($usuarioLogado)) {
 
         }
         // Administrador da loja
-        else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminLocalProfileType']) {
+        else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
 
             ?>
         <ul class="nav navbar-nav navbar-right">
@@ -371,6 +371,9 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
+                    </li>
+                    <li>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
                     <li role="separator" class="divider"></li>
 
@@ -433,6 +436,10 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
                     </li>
 
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
+                    </li>
                     <li role="separator" class="divider"></li>
 
                     <li>

@@ -219,6 +219,11 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/get_comprovantes_fiscais_usuario"
                 ],
+                "setGotasManualUsuarioAPI" => [
+                    "action" => "setGotasManualUsuarioAPI",
+                    "method" => "POST",
+                    "path" => "/set_gotas_manual_usuario"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "setComprovanteFiscalUsuarioAPI" => [
                     "action" => "setComprovanteFiscalUsuarioAPI",
@@ -229,7 +234,6 @@ Router::scope("/api", function ($routes) {
                     "action" => "setComprovanteFiscalUsuarioManualAPI",
                     "method" => "POST",
                     "path" => "/set_comprovante_fiscal_usuario_manual"
-
                 ],
                 // utilizado por clientes REST de Sistemas de Postos. Cuidado ao mexer
                 "setPontuacoesUsuarioViaPostoAPI" => array(

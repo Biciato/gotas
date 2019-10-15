@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -54,15 +55,33 @@ class Cliente extends Entity
      * ------------------------------------------------------------------------------------------
      */
 
-    protected $_virtual = array("propaganda_img_completo");
+    protected $_virtual = [
+        "propaganda_img_completo",
+        "nome_fantasia_razao_social"
+    ];
+
 
     protected function _getPropagandaImgCompleto()
     {
         if (isset($this->_properties["propaganda_img"]) && strlen($this->_properties["propaganda_img"]) > 0) {
-            return sprintf("%s%s%s%s", __SERVER__ , PATH_WEBROOT, PATH_IMAGES_CLIENTES, $this->_properties["propaganda_img"]);
+            return sprintf("%s%s%s%s", __SERVER__, PATH_WEBROOT, PATH_IMAGES_CLIENTES, $this->_properties["propaganda_img"]);
         }
 
         return "";
         // return $this->_properties["propaganda_img"];
+    }
+
+    protected function _getNomeFantasiaRazaoSocial()
+    {
+        $nomeFantasia = !empty($this->_properties["nome_fantasia"]) ? $this->_properties["nome_fantasia"] : null;
+        $razaoSocial = !empty($this->_properties["razao_social"]) ? $this->_properties["razao_social"] : null;
+
+        if (!empty($nomeFantasia) && !empty($razaoSocial)) {
+            return sprintf("%s / %s", $nomeFantasia, $razaoSocial);
+        } elseif (empty($nomeFantasia) && !empty($razaoSocial)) {
+            return sprintf("%s", $razaoSocial);
+        } elseif (!empty($nomeFantasia) && empty($razaoSocial)) {
+            return sprintf("%s", $nomeFantasia);
+        } else return "";
     }
 }

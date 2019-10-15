@@ -402,8 +402,12 @@ class GotasTable extends GenericTable
                 $where[] = ["Gotas.clientes_id" => $clientesId];
             }
 
-            if (!empty($nomeParametro)) {
-                $where[] = ["Gotas.nome_parametro like" => "'%$nomeParametro%'"];
+            if ($tipoCadastro == 1) {
+                $where[] = ["Gotas.nome_parametro" => $nomeParametro];
+            } else {
+                if (!empty($nomeParametro)) {
+                    $where[] = ["Gotas.nome_parametro like" => "'%$nomeParametro%'"];
+                }
             }
 
             if (isset($multiplicadorGotaMinimo)) {

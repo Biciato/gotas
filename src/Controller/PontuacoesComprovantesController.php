@@ -1090,6 +1090,17 @@ class PontuacoesComprovantesController extends AppController
         }
     }
 
+    public function correcaoGotas()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuario = $sessao["usuarioLogado"];
+
+        if ($usuario->tipo_perfil > PROFILE_TYPE_MANAGER) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+    }
+
     public function lancamentoManual()
     {
         $sessao = $this->getSessionUserVariables();
@@ -1238,6 +1249,150 @@ class PontuacoesComprovantesController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
         return;
+    }
+
+    /**
+     * Define pontuações de usuário
+     *
+     * Este método é utilizado corrigir pontos do usuário de forma manual
+     *
+     * src/Controller/PontuacoesComprovantesController.php::setGotasManualUsuarioAPI
+     *
+     * @return void
+     */
+    public function setGotasManualUsuarioAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $errors = [];
+        $errorCodes = [];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            // Verifica se o usuário tem permissão, se não tiver, já retorna erro
+            if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_MANAGER) {
+                throw new Exception(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION, USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE);
+            }
+        } catch (\Throwable $th) {
+            $errors[] = $th->getMessage();
+            $errorCodes[] = $th->getCode();
+            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+        }
+
+        if ($this->request->is(Request::METHOD_POST)) {
+            $data = $this->request->getData();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+
+            // Variáveis
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+            $usuariosId = !empty($data["usuarios_id"]) ? (int) $data["usuarios_id"] : null;
+            $quantidadeGotas = !empty($data["quantidade_gotas"]) ? $data["quantidade_gotas"] : null;
+
+            $dataProcessamento = new \DateTime('now');
+            $dataProcessamento = $dataProcessamento->format("Y-m-d H:i:s");
+
+            // Validação de conteudo
+
+            try {
+                $errors = [];
+                $errorCodes = [];
+
+                if (empty($usuariosId)) {
+                    $errors[] = MSG_USUARIOS_ID_EMPTY;
+                    $errorCodes[] = MSG_USUARIOS_ID_EMPTY_CODE;
+                }
+
+                if (empty($quantidadeGotas)) {
+                    // @todo
+                    $errors[] = MSG_QUANTIDADE_GOTAS_EMPTY;
+                    $errorCodes[] = MSG_QUANTIDADE_GOTAS_EMPTY_CODE;
+                }
+            } catch (\Throwable $th) {
+                $count = count($errors);
+
+                for ($i = 0; $i < $count; $i++) {
+                    $error = $errors[$i];
+                    $errorCode = $errorCodes[$i];
+                    $message = sprintf("[%s] %s: %s", MESSAGE_GENERIC_EXCEPTION, $errorCode, $error);
+                    Log::write("error", $message);
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
+
+            $cliente = null;
+            $usuario = null;
+
+            try {
+                $redeHasCliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($redesId);
+
+                if (empty($redeHasCliente) && empty($redeHasCliente->cliente)) {
+                    throw new Exception(MSG_CLIENTES_MATRIZ_NOT_FOUND, MSG_CLIENTES_MATRIZ_NOT_FOUND_CODE);
+                }
+
+                $cliente = $redeHasCliente->cliente;
+                $usuario = $this->Usuarios->get($usuariosId);
+            } catch (\Throwable $th) {
+                $message = $th->getMessage();
+                $code = $th->getCode();
+                Log::write("error", sprintf("[%s] %s: %s", MESSAGE_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
+            }
+
+            $funcionariosId = $usuarioLogado->id;
+
+            try {
+                $comprovanteSave = new PontuacoesComprovante();
+                $comprovanteSave->clientes_id = $cliente->id;
+                $comprovanteSave->usuarios_id = $usuario->id;
+                $comprovanteSave->funcionarios_id = $funcionariosId;
+                $comprovanteSave->conteudo = GOTAS_ADJUSTMENT_POINTS;
+                $comprovanteSave->chave_nfe = GOTAS_ADJUSTMENT_POINTS;
+                $comprovanteSave->estado_nfe = $cliente->estado;
+                $comprovanteSave->requer_auditoria = false;
+                $comprovanteSave->auditado = false;
+                $comprovanteSave->data = $dataProcessamento;
+                $comprovanteSave->registro_invalido = false;
+
+                $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovanteSave);
+
+                if ($comprovante) {
+                    // Obtem a gota de definição automática para reajuste
+                    $gota = $this->Gotas->getGotas($cliente->id, GOTAS_ADJUSTMENT_POINTS, null, null, null, 1);
+                    $gota = $gota->first();
+                    $pontuacao = new Pontuacao();
+                    $pontuacao->clientes_id = $cliente->id;
+                    $pontuacao->usuarios_id = $usuario->id;
+                    $pontuacao->funcionarios_id = $funcionariosId;
+                    $pontuacao->data = $dataProcessamento;
+                    $pontuacao->gotas_id = $gota->id;
+                    $pontuacao->quantidade_multiplicador = 1;
+                    $pontuacao->quantidade_gotas = floor($quantidadeGotas);
+                    $pontuacao->pontuacoes_comprovante_id = $comprovante->id;
+                    $pontuacao->valor_gota_sefaz = 0;
+                    $pontuacao->expirado = 0;
+                    $pontuacao->utilizado = 0;
+
+                    $this->Pontuacoes->saveUpdate($pontuacao);
+                }
+
+                return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+            } catch (\Throwable $th) {
+                $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_EXCEPTION, $th->getCode(), $th->getMessage());
+                Log::write("error", $message);
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+            }
+        }
     }
 
     /**
@@ -1622,9 +1777,9 @@ class PontuacoesComprovantesController extends AppController
                 }
             } else {
                 if (empty($qrCode)) {
-                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_EMPTY;
+                    $errors[] = MSG_PONTUACOES_COMPROVANTES_EMPTY;
                 } else if (strpos($qrCode, "sefaz.") == 0) {
-                    $errors[] = MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT;
+                    $errors[] = MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT;
                 }
 
                 if (sizeof($errors) > 0) {

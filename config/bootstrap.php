@@ -419,7 +419,7 @@ const FILTER_TYPE_SHIFT = "Turno";
 const MSG_BRINDES_CLIENTE_DOESNT_OFFER_CODE = 0x00010001;
 const MSG_BRINDES_CLIENTE_DOESNT_OFFER = "O posto/loja selecionado(a) não possui o brinde desejado!";
 const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY_CODE = 0x00010002;
-const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
+const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário!";
 const MSG_BRINDES_CLIENTES_ID_EMPTY_CODE = 0x00010003;
 const MSG_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
 const MSG_BRINDES_CLIENTES_ID_REQUIRED_CODE = 0x00010004;
@@ -477,6 +477,9 @@ const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimen
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 const MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS = "Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!";
+
+const MSG_CLIENTES_MATRIZ_NOT_FOUND = "Matriz não encontrada para Rede!";
+const MSG_CLIENTES_MATRIZ_NOT_FOUND_CODE = 0x00050002;
 
 // Clientes Has Brindes Habilitados Estoque
 const STOCK_OPERATION_TYPES_ADD_TYPE = 0;
@@ -541,6 +544,7 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
+const GOTAS_ADJUSTMENT_POINTS = "GOTA VIRTUAL DE CORREÇÃO DE PONTOS";
 
 #endregion
 
@@ -549,7 +553,8 @@ const GOTAS_REGISTER_TYPE_MANUAL = 0;
 const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
 const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
-
+const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
+const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
 
 
 #endregion
@@ -557,10 +562,10 @@ const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 #region Pontuacoes Comprovantes
 
 // Erros
-const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY_CODE = 0x00130001;
-const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
-const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
-const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+const MSG_PONTUACOES_COMPROVANTES_EMPTY_CODE = 0x00130001;
+const MSG_PONTUACOES_COMPROVANTES_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
+const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130004;
 
