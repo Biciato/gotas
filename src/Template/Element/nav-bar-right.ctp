@@ -269,6 +269,7 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
+                        <a href="/pontuacoesComprovantes/lancamento_manual">Lançamento Manual de Gotas para Cliente Final</a>
                     </li>
 
                     <li role="separator" class="divider" />

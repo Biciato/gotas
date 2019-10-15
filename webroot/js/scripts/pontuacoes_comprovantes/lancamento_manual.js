@@ -570,10 +570,11 @@ $(function() {
 
                     if (data.length == 1) {
                         var rede = data[0];
+                        redeSelectedItem = rede;
                         redeSelectListBox.val(rede.id);
-                        redeSelectListBox.classList.add("disabled");
                         redeSelectListBox.prop("disabled", true);
                         redeSelectListBox.prop("readonly", true);
+                        getClientes(rede.id);
                     }
                 }
             },
