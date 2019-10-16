@@ -332,7 +332,7 @@ const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE = 0x0000000F;
-const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON = "Não foi possível importar o CF, SEFAZ inoperante!";
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON = "Não foi possível importar o cupom fiscal, SEFAZ inoperante!";
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE = 0x00000010;
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING = "A Importação do Cupom Fiscal não pode ser realizada agora, há uma falha de comunicação com a SEFAZ. Mas não se preocupe, assim que tudo estiver certo os pontos serão atribuídos em seu cadastro!";
 
@@ -568,6 +568,7 @@ const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
 const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130004;
+const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom importados com sucesso!";
 
 // Sucesso / Avisos
 

@@ -6,6 +6,7 @@ use \DateTime;
 use App\Controller\AppController;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\Entity\Mensagem;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\QRCodeUtil;
@@ -30,6 +31,7 @@ use Cake\Mailer\Email;
 use Cake\Routing\Router;
 use Cake\View\Helper\UrlHelper;
 use Exception;
+use stdClass;
 
 /**
  * PontuacoesComprovantes Controller
@@ -1463,7 +1465,7 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (empty($pontuacoes) || count($pontuacoes) == 0) {
-                    // @todo
+                    // @todo Continuar se este método de inserção voltar a ser útil
                     $errors[] = "";
                     $errorCodes[] = "";
                 }
@@ -1590,15 +1592,14 @@ class PontuacoesComprovantesController extends AppController
 
                 $retorno = $this->processaCupom($data);
 
-                if ($retorno["mensagem"]["status"]) {
+                if ($retorno->mensagem->status) {
                     $arrayData = array(
-                        "pontuacoes_comprovantes" => $retorno["pontuacoes_comprovantes"],
-                        "resumo" => $retorno["resumo"]
+                        "pontuacoes_comprovantes" => $retorno->pontuacoes_comprovantes,
+                        "resumo" => $retorno->resumo
                     );
 
-                    return ResponseUtil::successAPI($retorno["mensagem"]["message"], $arrayData);
+                    return ResponseUtil::successAPI($retorno->mensagem->message, $arrayData);
                 } else {
-
                     $arrayData = array();
 
                     foreach ($retorno as $key => $value) {
@@ -1607,7 +1608,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
-                    return ResponseUtil::errorAPI($retorno["mensagem"]["message"], $retorno["mensagem"]["errors"], $arrayData, $retorno["mensagem"]["error_codes"]);
+                    return ResponseUtil::errorAPI($retorno->mensagem->message, $retorno->mensagem->errors, $arrayData, $retorno->mensagem->error_codes);
                 }
             }
 
@@ -1652,13 +1653,13 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    $mensagem = array(
-                        "status" => 0,
-                        "message" => MESSAGE_OPERATION_FAILURE_DURING_PROCESSING,
-                        "errors" => $errors
-                    );
+                    $mensagem = new Mensagem();
 
-                    return ResponseUtil::errorAPI($mensagem["message"], $mensagem["errors"]);
+                    $mensagem->status = 0;
+                    $mensagem->message = MESSAGE_OPERATION_FAILURE_DURING_PROCESSING;
+                    $mensagem->errors = $errors;
+
+                    return ResponseUtil::errorAPI($mensagem->message, $mensagem->errors);
                 }
 
                 $data = array(
@@ -1670,7 +1671,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $retorno = $this->processaCupom($data);
 
-                $mensagem = $retorno["mensagem"];
+                $mensagem = $retorno->mensagem;
 
                 $responseData = array();
                 foreach ($retorno as $key => $value) {
@@ -1679,17 +1680,17 @@ class PontuacoesComprovantesController extends AppController
                     }
                 }
 
-                if ($mensagem["status"]) {
+                if ($mensagem->status) {
                     Log::write("info", "Finalizando Processamento de cupom...");
-                    return ResponseUtil::successAPI($mensagem["message"], $responseData);
+                    return ResponseUtil::successAPI($mensagem->message, $responseData);
                 } else {
                     Log::write("error", "Erro ao realizar processamento de cupom...");
 
-                    foreach ($mensagem["errors"] as $error) {
+                    foreach ($mensagem->errors as $error) {
                         Log::write("error", $error);
                     }
 
-                    return ResponseUtil::errorAPI($mensagem["message"], $mensagem["errors"], $responseData);
+                    return ResponseUtil::errorAPI($mensagem->message, $mensagem->errors, $responseData);
                 }
             }
         } catch (\Exception $e) {
@@ -2003,17 +2004,18 @@ class PontuacoesComprovantesController extends AppController
         $chave = $chaveNfe;
 
         // Valida se o QR Code já foi importado anteriormente
-
         $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chaveNfe, $estado);
 
-        // @todo: Apenas para carater de teste
-        // $cupomPreviamenteImportado["status"] = true;
-
-        // return ResponseUtil::successAPI('', $cupomPreviamenteImportado);
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
-            $mensagem = $cupomPreviamenteImportado;
-            $resposta = array("mensagem" => $mensagem, "error" => [], "error_codes" => []);
+            $mensagem = new Mensagem();
+            $mensagem->status = $cupomPreviamenteImportado["status"];
+            $mensagem->message = $cupomPreviamenteImportado["message"];
+            $mensagem->errors = $cupomPreviamenteImportado["errors"];
+            $mensagem->error_codes = [];
+
+            $resposta = new stdClass();
+            $resposta->mensagem = $mensagem;
 
             return $resposta;
         }
@@ -2060,6 +2062,7 @@ class PontuacoesComprovantesController extends AppController
         // @todo Só para carater de teste
         // $webContent["statusCode"] = 400;
         // $webContent["statusCode"] = 200;
+        // $webContent["content"] = null;
 
         if ($webContent["statusCode"] == 200) {
             // Caso Mobile: Cliente não é informado
@@ -2220,25 +2223,22 @@ class PontuacoesComprovantesController extends AppController
             foreach ($gotas as $gota) {
                 foreach ($produtos as $produto) {
                     if ($gota->nome_parametro == $produto["descricao"]) {
-
                         $pontuacao = new Pontuacao();
                         $pontuacao->clientes_id = $cliente->id;
                         $pontuacao->usuarios_id = $usuario->id;
                         $pontuacao->gotas_id = $gota->id;
                         $pontuacao->quantidade_multiplicador = $produto["quantidade"];
-
-                        // @todo conferir
                         $pontuacao->valor_gota_sefaz = trim($produto["valor"]);
-
                         $pontuacao->quantidade_gotas = floor($gota->multiplicador_gota * (float) $produto["quantidade"]);
                         $pontuacao->pontuacoes_comprovante_id = 0;
                         $pontuacao->data = $dataProcessamento;
-
                         $pontuacoes[] = $pontuacao;
                         $somaMultiplicador += $pontuacao->quantidade_multiplicador;
                     }
                 }
             }
+
+            // $pontuacoes = [];
 
             if (count($pontuacoes) > 0) {
                 $pontuacoesComprovante = new PontuacoesComprovante();
@@ -2282,8 +2282,6 @@ class PontuacoesComprovantesController extends AppController
                     }
                 }
 
-                $pontuacoesSave = null;
-
                 foreach ($pontuacoesSave as $pontuacaoSave) {
                     $pontuacoesSave = $this->Pontuacoes->saveUpdate($pontuacaoSave);
                 }
@@ -2298,7 +2296,7 @@ class PontuacoesComprovantesController extends AppController
                     }
                 }
 
-                $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovante["id"]);
+                $pontuacaoComprovante = $this->PontuacoesComprovantes->getCouponById($pontuacoesComprovanteSave["id"]);
 
                 $funcionarioOperacao = array(
                     "id" => $funcionario["id"],
@@ -2333,32 +2331,32 @@ class PontuacoesComprovantesController extends AppController
                     "comprovante_resumo" => $comprovanteResumo
                 );
 
-                $mensagem = $retorno["mensagem"];
-                $resumo = $resumo;
+                $mensagem = new stdClass();
+                $mensagem->status = 1;
+                $mensagem->errors = [];
+                $mensagem->message = MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY;
+
+                // $resumo = $resumo;
                 $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
 
                 if ($processamentoPendente && $pontuacoesSave) {
-                    $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente["estado"]);
-                    $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
+                    $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente->estado);
+                    $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente->id, $pontuacaoComprovanteSave->id);
                 }
 
                 Log::write("info", array("mensagem" => $mensagem, "pontuacoes_comprovantes" => $pontuacaoComprovante, "resumo" => $resumo));
-                return array(
-                    "mensagem" => $mensagem,
-                    "pontuacoes_comprovantes" => $pontuacaoComprovante,
-                    "resumo" => $resumo
-                );
+                $retorno = new stdClass();
+                $retorno->mensagem = $mensagem;
+                $retorno->pontuacoes_comprovantes = $pontuacaoComprovante;
+                $retorno->resumo = $resumo;
+                return $retorno;
             } else {
-                // Retorna o que veio de erro
+                $mensagem = new Mensagem();
+                $mensagem->message = sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $chave, $estado);
+                $mensagem->status = 0;
 
-                $arraySet = array_keys($retorno);
-
-                foreach ($arraySet as $value) {
-                    $$value = $retorno[$value];
-                }
-
-                // $this->set(compact($arraySet));
-                // $this->set("_serialize", $arraySet);
+                $retorno = new stdClass();
+                $retorno->mensagem = $mensagem;
 
                 return $retorno;
             }
@@ -2382,22 +2380,19 @@ class PontuacoesComprovantesController extends AppController
             $errors = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING];
             $errorCodes = [MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE];
             $data = array();
-            $mensagem = array(
-                "status" => 0,
-                "message" => Configure::read("messageNotPossibleToImportCoupon"),
-                "errors" => $errors,
-                "error_codes" => $errorCodes
-            );
-            $resumo = null;
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = MSG_NOT_POSSIBLE_TO_IMPORT_COUPON;
+            $mensagem->errors[] = MSG_NOT_POSSIBLE_TO_IMPORT_COUPON;
+            $mensagem->errorCodes[] = MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE;
 
-            return array(
-                "mensagem" => $mensagem,
-                "pontuacao_pendente" => $pontuacaoPendente,
-                "resumo" => $resumo
-            );
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+            $retorno->pontuacao_pendente = $pontuacaoPendente;
+            $retorno->resumo = null;
+
+            return $retorno;
         }
-
-        Log::write("info", "oro");
 
         Log::write("info", "Pontuação Pendente: " . $pontuacaoPendente);
 

@@ -11,6 +11,7 @@ namespace App\Custom\RTI;
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Usuario;
 use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
 use DOMDocument;
 use \Exception;
 
@@ -339,7 +340,6 @@ class SefazUtil
     private static function converteHTMLParaPontuacoesArrayMinasGerais(string $content)
     {
         try {
-
             // Evita erros de DOM Elements
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
@@ -385,37 +385,15 @@ class SefazUtil
                 }
             }
 
-
             if (count($itemsNodesHtml) == 0) {
                 throw new Exception(MSG_SEFAZ_CONTINGENCY_MODE, MSG_SEFAZ_CONTINGENCY_MODE_CODE);
             }
 
             return $itemsNodesHtml;
-
-            // // @todo isto deve ficar de fora, no retorno do método
-            // $pontuacoes = array();
-
-            // foreach ($gotas as $gota) {
-            //     foreach ($itemsNodesHtml as $itemProcessar) {
-            //         if ($gota["nome_parametro"] == $itemProcessar["gota"]) {
-            //             $pontuacao = array();
-            //             $pontuacao["gotas_id"] = $gota["id"];
-            //             $pontuacao["quantidade_multiplicador"] = $itemProcessar["quantidade"];
-            //             $pontuacao["valor"] = trim($itemProcessar["valor"]);
-            //             $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float) $itemProcessar["quantidade"];
-
-            //             $pontuacoes[] = $pontuacao;
-            //         }
-            //     }
-            // }
-
-            // return $pontuacoes;
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $code = $e->getCode();
-
             Log::write('error', $message);
-            // Log::write('error', $trace);
 
             throw new Exception($message, $code);
         }
@@ -563,7 +541,8 @@ class SefazUtil
 
             // Obtem todos os dados de pontuações e comprovantes
             // Irá mudar se os outros estados tratam o XML de forma diferente. Deve ser analizado
-            // @todo aqui deverá retornar somente os produtos tb.
+            // @TODO aqui deverá retornar somente os produtos tb.
+            // @todo aaaa
             return self::processaDadosCupomXMLSefaz($cliente["cnpj"], $cliente->estado, $url, $chave, $xml, []);
         } else {
             // É HTML
@@ -591,17 +570,18 @@ class SefazUtil
                     if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
                         Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
 
+                        $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
+
                         // Gera novo registro de pontuação pendente SE ainda não está pendente
-                        $pontuacaoPendenteExiste = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
                         if (empty($pontuacaoPendenteExiste)) {
-                            $this->PontuacoesPendentes->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $cliente->estado ?? "");
+                            $pontuacoesPendentesTable->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $cliente->estado ?? "");
                             Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id ?? "", $url, $cliente->estado));
                         } else {
                             Log::write("info", sprintf("Registro já aguardando processamento, não sendo necessário novo registro. [cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s]. ", $cliente->id, $usuario->id, $funcionario->id, $url, $cliente->estado));
                         }
                     }
                 }
-
 
                 throw new Exception($message, $code);
             }
@@ -716,7 +696,7 @@ class SefazUtil
                 "quantidade_multiplicador" => $produto["prod"]["qCom"],
                 "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
                 "data" => $dataProcessamento,
-                // TODO: armazenar valor do produto para alteração de preço de gota
+                // @TODO: armazenar valor do produto para alteração de preço de gota
                 // "valor_produto" => $produto["prod"]["vUnCom"]
             );
 
