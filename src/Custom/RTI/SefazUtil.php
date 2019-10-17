@@ -379,6 +379,8 @@ class SefazUtil
                         $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
 
                         $valor = substr($texto, $posicaoReaisInicio);
+                        $valorFormatado = preg_replace("/(\D)/", "", $valor);
+                        $valor = $valorFormatado > 0 ? $valorFormatado / 100 : $valorFormatado;
                         $item["valor"] = $valor;
                         $itemsNodesHtml[] = $item;
                     }
