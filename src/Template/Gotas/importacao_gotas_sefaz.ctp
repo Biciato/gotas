@@ -43,13 +43,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <div class="form-group row">
 
                 <div class="col-lg-6">
-                    <label for="rede">Rede Encontrada</label>
-                    <input type="text" id="nome-rede" name="nome_rede" class="form-control" readonly disabled>
+                    <label for="redes_nome">Rede Encontrada</label>
+                    <input type="text" id="redes-nome" name="redes_nome" class="form-control" readonly disabled>
                 </div>
 
                 <div class="col-lg-6">
-                    <label for="rede">Estabelecimento Encontrado</label>
-                    <input type="text" id="nome-rede" name="nome_rede" class="form-control" readonly disabled>
+                    <label for="clientes_nome">Estabelecimento Encontrado</label>
+                    <input type="text" id="clientes-nome" name="clientes_nome" class="form-control" readonly disabled>
                 </div>
             </div>
 

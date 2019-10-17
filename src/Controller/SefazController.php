@@ -3,144 +3,206 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\QRCodeUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\SefazUtil;
+use App\Custom\RTI\WebTools;
+use App\Model\Entity\Gota;
+use Cake\Http\Client\Request;
+use Exception;
+use stdClass;
 
 class SefazController extends AppController
 {
-    public function test()
-    {
-        return ResponseUtil::successAPI("", ['data' => ['a' => 'b']]);
-    }
-
     public function getNFSefazQRCodeAPI()
     {
         $errors = [];
         $errorCodes = [];
         if ($this->request->is(Request::METHOD_GET)) {
-            $data = $this->request->getQueryParams();
-            $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+            try {
+                $data = $this->request->getQueryParams();
+                $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
 
-            if (empty($qrCode)) {
-                // @todo
-                $errors[] = MSG_QR_CODE_EMPTY;
-                $errorCodes[] = "";
-            }
+                if (empty($qrCode)) {
+                    // @todo
+                    $errors[] = MSG_QR_CODE_EMPTY;
+                    $errorCodes[] = MSG_QR_CODE_EMPTY_CODE;
+                }
 
-            $validacaoQRCode = QRCodeUtil::validarUrlQrCode($qrCode);
+                $validacaoQRCode = QRCodeUtil::validarUrlQrCode($qrCode);
 
-            // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-            if ($validacaoQRCode["status"] == false) {
-                $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
+                // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
+                if ($validacaoQRCode["status"] == false) {
+                    $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
-                // @todo
-                $arraySet = array("mensagem");
-                $this->set(compact($arraySet));
-                $this->set("_serialize", $arraySet);
+                    // @todo
+                    $arraySet = array("mensagem");
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
 
-                return array("mensagem" => $mensagem);
-            }
+                    return array("mensagem" => $mensagem);
+                }
 
-            $estado = $validacaoQRCode["estado"];
-
-            $isEstadoGoias = false;
-            if ($estado == "GO") {
-                $isEstadoGoias = true;
-                $startSearch = "chNFe=";
-                $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
-                $chave = substr($url, $startSearchIndex, 44);
-                $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
-            }
-
-            $webContent = WebTools::getPageContent($url);
-
-            if ($webContent["statusCode"] == 200) {
-                $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
-                $cnpjArray = array();
-                if ($estado == "MG") {
-                    // Se estado == MG, preciso procurar a posição do cnpj com formatação
-                    foreach ($cnpjQuery as $key => $value) {
-                        $cnpjArray[] = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value["cnpj"]);
+                $chaveNfeData = array_filter($validacaoQRCode["data"], function ($obj) {
+                    if ($obj["key"] == "chNFe") {
+                        return $obj;
                     }
+                });
+
+                $estado = $validacaoQRCode["estado"];
+                $url = $qrCode;
+                $isEstadoGoias = false;
+                $chaveNfe = null;
+
+                if (count($chaveNfeData) > 0) {
+                    $chaveNfeData = $chaveNfeData[0];
+                    $chaveNfe = $chaveNfeData["content"];
+                }
+
+                if ($estado == "GO") {
+                    $isEstadoGoias = true;
+                    $startSearch = "chNFe=";
+                    $startSearchIndex = strpos($url, $startSearch) + strlen($startSearch);
+                    $chave = substr($url, $startSearchIndex, 44);
+                    $url = "http://nfe.sefaz.go.gov.br/nfeweb/jsp/CConsultaCompletaNFEJSF.jsf?parametroChaveAcesso=" . $chave;
+                }
+
+                $webContent = WebTools::getPageContent($url);
+
+                if ($webContent["statusCode"] == 200) {
+                    $cnpjQuery = $this->Clientes->getClientesCNPJByEstado($estado);
+                    $cnpjArray = array();
+                    if ($estado == "MG") {
+                        // Se estado == MG, preciso procurar a posição do cnpj com formatação
+                        foreach ($cnpjQuery as $key => $value) {
+                            $cnpjArray[] = preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value["cnpj"]);
+                        }
+                    } else {
+                        foreach ($cnpjQuery as $key => $value) {
+                            $cnpjArray[] = $value['cnpj'];
+                        }
+                    }
+
+                    $cnpjEncontrado = null;
+                    foreach ($cnpjArray as $key => $cnpj) {
+                        $cnpjFormatado = NumberUtil::formatarCNPJ($cnpj);
+                        // Log::write('debug', __("CNPJ {$cnpj}"));
+                        // Log::write('debug', __("CNPJ {$cnpjFormatado}"));
+                        $cnpjPos = strpos($webContent["response"], $cnpj) !== false;
+                        $cnpjPosFormatado = strpos($webContent["response"], $cnpjFormatado) !== false;
+
+                        if ($cnpjPos || $cnpjPosFormatado) {
+                            $cnpjEncontrado = $cnpj;
+                            break;
+                        }
+                    }
+
+                    // Se encontrou o cnpj, procura o cliente através do cnpj.
+                    // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
+
+                    // DebugUtil::print($cnpjArray);
+
+                    $cliente = null;
+                    $rede = null;
+
+                    if ($cnpjEncontrado) {
+                        $cnpjEncontrado = NumberUtil::limparFormatacaoNumeros($cnpjEncontrado);
+                        $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
+                    }
+
+                    if (empty($cliente)) {
+                        // @todo
+                        $errors[] = "Nenhum estabelecimento encontrado na NF";
+                        $errorCodes[] = 0;
+
+                        // deste ponto não dá pra continuar se encontrar erro
+
+                        throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
+                    }
+
+                    $rede = $cliente->redes_has_cliente->rede;
+
+                    // Valida se a rede está ativa
+                    if (!$rede->ativado) {
+                        $message = MESSAGE_GENERIC_COMPLETED_ERROR;
+                        $errors = array(
+                            MESSAGE_NETWORK_DESACTIVATED
+                        );
+
+                        $errors[] = MESSAGE_NETWORK_DESACTIVATED;
+                        // @todo
+                        $errorCodes[] = MESSAGE_NETWORK_DESACTIVATED;
+
+                        throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
+                    }
+
+                    // obtem todos os multiplicadores (gotas)
+                    $gotas = $this->Gotas->findGotasByClientesId(array($cliente->id));
+                    $gotas = $gotas->toArray();
+
+                    // Log::write("debug", $webContent);
+
+                    $itens = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chaveNfe, $cliente, null, null, false);
+
+                    // Agora, prepara o retorno conforme os registros NÃO importados
+
+                    $retorno = [];
+                    $data = new stdClass();
+                    $data->cliente = $cliente;
+                    $data->rede = $rede;
+                    $sefaz = new stdClass();
+                    $produtos = new stdClass();
+                    $itensTemp = [];
+                    foreach ($itens as $item) {
+                        $itemEncontrado = false;
+
+                        foreach ($gotas as $gota) {
+                            if ($gota->nome_parametro == $item["descricao"]) {
+                                // Só irá retornar os itens que ainda não estão cadastrados
+                                $itemEncontrado = true;
+                                continue;
+                            }
+                        }
+
+                        if (!$itemEncontrado) {
+                            $itemTemp = new stdClass();
+                            $itemTemp->nome_parametro = $item["descricao"];
+                            $itemTemp->multiplicador_gota = 1.0;
+                            $itemTemp->importar = true;
+                            $itensTemp[] = $itemTemp;
+                        }
+                    }
+
+                    $itens = $itensTemp;
+                    $produtos->itens = $itens;
+                    $produtos->quantidade = count($itens);
+                    $sefaz->produtos = $produtos;
+                    $data->sefaz = $sefaz;
+                    $retorno["data"] = $data;
+
+                    if (count($itens) == 0 && count($gotas) > 0) {
+                        throw new Exception("Todos os Produtos contidos no Cupom Fiscal já foram adicionados ao sistema!");
+                    }
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
                 } else {
-                    foreach ($cnpjQuery as $key => $value) {
-                        $cnpjArray[] = $value['cnpj'];
-                    }
+                    $errors[] = MSG_SEFAZ_NOT_RESPONDING;
+                    $errorCodes[] = MSG_SEFAZ_NOT_RESPONDING_CODE;
                 }
 
-                $cnpjEncontrado = null;
-                foreach ($cnpjArray as $key => $cnpj) {
-                    $cnpjFormatado = NumberUtil::formatarCNPJ($cnpj);
-                    // Log::write('debug', __("CNPJ {$cnpj}"));
-                    // Log::write('debug', __("CNPJ {$cnpjFormatado}"));
-                    $cnpjPos = strpos($webContent["response"], $cnpj) !== false;
-                    $cnpjPosFormatado = strpos($webContent["response"], $cnpjFormatado) !== false;
+                // $cupom = SefazUtil::
 
-                    if ($cnpjPos || $cnpjPosFormatado) {
-                        $cnpjEncontrado = $cnpj;
-                        break;
-                    }
-                }
-
-                // Se encontrou o cnpj, procura o cliente através do cnpj.
-                // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
-
-                // DebugUtil::print($cnpjArray);
-
-                $cliente = null;
-                $rede = null;
-
-                if ($cnpjEncontrado) {
-                    $cnpjEncontrado = NumberUtil::limparFormatacaoNumeros($cnpjEncontrado);
-                    $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
-                }
-
-                if (empty($cliente)) {
-                    // @todo
-                    $errors[] = "Nenhum estabelecimento encontrado na NF";
-                    $errorCodes[] = 0;
-
-                    // deste ponto não dá pra continuar se encontrar erro
-
+                if (count($errors) > 0) {
                     throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
                 }
+                //code...
+            } catch (\Throwable $th) {
+                $message = $th->getMessage();
+                $code = $th->getCode();
 
-                $rede = $cliente->redes_has_cliente->rede;
-
-                // Valida se a rede está ativa
-                if (!$rede->ativado) {
-                    $message = MESSAGE_GENERIC_COMPLETED_ERROR;
-                    $errors = array(
-                        MESSAGE_NETWORK_DESACTIVATED
-                    );
-
-                    $errors[] = MESSAGE_NETWORK_DESACTIVATED;
-                    // @todo
-                    $errorCodes[] = MESSAGE_NETWORK_DESACTIVATED;
-
-                    throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
-                }
-
-                // obtem todos os multiplicadores (gotas)
-                $gotas = $this->Gotas->findGotasByClientesId(array($cliente->id));
-                $gotas = $gotas->toArray();
-
-                // Log::write("debug", $webContent);
-
-                $retorno = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chaveNfe, $cliente, null, null);
-
-                // Agora, prepara o retorno conforme os registros NÃO importados
-
-            } else {
-                $errors[] = MSG_SEFAZ_NOT_RESPONDING;
-                $errorCodes[] = MSG_SEFAZ_NOT_RESPONDING_CODE;
-            }
-
-            // $cupom = SefazUtil::
-
-            if (count($errors) > 0) {
-                throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
             }
         }
     }

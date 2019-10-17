@@ -404,6 +404,10 @@ const MSG_REDES_ID_EMPTY_CODE = 0x00000018;
 const MSG_REDES_ID_EMPTY = "O campo REDES_ID deve ser informado!";
 const MSG_CLIENTES_ID_NOT_EMPTY_CODE = 0x00000019;
 const MSG_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+const MSG_QRCODE_EMPTY_CODE = 0x0000001A;
+const MSG_QRCODE_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MSG_QRCODE_MISMATCH_FORMAT_CODE = 0x0000001B;
+const MSG_QRCODE_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
@@ -541,6 +545,10 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 #region Gotas
 
 // Nome Comum Gota Bonificacao
+
+const MSG_GOTAS_DATA_EMPTY_CODE = 0x000A0001;
+const MSG_GOTAS_DATA_EMPTY = "Lista de gotas recebido sem informação!";
+
 const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
@@ -562,12 +570,8 @@ const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
 #region Pontuacoes Comprovantes
 
 // Erros
-const MSG_PONTUACOES_COMPROVANTES_EMPTY_CODE = 0x00130001;
-const MSG_PONTUACOES_COMPROVANTES_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
-const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
-const MSG_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
-const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130004;
+const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130001;
 const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom importados com sucesso!";
 
 // Sucesso / Avisos

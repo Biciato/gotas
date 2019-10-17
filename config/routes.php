@@ -185,7 +185,12 @@ Router::scope("/api", function ($routes) {
                 "action" => "getGotasClientesAPI",
                 "method" => Request::METHOD_GET,
                 "path" => "/get_gotas_clientes"
-            ]
+            ],
+            "setGotasClientesAPI" => [
+                "action" => "setGotasClientesAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/set_gotas_clientes"
+            ],
         ]
     ]);
 
@@ -593,10 +598,10 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Sefaz", [
         "map" => [
-            "test" => [
-                "action" => "test",
+            "getNFSefazQRCodeAPI" => [
+                "action" => "getNFSefazQRCodeAPI",
                 "method" => Request::METHOD_GET,
-                "path" => "/test"
+                "path" => "/get_nf_sefaz_qr_code"
             ]
         ]
     ]);

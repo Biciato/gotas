@@ -13,9 +13,11 @@ use App\Custom\RTI\Security;
 use App\Custom\RTI\DateTimeUtil;
 use \DateTime;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\Entity\Mensagem;
 use App\Custom\RTI\QRCodeUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\SefazUtil;
+use App\Model\Entity\Gota;
 use Cake\Http\Client\Request;
 use Exception;
 
@@ -733,6 +735,8 @@ class GotasController extends AppController
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
+            $mensagem = new Mensagem();
+
             if (empty($clientesId)) {
                 $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
                 $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
@@ -751,6 +755,46 @@ class GotasController extends AppController
 
                 for ($i = 0; $i < count($errors); $i++) {
                     Log::write("error", sprintf("", $errorCodes[$i], $errors[$i]));
+                }
+
+                return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
+            }
+        }
+    }
+
+    public function setGotasClientesAPI()
+    {
+
+        if ($this->request->is(Request::METHOD_POST)){
+
+            $data = $this->request->getData();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"]) : null;
+            $gotas = !empty($data["gotas"]) ? $data["gotas"] : null;
+            $errors = [];
+            $errorCodes = [];
+
+            try {
+                if (empty($clientesId)) {
+                        $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                        $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                }
+
+                if (empty($gotas)) {
+                    $errors[] = MSG_GOTAS_DATA_EMPTY;
+                    $errorCodes[] = MSG_GOTAS_DATA_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
+                }
+
+                // @todo continuar
+            } catch (\Throwable $th) {
+                for ($i=0; $i < count($errors) ; $i++) {
+                    Log::write("error", sprintf( "[%s] %s %s", $th->getMessage(), $errors[$i], $errorCodes[$i]));)
                 }
 
                 return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
