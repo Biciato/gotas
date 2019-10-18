@@ -20,6 +20,10 @@ $
         var clientesSelectedItem = {};
         var redesNome = $("#redes-nome");
         var clientesNome = $("#clientes-nome");
+        var qrCode = $("#qr-code");
+        var quantidadeMultiplicadorInput = $("#form-edicao #quantidade-multiplicador");
+        var tabelaDados = $("#tabela-dados tbody");
+        var tabela = $("#tabela-dados");
 
         var dataSelecionado = {};
 
@@ -28,21 +32,37 @@ $
         function init() {
             // #region Bindings
 
+            redesNome.val(null);
+            clientesNome.val(null);
+            data = [];
+            tabelaDados.empty();
+            alterarEstadoBotaoGravar();
+
             botaoCancelar.on("click", cancelarEdicaoGota);
             botaoConfirmar.on("click", confirmarEdicaoGota);
-
-            botaoPesquisar.on("click", function (e) {
-                var qrCode = $("#qr-code").val();
-                loadData(qrCode);
+            qrCode.val(null);
+            qrCode.unbind("keyup");
+            qrCode.on("keyup", function (evt) {
+                if (evt.keyCode == 13) {
+                    loadData(qrCode.val());
+                }
             });
 
+            botaoPesquisar.unbind("click");
+            botaoPesquisar.on("click", function (e) {
+                loadData(qrCode.val());
+            });
+
+            botaoGravarGotas.unbind("click");
             botaoGravarGotas.on("click", saveData);
 
             // #endregion
 
             // Masks
 
-            $("#form-edicao #quantidade-multiplicador").mask("####.###", {
+            quantidadeMultiplicadorInput.val(null);
+            quantidadeMultiplicadorInput.unmask();
+            quantidadeMultiplicadorInput.mask("###0.00", {
                 reverse: true
             });
         }
@@ -67,10 +87,10 @@ $
                 })
                 .indexOf(dataSelecionado.id);
 
-            dataSelecionado.nome = nome;
-            dataSelecionado.multiplicador = multiplicador;
+            var gota = new Gota(dataSelecionado.id, nome, multiplicador, dataSelecionado.importar);
 
-            data[index] = dataSelecionado;
+            data[index] = gota;
+            console.log(data);
             gerarTabelaGotas(data);
         }
 
@@ -204,7 +224,16 @@ $
             });
         };
 
+        function obterQRCode() {
+            botaoPesquisar.on("click", function (e) {
+                var qrCode = $("#qr-code").val();
+                loadData(qrCode);
+            });
+        }
+
         //#endregion
+
+        // #region REST Services
 
         function loadData(qrCode) {
             $.ajax({
@@ -233,32 +262,45 @@ $
          *
          */
         function gerarTabelaGotas(dadosGotas) {
-            $("#tabela-dados tbody").empty();
-            $("#tabela-dados").pagination({
+
+            data = [];
+            var index = 1;
+            dadosGotas.forEach(element => {
+                // nomes em snake case vem do banco, então todo local que chamar o gerarTabelaGotas, deve vir em snake-case
+                var gota = new Gota(
+                    index,
+                    element.nomeParametro,
+                    element.multiplicadorGota,
+                    element.importar
+                );
+
+                data.push(gota);
+                index++;
+            });
+
+            tabelaDados.empty();
+            tabela.pagination({
                 pageSize: 10,
                 showPrevious: true,
                 showNext: true,
                 dataSource: function (done) {
-                    data = [];
-                    var index = 1;
-                    dadosGotas.forEach(element => {
-                        var gota = new Gota(
-                            index,
-                            element.nome_parametro,
-                            element.multiplicador_gota,
-                            element.importar
-                        );
+                    // this.data = [];
+                    // var index = 1;
+                    // dadosGotas.forEach(element => {
+                    //     var gota = new Gota(
+                    //         index,
+                    //         element.nome_parametro,
+                    //         element.multiplicador_gota,
+                    //         element.importar
+                    //     );
 
-                        data.push(gota);
-                        index++;
-                    });
+                    //     this.data.push(gota);
+                    //     index++;
+                    // });
 
                     done(data);
                 },
                 callback: function (data, pagination) {
-                    var table = $("#tabela-dados tbody");
-                    table.empty();
-
                     var rows = [];
                     data.forEach(element => {
                         var importar = element.importar ? "Sim" : "Não";
@@ -281,7 +323,7 @@ $
                         rows.push(row);
                     });
 
-                    table.append(rows);
+                    tabelaDados.append(rows);
 
                     geraEditarButtonFunctions("form-btn-edit", data);
                     geraHabilitarButtonFunctions("form-btn-enable", data);
@@ -311,24 +353,25 @@ $
                 var gota = {
                     id: element.id,
                     nome_parametro: element.nomeParametro,
-                    quantidade_multiplicador: element.quantidade_multiplicador
+                    multiplicador_gota: element.multiplicadorGota
                 };
 
                 gotasSave.push(gota);
             });
 
-            var data = {
+            var dataSend = {
                 clientes_id: clientesId,
                 gotas: gotasSave
             };
 
             $.ajax({
                 type: "POST",
-                url: "/api/gotas/set_gotas_importacao_sefaz",
-                data: data,
+                url: "/api/gotas/set_gotas_clientes",
+                data: dataSend,
                 dataType: "JSON",
                 success: function (response) {
                     callModalSave();
+                    init();
                 },
                 error: function (response) {
                     var mensagem = response.responseJSON.mensagem;
@@ -336,6 +379,8 @@ $
                 }
             });
         }
+
+        //#endregion
 
         init();
     })

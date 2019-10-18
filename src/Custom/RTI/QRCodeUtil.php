@@ -75,6 +75,8 @@ class QRCodeUtil
          * index: indice do registro na url
          */
 
+        $errors = [];
+        $errorCodes = [];
         if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
             // $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $errorMessage = MSG_WARNING;
@@ -320,6 +322,7 @@ class QRCodeUtil
                 if (strlen($errorType) > 0) {
                     $value["error"] = $errorType;
                     $arrayErrors[] = $value;
+                    $errors[] = $value["error"];
                     $hasErrors = true;
                 }
             }
@@ -330,18 +333,19 @@ class QRCodeUtil
         // se houve erro na análise da URL, o usuário deverá informar os dados manualmente
         $errorMessage = null;
         $status = 1;
-        $errors = array();
+        // $errors = array();
 
         if (sizeof($arrayErrors) > 0) {
             $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $status = 0;
-            $errors = $arrayErrors;
+            // $errors = $arrayErrors;
         }
 
         $result = array(
             "status" => $status,
             "message" => $errorMessage,
             "errors" => $errors,
+            "error_codes" => $errorCodes,
             "data" => $arrayResult,
             "url_real" => $url,
             "estado" => $estado

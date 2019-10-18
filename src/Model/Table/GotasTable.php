@@ -5,6 +5,7 @@ namespace App\Model\Table;
 use ArrayObject;
 use App\View\Helper;
 use App\Controller\AppController;
+use App\Model\Entity\Gota;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Event\Event;
@@ -176,6 +177,30 @@ class GotasTable extends GenericTable
             $stringError = __("Erro ao gravar registro: " . $e->getMessage() . ", em: " . $trace[1]);
 
             Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * Insere/Atualiza
+     *
+     * Insere/Atualiza registro do banco de dados
+     *
+     * src\Model\Table\GotaTable.php::saveUpdate
+     *
+     * @param Gota $gota Objeto
+     * @return \App\Model\Entity\Gota $gota Objeto
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-17
+     */
+    public function saveUpdate(Gota $gota)
+    {
+        try {
+            return $this->save($gota);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_ERROR, $e->getCode(), $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $e->getCode());
         }
     }
 

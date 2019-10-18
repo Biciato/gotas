@@ -765,21 +765,21 @@ class GotasController extends AppController
     public function setGotasClientesAPI()
     {
 
-        if ($this->request->is(Request::METHOD_POST)){
+        if ($this->request->is(Request::METHOD_POST)) {
 
             $data = $this->request->getData();
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
-            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"]) : null;
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
             $gotas = !empty($data["gotas"]) ? $data["gotas"] : null;
             $errors = [];
             $errorCodes = [];
 
             try {
                 if (empty($clientesId)) {
-                        $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
-                        $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                    $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
                 }
 
                 if (empty($gotas)) {
@@ -788,13 +788,32 @@ class GotasController extends AppController
                 }
 
                 if (count($errors) > 0) {
+                    // encontrou erros, dá exception
                     throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
                 }
 
-                // @todo continuar
+                $countSucesso = 0;
+
+                foreach ($gotas as $gotaItem) {
+                    $gota = new Gota();
+                    $gota->nome_parametro = $gotaItem["nome_parametro"];
+                    $gota->multiplicador_gota = $gotaItem["multiplicador_gota"];
+                    $gota->clientes_id = $clientesId;
+                    $gota->tipo_cadastro = 0;
+                    $gota->habilitado = true;
+                    $gotaSave = $this->Gotas->saveUpdate($gota);
+
+                    $countSucesso += $gotaSave ? 1 : 0;
+                }
+
+                if ($countSucesso == count($gotas)) {
+                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, []);
             } catch (\Throwable $th) {
-                for ($i=0; $i < count($errors) ; $i++) {
-                    Log::write("error", sprintf( "[%s] %s %s", $th->getMessage(), $errors[$i], $errorCodes[$i]));)
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::write("error", sprintf("[%s] %s %s", $th->getMessage(), $errors[$i], $errorCodes[$i]));
                 }
 
                 return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);

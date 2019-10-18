@@ -11,6 +11,7 @@ use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
 use App\Model\Entity\Gota;
 use Cake\Http\Client\Request;
+use Cake\Log\Log;
 use Exception;
 use stdClass;
 
@@ -26,23 +27,20 @@ class SefazController extends AppController
                 $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
 
                 if (empty($qrCode)) {
-                    // @todo
                     $errors[] = MSG_QR_CODE_EMPTY;
                     $errorCodes[] = MSG_QR_CODE_EMPTY_CODE;
+
+                    throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
                 }
 
                 $validacaoQRCode = QRCodeUtil::validarUrlQrCode($qrCode);
 
                 // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
                 if ($validacaoQRCode["status"] == false) {
-                    $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
+                    $errors = $validacaoQRCode["errors"];
+                    $errorCodes = $validacaoQRCode["error_codes"];
 
-                    // @todo
-                    $arraySet = array("mensagem");
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return array("mensagem" => $mensagem);
+                    throw new Exception($validacaoQRCode["message"]);
                 }
 
                 $chaveNfeData = array_filter($validacaoQRCode["data"], function ($obj) {
@@ -102,8 +100,6 @@ class SefazController extends AppController
                     // Se encontrou o cnpj, procura o cliente através do cnpj.
                     // Se não encontrou, significa que a unidade ainda não está cadastrada no sistema,
 
-                    // DebugUtil::print($cnpjArray);
-
                     $cliente = null;
                     $rede = null;
 
@@ -132,7 +128,6 @@ class SefazController extends AppController
                         );
 
                         $errors[] = MESSAGE_NETWORK_DESACTIVATED;
-                        // @todo
                         $errorCodes[] = MESSAGE_NETWORK_DESACTIVATED;
 
                         throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
@@ -141,9 +136,6 @@ class SefazController extends AppController
                     // obtem todos os multiplicadores (gotas)
                     $gotas = $this->Gotas->findGotasByClientesId(array($cliente->id));
                     $gotas = $gotas->toArray();
-
-                    // Log::write("debug", $webContent);
-
                     $itens = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chaveNfe, $cliente, null, null, false);
 
                     // Agora, prepara o retorno conforme os registros NÃO importados
@@ -168,8 +160,8 @@ class SefazController extends AppController
 
                         if (!$itemEncontrado) {
                             $itemTemp = new stdClass();
-                            $itemTemp->nome_parametro = $item["descricao"];
-                            $itemTemp->multiplicador_gota = 1.0;
+                            $itemTemp->nomeParametro = $item["descricao"];
+                            $itemTemp->multiplicadorGota = 1.0;
                             $itemTemp->importar = true;
                             $itensTemp[] = $itemTemp;
                         }
@@ -197,12 +189,16 @@ class SefazController extends AppController
                 if (count($errors) > 0) {
                     throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
                 }
-                //code...
             } catch (\Throwable $th) {
                 $message = $th->getMessage();
                 $code = $th->getCode();
 
-                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
+                for ($i = 0; $i < count($errors); $i++) {
+                    $c = empty($errorCodes[$i]) ? 0 : $errorCodes[$i];
+                    Log::write("error", sprintf("[%s] %s: %s", $message, $errors[$i], $c));
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
             }
         }
     }

@@ -347,8 +347,9 @@ const MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT = "No Cupom Fiscal {0} da SEFAZ do estad
 const MSG_SEFAZ_NOT_RESPONDING_CODE = 0x00000013;
 const MSG_SEFAZ_NOT_RESPONDING = "Sistema SEFAZ não está respondendo!";
 const MSG_SEFAZ_CONTINGENCY_MODE_CODE = 0x00000011;
-const MSG_SEFAZ_CONTINGENCY_MODE = "SEFAZ não está operando corretamente, suas pontuações serão atribuídas assim que tudo estiver normalizado.";
-
+const MSG_SEFAZ_CONTINGENCY_MODE = "Sistema SEFAZ operando em modo contingência. Suas pontuações serão atribuídas assim que tudo estiver normalizado.";
+const MSG_SEFAZ_CNPJ_NOT_FOUND = "Não há CNPJ cadastrado no sistema para este Cupom Fiscal apresentado!";
+const MSG_SEFAZ_CNPJ_NOT_FOUND_CODE = 0x0000001C;
 
 // Sucesso / Aviso
 const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
