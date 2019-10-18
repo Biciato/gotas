@@ -175,7 +175,10 @@ class SefazController extends AppController
                     $retorno["data"] = $data;
 
                     if (count($itens) == 0 && count($gotas) > 0) {
-                        throw new Exception("Todos os Produtos contidos no Cupom Fiscal já foram adicionados ao sistema!");
+                        $errors[] = MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED;
+                        $errorCodes[] = MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED_CODE;
+
+                        throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
                     }
 
                     return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);

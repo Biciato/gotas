@@ -350,6 +350,8 @@ const MSG_SEFAZ_CONTINGENCY_MODE_CODE = 0x00000011;
 const MSG_SEFAZ_CONTINGENCY_MODE = "Sistema SEFAZ operando em modo contingência. Suas pontuações serão atribuídas assim que tudo estiver normalizado.";
 const MSG_SEFAZ_CNPJ_NOT_FOUND = "Não há CNPJ cadastrado no sistema para este Cupom Fiscal apresentado!";
 const MSG_SEFAZ_CNPJ_NOT_FOUND_CODE = 0x0000001C;
+const MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED = "Todos os Produtos contidos no Cupom Fiscal já foram adicionados ao sistema!";
+const MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED_CODE = 0x0000001D;
 
 // Sucesso / Aviso
 const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
