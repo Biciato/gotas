@@ -1,3 +1,11 @@
+/**
+ * Arquivo de 'controller' para src\Template\Gotas\importacao_gotas_sefaz.ctp
+ *
+ * @file webroot\js\scripts\gotas\importacao_gotas_sefaz.js
+ * @author Gustavo Souza Gonçalves
+ * @date 2019-10-10
+ */
+
 class Gota {
     constructor(id, nomeParametro, multiplicadorGota, importar) {
         this.id = id;
@@ -10,38 +18,49 @@ class Gota {
 $
     (function () {
         "use strict";
+
         // #region Fields
 
         var botaoCancelar = $("#botao-cancelar");
         var botaoConfirmar = $("#botao-confirmar");
         var botaoGravarGotas = $("#botao-gravar-gotas");
         var botaoPesquisar = $("#botao-pesquisar");
-        var redesSelectedItem = {};
+        var data = [];
+        var dataSelecionado = {};
         var clientesSelectedItem = {};
-        var redesNome = $("#redes-nome");
         var clientesNome = $("#clientes-nome");
         var qrCode = $("#qr-code");
         var quantidadeMultiplicadorInput = $("#form-edicao #quantidade-multiplicador");
+        var redesSelectedItem = {};
+        var redesNome = $("#redes-nome");
         var tabelaDados = $("#tabela-dados tbody");
         var tabela = $("#tabela-dados");
 
-        var dataSelecionado = {};
+        //#endregion
 
-        var data = [];
+        // #region Functions
 
+        /**
+         * Constructor
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::init
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {void}
+         */
         function init() {
-            // #region Bindings
 
             redesNome.val(null);
             clientesNome.val(null);
             data = [];
             tabelaDados.empty();
-            alterarEstadoBotaoGravar();
-
             botaoCancelar.on("click", cancelarEdicaoGota);
             botaoConfirmar.on("click", confirmarEdicaoGota);
             qrCode.val(null);
             qrCode.unbind("keyup");
+
             qrCode.on("keyup", function (evt) {
                 if (evt.keyCode == 13) {
                     loadData(qrCode.val());
@@ -49,29 +68,51 @@ $
             });
 
             botaoPesquisar.unbind("click");
+
             botaoPesquisar.on("click", function (e) {
                 loadData(qrCode.val());
             });
 
             botaoGravarGotas.unbind("click");
             botaoGravarGotas.on("click", saveData);
-
-            // #endregion
-
-            // Masks
-
             quantidadeMultiplicadorInput.val(null);
             quantidadeMultiplicadorInput.unmask();
             quantidadeMultiplicadorInput.mask("###0.00", {
                 reverse: true
             });
+
+            alterarEstadoBotaoGravar();
         }
 
+        /**
+         * Cancela edição
+         *
+         * Cancela edição de gota selecionada
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::cancelarEdicaoGota
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {void}
+         */
         function cancelarEdicaoGota() {
             $("#form-edicao").fadeOut(100);
             $("#dados").fadeIn(500);
         }
 
+        /**
+         * Confirma edição
+         *
+         * Confirma edição de gota selecionada
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::cancelarEdicaoGota
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {void}
+         */
         function confirmarEdicaoGota() {
             $("#form-edicao").fadeOut(100);
             $("#dados").fadeIn(500);
@@ -90,22 +131,23 @@ $
             var gota = new Gota(dataSelecionado.id, nome, multiplicador, dataSelecionado.importar);
 
             data[index] = gota;
-            console.log(data);
             gerarTabelaGotas(data);
         }
 
-
         /**
-         * gotas/importacao_gotas_sefaz::alteraEstado
+         * Altera estado
          *
          * Altera estado de um item
          *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-06
+         * gotas/importacao_gotas_sefaz::alteraEstadoItem
          *
-         * @param {int} id Id do Registro
+         * @param {Gota} dataSelecionado Registro Selecionado
+         * @param {bool} habilitado Status
          *
          * @returns void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-06
          */
         var alterarEstadoItem = function (dataSelecionado, habilitado) {
             // Obtem índice
@@ -121,6 +163,18 @@ $
             gerarTabelaGotas(data);
         };
 
+        /**
+         * Altera estado Botão Gravar
+         *
+         * Altera estado Botão Gravar conforme estado dos itens do grid
+         *
+         * gotas/importacao_gotas_sefaz::alteraEstadoItem
+         *
+         * @returns void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-06
+         */
         function alterarEstadoBotaoGravar() {
             var itens = data.filter(x => x.importar == true);
 
@@ -160,7 +214,69 @@ $
         };
 
         //#region HTML Helpers
-        var geraEditarButton = function (value, target) {
+
+        /**
+         * Gera Template
+         *
+         * Gera template de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraDesabilitarButton
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {HTMLButtonElement} Elemento Button
+         */
+        var geraDesabilitarButton = function (value) {
+            var template =
+                "<button class='btn btn-danger btn-xs form-btn-disable' id='form-btn-disable' value=" +
+                value +
+                "> <i class=' fa fa-power-off'></i></button>";
+
+            alterarEstadoBotaoGravar();
+
+            return template;
+        };
+
+        /**
+         * Gera Funções
+         *
+         * Gera funções de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraDesabilitarButtonFunctions
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {Function} Elemento Button
+         */
+        var geraDesabilitarButtonFunctions = function (classString, data) {
+            $("." + classString).on("click", function () {
+                var id = $(this).val();
+                dataSelecionado = data.find(obj => obj.id == id);
+                alterarEstadoItem(dataSelecionado, false);
+            });
+        };
+
+        /**
+         * Gera Template
+         *
+         * Gera template de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraEditarButton
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {HTMLButtonElement} Elemento Button
+         */
+        var geraEditarButton = function (value) {
             var template =
                 "<button class='btn btn-primary btn-xs form-btn-edit' id='form-btn-edit' value=" +
                 value +
@@ -169,6 +285,20 @@ $
             return template;
         };
 
+        /**
+         * Gera Funções
+         *
+         * Gera funções de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraEditarButtonFunctions
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {Function} Elemento Button
+         */
         var geraEditarButtonFunctions = function (classString, data) {
             var click = function (e) {
                 var id = $(this).val();
@@ -187,7 +317,21 @@ $
             $("." + classString).on("click", click);
         };
 
-        var geraHabilitarButton = function (value, target) {
+        /**
+         * Gera Template
+         *
+         * Gera template de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraHabilitarButton
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {HTMLButtonElement} Elemento Button
+         */
+        var geraHabilitarButton = function (value) {
             var template =
                 "<button class='btn btn-primary btn-xs form-btn-enable' id='form-btn-enable' value=" +
                 value +
@@ -197,6 +341,20 @@ $
             return template;
         };
 
+        /**
+         * Gera Funções
+         *
+         * Gera funções de element button
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::geraHabilitarButtonFunctions
+         *
+         * @param {any} value Valor à ser definido
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         *
+         * @returns {Function} Elemento Button
+         */
         var geraHabilitarButtonFunctions = function (classString, data) {
             $("." + classString).on("click", function () {
                 var id = $(this).val();
@@ -205,36 +363,26 @@ $
             });
         };
 
-        var geraDesabilitarButton = function (value, target) {
-            var template =
-                "<button class='btn btn-danger btn-xs form-btn-disable' id='form-btn-disable' value=" +
-                value +
-                "> <i class=' fa fa-power-off'></i></button>";
-
-            alterarEstadoBotaoGravar();
-
-            return template;
-        };
-
-        var generateDisableButtonFunctions = function (classString, data) {
-            $("." + classString).on("click", function () {
-                var id = $(this).val();
-                dataSelecionado = data.find(obj => obj.id == id);
-                alterarEstadoItem(dataSelecionado, false);
-            });
-        };
-
-        function obterQRCode() {
-            botaoPesquisar.on("click", function (e) {
-                var qrCode = $("#qr-code").val();
-                loadData(qrCode);
-            });
-        }
+        //#endregion
 
         //#endregion
 
         // #region REST Services
 
+        /**
+         * Obtem dados
+         *
+         * Obtem dados do parâmetro fornecido
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::loadData
+         *
+         * @param {string} qrCode Link
+         *
+         * @returns {void}
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
+         */
         function loadData(qrCode) {
             $.ajax({
                 type: "GET",
@@ -258,8 +406,18 @@ $
         }
 
         /**
-         * Obtem os dados de categorias de brindes e alimenta a tabela
+         * Gera Tabela
          *
+         * Gera corpo de tabela conforme dados informados
+         *
+         * webroot\js\scripts\gotas\importacao_gotas_sefaz.js::gerarTabelaGotas
+         *
+         * @param {Gotas[]} Lista de gotas
+         *
+         * @returns {HTMLTableElement}
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-10-18
          */
         function gerarTabelaGotas(dadosGotas) {
 
@@ -284,20 +442,6 @@ $
                 showPrevious: true,
                 showNext: true,
                 dataSource: function (done) {
-                    // this.data = [];
-                    // var index = 1;
-                    // dadosGotas.forEach(element => {
-                    //     var gota = new Gota(
-                    //         index,
-                    //         element.nome_parametro,
-                    //         element.multiplicador_gota,
-                    //         element.importar
-                    //     );
-
-                    //     this.data.push(gota);
-                    //     index++;
-                    // });
-
                     done(data);
                 },
                 callback: function (data, pagination) {
@@ -327,7 +471,7 @@ $
 
                     geraEditarButtonFunctions("form-btn-edit", data);
                     geraHabilitarButtonFunctions("form-btn-enable", data);
-                    generateDisableButtonFunctions("form-btn-disable", data);
+                    geraDesabilitarButtonFunctions("form-btn-disable", data);
                 }
             });
         }
@@ -369,7 +513,7 @@ $
                 url: "/api/gotas/set_gotas_clientes",
                 data: dataSend,
                 dataType: "JSON",
-                success: function (response) {
+                success: function () {
                     callModalSave();
                     init();
                 },
