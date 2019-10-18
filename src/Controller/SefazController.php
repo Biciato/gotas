@@ -198,7 +198,7 @@ class SefazController extends AppController
                     Log::write("error", sprintf("[%s] %s: %s", $message, $errors[$i], $c));
                 }
 
-                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+                return ResponseUtil::errorAPI($message, $errors, [], $errorCodes);
             }
         }
     }
