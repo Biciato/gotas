@@ -2,20 +2,16 @@
 
 namespace App\Controller;
 
+use \DateTime;
+use \Exception;
 use App\Controller\AppController;
-use App\Model\Entity;
 use Cake\Log\Log;
-use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use App\Custom\RTI\Security;
-use \DateTime;
-use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Cliente;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
-use Exception;
 
 /**
  * Pontuacoes Controller
@@ -596,12 +592,14 @@ class PontuacoesController extends AppController
         $message = null;
         try {
 
-            $usuario = $this->Auth->user();
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuario = $sessaoUsuario["usuarioLogado"];
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
                 $redesId = $data["redes_id"];
+                $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
                 // $redesId = 2;
 
                 if (!isset($data["redes_id"])) {
@@ -618,6 +616,16 @@ class PontuacoesController extends AppController
                     $this->set("_serialize", $arraySet);
 
                     return;
+                }
+
+                // Se não for usuário e o id não tiver sido especificado
+                if (empty($usuariosId) && $usuario->tipo_perfil < PROFILE_TYPE_USER) {
+                    $errors = [MSG_USUARIOS_ID_EMPTY];
+                    $errorCodes = [MSG_USUARIOS_ID_EMPTY_CODE];
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+                } elseif ($usuario->tipo_perfil == PROFILE_TYPE_USER && empty($usuariosId)) {
+                    // Se é usuário, atribui o id de usuário
+                    $usuariosId = $usuario->id;
                 }
 
                 // Obtem os ids de clientes da rede selecionada
@@ -646,7 +654,7 @@ class PontuacoesController extends AppController
                     return;
                 }
 
-                $retorno = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuario["id"], $redesId, $clientesIds);
+                $retorno = $this->Pontuacoes->getSumPontuacoesOfUsuario($usuariosId, $redesId, $clientesIds);
 
 
                 $mensagem = $retorno["mensagem"];

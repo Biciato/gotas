@@ -890,15 +890,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            $clientes_id = $redes_has_cliente->clientes_id;
                         }
 
-                        $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                        $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }
@@ -1003,7 +1003,7 @@ class UsuariosController extends AppController
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 
         // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
-        if (count($unidadesRede) == 0) {
+        if (count($unidadesRede) == 0 && !empty($rede)) {
             $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
         }
 
@@ -1091,22 +1091,22 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            if (!empty($rede_has_cliente)) {
-                                $clientes_id = $rede_has_cliente->clientes_id;
+                            if (!empty($redes_has_cliente)) {
+                                $clientes_id = $redes_has_cliente->clientes_id;
                             }
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
                         }
 
                         // Só pode ser guardado o relacionamento se já tiver algum posto
-                        if (empty($rede_has_cliente)) {
+                        if (empty($redes_has_cliente)) {
                             Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
 
                         } else {
                             $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                                $rede_has_cliente->id,
+                                $redes_has_cliente->id,
                                 $usuarioSave->id
                             );
                         }
@@ -1203,9 +1203,9 @@ class UsuariosController extends AppController
         // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
 
         if (!isset($redesId)) {
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
+            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
 
-            $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
+            $rede = $this->Redes->getAllRedes('all', ['id' => $redes_has_cliente->redes_id])->first();
         }
 
         $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
@@ -1252,15 +1252,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientesId == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientesId = $rede_has_cliente->clientes_id;
+                            $clientesId = $redes_has_cliente->clientes_id;
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
                         }
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }

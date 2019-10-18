@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * @author   Gustavo Souza Gonçalves
@@ -13,7 +13,7 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 
 $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
 
-$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->redes_has_cliente->redes_id]);
 
 $this->Breadcrumbs->add('Editar Unidade', [], ['class' => 'active']);
 
@@ -23,7 +23,7 @@ echo $this->Breadcrumbs->render(
 
 ?>
 
-<?= $this->element('../Clientes/left_menu', ['controller' => 'redes', 'action' => 'ver_detalhes', 'id' => $cliente->rede_has_cliente->redes_id]) ?>
+<?= $this->element('../Clientes/left_menu', ['controller' => 'redes', 'action' => 'ver_detalhes', 'id' => $cliente->redes_has_cliente->redes_id]) ?>
 <div class="clientes form col-lg-9 col-md-10 columns content">
     <?= $this->element('../Clientes/clientes_form', ['cliente' => $cliente, 'title' => 'Editar Cliente'])?>
 </div>

@@ -3,10 +3,10 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$redesId = $cliente["rede_has_cliente"]["redes_id"];
+$redesId = $cliente["redes_has_cliente"]["redes_id"];
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+$this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->redes_has_cliente->redes_id]);
 $this->Breadcrumbs->add('Detalhes da Unidade', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
@@ -20,7 +20,7 @@ $action_voltar = null;
 if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
     $controller_voltar = 'redes';
     $action_voltar = 'ver_detalhes';
-    $id_voltar = $cliente->rede_has_cliente->redes_id;
+    $id_voltar = $cliente->redes_has_cliente->redes_id;
 } else {
     $controller_voltar = 'pages';
     $action_voltar = 'display';
@@ -40,7 +40,7 @@ if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDevel
 ) ?>
 <div class="clientes view col-lg-9 col-md-10">
     <legend>
-        <?= h(__("{0} - {1}", $cliente->rede_has_cliente->rede->nome_rede, $cliente->nome_fantasia)) ?>
+        <?= h(__("{0} - {1}", $cliente->redes_has_cliente->rede->nome_rede, $cliente->nome_fantasia)) ?>
     </legend>
 
     <fieldset>

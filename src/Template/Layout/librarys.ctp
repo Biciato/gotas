@@ -88,7 +88,6 @@ echo $this->Html->meta('icon');
 <script src="/webroot/js/plentz-jquery-maskmoney/dist/jquery.maskMoney.min.js"></script>
 
 
-
 <!-- PDF417 -->
 <script src="/webroot/js/pdf417-gh-pages/pdf417.js"></script>
 <script src="/webroot/js/scripts/util/pdf417_helper.js"></script>

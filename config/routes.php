@@ -20,6 +20,7 @@
  */
 
 use Cake\Core\Plugin;
+use Cake\Http\Client\Request;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Routing\Route\DashedRoute;
@@ -183,6 +184,21 @@ Router::scope("/api", function ($routes) {
         ]
     );
 
+    $routes->resources("Gotas", [
+        "map" => [
+            "getGotasClientesAPI" => [
+                "action" => "getGotasClientesAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_gotas_clientes"
+            ],
+            "setGotasClientesAPI" => [
+                "action" => "setGotasClientesAPI",
+                "method" => Request::METHOD_POST,
+                "path" => "/set_gotas_clientes"
+            ],
+        ]
+    ]);
+
     $routes->resources(
         "Pontuacoes",
         [
@@ -218,11 +234,21 @@ Router::scope("/api", function ($routes) {
                     "method" => "POST",
                     "path" => "/get_comprovantes_fiscais_usuario"
                 ],
+                "setGotasManualUsuarioAPI" => [
+                    "action" => "setGotasManualUsuarioAPI",
+                    "method" => "POST",
+                    "path" => "/set_gotas_manual_usuario"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "setComprovanteFiscalUsuarioAPI" => [
                     "action" => "setComprovanteFiscalUsuarioAPI",
                     "method" => "POST",
                     "path" => "/set_comprovante_fiscal_usuario"
+                ],
+                "setComprovanteFiscalUsuarioManualAPI" => [
+                    "action" => "setComprovanteFiscalUsuarioManualAPI",
+                    "method" => "POST",
+                    "path" => "/set_comprovante_fiscal_usuario_manual"
                 ],
                 // utilizado por clientes REST de Sistemas de Postos. Cuidado ao mexer
                 "setPontuacoesUsuarioViaPostoAPI" => array(
@@ -247,11 +273,21 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Redes", [
         "map" => [
+            "getRedeAPI" => [
+                "action" => "getRedeAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_rede"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getRedesAPI" => [
                 "action" => "getRedesAPI",
                 "method" => "POST",
                 "path" => "/get_redes"
+            ],
+            "getRedesListAPI" => [
+                "action" => "getRedesListAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_redes_list"
             ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
@@ -566,6 +602,16 @@ Router::scope("/api", function ($routes) {
                 "action" => "updateVeiculosUsuarioAPI",
                 "method" => "POST",
                 "path" => "/update_veiculos_usuario"
+            ]
+        ]
+    ]);
+
+    $routes->resources("Sefaz", [
+        "map" => [
+            "getNFSefazQRCodeAPI" => [
+                "action" => "getNFSefazQRCodeAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_nf_sefaz_qr_code"
             ]
         ]
     ]);

@@ -31,7 +31,7 @@ $title = __("Tipos de Brindes Habilitados para Ponto de Atendimento: [{0}] / Nom
 if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]){
     $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
     $this->Breadcrumbs->add('Redes', ['controller' => 'Redes', 'action' => 'index']);
-    $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id]);
+    $this->Breadcrumbs->add('Detalhes da Rede', ['controller' => 'Redes', 'action' => 'ver_detalhes', $cliente->redes_has_cliente->redes_id]);
     $this->Breadcrumbs->add('Detalhes da Unidade', ['controller' => 'clientes', 'action' => 'ver_detalhes', $cliente->id]);
     $this->Breadcrumbs->add('Tipos de Brindes Habilitados', [], ['class' => 'active']);
 } else {
@@ -60,10 +60,10 @@ echo $this->Breadcrumbs->render(
             <thead>
                 <tr>
                     <th scope="col"><?= $this->Paginator->sort("tipo_brindes_id") ?> </th>
-                    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                    <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?>
                         <th scope="col"><?= $this->Paginator->sort("tipo_principal_codigo_brinde", ["label" => "Cód. Principal"]) ?> </th>
                         <th scope="col"><?= $this->Paginator->sort("tipo_secundario_codigo_brinde", ["label" => "Cód. Secundário"]) ?> </th>
-                    <?php endif; ?> 
+                    <?php endif; ?>
                     <th scope="col"><?= __("Em uso?") ?> </th>
                     <th scope="col"><?= $this->Paginator->sort("habilitado", ["label" => "Estado"]) ?> </th>
                     <th scope="col" class="actions">
@@ -95,10 +95,10 @@ echo $this->Breadcrumbs->render(
                     ?>
                     <tr>
                         <td><?= $tipoBrindeItem["tipo_brinde_rede"]["nome"] . ($tipoBrindeItem["tipo_brinde_rede"]["brinde_necessidades_especiais"] == 1 ? " (PNE)" : null) ?> </td>
-                        <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?> 
+                        <?php if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminDeveloperProfileType"]) : ?>
                             <td><?= $tipoBrindeItem->tipo_principal_codigo_brinde ?> </td>
                             <td><?= strlen($tipoBrindeItem->tipo_secundario_codigo_brinde) == 1 ? "0" . $tipoBrindeItem->tipo_secundario_codigo_brinde : $tipoBrindeItem->tipo_secundario_codigo_brinde ?> </td>
-                        <?php endif; ?> 
+                        <?php endif; ?>
                         <td><?= $this->Boolean->convertBooleanToString(count($tipoBrindeItem->clientes_has_brindes_habilitados) > 0) ?> </td>
                         <td><?= $this->Boolean->convertEnabledToString($tipoBrindeItem->habilitado) ?> </td>
                         <td class="actions" style="white-space:nowrap">

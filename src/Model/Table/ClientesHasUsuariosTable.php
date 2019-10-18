@@ -399,7 +399,7 @@ class ClientesHasUsuariosTable extends Table
                     ->where($whereConditions);
             }
 
-            return $clientes->select(array("id", "razao_social"));
+            return $clientes->select(array("id", "razao_social", "nome_fantasia"));
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
@@ -609,7 +609,7 @@ class ClientesHasUsuariosTable extends Table
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-27
-     * 
+     *
      * @param integer $clientesId Id de Clientes/Posto
      * @param integer $usuariosId Id de usuário
      *
@@ -679,7 +679,7 @@ class ClientesHasUsuariosTable extends Table
 
     /**
      * Adiciona novo Usuário em cliente
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2018-10-11
      *

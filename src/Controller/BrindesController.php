@@ -77,7 +77,9 @@ class BrindesController extends AppController
                 return $this->redirect("/");
             }
 
-            $cliente = $this->Clientes->get($clientesId);
+            if (empty($cliente)) {
+                $cliente = $this->Clientes->get($clientesId);
+            }
 
             if (empty($redesId)) {
                 if (empty($clientesId)) {
@@ -1372,7 +1374,7 @@ class BrindesController extends AppController
             }
 
             if (empty($clientesId)) {
-                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
             $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);
