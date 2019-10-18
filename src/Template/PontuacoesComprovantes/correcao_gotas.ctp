@@ -76,10 +76,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <!-- Tabela de Gotas -->
             <div class="data-container">
                 <div class="gotas-select">
-                    <h4>Seleção de Gotas</h4>
                     <div class="form-group row">
                         <div class="col-lg-12">
-                            <label for="quantidade_multiplicador">Qte. Litros Abastecidos</label>
+                            <label for="quantidade_multiplicador">Quantidade de Pontos à ser Ajustado</label>
                             <input type="text" class="form-control" name="quantidade_multiplicador" id="quantidade-multiplicador">
                         </div>
                     </div>
