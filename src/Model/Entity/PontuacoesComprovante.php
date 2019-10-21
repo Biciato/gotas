@@ -9,8 +9,15 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $clientes_id
  * @property int $usuarios_id
+ * @property int $funcionarios_id
  * @property string $conteudo
- * @property string $nome_download
+ * @property string $nome_img
+ * @property string $chave_nfe
+ * @property string $estado_nfe
+ * @property bool $requer_auditoria
+ * @property bool $auditado
+ * @property \Cake\I18n\FrozenTime $data
+ * @property bool $registro_invalido
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *

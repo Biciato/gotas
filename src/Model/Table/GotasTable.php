@@ -5,6 +5,7 @@ namespace App\Model\Table;
 use ArrayObject;
 use App\View\Helper;
 use App\Controller\AppController;
+use App\Model\Entity\Gota;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Event\Event;
@@ -180,16 +181,40 @@ class GotasTable extends GenericTable
     }
 
     /**
+     * Insere/Atualiza
+     *
+     * Insere/Atualiza registro do banco de dados
+     *
+     * src\Model\Table\GotaTable.php::saveUpdate
+     *
+     * @param Gota $gota Objeto
+     * @return \App\Model\Entity\Gota $gota Objeto
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-17
+     */
+    public function saveUpdate(Gota $gota)
+    {
+        try {
+            return $this->save($gota);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_ERROR, $e->getCode(), $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $e->getCode());
+        }
+    }
+
+    /**
      * GotasTable::saveUpdateBonificacaoExtraSefaz
-     * 
+     *
      * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-21
      *
      * @param array $clientesIds Ids de Clientes
      * @param integer $qteGotasBonificacao Qte Bonificação
-     * 
+     *
      * @return \App\Model\Entity\Gota $gota
      */
     public function saveUpdateBonificacaoExtraSefaz(array $clientesIds, int $qteGotasBonificacao)
@@ -341,14 +366,14 @@ class GotasTable extends GenericTable
 
     /**
      * GotasTable::getGotaBonificacaoSefaz
-     * 
+     *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-21
-     * 
+     *
      * Obtem Gota de Bonificação Sefaz do Posto
      *
      * @param integer $clientesId
-     * 
+     *
      * @return \App\Model\Entity\Gota
      */
     public function getGotaBonificacaoSefaz(int $clientesId)
@@ -371,6 +396,67 @@ class GotasTable extends GenericTable
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $ex->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
+        }
+    }
+
+    /**
+     * Obtem gotas do Banco
+     *
+     * Obtêm registro de gotas do banco conforme parâmetros passados
+     *
+     * src/Model/Table/GotasTable.php::getGotas
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-11
+     *
+     * @param integer $clientesId Id do Cliente
+     * @param string $nomeParametro Nome do Parâmetro
+     * @param float $multiplicadorGotaMinimo Valor Multiplicador Mínimo
+     * @param float $multiplicadorGotaMaximo Valor Multiplicador Máximo
+     * @param integer $habilitado Habilitado
+     * @param integer $tipoCadastro Tipo de Cadastro (0 - Manual / 1 - Automático, sendo Manual inserido pelo usuário)
+     *
+     * @return \App\Model\Entity\Gota[] Gotas
+     */
+    public function getGotas(int $clientesId = null, string $nomeParametro = null, float $multiplicadorGotaMinimo = null, float $multiplicadorGotaMaximo = null, int $habilitado = null, int $tipoCadastro = 0)
+    {
+        try {
+            $where = [];
+
+            if (!empty($clientesId)) {
+                $where[] = ["Gotas.clientes_id" => $clientesId];
+            }
+
+            if ($tipoCadastro == 1) {
+                $where[] = ["Gotas.nome_parametro" => $nomeParametro];
+            } else {
+                if (!empty($nomeParametro)) {
+                    $where[] = ["Gotas.nome_parametro like" => "'%$nomeParametro%'"];
+                }
+            }
+
+            if (isset($multiplicadorGotaMinimo)) {
+                $where[] = ["Gotas.multiplicador_gota >= " => $multiplicadorGotaMinimo];
+            }
+
+            if (isset($multiplicadorGotaMaximo)) {
+                $where[] = ["Gotas.multiplicador_gota <= " => $multiplicadorGotaMaximo];
+            }
+
+            if (isset($habilitado)) {
+                $where[] = ["Gotas.habilitado" => $habilitado];
+            }
+
+            if (isset($tipoCadastro)) {
+                $where[] = ["Gotas.tipo_cadastro" => $tipoCadastro];
+            }
+
+            return $this->find("all")
+                ->where($where);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MESSAGE_LOAD_EXCEPTION_CODE);
         }
     }
 

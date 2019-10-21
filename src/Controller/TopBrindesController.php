@@ -7,6 +7,7 @@ use Exception;
 use App\Model\Entity\TopBrindes;
 use DateTime;
 use App\Custom\RTI\ResponseUtil;
+use Cake\Http\Client\Request;
 use Cake\Log\Log;
 
 /**
@@ -163,6 +164,9 @@ class TopBrindesController extends AppController
             if ($this->request->is("delete")) {
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_DELETE, __CLASS__, __METHOD__));
+                Log::write("info", $this->request->getData());
+
                 $id = $data["id"] ?? null;
             }
 
@@ -242,6 +246,9 @@ class TopBrindesController extends AppController
 
                 $redesId = $this->request->getQuery("redes_id");
 
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_GET, __CLASS__, __METHOD__));
+                Log::write("info", $this->request->getQueryParams());
+
                 // Se for funcionário, está vinculado à uma rede.
                 if ($usuarioLogado->tipo_perfil > PROFILE_TYPE_ADMIN_DEVELOPER && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
                     $redesId = $rede->id;
@@ -253,7 +260,7 @@ class TopBrindesController extends AppController
                 }
 
                 // Se a rede não tiver a configuração de app_personalizado, throw error
-                $rede = $this->Redes->getRedeById($rede->id);
+                $rede = $this->Redes->getRedeById($redesId);
 
                 if (!$rede->app_personalizado) {
                     throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
@@ -301,6 +308,10 @@ class TopBrindesController extends AppController
                 $redesId = 0;
 
                 $data = $this->request->getQueryParams();
+
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_GET, __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 $redesId = $data["redes_id"] ?? 0;
                 $clientesId = $data["clientes_id"] ?? 0;
 
@@ -315,14 +326,14 @@ class TopBrindesController extends AppController
                 }
 
                 // Se a rede não tiver a configuração de app_personalizado, throw error
-                $rede = $this->Redes->getRedeById($rede->id);
+                $rede = $this->Redes->getRedeById($redesId);
 
                 if (!$rede->app_personalizado) {
                     throw new Exception(MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED);
                 }
 
                 if (empty($clientesId)) {
-                    throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                    throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
                 }
 
                 $topBrindes = $this->TopBrindes->getTopBrindes($rede->id, $clientesId, null, null, TOP_BRINDES_TYPE_LOCAL);
@@ -372,6 +383,9 @@ class TopBrindesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_POST, __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 $brindesId = $data["brindes_id"] ?? null;
             }
@@ -450,6 +464,10 @@ class TopBrindesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_POST, __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 $brindesId = $data["brindes_id"] ?? null;
 
                 if (empty($brindesId)) {
@@ -520,6 +538,9 @@ class TopBrindesController extends AppController
             if ($this->request->is("put")) {
                 $data = $this->request->getData();
                 $topBrindes = $data["top_brindes"] ?? [];
+
+                Log::write("info", sprintf("Info de %s: %s - %s.", Request::METHOD_PUT, __CLASS__, __METHOD__));
+                Log::write("info", $data);
             }
 
             if (count($topBrindes) == 0) {

@@ -2,19 +2,17 @@
 
 namespace App\Controller;
 
+use \DateTime;
 use App\Controller\AppController;
-use App\Model\Entity;
-use Cake\ORM\TableRegistry;
+use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\Entity\Mensagem;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Gota;
 use Cake\Log\Log;
-use Cake\ORM\Query;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use App\Custom\RTI\Security;
-use App\Custom\RTI\DateTimeUtil;
-use \DateTime;
-use App\Custom\RTI\DebugUtil;
 use Cake\Http\Client\Request;
-use App\Custom\RTI\ResponseUtil;
+use Exception;
 
 /**
  * Gotas Controller
@@ -152,7 +150,7 @@ class GotasController extends AppController
 
             $this->set(compact('gota'));
             $this->set('_serialize', ['gota']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -687,6 +685,136 @@ class GotasController extends AppController
             $this->Flash->error($message);
         }
     }
+
+
+    public function importacaoGotasSefaz()
+    {
+        // $cnpjEncontrado = "05508016000123";
+        // $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
+
+        // DebugUtil::printArray($cliente);
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuario = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuario->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+
+        $arraySet = [
+            "usuario"
+        ];
+
+        $this->set(compact($arraySet));
+    }
+
+    /**
+     * ------------------------------------------------------------
+     * Views para actions de API
+     * Nota: Temporária até a saída do projeto em Angular 8
+     * ------------------------------------------------------------
+     */
+
+    #region API Actions
+
+    public function getGotasClientesAPI()
+    {
+        if ($this->request->is(Request::METHOD_GET)) {
+            $errors = [];
+            $errorCodes = [];
+            $data = $this->request->getQueryParams();
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+
+            $mensagem = new Mensagem();
+
+            if (empty($clientesId)) {
+                $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+            }
+
+            try {
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+                $gotas = $this->Gotas->getGotas($clientesId, null, null, null, 1);
+                $data = ["data" => ["gotas" => $gotas]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            } catch (\Throwable $th) {
+
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::write("error", sprintf("", $errorCodes[$i], $errors[$i]));
+                }
+
+                return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
+            }
+        }
+    }
+
+    public function setGotasClientesAPI()
+    {
+
+        if ($this->request->is(Request::METHOD_POST)) {
+
+            $data = $this->request->getData();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
+            $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+            $gotas = !empty($data["gotas"]) ? $data["gotas"] : null;
+            $errors = [];
+            $errorCodes = [];
+
+            try {
+                if (empty($clientesId)) {
+                    $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                }
+
+                if (empty($gotas)) {
+                    $errors[] = MSG_GOTAS_DATA_EMPTY;
+                    $errorCodes[] = MSG_GOTAS_DATA_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    // encontrou erros, dá exception
+                    throw new Exception(MESSAGE_SAVED_EXCEPTION, MESSAGE_SAVED_EXCEPTION_CODE);
+                }
+
+                $countSucesso = 0;
+
+                foreach ($gotas as $gotaItem) {
+                    $gota = new Gota();
+                    $gota->nome_parametro = $gotaItem["nome_parametro"];
+                    $gota->multiplicador_gota = $gotaItem["multiplicador_gota"];
+                    $gota->clientes_id = $clientesId;
+                    $gota->tipo_cadastro = 0;
+                    $gota->habilitado = true;
+                    $gotaSave = $this->Gotas->saveUpdate($gota);
+
+                    $countSucesso += $gotaSave ? 1 : 0;
+                }
+
+                if ($countSucesso == count($gotas)) {
+                    return ResponseUtil::successAPI(MESSAGE_SAVED_SUCCESS);
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, []);
+            } catch (\Throwable $th) {
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::write("error", sprintf("[%s] %s %s", $th->getMessage(), $errors[$i], $errorCodes[$i]));
+                }
+
+                return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
+            }
+        }
+    }
+
+    #endregion
 
     /**
      * ------------------------------------------------------------

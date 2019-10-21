@@ -50,6 +50,7 @@ class BrindesController extends AppController
         try {
             $arraySet = [
                 "categoriasBrindesList",
+                "cliente",
                 "redesId",
                 "clientesId",
                 "brindes",
@@ -74,6 +75,10 @@ class BrindesController extends AppController
             if (empty($clientesId) && empty($cliente)) {
                 $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
                 return $this->redirect("/");
+            }
+
+            if (empty($cliente)) {
+                $cliente = $this->Clientes->get($clientesId);
             }
 
             if (empty($redesId)) {
@@ -275,6 +280,7 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -341,6 +347,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -513,10 +520,11 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
@@ -590,6 +598,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -1199,6 +1208,9 @@ class BrindesController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
@@ -1207,11 +1219,12 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tiposVenda = [TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT];
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
 
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
                 $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && empty($redesId)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -1361,7 +1374,7 @@ class BrindesController extends AppController
             }
 
             if (empty($clientesId)) {
-                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
             $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);

@@ -683,8 +683,8 @@ class CuponsController extends AppController
             $data_impressao = $cupons->toArray()[0]->data->format('d/m/Y H:i:s');
             $cupom_id = $cupons->toArray()[0]->id;
             $brindes_id = $cupons->toArray()[0]->clientes_has_brindes_habilitado->id;
-            $redes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->redes_id;
-            $clientes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->clientes_id;
+            $redes_id = $cupons->toArray()[0]->cliente->redes_has_cliente->redes_id;
+            $clientes_id = $cupons->toArray()[0]->cliente->redes_has_cliente->clientes_id;
 
             // percorrer o cupom e pegar todos os produtos
 
@@ -2890,7 +2890,7 @@ class CuponsController extends AppController
 
                 $orderConditions = array();
                 $paginationConditions = array();
-                $redesId = 0;
+                // $redesId = 0;
                 $clientesIds = array();
 
                 if (isset($data["order_by"])) {
