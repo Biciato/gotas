@@ -456,7 +456,7 @@ class CuponsTable extends GenericTable
             ->where($whereConditions)
             ->contain(
                 array(
-                    "Clientes.RedeHasCliente",
+                    "Clientes.RedesHasClientes",
                     "Brindes",
                     "Usuarios"
                 )
