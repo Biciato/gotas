@@ -1188,34 +1188,39 @@ class PontuacoesTable extends GenericTable
     {
         try {
             $whereConditions = [];
-            $groupConditions = [
-                "periodo",
-                "Pontuacoes.clientes_id",
-                "Clientes.id"
-            ];
+            $groupConditions = [];
 
             $selectList = [
-                "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
-                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
+                "quantidade_litros" => "SUM(Pontuacoes.quantidade_multiplicador)",
+                "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
             ];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
-                $selectList[] = "Brindes.nome";
+                $groupConditions = [
+                    "periodo",
+                    "Pontuacoes.clientes_id",
+                    "Clientes.id"
+                ];
             }
 
-            $join = [
-                "Gotas",
-                "Usuarios",
-                "Clientes",
-                "Brindes"
-            ];
+            $join = [];
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                // $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
+                // $selectList[] = "Brindes.nome";
+
+                $join = [
+                    "Gotas",
+                    "Usuarios",
+                    "Clientes",
+                    "Brindes"
+                ];
+            }
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
             $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
 
-            if (!empty($brindesId)) {
-                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            if (!empty($gotasId)) {
+                $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
             }
 
             if (!empty($dataInicio)) {
@@ -1226,13 +1231,8 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
-            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
-                $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
-            } else {
-                $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
-            }
-
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                // @todo À fazer
                 $groupConditions[] = "Brindes.id";
                 $groupConditions[] = "Usuarios.id";
                 $groupConditions[] = "Gotas.id";

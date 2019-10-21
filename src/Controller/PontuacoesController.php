@@ -884,7 +884,6 @@ class PontuacoesController extends AppController
                     throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
 
-
                 // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
                 if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
                     $clientesId = $clientesIdSession;
@@ -1062,7 +1061,75 @@ class PontuacoesController extends AppController
 
     public function getRelatorioMovimentacaoGotasAPI()
     {
-        # code...
+        $sessao = $this->getSessionUserVariables();
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getData();
+                $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+                $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                  // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+
+
+
+
+                $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($clientesId, $gotasId, $dataInicio, $dataFim, $tipoRelatorio);
+
+
+
+             }
+            //code...
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
     }
 
     public function relUsuariosFrequenciaMediaAPI()
