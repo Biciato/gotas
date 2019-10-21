@@ -57,15 +57,23 @@ class ClientesHasUsuariosTable extends Table
             )
         );
 
-        $this->hasMany(
-            'Clientes',
+        // $this->hasMany(
+        //     'Clientes',
+        //     [
+        //         'className' => 'Clientes',
+        //         'foreignKey' => 'id',
+        //         'joinType' => 'LEFT'
+        //     ]
+        // );
+
+        $this->belongsTo(
+            "Clientes",
             [
-                'className' => 'Clientes',
-                'foreignKey' => 'id',
-                'joinType' => 'LEFT'
+                "className" => "Clientes",
+                "foreignKey" => "clientes_id",
+                "join" => Query::JOIN_TYPE_LEFT
             ]
         );
-
         // $this->belongsTo(
         //     'Clientes',
         //     [
