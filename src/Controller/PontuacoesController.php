@@ -1060,6 +1060,11 @@ class PontuacoesController extends AppController
         }
     }
 
+    public function getRelatorioMovimentacaoGotasAPI()
+    {
+        # code...
+    }
+
     public function relUsuariosFrequenciaMediaAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();

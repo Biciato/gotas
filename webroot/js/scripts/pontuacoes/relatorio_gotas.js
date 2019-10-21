@@ -88,7 +88,7 @@ $(function () {
             tipoRelatorio.on("change", tipoRelatorioOnChange);
 
             pesquisarBtn.on("click", function () {
-                getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
+                getRelatorioMovimentacaoGotas(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
             });
 
             imprimirBtn.on("click", imprimirRelatorio);
@@ -360,7 +360,7 @@ $(function () {
          *
          * @returns HtmlTable
          */
-        function getDataPontuacoesEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
+        function getRelatorioMovimentacaoGotas(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
             // Validação
             var dataInicioEnvio = moment(dataInicio);
             var dataFimEnvio = moment(dataFim);
@@ -387,7 +387,7 @@ $(function () {
 
             $.ajax({
                 type: "GET",
-                url: "/api/pontuacoes/get_pontuacoes_relatorio_gotas",
+                url: "/api/pontuacoes/get_relatorio_movimentacao_gotas",
                 data: data,
                 dataType: "JSON",
                 success: function (response) {

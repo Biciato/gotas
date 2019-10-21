@@ -1167,6 +1167,98 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
+     * Obtem dados de relatório
+     *
+     * Obtêm dados de pontuações que estão diretamente relacionados à Gotas de um Estabelecimento
+     *
+     * PontuacoesTable.php::getPontuacoesGotasMovimentationForClientes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-21
+     *
+     * @param int $clientesId Clientes (Postos)
+     * @param integer $gotasId Id de Gota
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data fim
+     * @param string $tipoRelatorio Tipo Relatório Analítico / Sintético
+     *
+     * \App\Model\Entity\Pontuaco[] Array de pontuacoes
+     */
+    public function getPontuacoesGotasMovimentationForClientes(int $clientesId = null, int $gotasId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    {
+        try {
+            $whereConditions = [];
+            $groupConditions = [
+                "periodo",
+                "Pontuacoes.clientes_id",
+                "Clientes.id"
+            ];
+
+            $selectList = [
+                "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
+                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
+            ];
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
+                $selectList[] = "Brindes.nome";
+            }
+
+            $join = [
+                "Gotas",
+                "Usuarios",
+                "Clientes",
+                "Brindes"
+            ];
+
+            // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
+            $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
+
+            if (!empty($brindesId)) {
+                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            }
+
+            if (!empty($dataInicio)) {
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+            }
+
+            if (!empty($dataFim)) {
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
+            }
+
+            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
+            } else {
+                $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
+            }
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $groupConditions[] = "Brindes.id";
+                $groupConditions[] = "Usuarios.id";
+                $groupConditions[] = "Gotas.id";
+                $selectList[] = "Brindes.id";
+                $selectList[] = "Brindes.nome";
+                $selectList[] = "Usuarios.id";
+                $selectList[] = "Usuarios.nome";
+                $selectList[] = "Gotas.id";
+                $selectList[] = "Gotas.nome_parametro";
+            }
+
+            return $this
+                ->find("all")
+                ->where($whereConditions)
+                ->contain($join)
+                ->group($groupConditions)
+                ->select($selectList);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            Log::write("error", sprintf("%s - %s", $code, $message));
+            throw new Exception($message, $code);
+        }
+    }
+
+    /**
      * PontuacoesTable.php::getPontuacoesInOutForClientes
      *
      * Obtem dados de pontuações de entrada e saída para relatório
@@ -1250,7 +1342,6 @@ class PontuacoesTable extends GenericTable
                 ->group($groupConditions)
                 ->select($selectList);
         } catch (\Throwable $th) {
-
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             $code = MESSAGE_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
