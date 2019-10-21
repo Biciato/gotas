@@ -2227,6 +2227,7 @@ class PontuacoesComprovantesController extends AppController
                         $pontuacao = new Pontuacao();
                         $pontuacao->clientes_id = $cliente->id;
                         $pontuacao->usuarios_id = $usuario->id;
+                        $pontuacao->funcionarios_id = $funcionario->id;
                         $pontuacao->gotas_id = $gota->id;
                         $pontuacao->quantidade_multiplicador = $produto["quantidade"];
                         $pontuacao->valor_gota_sefaz = trim($produto["valor"]);
