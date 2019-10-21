@@ -93,6 +93,11 @@ $(function () {
 
             imprimirBtn.on("click", imprimirRelatorio);
 
+            var option = document.createElement("option");
+            option.value = null;
+            option.textContent = "<Selecione um Estabelecimento para continuar>";
+            gotasSelectListBox.append(option);
+
             // #endregion
 
             // Desabilita botão de imprimir até que usuário faça alguma consulta
@@ -138,6 +143,11 @@ $(function () {
 
             // Obtem Brindes
             getFuncionariosList(form.clientesId);
+            getGotasCliente(form.clientesId);
+        }
+
+        function gotasSelectlistBoxOnChange() {
+            form.gotasId = gotasSelectedItem;
         }
 
         /**
@@ -806,16 +816,54 @@ $(function () {
             });
         }
 
-        function getGotasCliente(redesId, clientesId) {
+        function getGotasCliente(clientesId) {
 
             var data = {
-                redes_id: redesId,
                 clientes_id: clientesId
             };
 
+            $.ajax({
+                type: "GET",
+                url: "/api/gotas/get_gotas_clientes",
+                data: data,
+                dataType: "JSON",
+                success: function (response) {
+                    gotasSelectListBox.empty();
+                    gotas = [];
+
+                    var option = document.createElement("option");
+                    option.value = null;
+                    option.textContent = "<Todas>";
+                    gotasSelectListBox.append(option);
+
+                    // gotas.push(gota);
+
+                    response.data.gotas.forEach(element => {
+
+                        var gota = {
+                            id: element.id,
+                            nomeParametro: element.nome_parametro
+
+                        };
+
+                        var option = document.createElement("option");
+                        option.value = gota.id;
+                        option.textContent = gota.nomeParametro;
+                        gotasSelectListBox.append(option);
+
+                        gotas.push(gota);
+                    });
+                },
+                error: function (response) {
+                    var mensagem = response.responseJSON.mensagem;
+
+                    callModalError(mensagem.message, mensagem.errors);
+                }
+            });
 
 
-         }
+
+        }
 
         // #endregion
 

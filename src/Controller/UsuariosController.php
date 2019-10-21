@@ -13,6 +13,7 @@ use Cake\Mailer\Email;
 use Cake\I18n\Number;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 use Firebase\JWT\JWT;
 use Cake\Utility\Security;
 use Cake\Network\Exception\UnauthorizedException;
@@ -2071,6 +2072,8 @@ class UsuariosController extends AppController
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
+
+            // DebugUtil::printArray($usuarios->toArray());
 
             $arraySet = array("usuarios", "perfisUsuariosList");
 
