@@ -12,6 +12,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Cliente;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use stdClass;
 
 /**
  * Pontuacoes Controller
@@ -1062,13 +1063,25 @@ class PontuacoesController extends AppController
     public function getRelatorioMovimentacaoGotasAPI()
     {
         $sessao = $this->getSessionUserVariables();
+        $rede = $sessao["rede"];
+        $usuario = $sessao["usuarioLogado"];
+        $usuarioAdministrar = $sessao["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        $errors = [];
+        $errorCodes = [];
 
         try {
             if ($this->request->is(Request::METHOD_GET)) {
-                $data = $this->request->getData();
+                $data = $this->request->getQueryParams();
                 $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+                $gotasId = !empty($data["gotas_id"]) ? (int) $data["gotas_id"] : null;
                 $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
-
+                $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
 
                 if (empty($dataInicio)) {
                     $errors[] = MSG_DATE_BEGIN_EMPTY;
@@ -1090,7 +1103,7 @@ class PontuacoesController extends AppController
 
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
-                  // Periodo limite de filtro é 1 ano
+                // Periodo limite de filtro é 1 ano
                 if ($dataDiferenca->y >= 1) {
                     $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
                     $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
@@ -1105,15 +1118,43 @@ class PontuacoesController extends AppController
                     throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
 
+                $clientesIds = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($rede->id);
+
+                if (!empty($clientesId)) {
+                    $clientesIds = [$clientesId];
+                }
+
+                $list = [];
+                $totalGotas = 0;
+                $totalLitros = 0;
+
+                foreach ($clientesIds as $clientesIdItem) {
+                    $cliente = $this->Clientes->get($clientesIdItem);
+
+                    $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($cliente->id, $gotasId, $dataInicio, $dataFim, $tipoRelatorio);
+
+                    $item = new stdClass();
+                    $item->cliente = $cliente;
+                    $item->pontuacoes = $pontuacoes;
+
+                    $totalGotas += $pontuacoes->quantidade_gotas;
+                    $totalLitros += $pontuacoes->quantidade_litros;
 
 
+                    $list[] = $item;
+                }
 
+                $data = [
+                    "data" =>
+                    [
+                        "pontuacoes" => $list,
+                        "total_gotas" => $totalGotas,
+                        "total_litros" => $totalLitros,
+                    ]
+                ];
 
-                $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($clientesId, $gotasId, $dataInicio, $dataFim, $tipoRelatorio);
-
-
-
-             }
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            }
             //code...
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();

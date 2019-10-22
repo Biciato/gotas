@@ -728,8 +728,6 @@ class GotasController extends AppController
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
-            $mensagem = new Mensagem();
-
             if (empty($clientesId)) {
                 $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
                 $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
@@ -745,9 +743,8 @@ class GotasController extends AppController
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             } catch (\Throwable $th) {
-
                 for ($i = 0; $i < count($errors); $i++) {
-                    Log::write("error", sprintf("", $errorCodes[$i], $errors[$i]));
+                    Log::write("error", sprintf("[%s] %s: %s", MESSAGE_LOAD_EXCEPTION, $errorCodes[$i], $errors[$i]));
                 }
 
                 return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);

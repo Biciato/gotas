@@ -1244,12 +1244,18 @@ class PontuacoesTable extends GenericTable
                 $selectList[] = "Gotas.nome_parametro";
             }
 
-            return $this
+            $pontuacoes = $this
                 ->find("all")
                 ->where($whereConditions)
                 ->contain($join)
                 ->group($groupConditions)
                 ->select($selectList);
+
+            if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
+                return $pontuacoes->first();
+            } else {
+                return $pontuacoes;
+            }
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             $code = MESSAGE_LOAD_EXCEPTION_CODE;

@@ -88,6 +88,8 @@ $(function () {
             tipoRelatorio.on("change", tipoRelatorioOnChange);
 
             pesquisarBtn.on("click", function () {
+                dataInicio.change();
+                dataFim.change();
                 getRelatorioMovimentacaoGotas(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
             });
 
@@ -169,6 +171,7 @@ $(function () {
 
                 date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
                 form.dataInicio = date;
+                console.log(form);
             }
         }
 
@@ -353,14 +356,14 @@ $(function () {
          * @since 2019-09-12
          *
          * @param {int} clientesId Id do Cliente
-         * @param {int} brindesId id do Brinde
+         * @param {int} gotasId id de Gotas
          * @param {datetime} dataInicio Data Inicio
          * @param {datetime} dataFim DataFim
          * @param {string} tipoRelatorio Analítico / Sintético
          *
          * @returns HtmlTable
          */
-        function getRelatorioMovimentacaoGotas(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
+        function getRelatorioMovimentacaoGotas(clientesId, gotasId, dataInicio, dataFim, tipoRelatorio) {
             // Validação
             var dataInicioEnvio = moment(dataInicio);
             var dataFimEnvio = moment(dataFim);
@@ -379,7 +382,7 @@ $(function () {
 
             var data = {
                 clientes_id: clientesId,
-                brindes_id: brindesId,
+                gotas_id: gotasId,
                 data_inicio: dataInicioEnvio,
                 data_fim: dataFimEnvio,
                 tipo_relatorio: tipoRelatorio
@@ -395,9 +398,9 @@ $(function () {
                     imprimirBtn.removeClass("readonly");
                     imprimirBtn.on("click", imprimirRelatorio);
 
-                    var data = response.data.pontuacoes_report;
+                    var data = response.data;
 
-                    if (data.pontuacoes.length > 0) {
+                    if (data !== undefined) {
                         conteudoTabela.empty();
 
                         $(tabela).hide();
@@ -415,6 +418,7 @@ $(function () {
                             labelCliente.textContent = "Estabelecimento: ";
                             var cellLabelCliente = document.createElement("td");
                             cellLabelCliente.classList.add("font-weight-bold");
+                            cellLabelCliente.addClass("text-right");
                             cellLabelCliente.append(labelCliente);
 
                             var cellInfoCliente = document.createElement("td");
@@ -656,6 +660,8 @@ $(function () {
                         });
                     } else {
                         data.pontuacoes.forEach(element => {
+
+
                             // Dados do Estabelecimento
                             var rowCliente = document.createElement("tr");
 
@@ -673,138 +679,72 @@ $(function () {
                             rowCliente.append(cellLabelCliente);
                             rowCliente.append(cellInfoCliente);
 
-                            // Cabeçalho de periodo
+                            // Título de Pontuações
 
-                            var rowHeaderPeriodo = document.createElement("tr");
-                            var cellLabelPeriodo = document.createElement("td");
-                            var labelPeriodo = document.createElement("strong");
-                            labelPeriodo.textContent = "Período";
-                            cellLabelPeriodo.append(labelPeriodo);
+                            var rowHeaderQuantidades = document.createElement("tr");
+                            var cellHeaderQuantidadeGotas = document.createElement("td");
+                            var labelHeaderQuantidadeGotas = document.createElement("strong");
+                            labelHeaderQuantidadeGotas.textContent = "Quantidade de Gotas";
+                            cellHeaderQuantidadeGotas.append(labelHeaderQuantidadeGotas);
 
 
-                            var cellLabelEntrada = document.createElement("td");
-                            var labelEntrada = document.createElement("strong");
-                            labelEntrada.textContent = "Entrada";
-                            cellLabelEntrada.append(labelEntrada);
+                            var cellHeaderQuantidadeLitros = document.createElement("td");
+                            var labelHeaderQuantidadeLitros = document.createElement("strong");
+                            labelHeaderQuantidadeLitros.textContent = "Quantidade Litros";
+                            cellHeaderQuantidadeLitros.append(labelHeaderQuantidadeLitros);
 
-                            var cellLabelSaida = document.createElement("td");
-                            var labelSaida = document.createElement("strong");
-                            labelSaida.textContent = "Saida";
-                            cellLabelSaida.append(labelSaida);
+                            rowHeaderQuantidades.append(cellHeaderQuantidadeGotas);
+                            rowHeaderQuantidades.append(cellHeaderQuantidadeLitros);
 
-                            rowHeaderPeriodo.append(cellLabelPeriodo);
-                            rowHeaderPeriodo.append(cellLabelEntrada);
-                            rowHeaderPeriodo.append(cellLabelSaida);
+                            // Valores de Pontuações
 
-                            // Periodos e valores
+                            var rowSomaEstabelecimento = document.createElement("tr");
+                            var cellLabelQuantidadeGotas = document.createElement("td");
+                            var labelQuantidadeGotas = document.createElement("strong");
+                            var quantidadeGotas = parseFloat(element.pontuacoes.quantidade_gotas).toFixed(2);
+                            labelQuantidadeGotas.textContent = quantidadeGotas;
+                            cellLabelQuantidadeGotas.classList.add("text-right");
+                            cellLabelQuantidadeGotas.append(labelQuantidadeGotas);
 
-                            var pontuacoesEntradas = element.pontuacoes_entradas;
-                            var pontuacoesSaidas = element.pontuacoes_saidas;
-                            var length = pontuacoesEntradas;
-                            var rowsDadosPeriodos = [];
+                            var cellLabelQuantidadeLitros = document.createElement("strong");
+                            var quantidadeLitros = parseFloat(element.pontuacoes.quantidade_litros);
+                            cellLabelQuantidadeLitros.textContent = quantidadeLitros.toFixed(2);
+                            var cellQuantidadeLitros = document.createElement("td");
+                            cellQuantidadeLitros.classList.add("text-right");
+                            cellQuantidadeLitros.append(cellLabelQuantidadeLitros);
 
-                            for (let index = 0; index < length; index++) {
-                                var item = {
-                                    periodo: moment(pontuacoesEntradas[index].periodo, "YYYY-MM").format("MM/YYYY"),
-                                    gotasEntradas: pontuacoesEntradas[index].qte_gotas,
-                                    gotasSaidas: pontuacoesSaidas[index].qte_gotas
-                                };
-
-                                var rowPeriodo = document.createElement("tr");
-
-                                var labelItemPeriodo = document.createElement("span");
-                                labelItemPeriodo.textContent = item.periodo;
-
-                                var cellItemLabelPeriodo = document.createElement("td");
-                                cellItemLabelPeriodo.append(labelItemPeriodo);
-                                cellItemLabelPeriodo.classList.add("text-right");
-
-                                var textEntrada = document.createElement("span");
-                                textEntrada.textContent = item.gotasEntradas;
-
-                                var cellItemEntrada = document.createElement("td");
-                                cellItemEntrada.append(textEntrada);
-                                cellItemEntrada.classList.add("text-right");
-
-                                var textSaida = document.createElement("span");
-                                textSaida.textContent = item.gotasSaidas;
-
-                                var cellItemSaida = document.createElement("td");
-                                cellItemSaida.append(textSaida);
-                                cellItemSaida.classList.add("text-right");
-
-                                rowPeriodo.append(cellItemLabelPeriodo);
-                                rowPeriodo.append(cellItemEntrada);
-                                rowPeriodo.append(cellItemSaida);
-
-                                rowsDadosPeriodos.push(rowPeriodo);
-                            }
-
-                            // Linha de soma
-
-                            var rowSomaPeriodo = document.createElement("tr");
-
-                            var labelSomaPeriodo = document.createElement("span");
-                            labelSomaPeriodo.textContent = "Soma Estabelecimento";
-
-                            var cellLabelSomaPeriodo = document.createElement("td");
-                            cellLabelSomaPeriodo.append(labelSomaPeriodo);
-
-                            var textSomaPeriodoEntrada = document.createElement("span");
-                            textSomaPeriodoEntrada.textContent = element.soma_entradas;
-
-                            var cellTextSomaPeriodoEntrada = document.createElement("td");
-                            cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
-                            cellTextSomaPeriodoEntrada.classList.add("text-right");
-
-                            var textSomaPeriodoSaida = document.createElement("span");
-                            textSomaPeriodoSaida.textContent = element.soma_saidas;
-
-                            var cellTextSomaPeriodoSaida = document.createElement("td");
-                            cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
-                            cellTextSomaPeriodoSaida.classList.add("text-right");
-
-                            rowSomaPeriodo.append(cellLabelSomaPeriodo);
-                            rowSomaPeriodo.append(cellTextSomaPeriodoEntrada);
-                            rowSomaPeriodo.append(cellTextSomaPeriodoSaida);
+                            rowSomaEstabelecimento.append(cellLabelQuantidadeGotas);
+                            rowSomaEstabelecimento.append(cellQuantidadeLitros);
 
                             rows.push(rowCliente);
-                            rows.push(rowHeaderPeriodo);
-
-                            rowsDadosPeriodos.forEach(item => {
-                                rows.push(item);
-                            });
-
-                            rows.push(rowSomaPeriodo);
+                            rows.push(rowHeaderQuantidades);
+                            rows.push(rowSomaEstabelecimento);
                         });
 
-                        // Linha de soma total
+                        // Total
+
+                        // Valores de Pontuações
 
                         var rowTotal = document.createElement("tr");
-                        var cellLabelTotal = document.createElement("td");
-                        var labelTotal = document.createElement("strong");
+                        var cellTotalGotas = document.createElement("td");
+                        var labelTotalGotas = document.createElement("strong");
+                        var totalGotas = parseFloat(data.total_gotas).toFixed(2);
+                        labelTotalGotas.textContent = totalGotas;
+                        cellTotalGotas.classList.add("text-right");
+                        cellTotalGotas.append(labelTotalGotas);
 
-                        labelTotal.classList.add("text-bold");
-                        labelTotal.textContent = "Total";
-                        cellLabelTotal.append(labelTotal);
+                        var cellTotalLitros = document.createElement("strong");
+                        var totalLitros = parseFloat(data.total_litros);
+                        cellTotalLitros.textContent = totalLitros.toFixed(2);
+                        var labelTotalLitros = document.createElement("td");
+                        labelTotalLitros.classList.add("text-right");
+                        labelTotalLitros.append(cellTotalLitros);
 
-                        var textTotalEntradas = document.createElement("strong");
-                        textTotalEntradas.textContent = data.total_entradas;
-                        var cellTotalEntradas = document.createElement("td");
-                        cellTotalEntradas.classList.add("text-right");
-                        cellTotalEntradas.append(textTotalEntradas);
-
-                        var textTotalSaidas = document.createElement("strong");
-                        textTotalSaidas.textContent = data.total_saidas;
-                        var cellTotalSaidas = document.createElement("td");
-                        cellTotalSaidas.classList.add("text-right");
-                        cellTotalSaidas.append(textTotalSaidas);
-
-                        rowTotal.append(cellLabelTotal);
-                        rowTotal.append(cellTotalEntradas);
-                        rowTotal.append(cellTotalSaidas);
+                        rowTotal.append(cellTotalGotas);
+                        rowTotal.append(labelTotalLitros);
 
                         rows.push(rowTotal);
+
                     }
                     conteudoTabela.append(rows);
                 },
@@ -836,8 +776,6 @@ $(function () {
                     option.textContent = "<Todas>";
                     gotasSelectListBox.append(option);
 
-                    // gotas.push(gota);
-
                     response.data.gotas.forEach(element => {
 
                         var gota = {
@@ -860,9 +798,6 @@ $(function () {
                     callModalError(mensagem.message, mensagem.errors);
                 }
             });
-
-
-
         }
 
         // #endregion
