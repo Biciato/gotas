@@ -410,202 +410,218 @@ $(function () {
                     var rows = [];
 
                     if (form.tipoRelatorio == "Analítico") {
+
+                        console.log(response);
+
+                        // return;
                         data.pontuacoes.forEach(element => {
-                            // Dados do Estabelecimento
-                            var rowCliente = document.createElement("tr");
-
-                            var labelCliente = document.createElement("strong");
-                            labelCliente.textContent = "Estabelecimento: ";
-                            var cellLabelCliente = document.createElement("td");
-                            cellLabelCliente.classList.add("font-weight-bold");
-                            cellLabelCliente.addClass("text-right");
-                            cellLabelCliente.append(labelCliente);
-
-                            var cellInfoCliente = document.createElement("td");
-                            var infoCliente = document.createElement("strong");
-                            infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                            cellInfoCliente.colSpan = 6;
-                            cellInfoCliente.classList.add("text-right");
-
-                            cellInfoCliente.append(infoCliente);
-
-                            rowCliente.append(cellLabelCliente);
-                            rowCliente.append(cellInfoCliente);
-
-                            rows.push(rowCliente);
-
-                            // Fim dados Estabelecimento
-
                             // Linhas periodos
 
                             var rowsPeriodos = [];
-                            var pontuacoesLength = element.pontuacoes_entradas.length;
-                            var pontuacoesEntradas = element.pontuacoes_entradas;
-                            var pontuacoesSaidas = element.pontuacoes_saidas;
 
-                            for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
-                                var pontuacoesEntradaPeriodoList = pontuacoesEntradas[pontuacoesIndex];
-                                var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
+                            var periodos = element.periodos;
 
-                                var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
-                                var pontuacoesEntradaDataList = pontuacoesEntradaPeriodoList.data;
-                                var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
+                            // O Javascript é uma desgraça. se eu retorno um array com índices declaradas, ele entende como um object
 
-                                var mesAtual = '';
-                                var ultimaData = '';
+                            var periodosKeys = Object.keys(periodos);
 
-                                for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
-                                    var entrada = pontuacoesEntradaDataList[indexData];
-                                    var saida = pontuacoesSaidaDataList[indexData];
-                                    var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                            periodosKeys.forEach(periodoKey => {
+                                var periodo = periodos[periodoKey];
 
-                                    // O header deve ser construído se a data muda
-                                    if (ultimaData !== periodoAtual) {
-                                        ultimaData = periodoAtual;
-                                        // Linha que indica o cabeçalho dos períodos
-                                        var rowPeriodo = document.createElement("tr");
+                                var pontuacoesLength = periodo.pontuacoes.length;
 
-                                        var cellPeriodoLabel = document.createElement("td");
-                                        var labelPeriodo = document.createElement("strong");
-                                        labelPeriodo.textContent = "Data";
-                                        cellPeriodoLabel.append(labelPeriodo);
+                                periodo.pontuacoes.forEach(pontuacao => {
+                                    // Dados do Estabelecimento
+                                    var rowCliente = document.createElement("tr");
 
-                                        var cellPeriodoTextoLabel = document.createElement("td");
-                                        var labelPeriodoValue = document.createElement("strong");
+                                    var labelCliente = document.createElement("strong");
+                                    labelCliente.textContent = "Estabelecimento: ";
+                                    var cellLabelCliente = document.createElement("td");
+                                    cellLabelCliente.classList.add("font-weight-bold");
+                                    cellLabelCliente.addClass("text-right");
+                                    cellLabelCliente.append(labelCliente);
 
-                                        mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
-                                        labelPeriodoValue.textContent = periodoAtual;
-                                        cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                        cellPeriodoTextoLabel.colSpan = 6;
-                                        cellPeriodoTextoLabel.classList.add("text-right");
+                                    var cellInfoCliente = document.createElement("td");
+                                    var infoCliente = document.createElement("strong");
+                                    infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                                    cellInfoCliente.colSpan = 6;
+                                    cellInfoCliente.classList.add("text-right");
 
-                                        rowPeriodo.append(cellPeriodoLabel);
-                                        rowPeriodo.append(cellPeriodoTextoLabel);
+                                    cellInfoCliente.append(infoCliente);
 
-                                        rowsPeriodos.push(rowPeriodo);
+                                    rowCliente.append(cellLabelCliente);
+                                    rowCliente.append(cellInfoCliente);
 
-                                        // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
-                                        var headerDadosPeriodoRow = document.createElement("tr");
+                                    rows.push(rowCliente);
 
-                                        var cellLabelGota = document.createElement("td");
-                                        var textlabelGota = document.createElement("strong");
-                                        textlabelGota.textContent = "Gota:";
-                                        cellLabelGota.append(textlabelGota);
+                                    // Fim dados Estabelecimento
 
-                                        var cellLabelUsuarioEntrada = document.createElement("td");
-                                        var textUsuarioEntrada = document.createElement("strong");
-                                        textUsuarioEntrada.textContent = "Usuário:";
-                                        cellLabelUsuarioEntrada.append(textUsuarioEntrada);
 
-                                        var cellLabelGotasEntrada = document.createElement("td");
-                                        var textEntradaGotas = document.createElement("strong");
-                                        textEntradaGotas.textContent = "Gotas";
-                                        cellLabelGotasEntrada.append(textEntradaGotas);
+                                    var pontuacoesEntradaPeriodoList = pontuacoesEntradas[pontuacoesIndex];
+                                    var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
 
-                                        var cellLabelUsuarioSaida = document.createElement("td");
-                                        var textUsuarioSaida = document.createElement("strong");
-                                        textUsuarioSaida.textContent = "Usuário:";
-                                        cellLabelUsuarioSaida.append(textUsuarioSaida);
+                                    var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
+                                    var pontuacoesEntradaDataList = pontuacoesEntradaPeriodoList.data;
+                                    var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
 
-                                        var cellLabelBrindesSaida = document.createElement("td");
-                                        var textBrindesSaida = document.createElement("strong");
-                                        textBrindesSaida.textContent = "Brindes";
-                                        cellLabelBrindesSaida.append(textBrindesSaida);
+                                    var mesAtual = '';
+                                    var ultimaData = '';
 
-                                        var cellLabelGotasSaida = document.createElement("td");
-                                        var textSaidaGotas = document.createElement("strong");
-                                        textSaidaGotas.textContent = "Gotas";
-                                        cellLabelGotasSaida.append(textSaidaGotas);
+                                    for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
+                                        var entrada = pontuacoesEntradaDataList[indexData];
+                                        var saida = pontuacoesSaidaDataList[indexData];
+                                        var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
 
-                                        headerDadosPeriodoRow.append(document.createElement("td"));
-                                        headerDadosPeriodoRow.append(cellLabelGota);
-                                        headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
-                                        headerDadosPeriodoRow.append(cellLabelGotasEntrada);
-                                        headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
-                                        headerDadosPeriodoRow.append(cellLabelBrindesSaida);
-                                        headerDadosPeriodoRow.append(cellLabelGotasSaida);
+                                        // O header deve ser construído se a data muda
+                                        if (ultimaData !== periodoAtual) {
+                                            ultimaData = periodoAtual;
+                                            // Linha que indica o cabeçalho dos períodos
+                                            var rowPeriodo = document.createElement("tr");
 
-                                        rowsPeriodos.push(headerDadosPeriodoRow);
+                                            var cellPeriodoLabel = document.createElement("td");
+                                            var labelPeriodo = document.createElement("strong");
+                                            labelPeriodo.textContent = "Data";
+                                            cellPeriodoLabel.append(labelPeriodo);
+
+                                            var cellPeriodoTextoLabel = document.createElement("td");
+                                            var labelPeriodoValue = document.createElement("strong");
+
+                                            mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
+                                            labelPeriodoValue.textContent = periodoAtual;
+                                            cellPeriodoTextoLabel.append(labelPeriodoValue);
+                                            cellPeriodoTextoLabel.colSpan = 6;
+                                            cellPeriodoTextoLabel.classList.add("text-right");
+
+                                            rowPeriodo.append(cellPeriodoLabel);
+                                            rowPeriodo.append(cellPeriodoTextoLabel);
+
+                                            rowsPeriodos.push(rowPeriodo);
+
+                                            // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
+                                            var headerDadosPeriodoRow = document.createElement("tr");
+
+                                            var cellLabelGota = document.createElement("td");
+                                            var textlabelGota = document.createElement("strong");
+                                            textlabelGota.textContent = "Gota:";
+                                            cellLabelGota.append(textlabelGota);
+
+                                            var cellLabelUsuarioEntrada = document.createElement("td");
+                                            var textUsuarioEntrada = document.createElement("strong");
+                                            textUsuarioEntrada.textContent = "Usuário:";
+                                            cellLabelUsuarioEntrada.append(textUsuarioEntrada);
+
+                                            var cellLabelGotasEntrada = document.createElement("td");
+                                            var textEntradaGotas = document.createElement("strong");
+                                            textEntradaGotas.textContent = "Gotas";
+                                            cellLabelGotasEntrada.append(textEntradaGotas);
+
+                                            var cellLabelUsuarioSaida = document.createElement("td");
+                                            var textUsuarioSaida = document.createElement("strong");
+                                            textUsuarioSaida.textContent = "Usuário:";
+                                            cellLabelUsuarioSaida.append(textUsuarioSaida);
+
+                                            var cellLabelBrindesSaida = document.createElement("td");
+                                            var textBrindesSaida = document.createElement("strong");
+                                            textBrindesSaida.textContent = "Brindes";
+                                            cellLabelBrindesSaida.append(textBrindesSaida);
+
+                                            var cellLabelGotasSaida = document.createElement("td");
+                                            var textSaidaGotas = document.createElement("strong");
+                                            textSaidaGotas.textContent = "Gotas";
+                                            cellLabelGotasSaida.append(textSaidaGotas);
+
+                                            headerDadosPeriodoRow.append(document.createElement("td"));
+                                            headerDadosPeriodoRow.append(cellLabelGota);
+                                            headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
+                                            headerDadosPeriodoRow.append(cellLabelGotasEntrada);
+                                            headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
+                                            headerDadosPeriodoRow.append(cellLabelBrindesSaida);
+                                            headerDadosPeriodoRow.append(cellLabelGotasSaida);
+
+                                            rowsPeriodos.push(headerDadosPeriodoRow);
+                                        }
+
+                                        // Info de entrada
+                                        var row = document.createElement("tr");
+                                        var cellEmpty = document.createElement("td");
+
+                                        row.append(cellEmpty);
+
+                                        var cellEntradaGota = document.createElement("td");
+                                        var labelEntradaGota = document.createElement("span");
+                                        labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
+                                        cellEntradaGota.append(labelEntradaGota);
+
+                                        var cellEntradaUsuario = document.createElement("td");
+                                        var labelEntradaUsuario = document.createElement("span");
+                                        labelEntradaUsuario.textContent = entrada.usuario !== undefined ? entrada.usuario.nome : "";
+                                        cellEntradaUsuario.append(labelEntradaUsuario);
+
+                                        var cellEntradaQteGota = document.createElement("td");
+                                        var labelEntradaQteGota = document.createElement("span");
+                                        labelEntradaQteGota.textContent = entrada.qte_gotas;
+                                        cellEntradaQteGota.classList.add("text-right");
+                                        cellEntradaQteGota.append(labelEntradaQteGota);
+
+                                        // Info de Saida
+                                        var cellSaidaUsuario = document.createElement("td");
+                                        var labelSaidaUsuario = document.createElement("span");
+                                        labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
+                                        cellSaidaUsuario.append(labelSaidaUsuario);
+
+                                        var cellSaidaBrinde = document.createElement("td");
+                                        var labelSaidaBrinde = document.createElement("span");
+                                        labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
+                                        cellSaidaBrinde.append(labelSaidaBrinde);
+
+                                        var cellSaidaQteGota = document.createElement("td");
+                                        var labelSaidaQteGota = document.createElement("span");
+                                        labelSaidaQteGota.textContent = saida.qte_gotas;
+                                        cellSaidaQteGota.classList.add("text-right");
+                                        cellSaidaQteGota.append(labelSaidaQteGota);
+
+                                        row.append(cellEntradaGota);
+                                        row.append(cellEntradaUsuario);
+                                        row.append(cellEntradaQteGota);
+                                        row.append(cellSaidaUsuario);
+                                        row.append(cellSaidaBrinde);
+                                        row.append(cellSaidaQteGota);
+
+                                        rowsPeriodos.push(row);
                                     }
 
-                                    // Info de entrada
-                                    var row = document.createElement("tr");
-                                    var cellEmpty = document.createElement("td");
+                                    // Total periodo
 
-                                    row.append(cellEmpty);
+                                    var rowTotalPeriodo = document.createElement("tr");
+                                    var cellLabelTotal = document.createElement("td");
+                                    var labelTotal = document.createElement("strong");
 
-                                    var cellEntradaGota = document.createElement("td");
-                                    var labelEntradaGota = document.createElement("span");
-                                    labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
-                                    cellEntradaGota.append(labelEntradaGota);
+                                    labelTotal.textContent = "Total Período: " + mesAtual;
+                                    cellLabelTotal.append(labelTotal);
 
-                                    var cellEntradaUsuario = document.createElement("td");
-                                    var labelEntradaUsuario = document.createElement("span");
-                                    labelEntradaUsuario.textContent = entrada.usuario !== undefined ? entrada.usuario.nome : "";
-                                    cellEntradaUsuario.append(labelEntradaUsuario);
+                                    var cellLabelEntradaTotal = document.createElement("td");
+                                    var labelEntradaTotal = document.createElement("strong");
+                                    labelEntradaTotal.textContent = pontuacoesEntradaPeriodoList.soma_entradas;
+                                    cellLabelEntradaTotal.classList.add("text-right");
+                                    cellLabelEntradaTotal.colSpan = 3;
+                                    cellLabelEntradaTotal.append(labelEntradaTotal);
 
-                                    var cellEntradaQteGota = document.createElement("td");
-                                    var labelEntradaQteGota = document.createElement("span");
-                                    labelEntradaQteGota.textContent = entrada.qte_gotas;
-                                    cellEntradaQteGota.classList.add("text-right");
-                                    cellEntradaQteGota.append(labelEntradaQteGota);
+                                    var cellLabelSaidaTotal = document.createElement("td");
+                                    var labelSaidaTotal = document.createElement("strong");
+                                    labelSaidaTotal.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
+                                    cellLabelSaidaTotal.classList.add("text-right");
+                                    cellLabelSaidaTotal.colSpan = 3;
+                                    cellLabelSaidaTotal.append(labelSaidaTotal);
 
-                                    // Info de Saida
-                                    var cellSaidaUsuario = document.createElement("td");
-                                    var labelSaidaUsuario = document.createElement("span");
-                                    labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
-                                    cellSaidaUsuario.append(labelSaidaUsuario);
+                                    rowTotalPeriodo.append(cellLabelTotal);
+                                    rowTotalPeriodo.append(cellLabelEntradaTotal);
+                                    rowTotalPeriodo.append(cellLabelSaidaTotal);
 
-                                    var cellSaidaBrinde = document.createElement("td");
-                                    var labelSaidaBrinde = document.createElement("span");
-                                    labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
-                                    cellSaidaBrinde.append(labelSaidaBrinde);
-
-                                    var cellSaidaQteGota = document.createElement("td");
-                                    var labelSaidaQteGota = document.createElement("span");
-                                    labelSaidaQteGota.textContent = saida.qte_gotas;
-                                    cellSaidaQteGota.classList.add("text-right");
-                                    cellSaidaQteGota.append(labelSaidaQteGota);
-
-                                    row.append(cellEntradaGota);
-                                    row.append(cellEntradaUsuario);
-                                    row.append(cellEntradaQteGota);
-                                    row.append(cellSaidaUsuario);
-                                    row.append(cellSaidaBrinde);
-                                    row.append(cellSaidaQteGota);
-
-                                    rowsPeriodos.push(row);
+                                    rowsPeriodos.push(rowTotalPeriodo);
                                 }
 
-                                // Total periodo
+                            });
 
-                                var rowTotalPeriodo = document.createElement("tr");
-                                var cellLabelTotal = document.createElement("td");
-                                var labelTotal = document.createElement("strong");
-
-                                labelTotal.textContent = "Total Período: " + mesAtual;
-                                cellLabelTotal.append(labelTotal);
-
-                                var cellLabelEntradaTotal = document.createElement("td");
-                                var labelEntradaTotal = document.createElement("strong");
-                                labelEntradaTotal.textContent = pontuacoesEntradaPeriodoList.soma_entradas;
-                                cellLabelEntradaTotal.classList.add("text-right");
-                                cellLabelEntradaTotal.colSpan = 3;
-                                cellLabelEntradaTotal.append(labelEntradaTotal);
-
-                                var cellLabelSaidaTotal = document.createElement("td");
-                                var labelSaidaTotal = document.createElement("strong");
-                                labelSaidaTotal.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
-                                cellLabelSaidaTotal.classList.add("text-right");
-                                cellLabelSaidaTotal.colSpan = 3;
-                                cellLabelSaidaTotal.append(labelSaidaTotal);
-
-                                rowTotalPeriodo.append(cellLabelTotal);
-                                rowTotalPeriodo.append(cellLabelEntradaTotal);
-                                rowTotalPeriodo.append(cellLabelSaidaTotal);
-
-                                rowsPeriodos.push(rowTotalPeriodo);
-                            }
 
                             if (pontuacoesLength == 0) {
                                 // Se não teve registro, adiciona uma linha informando que não teve movimentação

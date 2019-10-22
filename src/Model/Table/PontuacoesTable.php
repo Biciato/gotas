@@ -2,13 +2,10 @@
 
 namespace App\Model\Table;
 
-use ArrayObject;
 use Cake\Core\Configure;
-use Cake\Event\Event;
 use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
@@ -86,6 +83,15 @@ class PontuacoesTable extends GenericTable
                 "foreignKey" => "brindes_id",
                 'joinType' => Query::JOIN_TYPE_LEFT
                 // 'joinType' => Query::JOIN_TYPE_INNER
+            ]
+        );
+
+        $this->belongsTo(
+            "Funcionarios",
+            [
+                "className" => "usuarios",
+                "foreignKey" => "funcionarios_id",
+                "joinType" => Query::JOIN_TYPE_INNER
             ]
         );
 
@@ -1188,39 +1194,13 @@ class PontuacoesTable extends GenericTable
     {
         try {
             $whereConditions = [];
-            $groupConditions = [];
-
-            $selectList = [
-                "quantidade_litros" => "SUM(Pontuacoes.quantidade_multiplicador)",
-                "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
-            ];
-
-            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                $groupConditions = [
-                    "periodo",
-                    "Pontuacoes.clientes_id",
-                    "Clientes.id"
-                ];
-            }
-
-            $join = [];
-            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                // $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
-                // $selectList[] = "Brindes.nome";
-
-                $join = [
-                    "Gotas",
-                    "Usuarios",
-                    "Clientes",
-                    "Brindes"
-                ];
-            }
-
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
             $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
 
             if (!empty($gotasId)) {
                 $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
+            } else {
+                $whereConditions[] = ["Pontuacoes.gotas_id IS NOT NULL"];
             }
 
             if (!empty($dataInicio)) {
@@ -1231,17 +1211,46 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
+            $order = [];
+            $groupConditions = [];
+
+            $selectList = [
+                "quantidade_litros" => "SUM(Pontuacoes.quantidade_multiplicador)",
+                "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
+            ];
+
+            $join = [];
+
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                // @todo À fazer
-                $groupConditions[] = "Brindes.id";
-                $groupConditions[] = "Usuarios.id";
-                $groupConditions[] = "Gotas.id";
-                $selectList[] = "Brindes.id";
-                $selectList[] = "Brindes.nome";
-                $selectList[] = "Usuarios.id";
-                $selectList[] = "Usuarios.nome";
-                $selectList[] = "Gotas.id";
-                $selectList[] = "Gotas.nome_parametro";
+                $selectList = [
+                    "quantidade_litros" => "SUM(Pontuacoes.quantidade_multiplicador)",
+                    "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                    "Gotas.nome_parametro",
+                    "Funcionarios.id",
+                    "Funcionarios.nome",
+                    "Funcionarios.email",
+                    "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
+                    // "Pontuacoes.data"
+
+                ];
+
+                $join = [
+                    "Gotas",
+                    "Usuarios",
+                    "Brindes",
+                    "Funcionarios"
+                ];
+
+                $groupConditions = [
+                    "Pontuacoes.funcionarios_id",
+                    "Gotas.id",
+                    "data_formatada"
+                ];
+
+                $order = [
+                    "data_formatada" => "DESC",
+                    "Funcionarios.nome" => "ASC"
+                ];
             }
 
             $pontuacoes = $this
@@ -1249,7 +1258,8 @@ class PontuacoesTable extends GenericTable
                 ->where($whereConditions)
                 ->contain($join)
                 ->group($groupConditions)
-                ->select($selectList);
+                ->select($selectList)
+                ->order($order);
 
             if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
                 return $pontuacoes->first();

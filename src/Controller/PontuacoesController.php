@@ -5,6 +5,7 @@ namespace App\Controller;
 use \DateTime;
 use \Exception;
 use App\Controller\AppController;
+use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
 use Cake\Core\Configure;
 use Cake\Event\Event;
@@ -1135,11 +1136,55 @@ class PontuacoesController extends AppController
 
                     $item = new stdClass();
                     $item->cliente = $cliente;
-                    $item->pontuacoes = $pontuacoes;
 
-                    $totalGotas += $pontuacoes->quantidade_gotas;
-                    $totalLitros += $pontuacoes->quantidade_litros;
+                    $pontuacoesTemp = [];
 
+                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                        $dataAgrupamento = "";
+                        $somaGotas = 0;
+                        $somaLitros = 0;
+                        $somaPeriodo = [];
+
+                        foreach ($pontuacoes as $pontuacao) {
+                            $dataAgrupamento = $pontuacao->data_formatada;
+                            $pontuacoesTemp[$dataAgrupamento]["pontuacoes"][] = $pontuacao;
+                            $somaPeriodo[$dataAgrupamento]["soma_gotas"] = 0;
+                            $somaPeriodo[$dataAgrupamento]["soma_litros"] = 0;
+
+                            $somaGotas += $pontuacao->quantidade_gotas;
+                            $somaLitros += $pontuacao->quantidade_litros;
+                        }
+
+                        $totalGotas += $somaGotas;
+                        $totalLitros += $somaLitros;
+
+                        $somaGotas = 0;
+                        $somaLitros = 0;
+
+                        foreach ($pontuacoesTemp as $pontuacao) {
+                            foreach ($pontuacao["pontuacoes"] as $pontuacaoData) {
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_gotas"] += $pontuacaoData->quantidade_gotas;
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_litros"] += $pontuacaoData->quantidade_litros;
+                            }
+                        }
+
+                        foreach ($somaPeriodo as $periodo => $soma) {
+                            $pontuacoesTemp[$periodo]["soma_gotas"] = $soma["soma_gotas"];
+                            $pontuacoesTemp[$periodo]["soma_litros"] = $soma["soma_litros"];
+                        }
+                    }
+
+                    if (count($pontuacoesTemp) > 0) {
+                        $pontuacoes = $pontuacoesTemp;
+                    }
+
+                    if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
+                        $totalGotas += $pontuacoes->quantidade_gotas;
+                        $totalLitros += $pontuacoes->quantidade_litros;
+                        $item->pontuacoes = $pontuacoes;
+                    } else {
+                        $item->periodos = $pontuacoes;
+                    }
 
                     $list[] = $item;
                 }
@@ -1155,7 +1200,6 @@ class PontuacoesController extends AppController
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             }
-            //code...
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
             $errorCode = $th->getCode();
