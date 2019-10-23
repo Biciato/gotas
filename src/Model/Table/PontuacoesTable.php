@@ -1223,8 +1223,9 @@ class PontuacoesTable extends GenericTable
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                 $selectList = [
-                    "quantidade_litros" => "SUM(Pontuacoes.quantidade_multiplicador)",
+                    "quantidade_litros" => "ROUND(SUM(Pontuacoes.quantidade_multiplicador), 2)",
                     "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                    "quantidade_reais" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)",
                     "Gotas.nome_parametro",
                     "Funcionarios.id",
                     "Funcionarios.nome",

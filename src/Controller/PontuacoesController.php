@@ -1119,7 +1119,7 @@ class PontuacoesController extends AppController
                     throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
                 }
 
-                $clientesIds = $this->RedesHasClientes->getAllRedesHasClientesIdsByRedesId($rede->id);
+                $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
 
                 if (!empty($clientesId)) {
                     $clientesIds = [$clientesId];
@@ -1128,6 +1128,7 @@ class PontuacoesController extends AppController
                 $list = [];
                 $totalGotas = 0;
                 $totalLitros = 0;
+                $totalReais = 0;
 
                 foreach ($clientesIds as $clientesIdItem) {
                     $cliente = $this->Clientes->get($clientesIdItem);
@@ -1138,11 +1139,15 @@ class PontuacoesController extends AppController
                     $item->cliente = $cliente;
 
                     $pontuacoesTemp = [];
+                    $estabelecimentoGotas = 0;
+                    $estabelecimentoLitros = 0;
+                    $estabelecimentoReais = 0;
 
                     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                         $dataAgrupamento = "";
                         $somaGotas = 0;
                         $somaLitros = 0;
+                        $somaReais = 0;
                         $somaPeriodo = [];
 
                         foreach ($pontuacoes as $pontuacao) {
@@ -1150,27 +1155,37 @@ class PontuacoesController extends AppController
                             $pontuacoesTemp[$dataAgrupamento]["pontuacoes"][] = $pontuacao;
                             $somaPeriodo[$dataAgrupamento]["soma_gotas"] = 0;
                             $somaPeriodo[$dataAgrupamento]["soma_litros"] = 0;
+                            $somaPeriodo[$dataAgrupamento]["soma_reais"] = 0;
 
                             $somaGotas += $pontuacao->quantidade_gotas;
                             $somaLitros += $pontuacao->quantidade_litros;
+                            $somaReais += $pontuacao->quantidade_reais;
                         }
+
+                        $estabelecimentoGotas += $somaGotas;
+                        $estabelecimentoLitros += $somaLitros;
+                        $estabelecimentoReais += $somaReais;
 
                         $totalGotas += $somaGotas;
                         $totalLitros += $somaLitros;
+                        $totalReais += $somaReais;
 
                         $somaGotas = 0;
                         $somaLitros = 0;
+                        $somaReais = 0;
 
                         foreach ($pontuacoesTemp as $pontuacao) {
                             foreach ($pontuacao["pontuacoes"] as $pontuacaoData) {
                                 $somaPeriodo[$pontuacaoData->data_formatada]["soma_gotas"] += $pontuacaoData->quantidade_gotas;
                                 $somaPeriodo[$pontuacaoData->data_formatada]["soma_litros"] += $pontuacaoData->quantidade_litros;
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_reais"] += $pontuacaoData->quantidade_reais;
                             }
                         }
 
                         foreach ($somaPeriodo as $periodo => $soma) {
                             $pontuacoesTemp[$periodo]["soma_gotas"] = $soma["soma_gotas"];
                             $pontuacoesTemp[$periodo]["soma_litros"] = $soma["soma_litros"];
+                            $pontuacoesTemp[$periodo]["soma_reais"] = $soma["soma_reais"];
                         }
                     }
 
@@ -1181,9 +1196,14 @@ class PontuacoesController extends AppController
                     if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
                         $totalGotas += $pontuacoes->quantidade_gotas;
                         $totalLitros += $pontuacoes->quantidade_litros;
+                        $totalReais += $pontuacoes->quantidade_reais;
                         $item->pontuacoes = $pontuacoes;
                     } else {
                         $item->periodos = $pontuacoes;
+
+                        $item->estabelecimento_gotas = $estabelecimentoGotas;
+                        $item->estabelecimento_litros = $estabelecimentoLitros;
+                        $item->estabelecimento_reais = $estabelecimentoReais;
                     }
 
                     $list[] = $item;
@@ -1195,6 +1215,7 @@ class PontuacoesController extends AppController
                         "pontuacoes" => $list,
                         "total_gotas" => $totalGotas,
                         "total_litros" => $totalLitros,
+                        "total_reais" => $totalReais,
                     ]
                 ];
 
