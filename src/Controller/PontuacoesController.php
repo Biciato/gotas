@@ -1080,6 +1080,7 @@ class PontuacoesController extends AppController
                 $data = $this->request->getQueryParams();
                 $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
                 $gotasId = !empty($data["gotas_id"]) ? (int) $data["gotas_id"] : null;
+                $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
                 $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
                 $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
@@ -1133,7 +1134,7 @@ class PontuacoesController extends AppController
                 foreach ($clientesIds as $clientesIdItem) {
                     $cliente = $this->Clientes->get($clientesIdItem);
 
-                    $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($cliente->id, $gotasId, $dataInicio, $dataFim, $tipoRelatorio);
+                    $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio);
 
                     $item = new stdClass();
                     $item->cliente = $cliente;

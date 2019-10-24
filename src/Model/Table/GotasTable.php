@@ -451,8 +451,13 @@ class GotasTable extends GenericTable
                 $where[] = ["Gotas.tipo_cadastro" => $tipoCadastro];
             }
 
+            $orderBy = [
+                "Gotas.nome_parametro" => "ASC"
+            ];
+
             return $this->find("all")
-                ->where($where);
+                ->where($where)
+                ->order($orderBy);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);

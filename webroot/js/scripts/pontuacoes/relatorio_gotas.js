@@ -58,40 +58,35 @@ $(function () {
         // #region Functions
 
         function init() {
+            conteudoTabela.empty();
             var option = document.createElement("option");
             option.value = undefined;
             option.textContent = "Selecione um Estabelecimento para continuar...";
             option.title = "Selecione um Estabelecimento para continuar...";
 
-            funcionariosSelectListBox.empty();
-            funcionariosSelectListBox.append(option);
-
-            // Inicializa campos date
-            dataInicio.datepicker().datepicker("setDate", dataAtual);
-            dataFim.datepicker().datepicker("setDate", dataAtual);
-
-            // Dispara todos os eventos que precisam de inicializar
-            tipoRelatorioOnChange();
-            getClientesList();
-
             // #region Bindings
 
+            funcionariosSelectListBox.empty();
+            funcionariosSelectListBox.append(option);
             funcionariosSelectListBox.unbind("change");
             funcionariosSelectListBox.on("change", funcionariosSelectListBoxOnChange);
+            funcionariosSelectListBox.change();
             clientesSelectListBox.unbind("change");
             clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
+            clientesSelectListBox.change();
             dataInicio.unbind("change");
             dataInicio.on("change", dataInicioOnChange);
             dataFim.unbind("change");
             dataFim.on("change", dataFimOnChange);
             tipoRelatorio.unbind("change");
+            tipoRelatorio.val("Sintético");
             tipoRelatorio.on("change", tipoRelatorioOnChange);
 
             pesquisarBtn.unbind("click");
             pesquisarBtn.on("click", function () {
                 dataInicio.change();
                 dataFim.change();
-                getRelatorioMovimentacaoGotas(form.clientesId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio);
+                getRelatorioMovimentacaoGotas(form.clientesId, form.gotasId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio);
             });
 
             reiniciarBtn.unbind("click");
@@ -107,6 +102,14 @@ $(function () {
             gotasSelectListBox.on("change", gotasSelectlistBoxOnChange);
 
             // #endregion
+
+            // Inicializa campos date
+            dataInicio.datepicker().datepicker("setDate", dataAtual);
+            dataFim.datepicker().datepicker("setDate", dataAtual);
+
+            // Dispara todos os eventos que precisam de inicializar
+            tipoRelatorioOnChange();
+            getClientesList();
 
             // Desabilita botão de imprimir até que usuário faça alguma consulta
             imprimirBtn.addClass("disabled");
@@ -129,6 +132,10 @@ $(function () {
 
             funcionario = isNaN(funcionario) ? undefined : funcionario;
             form.funcionariosId = funcionario;
+
+            if (funcionario !== undefined) {
+                funcionariosSelectedItem = funcionarios.find(x => x.id == funcionario);
+            }
         }
 
         /**
@@ -185,7 +192,20 @@ $(function () {
         }
 
         function gotasSelectlistBoxOnChange() {
-            form.gotasId = gotasSelectedItem;
+            var gota = parseInt(this.value);
+
+            gota = isNaN(gota) ? 0 : gota;
+
+            if (gota > 0) {
+                gotasSelectedItem = gotas.find(x => x.id === gota);
+                form.gotasId = gotasSelectedItem.id;
+            } else {
+                form.gotasId = undefined;
+                gotasSelectedItem = {};
+            }
+
+            console.log(form);
+            console.log(gotasSelectedItem);
         }
 
         /**
@@ -261,6 +281,75 @@ $(function () {
         // #region Get / Set REST Services
 
         /**
+         * webroot\js\scripts\gotas\relatorio_gotas.js::getClientesList
+         *
+         * Obtem lista de clientes disponível para seleção
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-09-06
+         *
+         * return SelectListBox
+         */
+        function getClientesList() {
+            $.ajax({
+                type: "GET",
+                url: "/api/clientes/get_clientes_list",
+                data: {},
+                dataType: "JSON",
+                success: function (res) {
+                    if (res.data.clientes.length > 0) {
+                        clientes = [];
+                        clientesSelectListBox.empty();
+
+                        var cliente = {
+                            id: undefined,
+                            nomeFantasia: "Todos"
+                        };
+
+                        clientes.push(cliente);
+                        clientesSelectListBox.prop("disabled", false);
+
+                        res.data.clientes.forEach(cliente => {
+                            var cliente = {
+                                id: cliente.id,
+                                nomeFantasia: cliente.nome_fantasia
+                            };
+
+                            clientes.push(cliente);
+                        });
+
+                        clientes.forEach(cliente => {
+                            var option = document.createElement("option");
+                            option.value = cliente.id;
+                            option.textContent = cliente.nomeFantasia;
+
+                            clientesSelectListBox.append(option);
+                        });
+
+                        // Se só tem 2 registros, significa que
+                        if (clientes.length == 2) {
+                            clientesSelectedItem = clientes[1];
+
+                            // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
+                            clientesSelectListBox.prop("disabled", true);
+                        }
+
+                        if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
+                            clientesSelectListBox.val(clientesSelectedItem.id);
+                        }
+                    }
+                },
+                error: function (response) {
+                    var data = response.responseJSON;
+                    callModalError(data.mensagem.message, data.mensagem.error);
+                },
+                complete: function () {
+                    clientesSelectListBox.change();
+                }
+            });
+        }
+
+        /**
          * webroot\js\scripts\pontuacoes\relatorio_gotas.js::getFuncionariosList
          *
          * Obtem lista de Funcionários do posto(s) selecionado(s)
@@ -320,70 +409,6 @@ $(function () {
         }
 
         /**
-         * webroot\js\scripts\gotas\relatorio_gotas.js::getClientesList
-         *
-         * Obtem lista de clientes disponível para seleção
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-09-06
-         *
-         * return SelectListBox
-         */
-        function getClientesList() {
-            $.ajax({
-                type: "GET",
-                url: "/api/clientes/get_clientes_list",
-                data: {},
-                dataType: "JSON",
-                success: function (res) {
-                    if (res.data.clientes.length > 0) {
-                        clientes = [];
-                        clientesSelectListBox.empty();
-
-                        var option = document.createElement("option");
-                        option.value = undefined;
-                        option.textContent = "Todos";
-
-                        clientes.push(option);
-
-                        clientesSelectListBox.append(option);
-
-                        res.data.clientes.forEach(cliente => {
-                            var cliente = {
-                                id: cliente.id,
-                                nomeFantasia: cliente.nome_fantasia
-                            };
-
-                            var option = document.createElement("option");
-                            option.value = cliente.id;
-                            option.textContent = cliente.nomeFantasia;
-
-                            clientes.push(cliente);
-
-                            clientesSelectListBox.append(option);
-                        });
-                        clientesSelectedItem = clientes.find(x => x.id == clientesSelectListBox.val());
-
-                        if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
-                            clientesSelectListBox.val(clientesSelectedItem.id);
-                        }
-
-                        // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                        if (clientes.length == 2) {
-                            clientesSelectListBox.prop("disabled", true);
-                        }
-                    }
-
-
-                },
-                error: function (response) {
-                    var data = response.responseJSON;
-                    callModalError(data.mensagem.message, data.mensagem.error);
-                }
-            });
-        }
-
-        /**
          * webroot\js\scripts\pontuacoes\relatorio_gotas.js::getDataPontuacoesEntradaSaida
          *
          * Obtem os dados de relatório do servidor
@@ -393,13 +418,14 @@ $(function () {
          *
          * @param {int} clientesId Id do Cliente
          * @param {int} gotasId id de Gotas
+         * @param {int} funcionariosId Id de Funcionario
          * @param {datetime} dataInicio Data Inicio
          * @param {datetime} dataFim DataFim
          * @param {string} tipoRelatorio Analítico / Sintético
          *
          * @returns HtmlTable
          */
-        function getRelatorioMovimentacaoGotas(clientesId, gotasId, dataInicio, dataFim, tipoRelatorio) {
+        function getRelatorioMovimentacaoGotas(clientesId, gotasId, funcionariosId, dataInicio, dataFim, tipoRelatorio) {
             // Validação
             var dataInicioEnvio = moment(dataInicio);
             var dataFimEnvio = moment(dataFim);
@@ -419,6 +445,7 @@ $(function () {
             var data = {
                 clientes_id: clientesId,
                 gotas_id: gotasId,
+                funcionarios_id: funcionariosId,
                 data_inicio: dataInicioEnvio,
                 data_fim: dataFimEnvio,
                 tipo_relatorio: tipoRelatorio
@@ -458,6 +485,10 @@ $(function () {
                             cell.classList.add("text-center");
                             rowEmpty.append(cell);
                             rows.push(rowEmpty);
+
+                            imprimirBtn.addClass("disabled");
+                            imprimirBtn.addClass("readonly");
+                            imprimirBtn.unbind("click");
 
                         } else {
                             data.pontuacoes.forEach(element => {
@@ -607,7 +638,8 @@ $(function () {
 
                                             var cellQteLitros = document.createElement("td");
                                             var textQteLitros = document.createElement("span");
-                                            textQteLitros.textContent = pontuacao.quantidade_litros;
+                                            var qteLitros = parseFloat(pontuacao.quantidade_litros);
+                                            textQteLitros.textContent = qteLitros.toFixed(2);
                                             cellQteLitros.classList.add("text-right");
                                             cellQteLitros.append(textQteLitros);
 
@@ -650,7 +682,8 @@ $(function () {
 
                                         var cellSomaLitros = document.createElement("td");
                                         var textSomaLitros = document.createElement("strong");
-                                        textSomaLitros.textContent = periodo.soma_litros;
+                                        var somaLitros = parseFloat(periodo.soma_litros);
+                                        textSomaLitros.textContent = somaLitros.toFixed(2);
                                         cellSomaLitros.classList.add("text-right");
                                         cellSomaLitros.append(textSomaLitros);
 
@@ -665,11 +698,9 @@ $(function () {
                                         rowTotalPeriodo.append(cellSomaLitros);
                                         rowTotalPeriodo.append(cellSomaReais);
 
-
                                         rows.push(rowTotalPeriodo);
 
                                         //#endregion
-
                                     });
                                 }
 
@@ -693,7 +724,8 @@ $(function () {
 
                                     var cellTotalLitros = document.createElement("td");
                                     var textTotalLitros = document.createElement("strong");
-                                    textTotalLitros.textContent = element.estabelecimento_litros !== undefined ? element.estabelecimento_litros : 0;
+                                    var estabelecimentoLitros = element.estabelecimento_litros !== undefined ? parseFloat(element.estabelecimento_litros) : 0;
+                                    textTotalLitros.textContent = estabelecimentoLitros.toFixed(2);
                                     cellTotalLitros.classList.add("text-right");
                                     cellTotalLitros.append(textTotalLitros);
 
@@ -740,7 +772,8 @@ $(function () {
 
                             var cellTotalLitros = document.createElement("td");
                             var textTotalLitros = document.createElement("strong");
-                            textTotalLitros.textContent = data.total_litros !== undefined ? data.total_litros : 0;
+                            var totalLitros = data.total_litros !== undefined ? parseFloat(data.total_litros) : 0;
+                            textTotalLitros.textContent = totalLitros.toFixed(2);
                             cellTotalLitros.classList.add("text-right");
                             cellTotalLitros.append(textTotalLitros);
 
@@ -778,6 +811,10 @@ $(function () {
                             cell.classList.add("text-center");
                             rowEmpty.append(cell);
                             rows.push(rowEmpty);
+
+                            imprimirBtn.addClass("disabled");
+                            imprimirBtn.addClass("readonly");
+                            imprimirBtn.unbind("click");
 
                         } else {
                             data.pontuacoes.forEach(element => {
