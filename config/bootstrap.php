@@ -301,6 +301,9 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
 
+const MSG_MAX_FILTER_TIME_ONE_MONTH = "Período máximo de filtro permitido é 1 (UM) mês!";
+const MSG_MAX_FILTER_TIME_ONE_MONTH_CODE = 0x00000016;
+
 const MSG_MAX_FILTER_TIME_ONE_YEAR = "Período máximo de filtro permitido é 1 (UM) ano!";
 const MSG_MAX_FILTER_TIME_ONE_YEAR_CODE = 0x0000000D;
 
@@ -332,12 +335,12 @@ const MSG_ERROR = "Erro!";
 const MSG_WARNING = "Atenção!";
 
 // Erros
-const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
-const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
+const MSG_LOAD_EXCEPTION_CODE = 0x00000004;
+const MSG_LOAD_EXCEPTION = "Exceção ao obter dados!";
 const MESSAGE_SAVED_EXCEPTION_CODE = 0x00000005;
 const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
-const MESSAGE_DELETE_EXCEPTION_CODE = 0x00000006;
-const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
+const MSG_DELETE_EXCEPTION_CODE = 0x00000006;
+const MSG_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 

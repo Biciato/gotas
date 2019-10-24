@@ -284,12 +284,14 @@ class ClientesController extends AppController
     {
         try {
             $arraySet = array('cliente', "redesId");
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-            if ($usuarioAdministrador) {
-                $this->usuarioLogado = $usuarioAdministrar;
+            if ($usuarioAdministrar) {
+                $usuarioLogado = $usuarioAdministrar;
+                $this->usuarioLogado = $usuarioLogado;
             }
 
             $cliente = $this->Clientes->getClienteById($id);
@@ -775,10 +777,10 @@ class ClientesController extends AppController
 
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 

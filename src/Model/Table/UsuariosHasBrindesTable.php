@@ -269,9 +269,9 @@ class UsuariosHasBrindesTable extends GenericTable
                 ->contain(['Cliente', 'Usuarios'])
                 ->first();
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
-            throw new Exception($message, MESSAGE_LOAD_EXCEPTION_CODE);
+            throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
         }
     }
 
@@ -296,15 +296,15 @@ class UsuariosHasBrindesTable extends GenericTable
                 ->where(['clientes_id in' => $clientesIds])
                 ->select(['id']);
 
-            $clientes_has_brindes_habilitados_ids = [];
+            $brindesIds = [];
 
             foreach ($brindesClientesIds as $key => $value) {
-                array_push($clientes_has_brindes_habilitados_ids, $value['id']);
+                array_push($brindesIds, $value['id']);
             }
 
-            if (sizeof($clientes_has_brindes_habilitados_ids) > 0) {
+            if (sizeof($brindesIds) > 0) {
                 return $this
-                    ->deleteAll(['clientes_has_brindes_habilitados_id in' => $clientes_has_brindes_habilitados_ids]);
+                    ->deleteAll(['brindes_id in' => $brindesIds]);
             } else {
                 return true;
             }

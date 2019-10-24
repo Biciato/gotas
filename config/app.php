@@ -374,14 +374,14 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'debug',
-            'levels' => ['notice', 'info', 'debug'],
+            'levels' => ['notice', 'info', 'debug', "error"],
             'url' => env('LOG_DEBUG_URL', null),
         ],
         'error' => [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'error',
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'levels' => ['error', 'critical', 'alert', 'emergency'],
             'url' => env('LOG_ERROR_URL', null),
         ],
         'info' => [
@@ -392,6 +392,13 @@ return [
             'url' => env('LOG_ERROR_URL', null),
         ],
 
+        // 'trace' => [
+        //     'className' => 'Cake\Log\Engine\FileLog',
+        //     'path' => LOGS,
+        //     'file' => 'trace',
+        //     'levels' => ["trace", "error", "debug", "info", "warning"],
+        //     'url' => env('LOG_ERROR_URL', null),
+        // ],
 
         // guardar todas as queries executadas em log
         'queries' => [

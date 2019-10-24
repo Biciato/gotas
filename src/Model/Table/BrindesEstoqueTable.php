@@ -360,7 +360,7 @@ class BrindesEstoqueTable extends GenericTable
     {
         try {
 
-            
+
             $brindesId = $this->Brindes->find('all')
                 ->where(array('clientes_id in' => $clientesIds))->select(array("id"));
 
@@ -380,7 +380,7 @@ class BrindesEstoqueTable extends GenericTable
             $trace = $e->getTraceAsString();
             $object = null;
 
-            $stringError = sprintf("[%s] %s", MESSAGE_DELETE_EXCEPTION, $e->getMessage());
+            $stringError = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $e->getMessage());
 
             Log::write('error', $stringError);
             throw new Exception($stringError);

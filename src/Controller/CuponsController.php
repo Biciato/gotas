@@ -444,6 +444,8 @@ class CuponsController extends AppController
 
         $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
+        // DebugUtil::printArray($unidadesAtendimento);
+
         foreach ($unidadesAtendimento as $key => $value) {
             $clientesIds[] = $key;
         }
@@ -483,10 +485,12 @@ class CuponsController extends AppController
 
             if (!empty($dataInicio)) {
                 $dataInicioPesquisa = date_format(date_create_from_format("d/m/Y", $dataInicio), "Y-m-d");
+                $dataInicioPesquisa = $dataInicioPesquisa . " 00:00:00";
             }
 
             if (!empty($dataFim)) {
                 $dataFimPesquisa = date_format(date_create_from_format("d/m/Y", $dataFim), "Y-m-d");
+                $dataFimPesquisa = $dataFimPesquisa . " 23:59:59";
             }
         }
 
@@ -513,10 +517,10 @@ class CuponsController extends AppController
 
         $cupons = array();
         // @todo ajustar
-        // $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
+        $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
 
         // Paginação
-        // $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
+        $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
         $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
         $this->set(compact($arraySet));
@@ -545,6 +549,8 @@ class CuponsController extends AppController
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $cupom = $this->Cupons->getCuponsById($id);
+
+        // DebugUtil::printArray($cupom);
 
         $this->set(compact(['cupom']));
     }

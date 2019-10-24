@@ -296,6 +296,10 @@ class RedesController extends AppController
             if (sizeof($clientesIds) > 0) {
                 // Usuários Has Brindes
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+
+
+                // Remoção de Transaçoes de cupons
+                $this->CuponsTransacoes->deleteAllByRedesId($rede->id);
                 // Remoção de Cupons
                 $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
 
@@ -335,6 +339,7 @@ class RedesController extends AppController
                 // Remove a unidade de rede
                 $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
 
+                // Remove todos os horários para não dar erro de chave em cupons
                 foreach ($clientesIds as $clienteId) {
                     $this->ClientesHasQuadroHorario->deleteHorariosCliente($clienteId);
                 }

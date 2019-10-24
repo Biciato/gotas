@@ -116,7 +116,7 @@ class CategoriasBrindesTable extends GenericTable
 
             return $this->find("list")->where($where);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }
@@ -138,7 +138,7 @@ class CategoriasBrindesTable extends GenericTable
                     "CategoriasBrindes.nome" => "ASC"
                 ]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }
