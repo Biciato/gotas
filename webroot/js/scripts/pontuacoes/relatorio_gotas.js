@@ -99,7 +99,7 @@ $(function () {
             option.value = null;
             option.textContent = "<Selecione um Estabelecimento para continuar>";
             gotasSelectListBox.append(option);
-            gotasSelectListBox.on("change", gotasSelectlistBoxOnChange);
+            gotasSelectListBox.on("change", gotasSelectListBoxOnChange);
 
             // #endregion
 
@@ -139,9 +139,11 @@ $(function () {
         }
 
         /**
-         * relatorio_gotas.js::clientesSelectListBoxOnChange()
+         * Clientes On Change
          *
          * Comportamento ao trocar o cliente selecionado
+         *
+         * relatorio_gotas.js::clientesSelectListBoxOnChange()
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2019-09-11
@@ -191,7 +193,21 @@ $(function () {
             }
         }
 
-        function gotasSelectlistBoxOnChange() {
+        /**
+         * Gotas On Change
+         *
+         * Comportamento ao alterar seleção de gotas
+         *
+         * relatorio_gotas.js::gotasSelectListBoxOnChange()
+         *
+         * @param {int} clientesId Id do cliente
+         *
+         * @return void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-09-11
+         */
+        function gotasSelectListBoxOnChange() {
             var gota = parseInt(this.value);
 
             gota = isNaN(gota) ? 0 : gota;
@@ -203,9 +219,6 @@ $(function () {
                 form.gotasId = undefined;
                 gotasSelectedItem = {};
             }
-
-            console.log(form);
-            console.log(gotasSelectedItem);
         }
 
         /**
@@ -749,9 +762,7 @@ $(function () {
 
                                     rows.push(rowTotal);
                                 }
-
                                 //#endregion
-
                             });
                             // #region Linha Total Geral
 
@@ -797,7 +808,6 @@ $(function () {
 
                             rows.push(rowTotal);
                         }
-
                         //#endregion
                     } else {
                         if (data.total_gotas == 0 && data.total_litros == 0 && data.total_reais == 0) {
@@ -905,9 +915,7 @@ $(function () {
                                 rows.push(rowSomaEstabelecimento);
                             });
 
-                            // Total
-
-                            // Valores de Pontuações
+                            //#region Total
 
                             var rowTotal = document.createElement("tr");
                             var cellTotalGotas = document.createElement("td");
@@ -936,20 +944,34 @@ $(function () {
                             rowTotal.append(labelTotalReais);
 
                             rows.push(rowTotal);
+
+                            //#endregion
                         }
                     }
                     conteudoTabela.append(rows);
                 },
                 error: function (response) {
-
                     var data = response.responseJSON;
                     callModalError(data.mensagem.message, data.mensagem.errors);
                 }
             });
         }
 
+        /**
+         * Obtem Gotas Cliente
+         *
+         * Obtem dados de Gotas do estabelecimento selecionado
+         *
+         * relatorio_gotas.js::getGotasCliente()
+         *
+         * @param {int} clientesId Id do cliente
+         *
+         * @return void
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-09-11
+         */
         function getGotasCliente(clientesId) {
-
             var data = {
                 clientes_id: clientesId
             };

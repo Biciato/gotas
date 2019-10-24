@@ -12,6 +12,7 @@ use App\Custom\RTI\DebugUtil;
 use \DateTime;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Pontuacao;
+use Cake\Database\Expression\QueryExpression;
 use Exception;
 
 /**
@@ -1201,7 +1202,10 @@ class PontuacoesTable extends GenericTable
             if (!empty($gotasId)) {
                 $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
             } else {
-                $whereConditions[] = ["Pontuacoes.gotas_id IS NOT NULL"];
+                $notNull = function (QueryExpression $exp) {
+                    return $exp->isNotNull("Pontuacoes.gotas_id");
+                };
+                $whereConditions[] = $notNull;
             }
 
             if (!empty($funcionariosId)) {

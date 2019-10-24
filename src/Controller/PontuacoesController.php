@@ -1061,6 +1061,25 @@ class PontuacoesController extends AppController
         }
     }
 
+    /**
+     * Obtem relatório de movimentação
+     *
+     * Obtem dados e relatório em formato JSON indicando movimentação de Gotas dos clientes conforme posto selecionado
+     *
+     * PontuacoesController::getExtratoPontuacoesAPI
+     *
+     * @param int $clientes_id Id de Cliente
+     * @param int $gotas_id Id de Gota
+     * @param int $funcionarios_id Id de Funcionário
+     * @param string $tipo_relatorio Tipo de Relatório (Analítico / Sintético)
+     * @param Date $data_inicio Data Inicio
+     * @param Date $data_fim Data Fim
+     *
+     * @return json_object $data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-24
+     */
     public function getRelatorioMovimentacaoGotasAPI()
     {
         $sessao = $this->getSessionUserVariables();
