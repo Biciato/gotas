@@ -33,11 +33,11 @@ if (empty($usuarioLogado)) {
         </li>
     </ul>
 
-<?php
+    <?php
 
-} else {
-    if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
-        ?>
+    } else {
+        if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
+            ?>
 
         <ul class="nav navbar-nav navbar-right">
 
@@ -53,6 +53,17 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Redes', ['controller' => 'Redes', 'action' => 'index']) ?>
                     </li>
 
+                    <li role="separator" class="dividir">
+
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <a href="/gotas/importacaoGotasSefaz">Importação de Gotas da SEFAZ</a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
+                    </li>
                     <li role="separator" class="divider"></li>
                     <li>
                         <?php echo $this->Html->link('Transportadoras', ['controller' => 'Transportadoras', 'action' => 'index']) ?>
@@ -68,36 +79,36 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link(
-                            __(
-                                '{0} Remoção de pontuacoes',
-                                $this->Html->tag('i', '', ['class' => 'fa fa-warning'])
-                            ),
-                            [
-                                'controller' => 'pontuacoes_comprovantes', 'action' => 'remover_pontuacoes',
-                            ],
-                            [
-                                'escape' => false,
-                                'class' => 'bg-danger text-danger'
-                            ]
-                        ); ?>
+                                    __(
+                                        '{0} Remoção de pontuacoes',
+                                        $this->Html->tag('i', '', ['class' => 'fa fa-warning'])
+                                    ),
+                                    [
+                                        'controller' => 'pontuacoes_comprovantes', 'action' => 'remover_pontuacoes',
+                                    ],
+                                    [
+                                        'escape' => false,
+                                        'class' => 'bg-danger text-danger'
+                                    ]
+                                ); ?>
                     </li>
 
                     <li role="separator" class="divider"></li>
 
                     <li>
                         <?php echo $this->Html->link(
-                            __(
-                                '{0} Alterar modo de visualização',
-                                $this->Html->tag('i', '', ['class' => 'fa fa-warning'])
-                            ),
-                            [
-                                'controller' => 'usuarios', 'action' => 'administrar_usuario',
-                            ],
-                            [
-                                'escape' => false,
-                                'class' => 'bg-danger text-danger'
-                            ]
-                        ); ?>
+                                    __(
+                                        '{0} Alterar modo de visualização',
+                                        $this->Html->tag('i', '', ['class' => 'fa fa-warning'])
+                                    ),
+                                    [
+                                        'controller' => 'usuarios', 'action' => 'administrar_usuario',
+                                    ],
+                                    [
+                                        'escape' => false,
+                                        'class' => 'bg-danger text-danger'
+                                    ]
+                                ); ?>
                     </li>
                 </ul>
             </li>
@@ -155,15 +166,15 @@ if (empty($usuarioLogado)) {
                         <ul class="dropdown-menu">
                             <li>
                                 <?php echo $this->Html->link(
-                                    __("Pontuações por Rede/Unidades"),
-                                    ['controller' => 'PontuacoesComprovantes', 'action' => 'relatorio_pontuacoes_comprovantes_redes']
-                                ) ?>
+                                            __("Pontuações por Rede/Unidades"),
+                                            ['controller' => 'PontuacoesComprovantes', 'action' => 'relatorio_pontuacoes_comprovantes_redes']
+                                        ) ?>
                             </li>
                             <li>
                                 <?php echo $this->Html->link(
-                                    __("Pontuações por Usuários de Redes"),
-                                    ['controller' => 'PontuacoesComprovantes', 'action' => 'relatorio_pontuacoes_comprovantes_usuarios_redes']
-                                ) ?>
+                                            __("Pontuações por Usuários de Redes"),
+                                            ['controller' => 'PontuacoesComprovantes', 'action' => 'relatorio_pontuacoes_comprovantes_usuarios_redes']
+                                        ) ?>
                             </li>
                         </ul>
                     </li>
@@ -218,11 +229,11 @@ if (empty($usuarioLogado)) {
         </li>
         </ul>
     <?php
-        // Administrador de Rede ou Regional
+            // Administrador de Rede ou Regional
 
-    } else if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
+        } elseif ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
 
-        ?>
+            ?>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
@@ -256,6 +267,7 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_rede']) ?>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
 
                     <?php if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_NETWORK) : ?>
@@ -276,23 +288,23 @@ if (empty($usuarioLogado)) {
                             <li>
                                 <a href="/topBrindes/posto">Cadastro Top Brindes Posto</a>
                             </li>
-                        <?php endif;?>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php
-                    //Preço de brinde pendente só pode ser autorizado por um administrador que seja pelo menos regional
-                    if (false) {
+                            //Preço de brinde pendente só pode ser autorizado por um administrador que seja pelo menos regional
+                            if (false) {
 
-                        if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
-                            ?>
+                                if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminRegionalProfileType']) {
+                                    ?>
 
                             <li>
                                 <?php echo $this->Html->link('Brindes com Preços Pendentes de Autorização', ['controller' => 'clientes_has_brindes_habilitados_preco', 'action' => 'brindes_aguardando_aprovacao']) ?>
                             </li>
 
-                        <?php
-                        }
-                    } ?>
+                    <?php
+                                }
+                            } ?>
 
                     <!-- <li> -->
                     <!-- <?php echo $this->Html->link('Histórico de Brindes', ['controller' => 'cupons', 'action' => 'historico_brindes']) ?> -->
@@ -310,8 +322,8 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider" />
                     <li>
                         <?php
-                        echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes'])
-                        ?>
+                                echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes'])
+                                ?>
                     </li>
                     <li role="separator" class="divider" />
                     <li>
@@ -344,9 +356,9 @@ if (empty($usuarioLogado)) {
 
     }
     // Administrador da loja
-    else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
+    elseif ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
 
-        ?>
+            ?>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Operacional<span class="caret"></span></a>
@@ -359,6 +371,9 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Atribuição de Gotas Por Consumo', ['controller' => 'gotas', 'action' => 'gotas_minha_loja']) ?>
+                    </li>
+                    <li>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
                     <li role="separator" class="divider"></li>
 
@@ -412,11 +427,11 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-    } else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
+        } elseif ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
 
-        // Gerente
+            // Gerente
 
-        ?>
+            ?>
         <ul class="nav navbar-nav navbar-right">
 
             <li class="dropdown">
@@ -426,6 +441,10 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Usuários da Loja/Posto', ['controller' => 'Usuarios', 'action' => 'usuarios_rede', $rede->id]) ?>
                     </li>
 
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
+                    </li>
                     <li role="separator" class="divider"></li>
 
                     <li>
@@ -473,10 +492,10 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-    } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
-        // Funcionário
+        } elseif ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+            // Funcionário
 
-        ?>
+            ?>
         <ul class="nav navbar-nav navbar-right">
 
 
@@ -500,10 +519,10 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-    } else {
-        // Cliente
+        } else {
+            // Cliente
 
-        ?>
+            ?>
         <ul class="nav navbar-nav navbar-right">
 
 
@@ -537,7 +556,7 @@ if (empty($usuarioLogado)) {
             </li>
         </ul>
 
-    <?php
+<?php
 
     }
 }

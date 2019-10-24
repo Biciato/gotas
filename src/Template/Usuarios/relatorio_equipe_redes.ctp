@@ -67,7 +67,7 @@ echo $this->Breadcrumbs->render(
     <?php foreach ($redes as $key => $rede) : ?>
 
 
-        <?php if (sizeof($rede['usuarios']) > 0) : ?>
+        <?php if (count($rede['usuarios']) > 0) : ?>
             <h4><?= __("Integrantes da Rede: {0} ", $rede['nome_rede']) ?> </h4>
 
             <table class="table table-hover table-striped table-condensed table-responsive">

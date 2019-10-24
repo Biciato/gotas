@@ -50,15 +50,32 @@ class ClientesHasUsuariosTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsTo(
-            'Clientes',
-            [
+            'Cliente',
+            array(
                 'className' => 'Clientes',
                 'foreignKey' => 'clientes_id',
-                'joinType' => Query::JOIN_TYPE_INNER
-            ]
+                'joinType' => Query::JOIN_TYPE_LEFT
+            )
         );
 
         // $this->hasMany(
+        //     'Clientes',
+        //     [
+        //         'className' => 'Clientes',
+        //         'foreignKey' => 'id',
+        //         'joinType' => 'LEFT'
+        //     ]
+        // );
+
+        $this->belongsTo(
+            "Clientes",
+            [
+                "className" => "Clientes",
+                "foreignKey" => "clientes_id",
+                "join" => Query::JOIN_TYPE_LEFT
+            ]
+        );
+        // $this->belongsTo(
         //     'Clientes',
         //     [
         //         'className' => 'Clientes',
@@ -469,7 +486,7 @@ class ClientesHasUsuariosTable extends Table
                     ->where($whereConditions);
             }
 
-            return $clientes->select(array("id", "razao_social"));
+            return $clientes->select(array("id", "razao_social", "nome_fantasia"));
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
@@ -732,7 +749,7 @@ class ClientesHasUsuariosTable extends Table
      * @param integer $usuariosId Id do usuário
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 01/10/2017
+     * @since 2019-08-27
      *
      * @return \App\Model\Entity\ClientesHasUsuarios
      */

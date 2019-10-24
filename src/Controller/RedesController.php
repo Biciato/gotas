@@ -21,6 +21,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\StringUtil;
 use Exception;
 use App\Model\Entity\Rede;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 
 /**
@@ -787,6 +788,119 @@ class RedesController extends AppController
      * Métodos de API
      * ------------------------------------------------------------------
      */
+
+    /**
+     * src\Controller\RedesController.php::getRedesListAPI
+     *
+     * Retorna a lista de Redes cadastradas.
+     * Se usuário for Adm Rede ou menor que Funcionário, só retorna o posto vinculado.
+     *
+     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-09
+     */
+    public function getRedesListAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        $redes = [];
+        $perfisPosto = [
+            PROFILE_TYPE_ADMIN_NETWORK,
+            PROFILE_TYPE_ADMIN_REGIONAL,
+            PROFILE_TYPE_ADMIN_LOCAL,
+            PROFILE_TYPE_MANAGER,
+            PROFILE_TYPE_WORKER
+        ];
+
+        try {
+            //code...
+            if (in_array($usuario->tipo_perfil, $perfisPosto)) {
+                $redeTmp = new Rede();
+                $redeTmp->id = $rede->id;
+                $redeTmp->nome_rede = $rede->nome_rede;
+                $redes[] = $redeTmp;
+            } else {
+                $redes = $this->Redes->getRedesList(null, null, 1, null, null, null, null);
+
+                $redesTemp = [];
+
+                foreach ($redes as $id => $rede) {
+                    $redeTmp = new Rede();
+                    $redeTmp->id = $id;
+                    $redeTmp->nome_rede = $rede;
+                    $redesTemp[] = $redeTmp;
+                }
+                $redes = $redesTemp;
+            }
+
+            if (count($redes) > 0) {
+                $data = ["data" => ["redes" => $redes]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            } else {
+                throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
+            }
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+        }
+    }
+
+    /**
+     * src/Controller/RedesController.php::getRedeAPI
+     *
+     * Obtem uma Rede pelo ID
+     *
+     * @param int @data["redes_id"] Id da Rede
+     *
+     * @return json_encode Resposta
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-11
+     */
+    public function getRedeAPI()
+    {
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_DELETE, __CLASS__, __METHOD__, print_r($data, true)));
+
+            try {
+
+                if (empty($redesId)) {
+                    throw new Exception(MSG_REDES_ID_EMPTY, MSG_REDES_ID_EMPTY_CODE);
+                }
+
+                $rede = $this->Redes->get($redesId);
+
+                if (empty($rede)) {
+                    throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
+                }
+
+                $data = ["data" => ["rede" => $rede]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+                $messageLog = sprintf("%s", $th->getMessage(), $code);
+                Log::write("error", $messageLog);
+
+                return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+        }
+    }
 
     /**
      * RedesController::getRedesAPI

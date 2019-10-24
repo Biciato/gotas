@@ -33,7 +33,7 @@ class TiposBrindesClientesTableTest extends TestCase
         'app.usuarios',
         'app.clientes_has_usuarios',
         'app.cliente',
-        'app.rede_has_cliente',
+        'app.redes_has_cliente',
         'app.gotas',
         'app.clientes_has_brindes_habilitados',
         'app.brindes',

@@ -50,6 +50,7 @@ class BrindesController extends AppController
         try {
             $arraySet = [
                 "categoriasBrindesList",
+                "cliente",
                 "redesId",
                 "clientesId",
                 "brindes",
@@ -74,6 +75,10 @@ class BrindesController extends AppController
             if (empty($clientesId) && empty($cliente)) {
                 $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
                 return $this->redirect("/");
+            }
+
+            if (empty($cliente)) {
+                $cliente = $this->Clientes->get($clientesId);
             }
 
             if (empty($redesId)) {
@@ -518,8 +523,8 @@ class BrindesController extends AppController
                 $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
@@ -1209,7 +1214,9 @@ class BrindesController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
                 Log::write("info", $data);
+
                 // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
@@ -1373,7 +1380,7 @@ class BrindesController extends AppController
             }
 
             if (empty($clientesId)) {
-                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
             $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);

@@ -441,8 +441,15 @@ $(document).ready(function () {
      */
     var showRedesInput = function () {
         $(".redes_input").show();
-        $("#redes_id").prop("required", true);
-        $("#clientes_rede").prop("required", true);
+
+        $("#clientes_rede").prop("required", required);
+
+        var unidadeLabel = "Unidade da Rede";
+
+        if (required) {
+            unidadeLabel = unidadeLabel + "*";
+        }
+        $("label[for=clientes_rede").text(unidadeLabel);
     };
 
     /**
@@ -529,56 +536,53 @@ $(document).ready(function () {
      * @param {object} data
      */
     var changeProfileType = function (data) {
-       // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
+        // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-       var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
+        // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
-       if (tipoPerfil == 5){
-           $("#senha").val(123456);
-           $("#confirm_senha").val(123456);
-       } else {
-           $("#senha").val(null);
-           $("#confirm_senha").val(null);
-       }
+        var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
 
-       // Gerente
-       var tipoPerfilSelecionado = $("#tipo_perfil").val();
+        var labelUnidadeRede = "Unidade da Rede*";
 
-       if (tipoPerfilSelecionado >= 5) {
-           $("#telefone").attr("required", null);
-           $("#label-telefone").text("Telefone");
-       } else {
-           $("#telefone").attr("required", true);
-           $("#label-telefone").text("Telefone*");
-       }
+        $(".clientes_rede").prop("required", true);
+        $("label[for=clientes_rede]").text(labelUnidadeRede);
+        // Gerente
+        var tipoPerfilSelecionado = $("#tipo_perfil").val();
+        if (tipoPerfilSelecionado >= 5) {
+            $("#telefone").attr("required", null);
+            $("#label-telefone").text("Telefone");
+        } else if (tipoPerfilSelecionado == 1){
+            $(".clientes_rede").prop("required", false);
+            $("label[for=clientes_rede]").text(labelUnidadeRede.substr(0, labelUnidadeRede.length -1));
+        } else {
+            $("#telefone").attr("required", true);
+            $("#label-telefone").text("Telefone*");
+        }
 
-       if (tipoPerfil !== undefined) {
-           if (tipoPerfil >= 0 && tipoPerfil <= 2) {
-               // if ($(data).val() < 1 || $(data).val() > 5) {
-               if (tipoPerfilSelecionado < 1 || tipoPerfilSelecionado > 5) {
-                   hideRedesInput();
-               } else {
-                   showRedesInput();
-               }
-           }
-       }
+        if (tipoPerfil !== undefined) {
+            if (tipoPerfil >= 0 && tipoPerfil <= 2) {
+                if ($(data).val() < 1 || $(data).val() > 5) {
+                    hideRedesInput();
+                } else {
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                        showRedesInput(true);
+                    } else {
+                        showRedesInput(false);
+                    }
+                }
+            }
+        }
 
-       if (tipoPerfilSelecionado > 2) {
-           $("#clientes_rede").attr("required", true);
-       } else {
-           $("#clientes_rede").removeAttr("required");
-       }
 
-       if ($(data).val() != 6) {
-           $("#senha").mask("AAAAAAAA");
-           $("#confirm-senha").mask("AAAAAAAA");
-           $(".fields-is-final-customer").hide();
-
-       } else {
-           $("#senha").mask("######");
-           $("#confirm-senha").mask("######");
-           $(".fields-is-final-customer").show();
-       }
+        if ($(data).val() != 5) {
+            $("#senha").mask("AAAAAAAA");
+            $("#confirm-senha").mask("AAAAAAAA");
+            $(".fields-is-final-customer").hide();
+        } else {
+            $("#senha").mask("####");
+            $("#confirm-senha").mask("####");
+            $(".fields-is-final-customer").show();
+        }
     };
 
     changeProfileType($("#tipo-perfil"));

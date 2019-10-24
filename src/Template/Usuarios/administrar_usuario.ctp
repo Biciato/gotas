@@ -103,8 +103,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <table class="table table-striped table-hover">
 
     <thead>
-        <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.RedesHasCliente.Rede.nome', ['label' => 'Rede']) ?></th>
-        <th><?= $this->Paginator->sort('ClienteHasUsuario.Cliente.nome_fantasia', ['label' => 'Loja/Posto']) ?></th>
+        <th><?= $this->Paginator->sort('ClientesHasUsuarios.Cliente.RedesHasCliente.Rede.nome', ['label' => 'Rede']) ?></th>
+        <th><?= $this->Paginator->sort('ClientesHasUsuarios.Cliente.nome_fantasia', ['label' => 'Loja/Posto']) ?></th>
         <th><?= $this->Paginator->sort('tipo_perfil', ['label' => 'Tipo de Perfil']) ?></th>
         <th><?= $this->Paginator->sort('nome') ?></th>
         <th><?= $this->Paginator->sort('email') ?></th>

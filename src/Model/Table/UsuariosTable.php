@@ -76,17 +76,7 @@ class UsuariosTable extends GenericTable
                 'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
                 // "joinType" => "INNER"
-                "joinType" => "LEFT"
-
-            ]
-        );
-
-        // $this->hasMany(
-        //     'ClientesHasUsuarios',
-        //     [
-        //         'className' => "ClientesHasUsuarios",
-        //         'foreignKey' => 'usuarios_id',
-        //         "joinType" => Query::JOIN_TYPE_LEFT
+                "joinType" => Query::JOIN_TYPE_LEFT
 
         //     ]
         // );
@@ -808,6 +798,41 @@ class UsuariosTable extends GenericTable
         }
     }
 
+    public function getFuncionariosRede(int $redesId, array $clientesIds, array $tipoPerfis)
+    {
+        try {
+
+            $where = [
+                "Redes.id" => $redesId
+            ];
+
+            if (count($clientesIds) > 0) {
+                $where["Clientes.id IN "] = $clientesIds;
+            }
+
+            if (count($tipoPerfis) > 0) {
+                $where["Usuarios.tipo_perfil IN "] = $tipoPerfis;
+            } else {
+                $where["Usuarios.tipo_perfil IN "] = [
+                    PROFILE_TYPE_ADMIN_NETWORK,
+                    PROFILE_TYPE_ADMIN_REGIONAL,
+                    PROFILE_TYPE_ADMIN_LOCAL,
+                    PROFILE_TYPE_MANAGER,
+                    PROFILE_TYPE_WORKER,
+                    PROFILE_TYPE_DUMMY_WORKER
+                ];
+            }
+
+            $usuarios = $this->find("all")
+            ->where($where)
+            ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
+            ->select(
+                [
+                    "Usuarios.id",
+                    "Usuarios.nome",
+                     "Usuarios.cpf"
+                ]
+            );
 
 
     /**

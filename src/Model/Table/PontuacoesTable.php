@@ -2,18 +2,17 @@
 
 namespace App\Model\Table;
 
-use ArrayObject;
 use Cake\Core\Configure;
-use Cake\Event\Event;
 use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use \DateTime;
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Pontuacao;
+use Cake\Database\Expression\QueryExpression;
 use Exception;
 
 /**
@@ -85,6 +84,15 @@ class PontuacoesTable extends GenericTable
                 "foreignKey" => "brindes_id",
                 'joinType' => Query::JOIN_TYPE_LEFT
                 // 'joinType' => Query::JOIN_TYPE_INNER
+            ]
+        );
+
+        $this->belongsTo(
+            "Funcionarios",
+            [
+                "className" => "usuarios",
+                "foreignKey" => "funcionarios_id",
+                "joinType" => Query::JOIN_TYPE_INNER
             ]
         );
 
@@ -291,21 +299,25 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
-     * Insere vários registros
+     * src\Model\Table\PontuacoesTable.php::saveUpdate
      *
-     * @param array $pontuacoes Pontuacoes de cupom
+     * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
+     *
+     * @param Pontuacao $pontuacao Entitade
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 04/11/2018
+     * @since 2019-10-08
      *
-     * @return void
+     * @return Pontuacao $pontuacao Registrada
      */
-    public function insertPontuacoesCupons(array $pontuacoes)
+    public function saveUpdate(Pontuacao $pontuacao)
     {
         try {
-            return $this->saveMany($pontuacoes);
-        } catch (Exception $ex) {
-            Log::write("error", $ex->getMessage());
+            return $this->save($pontuacao);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 
@@ -1162,12 +1174,121 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
-     * PontuacoesTable.php::getPontuacoesInOutForClientes
+     * Obtem dados de relatório
+     *
+     * Obtêm dados de pontuações que estão diretamente relacionados à Gotas de um Estabelecimento
+     *
+     * PontuacoesTable.php::getPontuacoesGotasMovimentationForClientes
+     *
+     * @param int $clientesId Clientes (Postos)
+     * @param int $gotasId Id de Gota
+     * @param int $funcionariosId Id de Funcionário
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data fim
+     * @param string $tipoRelatorio Tipo Relatório Analítico / Sintético
+     *
+     * @return \App\Model\Entity\Pontuaco[] Array de pontuacoes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-21
+     */
+    public function getPontuacoesGotasMovimentationForClientes(int $clientesId = null, int $gotasId = null, int $funcionariosId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    {
+        try {
+            $whereConditions = [];
+            // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
+            $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
+
+            if (!empty($gotasId)) {
+                $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
+            } else {
+                $notNull = function (QueryExpression $exp) {
+                    return $exp->isNotNull("Pontuacoes.gotas_id");
+                };
+                $whereConditions[] = $notNull;
+            }
+
+            if (!empty($funcionariosId)) {
+                $whereConditions[] = ["Pontuacoes.funcionarios_id" => $funcionariosId];
+            }
+
+            if (!empty($dataInicio)) {
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+            }
+
+            if (!empty($dataFim)) {
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
+            }
+
+            $order = [];
+            $groupConditions = [];
+
+            $selectList = [
+                "quantidade_litros" => "ROUND(SUM(Pontuacoes.quantidade_multiplicador), 2)",
+                "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                "quantidade_reais" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)"
+            ];
+
+            $join = [];
+
+            if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                $selectList = [
+                    "quantidade_litros" => "ROUND(SUM(Pontuacoes.quantidade_multiplicador), 2)",
+                    "quantidade_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                    "quantidade_reais" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)",
+                    "Gotas.nome_parametro",
+                    "Funcionarios.id",
+                    "Funcionarios.nome",
+                    "Funcionarios.email",
+                    "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
+                ];
+
+                $join = [
+                    "Gotas",
+                    "Usuarios",
+                    "Brindes",
+                    "Funcionarios"
+                ];
+
+                $groupConditions = [
+                    "Pontuacoes.funcionarios_id",
+                    "Gotas.id",
+                    "data_formatada"
+                ];
+
+                $order = [
+                    "data_formatada" => "DESC",
+                    "Funcionarios.nome" => "ASC"
+                ];
+            }
+
+            $pontuacoes = $this
+                ->find("all")
+                ->where($whereConditions)
+                ->contain($join)
+                ->group($groupConditions)
+                ->select($selectList)
+                ->order($order);
+
+            if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
+                return $pontuacoes->first();
+            } else {
+                return $pontuacoes;
+            }
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            Log::write("error", sprintf("%s - %s", $code, $message));
+            throw new Exception($message, $code);
+        }
+    }
+
+    /**
+     * Obtem dados de pontuações
      *
      * Obtem dados de pontuações de entrada e saída para relatório
      *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2019-09-10
+     * PontuacoesTable.php::getPontuacoesInOutForClientes
      *
      * @param int $clientesId Clientes (Postos)
      * @param integer $brindesId Id de Brinde
@@ -1176,7 +1297,10 @@ class PontuacoesTable extends GenericTable
      * @param string $tipoMovimentacao Entrada / Saída
      * @param string $tipoRelatorio Tipo Relatório Analítico / Sintético
      *
-     * \App\Model\Entity\Pontuaco[] Array de pontuacoes
+     * @return \App\Model\Entity\Pontuaco[] Array de pontuacoes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-10
      */
     public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = PONTUACOES_TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
@@ -1245,7 +1369,6 @@ class PontuacoesTable extends GenericTable
                 ->group($groupConditions)
                 ->select($selectList);
         } catch (\Throwable $th) {
-
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));

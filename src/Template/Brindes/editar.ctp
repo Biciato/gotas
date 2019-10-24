@@ -53,12 +53,12 @@ echo $this->Breadcrumbs->render(
         <?= $this->Form->hidden('clientes_id', ['value' => $brinde->clientes_id]); ?>
         <?= $this->Form->hidden("edit-mode", ["id" => null, "value" => $editMode]) ?>
         <div class="form-group row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="nome">Nome*</label>
                 <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="tipo_codigo_barras">Código de Barras*</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
@@ -79,7 +79,7 @@ echo $this->Breadcrumbs->render(
                 ); ?>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="categorias_brindes">Categoria</label>
                 <?= $this->Form->input(
                     "categorias_brindes_id",
@@ -93,6 +93,11 @@ echo $this->Breadcrumbs->render(
                         "options" => $categoriasBrindesList
                     ]
                 ); ?>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="local">Local Secundário de Brinde: </label>
+                <input type="text" name="local" id="local" value="<?= $brinde->local ?>" class="form-control">
             </div>
         </div>
 
@@ -136,7 +141,7 @@ echo $this->Breadcrumbs->render(
                 <label for="local">Local Secundário de Brinde: </label>
                 <input type="text" name="local" id="local" value="<?= $brinde->local ?>" class="form-control">
             </div>
-            
+
             <div class="col-lg-3">
                 <label for="brinde-rede">Brinde de Rede?*</label>
                 <?= $this->Form->input(
@@ -215,12 +220,12 @@ echo $this->Breadcrumbs->render(
             </div>
 
             <div class="col-lg-4">
-                <label for="preco_padrao">Preço Padrão Gotas*</label>
-                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
+                <label for="preco_padrao">Preço Padrão Gotas</label>
+                <input type="text" name="preco_padrao" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>" disabled readonly title='Campo não permitido alteração. Para alterar, vá em "Atualizar Preço" dentro das configurações do brinde.'>
             </div>
             <div class="col-lg-4">
-                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
-                <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>">
+                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
+                <input type="text" name="valor_moeda_venda_padrao" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>" disabled readonly title='Campo não permitido alteração. Para alterar, vá em "Atualizar Preço" dentro das configurações do brinde.'>
             </div>
         </div>
         <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
@@ -285,12 +290,12 @@ echo $this->Breadcrumbs->render(
             </div>
 
             <div class="col-lg-3">
-                <label for="preco_padrao">Preço Padrão Gotas*</label>
-                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>">
+                <label for="preco_padrao">Preço Padrão Gotas</label>
+                <input type="text" name="preco_padrao" placeholder="Preço Padrão em Gotas..." id="preco_padrao" class="form-control" value="<?= $brinde['preco_padrao'] ?>" disabled readonly title='Campo não permitido alteração. Para alterar, vá em "Atualizar Preço" dentro das configurações do brinde.'>
             </div>
             <div class="col-lg-3">
-                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)*</label>
-                <input type="text" name="valor_moeda_venda_padrao" required="required" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>">
+                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
+                <input type="text" name="valor_moeda_venda_padrao" placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= $brinde['valor_moeda_venda_padrao'] ?>" disabled readonly title='Campo não permitido alteração. Para alterar, vá em "Atualizar Preço" dentro das configurações do brinde.'>
             </div>
             <!-- value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>" -->
         </div>

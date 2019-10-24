@@ -14,6 +14,7 @@ use Cake\Mailer\Email;
 use Cake\I18n\Number;
 use \DateTime;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\DebugUtil;
 use Firebase\JWT\JWT;
 use Cake\Utility\Security;
 use Cake\Network\Exception\UnauthorizedException;
@@ -895,15 +896,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            $clientes_id = $redes_has_cliente->clientes_id;
                         }
 
-                        $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                        $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }
@@ -1007,6 +1008,11 @@ class UsuariosController extends AppController
         $redesId = $rede["id"];
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
 
+        // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
+        if (count($unidadesRede) == 0 && !empty($rede)) {
+            $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
+        }
+
         if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
             if (is_null($redesId) && isset($rede)) {
@@ -1091,17 +1097,25 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            if (!empty($redes_has_cliente)) {
+                                $clientes_id = $redes_has_cliente->clientes_id;
+                            }
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
                         }
 
-                        $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
-                            $usuarioSave->id
-                        );
+                        // Só pode ser guardado o relacionamento se já tiver algum posto
+                        if (empty($redes_has_cliente)) {
+                            Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
+
+                        } else {
+                            $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
+                                $redes_has_cliente->id,
+                                $usuarioSave->id
+                            );
+                        }
                     }
 
                     /**
@@ -1112,7 +1126,11 @@ class UsuariosController extends AppController
 
                     // Define qual foi o usuário que cadastrou o novo funcionário
                     $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+
+                    // Só vincula se o posto tiver sido selecionado
+                    if (!empty($clientes_id)) {
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+                    }
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -1191,9 +1209,9 @@ class UsuariosController extends AppController
         // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
 
         if (!isset($redesId)) {
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
+            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
 
-            $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
+            $rede = $this->Redes->getAllRedes('all', ['id' => $redes_has_cliente->redes_id])->first();
         }
 
         $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
@@ -1240,15 +1258,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientesId == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientesId = $rede_has_cliente->clientes_id;
+                            $clientesId = $redes_has_cliente->clientes_id;
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
                         }
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }
@@ -1800,6 +1818,7 @@ class UsuariosController extends AppController
         $nome = null;
         $cpf = null;
         $docEstrangeiro = null;
+        $filtrarUnidade = null;
         $tipoPerfil = null;
         $tipoPerfilMin = null;
         $tipoPerfilMax = null;
@@ -1810,11 +1829,11 @@ class UsuariosController extends AppController
 
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
-            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
-            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-            if ($data['filtrar_unidade'] != "") {
+            if (!empty($filtrarUnidade)) {
                 $clientesIds = [];
                 $clientesIds[] = (int) $data['filtrar_unidade'];
             }
@@ -2059,6 +2078,8 @@ class UsuariosController extends AppController
 
             // DebugUtil::printArray($usuarios->toArray());
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
+
+            // DebugUtil::printArray($usuarios->toArray());
 
             $arraySet = array("usuarios", "perfisUsuariosList");
 
@@ -4074,18 +4095,25 @@ class UsuariosController extends AppController
             }
 
             // TODO: Se for usar mesmo serviço, será necessário criar novos campos de assinatura
-            $usuarios = $this->Usuarios->findFuncionariosRede(
-                $rede->id,
-                $unidades_ids,
-                $whereConditions
-            );
+
+            $usuarios = [];
+
+            if (count($unidades_ids) > 0) {
+                $usuarios = $this->Usuarios->findFuncionariosRede(
+                    $rede->id,
+                    $unidades_ids
+                );
+                $usuarios = $usuarios->toArray();
+            }
 
             $redeItem['usuarios'] = $usuarios;
 
             unset($arrayWhereConditions);
 
-            array_push($redes, $redeItem);
+            $redes[] = $redeItem;
         }
+
+        // DebugUtil::printArray($redes);
 
         $arraySet = [
             'redesList',
@@ -4636,7 +4664,7 @@ class UsuariosController extends AppController
                 $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
 
                 if (empty($email)) {
-                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_EMAIL_EMPTY));
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MSG_USUARIOS_EMAIL_EMPTY], [], []);
                 }
 
                 if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {

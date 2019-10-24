@@ -3,6 +3,7 @@
 namespace App\Model\Table;
 
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\PontuacoesComprovante;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\ORM\RulesChecker;
@@ -230,6 +231,28 @@ class PontuacoesComprovantesTable extends GenericTable
             }
 
             return $stringError;
+        }
+    }
+
+    /**
+     * src\Model\Table\PontuacoesComprovantesTable.php::saveUpdate
+     *
+     * Insere/Atualiza registro PontuacoesComprovante
+     *
+     * @param PontuacoesComprovante $pontuacoesComprovante Objeto
+     * @return \App\Model\Entity\PontuacoesComprovante $pontuacoesComprovante Objeto
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-08
+     */
+    public function saveUpdate(PontuacoesComprovante $pontuacoesComprovante)
+    {
+        try {
+            return $this->save($pontuacoesComprovante);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s: %s", MESSAGE_SAVED_ERROR, $e->getCode(), $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $e->getCode());
         }
     }
 
@@ -642,7 +665,7 @@ class PontuacoesComprovantesTable extends GenericTable
                 ->select($selectList)->count();
 
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("%s: %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
         }

@@ -345,7 +345,7 @@ const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE = 0x0000000F;
-const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON = "Não foi possível importar o CF, SEFAZ inoperante!";
+const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON = "Não foi possível importar o cupom fiscal, SEFAZ inoperante!";
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING_CODE = 0x00000010;
 const MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_AWAITING_PROCESSING = "A Importação do Cupom Fiscal não pode ser realizada agora, há uma falha de comunicação com a SEFAZ. Mas não se preocupe, assim que tudo estiver certo os pontos serão atribuídos em seu cadastro!";
 
@@ -360,8 +360,11 @@ const MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT = "No Cupom Fiscal {0} da SEFAZ do estad
 const MSG_SEFAZ_NOT_RESPONDING_CODE = 0x00000013;
 const MSG_SEFAZ_NOT_RESPONDING = "Sistema SEFAZ não está respondendo!";
 const MSG_SEFAZ_CONTINGENCY_MODE_CODE = 0x00000011;
-const MSG_SEFAZ_CONTINGENCY_MODE = "SEFAZ não está operando corretamente, suas pontuações serão atribuídas assim que tudo estiver normalizado.";
-
+const MSG_SEFAZ_CONTINGENCY_MODE = "Sistema SEFAZ operando em modo contingência. Suas pontuações serão atribuídas assim que tudo estiver normalizado.";
+const MSG_SEFAZ_CNPJ_NOT_FOUND = "Não há CNPJ cadastrado no sistema para este Cupom Fiscal apresentado!";
+const MSG_SEFAZ_CNPJ_NOT_FOUND_CODE = 0x0000001C;
+const MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED = "Todos os Produtos contidos no Cupom Fiscal já foram adicionados ao sistema!";
+const MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED_CODE = 0x0000001D;
 
 // Sucesso / Aviso
 const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
@@ -408,6 +411,17 @@ const MSG_DATE_BEGIN_EMPTY = "Campo DATA_INICIO não informado!";
 const MSG_DATE_BEGIN_EMPTY_CODE = 0x0000000B;
 const MSG_DATE_END_EMPTY = "Campo DATA_FIM não informado!";
 const MSG_DATE_END_EMPTY_CODE = 0x0000000C;
+const MSG_USUARIOS_ID_EMPTY_CODE = 0x00000017;
+const MSG_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
+const MSG_REDES_ID_EMPTY_CODE = 0x00000018;
+const MSG_REDES_ID_EMPTY = "O campo REDES_ID deve ser informado!";
+const MSG_CLIENTES_ID_NOT_EMPTY_CODE = 0x00000019;
+const MSG_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+const MSG_QRCODE_EMPTY_CODE = 0x0000001A;
+const MSG_QRCODE_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
+const MSG_QRCODE_MISMATCH_FORMAT_CODE = 0x0000001B;
+const MSG_QRCODE_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
+
 
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
@@ -424,7 +438,7 @@ const FILTER_TYPE_SHIFT = "Turno";
 const MSG_BRINDES_CLIENTE_DOESNT_OFFER_CODE = 0x00010001;
 const MSG_BRINDES_CLIENTE_DOESNT_OFFER = "O posto/loja selecionado(a) não possui o brinde desejado!";
 const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY_CODE = 0x00010002;
-const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário";
+const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário!";
 const MSG_BRINDES_CLIENTES_ID_EMPTY_CODE = 0x00010003;
 const MSG_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
 const MSG_BRINDES_CLIENTES_ID_REQUIRED_CODE = 0x00010004;
@@ -484,6 +498,9 @@ const MSG_CLIENTES_FILTER_REQUIRED_CODE = 0x00050001;
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 const MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS = "Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!";
+
+const MSG_CLIENTES_MATRIZ_NOT_FOUND = "Matriz não encontrada para Rede!";
+const MSG_CLIENTES_MATRIZ_NOT_FOUND_CODE = 0x00050002;
 
 // Clientes Has Brindes Habilitados Estoque
 const STOCK_OPERATION_TYPES_ADD_TYPE = 0;
@@ -545,9 +562,14 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 #region Gotas
 
 // Nome Comum Gota Bonificacao
+
+const MSG_GOTAS_DATA_EMPTY_CODE = 0x000A0001;
+const MSG_GOTAS_DATA_EMPTY = "Lista de gotas recebido sem informação!";
+
 const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
+const GOTAS_ADJUSTMENT_POINTS = "GOTA VIRTUAL DE CORREÇÃO DE PONTOS";
 
 #endregion
 
@@ -556,7 +578,8 @@ const GOTAS_REGISTER_TYPE_MANUAL = 0;
 const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
 const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
-
+const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
+const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
 
 
 #endregion
@@ -564,26 +587,18 @@ const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 #region Pontuacoes Comprovantes
 
 // Erros
-const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY_CODE = 0x00130001;
-const MESSAGE_PONTUACOES_COMPROVANTES_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
-const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT_CODE = 0x00130002;
-const MESSAGE_PONTUACOES_COMPROVANTES_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
-const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130004;
+const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130001;
+const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom importados com sucesso!";
 
 // Sucesso / Avisos
 
 // Entidades / Definições
 
-const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY_CODE = 0x00130003;
-const MESSAGE_PONTUACOES_COMPROVANTES_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
-
 #endregion
 
 #region Redes
 
-const MSG_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
-const MSG_REDES_ID_EMPTY_CODE = 0x000F0001;
 const MSG_REDES_FILTER_REQUIRED = "Necessário selecionar uma rede para filtrar!";
 const MSG_REDES_FILTER_REQUIRED_CODE = 0x00F0002;
 
@@ -596,7 +611,7 @@ const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";
 
 const MESSAGE_TOP_BRINDES_BRINDE_ID_NOT_EMPTY = "O campo BRINDES_ID deve ser informado!";
 const MESSAGE_TOP_BRINDES_REDES_ID_NOT_EMPTY = "O campo REDES_ID deve ser informado!";
-const MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY = "O campo CLIENTES_ID deve ser informado!";
+
 const MESSAGE_TOP_BRINDES_ITEMS_REQUIRED = "Necessário informar brindes que deseja reposicionar!";
 const MESSAGE_TOP_BRINDES_MAX = 4;
 const MESSAGE_TOP_BRINDES_MAX_DEFINED = "O total de Top Brindes está definido, não é possível adicionar!";

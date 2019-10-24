@@ -36,7 +36,7 @@ echo $this->Breadcrumbs->render(
     <?= $this->element('../Clientes/filtro_clientes', ['controller' => 'redes', 'action' => 'ver_detalhes', "id" => $rede->id, 'usuarioLogado' => $usuarioLogado]) ?>
 
     <table class="table table-striped table-hover">
-        <thead>
+        <thead></thead>
             <tr>
                 <th><?= $this->Paginator->sort('matriz', ['label' => 'Matriz/Filial']) ?></th>
                 <th><?= $this->Paginator->sort('tipo_unidade') ?></th>

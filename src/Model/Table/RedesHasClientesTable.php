@@ -133,7 +133,7 @@ class RedesHasClientesTable extends GenericTable
      *
      * @param int $redesId Id da Rede
      *
-     * @return \App\Model\Entity\RedesHasCliente $rede_has_cliente
+     * @return \App\Model\Entity\RedesHasCliente $redes_has_cliente
      */
     public function findMatrizOfRedesByRedesId(int $redesId)
     {

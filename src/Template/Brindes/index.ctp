@@ -33,6 +33,8 @@ if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) {
     $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 }
 
+$title = $title . " do Estabelecimento: ". $cliente->nome_fantasia;
+
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
 );

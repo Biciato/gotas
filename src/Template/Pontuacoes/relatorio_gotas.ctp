@@ -24,6 +24,9 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <nav class="col-lg-3 col-md-2 " id="actions-sidebar">
     <ul class="nav nav-pills nav-stacked">
         <li class="active"><a><?= __('Ações') ?></a></li>
+        <li>
+            <div id='reiniciar-btn'><i class="fas fa-refresh"></i> Reiniciar</div>
+        </li>
     </ul>
 </nav>
 
@@ -83,11 +86,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <div class="btn btn-primary" id="btn-pesquisar">
+                                <div class="btn btn-primary" id="pesquisar-btn">
                                     <span class="fa fa-search"></span>
                                     Pesquisar
                                 </div>
-                                <div class="imprimir btn btn-default print-button-thermal" id="btn-imprimir">
+                                <div class="imprimir btn btn-default print-button-thermal" id="imprimir-btn">
                                     <i class="fa fa-print"></i>
                                     Imprimir
                                 </div>
