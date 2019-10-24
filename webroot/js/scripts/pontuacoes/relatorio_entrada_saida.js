@@ -261,7 +261,7 @@ $(function() {
             data: {},
             dataType: "JSON",
             success: function(res) {
-                if (res.clientes.length > 0) {
+                if (res.data.clientes.length > 0) {
                     clientesList = [];
                     clientesSelectListBox.empty();
 
@@ -271,7 +271,7 @@ $(function() {
 
                     clientesList.push(option);
 
-                    res.clientes.forEach(cliente => {
+                    res.data.clientes.forEach(cliente => {
                         var cliente = {
                             id: cliente.id,
                             value: cliente.nome_fantasia
@@ -361,6 +361,7 @@ $(function() {
             success: function(response) {
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
+                imprimirBtn.unbind("click");
                 imprimirBtn.on("click", imprimirRelatorio);
 
                 var data = response.data.pontuacoes_report;
@@ -517,17 +518,17 @@ $(function() {
                                 // Info de Saida
                                 var cellSaidaUsuario = document.createElement("td");
                                 var labelSaidaUsuario = document.createElement("span");
-                                labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
+                                labelSaidaUsuario = saida !== undefined && saida.usuario !== undefined ? saida.usuario.nome : "";
                                 cellSaidaUsuario.append(labelSaidaUsuario);
 
                                 var cellSaidaBrinde = document.createElement("td");
                                 var labelSaidaBrinde = document.createElement("span");
-                                labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
+                                labelSaidaBrinde.textContent = saida !== undefined && saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
                                 cellSaidaBrinde.append(labelSaidaBrinde);
 
                                 var cellSaidaQteGota = document.createElement("td");
                                 var labelSaidaQteGota = document.createElement("span");
-                                labelSaidaQteGota.textContent = saida.qte_gotas;
+                                labelSaidaQteGota.textContent = saida !== undefined ? saida.qte_gotas : 0;
                                 cellSaidaQteGota.classList.add("text-right");
                                 cellSaidaQteGota.append(labelSaidaQteGota);
 
@@ -802,6 +803,7 @@ $(function() {
         getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
     });
 
+    imprimirBtn.unbind("click");
     imprimirBtn.on("click", imprimirRelatorio);
 
     // #endregion

@@ -219,6 +219,11 @@ Router::scope("/api", function ($routes) {
                     "action" => "getPontuacoesRelatorioEntradaSaidaAPI",
                     "method" => "GET",
                     "path" => "/get_pontuacoes_relatorio_entrada_saida"
+                ],
+                "getRelatorioMovimentacaoGotasAPI" => [
+                    "action" => "getRelatorioMovimentacaoGotasAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/get_relatorio_movimentacao_gotas"
                 ]
             ]
         ]
