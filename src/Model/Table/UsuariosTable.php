@@ -834,7 +834,16 @@ class UsuariosTable extends GenericTable
                 ]
             );
 
+            return $usuarios;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
 
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
+        }
+    }
     /**
      * Encontra usuario por Id
      *
