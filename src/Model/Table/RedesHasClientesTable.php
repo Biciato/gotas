@@ -53,33 +53,12 @@ class RedesHasClientesTable extends GenericTable
             )
         );
 
-        $this->belongsTo(
-            'Rede',
-            array(
-                "className" => "Redes",
-                'foreignKey' => 'redes_id',
-                'joinType' => 'LEFT'
-            )
-        );
-
         $this->hasMany(
             'RedesHasClientesAdministradores',
             [
                 'foreignKey' => 'redes_has_clientes_id',
-                'joinTyp' => 'INNER'
+                'joinType' => 'INNER'
             ]
-        );
-
-        $this->hasOne(
-            "Cliente",
-            array(
-                "className" => "Clientes",
-                "foreignKey" => "id",
-                "joinType" => Query::JOIN_TYPE_INNER,
-                "conditions" => array(
-                    "RedesHasClientes.clientes_id = Cliente.id"
-                )
-            )
         );
 
         $this->belongsTo(
@@ -91,6 +70,7 @@ class RedesHasClientesTable extends GenericTable
             ]
         );
 
+        // @todo ver onde isto está sendo usado
         $this->belongsToMany(
             'ClientesHasUsuarios',
             [
@@ -268,7 +248,7 @@ class RedesHasClientesTable extends GenericTable
 
             return $clientesIds;
         } catch (\Exception $e) {
-            $trace = $e->getTrace();
+            $trace = $e->getTraceAsString();
 
             $stringError = __("Erro ao obter ids de Clientes de Rede: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
 
@@ -475,10 +455,10 @@ class RedesHasClientesTable extends GenericTable
     public function getRedesHasClientesByRedesId(int $redesId = 0, array $clientesIds = [])
     {
         try {
-            $whereCondition = array('redes_id' => $redesId);
+            $whereCondition = array('RedesHasClientes.redes_id' => $redesId);
 
             if (isset($clientesIds) && sizeof($clientesIds) > 0) {
-                $whereCondition[] = array('clientes_id in ' => $clientesIds);
+                $whereCondition[] = array('RedesHasClientes.clientes_id in ' => $clientesIds);
             }
 
             return $this->find('all')

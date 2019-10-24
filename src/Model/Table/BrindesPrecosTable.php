@@ -356,7 +356,7 @@ class BrindesPrecosTable extends GenericTable
             $trace = $e->getTraceAsString();
             $object = null;
 
-            $stringError = sprintf("[%s] %s %s", MESSAGE_DELETE_EXCEPTION, $e->getMessage());
+            $stringError = sprintf("[%s] %s %s", MSG_DELETE_EXCEPTION, $e->getMessage());
 
             Log::write('error', $stringError);
             throw new Exception($stringError);

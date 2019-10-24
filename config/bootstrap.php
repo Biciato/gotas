@@ -300,12 +300,25 @@ const PATH_IMAGES_USUARIOS_TEMP = "img/tmp/usuarios";
 
 const MESSAGE_ERROR_GPS_VALIDATION_CODE = 0x00000008;
 const MESSAGE_ERROR_GPS_VALIDATION = "Informações de Localização não obtidas, favor confira se a LOCALIZAÇÃO (GPS) está ativa!";
+
+const MSG_MAX_FILTER_TIME_ONE_MONTH = "Período máximo de filtro permitido é 1 (UM) mês!";
+const MSG_MAX_FILTER_TIME_ONE_MONTH_CODE = 0x00000016;
+
+const MSG_MAX_FILTER_TIME_ONE_YEAR = "Período máximo de filtro permitido é 1 (UM) ano!";
+const MSG_MAX_FILTER_TIME_ONE_YEAR_CODE = 0x0000000D;
+
+const MSG_DATE_BEGIN_GREATER_THAN_DATE_END = "DATA_INICIO não pode ser maior que DATA_FIM";
+const MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE = 0x0000000E;
+
 const MESSAGE_RECORD_NOT_FOUND_CODE = 0x00000001;
 const MESSAGE_RECORD_NOT_FOUND = "Registro não encontrado!";
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK_CODE = 0x00000002;
 const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à esta rede! Não é permitido a edição!';
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE = 0x00000003;
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
+
+const MSG_REPORT_TYPE_EMPTY = "Campo TIPO_RELATORIO não informado!";
+const MSG_REPORT_TYPE_EMPTY_CODE = 0x00000009;
 
 // Sucesso / Aviso
 
@@ -322,12 +335,12 @@ const MSG_ERROR = "Erro!";
 const MSG_WARNING = "Atenção!";
 
 // Erros
-const MESSAGE_LOAD_EXCEPTION_CODE = 0x00000004;
-const MESSAGE_LOAD_EXCEPTION = "Exceção ao obter dados!";
+const MSG_LOAD_EXCEPTION_CODE = 0x00000004;
+const MSG_LOAD_EXCEPTION = "Exceção ao obter dados!";
 const MESSAGE_SAVED_EXCEPTION_CODE = 0x00000005;
 const MESSAGE_SAVED_EXCEPTION = "Exceção ao salvar dados!";
-const MESSAGE_DELETE_EXCEPTION_CODE = 0x00000006;
-const MESSAGE_DELETE_EXCEPTION = "Exceção ao remover dados!";
+const MSG_DELETE_EXCEPTION_CODE = 0x00000006;
+const MSG_DELETE_EXCEPTION = "Exceção ao remover dados!";
 const MESSAGE_GENERIC_EXCEPTION_CODE = 0x00000007;
 const MESSAGE_GENERIC_EXCEPTION = "Exceção ao processar!";
 
@@ -382,14 +395,6 @@ const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenc
 
 #endregion
 
-
-
-#region Pontuacoes Comprovantes
-
-
-
-#endregion
-
 #endregion
 
 #region Entidades
@@ -400,7 +405,12 @@ const PATH_IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
-const MESSAGE_ID_EMPTY = "Campo ID não informado!";
+const MSG_ID_EMPTY = "Campo ID não informado!";
+const MSG_ID_EMPTY_CODE = 0x0000000A;
+const MSG_DATE_BEGIN_EMPTY = "Campo DATA_INICIO não informado!";
+const MSG_DATE_BEGIN_EMPTY_CODE = 0x0000000B;
+const MSG_DATE_END_EMPTY = "Campo DATA_FIM não informado!";
+const MSG_DATE_END_EMPTY_CODE = 0x0000000C;
 const MSG_USUARIOS_ID_EMPTY_CODE = 0x00000017;
 const MSG_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
 const MSG_REDES_ID_EMPTY_CODE = 0x00000018;
@@ -418,6 +428,8 @@ const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
+
+
 
 #endregion
 
@@ -480,6 +492,8 @@ const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
 #region Clientes
 
 const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimento à gerenciar!";
+const MSG_CLIENTES_FILTER_REQUIRED = "Necessário selecionar um estabelecimento para filtrar!";
+const MSG_CLIENTES_FILTER_REQUIRED_CODE = 0x00050001;
 
 const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
@@ -584,6 +598,9 @@ const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom import
 #endregion
 
 #region Redes
+
+const MSG_REDES_FILTER_REQUIRED = "Necessário selecionar uma rede para filtrar!";
+const MSG_REDES_FILTER_REQUIRED_CODE = 0x00F0002;
 
 const MESSAGE_NETWORK_CUSTOM_APP_NOT_CONFIGURED = "Funcionalidade não permitida para rede sem configuração de APP_PERSONALIZADO!";
 const MESSAGE_NETWORK_DESACTIVATED = "Rede desativada!";

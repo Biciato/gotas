@@ -53,19 +53,19 @@ Configure::write(
             false => 'Desabilitado'
         ],
         'giftApprovalStatus' =>
-            [
+        [
             'AwaitingAuthorization' => 0,
             'Allowed' => 1,
             'Denied' => 2
         ],
         'giftApprovalStatusTranslated' =>
-            [
+        [
             0 => 'Aguardando Autorização',
             1 => 'Autorizado',
             2 => 'Negado'
         ],
         'models' =>
-            [
+        [
             "Brindes",
             "CategoriasBrindes",
             "Clientes",
@@ -95,7 +95,7 @@ Configure::write(
             "Veiculos"
         ],
         'profileTypes' =>
-            [
+        [
             'AdminDeveloperProfileType' => 0,
             'AdminNetworkProfileType' => 1,
             'AdminRegionalProfileType' => 2,
@@ -107,7 +107,7 @@ Configure::write(
             'DummyUserProfileType' => 999,
         ],
         'profileTypesTranslated' =>
-            [
+        [
             0 => 'Admin. RTI / Desenvolvedor',
             1 => 'Administrador de Rede',
             2 => 'Administrador Regional',
@@ -119,7 +119,7 @@ Configure::write(
             999 => 'Usuário de Venda Avulsa',
         ],
         'profileTypesTranslatedDevel' =>
-            [
+        [
             0 => 'Admin. RTI / Desenvolvedor',
             1 => 'Administrador de Rede',
             2 => 'Administrador Regional',
@@ -129,17 +129,17 @@ Configure::write(
             6 => 'Usuário'
         ],
         "profileTypesTranslatedAdminNetwork" =>
-            array(
+        array(
             1 => 'Administrador de Rede',
             2 => 'Administrador Regional',
             3 => 'Administrador',
             4 => 'Gerente',
             5 => 'Funcionário',
             6
-                => 'Usuário'
+            => 'Usuário'
         ),
         "profileTypesTranslatedAdminToWorker" =>
-            array(
+        array(
             1 => 'Administrador de Rede',
             2 => 'Administrador Regional',
             3 => 'Administrador',
@@ -147,7 +147,7 @@ Configure::write(
             5 => 'Funcionário'
         ),
         "profileTypesWorkersTranslated" =>
-            array(
+        array(
             1 => 'Administrador de Rede',
             2 => 'Administrador Regional',
             3 => 'Administrador',
@@ -159,21 +159,21 @@ Configure::write(
             "rti" => 1
         ),
         'stockOperationTypes' =>
-            [
+        [
             'addType' => 0,
             'sellTypeGift' => 1,
             'sellTypeSale' => 2,
             'returnType' => 3
         ],
         'stockOperationTypesTranslated' =>
-            [
+        [
             0 => 'Adicionado ao Estoque',
             1 => 'Vendido como Brinde',
             2 => 'Venda normal',
             3 => 'Produto retornado'
         ],
         'showerType' =>
-            [
+        [
             1 => 'Masculino',
             2 => 'Masculino PNE',
             3 => 'Feminino',
@@ -222,7 +222,7 @@ Configure::write(
         'messageDateRangeInvalid' => 'A data de início deve ser menor que a Data de fim!',
         'messageDateTodayHigherInvalid' => "A {0} não pode ser maior que a data de Hoje!",
         'messageDenyErrorPrivileges'
-            => `Este registro só pode ser modificado por um Administrador. Você não possui este nível de acesso.`,
+        => `Este registro só pode ser modificado por um Administrador. Você não possui este nível de acesso.`,
         'messageDenyGiftPrice' => 'O preço foi negado.',
         'messageDisableError' => 'Não foi possível desabilitar o registro!',
         'messageDisableQuestion' => 'Deseja realmente desabilitar o registro {0} ?',

@@ -284,12 +284,14 @@ class ClientesController extends AppController
     {
         try {
             $arraySet = array('cliente', "redesId");
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-            if ($usuarioAdministrador) {
-                $this->usuarioLogado = $usuarioAdministrar;
+            if ($usuarioAdministrar) {
+                $usuarioLogado = $usuarioAdministrar;
+                $this->usuarioLogado = $usuarioLogado;
             }
 
             $cliente = $this->Clientes->getClienteById($id);
@@ -727,7 +729,15 @@ class ClientesController extends AppController
     {
         $sessao = $this->getSessionUserVariables();
         $rede = $sessao["rede"];
-        $redesId = $rede["id"];
+        $redesId = $rede->id;
+        $cliente = $sessao["cliente"];
+        $clientesIds = [];
+        $clientesId = !empty($cliente) && !empty($cliente->id) ? $cliente->id : null;
+        $usuarioLogado = $sessao["usuarioLogado"];
+
+        if (!empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+            $clientesIds[] = $clientesId;
+        }
 
         try {
             // Caso o método seja chamado via get
@@ -745,14 +755,18 @@ class ClientesController extends AppController
             );
 
             if (empty($redesId)) {
-                throw new Exception(MESSAGE_ID_EMPTY);
+                throw new Exception(MSG_ID_EMPTY);
             }
 
-            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, array(), $selectList);
+            $redeHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId, $clientesIds);
+
+            $redeHasClientes = $redeHasClientes->select($selectList);
+
+            // return ResponseUtil::successAPI("", [$redeHasClientes->toArray()]);
             $clientes = [];
 
             foreach ($redeHasClientes as $redeHasCliente) {
-                $clientes[] = $redeHasCliente["cliente"];
+                $clientes[] = $redeHasCliente->Clientes;
             }
 
             if (count($clientes) == 0) {
@@ -763,10 +777,10 @@ class ClientesController extends AppController
 
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 

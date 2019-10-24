@@ -70,11 +70,8 @@ class RedesController extends AppController
     public function verDetalhes($id = null)
     {
         try {
-
             $rede = $this->Redes->getRedeById($id);
-
             $imagem = strlen($rede->nome_img) > 0 ? Configure::read('imageNetworkPathRead') . $rede->nome_img : null;
-
             $nomeFantasia = null;
             $razaoSocial = null;
             $cnpj = null;
@@ -82,23 +79,17 @@ class RedesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
-
                 $nomeFantasia = !empty($data["nome_fantasia"]) ? $data["nome_fantasia"] : null;
                 $razaoSocial = !empty($data["razao_social"]) ? $data["razao_social"] : null;
                 $cnpj = strlen($data["cnpj"]) > 0 ? $this->cleanNumber($data["cnpj"]) : null;
-
-                // debug($data);
-                // die();
             }
 
-            $redes_has_clientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
-            // $redes_has_clientes = $rede["redes_has_clientes"];
+            $redesHasClientes = $this->RedesHasClientes->findRedesHasClientes($id, $clientesIds, $nomeFantasia, $razaoSocial, $cnpj);
+            $this->paginate($redesHasClientes, ['limit' => 10]);
 
-            // $this->paginate($rede["redes_has_clientes"], ['limit' => 10]);
-            $this->paginate($redes_has_clientes, ['limit' => 10]);
-
-            $this->set(compact('rede', 'redes_has_clientes', 'imagem'));
-            $this->set('_serialize', ['rede', 'redes_has_clientes', 'imagem']);
+            $arraySet = ['rede', 'redesHasClientes', 'imagem'];
+            $this->set(compact($arraySet));
+            $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $message = __("Erro ao exibir detalhes de Rede : {0}", $e->getMessage());
@@ -305,6 +296,10 @@ class RedesController extends AppController
             if (sizeof($clientesIds) > 0) {
                 // Usuários Has Brindes
                 $this->UsuariosHasBrindes->deleteAllUsuariosHasBrindesByClientesIds($clientesIds);
+
+
+                // Remoção de Transaçoes de cupons
+                $this->CuponsTransacoes->deleteAllByRedesId($rede->id);
                 // Remoção de Cupons
                 $this->Cupons->deleteAllCuponsByClientesIds($clientesIds);
 
@@ -344,6 +339,7 @@ class RedesController extends AppController
                 // Remove a unidade de rede
                 $this->RedesHasClientes->deleteRedesHasClientesByClientesIds($clientesIds);
 
+                // Remove todos os horários para não dar erro de chave em cupons
                 foreach ($clientesIds as $clienteId) {
                     $this->ClientesHasQuadroHorario->deleteHorariosCliente($clienteId);
                 }

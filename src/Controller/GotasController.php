@@ -2,22 +2,15 @@
 
 namespace App\Controller;
 
+use \DateTime;
 use App\Controller\AppController;
-use App\Model\Entity;
-use Cake\ORM\TableRegistry;
+use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\Entity\Mensagem;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Gota;
 use Cake\Log\Log;
-use Cake\ORM\Query;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use App\Custom\RTI\Security;
-use App\Custom\RTI\DateTimeUtil;
-use \DateTime;
-use App\Custom\RTI\DebugUtil;
-use App\Custom\RTI\Entity\Mensagem;
-use App\Custom\RTI\QRCodeUtil;
-use App\Custom\RTI\ResponseUtil;
-use App\Custom\RTI\SefazUtil;
-use App\Model\Entity\Gota;
 use Cake\Http\Client\Request;
 use Exception;
 
@@ -157,7 +150,7 @@ class GotasController extends AppController
 
             $this->set(compact('gota'));
             $this->set('_serialize', ['gota']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $trace = $e->getTrace();
             $message = __("Erro ao adicionar gotas de cliente: {0} em: {1} ", $e->getMessage(), $trace[1]);
 
@@ -735,8 +728,6 @@ class GotasController extends AppController
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
-            $mensagem = new Mensagem();
-
             if (empty($clientesId)) {
                 $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
                 $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
@@ -752,9 +743,8 @@ class GotasController extends AppController
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             } catch (\Throwable $th) {
-
                 for ($i = 0; $i < count($errors); $i++) {
-                    Log::write("error", sprintf("", $errorCodes[$i], $errors[$i]));
+                    Log::write("error", sprintf("[%s] %s: %s", MESSAGE_LOAD_EXCEPTION, $errorCodes[$i], $errors[$i]));
                 }
 
                 return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
@@ -945,19 +935,19 @@ class GotasController extends AppController
 
                     if ($dataInicial > $dataFinal) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-                } else if (strlen($data['auditInsertInicio']) > 0) {
+                } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert >= ' => $dataInicial];
                     }
-                } else if (strlen($data['auditInsertFim']) > 0) {
+                } elseif (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
@@ -986,7 +976,7 @@ class GotasController extends AppController
                 $clientesIds = [];
 
                 // obtem os ids das unidades para saber quais brindes estão disponíveis
-                foreach ($rede->redes_has_clientes as $key => $value) {
+                foreach ($rede->redes_has_clientes as $value) {
                     $clientesIds[] = $value->clientes_id;
                 }
 
@@ -994,7 +984,11 @@ class GotasController extends AppController
 
                 $cliente = null;
 
-                $gotasArray = $this->Gotas->findGotasByClientesId($clientesIds, $arrayWhereConditions)->toArray();
+                $gotasArray = [];
+
+                if (count($clientesIds) > 0) {
+                    $gotasArray = $this->Gotas->findGotasByClientesId($clientesIds, $arrayWhereConditions)->toArray();
+                }
 
                 $redeItem['gotas'] = $gotasArray;
 
@@ -1003,12 +997,7 @@ class GotasController extends AppController
                 }
             }
 
-            $arraySet = [
-                'redesList',
-                'redes'
-            ];
 
-            $this->set(compact($arraySet));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1018,6 +1007,13 @@ class GotasController extends AppController
 
             $this->Flash->error($stringError);
         }
+
+        $arraySet = [
+            'redesList',
+            'redes'
+        ];
+
+        $this->set(compact($arraySet));
     }
 
     /**
@@ -1067,19 +1063,19 @@ class GotasController extends AppController
 
                     if ($dataInicial > $dataFinal) {
                         $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                    } else if ($dataInicial > $dataHoje) {
+                    } elseif ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
                     }
-                } else if (strlen($data['auditInsertInicio']) > 0) {
+                } elseif (strlen($data['auditInsertInicio']) > 0) {
 
                     if ($dataInicial > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
                     } else {
                         $whereConditions[] = ['gotas.audit_insert >= ' => $dataInicial];
                     }
-                } else if (strlen($data['auditInsertFim']) > 0) {
+                } elseif (strlen($data['auditInsertFim']) > 0) {
 
                     if ($dataFinal > $dataHoje) {
                         $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));

@@ -31,7 +31,7 @@ use Cake\Routing\Router;
                    $listaPerfis = array();
                    $perfis = array();
 
-                   if (isset($redesId)){
+                   if (!isset($redesId)){
                        // $listaPerfis[] = array(0 => "Administradores da RTI / Desenvolvedor");
                        $perfis[0] = "Administradores da RTI / Desenvolvedor";
                    }

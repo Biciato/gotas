@@ -2,17 +2,18 @@
 
 namespace App\Controller;
 
+use \DateTime;
+use \Exception;
 use App\Controller\AppController;
-use App\Model\Entity;
+use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
-use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use App\Custom\RTI\Security;
-use \DateTime;
-use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Cliente;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use stdClass;
 
 /**
  * Pontuacoes Controller
@@ -512,6 +513,69 @@ class PontuacoesController extends AppController
     }
 
     /**
+     * PontuacoesController.php::relatorioEntradaSaida
+     *
+     * View para Relatório de Entrada e Saída de Pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
+    public function relatorioEntradaSaida()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL ? $cliente->id : null;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * PontuacoesController.php::relatorioGotas
+     *
+     * View para Relatório de Entrada e Saída de Pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-17
+     *
+     * @return void
+     */
+    public function relatorioGotas()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $clientesId = $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL || !empty($cliente) ? $cliente->id : null;
+
+        $arraySet = ["clientesId"];
+        $this->set(compact($arraySet));
+        $this->set("_serialize", $arraySet);
+    }
+
+
+    /**
      * ------------------------------------------------------------
      * Serviços REST
      * ------------------------------------------------------------
@@ -533,8 +597,14 @@ class PontuacoesController extends AppController
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuario = $sessaoUsuario["usuarioLogado"];
 
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuario = $sessaoUsuario["usuarioLogado"];
+
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 $redesId = $data["redes_id"];
                 $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
@@ -650,6 +720,9 @@ class PontuacoesController extends AppController
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 // Condições de Pesquisa
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
@@ -756,6 +829,442 @@ class PontuacoesController extends AppController
         $this->set("_serialize", $arraySet);
 
         return;
+    }
+
+    public function getPontuacoesRelatorioEntradaSaidaAPI()
+    {
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $rede = $sessaoUsuario["rede"];
+            $cliente = $sessaoUsuario["cliente"];
+            $clientesIdSession = !empty($cliente) ? $cliente->id : null;
+            $clientesIds = [];
+
+            if (!empty($usuarioAdministrar)) {
+                $usuarioLogado = $usuarioAdministrar;
+            }
+
+            if ($this->request->is(Request::METHOD_GET)) {
+                // Obtenção dos dados
+                $data = $this->request->getQueryParams();
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : null;
+                $clientesIds = [];
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
+                if (empty($clientesId) && $usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_LOCAL) {
+                    $clientesId = $clientesIdSession;
+                    $clientesIds[] = $clientesId;
+                } elseif (empty($clientesId) && $usuarioLogado->tipo_perfil < PROFILE_TYPE_ADMIN_LOCAL) {
+                    // Caso o operador não especifique a loja, pega as lojas que ele tem acesso e faz pesquisa
+                    if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_NETWORK) {
+                        $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+                    }
+                } else {
+                    $clientesIds[] = $clientesId;
+                }
+
+                $clientes = [];
+
+                foreach ($clientesIds as $cliente) {
+                    $cliente = $this->Clientes->get($cliente);
+
+                    $clientes[] = new Cliente([
+                        "id" => $cliente->id,
+                        "nome_fantasia" => $cliente->nome_fantasia,
+                        "razao_social" => $cliente->razao_social
+                    ]);
+                }
+
+                // As gotas que entram/saem do sistema ficam na tabela pontuacoes
+                // Existem dois tipos de relatorio: ANALITICO E SINTETICO
+
+                // SINTETICO traz apenas a soma, o periodo, e a unidade
+                // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
+
+                $data = [];
+                $totalEntradas = 0;
+                $totalSaidas = 0;
+
+                foreach ($clientes as $cliente) {
+                    $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_IN, $tipoRelatorio);
+                    $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, PONTUACOES_TYPE_OPERATION_OUT, $tipoRelatorio);
+
+                    $entradas = $entradas->toArray();
+                    $saidas = $saidas->toArray();
+                    $somaEntradas = 0;
+                    $somaSaidas = 0;
+
+                    /**
+                     * Processo de verificação que analiza se os dois conjuntos de registro estão com os
+                     * mesmos periodos informados
+                     */
+                    foreach ($entradas as $entrada) {
+                        // verifica se o periodo de entrada possui em saída
+                        $registroEncontrado = false;
+
+                        foreach ($saidas as $saida) {
+                            if ($saida["periodo"] == $entrada["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $saidas[] = ["periodo" => $entrada["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaEntradas += $entrada["qte_gotas"];
+                    }
+
+                    foreach ($saidas as $saida) {
+                        // verifica se o periodo de entrada possui em saída
+                        $registroEncontrado = false;
+
+                        foreach ($entradas as $entrada) {
+                            if ($entrada["periodo"] == $saida["periodo"]) {
+                                $registroEncontrado = true;
+                            }
+                        }
+
+                        if (!$registroEncontrado) {
+                            $entradas[] = ["periodo" => $saida["periodo"], "qte_gotas" => 0];
+                        }
+
+                        $somaSaidas += $saida["qte_gotas"];
+                    }
+
+                    usort($entradas, function ($a, $b) {
+
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    usort($saidas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    $entradasAnalitico = [];
+                    $saidasAnalitico = [];
+
+                    // Se o relatório é analítico, o agrupamento dos registros será pelo mês
+                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+
+                        foreach ($entradas as $entrada) {
+                            $dataAgrupamento = new DateTime($entrada["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
+                        }
+
+                        foreach ($saidas as $saida) {
+                            $dataAgrupamento = new DateTime($saida["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
+                        }
+
+                        $entradasAnaliticoTemp = [];
+                        foreach ($entradasAnalitico as $entrada) {
+                            $somaEntradasAnalitico = 0;
+
+                            foreach ($entrada["data"] as $registroAnalitico) {
+                                $somaEntradasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $entrada["soma_entradas"] = $somaEntradasAnalitico;
+                            $entradasAnaliticoTemp[] = $entrada;
+                        }
+
+                        $saidasAnaliticoTemp = [];
+                        foreach ($saidasAnalitico as $saida) {
+                            $somaSaidasAnalitico = 0;
+
+                            foreach ($saida["data"] as $registroAnalitico) {
+                                $somaSaidasAnalitico += $registroAnalitico["qte_gotas"];
+                            }
+
+                            $saida["soma_saidas"] = $somaSaidasAnalitico;
+                            $saidasAnaliticoTemp[] = $saida;
+                        }
+
+                        $entradasAnalitico = $entradasAnaliticoTemp;
+                        $saidasAnalitico = $saidasAnaliticoTemp;
+
+                        $entradas = $entradasAnalitico;
+                        $saidas = $saidasAnalitico;
+                    }
+
+                    $clientesPontuacoes[] = [
+                        "cliente" => $cliente,
+                        "pontuacoes_entradas" => $entradas,
+                        "pontuacoes_saidas" => $saidas,
+                        "soma_entradas" => $somaEntradas,
+                        "soma_saidas" => $somaSaidas,
+                    ];
+
+                    $totalEntradas += $somaEntradas;
+                    $totalSaidas += $somaSaidas;
+                }
+
+                $pontuacoesReport = ["pontuacoes" => $clientesPontuacoes, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
+                $dadosRelatorio = ['pontuacoes_report' => $pontuacoesReport];
+                $dataRetorno = ["data" => $dadosRelatorio];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataRetorno);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+    /**
+     * Obtem relatório de movimentação
+     *
+     * Obtem dados e relatório em formato JSON indicando movimentação de Gotas dos clientes conforme posto selecionado
+     *
+     * PontuacoesController::getExtratoPontuacoesAPI
+     *
+     * @param int $clientes_id Id de Cliente
+     * @param int $gotas_id Id de Gota
+     * @param int $funcionarios_id Id de Funcionário
+     * @param string $tipo_relatorio Tipo de Relatório (Analítico / Sintético)
+     * @param Date $data_inicio Data Inicio
+     * @param Date $data_fim Data Fim
+     *
+     * @return json_object $data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-10-24
+     */
+    public function getRelatorioMovimentacaoGotasAPI()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $rede = $sessao["rede"];
+        $usuario = $sessao["usuarioLogado"];
+        $usuarioAdministrar = $sessao["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+                $gotasId = !empty($data["gotas_id"]) ? (int) $data["gotas_id"] : null;
+                $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
+                $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+                $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                }
+
+                $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
+
+                if (!empty($clientesId)) {
+                    $clientesIds = [$clientesId];
+                }
+
+                $list = [];
+                $totalGotas = 0;
+                $totalLitros = 0;
+                $totalReais = 0;
+
+                foreach ($clientesIds as $clientesIdItem) {
+                    $cliente = $this->Clientes->get($clientesIdItem);
+
+                    $pontuacoes = $this->Pontuacoes->getPontuacoesGotasMovimentationForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio);
+
+                    $item = new stdClass();
+                    $item->cliente = $cliente;
+
+                    $pontuacoesTemp = [];
+                    $estabelecimentoGotas = 0;
+                    $estabelecimentoLitros = 0;
+                    $estabelecimentoReais = 0;
+
+                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                        $dataAgrupamento = "";
+                        $somaGotas = 0;
+                        $somaLitros = 0;
+                        $somaReais = 0;
+                        $somaPeriodo = [];
+
+                        foreach ($pontuacoes as $pontuacao) {
+                            $dataAgrupamento = $pontuacao->data_formatada;
+                            $pontuacoesTemp[$dataAgrupamento]["pontuacoes"][] = $pontuacao;
+                            $somaPeriodo[$dataAgrupamento]["soma_gotas"] = 0;
+                            $somaPeriodo[$dataAgrupamento]["soma_litros"] = 0;
+                            $somaPeriodo[$dataAgrupamento]["soma_reais"] = 0;
+
+                            $somaGotas += $pontuacao->quantidade_gotas;
+                            $somaLitros += $pontuacao->quantidade_litros;
+                            $somaReais += $pontuacao->quantidade_reais;
+                        }
+
+                        $estabelecimentoGotas += $somaGotas;
+                        $estabelecimentoLitros += $somaLitros;
+                        $estabelecimentoReais += $somaReais;
+
+                        $totalGotas += $somaGotas;
+                        $totalLitros += $somaLitros;
+                        $totalReais += $somaReais;
+
+                        $somaGotas = 0;
+                        $somaLitros = 0;
+                        $somaReais = 0;
+
+                        foreach ($pontuacoesTemp as $pontuacao) {
+                            foreach ($pontuacao["pontuacoes"] as $pontuacaoData) {
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_gotas"] += $pontuacaoData->quantidade_gotas;
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_litros"] += $pontuacaoData->quantidade_litros;
+                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_reais"] += $pontuacaoData->quantidade_reais;
+                            }
+                        }
+
+                        foreach ($somaPeriodo as $periodo => $soma) {
+                            $pontuacoesTemp[$periodo]["soma_gotas"] = $soma["soma_gotas"];
+                            $pontuacoesTemp[$periodo]["soma_litros"] = $soma["soma_litros"];
+                            $pontuacoesTemp[$periodo]["soma_reais"] = $soma["soma_reais"];
+                        }
+                    }
+
+                    if (count($pontuacoesTemp) > 0) {
+                        $pontuacoes = $pontuacoesTemp;
+                    }
+
+                    if ($tipoRelatorio == REPORT_TYPE_SYNTHETIC) {
+                        $totalGotas += $pontuacoes->quantidade_gotas;
+                        $totalLitros += $pontuacoes->quantidade_litros;
+                        $totalReais += $pontuacoes->quantidade_reais;
+                        $item->pontuacoes = $pontuacoes;
+                    } else {
+                        $item->periodos = $pontuacoes;
+
+                        $item->estabelecimento_gotas = $estabelecimentoGotas;
+                        $item->estabelecimento_litros = $estabelecimentoLitros;
+                        $item->estabelecimento_reais = $estabelecimentoReais;
+                    }
+
+                    $list[] = $item;
+                }
+
+                $data = [
+                    "data" =>
+                    [
+                        "pontuacoes" => $list,
+                        "total_gotas" => $totalGotas,
+                        "total_litros" => $totalLitros,
+                        "total_reais" => $totalReais,
+                    ]
+                ];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
     }
 
     public function relUsuariosFrequenciaMediaAPI()

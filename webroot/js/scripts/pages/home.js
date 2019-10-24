@@ -719,6 +719,8 @@ var initializeDatePicker = function(
             $("#" + campoOculto).val(moment(valor, format).format(formatUS));
         });
     }
+
+    return $("#" + campo);
 };
 
 /**

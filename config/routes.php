@@ -90,13 +90,18 @@ Router::scope("/api", function ($routes) {
                 // Ajax. Irá mudar
                 "findBrindes" => [
                     "action" => "findBrindes",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/findBrindes"
+                ],
+                "getBrindesList" => [
+                    "action" => "getBrindesListAPI",
+                    "method" => "GET",
+                    "path" => "get_brindes_list"
                 ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getBrindesUnidadeAPI" => [
                     "action" => "getBrindesUnidadeAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/get_brindes_unidade"
                 ],
                 "getBrindesUnidadesParaTopBrindesAPI" => [
@@ -125,7 +130,7 @@ Router::scope("/api", function ($routes) {
                 ],
                 "setCategoriasBrindes" => [
                     "action" => "setCategoriasBrindesAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/set_categorias_brindes"
                 ],
                 "updateCategoriasBrindes" => [
@@ -154,25 +159,25 @@ Router::scope("/api", function ($routes) {
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "efetuarBaixaCupomAPI" => array(
                     "action" => "efetuarBaixaCupomAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/efetuar_baixa_cupom"
                 ),
                 // utilizado pelo APP Mobile.
                 "efetuarEstornoCupomAPI" => array(
                     "action" => "efetuarEstornoCupomAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "efetuar_estorno_cupom"
                 ),
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "resgatarCupomAPI" => [
                     "action" => "resgatarCupomAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/resgatar_cupom"
                 ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getCuponsUsuarioAPI" => [
                     "action" => "getCuponsUsuarioAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/get_cupons_usuario"
                 ]
             ]
@@ -201,15 +206,25 @@ Router::scope("/api", function ($routes) {
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getPontuacoesRedeAPI" => [
                     "action" => "getPontuacoesRedeAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/get_pontuacoes_rede"
                 ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getExtratoPontuacoesAPI" => array(
                     "action" => "getExtratoPontuacoesAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/get_extrato_pontuacoes"
-                )
+                ),
+                "getPontuacoesRelatorioEntradaSaidaAPI" => [
+                    "action" => "getPontuacoesRelatorioEntradaSaidaAPI",
+                    "method" => "GET",
+                    "path" => "/get_pontuacoes_relatorio_entrada_saida"
+                ],
+                "getRelatorioMovimentacaoGotasAPI" => [
+                    "action" => "getRelatorioMovimentacaoGotasAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/get_relatorio_movimentacao_gotas"
+                ]
             ]
         ]
     );
@@ -221,7 +236,7 @@ Router::scope("/api", function ($routes) {
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "getComprovantesFiscaisUsuarioAPI" => [
                     "action" => "getComprovantesFiscaisUsuarioAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/get_comprovantes_fiscais_usuario"
                 ],
                 "setGotasManualUsuarioAPI" => [
@@ -232,7 +247,7 @@ Router::scope("/api", function ($routes) {
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "setComprovanteFiscalUsuarioAPI" => [
                     "action" => "setComprovanteFiscalUsuarioAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/set_comprovante_fiscal_usuario"
                 ],
                 "setComprovanteFiscalUsuarioManualAPI" => [
@@ -243,7 +258,7 @@ Router::scope("/api", function ($routes) {
                 // utilizado por clientes REST de Sistemas de Postos. Cuidado ao mexer
                 "setPontuacoesUsuarioViaPostoAPI" => array(
                     "action" => "setPontuacoesUsuarioViaPostoAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "/set_pontuacoes_usuario_via_posto"
                 ),
                 // utilizado pelo APP Mobile. Cuidado ao mexer
@@ -254,7 +269,7 @@ Router::scope("/api", function ($routes) {
                 ),
                 "setComprovanteFiscalViaFuncionarioAPI" => array(
                     "action" => "setComprovanteFiscalViaFuncionarioAPI",
-                    "method" => "POST",
+                    "method" => Request::METHOD_POST,
                     "path" => "set_comprovante_fiscal_via_funcionario"
                 )
             ]
@@ -271,7 +286,7 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getRedesAPI" => [
                 "action" => "getRedesAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_redes"
             ],
             "getRedesListAPI" => [
@@ -281,7 +296,7 @@ Router::scope("/api", function ($routes) {
             ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/envia_imagem_propaganda"
             )
         ]
@@ -291,7 +306,7 @@ Router::scope("/api", function ($routes) {
         "map" => array(
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/envia_imagem_propaganda"
             ),
             // utilizado pelo Angular
@@ -313,19 +328,19 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getUnidadeRedeByIdAPI" => array(
                 "action" => "getUnidadeRedeByIdAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_unidade_rede_by_id"
             ),
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getUnidadesRedesProximasAPI" => array(
                 "action" => "getUnidadesRedesProximasAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_unidades_redes_proximas"
             ),
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getUnidadesRedesAPI" => array(
                 "action" => "getUnidadesRedesAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_unidades_redes"
             )
         )
@@ -351,12 +366,12 @@ Router::scope("/api", function ($routes) {
             ],
             "setTopBrindeNacionalAPI" => [
                 "action" => "setTopBrindeNacionalAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "set_top_brinde_nacional"
             ],
             "setTopBrindePostoAPI" => [
                 "action" => "setTopBrindePostoAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "set_top_brinde_posto"
             ],
             "setPosicoesTopBrindesAPI" => [
@@ -372,13 +387,13 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getTransportadoraByCNPJAPI" => [
                 "action" => "getTransportadoraByCNPJAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_transportadora_by_cnpj"
             ],
             // Utilizado pelo angular
             "getTransportadorasUsuarioAPI" => array(
                 "action" => "getTransportadorasUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_transportadoras_usuario"
             )
         ]
@@ -389,25 +404,25 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getTransportadorasUsuarioAPI" => [
                 "action" => "getTransportadorasUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_transportadoras_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "setTransportadorasUsuarioAPI" => [
                 "action" => "setTransportadorasUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/set_transportadoras_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "updateTransportadorasUsuarioAPI" => [
                 "action" => "updateTransportadorasUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/update_transportadoras_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "deleteTransportadorasUsuarioAPI" => [
                 "action" => "deleteTransportadorasUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/delete_transportadoras_usuario"
             ],
         ]
@@ -418,13 +433,13 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "alterarSenhaAPI" => array(
                 "action" => "alterarSenhaAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/alterar_senha"
             ),
             // utilizado pelo APP Mobile. Cuidado ao mexer
             'setPerfilAPI' => [
                 'action' => "setPerfilAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/set_perfil"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
@@ -498,47 +513,53 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo Angular
             "getUsuarioByIdAPI" => array(
                 "action" => "getUsuarioByIdAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_usuario_by_id"
             ),
 
             "getUsuarioByDocEstrangeiroAPI" => array(
                 "action" => "getUsuarioByDocEstrangeiroAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_usuario_by_doc_estrangeiro"
             ),
 
-            "getListaUsuariosRedeAPI" => array(
-                "action" => "getListaUsuariosRedeAPI",
-                "method" => "POST",
-                "path" => "/get_lista_usuarios_rede"
+            "getFuncionariosListAPI" => array(
+                "action" => "getFuncionariosListAPI",
+                "method" => "GET",
+                "path" => "/get_funcionarios_list"
             ),
 
             // utilizado pelo Angular
             "getUsuariosAssiduosAPI" => array(
                 "action" => "getUsuariosAssiduosAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_usuarios_assiduos"
             ),
 
             // utilizado pelo Angular
             "generateExcelUsuariosAssiduosAPI" => array(
                 "action" => "generateExcelUsuariosAssiduosAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/generate_excel_usuarios_assiduos"
             ),
 
             // utilizado pelo Angular
             "getUsuariosFidelizadosAPI" => array(
                 "action" => "getUsuariosFidelizadosAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_usuarios_fidelizados"
             ),
+
+            "getUsuariosFidelizadosRedeAPI" => [
+                "action" => "getUsuariosFidelizadosRedeAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_usuarios_fidelizados_rede"
+            ],
 
             // utilizado pelo Angular
             "generateExcelUsuariosFidelizadosAPI" => array(
                 "action" => "generateExcelUsuariosFidelizadosAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/generate_excel_usuarios_fidelizados"
             ),
         ]
@@ -549,19 +570,19 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getVeiculoByIdAPI" => array(
                 "action" => "getVeiculoByIdAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_veiculo_by_id"
             ),
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getVeiculoByPlacaAPI" => [
                 "action" => "getVeiculoByPlacaAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_veiculo_by_placa"
             ],
             // utilizado pelo Angular
             "getVeiculosUsuarioAPI" => array(
                 "action" => "getVeiculosUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_veiculos_usuario"
             )
         ]
@@ -572,25 +593,25 @@ Router::scope("/api", function ($routes) {
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getVeiculosUsuarioAPI" => [
                 "action" => "getVeiculosUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/get_veiculos_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "setVeiculosUsuarioAPI" => [
                 "action" => "setVeiculosUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/set_veiculos_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "deleteVeiculosUsuarioAPI" => [
                 "action" => "deleteVeiculosUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/delete_veiculos_usuario"
             ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "updateVeiculosUsuarioAPI" => [
                 "action" => "updateVeiculosUsuarioAPI",
-                "method" => "POST",
+                "method" => Request::METHOD_POST,
                 "path" => "/update_veiculos_usuario"
             ]
         ]

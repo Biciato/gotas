@@ -252,7 +252,8 @@ return [
             'driver' => 'Cake\Database\Driver\Mysql',
             // 'persistent' => false,
             'persistent' => true,
-            'host' => __HOST__,
+            // 'host' => __HOST__,
+            'host' => 'localhost',
             // 'host' => 'sistema.gotas.com.br',
             /**
              * CakePHP will use the default DB port based on the driver selected
@@ -260,7 +261,8 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'rti_gotas',
+            'username' => __DATABASE__,
+            // 'username' => 'rti_gotas',
             'password' => ']tS(nyjFXBwP=u8+',
             // 'database' => 'rti_gotas',
             'database' => __DATABASE__,
@@ -372,14 +374,14 @@ return [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'debug',
-            'levels' => ['notice', 'info', 'debug'],
+            'levels' => ['notice', 'info', 'debug', "error"],
             'url' => env('LOG_DEBUG_URL', null),
         ],
         'error' => [
             'className' => 'Cake\Log\Engine\FileLog',
             'path' => LOGS,
             'file' => 'error',
-            'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+            'levels' => ['error', 'critical', 'alert', 'emergency'],
             'url' => env('LOG_ERROR_URL', null),
         ],
         'info' => [
@@ -390,6 +392,13 @@ return [
             'url' => env('LOG_ERROR_URL', null),
         ],
 
+        // 'trace' => [
+        //     'className' => 'Cake\Log\Engine\FileLog',
+        //     'path' => LOGS,
+        //     'file' => 'trace',
+        //     'levels' => ["trace", "error", "debug", "info", "warning"],
+        //     'url' => env('LOG_ERROR_URL', null),
+        // ],
 
         // guardar todas as queries executadas em log
         'queries' => [

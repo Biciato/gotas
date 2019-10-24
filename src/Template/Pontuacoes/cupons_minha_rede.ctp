@@ -11,7 +11,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Cupons Emitidos', [], ['class' => 'active']);
+$this->Breadcrumbs->add('Pontuações de Gotas', [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -23,7 +23,7 @@ echo $this->Breadcrumbs->render(
 
 <div class="col-lg-9 col-md-10 columns">
     <legend>
-        <?= __("Cupons Emitidos") ?>
+        <?= __("Pontuações de Gotas") ?>
     </legend>
 
     <div class="col-lg-12">

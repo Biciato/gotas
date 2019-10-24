@@ -136,11 +136,9 @@ if (empty($usuarioLogado)) {
                         <ul class="dropdown-menu">
                             <li><?php echo $this->Html->link(__("Brindes Cadastrados por Rede"), ['controller' => 'Brindes', 'action' => 'relatorio_brindes_redes']) ?> </li>
 
-                            <li><?php echo $this->Html->link(__("Brindes Habilitados de Unidades por Rede"), ['controller' => 'ClientesHasBrindesHabilitados', 'action' => 'relatorio_brindes_habilitados_redes']) ?> </li>
+                            <!-- <li><?php echo $this->Html->link(__("Estoque de Brindes por Unidade de Rede"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'relatorio_estoque_brindes_redes']) ?> </li> -->
 
-                            <li><?php echo $this->Html->link(__("Estoque de Brindes por Unidade de Rede"), ['controller' => 'ClientesHasBrindesEstoque', 'action' => 'relatorio_estoque_brindes_redes']) ?> </li>
-
-                            <li><?php echo $this->Html->link(__("Histórico de Preços de Brinde "), ['controller' => 'ClientesHasBrindesHabilitadosPreco', 'action' => 'relatorio_historico_preco_brindes_redes']) ?> </li>
+                            <!-- <li><?php echo $this->Html->link(__("Histórico de Preços de Brinde "), ['controller' => 'ClientesHasBrindesHabilitadosPreco', 'action' => 'relatorio_historico_preco_brindes_redes']) ?> </li> -->
 
                         </ul>
                     </li>
@@ -233,7 +231,7 @@ if (empty($usuarioLogado)) {
     <?php
             // Administrador de Rede ou Regional
 
-        } else if ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
+        } elseif ($usuarioLogado['tipo_perfil'] >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado['tipo_perfil'] <= PROFILE_TYPE_ADMIN_REGIONAL) {
 
             ?>
         <ul class="nav navbar-nav navbar-right">
@@ -243,9 +241,9 @@ if (empty($usuarioLogado)) {
 
 
                     <?php
-                            // se o administrador não selecionou uma unidade para gerenciar
-                            // só permite ver os items de Cadastro de Usuários e Relatórios
-                            ?>
+                    // se o administrador não selecionou uma unidade para gerenciar
+                    // só permite ver os items de Cadastro de Usuários e Relatórios
+                    ?>
                     <li>
                         <a href="/redes/configurarParametrosRede">Configurar Parâmetros da Rede</a>
                     </li>
@@ -272,9 +270,8 @@ if (empty($usuarioLogado)) {
                         <a href="/pontuacoesComprovantes/correcao_gotas">Correção de Gotas de Usuário</a>
                     </li>
 
-                    <li role="separator" class="divider" />
-
                     <?php if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_NETWORK) : ?>
+                        <li role="separator" class="divider" />
                         <!-- brinde só pode ser cadastrado por um Administrador da Rede -->
                         <li>
                             <a href="/categoriasBrindes/index">Cadastro de Categorias de Brindes</a>
@@ -284,7 +281,7 @@ if (empty($usuarioLogado)) {
                             <a href="/brindes/escolherPostoConfigurarBrinde">Cadastro de Brindes</a>
                         </li>
 
-                        <?php if ($rede->app_personalizado) : ?>
+                        <?php if ($rede->app_personalizado): ?>
                             <li>
                                 <a href="/topBrindes/nacional">Cadastro Top Brindes Nacional</a>
                             </li>
@@ -317,6 +314,9 @@ if (empty($usuarioLogado)) {
 
                     <li>
                         <?php echo $this->Html->link('Relatório de Pontuações', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <a href="/pontuacoes/relatorioGotas">Relatório de Gotas - Movimentação</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
 
                     <li role="separator" class="divider" />
@@ -354,9 +354,9 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-        }
-        // Administrador da loja
-        else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
+    }
+    // Administrador da loja
+    elseif ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_LOCAL) {
 
             ?>
         <ul class="nav navbar-nav navbar-right">
@@ -400,6 +400,11 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
                     </li>
 
+                    <li>
+                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <a href="/pontuacoes/relatorioGotas">Relatório de Gotas - Movimentação</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
+                    </li>
                     <li role="separator" class="divider" />
                     <li>
                         <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
@@ -422,7 +427,7 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-        } else if ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
+        } elseif ($usuarioLogado['tipo_perfil'] == PROFILE_TYPE_MANAGER) {
 
             // Gerente
 
@@ -463,6 +468,12 @@ if (empty($usuarioLogado)) {
                         <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a>
                     </li>
 
+                    <li>
+                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <a href="/pontuacoes/relatorioGotas">Relatório de Gotas - Movimentação</a>
+                        <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
+                    </li>
+
                     <li role="separator" class="divider" />
                     <li>
                         <?php echo $this->Html->link('Meus Clientes', ['controller' => 'Usuarios', 'action' => 'meus_clientes']) ?>
@@ -481,7 +492,7 @@ if (empty($usuarioLogado)) {
 
     <?php
 
-        } else if ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
+        } elseif ($usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['WorkerProfileType']) {
             // Funcionário
 
             ?>

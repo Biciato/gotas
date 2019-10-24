@@ -67,7 +67,6 @@ echo $this->Breadcrumbs->render(
                 <tr>
                     <th><?= 'Nome da Rede' ?> </th>
                     <th><?= 'Rede Ativa no Sistema' ?> </th>
-                    <th><?= 'Permite Consumo de Gotas para Funcionarios' ?> </th>
                     <th><?= 'Data de Cadastro' ?> </th>
                     <!-- <th><?= $this->Paginator->sort('nome_rede', ['label' => 'Nome da Rede']) ?> </th>
                     <th><?= $this->Paginator->sort('ativado', ['label' => 'Rede Ativa no Sistema']) ?> </th>
