@@ -78,8 +78,8 @@ class UsuariosTable extends GenericTable
                 // "joinType" => "INNER"
                 "joinType" => Query::JOIN_TYPE_LEFT
 
-        //     ]
-        // );
+            ]
+        );
 
         $this->hasOne(
             "PontuacaoComprovante",
