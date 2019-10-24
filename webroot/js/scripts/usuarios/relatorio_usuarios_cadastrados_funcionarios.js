@@ -214,7 +214,7 @@ $(function() {
             data: {},
             dataType: "JSON",
             success: function(res) {
-                if (res.clientes.length > 0) {
+                if (res.data.clientes.length > 0) {
                     clientesList = [];
                     clientesSelectListBox.empty();
 
@@ -224,7 +224,7 @@ $(function() {
 
                     clientesList.push(option);
 
-                    res.clientes.forEach(cliente => {
+                    res.data.clientes.forEach(cliente => {
                         var cliente = {
                             id: cliente.id,
                             value: cliente.nome_fantasia

@@ -2,31 +2,29 @@
 
 namespace App\Controller;
 
+use stdClass;
+use \DateTime;
 use \Exception;
 use \Throwable;
 use App\Controller\AppController;
+use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\EmailUtil;
+use App\Custom\RTI\ExcelUtil;
+use App\Custom\RTI\ImageUtil;
+use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Log\Log;
-use Cake\Routing\Router;
-use Cake\Mailer\Email;
-use Cake\I18n\Number;
-use \DateTime;
-use App\Custom\RTI\DateTimeUtil;
-use App\Custom\RTI\DebugUtil;
-use Firebase\JWT\JWT;
-use Cake\Utility\Security;
-use Cake\Network\Exception\UnauthorizedException;
-use App\Custom\RTI\EmailUtil;
-use App\Custom\RTI\NumberUtil;
-use App\Custom\RTI\ExcelUtil;
-use App\Custom\RTI\ResponseUtil;
-use App\Custom\RTI\ImageUtil;
-use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
-use App\Custom\RTI\DebugUtil;
-use stdClass;
+use Cake\I18n\Number;
+use Cake\Log\Log;
+use Cake\Mailer\Email;
+use Cake\Network\Exception\UnauthorizedException;
+use Cake\Routing\Router;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Usuarios Controller

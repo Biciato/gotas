@@ -61,13 +61,7 @@ $(function() {
         var click = function(e) {
             var id = $(this).val();
 
-            categoriaBrinde = $.grep(categoriasBrindes, function(cb) {
-                return cb.id == id;
-            });
-
-            if (categoriaBrinde.length > 0) {
-                categoriaBrindeSelected = categoriaBrinde[0];
-            }
+            categoriaBrindeSelected = categoriasBrindes.find(x => x.id == id);
 
             abreModalHabilitar(categoriaBrindeSelected.id);
         };
@@ -276,10 +270,10 @@ $(function() {
         var modal = "#modal-enable";
         $(modal).modal();
         $(modal + " #nome-registro").text(categoriaBrindeSelected.nome);
+        $(modal + " #confirmar").unbind("click");
         $(modal + " #confirmar").on("click", function() {
             alteraEstado(val, 1);
             $(modal).modal("hide");
-            loadData();
         });
     };
 
@@ -287,10 +281,10 @@ $(function() {
         var modal = "#modal-disable";
         $(modal).modal();
         $(modal + " #nome-registro").text(categoriaBrindeSelected.nome);
+        $(modal + " #confirmar").unbind("click");
         $(modal + " #confirmar").on("click", function() {
             alteraEstado(val, 0);
             $(modal).modal("hide");
-            loadData();
         });
     };
 
