@@ -377,6 +377,7 @@ $(function() {
 
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
+                imprimirBtn.unbind("click");
                 imprimirBtn.on("click", imprimirRelatorio);
 
                 var data = response.data;

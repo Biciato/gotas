@@ -2586,7 +2586,6 @@ class UsuariosController extends AppController
             $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
             $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
 
-
             $errors = [];
             $errorCodes = [];
 
@@ -2594,11 +2593,13 @@ class UsuariosController extends AppController
 
             try {
                 if (empty($redesId)) {
-                    // @todo
+                    $errors[] = MSG_REDES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
                 }
 
-                if (empty($clientesId)) {
-                    // @todo
+                if (empty($clientesId) && empty($redesId)) {
+                    $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
                 }
 
                 if (empty($dataInicio)) {
@@ -2642,35 +2643,33 @@ class UsuariosController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
                 }
-                //code...
             } catch (\Throwable $th) {
                 $code = $th->getCode();
                 $message = $th->getMessage();
                 $length = count($errors);
 
                 if ($length == 0) {
-                    $errorCodes[] = MSG_LOAD_EXCEPTION_CODE;
-                    $errors[] = MSG_LOAD_EXCEPTION;
+                    $errorCodes[] = MESSAGE_GENERIC_EXCEPTION_CODE;
+                    $errors[] = MESSAGE_GENERIC_EXCEPTION;
                     $length = count($errors);
                 }
 
                 for ($i = 0; $i < $length; $i++) {
-                    Log::write("error", sprintf("[%s] %s: %s.", MSG_LOAD_EXCEPTION, $errors[$i], $errorCodes[$i]));
+                    Log::write("error", sprintf("[%s] %s: %s.", MESSAGE_GENERIC_EXCEPTION, $errors[$i], $errorCodes[$i]));
                 }
 
-                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, $errors, [], $errorCodes);
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
             }
 
             #endregion
 
             // Obtem a lista de funcionários e faz o agrupamento
-            $funcionarios = [];
-
             try {
-
                 $clientes = [];
+                $clientesTemp = [];
+
                 if (empty($clientesId)) {
                     $clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
                 } else {
@@ -2678,12 +2677,9 @@ class UsuariosController extends AppController
                     $clientes[] = $cliente;
                 }
 
-                $clientesTemp = [];
-
                 foreach ($clientes as $cliente) {
                     $funcionariosTemp = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$cliente->id], $funcionariosId, [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
                     $data = new stdClass();
-                    // $data->funcionarios = $funcionariosTemp->toArray();
                     $data = $cliente;
                     $data->funcionarios = $funcionariosTemp->toArray();
                     $clientesTemp[] = $data;
@@ -2699,7 +2695,6 @@ class UsuariosController extends AppController
                 return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
             }
 
-            // ResponseUtil::successAPI(null, ['data' => $clientesData]);
             /**
              * Com a lista de funcionários, verifica quais foram os clientes cadastrados pelos funcionários
              * dentro daquela rede / posto
