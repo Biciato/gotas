@@ -1,5 +1,5 @@
 /**
- * Arquivo de funções para src\Template\Pontuacoes\relatorio_gotas.ctp
+ * Arquivo de funções para src\Template\Pontuacoes\relatorio_pontuacao_simplificado.ctp
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-09-17
@@ -601,7 +601,7 @@ $(function () {
 
                                             var cellGota = document.createElement("td");
                                             var textGota = document.createElement("strong");
-                                            textGota.textContent = "Gota";
+                                            textGota.textContent = "Referência";
                                             cellGota.append(textGota);
 
                                             var cellQteGotas = document.createElement("td");
@@ -725,7 +725,7 @@ $(function () {
                                     var labelTotal = document.createElement("strong");
 
                                     labelTotal.classList.add("text-bold");
-                                    labelTotal.textContent = "Total Estabelecimento";
+                                    labelTotal.textContent = "Total Estabelecimento:";
                                     cellLabelTotal.colSpan = 2;
                                     cellLabelTotal.append(labelTotal);
 
@@ -771,7 +771,7 @@ $(function () {
                             var labelTotal = document.createElement("strong");
 
                             labelTotal.classList.add("text-bold");
-                            labelTotal.textContent = "Total Geral";
+                            labelTotal.textContent = "Total Geral:";
                             cellLabelTotal.colSpan = 2;
                             cellLabelTotal.append(labelTotal);
 

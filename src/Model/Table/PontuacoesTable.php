@@ -1240,7 +1240,9 @@ class PontuacoesTable extends GenericTable
                     "Funcionarios.id",
                     "Funcionarios.nome",
                     "Funcionarios.email",
-                    "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
+                    "ano" => "YEAR(Pontuacoes.data)",
+                    "mes" => "MONTH(Pontuacoes.data)",
+                    // "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
                 ];
 
                 $join = [
@@ -1253,11 +1255,14 @@ class PontuacoesTable extends GenericTable
                 $groupConditions = [
                     "Pontuacoes.funcionarios_id",
                     "Gotas.id",
-                    "data_formatada"
+                    "ano",
+                    "mes"
                 ];
 
                 $order = [
-                    "data_formatada" => "DESC",
+                    // "data_formatada" => "DESC",
+                    "ano" => "ASC",
+                    "mes" => "ASC",
                     "Funcionarios.nome" => "ASC"
                 ];
             }
