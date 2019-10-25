@@ -544,7 +544,7 @@ class PontuacoesController extends AppController
     }
 
     /**
-     * PontuacoesController.php::relatorioGotas
+     * PontuacoesController.php::relatorioPontuacaoSimplificado
      *
      * View para Relatório de Entrada e Saída de Pontuações
      *
@@ -553,7 +553,7 @@ class PontuacoesController extends AppController
      *
      * @return void
      */
-    public function relatorioGotas()
+    public function relatorioPontuacaoSimplificado()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -1134,9 +1134,12 @@ class PontuacoesController extends AppController
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
                 // Periodo limite de filtro é 1 ano
-                if ($dataDiferenca->m >= 3) {
+                if ($dataDiferenca->m >= 3 && $tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
                     $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "3");
                     $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "3");
+                } elseif ($dataDiferenca->y >= 1 && $tipoRelatorio === REPORT_TYPE_SYNTHETIC) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                 }
 
                 if ($dataInicio > $dataFim) {
@@ -1145,7 +1148,7 @@ class PontuacoesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
                 $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
@@ -1180,7 +1183,7 @@ class PontuacoesController extends AppController
                         $somaPeriodo = [];
 
                         foreach ($pontuacoes as $pontuacao) {
-                            $dataAgrupamento = $pontuacao->data_formatada;
+                            $dataAgrupamento = $pontuacao->ano . "/" . $pontuacao->mes;
                             $pontuacoesTemp[$dataAgrupamento]["pontuacoes"][] = $pontuacao;
                             $somaPeriodo[$dataAgrupamento]["soma_gotas"] = 0;
                             $somaPeriodo[$dataAgrupamento]["soma_litros"] = 0;
@@ -1205,9 +1208,10 @@ class PontuacoesController extends AppController
 
                         foreach ($pontuacoesTemp as $pontuacao) {
                             foreach ($pontuacao["pontuacoes"] as $pontuacaoData) {
-                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_gotas"] += $pontuacaoData->quantidade_gotas;
-                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_litros"] += $pontuacaoData->quantidade_litros;
-                                $somaPeriodo[$pontuacaoData->data_formatada]["soma_reais"] += $pontuacaoData->quantidade_reais;
+                                $dataAgrupamento = $pontuacaoData->ano . "/" . $pontuacaoData->mes;
+                                $somaPeriodo[$dataAgrupamento]["soma_gotas"] += $pontuacaoData->quantidade_gotas;
+                                $somaPeriodo[$dataAgrupamento]["soma_litros"] += $pontuacaoData->quantidade_litros;
+                                $somaPeriodo[$dataAgrupamento]["soma_reais"] += $pontuacaoData->quantidade_reais;
                             }
                         }
 

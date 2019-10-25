@@ -1,7 +1,7 @@
 <?php
 
 /**
- * src\Template\Gotas\relatorio_entrada_saida.ctp
+ * src\Template\Gotas\relatorio_pontuacao_simplificado.ctp
  *
  * Tela de Relatório de Caixa dos Funcionários de um Estabelecimento. Visualizado por um gerente
  *
@@ -15,7 +15,7 @@ $debug = Configure::read("debug");
 // $debugExtension = $debug ? ".min" : "";
 $debugExtension = $debug ? "" : "";
 
-$title = "Relatório de Gotas - Movimentação";
+$title = "Relatório de Pontuação Simplificado";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
@@ -112,5 +112,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/pontuacoes/relatorio_gotas<?= $debugExtension ?>.js"></script>
-<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/relatorio_gotas<?= $debugExtension ?>.css" />
+<script src="/webroot/js/scripts/pontuacoes/relatorio_pontuacao_simplificado<?= $debugExtension ?>.js"></script>
+<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/relatorio_pontuacao_simplificado<?= $debugExtension ?>.css" />
