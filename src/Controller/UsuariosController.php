@@ -2,29 +2,29 @@
 
 namespace App\Controller;
 
+use stdClass;
+use \DateTime;
+use \Exception;
+use \Throwable;
 use App\Controller\AppController;
+use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\EmailUtil;
+use App\Custom\RTI\ExcelUtil;
+use App\Custom\RTI\ImageUtil;
+use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Log\Log;
-use Cake\Routing\Router;
-use Cake\Mailer\Email;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
-use Cake\View\Helper\UrlHelper;
-use \DateTime;
-use App\Custom\RTI\DateTimeUtil;
-use Firebase\JWT\JWT;
-use Cake\Utility\Security;
+use Cake\Log\Log;
+use Cake\Mailer\Email;
 use Cake\Network\Exception\UnauthorizedException;
-use App\Custom\RTI\EmailUtil;
-use App\Custom\RTI\NumberUtil;
-use App\Custom\RTI\DebugUtil;
-use App\Custom\RTI\ExcelUtil;
-use App\Custom\RTI\ResponseUtil;
-use Cake\ORM\TableRegistry;
-use ReCaptcha\Response;
-use App\Custom\RTI\ImageUtil;
-use App\Model\Entity\Usuario;
+use Cake\Routing\Router;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Usuarios Controller
@@ -267,6 +267,16 @@ class UsuariosController extends AppController
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
+        $arraySet = array(
+            "usuario",
+            "usuarioLogado",
+            // "transportadoraPath",
+            // "veiculoPath",
+            "usuarioLogado",
+            "veiculo",
+            "transportadora"
+        );
+
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
@@ -354,6 +364,18 @@ class UsuariosController extends AppController
                 return;
             }
             $errors = $usuario->errors();
+
+            // validação de email
+            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+
+            if (!$validacaoEmail["status"]) {
+                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
+
             $usuario = $this->Usuarios->save($usuario);
 
             if ($usuario) {
@@ -400,15 +422,6 @@ class UsuariosController extends AppController
 
         $usuarioLogadoTipoPerfil = (int) Configure::read('profileTypes')['UserProfileType'];
 
-        $arraySet = array(
-            "usuario",
-            "usuarioLogado",
-            // "transportadoraPath",
-            // "veiculoPath",
-            "usuarioLogado",
-            "veiculo",
-            "transportadora"
-        );
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -424,11 +437,13 @@ class UsuariosController extends AppController
     public function editar($id = null)
     {
         try {
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
-            if ($usuarioAdministrador) {
+            if ($usuarioAdministrar) {
                 $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -700,12 +715,14 @@ class UsuariosController extends AppController
         $cliente = $sessaoUsuario["cliente"];
         $transportadoraNomeProcura = 'TransportadorasHasUsuarios_Transportadoras_';
         $veiculosNomeProcura = 'UsuariosHasVeiculos_Veiculos_';
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
             $usuarioLogado = $usuarioAdministrar;
         }
 
+        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
         $usuario = $this->Usuarios->newEntity();
         $transportadora = $this->Usuarios->TransportadorasHasUsuarios->newEntity();
         $veiculo = $this->Usuarios->UsuariosHasVeiculos->newEntity();
@@ -740,6 +757,7 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+            // DebugUtil::printArray($data);
             $usuarioData = $data;
 
             // guarda qual é a unidade que está sendo cadastrada
@@ -834,13 +852,30 @@ class UsuariosController extends AppController
                     );
             }
 
-            $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+            // Se não informou senha, a senha padrão será 123456
+            if (empty($usuario->senha)) {
+                $usuario->senha = "123456";
+                $usuario->confirm_senha = "123456";
+            }
+
+            // $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
+            // validação de email
+            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+
+            if (!$validacaoEmail["status"]) {
+                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                $this->set(compact($arraySet));
+                $this->set('_serialize', $arraySet);
+
+                return;
+            }
+
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
-                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+                // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                 if ($transportadora) {
                     $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
@@ -859,15 +894,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            $clientes_id = $redes_has_cliente->clientes_id;
                         }
 
-                        $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                        $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }
@@ -924,9 +959,8 @@ class UsuariosController extends AppController
         }
 
         // na verdade, o perfil deverá ser 6, pois no momento do cadastro do funcionário
-        $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
+        $usuarioLogadoTipoPerfil = $usuarioLogado->tipo_perfil;
 
-        $arraySet = array('usuario', 'rede', 'redes', 'redes_id', 'usuarioLogadoTipoPerfil', "transportadora", "veiculo");
 
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
@@ -971,6 +1005,11 @@ class UsuariosController extends AppController
 
         $redesId = $rede["id"];
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
+
+        // Verifica se tem posto cadastrado para esta rede, se não tiver, avisa ao operador que pode ocorrer inconsistências
+        if (count($unidadesRede) == 0 && !empty($rede)) {
+            $this->Flash->warning("Atenção! Não há postos cadastrados para esta rede! Cadastre previamente para evitar inconsistências!");
+        }
 
         if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
@@ -1056,17 +1095,25 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientes_id == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientes_id = $rede_has_cliente->clientes_id;
+                            if (!empty($redes_has_cliente)) {
+                                $clientes_id = $redes_has_cliente->clientes_id;
+                            }
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
                         }
 
-                        $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
-                            $usuarioSave->id
-                        );
+                        // Só pode ser guardado o relacionamento se já tiver algum posto
+                        if (empty($redes_has_cliente)) {
+                            Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
+
+                        } else {
+                            $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
+                                $redes_has_cliente->id,
+                                $usuarioSave->id
+                            );
+                        }
                     }
 
                     /**
@@ -1077,7 +1124,11 @@ class UsuariosController extends AppController
 
                     // Define qual foi o usuário que cadastrou o novo funcionário
                     $usuarioInsercaoId = !empty($usuarioLogado) ? $usuarioLogado->id : 0;
-                    $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+
+                    // Só vincula se o posto tiver sido selecionado
+                    if (!empty($clientes_id)) {
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarioSave["id"], true, $usuarioInsercaoId);
+                    }
                 }
 
                 $this->Flash->success(__('O usuário foi salvo.'));
@@ -1156,9 +1207,9 @@ class UsuariosController extends AppController
         // se a rede estiver nula, procura pela rede através do clientes_has_usuarios
 
         if (!isset($redesId)) {
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
+            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clienteHasUsuario["clientes_id"]);
 
-            $rede = $this->Redes->getAllRedes('all', ['id' => $rede_has_cliente->redes_id])->first();
+            $rede = $this->Redes->getAllRedes('all', ['id' => $redes_has_cliente->redes_id])->first();
         }
 
         $clienteAdministrar = $this->request->session()->read('Rede.PontoAtendimento');
@@ -1205,15 +1256,15 @@ class UsuariosController extends AppController
 
                         // ele ficará alocado na matriz
                         if ($clientesId == "") {
-                            $rede_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
+                            $redes_has_cliente = $this->RedesHasClientes->findMatrizOfRedesByRedesId($rede->id);
 
-                            $clientesId = $rede_has_cliente->clientes_id;
+                            $clientesId = $redes_has_cliente->clientes_id;
                         } else {
-                            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
+                            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
                         }
 
                         $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
-                            $rede_has_cliente->id,
+                            $redes_has_cliente->id,
                             $usuario->id
                         );
                     }
@@ -1765,6 +1816,7 @@ class UsuariosController extends AppController
         $nome = null;
         $cpf = null;
         $docEstrangeiro = null;
+        $filtrarUnidade = null;
         $tipoPerfil = null;
         $tipoPerfilMin = null;
         $tipoPerfilMax = null;
@@ -1775,11 +1827,11 @@ class UsuariosController extends AppController
 
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
-            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
-            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
+            $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+            $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
             $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-            if ($data['filtrar_unidade'] != "") {
+            if (!empty($filtrarUnidade)) {
                 $clientesIds = [];
                 $clientesIds[] = (int) $data['filtrar_unidade'];
             }
@@ -2022,7 +2074,10 @@ class UsuariosController extends AppController
 
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
+            // DebugUtil::printArray($usuarios->toArray());
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
+
+            // DebugUtil::printArray($usuarios->toArray());
 
             $arraySet = array("usuarios", "perfisUsuariosList");
 
@@ -2178,6 +2233,713 @@ class UsuariosController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
     }
+
+    /**
+     * UsuariosController::getUsuarioAPI
+     *
+     * Obtem dados de usuário
+     *
+     * @params $data["id"] Id de Usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 18/09/2018
+     *
+     * @return Object Model\Entity\Usuario
+     */
+    public function getUsuarioByIdAPI()
+    {
+        $id = null;
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $id = $data["id"];
+        }
+
+        if (empty($id)) {
+            ResponseUtil::error("Id do usuário não informado!", Configure::read("messageWarningDefault"));
+        }
+
+        $usuario = $this->Usuarios->getUsuarioById($id);
+
+        if (empty($usuario)) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        ResponseUtil::success($usuario);
+    }
+
+    /**
+     * UsuariosController::getUsuarioByDocEstrangeiroAPI
+     *
+     * Serviço REST para obter usuários contendo documento estrangeiro informado
+     *
+     * @param $data["doc_estrangeiro"] Documento Estrangeiro
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-03-13
+     *
+     * @return json_encode
+     */
+    public function getUsuarioByDocEstrangeiroAPI()
+    {
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $documentoEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
+
+            if (empty($documentoEstrangeiro)) {
+                ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
+            }
+            $usuario = $this->Usuarios->getUsuarioByDocumentoEstrangeiro($documentoEstrangeiro);
+
+            if ($usuario) {
+                ResponseUtil::error("", "Aviso!", array(MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
+            }
+            ResponseUtil::success(0);
+        }
+    }
+
+    /**
+     * Obtem lista de funcionários de uma determinada rede/cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-18
+     *
+     * @return json_encode
+     */
+    public function getFuncionariosListAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $rede = $sessaoUsuario["rede"];
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+
+                if ($usuarioLogado->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    $redesId = $sessaoUsuario["rede"]["id"];
+                }
+
+                // Se o usuário trabalha na rede, ele tem que ter vínculo, então não se muda a seleção
+                if ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
+                    $redesId = $rede->id;
+                }
+
+                // se não tiver especificado id da rede ou do cliente, retorna erro
+
+                if (empty($redesId) && $usuarioLogado->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
+                    $errors[] = MSG_REDES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                    $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $tipoPerfis = [];
+
+                if (!empty($tipoPerfil)) {
+                    $tipoPerfis = $tipoPerfil;
+                } else {
+                    $tipoPerfis = [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER];
+                }
+
+                $clientesIds = empty($clientesId) ? [] : [$clientesId];
+
+                // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, null, $tipoPerfis);
+
+                if ($usuariosList) {
+                    $usuariosList = $usuariosList->toArray();
+                    $data = ["usuarios" => $usuariosList];
+
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $data]);
+                }
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+    /**
+     * UsuariosController::getUsuariosAssiduosAPI
+     *
+     * Obtem dados de usuários fidelizados
+     *
+     * @param array $data Dados de Post
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/09/2018
+     *
+     * @return json_encode
+     */
+    public function getUsuariosAssiduosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+
+        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
+
+        $redesId = $rede["id"];
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
+        }
+
+        if (sizeof($usuarios) > 0) {
+            ResponseUtil::success($usuarios);
+        } else {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+    }
+
+    /**
+     * UsuariosController::generateExcelUsuariosAssiduosAPI
+     *
+     * Gera relatório de usuários fidelizados pela rede
+     *
+     * @param array $data Dados de Post
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/09/2018
+     *
+     * @return json_encode Dados de excel em json_encode
+     */
+    public function generateExcelUsuariosAssiduosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+
+        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
+
+        $redesId = $rede["id"];
+
+        $filtrarPorUsuario = false;
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $filtrarPorUsuario = !empty($data["filtrarPorUsuario"]) ? $data["filtrarPorUsuario"] : false;
+
+            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
+        }
+
+        if (sizeof($usuarios) == 0) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        $usuariosArray = array();
+        $usuarioTemp = array();
+
+        $titulo = "";
+
+        // Log::write("info", $usuarios);
+        // die();
+        if ($filtrarPorUsuario) {
+
+            $cabecalho = array(
+                "Ano",
+                "Mes",
+                "Status Assiduidade",
+                "Media Assiduidade"
+            );
+
+            $nomeUsuario = $usuarios[0]["nome"];
+            $cpf = $usuarios[0]["cpf"];
+            $documentoEstrangeiro = $usuarios[0]["docEstrangeiro"];
+            $documento = !empty($cpf) ? $cpf : $documentoEstrangeiro;
+            $titulo = sprintf("%s: %s (%s)", "Relatório de Usuários Assíduos", $nomeUsuario, $documento);
+
+            foreach ($usuarios as $usuario) {
+                $usuarioTemp["ano"] = $usuario["ano"];
+                $usuarioTemp["mes"] = $usuario["mes"];
+                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] == 1 ? "Regular" : "Irregular";
+                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
+
+                $usuariosArray[] = $usuarioTemp;
+            }
+        } else {
+
+            $cabecalho = array(
+                "Usuário",
+                "CPF",
+                "Documento Estrangeiro",
+                "Conta Ativa",
+                "Status Assiduidade",
+                "Total Assiduidade",
+                "Media Assiduidade",
+                "Gotas Adquiridas",
+                "Gotas Utilizadas",
+                "Gotas Expiradas",
+                "Saldo Atual",
+                "Total Moeda Compra Brindes (R$)"
+            );
+
+            $titulo = "Relatório de Usuários Assíduos";
+
+            foreach ($usuarios as $usuario) {
+                $usuarioTemp["nome"] = $usuario["nome"];
+                $usuarioTemp["cpf"] = $usuario["cpf"];
+                $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+                $usuarioTemp["statusConta"] = $usuario["statusConta"];
+                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] ? "Regular" : "Irregular";
+                $usuarioTemp["totalAssiduidade"] = $usuario["totalAssiduidade"];
+                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
+                $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
+                $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
+                $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
+                $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
+                $usuarioTemp["totalMoedaCompraBrindes"] = $usuario["totalMoedaCompraBrindes"];
+
+                $usuariosArray[] = $usuarioTemp;
+            }
+        }
+
+        $usuarios = $usuariosArray;
+
+        $excel = ExcelUtil::generateExcel($titulo, $cabecalho, $usuarios);
+
+        ResponseUtil::success($excel);
+    }
+
+
+    /**
+     * Obtem dados de usuários fidelizados
+     *
+     * @return void
+     */
+    public function getUsuariosFidelizadosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
+        }
+
+        if (sizeof($usuarios) > 0) {
+            ResponseUtil::success($usuarios);
+        } else {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+    }
+
+    /**
+     * @filesource src\Controller\UsuariosController.php::getUsuariosFidelizadosRedeAPI
+     * Obtem os Usuários Fidelizados pela Rede / Posto(s) da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return json_encode
+     */
+    public function getUsuariosFidelizadosRedeAPI()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $rede = $sessao["rede"];
+        $cliente = $sessao["cliente"];
+
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
+
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : $cliente->id;
+            $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
+            $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+            $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
+            $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+
+            $errors = [];
+            $errorCodes = [];
+
+            #region Validação de parametros preenchidos
+
+            try {
+                if (empty($redesId)) {
+                    $errors[] = MSG_REDES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($clientesId) && empty($redesId)) {
+                    $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                    // Máximo de tempo será 1 mês
+                    if ($dataDiferenca->m >= 1) {
+                        $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "1");
+                        $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "1");
+                    }
+                } else {
+                    // Máximo de tempo será 1 ano
+                    if ($dataDiferenca->y >= 1) {
+                        $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                        $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                    }
+                }
+
+                if (!$dataDiferenca->invert) {
+                    // Se a data fim for maior que a data início, erro.
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+                $length = count($errors);
+
+                if ($length == 0) {
+                    $errorCodes[] = MESSAGE_GENERIC_EXCEPTION_CODE;
+                    $errors[] = MESSAGE_GENERIC_EXCEPTION;
+                    $length = count($errors);
+                }
+
+                for ($i = 0; $i < $length; $i++) {
+                    Log::write("error", sprintf("[%s] %s: %s.", MESSAGE_GENERIC_EXCEPTION, $errors[$i], $errorCodes[$i]));
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
+
+            #endregion
+
+            // Obtem a lista de funcionários e faz o agrupamento
+            try {
+                $clientes = [];
+                $clientesTemp = [];
+
+                if (empty($clientesId)) {
+                    $clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+                } else {
+                    $cliente = $this->Clientes->get($clientesId);
+                    $clientes[] = $cliente;
+                }
+
+                foreach ($clientes as $cliente) {
+                    $funcionariosTemp = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$cliente->id], $funcionariosId, [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+                    $data = new stdClass();
+                    $data = $cliente;
+                    $data->funcionarios = $funcionariosTemp->toArray();
+                    $clientesTemp[] = $data;
+                }
+
+                $clientes = $clientesTemp;
+            } catch (Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            /**
+             * Com a lista de funcionários, verifica quais foram os clientes cadastrados pelos funcionários
+             * dentro daquela rede / posto
+             */
+            $dataRetorno = [];
+            $totalUsuarios = 0;
+
+            try {
+                foreach ($clientes as $cliente) {
+                    foreach ($cliente->funcionarios as $funcionario) {
+                        $funcionario = $funcionario->usuario;
+                        $queryUsuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
+                        if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                            $usuarios = $queryUsuarios->toArray();
+                            $funcionario->clientes_has_usuarios = $usuarios;
+                        }
+                        $count = $queryUsuarios->count();
+                        $totalUsuarios += $count;
+                        $funcionario->clientes_has_usuarios_soma = $count;
+                    }
+                    // $cliente["clientes_has_usuarios"] = $usuarios;
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            $dataRetorno = new stdClass();
+            $dataRetorno->clientes = $clientes;
+            $dataRetorno->clientes_has_usuarios_total = $totalUsuarios;
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
+        }
+    }
+
+    /**
+     * UsuariosController::generateExcelUsuariosFidelizadosAPI
+     *
+     * Gera relatório de usuários fidelizados pela rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 12/09/2018
+     *
+     * @return json_encode Dados de excel em json_encode
+     */
+    public function generateExcelUsuariosFidelizadosAPI()
+    {
+        $rede = $this->request->session()->read("Network.Main");
+        $redesId = $rede["id"];
+
+        $data = array();
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
+        }
+
+        $cabecalho = array(
+            "Usuário",
+            "CPF",
+            "Documento Estrangeiro",
+            "Conta Ativa",
+            "Gotas Adquiridas",
+            "Gotas Utilizadas",
+            "Gotas Expiradas",
+            "Saldo Atual",
+            "Brindes Vendidos (R$)",
+            "Data Cadastro na Rede",
+        );
+
+        if (sizeof($usuarios) == 0) {
+            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+
+        $usuariosArray = array();
+        $usuarioTemp = array();
+        foreach ($usuarios as $usuario) {
+            $usuarioTemp["nome"] = $usuario["nome"];
+            $usuarioTemp["cpf"] = $usuario["cpf"];
+            $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
+            $usuarioTemp["contaAtiva"] = $usuario["contaAtiva"] == 1 ? "Sim" : "Nâo";
+            $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
+            $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
+            $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
+            $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
+            $usuarioTemp["totalMoedaAdquirida"] = $usuario["totalMoedaAdquirida"];
+            $usuarioTemp["dataVinculo"] = $usuario["dataVinculo"];
+
+            $usuariosArray[] = $usuarioTemp;
+        }
+
+        $usuarios = $usuariosArray;
+
+        $excel = ExcelUtil::generateExcel("Relatório de Usuários Fidelizados", $cabecalho, $usuarios);
+
+        ResponseUtil::success($excel);
+    }
+
+    /**
+     * Obtêm token de autenticação
+     *
+     * @return void
+     */
+    public function loginAPI()
+    {
+        $usuario = null;
+
+        if ($this->request->is("post")) {
+            $data = $this->request->getData();
+
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $senha = !empty($data["senha"]) ? $data["senha"] : null;
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+
+            if (empty($email) || empty($senha)) {
+                // Retorna mensagem de erro se campos estiverem vazios
+                $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
+
+                return ResponseUtil::errorAPI($message);
+            }
+
+            // Se chegar já sem formatação, verifica
+
+            $format = "/(\d{3}).(\d{3}).(\d{3})-(\d{2})/";
+
+            $match = preg_match($format, $email);
+
+            if (is_numeric($email) || $match) {
+                $cpf = NumberUtil::limparFormatacaoNumeros($email);
+
+                if (strlen($cpf) != CPF_LENGTH) {
+                    $error = array();
+                    $error[] = MSG_USUARIOS_CPF_LENGTH_INVALID;
+
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $error);
+                }
+
+                $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
+                if (empty($usuario)) {
+                    return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
+                }
+
+                $email = $usuario["email"];
+                $this->request->data["email"] = $email;
+            }
+
+            $retornoLogin = $this->checkLoginUser($email, $senha, LOGIN_API, $redesId);
+
+            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
+            $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
+            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+        }
+
+        // $usuario = $this->Auth->identify();
+
+        if (!$usuario) {
+            $this->Auth->logout();
+            $this->clearCredentials();
+
+            $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
+
+            return ResponseUtil::errorAPI($message, $retornoLogin['errors'], [], $retornoLogin["errorCodes"]);
+        }
+
+        $mensagem = array(
+            'status' => true,
+            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
+        );
+
+        $listaPermissoes = array();
+        if ($usuario["tipo_perfil"] >= PROFILE_TYPE_MANAGER && $usuario->tipo_perfil <= PROFILE_TYPE_WORKER) {
+            $listaPermissoes = [
+                [
+                    "funcao" => "VALIDAR_BRINDE",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "CADASTRAR_USUARIO",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "PONTUAR_USUARIO",
+                    "status" => 1
+                ],
+                [
+                    "funcao" => "CONFIG_HARDWARE_APP_POSTO",
+                    "status" => $usuario->tipo_perfil == PROFILE_TYPE_WORKER ? 0 : 1
+                ]
+            ];
+        }
+
+        $usuario["lista_permissoes"] = $listaPermissoes;
+
+        return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
+    }
+
+    /**
+     * Obtêm token de autenticação
+     *
+     * @return void
+     */
+    public function logoutAPI()
+    {
+        $usuario = $this->Auth->user();
+
+        if (!$usuario) {
+            throw new UnauthorizedException('Usuário ou senha inválidos');
+        }
+
+        $mensagem = [
+            'status' => true,
+            'message' => Configure::read('messageUsuarioLoggedOutSuccessfully')
+        ];
+
+
+        $usuario = [
+            'id' => $usuario['id'],
+            'token' => JWT::encode(
+                [
+                    'id' => $usuario['id'],
+                    'sub' => $usuario['id'],
+                    'exp' => time() + 1
+                ],
+                Security::salt()
+            )
+        ];
+
+        $this->Auth->logout();
+        $this->clearCredentials();
+
+        $arraySet = [
+            'mensagem'
+        ];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
     /**
      * UsuariosController::meuPerfilAPI
      *
@@ -2220,6 +2982,243 @@ class UsuariosController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * Adiciona Conta de usuário
+     *
+     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
+     */
+    public function registrarAPI()
+    {
+        $usuario = $this->Usuarios->newEntity();
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"] ?? null;
+        $cliente = $sessaoUsuario["cliente"] ?? null;
+        $mensagem = array();
+        $usuarioRegistrado = null;
+        $errors = array();
+
+        if ($this->request->is(['post', 'put'])) {
+            $data = $this->request->getData();
+
+            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+
+            // validação de cpf
+            if (isset($data["cpf"])) {
+                $result = NumberUtil::validarCPF($data["cpf"]);
+
+                if (!$result["status"]) {
+                    $mensagem["status"] = false;
+                    $mensagem["message"] = __($result["message"], $data["cpf"]);
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+            }
+
+            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+                // Funcionário ou usuário fictício não precisa de validação de cpf
+
+                $this->Usuarios->validator()->remove('cpf');
+            } else {
+                $data['tipo_perfil'] = (int) Configure::read('profileTypes')['UserProfileType'];
+            }
+            $data["doc_invalido"] = false;
+
+            // validação de cpf
+
+            $canContinue = false;
+
+            // Remove os campos da inserção que não são permitidos ao fazer insert
+
+            if (isset($data["token_senha"])) {
+                unset($data["token_senha"]);
+            }
+
+            if (isset($data["data_expiracao_token"])) {
+                unset($data["data_expiracao_token"]);
+            }
+
+            if (isset($data["conta_ativa"])) {
+                unset($data["conta_ativa"]);
+            }
+
+            if (isset($data["conta_bloqueada"])) {
+                unset($data["conta_bloqueada"]);
+            }
+
+            if (isset($data["tentativas_login"])) {
+                unset($data["tentativas_login"]);
+            }
+
+            if (isset($data["ultima_tentativa_login"])) {
+                unset($data["ultima_tentativa_login"]);
+            }
+
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            if (empty($email)) {
+                $errors[] = array("email" => "Email deve ser informado!");
+                $canContinue = false;
+            } else {
+                $resultado = EmailUtil::validateEmail($data["email"]);
+
+                if (!$resultado["status"]) {
+                    $mensagem = [
+                        "status" => $resultado["status"],
+                        "message" => __($resultado["message"], $data["email"])
+                    ];
+
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
+                $canContinue = true;
+            }
+
+            if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
+                $errors[] = array("CPF" => "CPF Deve ser informado!");
+                $canContinue = false;
+            } else {
+
+                // Valida se o usuário em questão não é ficticio
+                if ($tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
+
+                    $result = NumberUtil::validarCPF($data["cpf"]);
+
+                    if (!$result["status"]) {
+                        $mensagem["status"] = false;
+                        $mensagem["message"] = __($result["message"], $data["cpf"]);
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
+                }
+
+
+                $canContinue = true;
+            }
+
+            // Faz o tratamento do envio da imagem ao servidor, se especificado
+
+            if (isset($data["foto"])) {
+
+                $foto = $data["foto"];
+
+                $nomeImagem = $foto["image_name"];
+                $base64Imagem = $foto["value"];
+                $extensao = $foto["extension"];
+
+                $resultado = ImageUtil::generateImageFromBase64(
+                    $base64Imagem,
+                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                    Configure::read("temporaryDocumentUserPath")
+                );
+
+                // Move o arquivo gerado
+                $fotoPerfil = $this->moveDocumentPermanently(
+                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
+                    Configure::read("documentUserPath"),
+                    null,
+                    $extensao
+                );
+
+                // Remove o array do item de gravação e passa a imagem
+                unset($data["foto"]);
+
+                $data["foto_perfil"] = $fotoPerfil;
+            }
+
+            $usuarioData = $data;
+            $email = !empty($usuarioData["email"]) ? $usuarioData["email"] : null;
+
+            // verifica se o usuário já está registrado
+
+            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($email);
+
+            if ($canContinue) {
+
+                // verifica se usuário já existe no sistema
+                if ($usuarioJaExiste) {
+                    $mensagem = [
+                        'status' => false,
+                        'message' => "Usuário " . $usuarioData['email'] . " já existe no sistema!"
+                    ];
+                } else {
+                    // senão, grava no banco
+
+                    // Caso não seja informado senha de usuário no momento do cadastro, a senha padrão é 123456
+                    $usuarioData["senha"] = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : 123456;
+                    $usuarioData["confirm_senha"] = !empty($usuarioData["confirm_senha"]) ? $usuarioData["confirm_senha"] : 123456;
+                    $usuarioData["necessidades_especiais"] = (int) $usuarioData["necessidades_especiais"];
+
+                    // Desativado no momento pois não temos certeza que será desenvolvido o aplicativo desktop
+                    // if (!empty($senha)) {
+                    //     $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+                    // }
+
+                    $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
+
+                    foreach ($usuario->errors() as $key => $erro) {
+                        $errors[] = $erro;
+                    }
+
+                    $usuario = $this->Usuarios->save($usuario);
+
+                    if ($usuario) {
+                        // Se usuarioLogado, significa que foi registrado através de um funcionário
+                        // Faz vinculação
+                        if (!empty($usuarioLogado)) {
+                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
+                        }
+
+                        // Realiza login de autenticação
+                        $usuario = [
+                            'id' => $usuario->id,
+                            'token' => JWT::encode(
+                                [
+                                    'sub' => $usuario->id,
+                                    'exp' => time() + 604800
+                                ],
+                                Security::salt()
+                            )
+                        ];
+
+                        $mensagem = array(
+                            "status" => 1,
+                            "message" => "Usuário registrado com sucesso!",
+                            "errors" => $errors
+                        );
+                    } else {
+                        $mensagem = [
+                            'status' => false,
+                            'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
+                            'errors' => $errors
+                        ];
+                    }
+                }
+            } else {
+                $mensagem = [
+                    'status' => false,
+                    'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
+                    'errors' => $errors
+                ];
+            }
+        }
+
+        $arraySet = array('usuario', 'mensagem');
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -2416,382 +3415,15 @@ class UsuariosController extends AppController
     }
 
     /**
-     * Adiciona Conta de usuário
+     * src\Controller\UsuariosController.php::validarAtualizacaoPerfilAPI
      *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function registrarAPI()
-    {
-        $usuario = $this->Usuarios->newEntity();
-        $sessaoUsuario = $this->getSessionUserVariables();
-        $usuarioLogado = $sessaoUsuario["usuarioLogado"] ?? null;
-        $cliente = $sessaoUsuario["cliente"] ?? null;
-        $mensagem = array();
-        $usuarioRegistrado = null;
-        $errors = array();
-
-        if ($this->request->is(['post', 'put'])) {
-            $data = $this->request->getData();
-
-            $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
-
-            // validação de cpf
-            if (isset($data["cpf"])) {
-                $result = NumberUtil::validarCPF($data["cpf"]);
-
-                if (!$result["status"]) {
-                    $mensagem["status"] = false;
-                    $mensagem["message"] = __($result["message"], $data["cpf"]);
-                    $arraySet = ["mensagem"];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-            }
-
-            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
-                // Funcionário ou usuário fictício não precisa de validação de cpf
-
-                $this->Usuarios->validator()->remove('cpf');
-            } else {
-                $data['tipo_perfil'] = (int) Configure::read('profileTypes')['UserProfileType'];
-            }
-            $data["doc_invalido"] = false;
-
-            // validação de cpf
-
-            $canContinue = false;
-
-            // Remove os campos da inserção que não são permitidos ao fazer insert
-
-            if (isset($data["token_senha"])) {
-                unset($data["token_senha"]);
-            }
-
-            if (isset($data["data_expiracao_token"])) {
-                unset($data["data_expiracao_token"]);
-            }
-
-            if (isset($data["conta_ativa"])) {
-                unset($data["conta_ativa"]);
-            }
-
-            if (isset($data["conta_bloqueada"])) {
-                unset($data["conta_bloqueada"]);
-            }
-
-            if (isset($data["tentativas_login"])) {
-                unset($data["tentativas_login"]);
-            }
-
-            if (isset($data["ultima_tentativa_login"])) {
-                unset($data["ultima_tentativa_login"]);
-            }
-
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            if (empty($email)) {
-                $errors[] = array("email" => "Email deve ser informado!");
-                $canContinue = false;
-            } else {
-                $resultado = EmailUtil::validateEmail($data["email"]);
-
-                if (!$resultado["status"]) {
-                    $mensagem = [
-                        "status" => $resultado["status"],
-                        "message" => __($resultado["message"], $data["email"])
-                    ];
-
-                    $arraySet = ["mensagem"];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-                $canContinue = true;
-            }
-
-            if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
-                $errors[] = array("CPF" => "CPF Deve ser informado!");
-                $canContinue = false;
-            } else {
-
-                // Valida se o usuário em questão não é ficticio
-                if ($tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
-
-                    $result = NumberUtil::validarCPF($data["cpf"]);
-
-                    if (!$result["status"]) {
-                        $mensagem["status"] = false;
-                        $mensagem["message"] = __($result["message"], $data["cpf"]);
-                        $arraySet = ["mensagem"];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                }
-
-
-                $canContinue = true;
-            }
-
-            // Faz o tratamento do envio da imagem ao servidor, se especificado
-
-            if (isset($data["foto"])) {
-
-                $foto = $data["foto"];
-
-                $nomeImagem = $foto["image_name"];
-                $base64Imagem = $foto["value"];
-                $extensao = $foto["extension"];
-
-                $resultado = ImageUtil::generateImageFromBase64(
-                    $base64Imagem,
-                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                    Configure::read("temporaryDocumentUserPath")
-                );
-
-                // Move o arquivo gerado
-                $fotoPerfil = $this->moveDocumentPermanently(
-                    Configure::read("temporaryDocumentUserPath") . $nomeImagem . "." . $extensao,
-                    Configure::read("documentUserPath"),
-                    null,
-                    $extensao
-                );
-
-                // Remove o array do item de gravação e passa a imagem
-                unset($data["foto"]);
-
-                $data["foto_perfil"] = $fotoPerfil;
-            }
-
-            $usuarioData = $data;
-            $email = !empty($usuarioData["email"]) ? $usuarioData["email"] : null;
-
-            // verifica se o usuário já está registrado
-
-            $usuarioJaExiste = $this->Usuarios->getUsuarioByEmail($email);
-
-            if ($canContinue) {
-
-                // verifica se usuário já existe no sistema
-                if ($usuarioJaExiste) {
-                    $mensagem = [
-                        'status' => false,
-                        'message' => "Usuário " . $usuarioData['email'] . " já existe no sistema!"
-                    ];
-                } else {
-                    // senão, grava no banco
-
-                    $senha = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : null;
-
-                    if (!empty($senha)) {
-                        $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
-                    }
-
-                    $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
-                    foreach ($usuario->errors() as $key => $erro) {
-                        $errors[] = $erro;
-                    }
-
-                    $usuario = $this->Usuarios->save($usuario);
-
-                    if ($usuario) {
-                        // Se usuarioLogado, significa que foi registrado através de um funcionário
-                        // Faz vinculação
-                        if (!empty($usuarioLogado)) {
-                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
-                        }
-
-                        // Realiza login de autenticação
-                        $usuario = [
-                            'id' => $usuario->id,
-                            'token' => JWT::encode(
-                                [
-                                    'sub' => $usuario->id,
-                                    'exp' => time() + 604800
-                                ],
-                                Security::salt()
-                            )
-                        ];
-
-                        $mensagem = array(
-                            "status" => 1,
-                            "message" => "Usuário registrado com sucesso!",
-                            "errors" => $errors
-                        );
-                    } else {
-                        $mensagem = [
-                            'status' => false,
-                            'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
-                            'errors' => $errors
-                        ];
-                    }
-                }
-            } else {
-                $mensagem = [
-                    'status' => false,
-                    'message' => __("{0}, {1}", Configure::read('messageGenericCompletedError'), Configure::read('messageGenericCheckFields')),
-                    'errors' => $errors
-                ];
-            }
-        }
-
-        $arraySet = array('usuario', 'mensagem');
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
-
-    /**
-     * Obtêm token de autenticação
+     * Valida a atualização de perfil do usuário
      *
-     * @return void
-     */
-    public function loginAPI()
-    {
-        $usuario = null;
-
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $senha = !empty($data["senha"]) ? $data["senha"] : null;
-            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
-
-            if (empty($email) || empty($senha)) {
-                // Retorna mensagem de erro se campos estiverem vazios
-                $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
-
-                return ResponseUtil::errorAPI($message);
-            }
-
-            // Se chegar já sem formatação, verifica
-
-            $format = "/(\d{3}).(\d{3}).(\d{3})-(\d{2})/";
-
-            $match = preg_match($format, $email);
-
-            if (is_numeric($email) || $match) {
-                $cpf = NumberUtil::limparFormatacaoNumeros($email);
-
-                if (strlen($cpf) != CPF_LENGTH) {
-                    $error = array();
-                    $error[] = MSG_USUARIOS_CPF_LENGTH_INVALID;
-
-                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, $error);
-                }
-
-                $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
-
-                if (empty($usuario)) {
-                    return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
-                }
-
-                $email = $usuario["email"];
-                $this->request->data["email"] = $email;
-            }
-
-            $retornoLogin = $this->checkLoginUser($email, $senha, LOGIN_API, $redesId);
-
-            $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
-            $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
-            $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
-        }
-
-        // $usuario = $this->Auth->identify();
-
-        if (!$usuario) {
-            $this->Auth->logout();
-            $this->clearCredentials();
-
-            $message = empty($message) ? MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT : $message;
-
-            return ResponseUtil::errorAPI($message, $retornoLogin['errors'], [], $retornoLogin["errorCodes"]);
-        }
-
-        $mensagem = array(
-            'status' => true,
-            'message' => Configure::read('messageUsuarioLoggedInSuccessfully')
-        );
-
-        $listaPermissoes = array();
-        if ($usuario["tipo_perfil"] >= PROFILE_TYPE_MANAGER && $usuario->tipo_perfil <= PROFILE_TYPE_WORKER) {
-            $listaPermissoes = [
-                [
-                    "funcao" => "VALIDAR_BRINDE",
-                    "status" => 1
-                ],
-                [
-                    "funcao" => "CADASTRAR_USUARIO",
-                    "status" => 1
-                ],
-                [
-                    "funcao" => "PONTUAR_USUARIO",
-                    "status" => 1
-                ],
-                [
-                    "funcao" => "CONFIG_HARDWARE_APP_POSTO",
-                    "status" => $usuario->tipo_perfil == PROFILE_TYPE_WORKER ? 0 : 1
-                ]
-            ];
-        }
-
-        $usuario["lista_permissoes"] = $listaPermissoes;
-
-        return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
-    }
-
-    /**
-     * Obtêm token de autenticação
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-18
      *
-     * @return void
+     * @return json_encode JSON
      */
-    public function logoutAPI()
-    {
-        $usuario = $this->Auth->user();
-
-        if (!$usuario) {
-            throw new UnauthorizedException('Usuário ou senha inválidos');
-        }
-
-        $mensagem = [
-            'status' => true,
-            'message' => Configure::read('messageUsuarioLoggedOutSuccessfully')
-        ];
-
-
-        $usuario = [
-            'id' => $usuario['id'],
-            'token' => JWT::encode(
-                [
-                    'id' => $usuario['id'],
-                    'sub' => $usuario['id'],
-                    'exp' => time() + 1
-                ],
-                Security::salt()
-            )
-        ];
-
-        $this->Auth->logout();
-        $this->clearCredentials();
-
-        $arraySet = [
-            'mensagem'
-        ];
-
-        $this->set(compact($arraySet));
-        $this->set('_serialize', $arraySet);
-    }
-
-
     public function validarAtualizacaoPerfilAPI()
     {
         try {
@@ -2828,7 +3460,6 @@ class UsuariosController extends AppController
             Log::write("error", $trace);
         }
     }
-
 
     #endregion
 
@@ -3126,8 +3757,6 @@ class UsuariosController extends AppController
             $this->Flash->error(__('Erro ao enviar email :') . $email->smtpError);
         }
     }
-
-
 
     /**
      * BeforeRender callback
@@ -3459,18 +4088,25 @@ class UsuariosController extends AppController
             }
 
             // TODO: Se for usar mesmo serviço, será necessário criar novos campos de assinatura
-            $usuarios = $this->Usuarios->findFuncionariosRede(
-                $rede->id,
-                $unidades_ids,
-                $whereConditions
-            );
+
+            $usuarios = [];
+
+            if (count($unidades_ids) > 0) {
+                $usuarios = $this->Usuarios->findFuncionariosRede(
+                    $rede->id,
+                    $unidades_ids
+                );
+                $usuarios = $usuarios->toArray();
+            }
 
             $redeItem['usuarios'] = $usuarios;
 
             unset($arrayWhereConditions);
 
-            array_push($redes, $redeItem);
+            $redes[] = $redeItem;
         }
+
+        // DebugUtil::printArray($redes);
 
         $arraySet = [
             'redesList',
@@ -3582,15 +4218,34 @@ class UsuariosController extends AppController
         }
 
         // @todo Conferir se este relatório está sendo usado
-        $usuarios = $this->Usuarios->findAllUsuarios(
-            $whereConditions
-        );
+        // $usuarios = $this->Usuarios->findAllUsuarios($whereConditions);
 
         $arraySet = [
             'dataInicial',
             'dataFinal',
             'usuarios',
         ];
+
+        $this->set(compact($arraySet));
+    }
+
+    /**
+     * Relatório de Usuários Cadastrados pelos funcionários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function relatorioUsuariosCadastradosFuncionarios()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $cliente = $sessao["cliente"];
+
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+
+        $arraySet = ["clientesId"];
 
         $this->set(compact($arraySet));
     }
@@ -3882,318 +4537,6 @@ class UsuariosController extends AppController
         );
     }
 
-    /**
-     * UsuariosController::getUsuarioAPI
-     *
-     * Obtem dados de usuário
-     *
-     * @params $data["id"] Id de Usuário
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 18/09/2018
-     *
-     * @return Object Model\Entity\Usuario
-     */
-    public function getUsuarioByIdAPI()
-    {
-        $id = null;
-
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $id = $data["id"];
-        }
-
-        if (empty($id)) {
-            ResponseUtil::error("Id do usuário não informado!", Configure::read("messageWarningDefault"));
-        }
-
-        $usuario = $this->Usuarios->getUsuarioById($id);
-
-        if (empty($usuario)) {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
-        }
-
-        ResponseUtil::success($usuario);
-    }
-
-    /**
-     * UsuariosController::getUsuarioByDocEstrangeiroAPI
-     *
-     * Serviço REST para obter usuários contendo documento estrangeiro informado
-     *
-     * @param $data["doc_estrangeiro"] Documento Estrangeiro
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2019-03-13
-     *
-     * @return json_encode
-     */
-    public function getUsuarioByDocEstrangeiroAPI()
-    {
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $documentoEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
-
-            if (empty($documentoEstrangeiro)) {
-                ResponseUtil::error(MESSAGE_GENERIC_COMPLETED_ERROR, MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY));
-            }
-            $usuario = $this->Usuarios->getUsuarioByDocumentoEstrangeiro($documentoEstrangeiro);
-
-            if ($usuario) {
-                ResponseUtil::error("", "Aviso!", array(MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS));
-            }
-            ResponseUtil::success(0);
-        }
-    }
-
-    public function getListaUsuariosRedeAPI()
-    {
-        $usuarioLogado = $this->Auth->user();
-        $sessaoUsuario = $this->getSessionUserVariables();
-        if ($this->request->is("post")) {
-
-            $tipoPerfil = $usuarioLogado["tipo_perfil"];
-
-            if ($tipoPerfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
-                $redesId = $sessaoUsuario["rede"]["id"];
-            }
-
-            // @todo Gustavo: Continuar implementação de serviço que busca todos os usuários pela rede
-        }
-    }
-
-    /**
-     * UsuariosController::getUsuariosAssiduosAPI
-     *
-     * Obtem dados de usuários fidelizados
-     *
-     * @param array $data Dados de Post
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 20/09/2018
-     *
-     * @return json_encode
-     */
-    public function getUsuariosAssiduosAPI()
-    {
-        $rede = $this->request->session()->read("Network.Main");
-
-        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
-
-        $redesId = $rede["id"];
-
-        $data = array();
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
-        }
-
-        if (sizeof($usuarios) > 0) {
-            ResponseUtil::success($usuarios);
-        } else {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
-        }
-    }
-
-    /**
-     * UsuariosController::generateExcelUsuariosAssiduosAPI
-     *
-     * Gera relatório de usuários fidelizados pela rede
-     *
-     * @param array $data Dados de Post
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 20/09/2018
-     *
-     * @return json_encode Dados de excel em json_encode
-     */
-    public function generateExcelUsuariosAssiduosAPI()
-    {
-        $rede = $this->request->session()->read("Network.Main");
-
-        $mediaAssiduidadeClientes = $rede["media_assiduidade_clientes"];
-
-        $redesId = $rede["id"];
-
-        $filtrarPorUsuario = false;
-
-        $data = array();
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $filtrarPorUsuario = !empty($data["filtrarPorUsuario"]) ? $data["filtrarPorUsuario"] : false;
-
-            $usuarios = $this->_consultaUsuariosAssiduos($data, $redesId, $mediaAssiduidadeClientes);
-        }
-
-        if (sizeof($usuarios) == 0) {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
-        }
-
-        $usuariosArray = array();
-        $usuarioTemp = array();
-
-        $titulo = "";
-
-        // Log::write("info", $usuarios);
-        // die();
-        if ($filtrarPorUsuario) {
-
-            $cabecalho = array(
-                "Ano",
-                "Mes",
-                "Status Assiduidade",
-                "Media Assiduidade"
-            );
-
-            $nomeUsuario = $usuarios[0]["nome"];
-            $cpf = $usuarios[0]["cpf"];
-            $documentoEstrangeiro = $usuarios[0]["docEstrangeiro"];
-            $documento = !empty($cpf) ? $cpf : $documentoEstrangeiro;
-            $titulo = sprintf("%s: %s (%s)", "Relatório de Usuários Assíduos", $nomeUsuario, $documento);
-
-            foreach ($usuarios as $usuario) {
-                $usuarioTemp["ano"] = $usuario["ano"];
-                $usuarioTemp["mes"] = $usuario["mes"];
-                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] == 1 ? "Regular" : "Irregular";
-                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
-
-                $usuariosArray[] = $usuarioTemp;
-            }
-        } else {
-
-            $cabecalho = array(
-                "Usuário",
-                "CPF",
-                "Documento Estrangeiro",
-                "Conta Ativa",
-                "Status Assiduidade",
-                "Total Assiduidade",
-                "Media Assiduidade",
-                "Gotas Adquiridas",
-                "Gotas Utilizadas",
-                "Gotas Expiradas",
-                "Saldo Atual",
-                "Total Moeda Compra Brindes (R$)"
-            );
-
-            $titulo = "Relatório de Usuários Assíduos";
-
-            foreach ($usuarios as $usuario) {
-                $usuarioTemp["nome"] = $usuario["nome"];
-                $usuarioTemp["cpf"] = $usuario["cpf"];
-                $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
-                $usuarioTemp["statusConta"] = $usuario["statusConta"];
-                $usuarioTemp["statusAssiduidade"] = $usuario["statusAssiduidade"] ? "Regular" : "Irregular";
-                $usuarioTemp["totalAssiduidade"] = $usuario["totalAssiduidade"];
-                $usuarioTemp["mediaAssiduidade"] = $usuario["mediaAssiduidade"];
-                $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
-                $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
-                $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
-                $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
-                $usuarioTemp["totalMoedaCompraBrindes"] = $usuario["totalMoedaCompraBrindes"];
-
-                $usuariosArray[] = $usuarioTemp;
-            }
-        }
-
-        $usuarios = $usuariosArray;
-
-        $excel = ExcelUtil::generateExcel($titulo, $cabecalho, $usuarios);
-
-        ResponseUtil::success($excel);
-    }
-
-
-    /**
-     * Obtem dados de usuários fidelizados
-     *
-     * @return void
-     */
-    public function getUsuariosFidelizadosAPI()
-    {
-        $rede = $this->request->session()->read("Network.Main");
-        $redesId = $rede["id"];
-
-        $data = array();
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
-        }
-
-        if (sizeof($usuarios) > 0) {
-            ResponseUtil::success($usuarios);
-        } else {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
-        }
-    }
-
-    /**
-     * UsuariosController::generateExcelUsuariosFidelizadosAPI
-     *
-     * Gera relatório de usuários fidelizados pela rede
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 12/09/2018
-     *
-     * @return json_encode Dados de excel em json_encode
-     */
-    public function generateExcelUsuariosFidelizadosAPI()
-    {
-        $rede = $this->request->session()->read("Network.Main");
-        $redesId = $rede["id"];
-
-        $data = array();
-        if ($this->request->is("post")) {
-            $data = $this->request->getData();
-
-            $usuarios = $this->_consultaUsuariosFidelizados($data, $redesId);
-        }
-
-        $cabecalho = array(
-            "Usuário",
-            "CPF",
-            "Documento Estrangeiro",
-            "Conta Ativa",
-            "Gotas Adquiridas",
-            "Gotas Utilizadas",
-            "Gotas Expiradas",
-            "Saldo Atual",
-            "Brindes Vendidos (R$)",
-            "Data Cadastro na Rede",
-        );
-
-        if (sizeof($usuarios) == 0) {
-            ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
-        }
-
-        $usuariosArray = array();
-        $usuarioTemp = array();
-        foreach ($usuarios as $usuario) {
-            $usuarioTemp["nome"] = $usuario["nome"];
-            $usuarioTemp["cpf"] = $usuario["cpf"];
-            $usuarioTemp["docEstrangeiro"] = $usuario["docEstrangeiro"];
-            $usuarioTemp["contaAtiva"] = $usuario["contaAtiva"] == 1 ? "Sim" : "Nâo";
-            $usuarioTemp["gotasAdquiridas"] = $usuario["gotasAdquiridas"];
-            $usuarioTemp["gotasUtilizadas"] = $usuario["gotasUtilizadas"];
-            $usuarioTemp["gotasExpiradas"] = $usuario["gotasExpiradas"];
-            $usuarioTemp["saldoAtual"] = $usuario["saldoAtual"];
-            $usuarioTemp["totalMoedaAdquirida"] = $usuario["totalMoedaAdquirida"];
-            $usuarioTemp["dataVinculo"] = $usuario["dataVinculo"];
-
-            $usuariosArray[] = $usuarioTemp;
-        }
-
-        $usuarios = $usuariosArray;
-
-        $excel = ExcelUtil::generateExcel("Relatório de Usuários Fidelizados", $cabecalho, $usuarios);
-
-        ResponseUtil::success($excel);
-    }
 
     // /**
     //  * Função apenas para teste de acesso e benchmark
@@ -4304,19 +4647,30 @@ class UsuariosController extends AppController
         try {
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
+                // ResponseUtil::successAPI($data);
 
                 $id = !empty($data["id"]) ? $data["id"] : null;
                 $email = !empty($data["email"]) ? $data["email"] : null;
+                // Validação de email com base no perfil que está sendo criado
+                // Se não informou o campo, considera que é usuário final (pois está vindo do Mobile, e o Mobile não informa isto)
+                $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : PROFILE_TYPE_USER;
                 $restricaoCampos = !empty($data["restricao_campos"]) ? $data["restricao_campos"] : false;
 
                 if (empty($email)) {
-                    ResponseUtil::error("", MESSAGE_GENERIC_ERROR, array(MSG_USUARIOS_EMAIL_EMPTY));
+                    return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MSG_USUARIOS_EMAIL_EMPTY], [], []);
+                }
+
+                if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
+                    $validacaoEmail = EmailUtil::validateEmail($email);
+
+                    if (!$validacaoEmail["status"]) {
+                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                    }
                 }
 
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
-                if ($data['id'] != 0) {
-
+                if ($data['id'] != 0 && !empty($user)) {
                     if ($user->id == $data['id']) {
                         $user = null;
                     }
@@ -4582,6 +4936,4 @@ class UsuariosController extends AppController
     }
 
     #endregion
-
-
 }

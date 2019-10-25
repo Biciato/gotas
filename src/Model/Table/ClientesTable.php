@@ -82,7 +82,7 @@ class ClientesTable extends GenericTable
         parent::initialize($config);
 
         $this->setTable('clientes');
-        $this->setDisplayField('razao_social');
+        $this->setDisplayField('nome_fantasia_razao_social');
         $this->setPrimaryKey('id');
 
         $this->belongsTo(
@@ -94,8 +94,9 @@ class ClientesTable extends GenericTable
             ]
         );
 
+        // @todo CONFERIR
         $this->hasOne(
-            'RedeHasCliente',
+            'RedesHasClientes',
             [
                 'className' => 'RedesHasClientes',
                 'foreignKey' => 'clientes_id',
@@ -262,7 +263,7 @@ class ClientesTable extends GenericTable
         try {
 
             $redesHasClientes = $this
-                ->RedeHasCliente->find('all')
+                ->RedesHasClientes->find('all')
                 ->where(
                     [
                         'redes_id' => $redes_id
@@ -295,12 +296,12 @@ class ClientesTable extends GenericTable
 
             // salvou o cliente
             if ($cliente) {
-                $redesHasCliente = $this->RedeHasCliente->newEntity();
+                $redesHasCliente = $this->RedesHasClientes->newEntity();
 
                 $redesHasCliente["redes_id"] = $redes_id;
                 $redesHasCliente["clientes_id"] = $cliente->id;
 
-                $result = $this->RedeHasCliente->save($redesHasCliente);
+                $result = $this->RedesHasClientes->save($redesHasCliente);
             }
 
             return $result;
@@ -335,7 +336,7 @@ class ClientesTable extends GenericTable
                 ->select("Clientes.id")
                 ->first();
         } catch (Exception $e) {
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $e->getMessage()));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage()));
 
             throw new Exception($e->getMessage());
         }
@@ -621,7 +622,7 @@ class ClientesTable extends GenericTable
                     [
                         'Clientes.id' => $clientes_id
                     ]
-                )->contain(['RedeHasCliente', 'RedeHasCliente.Redes', "ClientesHasQuadroHorarios"]);
+                )->contain(['RedesHasClientes.Redes', "ClientesHasQuadroHorarios"]);
 
             if (sizeof($selectFields) > 0) {
                 $cliente = $cliente->select($selectFields);
@@ -731,10 +732,10 @@ class ClientesTable extends GenericTable
         return $this
             ->find('all')
             ->where(array('Clientes.cnpj' => $cnpj))
-            ->contain("RedeHasCliente.Redes")
+            ->contain("RedesHasClientes.Redes")
             ->select($this)
-            ->select(array("RedeHasCliente.id"))
-            ->select($this->RedeHasCliente->Redes)
+            ->select(array("RedesHasClientes.id"))
+            ->select($this->RedesHasClientes->Redes)
             ->first();
     }
 

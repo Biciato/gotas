@@ -149,10 +149,17 @@ $(document).ready(function () {
     /**
      * Mostra informações de redes
      */
-    var showRedesInput = function () {
+    var showRedesInput = function (required) {
         $(".redes_input").show();
         $("#redes_id").prop("required", true);
-        $("#clientes_rede").prop("required", true);
+        $("#clientes_rede").prop("required", required);
+
+        var unidadeLabel = "Unidade da Rede";
+
+        if (required) {
+            unidadeLabel = unidadeLabel + "*";
+        }
+        $("label[for=clientes_rede").text(unidadeLabel);
     }
 
     /**
@@ -225,15 +232,22 @@ $(document).ready(function () {
      * @param {object} data
      */
     var changeProfileType = function (data) {
-        $("#senha").val(null);
-        $("#confirm-senha").val(null);
 
         // verifica se entra no perfil de uma unidade da rede (e se quem está cadastrando é um administrador da RTI)
 
         var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
 
+        if (tipoPerfil == 5){
+            $("#senha").val(123456);
+            $("#confirm_senha").val(123456);
+        } else {
+            $("#senha").val(null);
+            $("#confirm_senha").val(null);
+        }
+
         // Gerente
         var tipoPerfilSelecionado = $("#tipo_perfil").val();
+
         if (tipoPerfilSelecionado >= 5) {
             $("#telefone").attr("required", null);
             $("#label-telefone").text("Telefone");
@@ -244,12 +258,23 @@ $(document).ready(function () {
 
         if (tipoPerfil !== undefined) {
             if (tipoPerfil >= 0 && tipoPerfil <= 2) {
-                if ($(data).val() < 1 || $(data).val() > 5) {
+                // if ($(data).val() < 1 || $(data).val() > 5) {
+                if (tipoPerfilSelecionado < 1 || tipoPerfilSelecionado > 5) {
                     hideRedesInput();
                 } else {
-                    showRedesInput();
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                        showRedesInput(true);
+                    } else {
+                        showRedesInput(false);
+                    }
                 }
             }
+        }
+
+        if (tipoPerfilSelecionado > 2) {
+            $("#clientes_rede").attr("required", true);
+        } else {
+            $("#clientes_rede").removeAttr("required");
         }
 
         if ($(data).val() != 6) {
@@ -533,7 +558,8 @@ $(document).ready(function () {
             type: 'post',
             data: JSON.stringify({
                 id: 0,
-                email: this.value
+                email: this.value,
+                tipo_perfil: $("#tipo_perfil").val()
             }),
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Accept", "application/json");
@@ -553,7 +579,7 @@ $(document).ready(function () {
 
             },
             error: function (error) {
-                callModalError(error.responseJSON.title, error.responseJSON.errors);
+                callModalError(error.responseJSON.mensagem.message, error.responseJSON.mensagem.errors);
             }
         }).done(function () {
             closeLoaderAnimation();

@@ -7,7 +7,7 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
-
+use Exception;
 
 /**
  * @author Gustavo Souza Gonçalves
@@ -24,8 +24,7 @@ class WebTools
     public $prop = null;
 
     function __construct()
-    {
-    }
+    { }
 
     /**
      * Obtêm conteúdo de página web
@@ -115,17 +114,20 @@ class WebTools
     public static function loginAPIGotas(string $email, string $senha)
     {
         try {
+            Log::write("info", sprintf("Iniciando autenticação de: %s.", $email));
             $debug = Configure::read("debug");
-            // $suffix = Configure::read("debug") ? ".local" : ".com.br";
-            $suffix = "local";
-            $url = "https://sistema.gotas." . $suffix . "/api/usuarios/token";
+            $url = __SERVER__ .  "api/usuarios/token";
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_VERBOSE, $debug);
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curl, CURLOPT_VERBOSE, $debug);
+            // curl_setopt($curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
+            curl_setopt($curl, CURLOPT_PORT, $_SERVER['SERVER_PORT']);
+
 
             $data = array("email" => $email, "senha" => $senha);
 
@@ -136,11 +138,13 @@ class WebTools
 
                     if ($data) {
                         $dataJson = json_encode($data);
+                        curl_setopt($curl, CURLOPT_POST, 1);
                         curl_setopt($curl, CURLOPT_POSTFIELDS, $dataJson);
                         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                            "Accept: application/json",
                             "Content-Type: application/json",
                             "Content-Length: " . strlen($dataJson),
-                            "IsMobile: 1"
+                            "IsMobile: True"
                         ));
                     }
                     break;
@@ -152,8 +156,8 @@ class WebTools
                         $url = sprintf("%s?%s", $url, http_build_query($data));
                     }
             }
-
-
+            $result = curl_exec($curl);
+            $result = json_decode($result, true);
             $curlErr = curl_errno($curl);
             $curlError = curl_error($curl);
 
@@ -161,11 +165,7 @@ class WebTools
                 Log::write("error", sprintf("Erro durante processamento cUrl: %s - %s", $curlErr, $curlError));
             }
 
-            $result = curl_exec($curl);
-            $result = json_decode($result, true);
-
             curl_close($curl);
-
             $authentication = array();
 
             if (!empty($result["usuario"])) {
@@ -175,8 +175,9 @@ class WebTools
                 );
             }
 
-            return $authentication;
+            Log::write("info", sprintf("Fim autenticação."));
 
+            return $authentication;
         } catch (\Exception $e) {
             Log::write("error", sprintf("Message: %s / Trace: %s", $e->getMessage(), $e->getTraceAsString()));
         }
@@ -194,72 +195,86 @@ class WebTools
      */
     public static function callAPI(string $method, string $url, $data = array(), string $dataType = DATA_TYPE_MESSAGE_JSON, string $authentication = "")
     {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_VERBOSE, 1);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        try {
+            //code...
 
-        // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
-        // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
-        // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            // curl_setopt($curl, CURLOPT_VERBOSE, 1);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 
-        $dataSend = "";
+            // https://stackoverflow.com/questions/30426047/correct-way-to-set-bearer-token-with-curl
+            // https://stackoverflow.com/questions/6516902/how-to-get-response-using-curl-in-php
+            // https://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
 
-        Log::write("info", __("Chamada à método: {0}", $url));
+            $dataSend = "";
 
-        if ($dataType == DATA_TYPE_MESSAGE_JSON) {
-            $dataSend = json_encode($data);
-        } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
-            $dataSend = new \SimpleXMLElement($data);
-        }
+            Log::write("info", __("Chamada à método: {0}", $url));
 
-        switch ($method) {
-            case "POST":
-                curl_setopt($curl, CURLOPT_POST, 1);
+            if ($dataType == DATA_TYPE_MESSAGE_JSON) {
+                $dataSend = json_encode($data);
+            } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+                $dataSend = new \SimpleXMLElement($data);
+            }
 
-                if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $dataSend);
+            switch ($method) {
+                case "POST":
+                    curl_setopt($curl, CURLOPT_POST, 1);
 
-                    $header = array();
-                    $header[] = "Accept: application/json";
-                    if ($dataType == DATA_TYPE_MESSAGE_JSON) {
-                        $header[] = "Content-Type: application/json";
-                    } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
-                        $header[] = "Content-Type: application/xml";
+                    if ($data) {
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataSend);
+
+                        $header = array();
+                        $header[] = "Accept: application/json";
+                        if ($dataType == DATA_TYPE_MESSAGE_JSON) {
+                            $header[] = "Content-Type: application/json";
+                        } elseif ($dataType == DATA_TYPE_MESSAGE_XML) {
+                            $header[] = "Content-Type: application/xml";
+                        }
+                        $header[] = "Content-Length: " . strlen($dataSend);
+                        $header[] = "IsMobile: 1";
+                        if (strlen($authentication) > 0) {
+                            $header[] = "Authorization: Bearer $authentication";
+                        }
+
+                        // Log::write("info", $header);
+
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
                     }
-                    $header[] = "Content-Length: " . strlen($dataSend);
-                    $header[] = "IsMobile: 1";
-                    if (strlen($authentication) > 0) {
-                        $header[] = "Authorization: Bearer $authentication";
+                    break;
+                case "PUT":
+                    curl_setopt($curl, CURLOPT_PUT, 1);
+                    break;
+                default:
+                    if ($data) {
+                        $url = sprintf("%s?%s", $url, http_build_query($data));
                     }
+            }
 
-                    // Log::write("info", $header);
+            $curlErr = curl_errno($curl);
+            $curlError = curl_error($curl);
 
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-                }
-                break;
-            case "PUT":
-                curl_setopt($curl, CURLOPT_PUT, 1);
-                break;
-            default:
-                if ($data) {
-                    $url = sprintf("%s?%s", $url, http_build_query($data));
-                }
+            if ($curlErr > 0) {
+                throw new Exception($curlError, $curlErr);
+            }
+
+            $result = curl_exec($curl);
+            curl_close($curl);
+            $result = json_decode($result, true);
+
+            Log::write("info", $result);
+
+            Log::write("info", sprintf("Finalização de chamada a método %s...", $method));
+
+            return $result;
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $msg = $th->getMessage();
+
+            Log::write("error", sprintf("[%s] %s - %s", MESSAGE_GENERIC_EXCEPTION, $code, $msg));
         }
-
-
-        $curlErr = curl_errno($curl);
-        $curlError = curl_error($curl);
-        $result = curl_exec($curl);
-        curl_close($curl);
-        $result = json_decode($result, true);
-
-        // Log::write("info", array("err" => $curlErr, "str" => $curlError));
-
-
-        return $result;
     }
 }

@@ -183,7 +183,7 @@ class RedesTable extends GenericTable
                 ->select("Redes.id")
                 ->first();
         } catch (Exception $e) {
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $e->getMessage()));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage()));
 
             throw new Exception($e->getMessage());
         }
@@ -353,7 +353,7 @@ class RedesTable extends GenericTable
                     [
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
-                        'RedesHasClientes.Cliente'
+                        'RedesHasClientes.Clientes'
                     ]
                 );
             }
@@ -519,7 +519,7 @@ class RedesTable extends GenericTable
                     array(
                         'RedesHasClientes',
                         'RedesHasClientes.RedesHasClientesAdministradores',
-                        'RedesHasClientes.Cliente.Brindes'
+                        'RedesHasClientes.Clientes.Brindes'
                     )
                 )
                 ->first();

@@ -71,22 +71,12 @@ class UsuariosTable extends GenericTable
         );
 
         $this->hasOne(
-            'ClienteHasUsuario',
-            [
-                'className' => "ClientesHasUsuarios",
-                'foreignKey' => 'usuarios_id',
-                // "joinType" => "INNER"
-                "joinType" => "LEFT"
-
-            ]
-        );
-
-        $this->hasMany(
             'ClientesHasUsuarios',
             [
                 'className' => "ClientesHasUsuarios",
                 'foreignKey' => 'usuarios_id',
-                "joinType" => "INNER"
+                // "joinType" => "INNER"
+                "joinType" => Query::JOIN_TYPE_LEFT
 
             ]
         );
@@ -206,7 +196,7 @@ class UsuariosTable extends GenericTable
             ->allowEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create', "O campo E-mail precisa ser informado!")
             ->add(
                 'email',
@@ -346,7 +336,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create')
             ->add(
                 'email',
@@ -487,7 +477,7 @@ class UsuariosTable extends GenericTable
             ->notEmpty('data_nasc');
 
         $validator
-            ->email('email')
+            // ->email('email')
             ->requirePresence('email', 'create')
             ->add('email', 'unique', [
                 'rule' => 'validateUnique',
@@ -808,6 +798,52 @@ class UsuariosTable extends GenericTable
         }
     }
 
+    public function getFuncionariosRede(int $redesId, array $clientesIds, array $tipoPerfis)
+    {
+        try {
+
+            $where = [
+                "Redes.id" => $redesId
+            ];
+
+            if (count($clientesIds) > 0) {
+                $where["Clientes.id IN "] = $clientesIds;
+            }
+
+            if (count($tipoPerfis) > 0) {
+                $where["Usuarios.tipo_perfil IN "] = $tipoPerfis;
+            } else {
+                $where["Usuarios.tipo_perfil IN "] = [
+                    PROFILE_TYPE_ADMIN_NETWORK,
+                    PROFILE_TYPE_ADMIN_REGIONAL,
+                    PROFILE_TYPE_ADMIN_LOCAL,
+                    PROFILE_TYPE_MANAGER,
+                    PROFILE_TYPE_WORKER,
+                    PROFILE_TYPE_DUMMY_WORKER
+                ];
+            }
+
+            $usuarios = $this->find("all")
+            ->where($where)
+            ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
+            ->select(
+                [
+                    "Usuarios.id",
+                    "Usuarios.nome",
+                     "Usuarios.cpf"
+                ]
+            );
+
+            return $usuarios;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
+        }
+    }
     /**
      * Encontra usuario por Id
      *
@@ -820,7 +856,11 @@ class UsuariosTable extends GenericTable
     public function getUsuarioById($id)
     {
         try {
-            return $this->get($id);
+            // @todo testar
+            return $this->find("all")
+                ->where(["Usuarios.id" => $id])
+                ->contain(["ClientesHasUsuarios.Clientes"])
+                ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());
@@ -920,7 +960,7 @@ class UsuariosTable extends GenericTable
         try {
             return $this
                 ->find('all')
-                ->where(['email like ' => $email])->first();
+                ->where(['email' => $email])->first();
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());
@@ -1273,7 +1313,7 @@ class UsuariosTable extends GenericTable
             }
 
             if (count($clientesIds) > 0) {
-                $whereConditions[] = array("ClienteHasUsuario.clientes_id IN" => $clientesIds);
+                $whereConditions[] = array("ClientesHasUsuarios.clientes_id IN" => $clientesIds);
             } else if (strlen($redesId) > 0) {
                 $whereConditions[] = array("Redes.id" => $redesId);
             }
@@ -1294,7 +1334,7 @@ class UsuariosTable extends GenericTable
                     $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
                     $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 } else if (strlen($tipoPerfilMin) > 0 && strlen($tipoPerfilMax) > 0) {
-                    $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClienteHasUsuario";
+                    $prefixo = $tipoPerfilMin == 0 || $tipoPerfilMax == 0 ? "Usuarios" : "ClientesHasUsuarios";
                     $whereConditions[] = array(__("Usuarios.tipo_perfil BETWEEN {0} AND {1}", $tipoPerfilMin, $tipoPerfilMax));
                 } else {
                     $tipoPerfil = strlen($tipoPerfilMin) > 0 ? $tipoPerfilMin : $tipoPerfilMax;
@@ -1313,10 +1353,10 @@ class UsuariosTable extends GenericTable
 
             if (!empty($contaAtiva)) {
                 $whereConditions[] = array("Usuarios.conta_ativa" => $contaAtiva);
-                $whereConditions[] = array("ClienteHasUsuario.conta_ativa" => $contaAtiva);
+                $whereConditions[] = array("ClientesHasUsuarios.conta_ativa" => $contaAtiva);
             }
 
-            // $arrayContain = array("ClienteHasUsuario");
+            // $arrayContain = array("ClientesHasUsuarios");
             $arrayContain = array();
 
             $usuarios = $this->find('all')
@@ -1324,7 +1364,7 @@ class UsuariosTable extends GenericTable
                 ->order(array("Usuarios.nome" => "ASC"));
 
             if ($join) {
-                $arrayContain[] = 'ClienteHasUsuario.Cliente.RedesHasClientes.Redes';
+                $arrayContain[] = 'ClientesHasUsuarios.Clientes.RedesHasClientes.Redes';
             }
 
             $usuarios->contain($arrayContain);
@@ -1363,18 +1403,29 @@ class UsuariosTable extends GenericTable
 
             if ($tipoPerfilMin == PROFILE_TYPE_USER || $tipoPerfilMax == PROFILE_TYPE_USER) {
                 $usuarios = $usuarios->group(array(
-                    // "ClienteHasUsuario.usuarios_id"
+                    // "ClientesHasUsuarios.usuarios_id"
                     "Usuarios.id"
                 ));
+            }
+
+            if ($tipoPerfilMin == PROFILE_TYPE_ADMIN_REGIONAL || $tipoPerfilMax == PROFILE_TYPE_ADMIN_REGIONAL) {
+                $usuarios = $usuarios->group(array(
+                    // "ClientesHasUsuarios.usuarios_id"
+                    "Usuarios.id",
+                    "ClientesHasUsuarios.clientes_id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.id",
+                ));
+
             }
 
             if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
 
                 $arrayTemp = array(
-                    // "ClienteHasUsuario.tipo_perfil",
-                    "ClienteHasUsuario.clientes_id",
-                    // "ClienteHasUsuario.usuarios_id",
-                    "ClienteHasUsuario.conta_ativa",
+                    // "ClientesHasUsuarios.tipo_perfil",
+                    "ClientesHasUsuarios.clientes_id",
+                    // "ClientesHasUsuarios.usuarios_id",
+                    "ClientesHasUsuarios.conta_ativa",
                     "RedesHasClientes.id",
                     "RedesHasClientes.redes_id",
                     "RedesHasClientes.clientes_id",
@@ -1382,7 +1433,7 @@ class UsuariosTable extends GenericTable
                     "Redes.nome_rede",
                     "Redes.nome_img",
                     "Redes.propaganda_img",
-                    "Cliente.nome_fantasia",
+                    "Clientes.nome_fantasia",
                 );
                 $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
             }
@@ -1411,7 +1462,7 @@ class UsuariosTable extends GenericTable
     public function findAllUsuariosByRede(int $redesId, array $usuariosConditions = [])
     {
         try {
-            $redes = $this->ClientesHasUsuarios->Clientes->RedeHasCliente->Redes->getAllRedes('all', ['id' => $redesId]);
+            $redes = $this->ClientesHasUsuarios->Clientes->RedesHasClientes->Redes->getAllRedes('all', ['id' => $redesId]);
 
             $redes = $redes->toArray();
 
@@ -1550,8 +1601,8 @@ class UsuariosTable extends GenericTable
             // usuário tem acesso (informado na chamada)
 
             $usuariosIdsArray = $this->find('all')
-                ->where(['ClienteHasUsuario.clientes_id IN ' => $clientesIds])
-                ->contain('ClienteHasUsuario')
+                ->where(['ClientesHasUsuarios.clientes_id IN ' => $clientesIds])
+                ->contain('ClientesHasUsuarios')
                 ->select(['Usuarios.id']);
 
             $usuarios_ids = [];
@@ -1572,7 +1623,7 @@ class UsuariosTable extends GenericTable
 
             $usuarios = $this->find('all')
                 ->where($conditions)
-                ->contain('ClientesHasUsuarios.Cliente')
+                ->contain('ClientesHasUsuarios.Clientes')
                 ->select(
                     array(
                         "Usuarios.id",
@@ -1738,14 +1789,14 @@ class UsuariosTable extends GenericTable
         }
 
         if (!empty($dataInicial)) {
-            $whereConditions[] = array("DATE_FORMAT(ClienteHasUsuario.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') >= '$dataInicial'");
         }
 
         if (!empty($dataFinal)) {
-            $whereConditions[] = array("DATE_FORMAT(ClienteHasUsuario.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
+            $whereConditions[] = array("DATE_FORMAT(ClientesHasUsuarios.audit_insert, '%Y-%m-%d') <= '$dataFinal'");
         }
 
-        $whereConditions[] = array("ClienteHasUsuario.clientes_id in " => $clientesIds);
+        $whereConditions[] = array("ClientesHasUsuarios.clientes_id in " => $clientesIds);
         $whereConditions[] = array("Usuarios.conta_ativa" => 1);
 
         // select
@@ -1775,8 +1826,8 @@ class UsuariosTable extends GenericTable
         $usuariosCliente = $this->find("all")
             ->select($selectArray)
             ->where($whereConditions)
-            // ->contain(array("ClienteHasUsuario", "UsuarioHasVeiculo.Veiculos", "PontuacaoComprovante"))
-            ->contain(array("ClienteHasUsuario", "PontuacaoComprovante"))
+            // ->contain(array("ClientesHasUsuarios", "UsuarioHasVeiculo.Veiculos", "PontuacaoComprovante"))
+            ->contain(array("ClientesHasUsuarios", "PontuacaoComprovante"))
             ->group($groupByConditions)
             ->order(
                 array(

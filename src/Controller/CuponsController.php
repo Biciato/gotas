@@ -444,6 +444,8 @@ class CuponsController extends AppController
 
         $unidadesAtendimento = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
+        // DebugUtil::printArray($unidadesAtendimento);
+
         foreach ($unidadesAtendimento as $key => $value) {
             $clientesIds[] = $key;
         }
@@ -483,10 +485,12 @@ class CuponsController extends AppController
 
             if (!empty($dataInicio)) {
                 $dataInicioPesquisa = date_format(date_create_from_format("d/m/Y", $dataInicio), "Y-m-d");
+                $dataInicioPesquisa = $dataInicioPesquisa . " 00:00:00";
             }
 
             if (!empty($dataFim)) {
                 $dataFimPesquisa = date_format(date_create_from_format("d/m/Y", $dataFim), "Y-m-d");
+                $dataFimPesquisa = $dataFimPesquisa . " 23:59:59";
             }
         }
 
@@ -513,10 +517,10 @@ class CuponsController extends AppController
 
         $cupons = array();
         // @todo ajustar
-        // $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
+        $cupons = $this->Cupons->getExtratoCuponsClientes($clientesIds, $brindeSelecionado, $nomeUsuarios, $valorMinimo, $valorMaximo, $dataInicioPesquisa, $dataFimPesquisa);
 
         // Paginação
-        // $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
+        $cupons = $this->Paginate($cupons, array('order' => ['Cupons.data' => 'desc'], 'limit' => 10));
 
         $arraySet = array("cupons", "unidadesAtendimento", "brindes", "brindeSelecionado", "dataFim", "dataInicio");
         $this->set(compact($arraySet));
@@ -545,6 +549,8 @@ class CuponsController extends AppController
         $cliente = $this->securityUtil->checkUserIsClienteRouteAllowed($this->usuarioLogado, $this->Clientes, $this->ClientesHasUsuarios, array(), $rede["id"]);
 
         $cupom = $this->Cupons->getCuponsById($id);
+
+        // DebugUtil::printArray($cupom);
 
         $this->set(compact(['cupom']));
     }
@@ -683,8 +689,8 @@ class CuponsController extends AppController
             $data_impressao = $cupons->toArray()[0]->data->format('d/m/Y H:i:s');
             $cupom_id = $cupons->toArray()[0]->id;
             $brindes_id = $cupons->toArray()[0]->clientes_has_brindes_habilitado->id;
-            $redes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->redes_id;
-            $clientes_id = $cupons->toArray()[0]->cliente->rede_has_cliente->clientes_id;
+            $redes_id = $cupons->toArray()[0]->cliente->redes_has_cliente->redes_id;
+            $clientes_id = $cupons->toArray()[0]->cliente->redes_has_cliente->clientes_id;
 
             // percorrer o cupom e pegar todos os produtos
 
@@ -1687,6 +1693,7 @@ class CuponsController extends AppController
                 $cliente = $retorno["cliente"];
                 $usuario = $retorno["usuario"];
                 // @todo: temp
+                $resumo_gotas = $retorno["resumo_gotas"];
                 $tempo = $retorno["tempo"];
                 $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
@@ -2206,23 +2213,6 @@ class CuponsController extends AppController
 
                             $this->CuponsTransacoes->saveUpdate($transacao);
                         }
-
-                        // $this->CuponsTransacoes->redes
-                        // } else {
-                        // $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
-                        // }
-
-
-                        // adiciona novo registro de pontuação
-                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cupom["clientes_id"],
-                            $cupom["usuarios_id"],
-                            $cupom["brindes_id"],
-                            $cupom["valor_pago_gotas"],
-                            $cupom["valor_pago_reais"],
-                            $funcionariosId,
-                            true
-                        );
                     }
                 }
 
@@ -2539,15 +2529,15 @@ class CuponsController extends AppController
 
                         // adiciona novo registro de pontuação
 
-                        $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                            $cupom->clientes_id,
-                            $cupom->usuarios_id,
-                            $cupom->brindes_id,
-                            $cupom->valor_pago_gotas,
-                            $cupom->valor_pago_reais,
-                            $usuarioLogado["id"],
-                            true
-                        );
+                        // $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
+                        //     $cupom->clientes_id,
+                        //     $cupom->usuarios_id,
+                        //     $cupom->brindes_id,
+                        //     $cupom->valor_pago_gotas,
+                        //     $cupom->valor_pago_reais,
+                        //     $usuarioLogado["id"],
+                        //     true
+                        // );
 
                         // Obtem dados de retorno
 
@@ -2793,6 +2783,10 @@ class CuponsController extends AppController
         $arraySet = array();
 
         if ($this->request->is(['post'])) {
+
+            $sessao = $this->getSessionUserVariables();
+            $usuario = $sessao["usuarioLogado"];
+
             $data = $this->request->getData();
 
             // Log::write("info", $data);
@@ -2824,8 +2818,6 @@ class CuponsController extends AppController
             }
 
             $brindesId = $data["brindes_id"];
-            $usuario = $this->Auth->user();
-            $usuario = $this->Usuarios->getUsuarioById($usuario['id']);
             $usuariosId = $usuario["id"];
             $clientesId = $data["clientes_id"];
             // Definido pelo Samuel, cliente só pode retirar 1 por vez
@@ -2904,7 +2896,7 @@ class CuponsController extends AppController
 
                 $orderConditions = array();
                 $paginationConditions = array();
-                $redesId = 0;
+                // $redesId = 0;
                 $clientesIds = array();
 
                 if (isset($data["order_by"])) {
@@ -3474,12 +3466,21 @@ class CuponsController extends AppController
                         "errors" => array("Houve um erro na geração do Ticket. Informe ao suporte.")
                     );
                 }
+
+
+                $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                    $usuariosId,
+                    $rede["id"],
+                    $clientesIds
+                );
+
                 $arraySet = array(
                     'mensagem',
                     'ticket',
                     'cliente',
                     'usuario',
                     'tempo',
+                    'resumo_gotas',
                     'tipo_emissao_codigo_barras',
                     "is_brinde_smart_shower",
                     'dados_impressao'
@@ -3492,6 +3493,7 @@ class CuponsController extends AppController
                     "status" => $mensagem["status"],
                     "cliente" => $cliente,
                     "usuario" => $usuario,
+                    "resumo_gotas" => $detalhesPontuacaoResultado["resumo_gotas"],
                     "tempo" => $brinde["tempo_uso_brinde"],
                     "tipo_emissao_codigo_barras" => $brinde["tipo_codigo_barras"],
                     "is_brinde_smart_shower" => ($brinde->codigo_primario >= 1 && $brinde->codigo_primario <= 4),
@@ -3533,10 +3535,17 @@ class CuponsController extends AppController
                 'cliente',
                 'usuario',
                 'tempo',
+                "resumo_gotas",
                 'tipo_emissao_codigo_barras',
                 "is_brinde_smart_shower",
                 'dados_impressao'
             ];
+
+            $detalhesPontuacaoResultado = $this->Pontuacoes->getSumPontuacoesOfUsuario(
+                $usuariosId,
+                $rede["id"],
+                $clientesIds
+            );
 
             $retorno = array(
                 "arraySet" => $arraySet,
@@ -3545,6 +3554,7 @@ class CuponsController extends AppController
                 "status" => $status,
                 "cliente" => $cliente,
                 "usuario" => $usuario,
+                "resumo_gotas" => $detalhesPontuacaoResultado["resumo_gotas"],
                 "tempo" => $brinde["tempo_uso_brinde"],
                 "tipo_emissao_codigo_barras" => $brinde["tipo_codigo_barras"],
                 "is_brinde_smart_shower" => $isBrindeSmartShower,
@@ -3568,6 +3578,7 @@ class CuponsController extends AppController
                 "status" => null,
                 "cliente" => null,
                 "usuario" => null,
+                "resumo_gotas" => ["resumo_gotas" => ["saldo" => 0]],
                 "tempo" => null,
                 "tipo_emissao_codigo_barras" => null,
                 "is_brinde_smart_shower" => null,

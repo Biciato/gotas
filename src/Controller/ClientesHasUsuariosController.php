@@ -217,9 +217,9 @@ class ClientesHasUsuariosController extends AppController
 
             // pega os ids de clientes que pertencem à uma rede
 
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
-            $rede = $this->Redes->getRedeById($rede_has_cliente->rede->id);
+            $rede = $this->Redes->getRedeById($redes_has_cliente->rede->id);
 
             $clientes_ids = [];
 
@@ -282,9 +282,9 @@ class ClientesHasUsuariosController extends AppController
 
             // pega os ids de clientes que pertencem à uma rede
 
-            $rede_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
+            $redes_has_cliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientes_id);
 
-            $rede = $this->Redes->getRedeById($rede_has_cliente->rede->id);
+            $rede = $this->Redes->getRedeById($redes_has_cliente->rede->id);
 
             $clientes_ids = [];
 

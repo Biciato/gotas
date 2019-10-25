@@ -4,6 +4,7 @@ $(function() {
 
     var form = {};
     var clientesSelectListBox = $("#clientes-list");
+    var clientesSelectedItem = {};
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
@@ -61,12 +62,11 @@ $(function() {
         dataFim.datepicker().datepicker("setDate", dataAtual);
 
         // Dispara todos os eventos que precisam de inicializar
-        dataInicioOnChange();
-        dataFimOnChange();
+        // dataInicioOnChange();
+        // dataFimOnChange();
         tipoRelatorioOnChange();
         getClientesList();
-        clientesSelectListBoxOnChange();
-        brindesSelectListBoxOnChange();
+
 
         // Desabilita botão de imprimir até que usuário faça alguma consulta
         imprimirBtn.addClass("disabled");
@@ -102,7 +102,7 @@ $(function() {
      * @return void
      */
     function clientesSelectListBoxOnChange() {
-        var clienteSelected = this.value;
+        var clienteSelected = clientesSelectListBox.val();
 
         // Se não tiver seleção, será feito via backend.
         clienteSelected = parseInt(clienteSelected);
@@ -235,7 +235,8 @@ $(function() {
                 }
             },
             error: function(response) {
-                callModalError(response.mensagem.message, response.mensagem.error);
+                var data = response.responseJSON;
+                callModalError(data.mensagem.message, data.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();
@@ -261,49 +262,58 @@ $(function() {
             data: {},
             dataType: "JSON",
             success: function(res) {
-                if (res.clientes.length > 0) {
+                if (res.data.clientes.length > 0) {
                     clientesList = [];
                     clientesSelectListBox.empty();
 
-                    var option = document.createElement("option");
-                    option.value = undefined;
-                    option.textContent = "Todos";
+                    var cliente = {
+                        id: undefined,
+                        nomeFantasia: "Todos"
+                    };
 
-                    clientesList.push(option);
+                    clientesList.push(cliente);
+                    clientesSelectListBox.prop("disabled", false);
 
-                    res.clientes.forEach(cliente => {
+                    res.data.clientes.forEach(cliente => {
                         var cliente = {
                             id: cliente.id,
-                            value: cliente.nome_fantasia
+                            nomeFantasia: cliente.nome_fantasia
                         };
 
-                        var option = document.createElement("option");
-                        option.value = cliente.id;
-                        option.textContent = cliente.value;
-
-                        clientesList.push(option);
+                        clientesList.push(cliente);
                     });
 
-                    clientesSelectListBox.append(clientesList);
-                    var clienteSelected = $("#cliente-selected").val();
+                    clientesList.forEach(cliente => {
+                        var option = document.createElement("option");
+                        option.value = cliente.id;
+                        option.textContent = cliente.nomeFantasia;
 
-                    if (clienteSelected !== undefined && clienteSelected > 0) {
-                        clientesSelectListBox.val(clienteSelected);
+                        clientesSelectListBox.append(option);
+                    });
+
+                    // Se só tem 2 registros, significa que
+                    if (clientesList.length == 2) {
+                        clientesSelectedItem = clientesList[1];
+
+                        // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
+                        clientesSelectListBox.prop("disabled", true);
                     }
 
-                    // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                    if (clientesList.length == 2) {
-                        $(clientesSelectListBox).attr("disabled", true);
+                    if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
+                        clientesSelectListBox.val(clientesSelectedItem.id);
                     }
                 }
 
                 closeLoaderAnimation();
             },
             error: function(response) {
-                callModalError(response.mensagem.message, response.mensagem.error);
+                var data = response.responseJSON;
+                callModalError(data.mensagem.message, data.mensagem.error);
             },
             complete: function(response) {
                 closeLoaderAnimation();
+                clientesSelectListBoxOnChange();
+                brindesSelectListBoxOnChange();
             }
         });
     }
@@ -358,6 +368,7 @@ $(function() {
             success: function(response) {
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
+                imprimirBtn.unbind("click");
                 imprimirBtn.on("click", imprimirRelatorio);
 
                 var data = response.data.pontuacoes_report;
@@ -514,17 +525,17 @@ $(function() {
                                 // Info de Saida
                                 var cellSaidaUsuario = document.createElement("td");
                                 var labelSaidaUsuario = document.createElement("span");
-                                labelSaidaUsuario = saida.usuario !== undefined ? saida.usuario.nome : "";
+                                labelSaidaUsuario = saida !== undefined && saida.usuario !== undefined ? saida.usuario.nome : "";
                                 cellSaidaUsuario.append(labelSaidaUsuario);
 
                                 var cellSaidaBrinde = document.createElement("td");
                                 var labelSaidaBrinde = document.createElement("span");
-                                labelSaidaBrinde.textContent = saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
+                                labelSaidaBrinde.textContent = saida !== undefined && saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
                                 cellSaidaBrinde.append(labelSaidaBrinde);
 
                                 var cellSaidaQteGota = document.createElement("td");
                                 var labelSaidaQteGota = document.createElement("span");
-                                labelSaidaQteGota.textContent = saida.qte_gotas;
+                                labelSaidaQteGota.textContent = saida !== undefined ? saida.qte_gotas : 0;
                                 cellSaidaQteGota.classList.add("text-right");
                                 cellSaidaQteGota.append(labelSaidaQteGota);
 
@@ -799,6 +810,7 @@ $(function() {
         getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
     });
 
+    imprimirBtn.unbind("click");
     imprimirBtn.on("click", imprimirRelatorio);
 
     // #endregion

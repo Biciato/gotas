@@ -157,7 +157,7 @@ class CuponsTransacoesTable extends GenericTable
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-03
-     * 
+     *
      * @param integer $redesId Redes Id
      * @param integer $clientesId Clientes Id
      * @param integer $cuponsId Cupons Id
@@ -167,7 +167,7 @@ class CuponsTransacoesTable extends GenericTable
      * @param string $tipoOperacao Tipo Operacao
      * @param DateTime $dataInicio Data Inicio
      * @param DateTime $dataFim Data Fim
-     * 
+     *
      * @return int Soma
      */
     public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId = null, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
@@ -247,6 +247,33 @@ class CuponsTransacoesTable extends GenericTable
     #endregion
 
     #region Delete
+
+    /**
+     * Remove registros de transação pelo id de rede
+     *
+     * @param integer $redesId Id de Rede
+     *
+     * @return bool
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-28
+     */
+    public function deleteAllByRedesId(int $redesId)
+    {
+        try {
+            return $this->deleteAll(["redes_id" => $redesId]);
+        } catch (\Throwable $th) {
+            $code = MSG_DELETE_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s: %s", MSG_DELETE_EXCEPTION, MSG_DELETE_EXCEPTION_CODE, $th->getMessage());
+
+            $trace = $th->getTraceAsString();
+
+            Log::write("error", $message);
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_DELETE_EXCEPTION, $message, $trace));
+
+            throw new Exception($message, $code);
+        }
+    }
 
     #endregion
 }

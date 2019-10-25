@@ -16,7 +16,7 @@ echo $this->Breadcrumbs->render(
 <nav class="col-lg-3 col-md-2" id="actions-sidebar">
     <ul class="nav nav-pills nav-stacked">
         <li class="active"><a><?= __('Ações') ?></a></li>
-        
+
     </ul>
 </nav>
 <div class="clientes index col-lg-9 col-md-10 columns content">
@@ -30,15 +30,15 @@ echo $this->Breadcrumbs->render(
             <th><?= __('Nome da Rede') ?></th>
             <th><?= __('Razão Social') ?></th>
             <th><?= __('Nome Fantasia') ?></th>
-            <th><?= __('CNPJ') ?></th> 
-            
-            
+            <th><?= __('CNPJ') ?></th>
+
+
             <!-- <th><?= $this->Paginator->sort('id', ['label' => 'id']) ?></th>
             <th><?= $this->Paginator->sort('Clientes.tipo_unidade', ['label' => 'Tipo de Unidade']) ?></th>
             <th><?= $this->Paginator->sort('rede.nome_rede', ['label' => 'Nome da Rede']) ?></th>
             <th><?= $this->Paginator->sort('Clientes.razao_social', ['label' => 'Razão Social']) ?></th>
             <th><?= $this->Paginator->sort('Clientes.nome_fantasia', ['label' => 'Nome Fantasia']) ?></th>
-            
+
             <th><?= $this->Paginator->sort('Clientes.cnpj', ['label' => 'CNPJ']) ?></th> -->
             <th class="actions">
                 <?= __('Ações') ?>
@@ -47,15 +47,15 @@ echo $this->Breadcrumbs->render(
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($redes_has_clientes as $rede_has_cliente) : ?>
+        <?php foreach ($redes_has_clientes as $redes_has_cliente) : ?>
         <tr>
-            <!-- <td><?= ($rede_has_cliente->id) ?></td> -->
-            <td><?= $this->ClienteUtil->getTypeUnity($rede_has_cliente->cliente->tipo_unidade) ?></td>
-            <td><?= h($rede_has_cliente->rede->nome_rede) ?></td>
-            <td><?= h($rede_has_cliente->cliente->razao_social) ?></td>
-            <td><?= h($rede_has_cliente->cliente->nome_fantasia) ?></td>
-            <td><?= h($this->NumberFormat->formatNumberToCNPJ($rede_has_cliente->cliente->cnpj)) ?></td>
-            
+            <!-- <td><?= ($redes_has_cliente->id) ?></td> -->
+            <td><?= $this->ClienteUtil->getTypeUnity($redes_has_cliente->cliente->tipo_unidade) ?></td>
+            <td><?= h($redes_has_cliente->rede->nome_rede) ?></td>
+            <td><?= h($redes_has_cliente->cliente->razao_social) ?></td>
+            <td><?= h($redes_has_cliente->cliente->nome_fantasia) ?></td>
+            <td><?= h($this->NumberFormat->formatNumberToCNPJ($redes_has_cliente->cliente->cnpj)) ?></td>
+
             <td class="actions" style="white-space:nowrap">
                 <?=
                 $this->Html->link(
@@ -65,7 +65,7 @@ echo $this->Breadcrumbs->render(
                     ),
                     [
                         'action' => 'configurar_brindes_unidade',
-                        $rede_has_cliente->cliente->id
+                        $redes_has_cliente->cliente->id
                     ],
                     [
                         'class' => 'btn btn-default btn-xs',
@@ -73,7 +73,7 @@ echo $this->Breadcrumbs->render(
                     ]
                 )
                 ?>
-                
+
             </td>
         </tr>
         <?php endforeach; ?>

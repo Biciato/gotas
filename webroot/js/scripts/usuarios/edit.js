@@ -328,68 +328,74 @@ $(document).ready(function () {
             // verifica se o e-mail é válido
 
             var email = this.value;
+            var tipoPerfil = $("#tipo_perfil").val();
 
-            // verifica se email possui um @ e se não é o primeiro dígito
+            // Validação de e-mail se for adm developer ou usuário
+            if (tipoPerfil == 0 || tipoPerfil == 6) {
 
-            var contains_at = this.value.indexOf("@");
+                // se tem arroba e tem um ponto no e-mail
+                // verifica se email possui um @ e se não é o primeiro dígito
 
-            var contains_dot = getAllIndexes(this.value, ".");
+                var contains_at = email.indexOf("@");
+                var contains_dot = getAllIndexes(email, ".");
 
-            // se tem arroba e tem um ponto no e-mail
+                var email_invalid =
+                    "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
 
-            var email_invalid =
-                "Este e-mail não é válido! Geralmente um e-mail possui um formato do tipo 'usuario@email.com'. Por gentileza, confira.";
-
-            if (contains_at == -1 || contains_dot.length == 0) {
-                callModalError(email_invalid);
-            } else {
                 // verifica se tem algum ponto APÓS o arroba
-
-                var found = false;
-                contains_dot.forEach(element => {
-                    if (element > contains_at) {
-                        found = true;
-                        // break;
-                    }
-                });
-
-                if (!found) {
+                if (contains_at == -1 || contains_dot.length == 0) {
                     callModalError(email_invalid);
                 } else {
-                    $.ajax({
-                        url: "/Usuarios/getUsuarioByEmail",
-                        type: "post",
-                        data: JSON.stringify({
-                            id: $("#usuarios_id").val(),
-                            email: this.value
-                        }),
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("Accept", "application/json");
-                            xhr.setRequestHeader(
-                                "Content-Type",
-                                "application/json; charset=UTF-8"
-                            );
-                        },
-                        success: function (data) {
-                            if (data["user"] !== null) {
-                                callModalError(
-                                    'Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"'
-                                );
-                                $("#email_validation").show();
-                                $("#user_submit").attr("disabled", true);
-                                $("#email").focus();
-                            } else {
-                                $("#email_validation").text("");
-                                $("#email_validation").hide();
-                                $("#user_submit").attr("disabled", false);
-                            }
-                        },
-                        error: function (data) {
-                            console.log(data);
+
+                    var found = false;
+
+                    contains_dot.forEach(element => {
+                        if (element > contains_at) {
+                            found = true;
                         }
                     });
+
+                    if (!found) {
+                        callModalError(email_invalid);
+                        return;
+                    }
+
                 }
             }
+
+            $.ajax({
+                url: "/Usuarios/getUsuarioByEmail",
+                type: "post",
+                data: JSON.stringify({
+                    id: $("#usuarios_id").val(),
+                    email: this.value,
+                    tipo_perfil: tipoPerfil
+                }),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Accept", "application/json");
+                    xhr.setRequestHeader(
+                        "Content-Type",
+                        "application/json; charset=UTF-8"
+                    );
+                },
+                success: function (data) {
+                    if (data["user"] !== null) {
+                        callModalError(
+                            'Este login já está em uso. Para logar com este login, use o formulário de "Esqueci minha Senha"'
+                        );
+                        $("#email_validation").show();
+                        $("#user_submit").attr("disabled", true);
+                        // $("#email").focus();
+                    } else {
+                        $("#email_validation").text("");
+                        $("#email_validation").hide();
+                        $("#user_submit").attr("disabled", false);
+                    }
+                },
+                error: function (error) {
+                    callModalError(error.responseJSON.mensagem.message, error.responseJSON.mensagem.errors);
+                }
+            });
         }
     });
 
@@ -421,6 +427,11 @@ $(document).ready(function () {
      */
     var hideRedesInput = function () {
         $(".redes_input").hide();
+        $(".redes_list").val(null);
+        $(".clientes_rede").val(null);
+        $("#redes_id").prop("required", false);
+        $("#clientes_rede").prop("required", false);
+
     };
 
     hideRedesInput();
@@ -430,6 +441,15 @@ $(document).ready(function () {
      */
     var showRedesInput = function () {
         $(".redes_input").show();
+
+        $("#clientes_rede").prop("required", required);
+
+        var unidadeLabel = "Unidade da Rede";
+
+        if (required) {
+            unidadeLabel = unidadeLabel + "*";
+        }
+        $("label[for=clientes_rede").text(unidadeLabel);
     };
 
     /**
@@ -498,7 +518,7 @@ $(document).ready(function () {
 
     // carrega todas as unidades da rede caso já esteja definido redes_id
 
-    if ($("#redes_id").val().length > 0) {
+    if ($("#redes_id").val() !== undefined && $("#redes_id").val().length > 0) {
         var data = {
             redes_id: $("#redes_id").val()
         };
@@ -544,7 +564,11 @@ $(document).ready(function () {
                 if ($(data).val() < 1 || $(data).val() > 5) {
                     hideRedesInput();
                 } else {
-                    showRedesInput();
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                        showRedesInput(true);
+                    } else {
+                        showRedesInput(false);
+                    }
                 }
             }
         }

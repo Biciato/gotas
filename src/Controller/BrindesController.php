@@ -50,6 +50,7 @@ class BrindesController extends AppController
         try {
             $arraySet = [
                 "categoriasBrindesList",
+                "cliente",
                 "redesId",
                 "clientesId",
                 "brindes",
@@ -74,6 +75,10 @@ class BrindesController extends AppController
             if (empty($clientesId) && empty($cliente)) {
                 $this->Flash->error(RULE_CLIENTES_NEED_TO_INFORM);
                 return $this->redirect("/");
+            }
+
+            if (empty($cliente)) {
+                $cliente = $this->Clientes->get($clientesId);
             }
 
             if (empty($redesId)) {
@@ -275,6 +280,7 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
@@ -341,6 +347,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -513,10 +520,11 @@ class BrindesController extends AppController
                 $codigoPrimario = !empty($data["codigo_primario"]) ? $data["codigo_primario"] : 0;
                 $tempoUsoBrinde = !empty($data["tempo_uso_brinde"]) ? $data["tempo_uso_brinde"] : 0;
                 $brindeRede = !empty($data["brinde_rede"]) ? $data["brinde_rede"] : 0;
+                $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
@@ -590,6 +598,7 @@ class BrindesController extends AppController
                     $brinde->tempo_uso_brinde = $tempoUsoBrinde;
                     $brinde->brinde_rede = $brindeRede;
                     $brinde->ilimitado = $brindeRede ? true : $ilimitado;
+                    $brinde->local = $local;
                     $brinde->habilitado = $habilitado;
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
@@ -925,8 +934,12 @@ class BrindesController extends AppController
         $redesList = $this->Redes->getRedesList();
 
         $whereConditions = array();
-
         $redesArrayIds = array();
+        $redesId = null;
+        $nomeBrinde = null;
+        $ilimitado = null;
+        $habilitado = null;
+        $redes = array();
 
         foreach ($redesList as $key => $redeItem) {
             $redesArrayIds[] = $key;
@@ -935,87 +948,89 @@ class BrindesController extends AppController
         if ($this->request->is(['post'])) {
             $data = $this->request->getData();
 
-            if (strlen($data['redes_id']) > 0) {
-                $redesArrayIds = ['id' => $data['redes_id']];
+            $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : null;
+
+            $nomeBrinde = !empty($data["nome"]) ? $data["nome"] : null;
+            $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : null;
+            $habilitado = $data["habilitado"] ?? null;
+
+            if (!empty($redesId)) {
+
+                $redesArrayIds = ['id' => $redesId];
             }
 
-            if (strlen($data['nome']) > 0) {
-                $whereConditions[] = ["nome like '%" . $data['nome'] . "%'"];
+            $dataInicio = null;
+            $dataFinal = null;
+
+            $dataInicioPost = !empty($data["auditInsertInicio"]) ? $data["auditInsertInicio"] : null;
+            $dataFimPost = !empty($data["auditInsertFim"]) ? $data["auditInsertFim"] : null;
+
+            if (!empty($dataInicioPost)) {
+                $dataInicioPost = DateTimeUtil::convertDateToUTC($dataInicioPost, 'd/m/Y');
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicioPost));
             }
 
-            if (strlen($data['ilimitado']) > 0) {
-                $whereConditions[] = ["ilimitado" => (bool) $data['ilimitado']];
+            if (!empty($dataFimPost)) {
+                $dataFimPost = DateTimeUtil::convertDateToUTC($dataFimPost, 'd/m/Y');
+                $dataFim = new DateTime(sprintf("%s 00:00:00", $dataFimPost));
             }
 
-            if (strlen($data['habilitado']) > 0) {
-                $whereConditions[] = ["habilitado" => (bool) $data['habilitado']];
-            }
 
-            $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
-            $dataInicial = strlen($data['auditInsertInicio']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertInicio'], 'd/m/Y') : null;
-            $dataFinal = strlen($data['auditInsertFim']) > 0 ? DateTimeUtil::convertDateToUTC($data['auditInsertFim'], 'd/m/Y') : null;
+            // Monta o Array para apresentar em tela
 
-            // Data de Criação Início e Fim
-            if (strlen($data['auditInsertInicio']) > 0 && strlen($data['auditInsertFim']) > 0) {
+            foreach ($redesArrayIds as $redeId) {
+                $arrayWhereConditions = $whereConditions;
 
-                if ($dataInicial > $dataFinal) {
-                    $this->Flash->error(__(Configure::read('messageDateRangeInvalid')));
-                } else if ($dataInicial > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid', 'Data de Início')));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert BETWEEN "' . $dataInicial . '" and "' . $dataFinal . '"'];
+                $redesHasClientesIds = array();
+
+                $usuariosIds = array();
+
+                $rede = $this->Redes->getRedeById((int) $redeId);
+
+                $redeItem = array();
+
+                $redeItem['id'] = $rede->id;
+                $redeItem['nome_rede'] = $rede->nome_rede;
+                $redeItem['brindes'] = array();
+
+                $unidades_ids = [];
+
+                // obtem os ids das unidades para saber quais brindes estão disponíveis
+                foreach ($rede->redes_has_clientes as $key => $value) {
+                    $unidades_ids[] = $value->clientes_id;
                 }
-            } else if (strlen($data['auditInsertInicio']) > 0) {
 
-                if ($dataInicial > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Início'));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert >= ' => $dataInicial];
-                }
-            } else if (strlen($data['auditInsertFim']) > 0) {
+                $arrayWhereConditions[] = [
+                    'clientes_id in ' => $unidades_ids
+                ];
 
-                if ($dataFinal > $dataHoje) {
-                    $this->Flash->error(__(Configure::read('messageDateTodayHigherInvalid'), 'Data de Fim'));
-                } else {
-                    $whereConditions[] = ['brindes.audit_insert <= ' => $dataFinal];
+                $brindes = [];
+
+                if (count($unidades_ids) > 0) {
+                    $brindes = $this->Brindes->findBrindes($rede->id, null, null, null, null, null, null, $ilimitado, null, [], null, null, null, null, null, 0, []);
+
+                    // @todo ajustar a consulta no futuro para permitir data
+
+                    if (!empty($dataInicio)) {
+                        $brindes = $brindes->where(["Brindes.audit_insert >= " => $dataInicio->format("Y-m-d H:i:s")]);
+                    }
+
+                    if (!empty($dataFim)) {
+                        $brindes = $brindes->where(["Brindes.audit_insert <= " => $dataFim->format("Y-m-d H:i:s")]);
+                    }
+
+                    $brindes = $brindes->toArray();
                 }
+
+                $redeItem['brindes'] = $brindes;
+                unset($arrayWhereConditions);
+
+                $redes[] = $redeItem;
             }
         }
 
-        // Monta o Array para apresentar em tela
-        $redes = array();
 
-        foreach ($redesArrayIds as $key => $value) {
-            $arrayWhereConditions = $whereConditions;
-
-            $redesHasClientesIds = array();
-
-            $usuariosIds = array();
-
-            $rede = $this->Redes->getRedeById((int) $value);
-
-            $redeItem = array();
-
-            $redeItem['id'] = $rede->id;
-            $redeItem['nome_rede'] = $rede->nome_rede;
-            $redeItem['brindes'] = array();
-
-            $unidades_ids = [];
-
-            // obtem os ids das unidades para saber quais brindes estão disponíveis
-            foreach ($rede->redes_has_clientes as $key => $value) {
-                $unidades_ids[] = $value->clientes_id;
-            }
-
-            $arrayWhereConditions[] = [
-                'clientes_id in ' => $unidades_ids
-            ];
-
-            $redeItem['brindes'] = $brindes;
-            unset($arrayWhereConditions);
-
-            $redes[] = $redeItem;
-        }
+        // DebugUtil::printArray($redes);
 
         $arraySet = [
             'redesList',
@@ -1094,7 +1109,8 @@ class BrindesController extends AppController
             $data = $this->request->getData();
             $clientesId = !empty($data["clientes_id"]) ? (int) $data['clientes_id'] : null;
             $tipoPagamento = !empty($data['tipo_pagamento']) ? $data['tipo_pagamento'] : null;
-            $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
+            $tipoVenda = !empty($data['tipo_venda']) ? explode(",", $data['tipo_venda']) : null;
+            // $tipoVenda = !empty($data['tipo_venda']) ? $data['tipo_venda'] : null;
             $desconto = !empty($data['desconto']) ? $data["desconto"] : false;
 
             if (empty($clientesId)) {
@@ -1168,10 +1184,10 @@ class BrindesController extends AppController
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $brindes]);
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 
@@ -1198,6 +1214,9 @@ class BrindesController extends AppController
         try {
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
                 // $tipoPagamento = !empty($data["tipo_pagamento"]) ? $data["tipo_pagamento"] : TYPE_PAYMENT_POINTS;
                 // cliente api no momento só compra via gotas, pois precisa da interação humana para recebimento de dinheiro
                 $tipoPagamento = TYPE_PAYMENT_POINTS;
@@ -1206,11 +1225,12 @@ class BrindesController extends AppController
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $categoriasBrindesId = $data["categorias_brindes_id"] ?? null;
                 $tiposVenda = [TYPE_SELL_CURRENCY_OR_POINTS_TEXT, TYPE_SELL_FREE_TEXT];
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : 0;
 
                 $precoMin = isset($data["preco_min"]) ? (float) $data["preco_min"] : null;
                 $precoMax = isset($data["preco_max"]) ? (float) $data["preco_max"] : null;
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && empty($redesId)) {
                     $mensagem = array(
                         "status" => 0,
                         "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -1282,11 +1302,12 @@ class BrindesController extends AppController
 
                 $todosBrindes = $resultado;
                 $brindesAtuais = $resultado;
+                $todosBrindes = $todosBrindes->toArray();
+
                 if (count($pagination) > 0) {
                     $brindesAtuais = $brindesAtuais->limit($pagination["limit"])->page($pagination["page"]);
                 }
 
-                $todosBrindes = $todosBrindes->toArray();
                 $brindesAtuais = $brindesAtuais->toArray();
                 $resultado = ResponseUtil::prepareReturnDataPagination($todosBrindes, $brindesAtuais, "brindes", $pagination);
                 $mensagem = $resultado["mensagem"];
@@ -1359,7 +1380,7 @@ class BrindesController extends AppController
             }
 
             if (empty($clientesId)) {
-                throw new Exception(MESSAGE_TOP_BRINDES_CLIENTES_ID_NOT_EMPTY);
+                throw new Exception(MSG_CLIENTES_ID_NOT_EMPTY);
             }
 
             $topBrindesAtuais = $this->TopBrindes->getTopBrindes($rede->id, $clientesId);
@@ -1382,10 +1403,10 @@ class BrindesController extends AppController
 
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $data]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 

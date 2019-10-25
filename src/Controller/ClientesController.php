@@ -18,6 +18,7 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
+use Cake\Http\Client\Request;
 
 /**
  * Clientes Controller
@@ -283,16 +284,18 @@ class ClientesController extends AppController
     {
         try {
             $arraySet = array('cliente', "redesId");
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
-
-            if ($usuarioAdministrador) {
-                $this->usuarioLogado = $usuarioAdministrar;
+            if ($usuarioAdministrar) {
+                $usuarioLogado = $usuarioAdministrar;
+                $this->usuarioLogado = $usuarioLogado;
             }
 
             $cliente = $this->Clientes->getClienteById($id);
-            $redesId = $cliente["rede_has_cliente"]["redes_id"];
+            $redesId = $cliente["redes_has_cliente"]["redes_id"];
 
             // Monta o quadro de horários
             $quantidadeTurnos = sizeof($cliente["clientes_has_quadro_horarios"]);
@@ -355,7 +358,7 @@ class ClientesController extends AppController
                         [
                             'controller' => 'redes',
                             'action' => 'ver_detalhes',
-                            $cliente->rede_has_cliente->redes_id
+                            $cliente->redes_has_cliente->redes_id
                         ]
                     );
                 }
@@ -738,19 +741,17 @@ class ClientesController extends AppController
 
         try {
             // Caso o método seja chamado via get
-            if ($this->request->is("get")) {
+            if ($this->request->is(Request::METHOD_GET)) {
                 $data = $this->request->getQueryParams();
 
-                if (!empty($data["redes_id"])) {
-                    $redesId = $data["redes_id"];
-                }
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesId;
             }
 
             $selectList = array(
-                "cliente.id",
-                "cliente.nome_fantasia",
-                "cliente.razao_social",
-                "cliente.propaganda_img"
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.razao_social",
+                "Clientes.propaganda_img"
             );
 
             if (empty($redesId)) {
@@ -761,23 +762,25 @@ class ClientesController extends AppController
 
             $redeHasClientes = $redeHasClientes->select($selectList);
 
-            // return ResponseUtil::successAPI("", [$redeHasClientes->sql()]);
+            // return ResponseUtil::successAPI("", [$redeHasClientes->toArray()]);
             $clientes = [];
 
             foreach ($redeHasClientes as $redeHasCliente) {
-                $clientes[] = $redeHasCliente->cliente;
+                $clientes[] = $redeHasCliente->Clientes;
             }
 
             if (count($clientes) == 0) {
                 return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
             }
 
-            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['clientes' => $clientes]);
+            $data = ["data" => ["clientes" => $clientes]];
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 

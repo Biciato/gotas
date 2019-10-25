@@ -37,7 +37,7 @@ $urlRedirectConfirmacao = empty($urlRedirectConfirmacao) ? array("controller" =>
             <!-- Reimprimir Canhoto  -->
 
             <?= $this->Html->tag('button', __("{0} Não, Reimprimir", $this->Html->tag('i', '', ['class' => 'fa fa-remove'])), [
-                'id' => 'reimpressao-canhoto',
+                'id' => 'reimpressao-canhoto-validar-brinde',
                 'class' => 'reimpressao-canhoto btn btn-danger btn-block'
             ]) ?>
 

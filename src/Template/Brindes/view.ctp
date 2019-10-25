@@ -48,12 +48,12 @@ $manageStock = !$brinde["ilimitado"];
     <?= $this->Form->create($brinde) ?>
     <fieldset>
         <div class="form-group row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="nome">Nome</label>
                 <input type="text" name="nome" disabled required="required" readonly="readonly" placeholder="Nome..." id="nome" class="form-control" value="<?= $brinde['nome'] ?>">
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <label for="tipo_codigo_barras">Código de Barras</label>
                 <?= $this->Form->input(
                     "tipo_codigo_barras",
@@ -73,6 +73,10 @@ $manageStock = !$brinde["ilimitado"];
                         )
                     )
                 ); ?>
+            </div>
+            <div class="col-lg-4">
+                <label for="local">Local Secundário de Brinde </label>
+                <input type="text" name="local" id="local" value="<?= $brinde->local ?>" class="form-control" readonly="readonly" disabled="disabled">
             </div>
         </div>
 
@@ -113,7 +117,7 @@ $manageStock = !$brinde["ilimitado"];
 
         <?php if ($brinde->brinde_rede) : ?>
         <div class="form-group row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="brinde-rede">Brinde de Rede?*</label>
                 <?= $this->Form->input(
                         "brinde_rede",
@@ -131,7 +135,7 @@ $manageStock = !$brinde["ilimitado"];
                         )
                     ); ?>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="ilimitado">Ilimitado</label>
                 <?= $this->Form->input(
                         "ilimitado",
@@ -150,7 +154,7 @@ $manageStock = !$brinde["ilimitado"];
                         )
                     ); ?>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="habilitado">Habilitado</label>
                 <?= $this->Form->input(
                         "habilitado",

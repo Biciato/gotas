@@ -131,7 +131,7 @@ class TopBrindesTable extends Table
      * @param DateTime $dataMin Data Mínima de criação
      * @param DateTime $dataMax Data Maxima de criação
      * @param integer $usuarioAudiInsert Usuario Audi Insert
-     * 
+     *
      * @return App\Model\Entity\TopBrindes $brinde
      */
     public function getTopBrindes(int $redesId, int $clientesId = null, int $brindesId = null, int $posicao = null, string $tipo = null, DateTime $dataMin = null, DateTime $dataMax = null, int $usuarioAudiInsert = null)
@@ -173,7 +173,7 @@ class TopBrindesTable extends Table
                 ->contain(["Rede", "Cliente", "Brinde.PrecoAtual", "UsuarioCadastro"])
                 ->order(["TopBrindes.posicao" => "ASC"]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }
@@ -184,11 +184,11 @@ class TopBrindesTable extends Table
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-08-04
-     * 
+     *
      * @param integer $redesId Redes Id
      * @param integer $clientesId Clientes Id
      * @param string $tipo Tipo ("Nacional", "Posto")
-     * 
+     *
      * @return int $count
      */
     public function countTopBrindes(int $redesId, int $clientesId = null, string $tipo = null)
@@ -208,7 +208,7 @@ class TopBrindesTable extends Table
 
             return $this->find()->where($where)->count();
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }

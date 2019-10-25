@@ -8,9 +8,12 @@
 
 namespace App\Custom\RTI;
 
-use Cake\Core\Exception\Exception;
+use App\Model\Entity\Cliente;
+use App\Model\Entity\Usuario;
 use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
 use DOMDocument;
+use \Exception;
 
 /**
  * Classe para operações de conteúdo da SEFAZ
@@ -37,21 +40,23 @@ class SefazUtil
      *
      * @return array
      */
-    public static function obtemDadosHTMLCupomSefaz(string $content, array $gotas, string $estado)
+    public static function obtemDadosHTMLCupomSefaz(string $content, string $estado)
     {
+        // @todo Todos os locais que passam as 'gotas', devem ser removidos
         if (strtoupper($estado) == "RS") {
-            return self::converteHTMLParaPontuacoesArrayRioGrandeSul($content, $gotas);
+            // este serviço precisará de revisão
+            return self::converteHTMLParaPontuacoesArrayRioGrandeSul($content, []);
         }
 
         if (strtoupper($estado) == "MG") {
-            return self::converteHTMLParaPontuacoesArrayMinasGerais($content, $gotas);
+            return self::converteHTMLParaPontuacoesArrayMinasGerais($content);
         }
 
         if (strtoupper($estado) == "GO") {
-            return self::converteHTMLParaPontuacoesArrayGoias($content, $gotas);
+            return self::converteHTMLParaPontuacoesArrayGoias($content, []);
         }
 
-        return self::converteHTMLParaPontuacoesArray($content, $gotas);
+        return self::converteHTMLParaPontuacoesArray($content, []);
     }
 
     /**
@@ -332,10 +337,9 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    private static function converteHTMLParaPontuacoesArrayMinasGerais(string $content, $gotas)
+    private static function converteHTMLParaPontuacoesArrayMinasGerais(string $content)
     {
         try {
-
             // Evita erros de DOM Elements
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
@@ -344,66 +348,56 @@ class SefazUtil
 
             $items = $dom->getElementById('myTable');
             $itemsNodesHtml = array();
-            foreach ($items->childNodes as $node) {
-                $texto = $node->textContent;
 
-                $texto = trim($texto);
+            if (!empty($items)) {
+                foreach ($items->childNodes as $node) {
+                    $texto = $node->textContent;
 
-                if (strlen($texto) > 0) {
+                    $texto = trim($texto);
 
-                    $textoQuantidade = "Qtde total de ítens: ";
+                    if (strlen($texto) > 0) {
+                        $textoQuantidade = "Qtde total de ítens: ";
 
-                    // Captura do gotas.nome_parametro
-                    $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
-                    $gota = substr($texto, 0, $posicaoQuantidade);
-                    $posicaoParentese = strpos($texto, $textoQuantidade);
-                    $gota = substr($texto, 0, $posicaoParentese);
-                    $gota = trim($gota);
-                    $item["gota"] = $gota;
+                        // Captura do gotas.nome_parametro
+                        $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
+                        $descricao = substr($texto, 0, $posicaoQuantidade);
+                        $posicaoParentese = strpos($texto, $textoQuantidade);
+                        $descricao = substr($texto, 0, $posicaoParentese);
+                        $descricao = trim($descricao);
+                        $item["descricao"] = $descricao;
 
-                    // Captura de quantidade
-                    $posicaoFimTextoQuantidade = strlen($textoQuantidade);
-                    $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
-                    $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
-                    $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
-                    $item["quantidade"] = $quantidade;
+                        // Captura de quantidade
+                        $posicaoFimTextoQuantidade = strlen($textoQuantidade);
+                        $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
+                        $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
+                        $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
+                        $item["quantidade"] = $quantidade;
 
-                    // Captura de valor
-                    $textoReais = "R$ ";
-                    $posicaoFimTextoReais = strlen($textoReais);
-                    $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+                        // Captura de valor
+                        $textoReais = "R$ ";
+                        $posicaoFimTextoReais = strlen($textoReais);
+                        $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
 
-                    $valor = substr($texto, $posicaoReaisInicio);
-                    $item["valor"] = $valor;
-                    $itemsNodesHtml[] = $item;
-                }
-            }
-
-            $pontuacoes = array();
-
-            foreach ($gotas as $gota) {
-                foreach ($itemsNodesHtml as $itemProcessar) {
-                    if ($gota["nome_parametro"] == $itemProcessar["gota"]) {
-                        $pontuacao = array();
-                        $pontuacao["gotas_id"] = $gota["id"];
-                        $pontuacao["quantidade_multiplicador"] = $itemProcessar["quantidade"];
-                        $pontuacao["valor"] = trim($itemProcessar["valor"]);
-                        $pontuacao["quantidade_gotas"] = $gota["multiplicador_gota"] * (float) $itemProcessar["quantidade"];
-
-                        $pontuacoes[] = $pontuacao;
+                        $valor = substr($texto, $posicaoReaisInicio);
+                        $valorFormatado = preg_replace("/(\D)/", "", $valor);
+                        $valor = $valorFormatado > 0 ? $valorFormatado / 100 : $valorFormatado;
+                        $item["valor"] = $valor;
+                        $itemsNodesHtml[] = $item;
                     }
                 }
             }
 
-            return $pontuacoes;
+            if (count($itemsNodesHtml) == 0) {
+                throw new Exception(MSG_SEFAZ_CONTINGENCY_MODE, MSG_SEFAZ_CONTINGENCY_MODE_CODE);
+            }
+
+            return $itemsNodesHtml;
         } catch (\Exception $e) {
-            $trace = $e->getTraceAsString();
-            $stringError = __("Erro ao preparar conteúdo html: {0}", $e->getMessage());
+            $message = $e->getMessage();
+            $code = $e->getCode();
+            Log::write('error', $message);
 
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
-
-            throw new Exception($stringError);
+            throw new Exception($message, $code);
         }
     }
 
@@ -517,6 +511,209 @@ class SefazUtil
             "cnpj" => $emitente["CNPJ"],
             "produtos" => $produtosListaXml,
             "emitente" => $emitente
+        );
+    }
+
+    /**
+     * src\Custom\RTI\SefazUtil.php::obtemProdutosSefaz
+     *
+     * // @todo Ajustar
+     * Processa o conteúdo que chegou do cURL e tranforma em array
+     *
+     * @param string $conteudo
+     * @param string $url
+     * @param string $chave
+     * @param Cliente $cliente
+     * @param Usuario $funcionario
+     * @param Usuario $usuario
+     *
+     * @return array
+     */
+    public static function obtemProdutosSefaz(string $conteudo, string $url, string $chave, Cliente $cliente, Usuario $funcionario = null, Usuario $usuario = null, bool $importacaoFuturaAtivada = true)
+    {
+        $dataProcessamento = date("Y-m-d H:i:s");
+        $isXML = StringUtil::validarConteudoXML($conteudo);
+
+        // if (Configure::read("debug")) {
+        //     Log::write("debug", $conteudo);
+        // }
+
+        if ($isXML) {
+            $xml = self::obtemDadosXMLCupomSefaz($conteudo);
+
+            // Obtem todos os dados de pontuações e comprovantes
+            // Irá mudar se os outros estados tratam o XML de forma diferente. Deve ser analizado
+            // @TODO aqui deverá retornar somente os produtos tb.
+            // @todo aaaa
+            return self::processaDadosCupomXMLSefaz($cliente["cnpj"], $cliente->estado, $url, $chave, $xml, []);
+        } else {
+            // É HTML
+            $pontuacoesHtml = [];
+
+            try {
+                // $conteudo = 'a';
+                if (strlen($conteudo) == 0) {
+                    // Site da SEFAZ possivelmente fora do ar ou em manutenção
+                    throw new Exception(MSG_NOT_POSSIBLE_TO_IMPORT_COUPON, MSG_NOT_POSSIBLE_TO_IMPORT_COUPON_CODE);
+                }
+
+                $pontuacoesHtml = SefazUtil::obtemDadosHTMLCupomSefaz($conteudo, $cliente->estado);
+
+                if (count($pontuacoesHtml) == 0) {
+                    throw new Exception(sprintf(MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT, $cliente->estado, $chave), MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT_CODE);
+                }
+
+                return $pontuacoesHtml;
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                if ($importacaoFuturaAtivada) {
+                    if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
+                        Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
+
+                        $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
+
+                        // Gera novo registro de pontuação pendente SE ainda não está pendente
+                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                        if (empty($pontuacaoPendenteExiste)) {
+                            $pontuacoesPendentesTable->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $cliente->estado ?? "");
+                            Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id ?? "", $url, $cliente->estado));
+                        } else {
+                            Log::write("info", sprintf("Registro já aguardando processamento, não sendo necessário novo registro. [cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s]. ", $cliente->id, $usuario->id, $funcionario->id, $url, $cliente->estado));
+                        }
+                    }
+                }
+
+                throw new Exception($message, $code);
+            }
+        }
+    }
+
+    /**
+     * PontuacoesComprovantesController::processaDadosCupomXMLSefaz
+     *
+     * Processa dados de Cupom da Sefaz
+     *
+     * @param string $clienteCNPJ CNPJ Cliente
+     * @param string $estado Estado
+     * @param string $url URL da Chave
+     * @param string $chave Chave da URL
+     * @param array $xml Dados de XML
+     * @param array $gotas As gotas do cliente
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2018-11-05
+     *
+     * @return array Resultado
+     */
+    private static function processaDadosCupomXMLSefaz(string $clienteCNPJ, string $estado, string $url, string $chave, array $xmlData, array $gotas)
+    {
+        $produtosListaXml = $xmlData["produtos"];
+        $cnpjNotaFiscalXML = $xmlData["cnpj"];
+        $dataProcessamento = date("Y-m-d H:i:s");
+
+        // Confere CNPJ
+        if ($clienteCNPJ != $cnpjNotaFiscalXML) {
+            // Este erro só pode acontecer, via Web, pois o cliente Mobile não vai passar o estabeleciemnto
+            // O Método que chama deverá informar o Estabelecimento em questão.
+            // Se CNPJ não bate, informa e encerra
+            $success = false;
+            $message = __(Configure::read("messageNotPossibleToImportCoupon"));
+            $errors = array(
+                Configure::read("messagePointOfServiceCNPJNotEqual")
+            );
+            $data = array();
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => $success,
+                    "message" => $message,
+                    "errors" => $errors
+                ),
+                "pontuacoes_comprovantes" => $data
+            );
+
+            return $retorno;
+        }
+
+        $pontuacoes = array();
+        $produtosLista = array();
+
+        $produtosListaXml = empty($produtosListaXml[0]) ? array($produtosListaXml) : $produtosListaXml;
+
+        foreach ($produtosListaXml as $produto) {
+            $gotaEncontrada = array_filter($gotas, function ($item) use ($produto) {
+                return $item["nome_parametro"] == $produto["prod"]["xProd"];
+            });
+
+            $gotaEncontrada = reset($gotaEncontrada);
+
+            if ($gotaEncontrada) {
+                // Encontrou alguma gota
+                $produto["prod"]["gota"] = $gotaEncontrada;
+                $produtosLista[] = $produto;
+            }
+        }
+
+        if (sizeof($produtosLista) == 0) {
+            // Mensagem de erro informando que não foi encontrado gotas
+
+            $success = false;
+            $message = __(Configure::read("messageOperationFailureDuringProcessing"));
+            $data = array();
+
+            $retorno = array(
+                "mensagem" => array(
+                    "status" => $success,
+                    "message" => $message,
+                    "errors" => array(
+                        Configure::read("messageOperationFailureDuringProcessing"),
+                        Configure::read("messageGotasPointOfServiceNotConfigured")
+                    )
+                ),
+                "pontuacoesComprovante" => $data
+            );
+
+            return $retorno;
+        }
+
+        $pontuacoesComprovante = array(
+            "conteudo" => $url,
+            "chave_nfe" => $chave,
+            "estado_nfe" => $estado,
+            "data" => $dataProcessamento,
+            "requer_auditoria" => 0,
+            "auditado" => 0
+        );
+
+        Log::write("debug", $produtosLista);
+
+        $somaPontuacoes = 0;
+        foreach ($produtosLista as $produto) {
+
+            $gota = $produto["prod"]["gota"];
+
+            $pontuacao = array(
+                "gotas_id" => $produto["prod"]["gota"]["id"],
+                "quantidade_multiplicador" => $produto["prod"]["qCom"],
+                "quantidade_gotas" => $gota["multiplicador_gota"] * $produto["prod"]["qCom"],
+                "data" => $dataProcessamento,
+                // @TODO: armazenar valor do produto para alteração de preço de gota
+                // "valor_produto" => $produto["prod"]["vUnCom"]
+            );
+
+            $somaPontuacoes += $pontuacao["quantidade_gotas"];
+            $pontuacoes[] = $pontuacao;
+        }
+
+        return array(
+            "mensagem" => array(
+                "status" => 1,
+                "message" => __(Configure::read("messageCouponImportSuccess")),
+                "errors" => array()
+            ),
+            "pontuacoesComprovante" => $pontuacoesComprovante,
+            "pontuacoes" => $pontuacoes,
         );
     }
 }

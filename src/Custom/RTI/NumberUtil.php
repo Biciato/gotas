@@ -37,12 +37,12 @@ class NumberUtil
 
     /**
      * NumberUtil::calculaDistanciaLatitudeLongitude
-     * 
-     * Calcula distância entre duas localizações latitude/longitude 
-     * 
+     *
+     * Calcula distância entre duas localizações latitude/longitude
+     *
      * @author martinstoeckli <https://stackoverflow.com/users/575765/martinstoeckli>
      * @since 2012-04-07
-     * 
+     *
      * @source https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
      *
      * @param float $latOrigem
@@ -50,7 +50,7 @@ class NumberUtil
      * @param float $latDestino
      * @param float $longDestino
      * @param string $unidade
-     * 
+     *
      * @return float $distancia
      */
     public static function calculaDistanciaLatitudeLongitude($latOrigem, $longOrigem, $latDestino, $longDestino, $unidade = "km")
@@ -234,5 +234,16 @@ class NumberUtil
     public static function formatarCNPJ(string $cnpj)
     {
         return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $cnpj);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $cnpj
+     * @return void
+     */
+    public static function formatarCPF(string $cpf)
+    {
+        return preg_replace("/(\d{3})(\d{3})(\d{3})(\d{2})/", "$1.$2.$3-$4", $cpf);
     }
 }

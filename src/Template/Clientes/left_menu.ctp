@@ -145,11 +145,11 @@ $dados_minha_rede = isset($dados_minha_rede) ? $dados_minha_rede : false;
                                         'action' => 'delete',
                                         '?' =>
                                             [
-                                            'redes_has_clientes_id' => $cliente->rede_has_cliente->id,
+                                            'redes_has_clientes_id' => $cliente->redes_has_cliente->id,
                                             'return_url' =>
                                                 [
                                                 'controller' => 'redes',
-                                                'action' => 'ver_detalhes', $cliente->rede_has_cliente->redes_id
+                                                'action' => 'ver_detalhes', $cliente->redes_has_cliente->redes_id
                                             ]
                                         ]
                                     ]

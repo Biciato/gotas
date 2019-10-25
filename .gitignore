@@ -9,3 +9,4 @@
 /webroot/phpMyAdmin/tmp/*
 /config/definitions.php
 /tools/*
+/cookie.txt

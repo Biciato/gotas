@@ -27,6 +27,7 @@ use App\Custom\RTI\GeolocalizationUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
 use App\Model\Entity\Usuario;
+use Cake\Http\Client\Request;
 
 /**
  * RedesHasClientes Controller
@@ -365,7 +366,7 @@ class RedesHasClientesController extends AppController
                 $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($rede["id"]);
 
                 foreach ($redesHasClientes->toArray() as $key => $redeHasCliente) {
-                    $clientes[] = $redeHasCliente["cliente"];
+                    $clientes[] = $redeHasCliente->cliente;
                 }
             }
 
@@ -702,12 +703,14 @@ class RedesHasClientesController extends AppController
         $status = true;
         $message = null;
         $errors = array();
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
         try {
             $redes = null;
 
             if ($this->request->is('post')) {
-                $usuario = new Usuario($this->Auth->user());
+                $usuario = $usuarioLogado;
 
                 $data = $this->request->getData();
 
@@ -974,6 +977,8 @@ class RedesHasClientesController extends AppController
 
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 $redesId = isset($data["redes_id"]) ? $data["redes_id"] : null;
 
                 if (is_null($redesId) || ($redesId == 0)) {
@@ -1003,6 +1008,8 @@ class RedesHasClientesController extends AppController
 
                 if (isset($data["order_by"])) {
                     $orderConditions = $data["order_by"];
+                } else {
+                    $orderConditions = ["Clientes.nome_fantasia" => "ASC"];
                 }
 
                 if (isset($data["pagination"])) {

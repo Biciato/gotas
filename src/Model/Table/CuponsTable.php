@@ -456,7 +456,7 @@ class CuponsTable extends GenericTable
             ->where($whereConditions)
             ->contain(
                 array(
-                    "Clientes.RedeHasCliente",
+                    "Clientes.RedesHasClientes",
                     "Brindes",
                     "Usuarios"
                 )
@@ -802,7 +802,6 @@ class CuponsTable extends GenericTable
     public function getExtratoCuponsClientes(array $clientesIds = [], int $brindeSelecionado = null, string $nomeUsuarios = null, float $valorMinimo = null, float $valorMaximo = null, string $dataInicio = null, string $dataFim = null)
     {
         try {
-
             $whereConditions = array();
 
             if (sizeof($clientesIds) > 0) {
@@ -818,12 +817,16 @@ class CuponsTable extends GenericTable
             $whereConditions[] = array("Cupons.valor_pago_reais BETWEEN '{$valorMinimo}' AND '{$valorMaximo}'");
             $whereConditions[] = array("Cupons.data BETWEEN '{$dataInicio}' AND '{$dataFim}'");
 
-            $cupons = $this->_getCuponsTable()->find('all')
+            $cupons = $this->find('all')
                 ->where(
                     $whereConditions
                 )
                 ->contain(
-                    array('Brindes', 'Clientes', 'Usuarios')
+                    [
+                        'Brindes',
+                        'Clientes',
+                        'Usuarios'
+                    ]
                 );
 
             return $cupons;
