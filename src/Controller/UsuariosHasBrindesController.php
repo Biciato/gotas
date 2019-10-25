@@ -237,7 +237,7 @@ class UsuariosHasBrindesController extends AppController
                 $usuarios_has_brindes = $this->UsuariosHasBrindes->getAllUsuariosHasBrindes(
                     [
                         'usuarios_id' => $usuario->id,
-                        'clientes_has_brindes_habilitados_id in ' => $brindes_habilitados_ids
+                        'brindes_id in ' => $brindes_habilitados_ids
                     ]
                 );
             }

@@ -236,7 +236,7 @@ class PontuacoesController extends AppController
      *
      * @return void
      */
-    public function cuponsMinhaRede()
+    public function relatorioCuponsProcessados()
     {
         // se o usuário que estiver logado for
         try {
@@ -597,8 +597,14 @@ class PontuacoesController extends AppController
             $sessaoUsuario = $this->getSessionUserVariables();
             $usuario = $sessaoUsuario["usuarioLogado"];
 
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuario = $sessaoUsuario["usuarioLogado"];
+
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 $redesId = $data["redes_id"];
                 $usuariosId = !empty($data["usuarios_id"]) ? $data["usuarios_id"] : null;
@@ -713,6 +719,9 @@ class PontuacoesController extends AppController
 
             if ($this->request->is("post")) {
                 $data = $this->request->getData();
+
+                Log::write("info", sprintf("Info de Post: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
 
                 // Condições de Pesquisa
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
@@ -883,7 +892,7 @@ class PontuacoesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
                 // Se usuário logado for no mínimo administrador local, ele não pode selecionar uma unidade de rede
@@ -1125,9 +1134,9 @@ class PontuacoesController extends AppController
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
                 // Periodo limite de filtro é 1 ano
-                if ($dataDiferenca->y >= 1) {
-                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
-                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                if ($dataDiferenca->m >= 3) {
+                    $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "3");
+                    $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "3");
                 }
 
                 if ($dataInicio > $dataFim) {

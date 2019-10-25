@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Model\Entity;
 
+use App\Custom\RTI\NumberUtil;
 use Cake\ORM\Entity;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -54,8 +56,10 @@ class Usuario extends Entity
      */
 
     protected $_virtual = array(
+        "cpf_formatado",
         "foto_documento_completo",
         "foto_perfil_completo",
+        "sexo_formatado",
     );
 
     protected function _setSenha($password)
@@ -66,6 +70,27 @@ class Usuario extends Entity
     }
 
     /**
+     * Usuario::_getCpfFormatado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-30
+     *
+     * Obtem o valor do sexo em String
+     *
+     * @return value propriedade virtual
+     */
+    protected function _getCpfFormatado()
+    {
+        $cpf = !empty($this->_properties["cpf"]) ? $this->_properties["cpf"] : null;
+
+        if (is_null($cpf)) {
+            return "";
+        }
+
+        return NumberUtil::formatarCPF($cpf);
+    }
+
+    /**
      * Usuario::_getFotoDocumentoCompleto
      *
      * @return value propriedade virtual
@@ -73,8 +98,7 @@ class Usuario extends Entity
     protected function _getFotoDocumentoCompleto()
     {
         return
-            empty($this->_properties["foto_documento"]) ? null :
-            __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
+            empty($this->_properties["foto_documento"]) ? null : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_documento"]);
     }
 
     /**
@@ -85,7 +109,33 @@ class Usuario extends Entity
     protected function _getFotoPerfilCompleto()
     {
         return
-            empty($this->_properties["foto_perfil"]) ? null :
-            __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_perfil"]);
+            empty($this->_properties["foto_perfil"]) ? null : __("{0}{1}{2}", Configure::read("webrootAddress"), Configure::read("documentUserPathRead"), $this->_properties["foto_perfil"]);
+    }
+
+    /**
+     * Usuario::_getSexoFormatado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-30
+     *
+     * Obtem o valor do sexo em String
+     *
+     * @return value propriedade virtual
+     */
+    protected function _getSexoFormatado()
+    {
+        $sexo = !empty($this->_properties["sexo"]) ? $this->_properties["sexo"] : null;
+
+        if (is_null($sexo)) {
+            return "";
+        }
+
+        $sexoList = [
+            0 => "Feminino",
+            1 => "Masculino",
+            2 => "Nâo informado"
+        ];
+
+        return $sexoList[$sexo];
     }
 }

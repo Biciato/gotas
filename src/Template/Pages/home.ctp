@@ -68,7 +68,7 @@ $titlePage = 'GOTAS';
         $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
         $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
 
-        if ($usuarioAdministrador) {
+        if ($usuarioAdministrar) {
             $usuarioLogado = $usuarioAdministrar;
         }
 

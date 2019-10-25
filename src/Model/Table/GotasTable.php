@@ -393,7 +393,7 @@ class GotasTable extends GenericTable
                 ]
             )->first();
         } catch (Exception $ex) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $ex->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $ex->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
         }

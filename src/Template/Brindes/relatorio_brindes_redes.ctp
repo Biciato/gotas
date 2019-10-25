@@ -65,15 +65,17 @@ echo $this->Breadcrumbs->render(array('class' => 'breadcrumb'));
     <?php foreach ($redes as $key => $rede) : ?>
 
 
-        <?php if (sizeof($rede['brindes']) > 0) : ?>
+        <?php if (count($rede['brindes']) > 0) : ?>
             <h4><?= __("Brindes da Rede: {0} ", $rede['nome_rede']) ?> </h4>
 
             <table class="table table-hover table-striped table-condensed table-responsive">
                 <thead>
                     <tr>
                         <th><?= h(__("Nome")) ?> </th>
-                        <th><?= h(__("Equip. RTI Shower")) ?> </th>
-                        <th><?= h(__("Tempo RTI Shower (se Equip. RTI Shower)")) ?> </th>
+                        <th><?= h("Posto/Loja") ?></th>
+                        <th><?= h(__("Tipo Equipamento")) ?> </th>
+                        <th><?= h(__("Código Primário.")) ?> </th>
+                        <th><?= h(__("Código Secundário / Tempo")) ?> </th>
                         <th><?= h(__("Estoque Ilimitado?")) ?> </th>
                         <th><?= h(__("Habilitado para Uso")) ?> </th>
                         <th><?= h(__("Preco Padrão")) ?> </th>
@@ -85,7 +87,9 @@ echo $this->Breadcrumbs->render(array('class' => 'breadcrumb'));
 
                         <tr>
                             <td><?= $brinde->nome ?> </td>
-                            <td><?= h($this->Boolean->convertBooleanToString($brinde->equipamento_rti_shower)) ?> </td>
+                            <td><?= $brinde->cliente->nome_fantasia ?></td>
+                            <td><?= $brinde->tipo_equipamento ?> </td>
+                            <td><?= $brinde->codigo_primario ?> </td>
                             <td><?= $brinde->tempo_uso_brinde ?> </td>
                             <td><?= h($this->Boolean->convertBooleanToString($brinde->ilimitado)) ?> </td>
                             <td><?= h($this->Boolean->convertEnabledToString($brinde->habilitado)) ?> </td>

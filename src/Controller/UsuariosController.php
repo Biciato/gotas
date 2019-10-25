@@ -2,28 +2,29 @@
 
 namespace App\Controller;
 
+use stdClass;
+use \DateTime;
 use \Exception;
+use \Throwable;
 use App\Controller\AppController;
+use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\EmailUtil;
+use App\Custom\RTI\ExcelUtil;
+use App\Custom\RTI\ImageUtil;
+use App\Custom\RTI\NumberUtil;
+use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Log\Log;
-use Cake\Routing\Router;
-use Cake\Mailer\Email;
-use Cake\I18n\Number;
-use \DateTime;
-use App\Custom\RTI\DateTimeUtil;
-use App\Custom\RTI\DebugUtil;
-use Firebase\JWT\JWT;
-use Cake\Utility\Security;
-use Cake\Network\Exception\UnauthorizedException;
-use App\Custom\RTI\EmailUtil;
-use App\Custom\RTI\NumberUtil;
-use App\Custom\RTI\ExcelUtil;
-use App\Custom\RTI\ResponseUtil;
-use App\Custom\RTI\ImageUtil;
-use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
+use Cake\I18n\Number;
+use Cake\Log\Log;
+use Cake\Mailer\Email;
+use Cake\Network\Exception\UnauthorizedException;
+use Cake\Routing\Router;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Usuarios Controller
@@ -436,11 +437,13 @@ class UsuariosController extends AppController
     public function editar($id = null)
     {
         try {
-            $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-            $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+            $sessaoUsuario = $this->getSessionUserVariables();
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+            $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
-            if ($usuarioAdministrador) {
+            if ($usuarioAdministrar) {
                 $this->usuarioLogado = $usuarioAdministrar;
+                $usuarioLogado = $usuarioAdministrar;
             }
 
             $usuario = $this->Usuarios->getUsuarioById($id);
@@ -2071,6 +2074,7 @@ class UsuariosController extends AppController
 
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
+            // DebugUtil::printArray($usuarios->toArray());
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
 
             // DebugUtil::printArray($usuarios->toArray());
@@ -2230,9 +2234,6 @@ class UsuariosController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
-
-
-
     /**
      * UsuariosController::getUsuarioAPI
      *
@@ -2345,25 +2346,27 @@ class UsuariosController extends AppController
                     $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
                 }
 
-                if (empty($clientesId)) {
+                if (empty($clientesId) && !in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
                     $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
                     $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
                 }
 
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
                 $tipoPerfis = [];
 
-                if (empty($tipoPerfil)) {
-
+                if (!empty($tipoPerfil)) {
+                    $tipoPerfis = $tipoPerfil;
                 } else {
-                    $tipoPerfis[] = $tipoPerfil;
+                    $tipoPerfis = [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER];
                 }
 
+                $clientesIds = empty($clientesId) ? [] : [$clientesId];
+
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->Usuarios->getFuncionariosRede($redesId, [$clientesId], $tipoPerfis);
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, null, $tipoPerfis);
 
                 if ($usuariosList) {
                     $usuariosList = $usuariosList->toArray();
@@ -2554,6 +2557,180 @@ class UsuariosController extends AppController
             ResponseUtil::success($usuarios);
         } else {
             ResponseUtil::error(Configure::read("messageLoadDataNotFound"), Configure::read("messageWarningDefault"));
+        }
+    }
+
+    /**
+     * @filesource src\Controller\UsuariosController.php::getUsuariosFidelizadosRedeAPI
+     * Obtem os Usuários Fidelizados pela Rede / Posto(s) da Rede
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return json_encode
+     */
+    public function getUsuariosFidelizadosRedeAPI()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $rede = $sessao["rede"];
+        $cliente = $sessao["cliente"];
+
+        if ($this->request->is(Request::METHOD_GET)) {
+            $data = $this->request->getQueryParams();
+
+            $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+            $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : $cliente->id;
+            $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
+            $dataInicio = !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+            $dataFim = !empty($data["data_fim"]) ? $data["data_fim"] : null;
+            $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : REPORT_TYPE_SYNTHETIC;
+
+            $errors = [];
+            $errorCodes = [];
+
+            #region Validação de parametros preenchidos
+
+            try {
+                if (empty($redesId)) {
+                    $errors[] = MSG_REDES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_REDES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($clientesId) && empty($redesId)) {
+                    $errors[] = MSG_CLIENTES_FILTER_REQUIRED;
+                    $errorCodes[] = MSG_CLIENTES_FILTER_REQUIRED_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (empty($tipoRelatorio)) {
+                    $errors[] = MSG_REPORT_TYPE_EMPTY;
+                    $errorCodes[] = MSG_REPORT_TYPE_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                    // Máximo de tempo será 1 mês
+                    if ($dataDiferenca->m >= 1) {
+                        $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "1");
+                        $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "1");
+                    }
+                } else {
+                    // Máximo de tempo será 1 ano
+                    if ($dataDiferenca->y >= 1) {
+                        $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                        $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                    }
+                }
+
+                if (!$dataDiferenca->invert) {
+                    // Se a data fim for maior que a data início, erro.
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MESSAGE_GENERIC_EXCEPTION, MESSAGE_GENERIC_EXCEPTION_CODE);
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+                $length = count($errors);
+
+                if ($length == 0) {
+                    $errorCodes[] = MESSAGE_GENERIC_EXCEPTION_CODE;
+                    $errors[] = MESSAGE_GENERIC_EXCEPTION;
+                    $length = count($errors);
+                }
+
+                for ($i = 0; $i < $length; $i++) {
+                    Log::write("error", sprintf("[%s] %s: %s.", MESSAGE_GENERIC_EXCEPTION, $errors[$i], $errorCodes[$i]));
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
+
+            #endregion
+
+            // Obtem a lista de funcionários e faz o agrupamento
+            try {
+                $clientes = [];
+                $clientesTemp = [];
+
+                if (empty($clientesId)) {
+                    $clientes = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+                } else {
+                    $cliente = $this->Clientes->get($clientesId);
+                    $clientes[] = $cliente;
+                }
+
+                foreach ($clientes as $cliente) {
+                    $funcionariosTemp = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, [$cliente->id], $funcionariosId, [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER]);
+                    $data = new stdClass();
+                    $data = $cliente;
+                    $data->funcionarios = $funcionariosTemp->toArray();
+                    $clientesTemp[] = $data;
+                }
+
+                $clientes = $clientesTemp;
+            } catch (Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            /**
+             * Com a lista de funcionários, verifica quais foram os clientes cadastrados pelos funcionários
+             * dentro daquela rede / posto
+             */
+            $dataRetorno = [];
+            $totalUsuarios = 0;
+
+            try {
+                foreach ($clientes as $cliente) {
+                    foreach ($cliente->funcionarios as $funcionario) {
+                        $funcionario = $funcionario->usuario;
+                        $queryUsuarios = $this->ClientesHasUsuarios->getUsuariosCadastradosFuncionarios($redesId, $cliente->id, $funcionario->id, $dataInicio, $dataFim);
+                        if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                            $usuarios = $queryUsuarios->toArray();
+                            $funcionario->clientes_has_usuarios = $usuarios;
+                        }
+                        $count = $queryUsuarios->count();
+                        $totalUsuarios += $count;
+                        $funcionario->clientes_has_usuarios_soma = $count;
+                    }
+                    // $cliente["clientes_has_usuarios"] = $usuarios;
+                }
+            } catch (\Throwable $th) {
+                $code = $th->getCode();
+                $message = $th->getMessage();
+
+                Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
+            }
+
+            $dataRetorno = new stdClass();
+            $dataRetorno->clientes = $clientes;
+            $dataRetorno->clientes_has_usuarios_total = $totalUsuarios;
+
+            return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
         }
     }
 
@@ -3581,8 +3758,6 @@ class UsuariosController extends AppController
         }
     }
 
-
-
     /**
      * BeforeRender callback
      *
@@ -4050,6 +4225,27 @@ class UsuariosController extends AppController
             'dataFinal',
             'usuarios',
         ];
+
+        $this->set(compact($arraySet));
+    }
+
+    /**
+     * Relatório de Usuários Cadastrados pelos funcionários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-25
+     *
+     * @return \Cake\Http\Response|void
+     */
+    public function relatorioUsuariosCadastradosFuncionarios()
+    {
+        $sessao = $this->getSessionUserVariables();
+        $usuarioLogado = $sessao["usuarioLogado"];
+        $cliente = $sessao["cliente"];
+
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+
+        $arraySet = ["clientesId"];
 
         $this->set(compact($arraySet));
     }
@@ -4740,6 +4936,4 @@ class UsuariosController extends AppController
     }
 
     #endregion
-
-
 }

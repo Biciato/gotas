@@ -15,7 +15,7 @@ $debug = Configure::read("debug");
 // $debugExtension = $debug ? ".min" : "";
 $debugExtension = $debug ? "" : "";
 
-$title = "Relatório de Gotas";
+$title = "Relatório de Gotas - Movimentação";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
@@ -60,7 +60,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
 
                             <div class="col-lg-4">
-                                <label for="brinde">Gotas:</label>
+                                <label for="brinde">Referência:</label>
                                 <select name="gotas-list" id="gotas-list" class="form-control"></select>
                             </div>
                         </div>

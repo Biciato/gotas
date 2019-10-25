@@ -844,7 +844,6 @@ class UsuariosTable extends GenericTable
             throw new Exception($message, $code);
         }
     }
-
     /**
      * Encontra usuario por Id
      *
@@ -857,7 +856,11 @@ class UsuariosTable extends GenericTable
     public function getUsuarioById($id)
     {
         try {
-            return $this->get($id);
+            // @todo testar
+            return $this->find("all")
+                ->where(["Usuarios.id" => $id])
+                ->contain(["ClientesHasUsuarios.Clientes"])
+                ->first();
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage());
@@ -1361,7 +1364,7 @@ class UsuariosTable extends GenericTable
                 ->order(array("Usuarios.nome" => "ASC"));
 
             if ($join) {
-                $arrayContain[] = 'ClientesHasUsuarios.Cliente.RedesHasClientes.Redes';
+                $arrayContain[] = 'ClientesHasUsuarios.Clientes.RedesHasClientes.Redes';
             }
 
             $usuarios->contain($arrayContain);
@@ -1405,6 +1408,17 @@ class UsuariosTable extends GenericTable
                 ));
             }
 
+            if ($tipoPerfilMin == PROFILE_TYPE_ADMIN_REGIONAL || $tipoPerfilMax == PROFILE_TYPE_ADMIN_REGIONAL) {
+                $usuarios = $usuarios->group(array(
+                    // "ClientesHasUsuarios.usuarios_id"
+                    "Usuarios.id",
+                    "ClientesHasUsuarios.clientes_id",
+                    "RedesHasClientes.redes_id",
+                    "RedesHasClientes.id",
+                ));
+
+            }
+
             if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
 
                 $arrayTemp = array(
@@ -1419,7 +1433,7 @@ class UsuariosTable extends GenericTable
                     "Redes.nome_rede",
                     "Redes.nome_img",
                     "Redes.propaganda_img",
-                    "Cliente.nome_fantasia",
+                    "Clientes.nome_fantasia",
                 );
                 $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
             }
@@ -1448,7 +1462,7 @@ class UsuariosTable extends GenericTable
     public function findAllUsuariosByRede(int $redesId, array $usuariosConditions = [])
     {
         try {
-            $redes = $this->ClientesHasUsuarios->Clientes->RedeHasCliente->Redes->getAllRedes('all', ['id' => $redesId]);
+            $redes = $this->ClientesHasUsuarios->Clientes->RedesHasClientes->Redes->getAllRedes('all', ['id' => $redesId]);
 
             $redes = $redes->toArray();
 
@@ -1609,7 +1623,7 @@ class UsuariosTable extends GenericTable
 
             $usuarios = $this->find('all')
                 ->where($conditions)
-                ->contain('ClientesHasUsuarios.Cliente')
+                ->contain('ClientesHasUsuarios.Clientes')
                 ->select(
                     array(
                         "Usuarios.id",

@@ -427,6 +427,11 @@ $(document).ready(function () {
      */
     var hideRedesInput = function () {
         $(".redes_input").hide();
+        $(".redes_list").val(null);
+        $(".clientes_rede").val(null);
+        $("#redes_id").prop("required", false);
+        $("#clientes_rede").prop("required", false);
+
     };
 
     hideRedesInput();
@@ -513,7 +518,7 @@ $(document).ready(function () {
 
     // carrega todas as unidades da rede caso já esteja definido redes_id
 
-    if ($("#redes_id").val().length > 0) {
+    if ($("#redes_id").val() !== undefined && $("#redes_id").val().length > 0) {
         var data = {
             redes_id: $("#redes_id").val()
         };

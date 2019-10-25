@@ -164,10 +164,10 @@ class CategoriasBrindesController extends AppController
             $retorno = ['categoria_brinde' => $categoriaBrinde];
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $retorno]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
         }
     }
 
@@ -224,10 +224,10 @@ class CategoriasBrindesController extends AppController
 
             return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataRetorno]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
         }
     }
 
@@ -489,10 +489,10 @@ class CategoriasBrindesController extends AppController
 
             return ResponseUtil::successAPI(MESSAGE_DELETE_SUCCESS);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_DELETE_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_DELETE_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_DELETE_EXCEPTION, [$th->getMessage()]);
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, [$th->getMessage()]);
         }
     }
 

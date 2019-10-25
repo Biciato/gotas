@@ -4,6 +4,7 @@ $(function() {
 
     var form = {};
     var clientesSelectListBox = $("#clientes-list");
+    var clientesSelectedItem = {};
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
@@ -265,35 +266,41 @@ $(function() {
                     clientesList = [];
                     clientesSelectListBox.empty();
 
-                    var option = document.createElement("option");
-                    option.value = undefined;
-                    option.textContent = "Todos";
+                    var cliente = {
+                        id: undefined,
+                        nomeFantasia: "Todos"
+                    };
 
-                    clientesList.push(option);
+                    clientesList.push(cliente);
+                    clientesSelectListBox.prop("disabled", false);
 
                     res.data.clientes.forEach(cliente => {
                         var cliente = {
                             id: cliente.id,
-                            value: cliente.nome_fantasia
+                            nomeFantasia: cliente.nome_fantasia
                         };
 
-                        var option = document.createElement("option");
-                        option.value = cliente.id;
-                        option.textContent = cliente.value;
-
-                        clientesList.push(option);
+                        clientesList.push(cliente);
                     });
 
-                    clientesSelectListBox.append(clientesList);
-                    var clienteSelected = $("#cliente-selected").val();
+                    clientesList.forEach(cliente => {
+                        var option = document.createElement("option");
+                        option.value = cliente.id;
+                        option.textContent = cliente.nomeFantasia;
 
-                    if (clienteSelected !== undefined && clienteSelected > 0) {
-                        clientesSelectListBox.val(clienteSelected);
+                        clientesSelectListBox.append(option);
+                    });
+
+                    // Se só tem 2 registros, significa que
+                    if (clientesList.length == 2) {
+                        clientesSelectedItem = clientesList[1];
+
+                        // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
+                        clientesSelectListBox.prop("disabled", true);
                     }
 
-                    // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                    if (clientesList.length == 2) {
-                        $(clientesSelectListBox).attr("disabled", true);
+                    if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
+                        clientesSelectListBox.val(clientesSelectedItem.id);
                     }
                 }
 

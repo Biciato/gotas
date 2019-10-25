@@ -976,7 +976,7 @@ class GotasController extends AppController
                 $clientesIds = [];
 
                 // obtem os ids das unidades para saber quais brindes estão disponíveis
-                foreach ($rede->redes_has_clientes as $key => $value) {
+                foreach ($rede->redes_has_clientes as $value) {
                     $clientesIds[] = $value->clientes_id;
                 }
 
@@ -984,7 +984,11 @@ class GotasController extends AppController
 
                 $cliente = null;
 
-                $gotasArray = $this->Gotas->findGotasByClientesId($clientesIds, $arrayWhereConditions)->toArray();
+                $gotasArray = [];
+
+                if (count($clientesIds) > 0) {
+                    $gotasArray = $this->Gotas->findGotasByClientesId($clientesIds, $arrayWhereConditions)->toArray();
+                }
 
                 $redeItem['gotas'] = $gotasArray;
 
@@ -993,12 +997,7 @@ class GotasController extends AppController
                 }
             }
 
-            $arraySet = [
-                'redesList',
-                'redes'
-            ];
 
-            $this->set(compact($arraySet));
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -1008,6 +1007,13 @@ class GotasController extends AppController
 
             $this->Flash->error($stringError);
         }
+
+        $arraySet = [
+            'redesList',
+            'redes'
+        ];
+
+        $this->set(compact($arraySet));
     }
 
     /**
