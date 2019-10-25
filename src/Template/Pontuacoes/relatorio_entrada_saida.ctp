@@ -48,18 +48,21 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
                         <div class="form-group row">
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
 
                                 <label for="funcionario">Estabelecimento:</label>
                                 <select name="clientes-list" id="clientes-list" class="form-control"></select>
                             </div>
-                            <div class="col-lg-3">
-
+                            <div class="col-lg-4">
+                                <label for="gotas_list">Referência:</label>
+                                <select name="gotas_list" id="gotas-list" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-4">
                                 <label for="brinde">Brinde:</label>
                                 <select name="brindes-list" id="brindes-list" class="form-control"></select>
-
                             </div>
-
+                        </div>
+                        <div class="form-group row">
                             <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
@@ -67,6 +70,14 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
+                            </div>
+
+                            <div class="col-lg-2">
+                                <label for="tipo_movimentacao">Tipo de Movimentação:</label>
+                                <select name="tipo_movimentacao" id="tipo-movimentacao" class="form-control">
+                                    <option value="<?= TYPE_OPERATION_IN ?>"><?= TYPE_OPERATION_IN ?></option>
+                                    <option value="<?= TYPE_OPERATION_OUT ?>"><?= TYPE_OPERATION_OUT ?></option>
+                                </select>
                             </div>
 
                             <div class="col-lg-2">

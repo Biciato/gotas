@@ -422,10 +422,11 @@ const MSG_QRCODE_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
 const MSG_QRCODE_MISMATCH_FORMAT_CODE = 0x0000001B;
 const MSG_QRCODE_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 
-
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
 const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
+const TYPE_OPERATION_IN = 'Entrada';
+const TYPE_OPERATION_OUT = 'Saída';
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
 
@@ -575,8 +576,7 @@ const GOTAS_ADJUSTMENT_POINTS = "GOTA VIRTUAL DE CORREÇÃO DE PONTOS";
 
 #region Pontuações
 
-const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
-const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
+
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;

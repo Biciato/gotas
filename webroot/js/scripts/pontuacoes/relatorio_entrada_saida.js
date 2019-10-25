@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
     'use strict';
     // #region Properties
 
@@ -8,6 +8,9 @@ $(function() {
     var clientesList = [];
     var brindesSelectListBox = $("#brindes-list");
     var brindesList = [];
+    var gotasList = [];
+    var gotasSelectListBox = $("#gotas-list");
+    var gotasSelectedItem = {};
 
     var tabela = $("#tabela-dados");
     var conteudoTabela = $("#tabela-dados tbody");
@@ -61,6 +64,13 @@ $(function() {
         dataInicio.datepicker().datepicker("setDate", dataAtual);
         dataFim.datepicker().datepicker("setDate", dataAtual);
 
+        var option1 = document.createElement("option");
+        option1.value = undefined;
+        option1.textContent = "Selecione um Estabelecimento para continuar...";
+        option1.title = "Selecione um Estabelecimento para continuar...";
+        gotasSelectListBox.append(option1);
+
+
         // Dispara todos os eventos que precisam de inicializar
         // dataInicioOnChange();
         // dataFimOnChange();
@@ -106,11 +116,18 @@ $(function() {
 
         // Se não tiver seleção, será feito via backend.
         clienteSelected = parseInt(clienteSelected);
+        var clientesId = isNaN(clienteSelected) ? 0 : clienteSelected;
+        form.clientesId = clientesId;
 
-        form.clientesId = isNaN(clienteSelected) ? 0 : clienteSelected;
+        if (form.clientesId > 0) {
+            clientesSelectedItem = clientesList.find(x => x.id === form.clientesId);
+        } else {
+            clientesSelectedItem = {};
+        }
 
         // Obtem Brindes
-        getBrindesList(form.clientesId);
+        getBrindesList(clientesId);
+        getGotasList(clientesId);
     }
 
     /**
@@ -204,7 +221,7 @@ $(function() {
                 clientes_id: clientesId
             },
             dataType: "JSON",
-            success: function(response) {
+            success: function (response) {
 
                 if (response.data !== undefined) {
                     brindesSelectListBox.empty();
@@ -234,11 +251,11 @@ $(function() {
                     brindesList = collection;
                 }
             },
-            error: function(response) {
+            error: function (response) {
                 var data = response.responseJSON;
                 callModalError(data.mensagem.message, data.mensagem.error);
             },
-            complete: function(response) {
+            complete: function (response) {
                 closeLoaderAnimation();
             }
         });
@@ -261,7 +278,7 @@ $(function() {
             url: "/api/clientes/get_clientes_list",
             data: {},
             dataType: "JSON",
-            success: function(res) {
+            success: function (res) {
                 if (res.data.clientes.length > 0) {
                     clientesList = [];
                     clientesSelectListBox.empty();
@@ -306,14 +323,71 @@ $(function() {
 
                 closeLoaderAnimation();
             },
-            error: function(response) {
+            error: function (response) {
                 var data = response.responseJSON;
                 callModalError(data.mensagem.message, data.mensagem.error);
             },
-            complete: function(response) {
+            complete: function (response) {
                 closeLoaderAnimation();
                 clientesSelectListBoxOnChange();
                 brindesSelectListBoxOnChange();
+
+            }
+        });
+    }
+
+    /**
+     * Obtem Gotas Cliente
+     *
+     * Obtem dados de Gotas do estabelecimento selecionado
+     *
+     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getGotasList()
+     *
+     * @param {int} clientesId Id do cliente
+     *
+     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     */
+    function getGotasList(clientesId) {
+        var data = {
+            clientes_id: clientesId
+        };
+
+        $.ajax({
+            type: "GET",
+            url: "/api/gotas/get_gotas_clientes",
+            data: data,
+            dataType: "JSON",
+            success: function (response) {
+                gotasSelectListBox.empty();
+                gotasList = [];
+
+                var option = document.createElement("option");
+                option.value = null;
+                option.textContent = "<Todas>";
+                gotasSelectListBox.append(option);
+
+                response.data.gotas.forEach(element => {
+
+                    var gota = {
+                        id: element.id,
+                        nomeParametro: element.nome_parametro
+                    };
+
+                    var option = document.createElement("option");
+                    option.value = gota.id;
+                    option.textContent = gota.nomeParametro;
+                    gotasSelectListBox.append(option);
+
+                    gotasList.push(gota);
+                });
+            },
+            error: function (response) {
+                var mensagem = response.responseJSON.mensagem;
+
+                callModalError(mensagem.message, mensagem.errors);
             }
         });
     }
@@ -365,7 +439,7 @@ $(function() {
             url: "/api/pontuacoes/get_pontuacoes_relatorio_entrada_saida",
             data: data,
             dataType: "JSON",
-            success: function(response) {
+            success: function (response) {
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
                 imprimirBtn.unbind("click");
@@ -579,7 +653,7 @@ $(function() {
                             rowsPeriodos.push(rowTotalPeriodo);
                         }
 
-                        if(pontuacoesLength == 0) {
+                        if (pontuacoesLength == 0) {
                             // Se não teve registro, adiciona uma linha informando que não teve movimentação
 
                             var rowEmpty = document.createElement("tr");
@@ -682,8 +756,7 @@ $(function() {
                         for (let index = 0; index < length; index++) {
                             var item = {
                                 periodo: moment(pontuacoesEntradas[index].periodo, "YYYY-MM").format("MM/YYYY"),
-                                gotasEntradas:
-                                    pontuacoesEntradas[index].qte_gotas,
+                                gotasEntradas: pontuacoesEntradas[index].qte_gotas,
                                 gotasSaidas: pontuacoesSaidas[index].qte_gotas
                             };
 
@@ -785,12 +858,12 @@ $(function() {
                 }
                 conteudoTabela.append(rows);
             },
-            error: function(response) {
+            error: function (response) {
                 closeLoaderAnimation();
                 var data = response.responseJSON;
                 callModalError(data.mensagem.message, data.mensagem.errors);
             },
-            complete: function(response) {
+            complete: function (response) {
                 closeLoaderAnimation();
             }
         });
@@ -806,7 +879,7 @@ $(function() {
     dataFim.on("change", dataFimOnChange);
     tipoRelatorio.on("change", tipoRelatorioOnChange);
 
-    $(pesquisarBtn).on("click", function() {
+    $(pesquisarBtn).on("click", function () {
         getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
     });
 

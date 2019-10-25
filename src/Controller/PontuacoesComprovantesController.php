@@ -1345,7 +1345,7 @@ class PontuacoesComprovantesController extends AppController
             } catch (\Throwable $th) {
                 $message = $th->getMessage();
                 $code = $th->getCode();
-                Log::write("error", sprintf("[%s] %s: %s", MESSAGE_LOAD_EXCEPTION, $code, $message));
+                Log::write("error", sprintf("[%s] %s: %s", MSG_LOAD_EXCEPTION, $code, $message));
 
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, [$message], [], [$code]);
             }

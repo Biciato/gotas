@@ -1242,7 +1242,6 @@ class PontuacoesTable extends GenericTable
                     "Funcionarios.email",
                     "ano" => "YEAR(Pontuacoes.data)",
                     "mes" => "MONTH(Pontuacoes.data)",
-                    // "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
                 ];
 
                 $join = [
@@ -1260,7 +1259,6 @@ class PontuacoesTable extends GenericTable
                 ];
 
                 $order = [
-                    // "data_formatada" => "DESC",
                     "ano" => "ASC",
                     "mes" => "ASC",
                     "Funcionarios.nome" => "ASC"
@@ -1281,8 +1279,8 @@ class PontuacoesTable extends GenericTable
                 return $pontuacoes;
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
-            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
             throw new Exception($message, $code);
         }
@@ -1307,7 +1305,7 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      */
-    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = PONTUACOES_TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
@@ -1349,7 +1347,7 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
-            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
+            if ($tipoMovimentacao == TYPE_OPERATION_IN) {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
             } else {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
@@ -1530,7 +1528,7 @@ class PontuacoesTable extends GenericTable
                     if (!empty($gota)) {
                         $pontuacao["gotas"] = $gota;
                         $pontuacao["pontuacoes_comprovante"] = $comprovante;
-                        $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_IN;
+                        $pontuacao["tipo_operacao"] = TYPE_OPERATION_IN;
                         $pontuacoesRetorno[] = $pontuacao;
                     } else {
                         $pontuacao["gotas"] = null;
@@ -1548,7 +1546,7 @@ class PontuacoesTable extends GenericTable
 
                     // $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
-                    $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_OUT;
+                    $pontuacao["tipo_operacao"] = TYPE_OPERATION_OUT;
 
                     $brinde["preco_atual"] = $this->Brindes->PrecoAtual->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
                     // $pontuacao["brindes_id"] = $brinde;

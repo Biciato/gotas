@@ -720,11 +720,23 @@ class GotasController extends AppController
 
     public function getGotasClientesAPI()
     {
+        $sessao = $this->getSessionUserVariables();
+        $usuario = $sessao["usuarioLogado"];
+        $rede = $sessao["rede"];
+
         if ($this->request->is(Request::METHOD_GET)) {
             $errors = [];
             $errorCodes = [];
             $data = $this->request->getQueryParams();
             $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : null;
+            $redesId = null;
+
+            if ($usuario->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
+                // Só permite especificar a rede se for RTI/Desenvolvedor
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+            } else {
+                $redesId = $rede->id;
+            }
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -735,7 +747,7 @@ class GotasController extends AppController
 
             try {
                 if (count($errors) > 0) {
-                    throw new Exception(MESSAGE_LOAD_EXCEPTION, MESSAGE_LOAD_EXCEPTION_CODE);
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
 
                 $gotas = $this->Gotas->getGotas($clientesId, null, null, null, 1);
@@ -744,7 +756,7 @@ class GotasController extends AppController
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $data);
             } catch (\Throwable $th) {
                 for ($i = 0; $i < count($errors); $i++) {
-                    Log::write("error", sprintf("[%s] %s: %s", MESSAGE_LOAD_EXCEPTION, $errorCodes[$i], $errors[$i]));
+                    Log::write("error", sprintf("[%s] %s: %s", MSG_LOAD_EXCEPTION, $errorCodes[$i], $errors[$i]));
                 }
 
                 return ResponseUtil::errorAPI($th->getMessage(), $errors, [], $errorCodes);
