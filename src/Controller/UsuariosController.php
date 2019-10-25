@@ -2625,8 +2625,8 @@ class UsuariosController extends AppController
                 if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                     // Máximo de tempo será 1 mês
                     if ($dataDiferenca->m >= 1) {
-                        $errors[] = MSG_MAX_FILTER_TIME_ONE_MONTH;
-                        $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_MONTH_CODE;
+                        $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "1");
+                        $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "1");
                     }
                 } else {
                     // Máximo de tempo será 1 ano
