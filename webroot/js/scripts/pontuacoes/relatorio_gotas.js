@@ -557,7 +557,7 @@ $(function () {
 
                                         var cellPeriodoLabel = document.createElement("td");
                                         var labelPeriodo = document.createElement("strong");
-                                        labelPeriodo.textContent = "Data";
+                                        labelPeriodo.textContent = "Mês Referência";
                                         cellPeriodoLabel.append(labelPeriodo);
 
                                         var cellPeriodoTextoLabel = document.createElement("td");

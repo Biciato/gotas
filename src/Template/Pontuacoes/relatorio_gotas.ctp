@@ -60,7 +60,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
 
                             <div class="col-lg-4">
-                                <label for="brinde">Gotas:</label>
+                                <label for="brinde">Referência:</label>
                                 <select name="gotas-list" id="gotas-list" class="form-control"></select>
                             </div>
                         </div>

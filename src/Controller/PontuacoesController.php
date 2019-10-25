@@ -1134,9 +1134,9 @@ class PontuacoesController extends AppController
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
                 // Periodo limite de filtro é 1 ano
-                if ($dataDiferenca->y >= 1) {
-                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
-                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                if ($dataDiferenca->m >= 3) {
+                    $errors[] = sprintf(MSG_MAX_FILTER_TIME_MONTH, "3");
+                    $errorCodes[] = sprintf(MSG_MAX_FILTER_TIME_MONTH_CODE, "3");
                 }
 
                 if ($dataInicio > $dataFim) {
