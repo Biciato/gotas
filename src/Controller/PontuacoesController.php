@@ -236,7 +236,7 @@ class PontuacoesController extends AppController
      *
      * @return void
      */
-    public function cuponsMinhaRede()
+    public function relatorioCuponsProcessados()
     {
         // se o usuário que estiver logado for
         try {

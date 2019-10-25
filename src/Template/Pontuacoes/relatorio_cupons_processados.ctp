@@ -2,16 +2,16 @@
 
 /**
  * @author   Gustavo Souza Gonçalves
- * @file     src/Template/Pontuacoes/cupons_minha_rede.ctp
+ * @file     src/Template/Pontuacoes/relatorio_cupons_processados.ctp
  * @date     18/08/2017
  */
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
+$title = "Relatório de Cupons Processados";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
-
-$this->Breadcrumbs->add('Pontuações de Gotas', [], ['class' => 'active']);
+$this->Breadcrumbs->add($title, [], ['class' => 'active']);
 
 echo $this->Breadcrumbs->render(
     ['class' => 'breadcrumb']
@@ -23,11 +23,11 @@ echo $this->Breadcrumbs->render(
 
 <div class="col-lg-9 col-md-10 columns">
     <legend>
-        <?= __("Pontuações de Gotas") ?>
+        <?= $title ?>
     </legend>
 
     <div class="col-lg-12">
-        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede', 'unidades_ids' => $unidadesIds]) ?>
+        <?= $this->element('../Pontuacoes/filtro_cupons', ['controller' => 'pontuacoes', 'action' => 'relatorio_cupons_processados', 'unidades_ids' => $unidadesIds]) ?>
     </div>
 
     <div class="col-lg-12">
@@ -51,15 +51,6 @@ echo $this->Breadcrumbs->render(
 
                     <th>
                         <?= $this->Paginator->sort('chave_nfe', ['label' => 'Chave da NFE']) ?>
-                    </th>
-                    <th >
-                        <?= $this->Paginator->sort('requer_auditoria', ['label' => 'Nec. Auditoria?']) ?>
-                    </th>
-                    <th>
-                        <?= $this->Paginator->sort('auditado', ['label' => 'Auditado?']) ?>
-                    </th>
-                        <th>
-                        <?= $this->Paginator->sort('registro_invalido', ['label' => 'Inválido?']) ?>
                     </th>
 
                     <th>
@@ -91,17 +82,6 @@ echo $this->Breadcrumbs->render(
                     <td>
                         <?= h($pontuacao->chave_nfe) ?>
                     </td>
-                    <td>
-                        <?= h($this->Boolean->convertBooleanToString($pontuacao->requer_auditoria)) ?>
-                    </td>
-                    <td>
-                        <?= h($this->Boolean->convertBooleanToString($pontuacao->auditado)); ?>
-                    </td>
-
-                    <td>
-                        <?= h($this->Boolean->convertBooleanToString($pontuacao->registro_invalido)); ?>
-                    </td>
-
                     <td>
                         <?= h($pontuacao->data->format('d/m/Y H:i:s')) ?>
                     </td>

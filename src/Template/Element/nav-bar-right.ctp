@@ -313,7 +313,7 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider" />
 
                     <li>
-                        <?php echo $this->Html->link('Relatório de Pontuações', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                        <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>
                         <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
                         <a href="/pontuacoes/relatorioGotas">Relatório de Gotas - Movimentação</a>
                         <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
@@ -397,7 +397,7 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider" />
 
                     <li>
-                        <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                    <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>
                     </li>
 
                     <li>
@@ -462,7 +462,7 @@ if (empty($usuarioLogado)) {
                     <li role="separator" class="divider" />
 
                     <li>
-                        <?php echo $this->Html->link('Relatório de Cupons', ['controller' => 'Pontuacoes', 'action' => 'cupons_minha_rede']) ?>
+                        <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>
                     </li>
                     <li>
                         <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a>
