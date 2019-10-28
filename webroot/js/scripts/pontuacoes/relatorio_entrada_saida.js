@@ -622,7 +622,7 @@ $(function () {
 
                                         var cellLabelGota = document.createElement("td");
                                         var textlabelGota = document.createElement("strong");
-                                        textlabelGota.textContent = "Gota:";
+                                        textlabelGota.textContent = "Referência:";
                                         cellLabelGota.append(textlabelGota);
 
                                         var cellLabelUsuarioEntrada = document.createElement("td");
@@ -632,7 +632,7 @@ $(function () {
 
                                         var cellLabelGotasEntrada = document.createElement("td");
                                         var textEntradaGotas = document.createElement("strong");
-                                        textEntradaGotas.textContent = "Gotas";
+                                        textEntradaGotas.textContent = "Referênciass";
                                         cellLabelGotasEntrada.append(textEntradaGotas);
 
                                         var cellLabelUsuarioSaida = document.createElement("td");
@@ -647,7 +647,7 @@ $(function () {
 
                                         var cellLabelGotasSaida = document.createElement("td");
                                         var textSaidaGotas = document.createElement("strong");
-                                        textSaidaGotas.textContent = "Gotas";
+                                        textSaidaGotas.textContent = "Referências";
                                         cellLabelGotasSaida.append(textSaidaGotas);
 
                                         headerDadosPeriodoRow.append(document.createElement("td"));
