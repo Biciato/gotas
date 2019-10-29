@@ -102,6 +102,7 @@ class QRCodeUtil
         $estadoPorURLArray = array(
             "fazenda.mg" => array("estado" => "MG", "qrCodeProcura" => "xhtml?p="),
             "sefaz.rs" => array("estado" => "RS", "qrCodeProcura" => "asp?p="),
+            "sefaz.ba" => ["estado" => "BA", "qrCodeProcura" => "aspx?p="]
         );
         $estado = "";
         $qrCodeProcura = "";
@@ -148,7 +149,7 @@ class QRCodeUtil
             $errors = [];
             $errorCodes = [];
 
-            if ($estado == "MG") {
+            if (in_array($estado, ["MG", "BA"])) {
                 $arrayConsistency = [];
 
                 if ($tipoQrCode == "ONLINE") {

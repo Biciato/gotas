@@ -10,7 +10,7 @@ use Cake\Routing\Router;
 
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 
-$this->Breadcrumbs->add('Cupons Emitidos', array("controller" => "pontuacoes", "action" => "cupons_minha_rede"));
+$this->Breadcrumbs->add('Relatório de Cupons Processados', array("controller" => "pontuacoes", "action" => "relatorio_cupons_processados"));
 $this->Breadcrumbs->add('Detalhes do Cupom Fiscal', array("controller" => "pontuacoes", "action" => "detalhes_cupom" , $pontuacao["pontuacoes_comprovante_id"]), ['class' => 'active']);
 $this->Breadcrumbs->add('Editar Valor de Pontuação', array(), ['class' => 'active']);
 
@@ -19,7 +19,7 @@ echo $this->Breadcrumbs->render(
 );
 
 ?>
-    <?= $this->element('../Pontuacoes/left_menu', ['controller' => 'pontuacoes', 'action' => 'cupons_minha_rede','id' => $pontuacao->id, 'mode' => 'details']) ?>
+    <?= $this->element('../Pontuacoes/left_menu', ['controller' => 'pontuacoes', 'action' => 'relatorio_cupons_processados','id' => $pontuacao->id, 'mode' => 'details']) ?>
 
         <div class="col-lg-9 col-md-10 columns">
 
