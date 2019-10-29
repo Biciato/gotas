@@ -1774,13 +1774,25 @@ class PontuacoesComprovantesController extends AppController
                     $qrCode = "CUPOM ECF-MG";
                     $chave = $qrCode;
                 } else {
-                    $chave = $qrCode;
+                    if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
+                        $qrCodeResult = QRCodeUtil::validarUrlQrCode($qrCode);
+
+                        $qrcodeValue = array_filter($qrCodeResult["data"], function ($a) {
+                            return $a["key"] == "chNFe";
+                        });
+
+                        $qrcodeValue = $qrcodeValue[0];
+                        $chave = $qrcodeValue["content"];
+                    } else {
+                        $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+                        $chave = $qrCode;
+                    }
                 }
             } else {
                 if (empty($qrCode)) {
                     $errors[] = MSG_QRCODE_EMPTY;
                     $errorCodes[] = MSG_QRCODE_EMPTY_CODE;
-                } else if (strpos($qrCode, "sefaz.") == 0) {
+                } elseif (strpos($qrCode, "sefaz.") == 0) {
                     $errors[] = MSG_QRCODE_MISMATCH_FORMAT;
                 }
 
@@ -1832,15 +1844,15 @@ class PontuacoesComprovantesController extends AppController
 
                 if (!empty($gota)) {
                     $gota = $gota[0];
-                    $item = array(
-                        "multiplicador_gota" => floor($gotaUsuario["gotas_qtde"]),
-                        "quantidade_gota" => floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]),
-                        "clientes_id" => $cliente["id"],
-                        "usuarios_id" => $usuario["id"],
-                        "funcionarios_id" => $funcionario["id"],
-                        "gotas_id" => $gota["id"],
-                        "data" => $data
-                    );
+                    $item = new Pontuacao();
+                    $item->multiplicador_gota = floor($gotaUsuario["gotas_qtde"]);
+                    $item->quantidade_gota = floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]);
+                    $item->valor_gota_sefaz = $gotaUsuario["gotas_vl_unit"] * $gotaUsuario["gotas_qtde"];
+                    $item->clientes_id = $cliente["id"];
+                    $item->usuarios_id = $usuario["id"];
+                    $item->funcionarios_id = $funcionario["id"];
+                    $item->gotas_id = $gota["id"];
+                    $item->data = $data;
 
                     // Confere quais gotas estão com preço desatualizado
 
@@ -1866,8 +1878,19 @@ class PontuacoesComprovantesController extends AppController
             // @todo mudar para $this->PontuacoesComprovantes->saveUpdate($obj);
             $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrCode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
 
-            foreach ($pontuacoes as $pontuacao) {
-                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
+            foreach ($pontuacoes as $pontuacaoItem) {
+                $pontuacao = new Pontuacao();
+                $pontuacao->clientes_id = $cliente->id;
+                $pontuacao->usuarios_id = $usuario->id;
+                $pontuacao->funcionarios_id = $funcionario->id;
+                $pontuacao->gotas_id = $pontuacaoItem->gotas_id;
+                $pontuacao->quantidade_multiplicador = $pontuacaoItem->multiplicador_gota;
+                $pontuacao->quantidade_gotas = $pontuacaoItem->quantidade_gota;
+                $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteSave->id;
+                $pontuacao->valor_gota_sefaz = $pontuacaoItem->valor_gota_sefaz;
+                $pontuacao->data = new DateTime('now');
+                $pontuacaoSave = $this->Pontuacoes->saveUpdate($pontuacao);
+                // $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
             }
 
             $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
@@ -1901,7 +1924,7 @@ class PontuacoesComprovantesController extends AppController
                     "comprovantes_resumo" => $comprovanteResumo
                 )
             );
-            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+            return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, $retorno);
         }
     }
 
