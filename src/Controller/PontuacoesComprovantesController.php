@@ -1719,6 +1719,7 @@ class PontuacoesComprovantesController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
             $errors = array();
+            $errorCodes = [];
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
