@@ -1874,7 +1874,7 @@ class PontuacoesComprovantesController extends AppController
                 if (!empty($gota)) {
                     $gota = $gota[0];
                     $item = new Pontuacao();
-                    $item->multiplicador_gota = $gotaUsuario["gotas_qtde"];
+                    $item->multiplicador_gota = floor($gotaUsuario["gotas_qtde"]);
                     $item->quantidade_gota = floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]);
                     $item->valor_gota_sefaz = $gotaUsuario["gotas_vl_unit"];
                     $item->clientes_id = $cliente["id"];
