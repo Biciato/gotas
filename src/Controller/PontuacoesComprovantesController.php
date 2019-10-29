@@ -1732,10 +1732,12 @@ class PontuacoesComprovantesController extends AppController
             // Validação
             if (empty($cnpj)) {
                 $errors[] = MESSAGE_CNPJ_EMPTY;
+                $errorCodes[] = 0;
             }
 
             if (empty($cpf)) {
                 $errors[] = MSG_USUARIOS_CPF_EMPTY;
+                $errorCodes[] = 0;
             }
 
             if (empty($qrCode)) {
@@ -1745,10 +1747,14 @@ class PontuacoesComprovantesController extends AppController
 
             if (empty($gotasAbastecidasClienteFinal) && count($gotasAbastecidasClienteFinal) == 0) {
                 $errors[] = "Itens da Venda não foram informados!";
+                $errorCodes[] = 0;
             }
 
             if (sizeof($errors) > 0) {
-                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_GENERIC_EXCEPTION, $errorCodes[$i], $errors[$i]));
+                }
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data, $errorCodes);
             }
 
             // Validação CNPJ e CPF
