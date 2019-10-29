@@ -1291,7 +1291,7 @@ class PontuacoesComprovantesController extends AppController
         if ($this->request->is(Request::METHOD_POST)) {
             $data = $this->request->getData();
 
-            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Variáveis
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
@@ -1719,6 +1719,8 @@ class PontuacoesComprovantesController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
             $errors = array();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Informações do POST
             $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
