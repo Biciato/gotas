@@ -43,20 +43,30 @@ class SefazUtil
     public static function obtemDadosHTMLCupomSefaz(string $content, string $estado)
     {
         // @todo Todos os locais que passam as 'gotas', devem ser removidos
-        if (strtoupper($estado) == "RS") {
-            // este serviço precisará de revisão
-            return self::converteHTMLParaPontuacoesArrayRioGrandeSul($content, []);
+
+        $data = null;
+        switch ($estado) {
+            case 'BA':
+                $data = self::converteHTMLParaPontuacoesArrayBahia($content);
+                break;
+            case 'RS':
+                $data = self::converteHTMLParaPontuacoesArrayRioGrandeSul($content, []);
+                break;
+
+            case 'MG':
+                $data = self::converteHTMLParaPontuacoesArrayMinasGerais($content);
+                break;
+
+            case 'GO':
+                $data = self::converteHTMLParaPontuacoesArrayGoias($content, []);
+                break;
+
+            default:
+                $data = self::converteHTMLParaPontuacoesArray($content, []);
+                break;
         }
 
-        if (strtoupper($estado) == "MG") {
-            return self::converteHTMLParaPontuacoesArrayMinasGerais($content);
-        }
-
-        if (strtoupper($estado) == "GO") {
-            return self::converteHTMLParaPontuacoesArrayGoias($content, []);
-        }
-
-        return self::converteHTMLParaPontuacoesArray($content, []);
+        return $data;
     }
 
     /**
@@ -73,7 +83,7 @@ class SefazUtil
      *
      * @return array objeto contendo resposta
      */
-    private static function converteHTMLParaPontuacoesArray(string $content, $gotas)
+    private static function converteHTMLParaPontuacoesArray(string $content)
     {
         try {
             $returnContent = $content;
@@ -142,6 +152,84 @@ class SefazUtil
             $stringError = __("Erro ao preparar conteúdo html: {0} ", $e->getMessage());
 
             Log::write('error', $stringError);
+        }
+    }
+
+       /**
+     * SefazUtil::converteHTMLParaPontuacoesArrayMinasGerais
+     *
+     * Obtêm conteúdo de página Sefaz (Estado de Minas Gerais)
+     *
+     * @param string $content Endereço do site
+     * @param array  $gotas Array de gotas
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-05-19
+     *
+     * @return array objeto contendo resposta
+     */
+    private static function converteHTMLParaPontuacoesArrayBahia(string $content)
+    {
+        try {
+            // Evita erros de DOM Elements
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+
+            $dom->loadHTML("<?xml encoding='utf-8' ?>" . $content);
+
+            $items = $dom->getElementById('tabResult');
+
+            // return ResponseUtil::successAPI(null, ["items" => $items]);
+            $itemsNodesHtml = array();
+
+            if (!empty($items)) {
+                foreach ($items->childNodes as $node) {
+                    $texto = $node->textContent;
+
+                    $texto = trim($texto);
+
+                    if (strlen($texto) > 0) {
+                        $textoQuantidade = "Qtde.:";
+
+                        // Captura do gotas.nome_parametro
+                        $posicaoQuantidade = strpos($texto, $textoQuantidade);
+                        $descricao = substr($texto, 0, $posicaoQuantidade);
+                        $descricao = trim($descricao);
+                        $item["descricao"] = $descricao;
+
+                        // Captura de quantidade
+                        $posicaoFimTextoQuantidade = strlen($textoQuantidade);
+                        $posicaoQuantidadeInicio = strpos($texto, $textoQuantidade) + $posicaoFimTextoQuantidade;
+                        $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
+                        $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
+                        $quantidade = trim($quantidade);
+                        $item["quantidade"] = preg_replace("/(\D)/", "", $quantidade) / 1000;
+
+                        // Captura de valor
+                        $textoReais = "Vl. Total";
+                        $posicaoFimTextoReais = strlen($textoReais);
+                        $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
+
+                        $valor = substr($texto, $posicaoReaisInicio);
+                        $valorFormatado = preg_replace("/(\D)/", "", $valor);
+                        $valor = $valorFormatado > 0 ? $valorFormatado / 100 : $valorFormatado;
+                        $item["valor"] = trim($valor);
+                        $itemsNodesHtml[] = $item;
+                    }
+                }
+            }
+
+            if (count($itemsNodesHtml) == 0) {
+                throw new Exception(MSG_SEFAZ_CONTINGENCY_MODE, MSG_SEFAZ_CONTINGENCY_MODE_CODE);
+            }
+
+            return $itemsNodesHtml;
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $code = $e->getCode();
+            Log::write('error', $message);
+
+            throw new Exception($message, $code);
         }
     }
 
