@@ -1738,7 +1738,7 @@ class PontuacoesComprovantesController extends AppController
                 $errors[] = MSG_USUARIOS_CPF_EMPTY;
             }
 
-            if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
+            if (empty($gotasAbastecidasClienteFinal) && count($gotasAbastecidasClienteFinal) == 0) {
                 $errors[] = "Itens da Venda não foram informados!";
             }
 
@@ -1871,6 +1871,12 @@ class PontuacoesComprovantesController extends AppController
 
                     $pontuacoes[] = $item;
                 }
+            }
+
+            if (count($pontuacoes) == 0) {
+                $errors[] = sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $qrCode, $cliente->estado);
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors);
             }
 
             $pontuacoesComprovante = array(
