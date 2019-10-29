@@ -1738,6 +1738,11 @@ class PontuacoesComprovantesController extends AppController
                 $errors[] = MSG_USUARIOS_CPF_EMPTY;
             }
 
+            if (empty($qrCode)) {
+                $errors[] = MSG_QRCODE_EMPTY;
+                $errorCodes[] = MSG_QRCODE_EMPTY_CODE;
+            }
+
             if (empty($gotasAbastecidasClienteFinal) && count($gotasAbastecidasClienteFinal) == 0) {
                 $errors[] = "Itens da Venda não foram informados!";
             }
