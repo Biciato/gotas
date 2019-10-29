@@ -1770,6 +1770,9 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
@@ -1810,6 +1813,10 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 if (sizeof($errors) > 0) {
+                    for ($i = 0; $i < count($errors); $i++) {
+                        Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                    }
+
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
                 } else {
                     $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
@@ -1817,6 +1824,10 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
+
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
@@ -1886,6 +1897,11 @@ class PontuacoesComprovantesController extends AppController
 
             if (count($pontuacoes) == 0) {
                 $errors[] = sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $qrCode, $cliente->estado);
+                $errorCodes[] = 0;
+
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
 
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors);
             }
