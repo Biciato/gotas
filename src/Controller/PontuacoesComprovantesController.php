@@ -1764,10 +1764,12 @@ class PontuacoesComprovantesController extends AppController
 
             if ($validacaoCNPJ == 0) {
                 $errors[] = $validacaoCNPJ["message"];
+                $errorCodes[] = 0;
             }
 
             if ($validacaoCPF["status"] == 0) {
                 $errors[] = $validacaoCPF["message"];
+                $errorCodes[] = 0;
             }
 
             if (sizeof($errors) > 0) {
@@ -1782,6 +1784,7 @@ class PontuacoesComprovantesController extends AppController
 
             if (empty($cliente)) {
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
+                $errorCodes[] = 0;
             }
 
             $chave = null;
@@ -1811,6 +1814,7 @@ class PontuacoesComprovantesController extends AppController
                     $errorCodes[] = MSG_QRCODE_EMPTY_CODE;
                 } elseif (strpos($qrCode, "sefaz.") == 0) {
                     $errors[] = MSG_QRCODE_MISMATCH_FORMAT;
+                    $errorCodes[] = 0;
                 }
 
                 if (sizeof($errors) > 0) {
