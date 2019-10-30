@@ -155,7 +155,7 @@ class SefazUtil
         }
     }
 
-       /**
+    /**
      * SefazUtil::converteHTMLParaPontuacoesArrayMinasGerais
      *
      * Obtêm conteúdo de página Sefaz (Estado de Minas Gerais)
@@ -195,6 +195,12 @@ class SefazUtil
                         $posicaoQuantidade = strpos($texto, $textoQuantidade);
                         $descricao = substr($texto, 0, $posicaoQuantidade);
                         $descricao = trim($descricao);
+
+                        // Remove caracteres especiais de delimitação
+                        $descricao = str_replace(chr(194), ' ', $descricao);
+                        $descricao = str_replace(chr(160), '', $descricao);
+                        $descricao = preg_replace('!\t+\s+!', ' ', $descricao);
+
                         $item["descricao"] = $descricao;
 
                         // Captura de quantidade
