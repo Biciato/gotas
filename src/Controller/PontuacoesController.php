@@ -291,8 +291,6 @@ class PontuacoesController extends AppController
                 $queryConditions = $queryConditionsTemp;
             }
 
-
-
             if (!$this->request->is(['post'])) {
                 // Se não tiver filtrado, consultará a última semana
 
@@ -308,12 +306,25 @@ class PontuacoesController extends AppController
                 } else {
                     $start = $queryConditions["start"];
                     $end = $queryConditions["end"];
+                    $funcionariosId = $queryConditions["funcionarios_id"];
+                    $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
                 }
 
                 $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
                 $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
 
                 $pontuacoes = $this->paginate($pontuacoes, ["limit" => 10]);
+
+                $pontuacoes_new_array = [];
+
+                foreach ($pontuacoes as $key => $value) {
+                    $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
+
+                    array_push($pontuacoes_new_array, $value);
+                }
+
+                $pontuacoes = null;
+                $pontuacoes = $pontuacoes_new_array;
             } else {
                 $data = $this->request->getData();
 
@@ -325,7 +336,8 @@ class PontuacoesController extends AppController
                 }
 
                 if (!empty($funcionariosId)) {
-                    $arrayOptions[] = array('funcionarios_id' => (int) $data['funcionarios_id']);
+                    $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    $queryConditions["funcionarios_id"] = $funcionariosId;
                 }
 
                 if (strlen($data['data_inicio']) > 0) {
@@ -342,31 +354,22 @@ class PontuacoesController extends AppController
 
                 $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
 
-                $queryConditions = [
-                    "start" => $start,
-                    "end" => $end
-                ];
+                $queryConditions["start"] = $start;
+                $queryConditions["end"] = $end;
 
                 $this->request->session()->write("QueryConditions", $queryConditions);
 
                 $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
+                $pontuacoes = $this->paginate($pontuacoes, ['limit' => 10]);
+                $pontuacoes_new_array = [];
 
+                foreach ($pontuacoes as $key => $value) {
+                    $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
+                    array_push($pontuacoes_new_array, $value);
+                }
 
-                // debug($funcionarios);
-                // $pontuacoes = $this->paginate($pontuacoes, ['limit' => 10]);
-                $pontuacoes = $this->Paginate($pontuacoes, ['conditions' => ["PontuacoesComprovantes.data BETWEEN '$start' AND '$end'"]]);
-
-
-                // $pontuacoes_new_array = [];
-
-                // foreach ($pontuacoes as $key => $value) {
-                //     $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
-
-                //     array_push($pontuacoes_new_array, $value);
-                // }
-
-                // $pontuacoes = null;
-                // $pontuacoes = $pontuacoes_new_array;
+                $pontuacoes = null;
+                $pontuacoes = $pontuacoes_new_array;
             }
 
             $start = substr($start, 0, 10);
