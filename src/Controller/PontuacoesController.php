@@ -340,6 +340,8 @@ class PontuacoesController extends AppController
                 if (!empty($funcionariosId)) {
                     $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
                     $queryConditions["funcionarios_id"] = $funcionariosId;
+                } else {
+                    unset($queryConditions["funcionarios_id"]);
                 }
 
                 if (strlen($data['data_inicio']) > 0) {
