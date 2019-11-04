@@ -67,6 +67,7 @@ use Cake\Core\Configure;
                                     'label' => 'Data de Início',
                                     'format' => 'd/m/Y',
                                     'default' => date('d/m/Y', strtotime('-7 day')),
+                                    "value" => $start,
                                     'class' => 'datepicker-input',
                                     'div' =>
                                     [
@@ -84,6 +85,7 @@ use Cake\Core\Configure;
                                     'label' => 'Data de Fim',
                                     'format' => 'd/m/Y',
                                     'default' => date('d/m/Y'),
+                                    "value" => $end,
                                     'class' => 'datepicker-input',
                                     'div' =>
                                     [
