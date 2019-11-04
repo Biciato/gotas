@@ -3272,6 +3272,8 @@ class UsuariosController extends AppController
 
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 // DebugUtil::printArray($data);
 
                 // validação de cpf
