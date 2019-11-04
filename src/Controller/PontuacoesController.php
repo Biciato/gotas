@@ -283,8 +283,7 @@ class PontuacoesController extends AppController
 
             $queryConditions = [];
 
-            // $this->request->session()->delete("QueryConditions");
-
+            $funcionariosId = 0;
             $queryConditionsTemp = $this->request->session()->read("QueryConditions");
 
             if (!empty($queryConditionsTemp)) {
@@ -302,7 +301,6 @@ class PontuacoesController extends AppController
                     $start = \strtotime($date . ' -7 days');
                     $end = date("Y-m-d 23:59:59", $end);
                     $start = date("Y-m-d 00:00:00", $start);
-
                 } else {
                     $start = $queryConditions["start"];
                     $end = $queryConditions["end"];
@@ -377,13 +375,13 @@ class PontuacoesController extends AppController
             }
 
             $start = substr($start, 0, 10);
-            $end = substr($end, 0, 10) ;
+            $end = substr($end, 0, 10);
 
             $start = explode("-", $start);
             $end = explode("-", $end);
             $start = sprintf("%s/%s/%s", $start[2], $start[1], $start[0]);
             $end = sprintf("%s/%s/%s", $end[2], $end[1], $end[0]);
-            $arraySet = array('pontuacoes', 'funcionarios', 'cliente', 'unidadesIds', "start", "end");
+            $arraySet = array('pontuacoes', 'funcionarios', "funcionariosId", 'cliente', 'unidadesIds', "start", "end");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

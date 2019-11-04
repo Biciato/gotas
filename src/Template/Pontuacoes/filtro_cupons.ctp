@@ -52,6 +52,7 @@ use Cake\Core\Configure;
                                     "type" => 'select',
                                     "label" => 'Funcionário',
                                     "id" => 'funcionarios_id',
+                                    "value" => $funcionariosId,
                                     "empty" => '<Todos>',
                                     "options" => $funcionarios
                                 )
