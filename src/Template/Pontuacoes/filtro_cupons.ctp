@@ -129,4 +129,4 @@ use Cake\Core\Configure;
 <?php
 $debugExtension = (Configure::read('debug') == true) ? "" : "";
 ?>
-<script src="/webroot/js/scripts/Pontuacoes/filtro_cupons<?= $debugExtension ?>.js"></script>
+<script src="/webroot/js/scripts/pontuacoes/filtro_cupons<?= $debugExtension ?>.js"></script>
