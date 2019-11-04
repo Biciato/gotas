@@ -306,8 +306,10 @@ class PontuacoesController extends AppController
                 } else {
                     $start = $queryConditions["start"];
                     $end = $queryConditions["end"];
-                    $funcionariosId = $queryConditions["funcionarios_id"];
-                    $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    if (!empty($queryConditions["funcionarios_id"])) {
+                        $funcionariosId = $queryConditions["funcionarios_id"];
+                        $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    }
                 }
 
                 $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
