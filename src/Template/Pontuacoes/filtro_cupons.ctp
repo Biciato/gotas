@@ -126,10 +126,7 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons'); ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons.min'); ?>
-<?php endif; ?>
-
-<?= $this->fetch('script'); ?>
+<?php
+$debugExtension = (Configure::read('debug') == true) ? "" : "";
+?>
+<script src="/webroot/js/scripts/Pontuacoes/filtro_cupons<?= $debugExtension ?>.js"></script>
