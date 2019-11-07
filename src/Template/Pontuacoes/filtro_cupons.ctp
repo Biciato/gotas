@@ -101,22 +101,18 @@ use Cake\Core\Configure;
                             ) ?>
                         </div>
 
-                        <div class="col-lg-12">
 
-                            <div class=" vertical-align pull-right">
-
-                                <?= $this->Form->button(
-                                    __(
-                                        '{0} Pesquisar',
-                                        '<i class="fa fa-search" aria-hidden="true"></i>'
-                                    ),
-                                    [
-                                        'id' => 'search_button',
-                                        'class' => 'btn btn-primary'
-                                    ]
-                                ) ?>
-
+                        <div class="col-lg-12 text-right">
+                            <div class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                <i class="fa fa-print"></i>
+                                Imprimir
                             </div>
+
+                            <button class="btn btn-primary" id="search_button">
+                                    <i class="fa fa-search"> </i>
+                                    Pesquisar
+
+                            </button>
                         </div>
                     </div>
 

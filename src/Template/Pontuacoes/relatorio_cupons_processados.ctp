@@ -44,7 +44,7 @@ echo $this->Breadcrumbs->render(
 
     <div class="col-lg-12">
 
-        <table class="table table-striped table-hover table-responsive table-condensed">
+        <table class="table table-striped table-hover table-responsive table-condensed" id="print-area">
             <thead>
                 <tr>
                     <th>

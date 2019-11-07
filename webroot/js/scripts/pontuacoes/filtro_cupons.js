@@ -19,6 +19,13 @@ $(document).ready(function () {
 
     $("#cpf").mask("###.###.###-##");
 
+
+    $("#imprimir").on("click", function () {
+        setTimeout($("#print-area").printThis({
+            importCss: true
+        }), 100);
+    });
+
     initializeDatePicker("data_inicio");
     initializeDatePicker("data_fim");
 });
