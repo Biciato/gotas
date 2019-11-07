@@ -31,7 +31,7 @@ use Cake\Core\Configure;
                 <div class="inline-block">
 
                     <div class="form-group row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
 
                             <?= $this->Form->input(
                                 'filtrar_unidade',
@@ -45,7 +45,7 @@ use Cake\Core\Configure;
                             ) ?>
                         </div>
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <?= $this->Form->input(
                                 'funcionarios_id',
                                 array(
@@ -57,6 +57,11 @@ use Cake\Core\Configure;
                                     "options" => $funcionarios
                                 )
                             ); ?>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="cpf">CPF</label>
+                            <input type="text" name="cpf" id="cpf" class="form-control" value="<?= $cpf ?>" />
                         </div>
 
                         <div class="col-lg-2">

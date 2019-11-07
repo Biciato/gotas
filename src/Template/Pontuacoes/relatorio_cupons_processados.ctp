@@ -22,9 +22,11 @@ echo $this->Breadcrumbs->render(
 <?= $this->element('../Pontuacoes/left_menu', ['controller' => 'pages', 'action' => 'display', 'mode' => 'report']) ?>
 
 <div class="col-lg-9 col-md-10 columns">
-    <legend>
-        <?= $title ?>
-    </legend>
+    <div class="col-lg-12">
+        <legend>
+            <?= $title ?>
+        </legend>
+    </div>
 
     <div class="col-lg-12">
         <?= $this->element(
@@ -34,7 +36,8 @@ echo $this->Breadcrumbs->render(
                 'unidades_ids' => $unidadesIds,
                 'start' => $start,
                 'end' => $end,
-                "funcionariosId" => $funcionariosId
+                "funcionariosId" => $funcionariosId,
+                "cpf" => $cpf
             ]
         ) ?>
     </div>

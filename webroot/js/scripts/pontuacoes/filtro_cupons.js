@@ -15,7 +15,9 @@ $(document).ready(function () {
      */
     $("#filtrar_unidade").on('change', function () {
         $("#search_button").click();
-    })
+    });
+
+    $("#cpf").mask("###.###.###-##");
 
     initializeDatePicker("data_inicio");
     initializeDatePicker("data_fim");

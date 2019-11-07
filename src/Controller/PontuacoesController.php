@@ -267,7 +267,7 @@ class PontuacoesController extends AppController
 
             $arrayOptions = [];
             $date = date('Y-m-d');
-
+            $cpf = "";
             $end = \strtotime($date);
             $start = \strtotime($date . ' -7 days');
             $end = date("Y-m-d 23:59:59", $end);
@@ -304,9 +304,15 @@ class PontuacoesController extends AppController
                 } else {
                     $start = $queryConditions["start"];
                     $end = $queryConditions["end"];
+
                     if (!empty($queryConditions["funcionarios_id"])) {
                         $funcionariosId = $queryConditions["funcionarios_id"];
                         $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    }
+
+                    if (!empty($queryConditions["cpf"])) {
+                        $cpf = $queryConditions["cpf"];
+                        $arrayOptions[] = ["Usuarios.cpf" => $cpf];
                     }
                 }
 
@@ -329,6 +335,7 @@ class PontuacoesController extends AppController
                 $data = $this->request->getData();
 
                 $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
+                $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
@@ -340,6 +347,13 @@ class PontuacoesController extends AppController
                     $queryConditions["funcionarios_id"] = $funcionariosId;
                 } else {
                     unset($queryConditions["funcionarios_id"]);
+                }
+
+                if (!empty($cpf)) {
+                    $cpf = preg_replace("/\D/", "", $cpf);
+                    $queryConditions["cpf"] = $cpf;
+                } else {
+                    unset($queryConditions["cpf"]);
                 }
 
                 if (strlen($data['data_inicio']) > 0) {
@@ -354,10 +368,15 @@ class PontuacoesController extends AppController
                     $end = $this->datetime_util->convertDateTimeToUTC($end);
                 }
 
-                $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
+                $arrayOptions[] = array('PontuacoesComprovantes.data between "' . $start . '" and "' . $end . '"');
+
+                if (!empty($cpf)) {
+                    $arrayOptions[] = ["Usuarios.cpf" => $cpf];
+                }
 
                 $queryConditions["start"] = $start;
                 $queryConditions["end"] = $end;
+                $queryConditions["cpf"] = $cpf;
 
                 $this->request->session()->write("QueryConditions", $queryConditions);
 
@@ -381,7 +400,7 @@ class PontuacoesController extends AppController
             $end = explode("-", $end);
             $start = sprintf("%s/%s/%s", $start[2], $start[1], $start[0]);
             $end = sprintf("%s/%s/%s", $end[2], $end[1], $end[0]);
-            $arraySet = array('pontuacoes', 'funcionarios', "funcionariosId", 'cliente', 'unidadesIds', "start", "end");
+            $arraySet = array('pontuacoes', 'funcionarios', "funcionariosId",  'cliente', "cpf", 'unidadesIds', "start", "end");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {
