@@ -382,6 +382,8 @@ class PontuacoesController extends AppController
 
                 $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
                 $pontuacoes = $this->paginate($pontuacoes, ['limit' => 10]);
+
+                // DebugUtil::printArray($pontuacoes);
                 $pontuacoes_new_array = [];
 
                 foreach ($pontuacoes as $key => $value) {

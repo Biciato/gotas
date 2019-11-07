@@ -745,7 +745,8 @@ class PontuacoesComprovantesTable extends GenericTable
                     'Funcionarios'
 
                 ]
-            );
+            )
+            ->order(["PontuacoesComprovantes.data" => "DESC"]);
 
             if (!is_null($options)) {
                 $result = $result->where($options);
