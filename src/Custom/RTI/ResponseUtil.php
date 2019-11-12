@@ -102,7 +102,7 @@ class ResponseUtil
 
         $arrayKeys = array_keys($contentArray);
         $mensagem = array(
-            "status" => 1,
+            "status" => true,
             "message" => $msg,
             "errors" => $warnings,
             "error_codes" => []
@@ -139,7 +139,7 @@ class ResponseUtil
 
         $arrayKeys = array_keys($data);
         $mensagem = array(
-            "status" => 0,
+            "status" => false,
             "message" => $msg,
             "errors" => $errors,
             "error_codes" => !empty($errorCodes) ? $errorCodes : []

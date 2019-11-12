@@ -3658,7 +3658,7 @@ class UsuariosController extends AppController
                             if (!empty($message)) {
                                 return array(
                                     "usuario" => null,
-                                    "status" => 0,
+                                    "status" => false,
                                     "message" => $message,
                                     "errors" => $errors,
                                     "errorCodes" => $errorCodes,
@@ -3676,7 +3676,7 @@ class UsuariosController extends AppController
                         $errorCodes[] = 0;
                         return array(
                             "usuario" => null,
-                            "status" => 0,
+                            "status" => false,
                             "message" => "Houve um erro!",
                             "errors" => $error,
                             "errorCodes" => $errorCodes,
@@ -3700,11 +3700,11 @@ class UsuariosController extends AppController
 
                 // Grava token gerado
                 $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
-                $status = 0;
+                $status = false;
 
                 return array(
                     "usuario" => $user,
-                    "status" => 0,
+                    "status" => false,
                     "message" => "",
                     "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null,
                     "cliente" => $cliente
@@ -3733,7 +3733,7 @@ class UsuariosController extends AppController
                     $this->Usuarios->save($usuario);
                 }
 
-                $status = 0;
+                $status = false;
                 $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
                 $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
                 $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
@@ -3742,7 +3742,7 @@ class UsuariosController extends AppController
         } else {
             $message = $result['message'];
             $recoverAccount = $result['actionNeeded'];
-            $status = isset($result["status"]) ? $result["status"] : 1;
+            $status = isset($result["status"]) ? $result["status"] : true;
             $usuario = null;
         }
 

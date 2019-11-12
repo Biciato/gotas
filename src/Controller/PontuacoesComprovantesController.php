@@ -1841,6 +1841,10 @@ class PontuacoesComprovantesController extends AppController
             // Cliente do posto
             $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
 
+            if (strlen($cpf) > 11) {
+                Log::write("info", "CNPJ Identificado: " . $cpf);
+            }
+
             // Se usuário não encontrado, cadastra para futuro acesso
             if (empty($usuario)) {
                 $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
