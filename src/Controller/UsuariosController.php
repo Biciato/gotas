@@ -1107,7 +1107,6 @@ class UsuariosController extends AppController
                         // Só pode ser guardado o relacionamento se já tiver algum posto
                         if (empty($redes_has_cliente)) {
                             Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
-
                         } else {
                             $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
                                 $redes_has_cliente->id,
@@ -1466,6 +1465,9 @@ class UsuariosController extends AppController
 
         if (isset($status) && ($status == 0) && !$this->request->is(Request::METHOD_POST)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+        } else if (isset($status) && $status == true) {
+            return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+
         } else {
             return;
         }
@@ -2634,7 +2636,7 @@ class UsuariosController extends AppController
                 } else {
                     // Máximo de tempo será 1 ano
                     if ($dataDiferenca->y >= 1) {
-                        $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                        $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
                         $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                     }
                 }
@@ -3700,11 +3702,10 @@ class UsuariosController extends AppController
 
                 // Grava token gerado
                 $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
-                $status = false;
 
                 return array(
                     "usuario" => $user,
-                    "status" => false,
+                    "status" => true,
                     "message" => "",
                     "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null,
                     "cliente" => $cliente
