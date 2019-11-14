@@ -2205,6 +2205,9 @@ class PontuacoesComprovantesController extends AppController
                         "mensagem"
                     ];
 
+                    Log::write("info", $mensagem);
+                    Log::write("info", $errors);
+
                     return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
                 }
             }
