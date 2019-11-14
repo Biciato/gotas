@@ -13,6 +13,7 @@ use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\DebugUtil;
 use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -284,6 +285,16 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
+
+            if (!empty($data["senha"])) {
+                $data["senha"] = str_replace("?", "", $data["senha"]);
+            }
+            
+            if (!empty($data["confirm_senha"])) {
+                $data["confirm_senha"] = str_replace("?", "", $data["confirm_senha"]);
+            }
+
+            // DebugUtil::printArray($data);
             $usuarioData = $data;
             $cliente = null;
 
@@ -1463,11 +1474,10 @@ class UsuariosController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
 
-        if (isset($status) && ($status == 0) && !$this->request->is(Request::METHOD_POST)) {
+        if (isset($status) && ($status == false) && !$this->request->is(Request::METHOD_POST)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
         } else if (isset($status) && $status == true) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
-
         } else {
             return;
         }

@@ -30,48 +30,80 @@ $maxLength = ($usuario->tipo_perfil == (int) Configure::read('profileTypes')['Us
     <fieldset>
         <legend><?= __('Alterar senha') ?> </legend>
 
-        <?php if ($id == $usuarioLogado->id) : ?>
         <!-- Se o usuário à ser alterado é o mesmo logado -->
+        <?php if ($id == $usuarioLogado->id) : ?>
         <div class="form-group">
             <label for="senha_antiga">Senha Antiga*</label>
-            <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_USER) :?> 
+                <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" minlength="6" require />
+            <?php else:?> 
+                <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="senha">Nova Senha*</label>
-            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_USER) :?> 
+                <input type="password" id="senha" name="senha" class="form-control" minlength="6" require />
+            <?php else :?> 
+                <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
 
         <div class="form-group">
             <label for="confirm_senha">Confirmar Nova Senha*</label>
-            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuarioLogado->tipo_perfil == PROFILE_TYPE_USER):?>
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" minlength="6" require />
+            <?php else: ?> 
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif; ?>
         </div>
-        <?php elseif (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_MANAGER, PROFILE_TYPE_WORKER])) : ?>
         <!-- Se é gerente ou funcionário -->
+        <?php elseif (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_MANAGER, PROFILE_TYPE_WORKER])) : ?>
         <div class="form-group">
             <label for="senha_antiga">Senha Antiga*</label>
-            <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuario->tipo_perfil == PROFILE_TYPE_USER): ?> 
+                <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" minlength=6 require />
+            <?php else:?> 
+                <input type="password" id="senha_antiga" name="senha_antiga" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
 
         <div class="form-group">
             <label for="senha">Nova Senha*</label>
-            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuario->tipo_perfil === PROFILE_TYPE_USER): ?> 
+                <input type="password" id="senha" name="senha" class="form-control" minlength="6" require />
+            <?php else: ?> 
+                <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
 
         <div class="form-group">
             <label for="confirm_senha">Confirmar Nova Senha*</label>
-            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuario->tipo_perfil === PROFILE_TYPE_USER): ?> 
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" minlength="6" require />
+            <?php else: ?> 
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
+        <!-- Se é outro usuário alterando a senha (Administrador Local ou com mais permissões), não precisa de confirmar -->
         <?php elseif ($usuarioLogado->tipo_perfil <= PROFILE_TYPE_ADMIN_LOCAL) : ?>
-        <!-- Se é outro usuário alterando a senha, não precisa de confirmar -->
         <div class="form-group">
             <label for="senha">Nova Senha*</label>
-            <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuario->tipo_perfil == PROFILE_TYPE_USER): ?> 
+                <input type="password" id="senha" name="senha" class="form-control" minlength="6" require />
+            <?php else:?> 
+                <input type="password" id="senha" name="senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
 
         <div class="form-group">
             <label for="confirm_senha">Confirmar Nova Senha*</label>
-            <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php if ($usuario->tipo_perfil == PROFILE_TYPE_USER): ?> 
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" minlength="6" require />
+            <?php else:?> 
+                <input type="password" id="confirm_senha" name="confirm_senha" class="form-control" maxlength="<?= $maxLength ?>" require />
+            <?php endif;?>
         </div>
         <?php endif; ?>
 

@@ -8,6 +8,8 @@
 $(document).ready(function () {
 
     $("#cpf").focus();
+    var formatSenha = "######?################";
+
 
     var imageStored = false;
 
@@ -217,8 +219,8 @@ $(document).ready(function () {
         loadUnidadesRede(data);
     }
 
-    $("#senha").mask("######");
-    $("#confirm-senha").mask("######");
+    $("#senha").mask(formatSenha);
+    $("#confirm_senha").mask(formatSenha);
 
     $(".fields-is-final-customer").show();
 
@@ -277,14 +279,15 @@ $(document).ready(function () {
             $("#clientes_rede").removeAttr("required");
         }
 
+        console.log("validação de perfil...");
         if ($(data).val() != 6) {
             $("#senha").mask("AAAAAAAA");
-            $("#confirm-senha").mask("AAAAAAAA");
+            $("#confirm_senha").mask("AAAAAAAA");
             $(".fields-is-final-customer").hide();
 
         } else {
-            $("#senha").mask("######");
-            $("#confirm-senha").mask("######");
+            $("#senha").mask(formatSenha);
+            $("#confirm_senha").mask(formatSenha);
             $(".fields-is-final-customer").show();
         }
     }
