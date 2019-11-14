@@ -289,7 +289,7 @@ class UsuariosController extends AppController
             if (!empty($data["senha"])) {
                 $data["senha"] = str_replace("?", "", $data["senha"]);
             }
-            
+
             if (!empty($data["confirm_senha"])) {
                 $data["confirm_senha"] = str_replace("?", "", $data["confirm_senha"]);
             }
@@ -3394,13 +3394,31 @@ class UsuariosController extends AppController
                     unset($data["ultima_tentativa_login"]);
                 }
 
+                // $senha = !empty($data["senha"]) ? $data["senha"] : null;
+                // $confirmSenha = !empty($data["confirm_senha"]) ? $data["confirm_senha"] : null;
+
+                // if (!empty($senha) && strlen($senha) < 6) {
+                //     $errors[] = "Senha deve ter no mínimo 6 dígitos";
+                // }
+
+                // if (!empty($senha) && ($senha !== $confirmSenha)) {
+                //     $errors[] = "Campos de Senha e Confirmação de Senha não conferem!";
+                // }
+
+                // if (count($errors) == 0) {
                 // Faz o patch da entidade
                 $usuario = $this->Usuarios->patchEntity($usuario, $data, ['validate' => 'EditUsuarioInfo']);
 
                 $errors = $usuario->errors();
+                // }
+
 
                 // Gravação
-                $usuario = $this->Usuarios->save($usuario);
+                if (count($errors) == 0) {
+                    $usuario = $this->Usuarios->save($usuario);
+                } else {
+                    $usuario = null;
+                }
 
                 // Atualização com sucesso, retorna mensagem
                 if ($usuario) {

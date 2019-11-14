@@ -1590,6 +1590,8 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 $retorno = $this->processaCupom($data);
 
                 if ($retorno->mensagem->status) {
