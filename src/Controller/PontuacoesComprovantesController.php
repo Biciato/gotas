@@ -1610,6 +1610,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
+                    Log::write("info", $retorno);
                     return ResponseUtil::errorAPI($retorno->mensagem->message, $retorno->mensagem->errors, $arrayData, $retorno->mensagem->error_codes);
                 }
             }
