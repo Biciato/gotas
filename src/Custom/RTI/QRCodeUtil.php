@@ -101,10 +101,6 @@ class QRCodeUtil
             Log::write("info", __LINE__);
             Log::write("info", $result);
 
-            return $result;
-
-            // ResponseUtil::successAPI('', $result);
-            Log::write("info", __LINE__);
             // Retorna Array contendo erros de validações
             return $result;
         }

@@ -2056,11 +2056,16 @@ class PontuacoesComprovantesController extends AppController
         if ($validacaoQRCode["status"] === false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = $validacaoQRCode["message"];
+            $mensagem->errors = $validacaoQRCode["errors"];
+            $mensagem->error_codes = $validacaoQRCode["error_codes"];
 
-            return array("mensagem" => $mensagem);
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+
+            return $retorno;
         }
 
         $url = $validacaoQRCode["url_real"];
