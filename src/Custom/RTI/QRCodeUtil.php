@@ -75,6 +75,8 @@ class QRCodeUtil
          * index: indice do registro na url
          */
 
+        Log::write("info", __LINE__);
+
         $errors = [];
         $errorCodes = [];
         if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
@@ -84,6 +86,9 @@ class QRCodeUtil
             // $errors = array("QR Code Inválido!");
             $errors = [MSG_QR_CODE_READING_ERROR];
             $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
+
+            Log::write("info", __LINE__);
+
 
             return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], $errorCodes);
         }
