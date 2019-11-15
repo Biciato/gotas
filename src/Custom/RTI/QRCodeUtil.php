@@ -82,16 +82,29 @@ class QRCodeUtil
         $errorCodes = [];
         if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL) === false) {
             // $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
-            $errorMessage = MSG_WARNING;
-            $status = 0;
-            // $errors = array("QR Code Inválido!");
             $errors = [MSG_QR_CODE_READING_ERROR];
             $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
 
+            $result = array(
+                "status" => false,
+                "message" => MSG_WARNING,
+                "errors" => $errors,
+                "error_codes" => $errorCodes,
+                "data" => null,
+                "url_real" => null,
+                "estado" => null,
+                "tipo_operacao_sefaz" => null
+            );
+
             Log::write("info", __LINE__);
+            Log::write("info", $result);
 
+            return $result;
 
-            return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], $errorCodes);
+            // ResponseUtil::successAPI('', $result);
+            Log::write("info", __LINE__);
+            // Retorna Array contendo erros de validações
+            return $result;
         }
 
         Log::write("info", __LINE__);

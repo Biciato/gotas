@@ -2053,7 +2053,7 @@ class PontuacoesComprovantesController extends AppController
         $validacaoQRCode = QRCodeUtil::validarUrlQrCode($url);
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-        if ($validacaoQRCode["status"] == false) {
+        if ($validacaoQRCode["status"] === false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
             $arraySet = array("mensagem");
