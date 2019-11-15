@@ -79,7 +79,8 @@ class QRCodeUtil
         $errorCodes = [];
         // if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL) === false) {
 
-        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
+        // if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
+        if (!filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_QUERY_REQUIRED)) {
             $errors = [MSG_QR_CODE_READING_ERROR];
             $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
 
