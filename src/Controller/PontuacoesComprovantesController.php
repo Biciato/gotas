@@ -2036,6 +2036,8 @@ class PontuacoesComprovantesController extends AppController
     private function processaCupom($data)
     {
         $url = isset($data['qr_code']) ? $data["qr_code"] : null;
+
+        $url = filter_var($url, FILTER_SANITIZE_STRING);
         $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
 
         // Verifica se foi informado qr code. Senão já aborta
