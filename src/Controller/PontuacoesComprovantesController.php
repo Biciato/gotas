@@ -2037,7 +2037,13 @@ class PontuacoesComprovantesController extends AppController
     {
         $url = isset($data['qr_code']) ? $data["qr_code"] : null;
 
-        $url = filter_var($url, FILTER_SANITIZE_STRING);
+        Log::write("info", "url antes de sanitize: ");
+        Log::write("info", $url);
+
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
+        Log::write("info", "url após  sanitize: ");
+        Log::write("info", $url);
         $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
 
         // Verifica se foi informado qr code. Senão já aborta
