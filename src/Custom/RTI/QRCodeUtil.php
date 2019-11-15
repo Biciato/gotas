@@ -16,6 +16,7 @@ namespace App\Custom\RTI;
 use App\Controller\AppController;
 use Cake\ORM\Query;
 use Cake\Core\Configure;
+use Cake\Log\Log;
 
 /**
  * Classe de manipulação de Gotas
