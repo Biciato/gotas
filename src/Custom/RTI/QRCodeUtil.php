@@ -77,10 +77,10 @@ class QRCodeUtil
          */
         $errors = [];
         $errorCodes = [];
-        // if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL) === false) {
+        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL) === false) {
 
         // if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
-        if (!filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_QUERY_REQUIRED)) {
+        // if (!filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_QUERY_REQUIRED)) {
             $errors = [MSG_QR_CODE_READING_ERROR];
             $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
 
@@ -255,8 +255,8 @@ class QRCodeUtil
                         $sefazErrors[] = $itemConsistency["key"];
                     }
 
-                    // Se o tamanho é fixo e o tamanho real difere, também é erro
-                    if (($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) || (strlen($itemConsistency["content"]) > $itemConsistency["size"])) {
+                    // Se não é opcional e Se o tamanho é fixo e o tamanho real difere, também é erro
+                    if (((!$itemConsistency["isOptional"]) && ($itemConsistency["fixedSize"] && strlen($itemConsistency["content"]) != $itemConsistency["size"]) || (strlen($itemConsistency["content"]) > $itemConsistency["size"]))) {
                         $sefazErrors[] = $itemConsistency["key"];
                     }
                 }
