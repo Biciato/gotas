@@ -2040,12 +2040,14 @@ class PontuacoesComprovantesController extends AppController
 
         // Verifica se foi informado qr code. Senão já aborta
         if (is_null($url)) {
-            $mensagem = array("status" => 0, "message" => __("Parâmetro QR CODE não foi informado!"));
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = MSG_ERROR;
+            $mensagem->errors = [__("Parâmetro QR CODE não foi informado!")];
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
-            return;
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+            return $retorno;
         }
 
         $validacaoQRCode = QRCodeUtil::validarUrlQrCode($url);
