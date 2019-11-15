@@ -80,7 +80,7 @@ class QRCodeUtil
 
         $errors = [];
         $errorCodes = [];
-        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL)) {
+        if (empty($url) || strlen($url) == 0 || !filter_var($url, FILTER_VALIDATE_URL) === false) {
             // $errorMessage = __("O QR Code informado não está gerado conforme os padrões pré-estabelecidos da SEFAZ, não sendo possível realizar sua importação!");
             $errorMessage = MSG_WARNING;
             $status = 0;
