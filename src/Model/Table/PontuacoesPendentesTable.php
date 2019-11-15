@@ -200,7 +200,6 @@ class PontuacoesPendentesTable extends GenericTable
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
         }
     }
     #region Read
@@ -253,7 +252,6 @@ class PontuacoesPendentesTable extends GenericTable
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
         }
     }
 
@@ -285,7 +283,6 @@ class PontuacoesPendentesTable extends GenericTable
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
         }
     }
 
@@ -314,7 +311,6 @@ class PontuacoesPendentesTable extends GenericTable
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
         }
     }
     #region Update
@@ -341,7 +337,6 @@ class PontuacoesPendentesTable extends GenericTable
 
             Log::write('error', $stringError);
 
-            $this->Flash->error($stringError);
         }
     }
 
