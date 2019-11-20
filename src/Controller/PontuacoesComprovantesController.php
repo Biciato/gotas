@@ -1590,6 +1590,8 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 $retorno = $this->processaCupom($data);
 
                 if ($retorno->mensagem->status) {
@@ -1608,6 +1610,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
+                    Log::write("info", $retorno);
                     return ResponseUtil::errorAPI($retorno->mensagem->message, $retorno->mensagem->errors, $arrayData, $retorno->mensagem->error_codes);
                 }
             }
@@ -1841,6 +1844,10 @@ class PontuacoesComprovantesController extends AppController
             // Cliente do posto
             $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
 
+            if (strlen($cpf) > 11) {
+                Log::write("info", "CNPJ Identificado: " . $cpf);
+            }
+
             // Se usuário não encontrado, cadastra para futuro acesso
             if (empty($usuario)) {
                 $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
@@ -2029,29 +2036,44 @@ class PontuacoesComprovantesController extends AppController
     private function processaCupom($data)
     {
         $url = isset($data['qr_code']) ? $data["qr_code"] : null;
+
+        Log::write("info", "url antes de sanitize: ");
+        Log::write("info", $url);
+
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
+        Log::write("info", "url após  sanitize: ");
+        Log::write("info", $url);
         $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
 
         // Verifica se foi informado qr code. Senão já aborta
         if (is_null($url)) {
-            $mensagem = array("status" => 0, "message" => __("Parâmetro QR CODE não foi informado!"));
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = MSG_ERROR;
+            $mensagem->errors = [__("Parâmetro QR CODE não foi informado!")];
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
-            return;
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+            return $retorno;
         }
 
         $validacaoQRCode = QRCodeUtil::validarUrlQrCode($url);
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-        if ($validacaoQRCode["status"] == false) {
+        if ($validacaoQRCode["status"] === false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = $validacaoQRCode["message"];
+            $mensagem->errors = $validacaoQRCode["errors"];
+            $mensagem->error_codes = $validacaoQRCode["error_codes"];
 
-            return array("mensagem" => $mensagem);
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+
+            return $retorno;
         }
 
         $url = $validacaoQRCode["url_real"];
@@ -2197,6 +2219,9 @@ class PontuacoesComprovantesController extends AppController
                     $arraySet = [
                         "mensagem"
                     ];
+
+                    Log::write("info", $mensagem);
+                    Log::write("info", $errors);
 
                     return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
                 }

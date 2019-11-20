@@ -31,7 +31,7 @@ use Cake\Core\Configure;
                 <div class="inline-block">
 
                     <div class="form-group row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
 
                             <?= $this->Form->input(
                                 'filtrar_unidade',
@@ -45,17 +45,23 @@ use Cake\Core\Configure;
                             ) ?>
                         </div>
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <?= $this->Form->input(
                                 'funcionarios_id',
                                 array(
                                     "type" => 'select',
                                     "label" => 'Funcionário',
                                     "id" => 'funcionarios_id',
+                                    "value" => $funcionariosId,
                                     "empty" => '<Todos>',
                                     "options" => $funcionarios
                                 )
                             ); ?>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <label for="cpf">CPF</label>
+                            <input type="text" name="cpf" id="cpf" class="form-control" value="<?= $cpf ?>" />
                         </div>
 
                         <div class="col-lg-2">
@@ -67,6 +73,7 @@ use Cake\Core\Configure;
                                     'label' => 'Data de Início',
                                     'format' => 'd/m/Y',
                                     'default' => date('d/m/Y', strtotime('-7 day')),
+                                    "value" => $start,
                                     'class' => 'datepicker-input',
                                     'div' =>
                                     [
@@ -84,6 +91,7 @@ use Cake\Core\Configure;
                                     'label' => 'Data de Fim',
                                     'format' => 'd/m/Y',
                                     'default' => date('d/m/Y'),
+                                    "value" => $end,
                                     'class' => 'datepicker-input',
                                     'div' =>
                                     [
@@ -93,22 +101,18 @@ use Cake\Core\Configure;
                             ) ?>
                         </div>
 
-                        <div class="col-lg-12">
 
-                            <div class=" vertical-align pull-right">
-
-                                <?= $this->Form->button(
-                                    __(
-                                        '{0} Pesquisar',
-                                        '<i class="fa fa-search" aria-hidden="true"></i>'
-                                    ),
-                                    [
-                                        'id' => 'search_button',
-                                        'class' => 'btn btn-primary'
-                                    ]
-                                ) ?>
-
+                        <div class="col-lg-12 text-right">
+                            <div class="imprimir btn btn-default print-button-thermal" id="imprimir">
+                                <i class="fa fa-print"></i>
+                                Imprimir
                             </div>
+
+                            <button class="btn btn-primary" id="search_button">
+                                    <i class="fa fa-search"> </i>
+                                    Pesquisar
+
+                            </button>
                         </div>
                     </div>
 
@@ -124,10 +128,7 @@ use Cake\Core\Configure;
     </div>
 </div>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons'); ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/Pontuacoes/filtro_cupons.min'); ?>
-<?php endif; ?>
-
-<?= $this->fetch('script'); ?>
+<?php
+$debugExtension = (Configure::read('debug') == true) ? "" : "";
+?>
+<script src="/webroot/js/scripts/pontuacoes/filtro_cupons<?= $debugExtension ?>.js"></script>

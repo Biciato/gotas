@@ -266,38 +266,94 @@ class PontuacoesController extends AppController
             $pontuacoes = null;
 
             $arrayOptions = [];
+            $date = date('Y-m-d');
+            $cpf = "";
+            $end = \strtotime($date);
+            $start = \strtotime($date . ' -7 days');
+            $end = date("Y-m-d 23:59:59", $end);
+            $start = date("Y-m-d 00:00:00", $start);
+
+            // TODO: Ajustar
+            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds, null, null, null, PROFILE_TYPE_WORKER)->select(['id', 'nome']);
+            $funcionarios = array();
+
+            foreach ($funcionariosQuery as $key => $value) {
+                $funcionarios[] = array('value' => $value["id"], 'text' => $value["nome"]);
+            }
+
+            $queryConditions = [];
+
+            $funcionariosId = 0;
+            $queryConditionsTemp = $this->request->session()->read("QueryConditions");
+
+            if (!empty($queryConditionsTemp)) {
+                $queryConditions = $queryConditionsTemp;
+            }
 
             if (!$this->request->is(['post'])) {
                 // Se não tiver filtrado, consultará a última semana
 
-                $date = date('Y-m-d');
-                $end = \strtotime($date);
-                $start = \strtotime($date . ' -7 days');
-                $arrayOptions[] = array('data between "' . date('Y-m-d 00:00:00', $start) . '" and "' . date('Y-m-d 23:59:59', $end) . '"');
+                $data = $this->request->getQueryParams();
 
+                if (empty($queryConditions)) {
+                    $date = date('Y-m-d');
+                    $end = \strtotime($date);
+                    $start = \strtotime($date . ' -7 days');
+                    $end = date("Y-m-d 23:59:59", $end);
+                    $start = date("Y-m-d 00:00:00", $start);
+                } else {
+                    $start = $queryConditions["start"];
+                    $end = $queryConditions["end"];
+
+                    if (!empty($queryConditions["funcionarios_id"])) {
+                        $funcionariosId = $queryConditions["funcionarios_id"];
+                        $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    }
+
+                    if (!empty($queryConditions["cpf"])) {
+                        $cpf = $queryConditions["cpf"];
+                        $arrayOptions[] = ["Usuarios.cpf" => $cpf];
+                    }
+                }
+
+                $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
                 $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
+
+                $pontuacoes = $this->paginate($pontuacoes, ["limit" => 10]);
+
+                $pontuacoes_new_array = [];
+
+                foreach ($pontuacoes as $key => $value) {
+                    $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
+
+                    array_push($pontuacoes_new_array, $value);
+                }
+
+                $pontuacoes = null;
+                $pontuacoes = $pontuacoes_new_array;
             } else {
                 $data = $this->request->getData();
+
+                $funcionariosId = !empty($data["funcionarios_id"]) ? (int) $data["funcionarios_id"] : null;
+                $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
 
                 if ($data['filtrar_unidade'] != "") {
                     $clientesIds = [];
                     $clientesIds[] = (int) $data['filtrar_unidade'];
                 }
 
-                if (strlen($data['funcionarios_id']) > 0) {
-                    $arrayOptions[] = array('funcionarios_id' => (int) $data['funcionarios_id']);
+                if (!empty($funcionariosId)) {
+                    $arrayOptions[] = array('funcionarios_id' => $funcionariosId);
+                    $queryConditions["funcionarios_id"] = $funcionariosId;
+                } else {
+                    unset($queryConditions["funcionarios_id"]);
                 }
 
-                if (strlen($data['requer_auditoria']) > 0) {
-                    $arrayOptions[] = array('requer_auditoria' => $data['requer_auditoria']);
-                }
-
-                if (strlen($data['auditado']) > 0) {
-                    $arrayOptions[] = array('auditado' => $data['auditado']);
-                }
-
-                if (strlen($data['registro_invalido']) > 0) {
-                    $arrayOptions[] = array('registro_invalido' => $data['registro_invalido']);
+                if (!empty($cpf)) {
+                    $cpf = preg_replace("/\D/", "", $cpf);
+                    $queryConditions["cpf"] = $cpf;
+                } else {
+                    unset($queryConditions["cpf"]);
                 }
 
                 if (strlen($data['data_inicio']) > 0) {
@@ -312,34 +368,41 @@ class PontuacoesController extends AppController
                     $end = $this->datetime_util->convertDateTimeToUTC($end);
                 }
 
-                $arrayOptions[] = array('data between "' . $start . '" and "' . $end . '"');
+                $arrayOptions[] = array('PontuacoesComprovantes.data between "' . $start . '" and "' . $end . '"');
+
+                if (!empty($cpf)) {
+                    $arrayOptions[] = ["Usuarios.cpf" => $cpf];
+                }
+
+                $queryConditions["start"] = $start;
+                $queryConditions["end"] = $end;
+                $queryConditions["cpf"] = $cpf;
+
+                $this->request->session()->write("QueryConditions", $queryConditions);
 
                 $pontuacoes = $this->PontuacoesComprovantes->getCouponsByClienteId($clientesIds, $arrayOptions);
+                $pontuacoes = $this->paginate($pontuacoes, ['limit' => 10]);
+
+                // DebugUtil::printArray($pontuacoes);
+                $pontuacoes_new_array = [];
+
+                foreach ($pontuacoes as $key => $value) {
+                    $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
+                    array_push($pontuacoes_new_array, $value);
+                }
+
+                $pontuacoes = null;
+                $pontuacoes = $pontuacoes_new_array;
             }
 
-            // TODO: Ajustar
-            $funcionariosQuery = $this->Usuarios->findFuncionariosRede($rede->id, $clientesIds, null, null, null, PROFILE_TYPE_WORKER)->select(['id', 'nome']);
-            $funcionarios = array();
+            $start = substr($start, 0, 10);
+            $end = substr($end, 0, 10);
 
-            foreach ($funcionariosQuery as $key => $value) {
-                $funcionarios[] = array('value' => $value["id"], 'text' => $value["nome"]);
-            }
-
-            // debug($funcionarios);
-            $pontuacoes = $this->Paginate($pontuacoes, ['limit' => 10]);
-
-            $pontuacoes_new_array = [];
-
-            foreach ($pontuacoes as $key => $value) {
-                $value['soma_pontuacoes'] = $this->Pontuacoes->getSumPontuacoesByComprovanteId($value['id']);
-
-                array_push($pontuacoes_new_array, $value);
-            }
-
-            $pontuacoes = null;
-            $pontuacoes = $pontuacoes_new_array;
-
-            $arraySet = array('pontuacoes', 'funcionarios', 'cliente', 'unidadesIds');
+            $start = explode("-", $start);
+            $end = explode("-", $end);
+            $start = sprintf("%s/%s/%s", $start[2], $start[1], $start[0]);
+            $end = sprintf("%s/%s/%s", $end[2], $end[1], $end[0]);
+            $arraySet = array('pontuacoes', 'funcionarios', "funcionariosId",  'cliente', "cpf", 'unidadesIds', "start", "end");
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
         } catch (\Exception $e) {

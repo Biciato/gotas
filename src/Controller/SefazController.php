@@ -151,7 +151,15 @@ class SefazController extends AppController
                         $itemEncontrado = false;
 
                         foreach ($gotas as $gota) {
-                            if ($gota->nome_parametro == $item["descricao"]) {
+                            $a = str_replace(chr(194), ' ', $gota->nome_parametro);
+                            $b = str_replace(chr(194), ' ', $item["descricao"]);
+                            $a = str_replace(chr(160), '', $a);
+                            $b = str_replace(chr(160), '', $b);
+                            $a = preg_replace('!\t+\s+!', ' ', $a);
+                            $b = preg_replace('!\t+\s+!', ' ', $b);
+
+                            // if ($gota->nome_parametro === $item["descricao"]) {
+                            if ($a === $b) {
                                 // Só irá retornar os itens que ainda não estão cadastrados
                                 $itemEncontrado = true;
                                 continue;

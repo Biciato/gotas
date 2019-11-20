@@ -246,6 +246,10 @@ class ClientesController extends AppController
                 // Adiciona bonificação extra sefaz para novo posto
                 $this->Gotas->saveUpdateBonificacaoExtraSefaz([$cliente->id], $rede->qte_gotas_bonificacao);
 
+                // Adiciona Gota de Ajuste de pontos
+
+                $this->Gotas->saveUpdateGotasAdjustment([$cliente->id]);
+
                 // Adiciona o funcionário de sistema como o primeiro funcionário da rede
                 // Ele será necessário para funções automáticas de venda de brinde via API
                 $funcionarioSistema = $this->Usuarios->getFuncionarioFicticio();

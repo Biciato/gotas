@@ -13,6 +13,7 @@ use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Custom\RTI\DebugUtil;
 use App\Model\Entity\Usuario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
@@ -284,6 +285,16 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
+
+            if (!empty($data["senha"])) {
+                $data["senha"] = str_replace("?", "", $data["senha"]);
+            }
+
+            if (!empty($data["confirm_senha"])) {
+                $data["confirm_senha"] = str_replace("?", "", $data["confirm_senha"]);
+            }
+
+            // DebugUtil::printArray($data);
             $usuarioData = $data;
             $cliente = null;
 
@@ -1107,7 +1118,6 @@ class UsuariosController extends AppController
                         // Só pode ser guardado o relacionamento se já tiver algum posto
                         if (empty($redes_has_cliente)) {
                             Log::warning(sprintf("Administrador sendo cadastrado sem posto vinculado e cadastrado previamente! Rede: [%s / %s] - Usuário: [%s / %s].", $rede->id, $rede->nome_rede, $usuarioSave->id, $usuarioSave->nome));
-
                         } else {
                             $result = $this->RedesHasClientesAdministradores->addRedesHasClientesAdministradores(
                                 $redes_has_cliente->id,
@@ -1456,6 +1466,7 @@ class UsuariosController extends AppController
 
             if (empty($retornoLogin["usuario"])) {
                 $this->Flash->error(__($message));
+                // return;
             }
         }
 
@@ -1463,8 +1474,12 @@ class UsuariosController extends AppController
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
 
-        if (isset($status) && ($status == 0)) {
+        if (isset($status) && ($status == false) && !$this->request->is(Request::METHOD_POST)) {
             return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+        } else if (isset($status) && $status == true) {
+            return $this->redirect(['controller' => 'pages', 'action' => 'display']);
+        } else {
+            return;
         }
     }
 
@@ -2631,7 +2646,7 @@ class UsuariosController extends AppController
                 } else {
                     // Máximo de tempo será 1 ano
                     if ($dataDiferenca->y >= 1) {
-                        $errors [] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                        $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
                         $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
                     }
                 }
@@ -2805,6 +2820,7 @@ class UsuariosController extends AppController
     public function loginAPI()
     {
         $usuario = null;
+        $cliente = null;
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
@@ -2812,6 +2828,7 @@ class UsuariosController extends AppController
             $email = !empty($data["email"]) ? $data["email"] : null;
             $senha = !empty($data["senha"]) ? $data["senha"] : null;
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
 
             if (empty($email) || empty($senha)) {
                 // Retorna mensagem de erro se campos estiverem vazios
@@ -2825,6 +2842,8 @@ class UsuariosController extends AppController
             $format = "/(\d{3}).(\d{3}).(\d{3})-(\d{2})/";
 
             $match = preg_match($format, $email);
+
+            $cnpj = preg_replace("/\D/", "", $cnpj);
 
             if (is_numeric($email) || $match) {
                 $cpf = NumberUtil::limparFormatacaoNumeros($email);
@@ -2846,16 +2865,15 @@ class UsuariosController extends AppController
                 $this->request->data["email"] = $email;
             }
 
-            $retornoLogin = $this->checkLoginUser($email, $senha, LOGIN_API, $redesId);
+            $retornoLogin = $this->checkLoginUser($email, $senha, LOGIN_API, $redesId, $cnpj);
 
             $recoverAccount = !empty($retornoLogin["recoverAccount"]) ? $retornoLogin["recoverAccount"] : null;
             $usuario = !empty($retornoLogin["usuario"]) ? $retornoLogin["usuario"] : null;
             $email = !empty($data["email"]) ? $data["email"] : null;
             $message = !empty($retornoLogin["message"]) ? $retornoLogin["message"] : null;
             $status = isset($retornoLogin["status"]) ? $retornoLogin["status"] : null;
+            $cliente = isset($retornoLogin["cliente"]) ? $retornoLogin["cliente"] : null;
         }
-
-        // $usuario = $this->Auth->identify();
 
         if (!$usuario) {
             $this->Auth->logout();
@@ -2895,7 +2913,7 @@ class UsuariosController extends AppController
 
         $usuario["lista_permissoes"] = $listaPermissoes;
 
-        return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario));
+        return ResponseUtil::successAPI(MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY, array("usuario" => $usuario, "cliente" => $cliente));
     }
 
     /**
@@ -3272,6 +3290,8 @@ class UsuariosController extends AppController
 
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 // DebugUtil::printArray($data);
 
                 // validação de cpf
@@ -3374,13 +3394,31 @@ class UsuariosController extends AppController
                     unset($data["ultima_tentativa_login"]);
                 }
 
+                // $senha = !empty($data["senha"]) ? $data["senha"] : null;
+                // $confirmSenha = !empty($data["confirm_senha"]) ? $data["confirm_senha"] : null;
+
+                // if (!empty($senha) && strlen($senha) < 6) {
+                //     $errors[] = "Senha deve ter no mínimo 6 dígitos";
+                // }
+
+                // if (!empty($senha) && ($senha !== $confirmSenha)) {
+                //     $errors[] = "Campos de Senha e Confirmação de Senha não conferem!";
+                // }
+
+                // if (count($errors) == 0) {
                 // Faz o patch da entidade
                 $usuario = $this->Usuarios->patchEntity($usuario, $data, ['validate' => 'EditUsuarioInfo']);
 
                 $errors = $usuario->errors();
+                // }
+
 
                 // Gravação
-                $usuario = $this->Usuarios->save($usuario);
+                if (count($errors) == 0) {
+                    $usuario = $this->Usuarios->save($usuario);
+                } else {
+                    $usuario = null;
+                }
 
                 // Atualização com sucesso, retorna mensagem
                 if ($usuario) {
@@ -3569,20 +3607,24 @@ class UsuariosController extends AppController
      * @param string $senha Senha informada
      * @param string $tipoLogin Se Login WEB ou API
      * @param integer $redesIdPost Id da Rede
+     * @param string $cnpj CNPJ do Estabelecimento (Se funcionário automático)
+     *
      * @return void
      */
-    private function checkLoginUser(string $email, string $senha, string $tipoLogin, int $redesIdPost = null)
+    private function checkLoginUser(string $email, string $senha, string $tipoLogin, int $redesIdPost = null, string $cnpj = null)
     {
         $credenciais = array("email" => $email, "senha" => $senha);
 
         // Obtem o usuário para gravar a falha de login ou reset das tentativas
         $usuario = $this->Usuarios->getUsuarioByEmail($email);
         $result = $this->checkUsuarioIsLocked($usuario);
+        $cliente = null;
         $errors = [];
         $errorCodes = [];
 
         if ($result['actionNeeded'] == 0) {
             $user = $this->Auth->identify();
+            // $errorDebug = $this->Auth->errors();
 
             if ($user) {
                 $user = new Usuario($user);
@@ -3646,7 +3688,7 @@ class UsuariosController extends AppController
                             if (!empty($message)) {
                                 return array(
                                     "usuario" => null,
-                                    "status" => 0,
+                                    "status" => false,
                                     "message" => $message,
                                     "errors" => $errors,
                                     "errorCodes" => $errorCodes,
@@ -3657,7 +3699,23 @@ class UsuariosController extends AppController
 
                         $this->request->session()->write("Usuario.UsuarioLogado", $user);
                     }
-                } else {
+                } else if ($user->tipo_perfil === PROFILE_TYPE_DUMMY_WORKER) {
+
+                    if (empty($cnpj)) {
+                        $error[] = "Funcionário automático, necessário especificar CNPJ de estabelecimento!";
+                        $errorCodes[] = 0;
+                        return array(
+                            "usuario" => null,
+                            "status" => false,
+                            "message" => "Houve um erro!",
+                            "errors" => $error,
+                            "errorCodes" => $errorCodes,
+                            "recoverAccount" => null,
+                            "cliente" => null
+                        );
+                    }
+
+                    $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
                     // $this->request->session()->delete('Rede.PontoAtendimento');
                     // $this->request->session()->delete('Rede.Grupo');
                 }
@@ -3672,14 +3730,13 @@ class UsuariosController extends AppController
 
                 // Grava token gerado
                 $this->UsuariosTokens->setToken($user["id"], $tipoLogin, $user["token"]);
-                $status = 0;
-
 
                 return array(
                     "usuario" => $user,
-                    "status" => 0,
+                    "status" => true,
                     "message" => "",
-                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null
+                    "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null,
+                    "cliente" => $cliente
                 );
             } elseif (!empty($usuario)) {
                 // se não logou
@@ -3705,7 +3762,7 @@ class UsuariosController extends AppController
                     $this->Usuarios->save($usuario);
                 }
 
-                $status = 0;
+                $status = false;
                 $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
                 $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
                 $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
@@ -3714,7 +3771,7 @@ class UsuariosController extends AppController
         } else {
             $message = $result['message'];
             $recoverAccount = $result['actionNeeded'];
-            $status = isset($result["status"]) ? $result["status"] : 1;
+            $status = isset($result["status"]) ? $result["status"] : true;
             $usuario = null;
         }
 
@@ -3731,7 +3788,9 @@ class UsuariosController extends AppController
             "message" => $message,
             "recoverAccount" => !empty($recoverAccount) ? $recoverAccount : null,
             "errors" => $errors,
-            "errorCodes" => $errorCodes
+            "errorCodes" => $errorCodes,
+            "cliente" => $cliente
+
         );
     }
 
