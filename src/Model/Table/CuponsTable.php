@@ -490,14 +490,14 @@ class CuponsTable extends GenericTable
             $whereConditions[] = array("Brindes.equipamento_rti" => $equipamentoRTI);
         }
 
-        $whereConditions[] = array("Rede.ativado" => $redeAtiva);
+        $whereConditions[] = array("Redes.ativado" => $redeAtiva);
         $whereConditions[] = array("Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL '{$diasAnteriores}' DAY)");
 
         $cupons = $this->find("all")
             ->contain(
                 array(
                     "Brindes",
-                    "Clientes.RedeHasCliente.Rede",
+                    "Clientes.RedesHasClientes.Redes",
                     "Usuarios"
                 )
             )
