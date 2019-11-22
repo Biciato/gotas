@@ -2861,7 +2861,7 @@ class UsuariosController extends AppController
                     return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
                 }
 
-                $email = !empty($usuario["email"]) ? $usuario->email ? $usuario->cpf;
+                $email = !empty($usuario["email"]) ? $usuario->email : $usuario->cpf;
                 $this->request->data["email"] = $email;
             }
 
