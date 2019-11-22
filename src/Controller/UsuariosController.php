@@ -2861,7 +2861,7 @@ class UsuariosController extends AppController
                     return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
                 }
 
-                $email = $usuario["email"];
+                $email = !empty($usuario["email"]) ? $usuario->email ? $usuario->cpf;
                 $this->request->data["email"] = $email;
             }
 
@@ -3616,7 +3616,10 @@ class UsuariosController extends AppController
         $credenciais = array("email" => $email, "senha" => $senha);
 
         // Obtem o usuário para gravar a falha de login ou reset das tentativas
-        $usuario = $this->Usuarios->getUsuarioByEmail($email);
+        $usuarioEmail = $this->Usuarios->getUsuarioByEmail($email);
+        $usuarioCPF = $this->Usuarios->getUsuarioByCPF($email);
+
+        $usuario = !empty($usuarioEmail) ? $usuarioEmail : $usuarioCPF;
         $result = $this->checkUsuarioIsLocked($usuario);
         $cliente = null;
         $errors = [];
