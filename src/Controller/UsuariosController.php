@@ -2058,33 +2058,56 @@ class UsuariosController extends AppController
             $tipoPerfilMin = null;
             $tipoPerfilMax = null;
             $clientesIds = array();
+            $redesId = null;
+
+            $redesList = $this->Redes->getRedesList();
 
             $perfisUsuariosList = Configure::read("profileTypesTranslatedAdminToWorker");
+
+            $queryPost = $this->request->session()->read("QueryConditions.AdministrarUsuario");
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
-
                 // DebugUtil::print($data);
                 $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $nome = !empty($data["nome"]) ? $data["nome"] : "";
                 $email = !empty($data["email"]) ? $data["email"] : "";
                 $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
                 $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
                 $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-                $unidadeClienteFiltrar = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
-                if (strlen($unidadeClienteFiltrar)) {
-                    $clientesIds = [];
-                    $clientesIds[] = (int) $unidadeClienteFiltrar;
-                }
+                $queryPost["tipoPerfil"] = $tipoPerfil;
+                $queryPost["nome"] = $nome;
+                $queryPost["email"] = $email;
+                $queryPost["docEstrangeiro"] = $docEstrangeiro;
+                $queryPost["filtrarUnidade"] = $filtrarUnidade;
+                $queryPost["cpf"] = $cpf;
+                $queryPost["redesId"] = $redesId;
+
+                $this->request->session()->write("QueryConditions.AdministrarUsuario", $queryPost);
+            } else {
+                // Obtem os dados cacheados para consulta
+                $tipoPerfil = $queryPost["tipoPerfil"];
+                $nome = $queryPost["nome"];
+                $email = $queryPost["email"];
+                $docEstrangeiro = $queryPost["docEstrangeiro"];
+                $filtrarUnidade = $queryPost["filtrarUnidade"];
+                $cpf = $queryPost["cpf"];
+                $redesId = $queryPost["redesId"];
             }
+
             if (strlen($tipoPerfil) == 0) {
                 $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
                 $tipoPerfilMax = Configure::read('profileTypes')['WorkerProfileType'];
             } else {
                 $tipoPerfilMin = $tipoPerfil;
                 $tipoPerfilMax = $tipoPerfil;
+            }
+
+            if (!empty($redesId)) {
+                $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
             }
 
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
@@ -2094,7 +2117,7 @@ class UsuariosController extends AppController
 
             // DebugUtil::printArray($usuarios->toArray());
 
-            $arraySet = array("usuarios", "perfisUsuariosList");
+            $arraySet = array("usuarios", "perfisUsuariosList", "redesList", "redesId");
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
