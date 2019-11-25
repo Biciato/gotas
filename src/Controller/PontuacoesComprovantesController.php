@@ -1723,6 +1723,7 @@ class PontuacoesComprovantesController extends AppController
             $data = $this->request->getData();
             $errors = array();
             $errorCodes = [];
+            $sessao = $this->getSessionUserVariables();
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
@@ -1731,7 +1732,7 @@ class PontuacoesComprovantesController extends AppController
             $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-            $funcionario = $this->getUserLogged();
+            $funcionario = $sessao["usuarioLogado"];
 
             // Validação
             if (empty($cnpj)) {
