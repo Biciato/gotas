@@ -623,6 +623,9 @@ const TOP_BRINDES_TYPE_LOCAL = 'Posto';
 
 #region Usuários
 
+const WORKER_EMAIL = "mobileapiworker@dummy.com";
+const WORKER_PASSWORD = "73495277";
+
 const MSG_USUARIOS_CPF_EMPTY_CODE = 0x00170001;
 const MSG_USUARIOS_CPF_EMPTY = "O campo CPF deve ser informado!";
 const MSG_USUARIOS_CPF_LENGTH_INVALID_CODE = 0x00170002;

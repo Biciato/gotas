@@ -3727,21 +3727,23 @@ class UsuariosController extends AppController
                     }
                 } else if ($user->tipo_perfil === PROFILE_TYPE_DUMMY_WORKER) {
 
-                    if (empty($cnpj)) {
-                        $error[] = "Funcionário automático, necessário especificar CNPJ de estabelecimento!";
-                        $errorCodes[] = 0;
-                        return array(
-                            "usuario" => null,
-                            "status" => false,
-                            "message" => "Houve um erro!",
-                            "errors" => $error,
-                            "errorCodes" => $errorCodes,
-                            "recoverAccount" => null,
-                            "cliente" => null
-                        );
-                    }
+                    // if (empty($cnpj)) {
+                    //     $error[] = "Funcionário automático, necessário especificar CNPJ de estabelecimento!";
+                    //     $errorCodes[] = 0;
+                    //     return array(
+                    //         "usuario" => null,
+                    //         "status" => false,
+                    //         "message" => "Houve um erro!",
+                    //         "errors" => $error,
+                    //         "errorCodes" => $errorCodes,
+                    //         "recoverAccount" => null,
+                    //         "cliente" => null
+                    //     );
+                    // }
 
-                    $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
+                    if (!empty($cnpj)) {
+                        $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
+                    }
                     // $this->request->session()->delete('Rede.PontoAtendimento');
                     // $this->request->session()->delete('Rede.Grupo');
                 }
