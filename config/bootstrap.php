@@ -570,6 +570,8 @@ const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
 const GOTAS_ADJUSTMENT_POINTS = "GOTA VIRTUAL DE CORREÇÃO DE PONTOS";
+const MSG_GOTAS_NOT_FOUND_IN_COUPON = "No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!";
+const MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE = 0x000A0002;
 
 #endregion
 
@@ -580,6 +582,7 @@ const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
+
 
 
 #endregion

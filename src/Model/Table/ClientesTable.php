@@ -238,6 +238,9 @@ class ClientesTable extends GenericTable
             ->allowEmpty("delimitador_nota_impressao");
 
         $validator
+            ->allowEmpty("delimitador_qr_code");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 

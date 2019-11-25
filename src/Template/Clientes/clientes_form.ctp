@@ -151,7 +151,7 @@ use Cake\Routing\Router;
     <legend>Configurações de Software Fiscal</legend>
 
     <div class="form-group row">
-        <div class="col-lg-6">
+        <div class="col-lg-4">
             <label for="impressao_sw_linha_continua">Impressão Continua de SW Fiscal?</label>
             <?= $this->Form->input("impressao_sw_linha_continua", array(
                 "type" => "select",
@@ -166,9 +166,14 @@ use Cake\Routing\Router;
                 "title" => "Sim => Sistema Fiscal imprime CF de uma vez / Não => Sistema Fiscal imprime CF Linha a Linha"
             )); ?>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-4">
             <label for="delimitador_nota_impressao">Delimitador de Impressão da Nota Fiscal</label>
             <input type="text" name="delimitador_nota_impressao" id="delimitador-nota-impressao" class="form-control" value="<?= $cliente['delimitador_nota_impressao']?>"/>
+        </div>
+
+        <div class="col-lg-4">
+            <label for="delimitador_qr_code">Delimitador de QR Code</label>
+            <input type="text" name="delimitador_qr_code" id="delimitador-qr-code" class="form-control" value="<?= $cliente['delimitador-qr-code']?>" title="Caso no CF o QR Code esteja colado com alguma palavra, insira aqui. Caso contrário, deixar em branco."/>
         </div>
 
     </div>
