@@ -173,7 +173,7 @@ use Cake\Routing\Router;
 
         <div class="col-lg-4">
             <label for="delimitador_qr_code">Delimitador de QR Code</label>
-            <input type="text" name="delimitador_qr_code" id="delimitador-qr-code" class="form-control" value="<?= $cliente['delimitador-qr-code']?>" title="Caso no CF o QR Code esteja colado com alguma palavra, insira aqui. Caso contrário, deixar em branco."/>
+            <input type="text" name="delimitador_qr_code" id="delimitador-qr-code" class="form-control" value="<?= $cliente['delimitador_qr_code']?>" title="Caso no CF o QR Code esteja colado com alguma palavra, insira aqui. Caso contrário, deixar em branco."/>
         </div>
 
     </div>
