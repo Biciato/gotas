@@ -590,7 +590,7 @@ const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
 #region Pontuacoes Comprovantes
 
 // Erros
-const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
+const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de %s atingidas no dia!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130001;
 const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom importados com sucesso!";
 

@@ -2254,7 +2254,13 @@ class PontuacoesComprovantesController extends AppController
 
             if ($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) {
 
-                $error = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED];
+                $errorMessage = "";
+                if ($rede->app_personalizado) {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Pontos");
+                } else {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Gotas");
+                }
+                $error = [$errorMessage];
                 $errorCodes = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE];
 
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);
