@@ -581,7 +581,7 @@ class PontuacoesController extends AppController
     }
 
     /**
-     * PontuacoesController.php::relatorioEntradaSaida
+     * PontuacoesController.php::relGestaoGotas
      *
      * View para Relatório de Entrada e Saída de Pontuações
      *
@@ -590,7 +590,7 @@ class PontuacoesController extends AppController
      *
      * @return void
      */
-    public function relatorioEntradaSaida()
+    public function relGestaoGotas()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
 
@@ -1000,6 +1000,8 @@ class PontuacoesController extends AppController
 
                 foreach ($clientes as $cliente) {
                     $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
+                    // Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
+                    // Tabela de pontuações só guarda aquilo que foi GASTO
                     $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);
 
                     $entradas = $entradas->toArray();
@@ -1135,6 +1137,14 @@ class PontuacoesController extends AppController
             }
 
             return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
+    public function getResumePontuacoes()
+    {
+        // @TODO fazer o resumo
+        if ($this->request->is(Request::METHOD_GET)) {
+
         }
     }
 

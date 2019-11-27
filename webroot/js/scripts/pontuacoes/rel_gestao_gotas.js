@@ -480,7 +480,7 @@ $(function () {
         }
 
         /**
-         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getDataPontuacoesEntradaSaida
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getPontuacoesRelatorioEntradaSaida
          *
          * Obtem os dados de relatório do servidor
          *
@@ -495,8 +495,9 @@ $(function () {
          *
          * @returns HtmlTable
          */
-        function getDataPontuacoesEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
+        function getPontuacoesRelatorioEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
             // Validação
+
             var dataInicioEnvio = moment(dataInicio);
             var dataFimEnvio = moment(dataFim);
 
@@ -768,7 +769,7 @@ $(function () {
                                 for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
                                     var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
 
-                                    var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
+                                    var pontuacoesDataLength = pontuacoesSaidaPeriodoList.data.length;
                                     var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
 
                                     var mesAtual = '';
@@ -776,7 +777,7 @@ $(function () {
 
                                     for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
                                         var saida = pontuacoesSaidaDataList[indexData];
-                                        var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                                        var periodoAtual = moment(saida.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
 
                                         // O header deve ser construído se a data muda
                                         if (ultimaData !== periodoAtual) {
@@ -792,10 +793,10 @@ $(function () {
                                             var cellPeriodoTextoLabel = document.createElement("td");
                                             var labelPeriodoValue = document.createElement("strong");
 
-                                            mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
+                                            mesAtual = moment(saida.periodo, "YYYY-MM-DD").format("MM/YYYY");
                                             labelPeriodoValue.textContent = periodoAtual;
                                             cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                            cellPeriodoTextoLabel.colSpan = 6;
+                                            cellPeriodoTextoLabel.colSpan = 3;
                                             cellPeriodoTextoLabel.classList.add("text-right");
 
                                             rowPeriodo.append(cellPeriodoLabel);
@@ -826,25 +827,24 @@ $(function () {
                                             textSaidaGotas.textContent = "Referências";
                                             cellLabelGotasSaida.append(textSaidaGotas);
 
-                                            headerDadosPeriodoRow.append(document.createElement("td"));
+                                            // headerDadosPeriodoRow.append(document.createElement("td"));
                                             headerDadosPeriodoRow.append(cellLabelGota);
                                             headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
                                             headerDadosPeriodoRow.append(cellLabelBrindesSaida);
-                                            headerDadosPeriodoRow.append(cellLabelGotasSaida);
 
                                             rowsPeriodos.push(headerDadosPeriodoRow);
                                         }
 
                                         // Info de Saida
-                                        var cellSaidaUsuario = document.createElement("td");
-                                        var labelSaidaUsuario = document.createElement("span");
-                                        labelSaidaUsuario = saida !== undefined && saida.usuario !== undefined ? saida.usuario.nome : "";
-                                        cellSaidaUsuario.append(labelSaidaUsuario);
-
                                         var cellSaidaBrinde = document.createElement("td");
                                         var labelSaidaBrinde = document.createElement("span");
                                         labelSaidaBrinde.textContent = saida !== undefined && saida.brinde !== undefined ? saida.brinde.nome_brinde_detalhado : "";
                                         cellSaidaBrinde.append(labelSaidaBrinde);
+
+                                        var cellSaidaUsuario = document.createElement("td");
+                                        var labelSaidaUsuario = document.createElement("span");
+                                        labelSaidaUsuario = saida !== undefined && saida.usuario !== undefined ? saida.usuario.nome : "";
+                                        cellSaidaUsuario.append(labelSaidaUsuario);
 
                                         var cellSaidaQteGota = document.createElement("td");
                                         var labelSaidaQteGota = document.createElement("span");
@@ -852,11 +852,9 @@ $(function () {
                                         cellSaidaQteGota.classList.add("text-right");
                                         cellSaidaQteGota.append(labelSaidaQteGota);
 
-                                        row.append(cellEntradaGota);
-                                        row.append(cellEntradaUsuario);
-                                        row.append(cellEntradaQteGota);
-                                        row.append(cellSaidaUsuario);
+                                        var row = document.createElement("tr");
                                         row.append(cellSaidaBrinde);
+                                        row.append(cellSaidaUsuario);
                                         row.append(cellSaidaQteGota);
 
                                         rowsPeriodos.push(row);
@@ -879,7 +877,6 @@ $(function () {
                                     cellLabelSaidaTotal.append(labelSaidaTotal);
 
                                     rowTotalPeriodo.append(cellLabelTotal);
-                                    rowTotalPeriodo.append(cellLabelEntradaTotal);
                                     rowTotalPeriodo.append(cellLabelSaidaTotal);
 
                                     rowsPeriodos.push(rowTotalPeriodo);
@@ -913,6 +910,7 @@ $(function () {
                                 cellLabelTotal.append(labelTotal);
 
                                 var cellTotalSaidas = document.createElement("td");
+                                var textTotalSaidas = document.createElement("strong");
                                 textTotalSaidas.textContent = data.total_saidas;
                                 cellTotalSaidas.classList.add("text-right");
                                 cellTotalSaidas.colSpan = 3;
@@ -1094,6 +1092,34 @@ $(function () {
             });
         }
 
+        function getResumoPontuacoesRelatorioEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
+            // Validação
+
+            var dataInicioEnvio = moment(dataInicio);
+            var dataFimEnvio = moment(dataFim);
+
+            if (!dataInicioEnvio.isValid()) {
+                dataInicioEnvio = undefined;
+            } else {
+                dataInicioEnvio = dataInicio;
+            }
+
+            if (!dataFimEnvio.isValid()) {
+                dataFimEnvio = undefined;
+            } else {
+                dataFimEnvio = dataFim;
+            }
+
+            var data = {
+                clientes_id: clientesId,
+                brindes_id: brindesId,
+                data_inicio: dataInicioEnvio,
+                data_fim: dataFimEnvio,
+                tipo_relatorio: tipoRelatorio
+            };
+
+        }
+
         /**
          * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getRedesList
          *
@@ -1176,7 +1202,7 @@ $(function () {
         tipoRelatorio.on("change", tipoRelatorioOnChange);
 
         $(pesquisarBtn).on("click", function () {
-            getDataPontuacoesEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
+            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
         });
 
         imprimirBtn.unbind("click");
@@ -1190,4 +1216,5 @@ $(function () {
         init();
     })
     .ajaxStart(callLoaderAnimation)
-    .ajaxStop(closeLoaderAnimation);
+    .ajaxStop(closeLoaderAnimation)
+    .ajaxError(closeLoaderAnimation);

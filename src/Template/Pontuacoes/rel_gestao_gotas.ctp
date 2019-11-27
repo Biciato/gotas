@@ -1,9 +1,9 @@
 <?php
 
 /**
- * src\Template\Gotas\relatorio_entrada_saida.ctp
+ * src\Template\Gotas\rel_gestao_gotas.ctp
  *
- * Tela de Relatório de Caixa dos Funcionários de um Estabelecimento. Visualizado por um gerente
+ * Tela de Relatório de Gestão de Gotas - Entrada e Saída
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
  * @since 2019-08-30
@@ -15,7 +15,7 @@ $debug = Configure::read("debug");
 // $debugExtension = $debug ? ".min" : "";
 $debugExtension = $debug ? "" : "";
 
-$title = "Relatório de Gotas - Entrada e Saída";
+$title = "Gestão de Gotas - Entrada e Saída";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
@@ -141,5 +141,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/pontuacoes/relatorio_entrada_saida<?= $debugExtension ?>.js"></script>
-<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/relatorio_entrada_saida<?= $debugExtension ?>.css" />
+<script src="/webroot/js/scripts/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.js"></script>
+<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.css" />
