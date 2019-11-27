@@ -2058,33 +2058,56 @@ class UsuariosController extends AppController
             $tipoPerfilMin = null;
             $tipoPerfilMax = null;
             $clientesIds = array();
+            $redesId = null;
+
+            $redesList = $this->Redes->getRedesList();
 
             $perfisUsuariosList = Configure::read("profileTypesTranslatedAdminToWorker");
+
+            $queryPost = $this->request->session()->read("QueryConditions.AdministrarUsuario");
 
             if ($this->request->is(['post', 'put'])) {
                 $data = $this->request->getData();
 
-
                 // DebugUtil::print($data);
                 $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $nome = !empty($data["nome"]) ? $data["nome"] : "";
                 $email = !empty($data["email"]) ? $data["email"] : "";
                 $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : "";
                 $filtrarUnidade = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : "";
                 $cpf = !empty($data["cpf"]) ? $this->cleanNumber($data["cpf"]) : "";
 
-                $unidadeClienteFiltrar = !empty($data["filtrar_unidade"]) ? $data["filtrar_unidade"] : null;
-                if (strlen($unidadeClienteFiltrar)) {
-                    $clientesIds = [];
-                    $clientesIds[] = (int) $unidadeClienteFiltrar;
-                }
+                $queryPost["tipoPerfil"] = $tipoPerfil;
+                $queryPost["nome"] = $nome;
+                $queryPost["email"] = $email;
+                $queryPost["docEstrangeiro"] = $docEstrangeiro;
+                $queryPost["filtrarUnidade"] = $filtrarUnidade;
+                $queryPost["cpf"] = $cpf;
+                $queryPost["redesId"] = $redesId;
+
+                $this->request->session()->write("QueryConditions.AdministrarUsuario", $queryPost);
+            } else {
+                // Obtem os dados cacheados para consulta
+                $tipoPerfil = $queryPost["tipoPerfil"];
+                $nome = $queryPost["nome"];
+                $email = $queryPost["email"];
+                $docEstrangeiro = $queryPost["docEstrangeiro"];
+                $filtrarUnidade = $queryPost["filtrarUnidade"];
+                $cpf = $queryPost["cpf"];
+                $redesId = $queryPost["redesId"];
             }
+
             if (strlen($tipoPerfil) == 0) {
                 $tipoPerfilMin = Configure::read('profileTypes')['AdminNetworkProfileType'];
                 $tipoPerfilMax = Configure::read('profileTypes')['WorkerProfileType'];
             } else {
                 $tipoPerfilMin = $tipoPerfil;
                 $tipoPerfilMax = $tipoPerfil;
+            }
+
+            if (!empty($redesId)) {
+                $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
             }
 
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
@@ -2094,7 +2117,7 @@ class UsuariosController extends AppController
 
             // DebugUtil::printArray($usuarios->toArray());
 
-            $arraySet = array("usuarios", "perfisUsuariosList");
+            $arraySet = array("usuarios", "perfisUsuariosList", "redesList", "redesId");
 
             $this->set(compact($arraySet));
             $this->set('_serialize', $arraySet);
@@ -2861,7 +2884,7 @@ class UsuariosController extends AppController
                     return ResponseUtil::errorAPI(MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT);
                 }
 
-                $email = $usuario["email"];
+                $email = !empty($usuario["email"]) ? $usuario->email : $usuario->cpf;
                 $this->request->data["email"] = $email;
             }
 
@@ -3616,7 +3639,10 @@ class UsuariosController extends AppController
         $credenciais = array("email" => $email, "senha" => $senha);
 
         // Obtem o usuário para gravar a falha de login ou reset das tentativas
-        $usuario = $this->Usuarios->getUsuarioByEmail($email);
+        $usuarioEmail = $this->Usuarios->getUsuarioByEmail($email);
+        $usuarioCPF = $this->Usuarios->getUsuarioByCPF($email);
+
+        $usuario = !empty($usuarioEmail) ? $usuarioEmail : $usuarioCPF;
         $result = $this->checkUsuarioIsLocked($usuario);
         $cliente = null;
         $errors = [];
@@ -3701,21 +3727,23 @@ class UsuariosController extends AppController
                     }
                 } else if ($user->tipo_perfil === PROFILE_TYPE_DUMMY_WORKER) {
 
-                    if (empty($cnpj)) {
-                        $error[] = "Funcionário automático, necessário especificar CNPJ de estabelecimento!";
-                        $errorCodes[] = 0;
-                        return array(
-                            "usuario" => null,
-                            "status" => false,
-                            "message" => "Houve um erro!",
-                            "errors" => $error,
-                            "errorCodes" => $errorCodes,
-                            "recoverAccount" => null,
-                            "cliente" => null
-                        );
-                    }
+                    // if (empty($cnpj)) {
+                    //     $error[] = "Funcionário automático, necessário especificar CNPJ de estabelecimento!";
+                    //     $errorCodes[] = 0;
+                    //     return array(
+                    //         "usuario" => null,
+                    //         "status" => false,
+                    //         "message" => "Houve um erro!",
+                    //         "errors" => $error,
+                    //         "errorCodes" => $errorCodes,
+                    //         "recoverAccount" => null,
+                    //         "cliente" => null
+                    //     );
+                    // }
 
-                    $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
+                    if (!empty($cnpj)) {
+                        $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
+                    }
                     // $this->request->session()->delete('Rede.PontoAtendimento');
                     // $this->request->session()->delete('Rede.Grupo');
                 }

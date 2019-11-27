@@ -1723,15 +1723,16 @@ class PontuacoesComprovantesController extends AppController
             $data = $this->request->getData();
             $errors = array();
             $errorCodes = [];
+            $sessao = $this->getSessionUserVariables();
 
             Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Informações do POST
-            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+            $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
             $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-            $funcionario = $this->getUserLogged();
+            $funcionario = $sessao["usuarioLogado"];
 
             // Validação
             if (empty($cnpj)) {
@@ -1908,14 +1909,14 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (count($pontuacoes) == 0) {
-                $errors[] = sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $qrCode, $cliente->estado);
-                $errorCodes[] = 0;
+                $errors[] = sprintf(MSG_GOTAS_NOT_FOUND_IN_COUPON, $qrCode, $cliente->estado);
+                $errorCodes[] = MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE;
 
                 for ($i = 0; $i < count($errors); $i++) {
                     Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
                 }
 
-                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors);
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
             }
 
             $pontuacoesComprovante = array(
@@ -2253,7 +2254,13 @@ class PontuacoesComprovantesController extends AppController
 
             if ($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) {
 
-                $error = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED];
+                $errorMessage = "";
+                if ($rede->app_personalizado) {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Pontos");
+                } else {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Gotas");
+                }
+                $error = [$errorMessage];
                 $errorCodes = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE];
 
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);

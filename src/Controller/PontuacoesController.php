@@ -302,8 +302,13 @@ class PontuacoesController extends AppController
                     $end = date("Y-m-d 23:59:59", $end);
                     $start = date("Y-m-d 00:00:00", $start);
                 } else {
-                    $start = $queryConditions["start"];
-                    $end = $queryConditions["end"];
+                    $date = date('Y-m-d');
+                    $endTemp = \strtotime($date);
+                    $startTemp = \strtotime($date . ' -7 days');
+                    $endTemp = date("Y-m-d 23:59:59", $endTemp);
+                    $startTemp = date("Y-m-d 00:00:00", $startTemp);
+                    $start = !empty($queryConditions["start"]) ? $queryConditions['start'] : $startTemp;
+                    $end = !empty($queryConditions["end"]) ? $queryConditions['end'] : $endTemp;
 
                     if (!empty($queryConditions["funcionarios_id"])) {
                         $funcionariosId = $queryConditions["funcionarios_id"];

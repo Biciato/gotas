@@ -25,8 +25,5 @@ echo $this->Breadcrumbs->render(
 
 <?= $this->element('../Clientes/left_menu', ['controller' => 'redes', 'action' => 'ver_detalhes', 'id' => $cliente->redes_has_cliente->redes_id]) ?>
 <div class="clientes form col-lg-9 col-md-10 columns content">
-    <?= $this->element('../Clientes/clientes_form', ['cliente' => $cliente, 'title' => 'Editar Cliente'])?>
+    <?= $this->element('../Clientes/clientes_form', ['cliente' => $cliente, 'title' => 'Editar Cliente']) ?>
 </div>
-
-
-

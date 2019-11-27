@@ -468,7 +468,7 @@ class CuponsTable extends GenericTable
      *
      * @param boolean $resgatado
      * @param boolean $usado
-     * @param boolean $equipamentoRTI
+     * @param boolean $tipoEquipamento
      * @param boolean $redeAtiva
      * @param integer $diasAnteriores
      *
@@ -477,7 +477,7 @@ class CuponsTable extends GenericTable
      *
      * @return array App\Model\Entity\Cupon
      */
-    public function getCuponsResgatadosUsados(int $clientesId, bool $resgatado = true, bool $usado = false, bool $equipamentoRTI = null, bool $redeAtiva = true, int $diasAnteriores = 1)
+    public function getCuponsResgatadosUsados(int $clientesId, bool $resgatado = true, bool $usado = false, string $tipoEquipamento = null, bool $redeAtiva = true, int $diasAnteriores = 1)
     {
         $whereConditions = array();
 
@@ -485,19 +485,19 @@ class CuponsTable extends GenericTable
         $whereConditions[] = array("Cupons.resgatado" => $resgatado);
         $whereConditions[] = array("Cupons.usado" => $usado);
 
-        if (isset($equipamentoRTI) && is_bool($equipamentoRTI)) {
+        if (!empty($tipoEquipamento)) {
             // $whereConditions[] = array("TipoBrindeRede.equipamento_rti" => $equipamentoRTI);
-            $whereConditions[] = array("Brindes.equipamento_rti" => $equipamentoRTI);
+            $whereConditions[] = array("Brindes.equipamento_rti" => $tipoEquipamento);
         }
 
-        $whereConditions[] = array("Rede.ativado" => $redeAtiva);
+        $whereConditions[] = array("Redes.ativado" => $redeAtiva);
         $whereConditions[] = array("Cupons.data <= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:01'), INTERVAL '{$diasAnteriores}' DAY)");
 
         $cupons = $this->find("all")
             ->contain(
                 array(
                     "Brindes",
-                    "Clientes.RedeHasCliente.Rede",
+                    "Clientes.RedesHasClientes.Redes",
                     "Usuarios"
                 )
             )
