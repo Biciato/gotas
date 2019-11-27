@@ -2327,7 +2327,7 @@ class UsuariosTable extends GenericTable
      */
     public function checkPasswordUsuario($password, array $context)
     {
-        if (($context['data']['tipo_perfil'] == 6) && (!preg_match("/[A-Za-z0-9]+/", $password) && strlen($password) != 6)) {
+        if (($context['data']['tipo_perfil'] == PROFILE_TYPE_USER) && (!preg_match("/[A-Za-z0-9]+/", $password) && strlen($password) < 6)) {
             return false;
         } else {
             return true;

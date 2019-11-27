@@ -401,7 +401,7 @@ if (empty($usuarioLogado)) {
                     </li>
 
                     <li>
-                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <!-- <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a> -->
                         <a href="/pontuacoes/relatorioPontuacaoSimplificado">Relatório de Pontuação Simplificado</a>
                         <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
@@ -469,7 +469,7 @@ if (empty($usuarioLogado)) {
                     </li>
 
                     <li>
-                        <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a>
+                        <!-- <a href="/pontuacoes/relatorioEntradaSaida">Relatório de Entrada e Saída</a> -->
                         <a href="/pontuacoes/relatorioPontuacaoSimplificado">Relatório de Pontuação Simplificado</a>
                         <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>

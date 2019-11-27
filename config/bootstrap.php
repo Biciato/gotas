@@ -571,6 +571,8 @@ const GOTAS_BONUS_SEFAZ = "BONIFICAÇÃO";
 const GOTAS_REGISTER_TYPE_AUTOMATIC = 1;
 const GOTAS_REGISTER_TYPE_MANUAL = 0;
 const GOTAS_ADJUSTMENT_POINTS = "GOTA VIRTUAL DE CORREÇÃO DE PONTOS";
+const MSG_GOTAS_NOT_FOUND_IN_COUPON = "No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!";
+const MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE = 0x000A0002;
 
 #endregion
 
@@ -582,12 +584,13 @@ const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas p
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
 
 
+
 #endregion
 
 #region Pontuacoes Comprovantes
 
 // Erros
-const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de Gotas atingidas no dia!";
+const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED = "Máximo de inserções de %s atingidas no dia!";
 const MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE = 0x00130001;
 const MSG_PONTUACOES_COMPROVANTES_IMPORTED_SUCCESSFULLY = "Dados do cupom importados com sucesso!";
 
@@ -622,6 +625,9 @@ const TOP_BRINDES_TYPE_LOCAL = 'Posto';
 #endregion
 
 #region Usuários
+
+const WORKER_EMAIL = "mobileapiworker@dummy.com";
+const WORKER_PASSWORD = "73495277";
 
 const MSG_USUARIOS_CPF_EMPTY_CODE = 0x00170001;
 const MSG_USUARIOS_CPF_EMPTY = "O campo CPF deve ser informado!";

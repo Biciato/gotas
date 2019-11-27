@@ -1291,7 +1291,7 @@ class PontuacoesComprovantesController extends AppController
         if ($this->request->is(Request::METHOD_POST)) {
             $data = $this->request->getData();
 
-            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Variáveis
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
@@ -1590,6 +1590,8 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is(['post'])) {
                 $data = $this->request->getData();
 
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
                 $retorno = $this->processaCupom($data);
 
                 if ($retorno->mensagem->status) {
@@ -1608,6 +1610,7 @@ class PontuacoesComprovantesController extends AppController
                         }
                     }
 
+                    Log::write("info", $retorno);
                     return ResponseUtil::errorAPI($retorno->mensagem->message, $retorno->mensagem->errors, $arrayData, $retorno->mensagem->error_codes);
                 }
             }
@@ -1719,29 +1722,44 @@ class PontuacoesComprovantesController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
             $errors = array();
+            $errorCodes = [];
+            $sessao = $this->getSessionUserVariables();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             // Informações do POST
-            $cnpj = !empty($data["cnpj"]) ? $data["cnpj"] : null;
+            $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
             $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
-            $funcionario = $this->getUserLogged();
+            $funcionario = $sessao["usuarioLogado"];
 
             // Validação
             if (empty($cnpj)) {
                 $errors[] = MESSAGE_CNPJ_EMPTY;
+                $errorCodes[] = 0;
             }
 
             if (empty($cpf)) {
                 $errors[] = MSG_USUARIOS_CPF_EMPTY;
+                $errorCodes[] = 0;
             }
 
-            if (empty($gotasAbastecidasClienteFinal) && sizeof($gotasAbastecidasClienteFinal) == 0) {
+            if (empty($qrCode)) {
+                $errors[] = MSG_QRCODE_EMPTY;
+                $errorCodes[] = MSG_QRCODE_EMPTY_CODE;
+            }
+
+            if (empty($gotasAbastecidasClienteFinal) && count($gotasAbastecidasClienteFinal) == 0) {
                 $errors[] = "Itens da Venda não foram informados!";
+                $errorCodes[] = 0;
             }
 
             if (sizeof($errors) > 0) {
-                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_GENERIC_EXCEPTION, $errorCodes[$i], $errors[$i]));
+                }
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data, $errorCodes);
             }
 
             // Validação CNPJ e CPF
@@ -1750,13 +1768,18 @@ class PontuacoesComprovantesController extends AppController
 
             if ($validacaoCNPJ == 0) {
                 $errors[] = $validacaoCNPJ["message"];
+                $errorCodes[] = 0;
             }
 
             if ($validacaoCPF["status"] == 0) {
                 $errors[] = $validacaoCPF["message"];
+                $errorCodes[] = 0;
             }
 
             if (sizeof($errors) > 0) {
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
@@ -1765,6 +1788,7 @@ class PontuacoesComprovantesController extends AppController
 
             if (empty($cliente)) {
                 $errors[] = sprintf("%s %s", MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM, MESSAGE_CNPJ_EMPTY);
+                $errorCodes[] = 0;
             }
 
             $chave = null;
@@ -1774,17 +1798,34 @@ class PontuacoesComprovantesController extends AppController
                     $qrCode = "CUPOM ECF-MG";
                     $chave = $qrCode;
                 } else {
-                    $chave = $qrCode;
+                    if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
+                        $qrCodeResult = QRCodeUtil::validarUrlQrCode($qrCode);
+
+                        $qrcodeValue = array_filter($qrCodeResult["data"], function ($a) {
+                            return $a["key"] == "chNFe";
+                        });
+
+                        $qrcodeValue = $qrcodeValue[0];
+                        $chave = $qrcodeValue["content"];
+                    } else {
+                        $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+                        $chave = $qrCode;
+                    }
                 }
             } else {
                 if (empty($qrCode)) {
                     $errors[] = MSG_QRCODE_EMPTY;
                     $errorCodes[] = MSG_QRCODE_EMPTY_CODE;
-                } else if (strpos($qrCode, "sefaz.") == 0) {
+                } elseif (strpos($qrCode, "sefaz.") == 0) {
                     $errors[] = MSG_QRCODE_MISMATCH_FORMAT;
+                    $errorCodes[] = 0;
                 }
 
                 if (sizeof($errors) > 0) {
+                    for ($i = 0; $i < count($errors); $i++) {
+                        Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                    }
+
                     return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
                 } else {
                     $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
@@ -1792,6 +1833,10 @@ class PontuacoesComprovantesController extends AppController
             }
 
             if (sizeof($errors) > 0) {
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
+
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
@@ -1799,6 +1844,10 @@ class PontuacoesComprovantesController extends AppController
 
             // Cliente do posto
             $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
+            if (strlen($cpf) > 11) {
+                Log::write("info", "CNPJ Identificado: " . $cpf);
+            }
 
             // Se usuário não encontrado, cadastra para futuro acesso
             if (empty($usuario)) {
@@ -1832,15 +1881,15 @@ class PontuacoesComprovantesController extends AppController
 
                 if (!empty($gota)) {
                     $gota = $gota[0];
-                    $item = array(
-                        "multiplicador_gota" => floor($gotaUsuario["gotas_qtde"]),
-                        "quantidade_gota" => floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]),
-                        "clientes_id" => $cliente["id"],
-                        "usuarios_id" => $usuario["id"],
-                        "funcionarios_id" => $funcionario["id"],
-                        "gotas_id" => $gota["id"],
-                        "data" => $data
-                    );
+                    $item = new Pontuacao();
+                    $item->multiplicador_gota = $gotaUsuario["gotas_qtde"];
+                    $item->quantidade_gota = floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]);
+                    $item->valor_gota_sefaz = $gotaUsuario["gotas_vl_unit"];
+                    $item->clientes_id = $cliente["id"];
+                    $item->usuarios_id = $usuario["id"];
+                    $item->funcionarios_id = $funcionario["id"];
+                    $item->gotas_id = $gota["id"];
+                    $item->data = $data;
 
                     // Confere quais gotas estão com preço desatualizado
 
@@ -1859,6 +1908,17 @@ class PontuacoesComprovantesController extends AppController
                 }
             }
 
+            if (count($pontuacoes) == 0) {
+                $errors[] = sprintf(MSG_GOTAS_NOT_FOUND_IN_COUPON, $qrCode, $cliente->estado);
+                $errorCodes[] = MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE;
+
+                for ($i = 0; $i < count($errors); $i++) {
+                    Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
+                }
+
+                return ResponseUtil::errorAPI(MESSAGE_GENERIC_EXCEPTION, $errors, [], $errorCodes);
+            }
+
             $pontuacoesComprovante = array(
                 "qr_code" => $qrCode
             );
@@ -1866,8 +1926,19 @@ class PontuacoesComprovantesController extends AppController
             // @todo mudar para $this->PontuacoesComprovantes->saveUpdate($obj);
             $pontuacaoComprovanteSave = $this->PontuacoesComprovantes->addPontuacaoComprovanteCupom($cliente["id"], $usuario["id"], $funcionario["id"], $qrCode, $chave, $cliente["estado"], date("Y-m-d H:i:s"), 0, 1);
 
-            foreach ($pontuacoes as $pontuacao) {
-                $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
+            foreach ($pontuacoes as $pontuacaoItem) {
+                $pontuacao = new Pontuacao();
+                $pontuacao->clientes_id = $cliente->id;
+                $pontuacao->usuarios_id = $usuario->id;
+                $pontuacao->funcionarios_id = $funcionario->id;
+                $pontuacao->gotas_id = $pontuacaoItem->gotas_id;
+                $pontuacao->quantidade_multiplicador = $pontuacaoItem->multiplicador_gota;
+                $pontuacao->quantidade_gotas = $pontuacaoItem->quantidade_gota;
+                $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteSave->id;
+                $pontuacao->valor_gota_sefaz = $pontuacaoItem->valor_gota_sefaz;
+                $pontuacao->data = new DateTime('now');
+                $pontuacaoSave = $this->Pontuacoes->saveUpdate($pontuacao);
+                // $pontuacaoSave = $this->Pontuacoes->addPontuacaoCupom($cliente["id"], $usuario["id"], $funcionario["id"], $pontuacao["gotas_id"], $pontuacao["multiplicador_gota"], $pontuacao["quantidade_gota"], $pontuacaoComprovanteSave["id"], $data);
             }
 
             $comprovante = $this->PontuacoesComprovantes->getCouponById($pontuacaoComprovanteSave["id"]);
@@ -1901,7 +1972,7 @@ class PontuacoesComprovantesController extends AppController
                     "comprovantes_resumo" => $comprovanteResumo
                 )
             );
-            return ResponseUtil::successAPI(MESSAGE_PROCESSING_COMPLETED, $retorno);
+            return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, $retorno);
         }
     }
 
@@ -1966,29 +2037,44 @@ class PontuacoesComprovantesController extends AppController
     private function processaCupom($data)
     {
         $url = isset($data['qr_code']) ? $data["qr_code"] : null;
+
+        Log::write("info", "url antes de sanitize: ");
+        Log::write("info", $url);
+
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
+        Log::write("info", "url após  sanitize: ");
+        Log::write("info", $url);
         $processamentoPendente = isset($data["processamento_pendente"]) ? $data["processamento_pendente"] : false;
 
         // Verifica se foi informado qr code. Senão já aborta
         if (is_null($url)) {
-            $mensagem = array("status" => 0, "message" => __("Parâmetro QR CODE não foi informado!"));
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = MSG_ERROR;
+            $mensagem->errors = [__("Parâmetro QR CODE não foi informado!")];
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
-            return;
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+            return $retorno;
         }
 
         $validacaoQRCode = QRCodeUtil::validarUrlQrCode($url);
 
         // Encontrou erros de validação do QR Code. Interrompe e retorna erro ao usuário
-        if ($validacaoQRCode["status"] == false) {
+        if ($validacaoQRCode["status"] === false) {
             $mensagem = array("status" => $validacaoQRCode["status"], "message" => $validacaoQRCode["message"], "errors" => $validacaoQRCode["errors"], "error_codes" => $validacaoQRCode["error_codes"]);
 
-            $arraySet = array("mensagem");
-            $this->set(compact($arraySet));
-            $this->set("_serialize", $arraySet);
+            $mensagem = new Mensagem();
+            $mensagem->status = false;
+            $mensagem->message = $validacaoQRCode["message"];
+            $mensagem->errors = $validacaoQRCode["errors"];
+            $mensagem->error_codes = $validacaoQRCode["error_codes"];
 
-            return array("mensagem" => $mensagem);
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+
+            return $retorno;
         }
 
         $url = $validacaoQRCode["url_real"];
@@ -2135,6 +2221,9 @@ class PontuacoesComprovantesController extends AppController
                         "mensagem"
                     ];
 
+                    Log::write("info", $mensagem);
+                    Log::write("info", $errors);
+
                     return ResponseUtil::errorAPI($mensagem["message"], $errors, [], []);
                 }
             }
@@ -2165,7 +2254,13 @@ class PontuacoesComprovantesController extends AppController
 
             if ($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) {
 
-                $error = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED];
+                $errorMessage = "";
+                if ($rede->app_personalizado) {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Pontos");
+                } else {
+                    $errorMessage = sprintf(MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED, "Gotas");
+                }
+                $error = [$errorMessage];
                 $errorCodes = [MSG_PONTUACOES_COMPROVANTES_USUARIOS_GOTAS_MAX_REACHED_CODE];
 
                 return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);

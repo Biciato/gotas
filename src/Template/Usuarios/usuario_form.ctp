@@ -326,12 +326,12 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
 
                 <div class="col-lg-3">
                     <label for="senha">Senha*</label>
-                    <input type="password" name="senha" required="true" maxLength="6" placeholder="Senha..." id="senha" class="form-control" />
+                    <input type="password" name="senha" required="true" minLength="6" placeholder="Senha..." id="senha" class="form-control" />
                 </div>
 
                 <div class="col-lg-3">
                     <label for="confirm_senha">Confirmar Senha*</label>
-                    <input type="password" name="confirm_senha" required="true" placeholder="Confirmar Senha..." maxLength="6" id="confirm_senha" class="form-control" />
+                    <input type="password" name="confirm_senha" required="true" placeholder="Confirmar Senha..." minLength="6" id="confirm_senha" class="form-control" />
                 </div>
             </div>
 
@@ -494,12 +494,12 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                     <div class="form-group row">
                         <div class="col-lg-6">
                             <label for="senha">Senha</label>
-                            <input type="password" name="senha" maxlength="6" placeholder="Senha..." id="senha" class="form-control senha" value="123456" />
+                            <input type="password" name="senha" minlength="6" placeholder="Senha..." id="senha" class="form-control senha" value="123456" />
                         </div>
 
                         <div class="col-lg-6">
                             <label for="confirm_senha">Confirmar Senha</label>
-                            <input type="password" name="confirm_senha" placeholder="Confirmar Senha..." maxlength="6" id="confirm_senha" class="form-control" value="123456" />
+                            <input type="password" name="confirm_senha" placeholder="Confirmar Senha..." minlength="6" id="confirm_senha" class="form-control" value="123456" />
                         </div>
                     </div>
                 </fieldset>

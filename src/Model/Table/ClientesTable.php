@@ -225,6 +225,22 @@ class ClientesTable extends GenericTable
             ->allowEmpty('tel_celular');
 
         $validator
+            ->boolean("impressao_sw_linha_continua")
+            ->allowEmpty("impressao_sw_linha_continua");
+
+        $validator
+            ->allowEmpty("delimitador_nota_produtos_inicial");
+
+        $validator
+            ->allowEmpty("delimitador_nota_produtos_final");
+
+        $validator
+            ->allowEmpty("delimitador_nota_impressao");
+
+        $validator
+            ->allowEmpty("delimitador_qr_code");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 

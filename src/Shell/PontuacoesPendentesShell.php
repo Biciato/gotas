@@ -67,8 +67,7 @@ class PontuacoesPendentesShell extends ExtendedShell
             $pontuacoesPendentes = $this->PontuacoesPendentes->findAllPontuacoesPendentesAwaitingProcessing();
             $pontuacoesPendentes = $pontuacoesPendentes->toArray();
 
-            // $auth = WebTools::loginAPIGotas("gustavosouzagoncalves@hotmail.com", "segacd85");
-            $auth = WebTools::loginAPIGotas("mobileapiworker@dummy.com", "25122016");
+            $auth = WebTools::loginAPIGotas(WORKER_EMAIL, WORKER_PASSWORD);
 
             // Log::write('info', 'Testando auth...');
             // DebugUtil::printArray($auth);

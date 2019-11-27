@@ -114,9 +114,30 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <tbody>
             <span></span>
         </tbody>
-
     </table>
 
+    <h3>Resumo</h3>
+
+    <div class="form-group row">
+        <div class="col-lg-6">
+            <label for="total_gotas_ontem">Total Gotas até Ontem</label>
+            <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control">
+        </div>
+        <div class="col-lg-6">
+            <label for="total_gotas_resgatadas">Total Gotas Resgatadas</label>
+            <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-lg-6">
+            <label for="gotas_adquiridas_periodo">Total Gotas Adquiridas no Período:</label>
+            <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control">
+        </div>
+        <div class="col-lg-6">
+            <label for="gotas_expiradas_periodo">Gotas expiradas no período</label>
+            <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control">
+        </div>
+    </div>
 </div>
 
 

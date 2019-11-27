@@ -247,6 +247,48 @@ class GotasTable extends GenericTable
         }
     }
 
+    /**
+     * GotasTable::saveUpdateGotasAdjustment
+     *
+     * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-11-08
+     *
+     * @param array $clientesIds Ids de Clientes
+     *
+     * @return \App\Model\Entity\Gota $gota
+     */
+    public function saveUpdateGotasAdjustment(array $clientesIds)
+    {
+        try {
+            foreach ($clientesIds as $clienteId) {
+                $gotaAjustePontos = $this->find("all")
+                    ->where(array(
+                        "clientes_id" => $clienteId,
+                        "nome_parametro" => GOTAS_ADJUSTMENT_POINTS
+                    ))
+                    ->first();
+
+                if (empty($gotaAjustePontos)) {
+                    $gotaAjustePontos = $this->newEntity();
+                    $gotaAjustePontos->clientes_id = $clienteId;
+                    $gotaAjustePontos->nome_parametro = GOTAS_ADJUSTMENT_POINTS;
+                    $gotaAjustePontos->habilitado = 1;
+                    $gotaAjustePontos->tipo_cadastro = GOTAS_REGISTER_TYPE_AUTOMATIC;
+                }
+
+                $gotaAjustePontos->multiplicador_gota = 1;
+                $this->save($gotaAjustePontos);
+            }
+        } catch (\Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
+            Log::error($message);
+
+            throw new Exception($message);
+        }
+    }
+
     #region Read
 
     /**

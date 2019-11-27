@@ -26,6 +26,11 @@ use Cake\Core\Configure;
  * @property string $tel_celular
  * @property string $propaganda_link
  * @property string $propaganda_img
+ * @property int $impressao_sw_linha_continua
+ * @property string $delimitador_nota_produtos_inicial
+ * @property string $delimitador_nota_produtos_final
+ * @property string $delimitador_nota_impressao
+ * @property string $delimitador_qr_code
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *

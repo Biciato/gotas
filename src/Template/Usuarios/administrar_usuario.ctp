@@ -69,14 +69,29 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 ) ?>
 
                             </div>
-                            <div class="col-lg-5">
+                            <div class="col-lg-3">
+                                <?= $this->Form->input(
+                                    'redes_id',
+                                    array(
+                                        'type' => 'select',
+                                        'id' => 'redes_id',
+                                        'label' => 'Rede',
+                                        "empty" => "Todos",
+                                        'options' => $redesList,
+                                        'value' => $redesId,
+                                        'class' => 'form-control col-lg-3'
+                                    )
+                                ) ?>
+
+                            </div>
+                            <div class="col-lg-3">
                                 <label for="nome">Nome</label>
                                 <input type="text"
                                     id="nome"
                                     class="form-control"
                                     placeholder="Nome" />
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <label for="email">E-mail</label>
                                 <input type="text"
                                     class="form-control"
