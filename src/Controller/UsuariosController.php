@@ -171,6 +171,7 @@ class UsuariosController extends AppController
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
             $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
             $usuarioLogadoTipoPerfil = PROFILE_TYPE_USER;
+            $usuarioLogado = $sessaoUsuario["usuarioLogado"];
 
             if ($usuarioAdministrador) {
                 $this->usuarioLogado = $usuarioAdministrar;
@@ -1191,6 +1192,17 @@ class UsuariosController extends AppController
     {
         $sessaoUsuario = $this->getSessionUserVariables();
 
+        $origemMeuPerfilAnterior = $this->request->session()->read("Origem.MeuPerfil");
+
+        $origemMeuPerfil = strpos($_SERVER["HTTP_REFERER"], "perfil") !== false;
+
+        if (!$origemMeuPerfilAnterior) {
+            if ($origemMeuPerfil)
+                $this->request->session()->write("Origem.MeuPerfil", true);
+            else
+                $this->request->session()->delete("Origem.MeuPerfil");
+        }
+
         // DebugUtil::printArray($sessaoUsuario);
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
@@ -1294,9 +1306,18 @@ class UsuariosController extends AppController
                     }
                 }
 
-                $this->Flash->success(__('O usuário foi salvo.'));
+                $origemMeuPerfil = $this->request->session()->read("Origem.MeuPerfil");
 
-                return $this->redirect(['action' => 'usuarios_rede', $redesId]);
+                if ($origemMeuPerfil) {
+                    $this->request->session()->delete("Origem.MeuPerfil");
+                    $this->Flash->success(__('Cadastro atualizado!'));
+
+                    return $this->redirect(["controller" => "Pages", 'action' => 'index']);
+                } else {
+                    $this->Flash->success(__('O usuário foi salvo.'));
+
+                    return $this->redirect(['action' => 'usuarios_rede', $redesId]);
+                }
             }
 
             $this->Flash->error(__('O usuário não pode ser registrado. '));
@@ -1310,6 +1331,7 @@ class UsuariosController extends AppController
 
         $usuarioLogadoTipoPerfil = $usuarioLogado['tipo_perfil'];
         $arraySet = array(
+            "origemMeuPerfil",
             'usuario',
             'rede',
             'redes',
@@ -4747,15 +4769,22 @@ class UsuariosController extends AppController
                     return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, [MSG_USUARIOS_EMAIL_EMPTY], [], []);
                 }
 
-                if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
-                    $validacaoEmail = EmailUtil::validateEmail($email);
+                $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
-                    if (!$validacaoEmail["status"]) {
-                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                if (!in_array(
+                    $user->tipo_perfil,
+                    [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_WORKER]
+                )) {
+
+                    if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
+                        $validacaoEmail = EmailUtil::validateEmail($email);
+
+                        if (!$validacaoEmail["status"]) {
+                            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                        }
                     }
                 }
 
-                $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
                 if ($data['id'] != 0 && !empty($user)) {
                     if ($user->id == $data['id']) {

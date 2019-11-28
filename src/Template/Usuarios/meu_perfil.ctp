@@ -18,7 +18,20 @@ use Cake\Core\Configure;
                 <?= $this->Html->link(__('Menu'), []) ?>
             </li>
             <li>
-                <?= $this->Html->link(__('Alterar Dados Cadastrais'), ['action' => 'editar', $usuario->id]) ?>
+                <?php if (in_array($usuarioLogado->tipo_perfil,
+                    [
+                        PROFILE_TYPE_ADMIN_DEVELOPER,
+                        PROFILE_TYPE_ADMIN_NETWORK,
+                        PROFILE_TYPE_ADMIN_REGIONAL,
+                        PROFILE_TYPE_ADMIN_LOCAL,
+                        PROFILE_TYPE_MANAGER,
+                        PROFILE_TYPE_WORKER
+                    ]
+                    )): ?>
+                    <?= $this->Html->link(__('Alterar Dados Cadastrais'), ['action' => 'editarOperador', $usuario->id]) ?>
+                <?php else:?>
+                    <?= $this->Html->link(__('Alterar Dados Cadastrais'), ['action' => 'editar', $usuario->id]) ?>
+                <?php endif;?>
             </li>
             <li>
                 <?= $this->Html->link(
