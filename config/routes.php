@@ -224,7 +224,12 @@ Router::scope("/api", function ($routes) {
                     "action" => "getRelatorioMovimentacaoGotasAPI",
                     "method" => Request::METHOD_GET,
                     "path" => "/get_relatorio_movimentacao_gotas"
-                ]
+                ],
+                "getResumoPontuacoesEstabelecimentoAPI" => [
+                    "action" => "getResumoPontuacoesEstabelecimentoAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/get_resumo_pontuacoes_estabelecimento"
+                ],
             ]
         ]
     );

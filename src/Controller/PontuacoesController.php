@@ -1140,11 +1140,127 @@ class PontuacoesController extends AppController
         }
     }
 
-    public function getResumePontuacoes()
+    /**
+     * Obtem resumo de Pontuações
+     *
+     * Obtem resumo de Pontuações de um Estabelecimento/Rede em formato JSON
+     *
+     * PontuacoesController::getResumoPontuacoesEstabelecimentoAPI
+     *
+     * @param int $redes_id Id de Rede
+     * @param int $clientes_id Id de Cliente
+     * @param Date $data_inicio Data Inicio
+     * @param Date $data_fim Data Fim
+     *
+     * @return json_object $data
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-11-28
+     */
+    public function getResumoPontuacoesEstabelecimentoAPI()
     {
-        // @TODO fazer o resumo
-        if ($this->request->is(Request::METHOD_GET)) {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        try {
+
+            // @TODO fazer o resumo
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+
+                Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
+                $redesId = !empty($data["redes_id"]) ? (int) $data["redes_id"] : $rede->id;
+                $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : $cliente->id;
+                $clientesIds = [$clientesId];
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                #region Tratamento de variáveis vazias
+
+                $errors = [];
+                $errorCodes = [];
+
+                // Só é exceção se não tiver especificado o id do posto
+                if (empty($redesId) && empty($clientesId)) {
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                }
+
+                if (empty($clientesId)) {
+                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                    $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                // // Periodo limite de filtro é 1 ano
+                // if ($dataDiferenca->y >= 1) {
+                //     $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                //     $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                // }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                #endregion
+
+                #region Queries
+
+                // Obtem as gotas até a data de ontem do estabelecimento
+
+                $dataOntem = new DateTime('now');
+                $dataOntem->modify('-1 day');
+                $dataOntem = date_create($dataOntem->format("Y-m-d 23:59:59"));
+
+                $somaAteOntem = $this->Pontuacoes->getSumPontuacoesIncoming($redesId, $clientesIds, null, $dataOntem);
+
+                #endregion
+
+                $retorno = [];
+                $retorno["soma_ate_ontem"] = $somaAteOntem;
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 

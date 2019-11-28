@@ -2,6 +2,8 @@
 
 namespace App\Model\Table;
 
+use \DateTime;
+use Exception;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\ORM\Query;
@@ -9,11 +11,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
-use \DateTime;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Pontuacao;
 use Cake\Database\Expression\QueryExpression;
-use Exception;
 
 /**
  * Pontuacoes Model
@@ -22,13 +22,13 @@ use Exception;
  * @property \App\Model\Table\BrindesHabilitadosTable|\Cake\ORM\Association\BelongsTo $BrindesHabilitados
  * @property \App\Model\Table\GotasTable|\Cake\ORM\Association\BelongsTo $Gotas
  *
- * @method \App\Model\Entity\Pontuaco get($primaryKey, $options = [])
- * @method \App\Model\Entity\Pontuaco newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\Pontuaco[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Pontuaco patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\Pontuacao get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Pontuacao newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\Pontuacao[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Pontuacao patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao findOrCreate($search, callable $callback = null, $options = [])
  */
 class PontuacoesTable extends GenericTable
 {
@@ -1141,6 +1141,66 @@ class PontuacoesTable extends GenericTable
             $stringError = __("Erro ao obter pontuações: {0} em: {1}. [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
 
             Log::write('error', $stringError);
+        }
+    }
+
+    /**
+     * Obtem soma de pontuações de um estabelecimento/rede
+     *
+     * Obtem soma de gotas, valor_moeda_venda e valor_gota_sefaz de um estabelecimento/rede
+     *
+     * PontuacoesTable::getSumPontuacoesIncoming
+     *
+     * @param integer $redesId Id da Rede
+     * @param array $clientesIds Lista de Clientes
+     * @param DateTime $minDate Data Mínima
+     * @param DateTime $maxDate Data Máxima
+     *
+     * @return \App\Model\Entity\Pontuacao Soma de Valores de pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-11-28
+     */
+    public function getSumPontuacoesIncoming(int $redesId = 0, array $clientesIds = [], \DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $queryConditions = function(QueryExpression $exp) use ($redesId, $clientesIds, $minDate, $maxDate) {
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (count($clientesIds) > 0) {
+                    $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($dataInicio)) {
+                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')", $dataInicio);
+                }
+
+                if (!empty($dataFim)) {
+                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')", $dataFim);
+                }
+
+                return $exp->isNotNull("Pontuacoes.gotas_id");
+            };
+
+            $selectList = [
+                "SomaGotas" => "ROUND(SUM(Pontuacoes.quantidade_gotas), 2)",
+                "SomaReais" => "ROUND(SUM(Pontuacoes.valor_moeda_venda), 2)",
+                "SomaGotaSefaz" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)"
+            ];
+
+            return $this
+                ->find('all')
+                ->where($queryConditions)
+                ->select($selectList)
+                // TODO: olhar pq não está agrupando
+                // ->group(['usuarios_id'])
+                ->contain(['Clientes.RedesHasClientes.Redes']);
+        } catch (\Exception $e) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 

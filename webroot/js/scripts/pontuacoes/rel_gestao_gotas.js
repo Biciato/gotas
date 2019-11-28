@@ -1087,12 +1087,12 @@ $(function () {
                     callModalError(data.mensagem.message, data.mensagem.errors);
                 },
                 complete: function (response) {
-
+                    getResumoPontuacoesRelatorioEntradaSaida(redesSelectedItem.id, form.clientesId, dataInicio, dataFim);
                 }
             });
         }
 
-        function getResumoPontuacoesRelatorioEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio) {
+        function getResumoPontuacoesRelatorioEntradaSaida(redesId, clientesId, dataInicio, dataFim) {
             // Validação
 
             var dataInicioEnvio = moment(dataInicio);
@@ -1112,11 +1112,22 @@ $(function () {
 
             var data = {
                 clientes_id: clientesId,
-                brindes_id: brindesId,
                 data_inicio: dataInicioEnvio,
-                data_fim: dataFimEnvio,
-                tipo_relatorio: tipoRelatorio
+                data_fim: dataFimEnvio
             };
+
+            $.ajax({
+                type: "GET",
+                url: "/api/pontuacoes/get_resumo_pontuacoes_estabelecimento",
+                data: data,
+                dataType: "JSON",
+                success: function (res) {
+                    console.log(res);
+                },
+                error: function (res) {
+                    console.log(res);
+                }
+            });
 
         }
 
@@ -1217,4 +1228,5 @@ $(function () {
     })
     .ajaxStart(callLoaderAnimation)
     .ajaxStop(closeLoaderAnimation)
-    .ajaxError(closeLoaderAnimation);
+// .ajaxError(closeLoaderAnimation)
+;
