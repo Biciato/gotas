@@ -209,7 +209,10 @@ class SefazUtil
                         $posicaoQuantidadeFim = strpos($texto, " UN", $posicaoQuantidadeInicio) - $posicaoQuantidadeInicio;
                         $quantidade = substr($texto, $posicaoQuantidadeInicio, $posicaoQuantidadeFim);
                         $quantidade = trim($quantidade);
-                        $item["quantidade"] = preg_replace("/(\D)/", "", $quantidade) / 1000;
+                        $quantidade = str_replace(".", "", $quantidade);
+                        $quantidade = str_replace(",", ".", $quantidade);
+                        $item["quantidade"] = $quantidade;
+                        // $item["quantidade"] = preg_replace("/(\D)/", "", $quantidade) / 1000;
 
                         // Captura de valor
                         $textoReais = "Vl. Total";
@@ -217,8 +220,11 @@ class SefazUtil
                         $posicaoReaisInicio = strpos($texto, $textoReais) + $posicaoFimTextoReais;
 
                         $valor = substr($texto, $posicaoReaisInicio);
+                        // $valorFormatado = str_replace(".", "", $valor);
+                        // $valorFormatado = str_replace(",", ".", $valorFormatado);
                         $valorFormatado = preg_replace("/(\D)/", "", $valor);
                         $valor = $valorFormatado > 0 ? $valorFormatado / 100 : $valorFormatado;
+                        // $valor = $valorFormatado;
                         $item["valor"] = trim($valor);
                         $itemsNodesHtml[] = $item;
                     }
