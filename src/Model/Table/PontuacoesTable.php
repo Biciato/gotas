@@ -1164,7 +1164,7 @@ class PontuacoesTable extends GenericTable
     public function getSumPontuacoesIncoming(int $redesId = 0, array $clientesIds = [], \DateTime $minDate = null, DateTime $maxDate = null)
     {
         try {
-            $queryConditions = function(QueryExpression $exp) use ($redesId, $clientesIds, $minDate, $maxDate) {
+            $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $minDate, $maxDate) {
                 if (!empty($redesId)) {
                     $exp->eq("Redes.id", $redesId);
                 }
@@ -1173,31 +1173,30 @@ class PontuacoesTable extends GenericTable
                     $exp->in("Clientes.id", $clientesIds);
                 }
 
-                if (!empty($dataInicio)) {
-                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')", $dataInicio);
+                if (!empty($minDate)) {
+                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d %H:%i:%s')", $minDate->format("Y-m-d 00:00:00"));
                 }
 
-                if (!empty($dataFim)) {
-                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')", $dataFim);
+                if (!empty($maxDate)) {
+                    $exp->lte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d %H:%i:%s')", $maxDate->format("Y-m-d 23:59:59"));
                 }
 
                 return $exp->isNotNull("Pontuacoes.gotas_id");
             };
 
             $selectList = [
-                "SomaGotas" => "ROUND(SUM(Pontuacoes.quantidade_gotas), 2)",
-                "SomaReais" => "ROUND(SUM(Pontuacoes.valor_moeda_venda), 2)",
-                "SomaGotaSefaz" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)"
+                "soma_gotas" => "ROUND(SUM(Pontuacoes.quantidade_gotas), 2)",
+                "soma_reais" => "ROUND(SUM(Pontuacoes.valor_moeda_venda), 2)",
+                "soma_gota_sefaz" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)"
             ];
 
             return $this
                 ->find('all')
                 ->where($queryConditions)
                 ->select($selectList)
-                // TODO: olhar pq não está agrupando
-                // ->group(['usuarios_id'])
-                ->contain(['Clientes.RedesHasClientes.Redes']);
-        } catch (\Exception $e) {
+                ->contain(['Clientes.RedesHasClientes.Redes'])
+                ->first();
+        } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);

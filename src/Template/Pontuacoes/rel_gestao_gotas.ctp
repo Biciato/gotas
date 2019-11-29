@@ -15,7 +15,7 @@ $debug = Configure::read("debug");
 // $debugExtension = $debug ? ".min" : "";
 $debugExtension = $debug ? "" : "";
 
-$title = "Gestão de Gotas - Entrada e Saída";
+$title = "Gestão de Gotas";
 $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'display']);
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
@@ -121,21 +121,31 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
     <div class="form-group row">
         <div class="col-lg-6">
             <label for="total_gotas_ontem">Total Gotas até Ontem</label>
-            <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control">
+            <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">
         </div>
         <div class="col-lg-6">
             <label for="total_gotas_resgatadas">Total Gotas Resgatadas</label>
-            <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control">
+            <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control text-right">
         </div>
     </div>
     <div class="form-group row">
         <div class="col-lg-6">
             <label for="gotas_adquiridas_periodo">Total Gotas Adquiridas no Período:</label>
-            <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control">
+            <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control text-right">
         </div>
         <div class="col-lg-6">
             <label for="gotas_expiradas_periodo">Gotas expiradas no período</label>
-            <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control">
+            <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control text-right">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-lg-6">
+            <label for="caixa_hoje_gotas">Caixa de Hoje - Gotas:</label>
+            <input type="text" name="caixa_hoje_gotas" id="caixa-hoje-gotas" readonly class="form-control text-right">
+        </div>
+        <div class="col-lg-6">
+            <label for="caixa_hoje_reais">Caixa de Hoje - Reais:</label>
+            <input type="text" name="caixa_hoje_reais" id="caixa-hoje-reais" readonly class="form-control text-right">
         </div>
     </div>
 </div>

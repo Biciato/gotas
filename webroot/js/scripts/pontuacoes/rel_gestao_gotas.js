@@ -24,6 +24,17 @@ $(function () {
         var pesquisarBtn = $("#btn-pesquisar");
         var imprimirBtn = $("#btn-imprimir");
 
+        //#region Dados de Resumo
+
+        var totalGotasOntem = $("#total-gotas-ontem");
+        var totalGotasResgatadas = $("#total-gotas-resgatadas");
+        var gotasAdquiridasPeriodo = $("#gotas-adquiridas-periodo");
+        var gotasExpiradasPeriodo = $("#gotas-expiradas-periodo");
+        var caixaHojeGotas = $("#caixa-hoje-gotas");
+        var caixaHojeReais = $("#caixa-hoje-reais");
+
+        //#endregion
+
         var dataAtual = moment().format("DD/MM/YYYY");
 
         var dataInicio = $("#data-inicio").datepicker({
@@ -480,9 +491,11 @@ $(function () {
         }
 
         /**
-         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getPontuacoesRelatorioEntradaSaida
+         * Obtem dados de pontuações
          *
          * Obtem os dados de relatório do servidor
+         *
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getPontuacoesRelatorioEntradaSaida
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2019-09-12
@@ -1092,6 +1105,22 @@ $(function () {
             });
         }
 
+        /**
+         * Obtem Resumo de dados
+         *
+         * Obtem Resumo de dados
+         *
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getResumoPontuacoesRelatorioEntradaSaida
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-11-28
+         *
+         *
+         * @param {int} redesId Redes Id
+         * @param {int} clientesId Clientes Id
+         * @param {datetime} dataInicio Data Inicio
+         * @param {datetime} dataFim Data Fim
+         */
         function getResumoPontuacoesRelatorioEntradaSaida(redesId, clientesId, dataInicio, dataFim) {
             // Validação
 
@@ -1110,7 +1139,7 @@ $(function () {
                 dataFimEnvio = dataFim;
             }
 
-            var data = {
+            var dataSend = {
                 clientes_id: clientesId,
                 data_inicio: dataInicioEnvio,
                 data_fim: dataFimEnvio
@@ -1119,10 +1148,20 @@ $(function () {
             $.ajax({
                 type: "GET",
                 url: "/api/pontuacoes/get_resumo_pontuacoes_estabelecimento",
-                data: data,
+                data: dataSend,
                 dataType: "JSON",
                 success: function (res) {
                     console.log(res);
+
+                    totalGotasOntem.val(res.data.soma_ate_ontem);
+                    totalGotasResgatadas.val(res.data.total_gotas_resgatadas);
+                    gotasAdquiridasPeriodo.val(res.data.gotas_adquiridas_periodo);
+                    gotasExpiradasPeriodo.val(res.data.gotas_expiradas_periodo);
+                    caixaHojeGotas.val(res.data.caixa_hoje.gotas);
+                    caixaHojeReais.val(res.data.caixa_hoje.reais);
+
+
+                    // var data = res
                 },
                 error: function (res) {
                     console.log(res);

@@ -1237,13 +1237,34 @@ class PontuacoesController extends AppController
                 $dataOntem = new DateTime('now');
                 $dataOntem->modify('-1 day');
                 $dataOntem = date_create($dataOntem->format("Y-m-d 23:59:59"));
+                $dataHoje = new DateTime('now');
 
                 $somaAteOntem = $this->Pontuacoes->getSumPontuacoesIncoming($redesId, $clientesIds, null, $dataOntem);
+
+                // Gotas Adquiridas no Periodo
+                $gotasAdquiridasPeriodo = $this->Pontuacoes->getSumPontuacoesIncoming($redesId, $clientesIds, $dataInicio, $dataFim);
+
+                // Total Gotas Resgatadas
+                // @todo Falta consulta
+                $totalGotasResgatadas = $this->Cupons->getSumCupons($redesId, $clientesIds, $dataInicio, $dataFim);
+
+                // Total Gotas Expiradas
+                // @todo falta fazer ajuste de "Brinde" que faz o débito de pontos expirados.
+                // $totalGotasExpiradas = $this->Pontuacoes->
+                $totalGotasExpiradas = 0;
+
+                // Caixa hoje
+                // @todo fazer query
+                $caixaHoje = $this->Pontuacoes->getSumPontuacoesIncoming($redesId, $clientesIds, $dataHoje, $dataHoje);
 
                 #endregion
 
                 $retorno = [];
-                $retorno["soma_ate_ontem"] = $somaAteOntem;
+                $retorno["data"]["soma_ate_ontem"] = $somaAteOntem->soma_gotas;
+                $retorno["data"]["gotas_adquiridas_periodo"] = $gotasAdquiridasPeriodo->soma_gotas;
+                $retorno["data"]["total_gotas_resgatadas"] = $totalGotasResgatadas->soma_gotas;
+                $retorno["data"]["total_gotas_expiradas_periodo"] = $totalGotasExpiradas;
+                $retorno["data"]["caixa_hoje"] = $caixaHoje;
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
             }
