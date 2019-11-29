@@ -1,3 +1,13 @@
 #info-vazio {
     display: none;
 }
+
+#tabela-dados  strong {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+#tabela-dados   span {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
