@@ -24,6 +24,17 @@ $(function () {
         var pesquisarBtn = $("#btn-pesquisar");
         var imprimirBtn = $("#btn-imprimir");
 
+        //#region Dados de Brinde Selecionado
+
+        var tabelaResumoBrinde = $("#tabela-resumo-brinde");
+
+        var brindeSelecionadoNome = $("#nome-brinde");
+        var brindeSelecionadoQte = $("#quantidade-emitida");
+        var brindeSelecionadoGotas = $("#total-gotas-brinde");
+        var brindeSelecionadoReais = $("#total-reais-brinde");
+
+        //#endregion
+
         //#region Dados de Resumo
 
         var totalGotasOntem = $("#total-gotas-ontem");
@@ -1107,39 +1118,49 @@ $(function () {
         function getResumoBrinde(brindesId, dataInicio, dataFim) {
             // Validação
 
-            var dataInicioEnvio = moment(dataInicio);
-            var dataFimEnvio = moment(dataFim);
+            tabelaResumoBrinde.hide();
 
-            if (!dataInicioEnvio.isValid()) {
-                dataInicioEnvio = undefined;
-            } else {
-                dataInicioEnvio = dataInicio;
-            }
+            if (tipoMovimentacaoSelectedItem === "Saída" && brindesId !== undefined) {
+                tabelaResumoBrinde.show();
 
-            if (!dataFimEnvio.isValid()) {
-                dataFimEnvio = undefined;
-            } else {
-                dataFimEnvio = dataFim;
-            }
+                var dataInicioEnvio = moment(dataInicio);
+                var dataFimEnvio = moment(dataFim);
 
-            var dataSend = {
-                clientes_id: clientesId,
-                data_inicio: dataInicioEnvio,
-                data_fim: dataFimEnvio
-            };
-
-            $.ajax({
-                type: "GET",
-                url: "/api/cupons/get_resumo_brinde",
-                data: dataSend,
-                dataType: "JSON",
-                success: function (response) {
-
-
-                }, error: function (response) {
-
+                if (!dataInicioEnvio.isValid()) {
+                    dataInicioEnvio = undefined;
+                } else {
+                    dataInicioEnvio = dataInicio;
                 }
-            });
+
+                if (!dataFimEnvio.isValid()) {
+                    dataFimEnvio = undefined;
+                } else {
+                    dataFimEnvio = dataFim;
+                }
+
+                var dataSend = {
+                    brindes_id: brindesId,
+                    data_inicio: dataInicioEnvio,
+                    data_fim: dataFimEnvio
+                };
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/cupons/get_resumo_brinde",
+                    data: dataSend,
+                    dataType: "JSON",
+                    success: function (response) {
+
+                        brindeSelecionadoQte.val(response.data.brinde.qte);
+                        brindeSelecionadoGotas.val(response.data.brinde.soma_gotas);
+                        brindeSelecionadoReais.val("R$ " + parseFloat(response.data.brinde.soma_reais).toFixed(2));
+                        brindeSelecionadoNome.text(response.data.brinde.nome_brinde);
+                    },
+                    error: function (response) {
+
+                    }
+                });
+            }
 
 
         }
@@ -1293,9 +1314,7 @@ $(function () {
         $(pesquisarBtn).on("click", function () {
             getPontuacoesRelatorioEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
 
-            if (tipoMovimentacao === 'Saída') {
-                getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
-            }
+            getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
         });
 
         imprimirBtn.unbind("click");

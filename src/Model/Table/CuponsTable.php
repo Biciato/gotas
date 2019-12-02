@@ -861,14 +861,14 @@ class CuponsTable extends GenericTable
             $selectList = [
                 'soma_gotas' => $query->func()->sum('Cupons.valor_pago_gotas'),
                 'soma_reais' => $query->func()->sum('Cupons.valor_pago_reais'),
-                'qte' => $query->func()->sum("Cupons.quantidade")
+                'qte' => $query->func()->sum("Cupons.quantidade"),
             ];
 
             $group = [];
 
             // Traz informações do brinde e agrupamento se o mesmo for especificado.
             if (!empty($brindesId)) {
-                $selectList[] = ["brinde" => "Brindes.nome"];
+                $selectList["nome_brinde"] = "Brindes.nome";
                 $group = ["Brindes.id"];
             }
 

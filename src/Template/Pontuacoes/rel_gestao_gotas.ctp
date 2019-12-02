@@ -116,19 +116,26 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </tbody>
     </table>
 
-    <div class="form-group row" id='tabela-resumo-brinde'>
+    <div id='tabela-resumo-brinde'>
+        <h3>
+            <div>Informações de Brinde "<span id='nome-brinde'></span>"</div>
+        </h3>
+        <div class="form-group row">
 
-    <h3><div>Informações de Brinde <span id='nome-brinde'></span></div></h3>
+            <div class="col-lg-4">
+                <label for="quantidade_emitida">Quantidade Emitida:</label>
+                <input type="text" name="quantidade_emitida" id="quantidade-emitida" class="form-control" readonly />
+            </div>
+            <div class="col-lg-4">
+                <label for="total_gotas_brinde">Total Gotas do Brinde:</label>
+                <input type="text" name="total_gotas_brinde" id="total-gotas-brinde" class="form-control" readonly />
+            </div>
+            <div class="col-lg-4">
+                <label for="total_reais_brinde">Total Reais do Brinde:</label>
+                <input type="text" name="total_reais_brinde" id="total-reais-brinde" class="form-control" readonly />
+            </div>
+        </div>
 
-    <div class="col-lg-4">
-
-    </div>
-    <div class="col-lg-4">
-
-    </div>
-    <div class="col-lg-4">
-
-    </div>
     </div>
 
     <h3>Resumo Sintético</h3>

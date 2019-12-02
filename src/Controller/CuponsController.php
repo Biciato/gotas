@@ -23,6 +23,7 @@ use App\Model\Entity\CuponsTransacoes;
 use App\Custom\RTI\NumberUtil;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use Throwable;
 
 /**
  * Cupons Controller
@@ -1235,7 +1236,7 @@ class CuponsController extends AppController
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
         // DebugUtil::printArray($funcionariosList);
         $funcionarioSelecionado = 0;
-        $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1);
+        $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1, null);
         $brindesList = [];
 
         foreach ($brindesQuery as $brinde) {
@@ -3004,7 +3005,7 @@ class CuponsController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
-    public function getResumoBrinde()
+    public function getResumoBrindeAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
         $usuario = $sessaoUsuario["usuarioLogado"];
@@ -3024,8 +3025,9 @@ class CuponsController extends AppController
                 Log::write("info", $data);
 
                 $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : $cliente->id;
-                $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : null;
-                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : '2099-12-31';
+                // DebugUtil::printArray($data);
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
 
                 $errors = [];
@@ -3041,6 +3043,21 @@ class CuponsController extends AppController
                 if (empty($brindesId)) {
                     $errors[] = MSG_BRINDES_ID_EMPTY;
                     $errorCodes[] = MSG_BRINDES_ID_EMPTY_CODE;
+                }
+
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                // // Periodo limite de filtro é 1 ano
+                // if ($dataDiferenca->y >= 1) {
+                //     $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                //     $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                // }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
                 }
 
                 if (count($errors) > 0) {
@@ -3059,7 +3076,7 @@ class CuponsController extends AppController
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
             }
-        } catch (\Exception $e) {
+        } catch (Throwable $th) {
             $errorMessage = $th->getMessage();
             $errorCode = $th->getCode();
 

@@ -1178,7 +1178,7 @@ class BrindesController extends AppController
 
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
-                $brindes = $this->Brindes->getList($redesId, $clientesId, 0);
+                $brindes = $this->Brindes->getList($redesId, $clientesId, 0, null);
                 $brindes = ["brindes" => $brindes->toArray()];
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $brindes]);
