@@ -11,6 +11,7 @@ use App\Model\Entity\CuponsTransacoes;
 use Cake\Log\Log;
 use DateTime;
 use App\Custom\RTI\DebugUtil;
+use Cake\Database\Expression\QueryExpression;
 
 /**
  * CuponsTransacoes Model
@@ -43,56 +44,56 @@ class CuponsTransacoesTable extends GenericTable
     {
         parent::initialize($config);
 
-        $this->setTable('cupons_transacoes');
-        $this->setDisplayField('id');
-        $this->setPrimaryKey('id');
+        $this->setTable("cupons_transacoes");
+        $this->setDisplayField("id");
+        $this->setPrimaryKey("id");
 
         $this->belongsTo(
-            'Rede',
+            "Redes",
             array(
                 "className" => "redes",
-                'foreignKey' => 'redes_id',
-                'joinType' => 'INNER'
+                "foreignKey" => "redes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
         $this->belongsTo(
-            'Cliente',
+            "Clientes",
             array(
                 "className" => "clientes",
-                'foreignKey' => 'clientes_id',
-                'joinType' => 'INNER'
+                "foreignKey" => "clientes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
         $this->belongsTo(
-            'Cupom',
+            "Cupons",
             array(
                 "className" => "cupons",
-                'foreignKey' => 'cupons_id',
-                'joinType' => 'INNER'
+                "foreignKey" => "cupons_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
         $this->belongsTo(
-            'Brinde',
+            "Brindes",
             array(
                 "className" => "brindes",
-                'foreignKey' => 'brindes_id',
-                'joinType' => 'INNER'
+                "foreignKey" => "brindes_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
         $this->belongsTo(
-            'ClienteHasQuadroHorario',
+            "ClientesHasQuadroHorarios",
             array(
                 "className" => "clientes_has_quadro_horario",
-                "foreignKey" => 'clientes_has_quadro_horario_id',
-                "joinType" => 'INNER'
+                "foreignKey" => "clientes_has_quadro_horario_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
         $this->belongsTo(
-            'Funcionario',
+            "Funcionarios",
             array(
                 "className" => "usuarios",
-                'foreignKey' => 'funcionarios_id',
-                'joinType' => 'INNER'
+                "foreignKey" => "funcionarios_id",
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
     }
@@ -165,12 +166,12 @@ class CuponsTransacoesTable extends GenericTable
      * @param integer $clienteHasQuadroHorario Cliente Has Quadro Horario
      * @param integer $funcionariosId Funcionarios Id
      * @param string $tipoOperacao Tipo Operacao
-     * @param DateTime $dataInicio Data Inicio
-     * @param DateTime $dataFim Data Fim
+     * @param DateTime $minDate Data Inicio
+     * @param DateTime $maxDate Data Fim
      *
      * @return int Soma
      */
-    public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId = null, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $dataInicio = null, DateTime $dataFim = null)
+    public function getSumTransacoesByTypeOperation(int $redesId = null, int $clientesId = null, int $cuponsId = null, int $brindesId = null, int $clienteHasQuadroHorario = null, int $funcionariosId = null, string $tipoOperacao = null, DateTime $minDate = null, DateTime $maxDate = null)
     {
         try {
             $where = array();
@@ -196,11 +197,11 @@ class CuponsTransacoesTable extends GenericTable
             if (!empty($tipoOperacao)) {
                 $where[] = array("CuponsTransacoes.tipo_operacao" => $tipoOperacao);
             }
-            if (!empty($dataInicio)) {
-                $where[] = array("CuponsTransacoes.data >= " => $dataInicio->format("Y-m-d H:i:s"));
+            if (!empty($minDate)) {
+                $where[] = array("CuponsTransacoes.data >= " => $minDate->format("Y-m-d H:i:s"));
             }
-            if (!empty($dataFim)) {
-                $where[] = array("CuponsTransacoes.data <= " => $dataFim->format("Y-m-d H:i:s"));
+            if (!empty($maxDate)) {
+                $where[] = array("CuponsTransacoes.data <= " => $maxDate->format("Y-m-d H:i:s"));
             }
 
             $query = $this->find();
@@ -218,6 +219,99 @@ class CuponsTransacoesTable extends GenericTable
             throw new Exception($message);
         }
     }
+
+    /**
+     * Obtem dados de transacoes
+     *
+     * Obtem dados de transacoes para relatório
+     *
+     * CuponsTransacoesTable.php::getTransactionsForReport
+     *
+     * @param integer $redesId Redes Id
+     * @param array $clientesIds Clientes Ids
+     * @param integer $brindesId Brindes Id
+     * @param DateTime $minDate Min Date
+     * @param DateTime $maxDate Max Date
+     * @param string $tipoRelatorio Tipo Relatorio
+     *
+     * @return \App\Model\Entity\CuponsTransacoes[] Array de transacoes
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-02
+     */
+    public function getTransactionsForReport(int $redesId = null, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    {
+
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (!empty($clientesIds) && count($clientesIds) > 0) {
+                    $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($brindesId)) {
+                    $exp->eq("Brindes.id", $brindesId);
+                }
+
+                if (!empty($minDate)) {
+                    $exp->gte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $minDate->format("Y-m-d 00:00:00"));
+                }
+
+                if (!empty($maxDate)) {
+                    $exp->lte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $maxDate->format("Y-m-d 23:59:59"));
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_USE);
+
+                return $exp;
+            };
+
+            $selectList = [
+                "periodo" => "DATE_FORMAT(CuponsTransacoes.data, '%Y-%m')",
+                "qte_gotas" => "ROUND(SUM(Cupons.valor_pago_gotas), 2)",
+                "qte_reais" => "ROUND(SUM(Cupons.valor_pago_reais), 2)",
+                "CuponsTransacoes.tipo_operacao",
+                "brinde" => "Brindes.nome",
+                "funcionario" => "Funcionarios.nome",
+                "usuario" => "Usuarios.nome",
+                "estabelecimento" => "Clientes.nome_fantasia",
+                "rede" => "Redes.nome_rede",
+                "qte" => "COUNT(Cupons.quantidade)"
+            ];
+
+
+            $group = [];
+            $join = ["Redes",  "Clientes",  "Brindes",  "Cupons.Usuarios",  "Funcionarios"];
+
+            if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                $selectList["periodo"] = "DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d')";
+                $group = [
+                    "periodo",
+                    "Clientes.id",
+                    "Brindes.id",
+                    "Funcionarios.id",
+                    "Usuarios.id"
+                ];
+            }
+
+            $query = $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->group($group)
+                ->select($selectList);
+
+            return $query;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $code = MSG_LOAD_EXCEPTION_CODE;
+            Log::write("error", sprintf("%s - %s", $code, $message));
+            throw new Exception($message, $code);
+        }
+    }
+
     #endregion
 
     #region Save

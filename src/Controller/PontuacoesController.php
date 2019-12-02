@@ -921,6 +921,7 @@ class PontuacoesController extends AppController
             if ($this->request->is(Request::METHOD_GET)) {
                 // Obtenção dos dados
                 $data = $this->request->getQueryParams();
+                $redesId = !empty($rede) ? (int) $rede->id : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
@@ -1002,48 +1003,22 @@ class PontuacoesController extends AppController
                     $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
                     // @TODO Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
                     // Tabela de pontuações só guarda aquilo que foi GASTO
-                    $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);
+                    // $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);
+                    $saidas = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$clientesId], $brindesId, $dataInicio, $dataFim, $tipoRelatorio);
+
+                    // return ResponseUtil::successAPI('', ['data' => $saidas->toArray()]);
 
                     $entradas = $entradas->toArray();
                     $saidas = $saidas->toArray();
                     $somaEntradas = 0;
                     $somaSaidas = 0;
 
-                    /**
-                     * Processo de verificação que analiza se os dois conjuntos de registro estão com os
-                     * mesmos periodos informados
-                     */
+                    // obtem somatória
                     foreach ($entradas as $entrada) {
-                        // verifica se o periodo de entrada possui em saída
-                        $registroEncontrado = false;
-
-                        foreach ($saidas as $saida) {
-                            if ($saida["periodo"] == $entrada["periodo"]) {
-                                $registroEncontrado = true;
-                            }
-                        }
-
-                        if (!$registroEncontrado) {
-                            $saidas[] = ["periodo" => $entrada["periodo"], "qte_gotas" => 0];
-                        }
-
                         $somaEntradas += $entrada["qte_gotas"];
                     }
 
                     foreach ($saidas as $saida) {
-                        // verifica se o periodo de entrada possui em saída
-                        $registroEncontrado = false;
-
-                        foreach ($entradas as $entrada) {
-                            if ($entrada["periodo"] == $saida["periodo"]) {
-                                $registroEncontrado = true;
-                            }
-                        }
-
-                        if (!$registroEncontrado) {
-                            $entradas[] = ["periodo" => $saida["periodo"], "qte_gotas" => 0];
-                        }
-
                         $somaSaidas += $saida["qte_gotas"];
                     }
 
@@ -1052,7 +1027,6 @@ class PontuacoesController extends AppController
 
                     // Se o relatório é analítico, o agrupamento dos registros será pelo mês
                     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-
                         foreach ($entradas as $entrada) {
                             $dataAgrupamento = new DateTime($entrada["periodo"]);
                             $dataAgrupamento = $dataAgrupamento->format("Y-m");
@@ -1067,17 +1041,12 @@ class PontuacoesController extends AppController
 
                         // Percorre dia a dia e preenche se valor é 0
                         // Fiz em código pq em sql não resolveu
-
                         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
-
-                        // return ResponseUtil::successAPI('', $entradasAnalitico);
-
-                        $entradasAnaliticoTemp = [];
 
                         while ($dataLoop <= $dataFim) {
                             // Verifica se existe o registro em tal data
                             $positionSeek = null;
-                            $entradaTemp = [];
+                            $recordIn = [];
 
                             foreach ($entradasAnalitico as $key => $entrada) {
                                 $positionSeek = $key;
@@ -1091,7 +1060,7 @@ class PontuacoesController extends AppController
                                 }
 
                                 if (!$found) {
-                                    $entradaTemp = [
+                                    $recordIn = [
                                         "periodo" => $dataLoop->format("Y-m-d"),
                                         "qte_gotas" => 0
                                     ];
@@ -1100,8 +1069,42 @@ class PontuacoesController extends AppController
                                 $dataLoop->modify("+1 day");
                             }
 
-                            if (!empty($entradaTemp)) {
-                                $entradasAnalitico[$positionSeek]["data"][] = $entradaTemp;
+                            if (!empty($recordIn)) {
+                                $entradasAnalitico[$positionSeek]["data"][] = $recordIn;
+                            }
+                        }
+
+                        $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
+
+                        while ($dataLoop <= $dataFim) {
+                            // Verifica se existe o registro em tal data
+                            $positionSeek = null;
+                            $recordOut = [];
+
+                            foreach ($saidasAnalitico as $key => $saida) {
+                                $positionSeek = $key;
+                                $found = false;
+
+                                foreach ($saida["data"] as $data) {
+                                    if ($data["periodo"] == $dataLoop->format("Y-m-d")) {
+                                        $found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!$found) {
+                                    $recordOut = [
+                                        "periodo" => $dataLoop->format("Y-m-d"),
+                                        "qte_gotas" => 0,
+                                        "qte_reais" => 0
+                                    ];
+                                }
+
+                                $dataLoop->modify("+1 day");
+                            }
+
+                            if (!empty($recordOut)) {
+                                $saidasAnalitico[$positionSeek]["data"][] = $recordOut;
                             }
                         }
 
@@ -1116,7 +1119,19 @@ class PontuacoesController extends AppController
                             $entradasTemp[$periodo] = $temp;
                         }
 
+                        $saidasTemp = [];
+                        foreach ($saidasAnalitico as $periodo => $saidas) {
+                            $temp = $saidas;
+
+                            usort($temp["data"], function ($a, $b) {
+                                return $a["periodo"] > $b["periodo"];
+                            });
+
+                            $saidasTemp[$periodo] = $temp;
+                        }
+
                         $entradasAnalitico = $entradasTemp;
+                        $saidasAnalitico = $saidasTemp;
 
                         $entradasAnaliticoTemp = [];
                         foreach ($entradasAnalitico as $entrada) {
