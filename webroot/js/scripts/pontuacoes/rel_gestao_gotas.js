@@ -87,7 +87,6 @@ $(function () {
             option1.title = "Selecione um Estabelecimento para continuar...";
             gotasSelectListBox.append(option1);
 
-
             // Dispara todos os eventos que precisam de inicializar
             // dataInicioOnChange();
             // dataFimOnChange();
@@ -1105,6 +1104,46 @@ $(function () {
             });
         }
 
+        function getResumoBrinde(brindesId, dataInicio, dataFim) {
+            // Validação
+
+            var dataInicioEnvio = moment(dataInicio);
+            var dataFimEnvio = moment(dataFim);
+
+            if (!dataInicioEnvio.isValid()) {
+                dataInicioEnvio = undefined;
+            } else {
+                dataInicioEnvio = dataInicio;
+            }
+
+            if (!dataFimEnvio.isValid()) {
+                dataFimEnvio = undefined;
+            } else {
+                dataFimEnvio = dataFim;
+            }
+
+            var dataSend = {
+                clientes_id: clientesId,
+                data_inicio: dataInicioEnvio,
+                data_fim: dataFimEnvio
+            };
+
+            $.ajax({
+                type: "GET",
+                url: "/api/cupons/get_resumo_brinde",
+                data: dataSend,
+                dataType: "JSON",
+                success: function (response) {
+
+
+                }, error: function (response) {
+
+                }
+            });
+
+
+        }
+
         /**
          * Obtem Resumo de dados
          *
@@ -1156,9 +1195,9 @@ $(function () {
                     totalGotasOntem.val(res.data.soma_ate_ontem);
                     totalGotasResgatadas.val(res.data.total_gotas_resgatadas);
                     gotasAdquiridasPeriodo.val(res.data.gotas_adquiridas_periodo);
-                    gotasExpiradasPeriodo.val(res.data.gotas_expiradas_periodo);
-                    caixaHojeGotas.val(res.data.caixa_hoje.gotas);
-                    caixaHojeReais.val(res.data.caixa_hoje.reais);
+                    gotasExpiradasPeriodo.val(res.data.total_gotas_expiradas_periodo);
+                    caixaHojeGotas.val(res.data.caixa_hoje.soma_gotas);
+                    caixaHojeReais.val("R$ " + parseFloat(res.data.caixa_hoje.soma_reais).toFixed(2));
 
 
                     // var data = res
@@ -1253,6 +1292,10 @@ $(function () {
 
         $(pesquisarBtn).on("click", function () {
             getPontuacoesRelatorioEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
+
+            if (tipoMovimentacao === 'Saída') {
+                getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
+            }
         });
 
         imprimirBtn.unbind("click");

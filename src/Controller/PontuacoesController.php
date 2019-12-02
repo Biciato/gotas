@@ -1246,7 +1246,7 @@ class PontuacoesController extends AppController
 
                 // Total Gotas Resgatadas
                 // @todo Falta consulta
-                $totalGotasResgatadas = $this->Cupons->getSumCupons($redesId, $clientesIds, $dataInicio, $dataFim);
+                $totalGotasResgatadas = $this->Cupons->getSumCupons($redesId, $clientesIds, null, null, $dataOntem);
 
                 // Total Gotas Expiradas
                 // @todo falta fazer ajuste de "Brinde" que faz o débito de pontos expirados.

@@ -116,9 +116,24 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </tbody>
     </table>
 
-    <h3>Resumo</h3>
+    <div class="form-group row" id='tabela-resumo-brinde'>
 
-    <div class="form-group row">
+    <h3><div>Informações de Brinde <span id='nome-brinde'></span></div></h3>
+
+    <div class="col-lg-4">
+
+    </div>
+    <div class="col-lg-4">
+
+    </div>
+    <div class="col-lg-4">
+
+    </div>
+    </div>
+
+    <h3>Resumo Sintético</h3>
+
+    <div class="form-group row" id='tabela-resumo-sintetico'>
         <div class="col-lg-6">
             <label for="total_gotas_ontem">Total Gotas até Ontem</label>
             <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">

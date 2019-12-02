@@ -21,6 +21,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\ShiftUtil;
 use App\Model\Entity\CuponsTransacoes;
 use App\Custom\RTI\NumberUtil;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 
 /**
@@ -3001,6 +3002,78 @@ class CuponsController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
+
+    public function getResumoBrinde()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+
+                Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
+                $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : $cliente->id;
+                $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                $errors = [];
+                $errorCodes = [];
+
+                #region Tratamento de erros
+
+                if (empty($clientesId) && empty($cliente)) {
+                    $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
+                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
+                }
+
+                if (empty($brindesId)) {
+                    $errors[] = MSG_BRINDES_ID_EMPTY;
+                    $errorCodes[] = MSG_BRINDES_ID_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                // campos de data não tem obrigatoriedade. se não informar estas informações, será o total de tudo
+
+                #endregion
+
+                // Consulta
+                $infoBrinde = $this->Cupons->getSumCupons($rede->id, [$clientesId], $brindesId, $dataInicio, $dataFim);
+
+                $retorno = [];
+                $retorno["data"]["brinde"] = $infoBrinde;
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
+            }
+        } catch (\Exception $e) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
     }
 
     #region Métodos Comuns

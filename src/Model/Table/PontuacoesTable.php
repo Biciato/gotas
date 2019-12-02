@@ -1185,9 +1185,9 @@ class PontuacoesTable extends GenericTable
             };
 
             $selectList = [
-                "soma_gotas" => "ROUND(SUM(Pontuacoes.quantidade_gotas), 2)",
-                "soma_reais" => "ROUND(SUM(Pontuacoes.valor_moeda_venda), 2)",
-                "soma_gota_sefaz" => "ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2)"
+                "soma_gotas" => "IF (Pontuacoes.quantidade_gotas > 0, ROUND(SUM(Pontuacoes.quantidade_gotas), 2), 0)",
+                "soma_reais" => "IF (Pontuacoes.valor_moeda_venda > 0, ROUND(SUM(Pontuacoes.valor_moeda_venda), 2), 0)",
+                "soma_gota_sefaz" => "IF (Pontuacoes.valor_gota_sefaz > 0, ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2), 0)"
             ];
 
             return $this
@@ -1854,6 +1854,8 @@ class PontuacoesTable extends GenericTable
             );
             $camposWhere = array(
                 "expirado" => 0,
+                "gotas_id IS NOT NULL",
+                "utilizado <> " => (int) Configure::read("dropletsUsageStatus")["FullyUsed"],
                 "TIMESTAMPDIFF(MONTH, data, NOW()) > " => $tempoExpiracaoGotasUsuarios,
                 "clientes_id" => $clientesId
             );

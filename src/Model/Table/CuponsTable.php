@@ -830,16 +830,20 @@ class CuponsTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-11-29
      */
-    public function getSumCupons(int $redesId = 0, array $clientesIds = [], DateTime $minDate = null, DateTime $maxDate = null)
+    public function getSumCupons(int $redesId = 0, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null)
     {
         try {
-            $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $minDate, $maxDate) {
+            $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
                 if (!empty($redesId)) {
                     $exp->eq("Redes.id", $redesId);
                 }
 
                 if (count($clientesIds) > 0) {
                     $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($brindesId)) {
+                    $exp->eq("Brindes.id", $brindesId);
                 }
 
                 if (!empty($minDate)) {
@@ -860,10 +864,19 @@ class CuponsTable extends GenericTable
                 'qte' => $query->func()->sum("Cupons.quantidade")
             ];
 
+            $group = [];
+
+            // Traz informações do brinde e agrupamento se o mesmo for especificado.
+            if (!empty($brindesId)) {
+                $selectList[] = ["brinde" => "Brindes.nome"];
+                $group = ["Brindes.id"];
+            }
+
             $query = $this->find("all")
                 ->where($queryConditions)
                 ->select($selectList)
-                ->contain(["Clientes.RedesHasClientes.Redes"])
+                ->group($group)
+                ->contain(["Clientes.RedesHasClientes.Redes", "Brindes"])
                 ->first();
 
             return $query;
