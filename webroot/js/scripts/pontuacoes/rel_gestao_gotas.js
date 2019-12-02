@@ -323,7 +323,8 @@ $(function () {
                 type: "GET",
                 url: "/api/brindes/get_brindes_list",
                 data: {
-                    clientes_id: clientesId
+                    clientes_id: clientesId,
+                    habilitado: 2
                 },
                 dataType: "JSON",
                 success: function (response) {
@@ -1120,7 +1121,8 @@ $(function () {
 
             tabelaResumoBrinde.hide();
 
-            if (tipoMovimentacaoSelectedItem === "Saída" && brindesId !== undefined) {
+            console.log(brindesId);
+            if (tipoMovimentacaoSelectedItem === "Saída" && (brindesId !== undefined && brindesId > 0)) {
                 tabelaResumoBrinde.show();
 
                 var dataInicioEnvio = moment(dataInicio);
@@ -1314,7 +1316,7 @@ $(function () {
         $(pesquisarBtn).on("click", function () {
             getPontuacoesRelatorioEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio);
 
-            getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
+            // getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
         });
 
         imprimirBtn.unbind("click");

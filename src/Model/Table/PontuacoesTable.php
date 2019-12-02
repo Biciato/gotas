@@ -1429,6 +1429,7 @@ class PontuacoesTable extends GenericTable
                 ->where($whereConditions)
                 ->contain($join)
                 ->group($groupConditions)
+                ->order(["periodo" => "ASC"])
                 ->select($selectList);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());

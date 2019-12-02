@@ -1000,7 +1000,7 @@ class PontuacoesController extends AppController
 
                 foreach ($clientes as $cliente) {
                     $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
-                    // Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
+                    // @TODO Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
                     // Tabela de pontuações só guarda aquilo que foi GASTO
                     $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);
 
@@ -1047,15 +1047,6 @@ class PontuacoesController extends AppController
                         $somaSaidas += $saida["qte_gotas"];
                     }
 
-                    usort($entradas, function ($a, $b) {
-
-                        return $a["periodo"] > $b["periodo"];
-                    });
-
-                    usort($saidas, function ($a, $b) {
-                        return $a["periodo"] > $b["periodo"];
-                    });
-
                     $entradasAnalitico = [];
                     $saidasAnalitico = [];
 
@@ -1073,6 +1064,59 @@ class PontuacoesController extends AppController
                             $dataAgrupamento = $dataAgrupamento->format("Y-m");
                             $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
                         }
+
+                        // Percorre dia a dia e preenche se valor é 0
+                        // Fiz em código pq em sql não resolveu
+
+                        $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
+
+                        // return ResponseUtil::successAPI('', $entradasAnalitico);
+
+                        $entradasAnaliticoTemp = [];
+
+                        while ($dataLoop <= $dataFim) {
+                            // Verifica se existe o registro em tal data
+                            $positionSeek = null;
+                            $entradaTemp = [];
+
+                            foreach ($entradasAnalitico as $key => $entrada) {
+                                $positionSeek = $key;
+                                $found = false;
+
+                                foreach ($entrada["data"] as $data) {
+                                    if ($data["periodo"] == $dataLoop->format("Y-m-d")) {
+                                        $found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!$found) {
+                                    $entradaTemp = [
+                                        "periodo" => $dataLoop->format("Y-m-d"),
+                                        "qte_gotas" => 0
+                                    ];
+                                }
+
+                                $dataLoop->modify("+1 day");
+                            }
+
+                            if (!empty($entradaTemp)) {
+                                $entradasAnalitico[$positionSeek]["data"][] = $entradaTemp;
+                            }
+                        }
+
+                        $entradasTemp = [];
+                        foreach ($entradasAnalitico as $periodo => $entradas) {
+                            $temp = $entradas;
+
+                            usort($temp["data"], function ($a, $b) {
+                                return $a["periodo"] > $b["periodo"];
+                            });
+
+                            $entradasTemp[$periodo] = $temp;
+                        }
+
+                        $entradasAnalitico = $entradasTemp;
 
                         $entradasAnaliticoTemp = [];
                         foreach ($entradasAnalitico as $entrada) {
@@ -1104,6 +1148,14 @@ class PontuacoesController extends AppController
                         $entradas = $entradasAnalitico;
                         $saidas = $saidasAnalitico;
                     }
+
+                    usort($entradas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
+
+                    usort($saidas, function ($a, $b) {
+                        return $a["periodo"] > $b["periodo"];
+                    });
 
                     $clientesPontuacoes[] = [
                         "cliente" => $cliente,
