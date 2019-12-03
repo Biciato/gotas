@@ -11,6 +11,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Cliente;
+use App\Model\Entity\Pontuacao;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
 use stdClass;
@@ -1035,50 +1036,46 @@ class PontuacoesController extends AppController
 
                     // Se o relatório é analítico, o agrupamento dos registros será pelo mês
                     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                        foreach ($entradas as $entrada) {
-                            $dataAgrupamento = new DateTime($entrada["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                            $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
-                        }
+                        // foreach ($entradas as $entrada) {
+                        //     $dataAgrupamento = new DateTime($entrada["periodo"]);
+                        //     $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                        //     $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
+                        // }
 
-                        foreach ($saidas as $saida) {
-                            $dataAgrupamento = new DateTime($saida["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                            $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
-                        }
+                        // foreach ($saidas as $saida) {
+                        //     $dataAgrupamento = new DateTime($saida["periodo"]);
+                        //     $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                        //     $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
+                        // }
 
+                        $entradasAnalitico = $entradas;
+                        $saidasAnalitico = $saidas;
                         // Percorre dia a dia e preenche se valor é 0
                         // Fiz em código pq em sql não resolveu
                         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
 
                         while ($dataLoop <= $dataFim) {
                             // Verifica se existe o registro em tal data
-                            $positionSeek = null;
-                            $recordIn = [];
+                            $recordIn = null;
 
+                            $found = false;
                             foreach ($entradasAnalitico as $key => $entrada) {
-                                $positionSeek = $key;
-                                $found = false;
-
-                                foreach ($entrada["data"] as $data) {
-                                    if ($data["periodo"] == $dataLoop->format("Y-m-d")) {
-                                        $found = true;
-                                        break;
-                                    }
+                                if ($entrada["periodo"] == $dataLoop->format("Y-m-d")) {
+                                    $found = true;
+                                    break;
                                 }
-
-                                if (!$found) {
-                                    $recordIn = [
-                                        "periodo" => $dataLoop->format("Y-m-d"),
-                                        "qte_gotas" => 0
-                                    ];
-                                }
-
-                                $dataLoop->modify("+1 day");
                             }
 
+                            if (!$found) {
+                                $recordIn = new Pontuacao();
+                                $recordIn->periodo = $dataLoop->format("Y-m-d");
+                                $recordIn->qte_gotas = 0;
+                            }
+
+                            $dataLoop->modify("+1 day");
+
                             if (!empty($recordIn)) {
-                                $entradasAnalitico[$positionSeek]["data"][] = $recordIn;
+                                $entradasAnalitico[] = $recordIn;
                             }
                         }
 
@@ -1086,102 +1083,105 @@ class PontuacoesController extends AppController
 
                         while ($dataLoop <= $dataFim) {
                             // Verifica se existe o registro em tal data
-                            $positionSeek = null;
                             $recordOut = [];
 
+                            $found = false;
                             foreach ($saidasAnalitico as $key => $saida) {
-                                $positionSeek = $key;
-                                $found = false;
-
-                                foreach ($saida["data"] as $data) {
-                                    if ($data["periodo"] == $dataLoop->format("Y-m-d")) {
-                                        $found = true;
-                                        break;
-                                    }
+                                if ($saida["periodo"] == $dataLoop->format("Y-m-d")) {
+                                    $found = true;
+                                    break;
                                 }
-
-                                if (!$found) {
-                                    $recordOut = [
-                                        "periodo" => $dataLoop->format("Y-m-d"),
-                                        "qte_gotas" => 0,
-                                        "qte_reais" => 0,
-                                        "qte" => 0,
-                                        "funcionario" => "",
-                                        "usuario" => ""
-                                    ];
-                                }
-
-                                $dataLoop->modify("+1 day");
                             }
+
+                            if (!$found) {
+                                $recordOut = new Pontuacao();
+                                $recordOut->periodo = $dataLoop->format("Y-m-d");
+                                $recordOut->qte_gotas = 0;
+                                $recordOut->qte_reais = 0;
+                                $recordOut->qte = 0;
+                                $recordOut->funcionario = "";
+                                $recordOut->usuario = "";
+                            }
+
+                            $dataLoop->modify("+1 day");
 
                             if (!empty($recordOut)) {
-                                $saidasAnalitico[$positionSeek]["data"][] = $recordOut;
+                                $saidasAnalitico[] = $recordOut;
                             }
                         }
 
-                        $entradasTemp = [];
-                        foreach ($entradasAnalitico as $periodo => $entradas) {
-                            $temp = $entradas;
+                        // Limpa as variaveis para o que virá a seguir
+                        $entradas = [];
+                        $saidas = [];
 
-                            usort($temp["data"], function ($a, $b) {
-                                return $a["periodo"] > $b["periodo"];
-                            });
+                        usort($entradasAnalitico, function ($a, $b) {
+                            return $a["periodo"] > $b["periodo"];
+                        });
 
-                            $entradasTemp[$periodo] = $temp;
-                        }
-
-                        $saidasTemp = [];
-                        foreach ($saidasAnalitico as $periodo => $saidas) {
-                            $temp = $saidas;
-
-                            usort($temp["data"], function ($a, $b) {
-                                return $a["periodo"] > $b["periodo"];
-                            });
-
-                            $saidasTemp[$periodo] = $temp;
-                        }
-
-                        $entradasAnalitico = $entradasTemp;
-                        $saidasAnalitico = $saidasTemp;
+                        usort($saidasAnalitico, function ($a, $b) {
+                            return $a["periodo"] > $b["periodo"];
+                        });
 
                         $entradasAnaliticoTemp = [];
+
+                        // Faz agrupamento por periodo
+
                         foreach ($entradasAnalitico as $entrada) {
-                            $somaEntradasAnalitico = 0;
+                            $dataAgrupamento = new DateTime($entrada["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $entradas[$dataAgrupamento]["data"][] = $entrada;
+                        }
+
+                        foreach ($saidasAnalitico as $saida) {
+                            $dataAgrupamento = new DateTime($saida["periodo"]);
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $saidas[$dataAgrupamento]["data"][] = $saida;
+                        }
+
+                        // Agora, faz somatória total e periodo
+
+                        $totalEntradas = 0;
+
+                        $entradasTemp = [];
+                        foreach ($entradas as $key => $entrada) {
+                            $somaPeriodo = 0;
 
                             foreach ($entrada["data"] as $registroAnalitico) {
-                                $somaEntradasAnalitico += $registroAnalitico["qte_gotas"];
+                                $somaPeriodo += $registroAnalitico["qte_gotas"];
                             }
 
-                            $entrada["soma_entradas"] = $somaEntradasAnalitico;
-                            $entradasAnaliticoTemp[] = $entrada;
+                            $totalEntradas += $somaPeriodo;
+                            $entrada["soma_periodo"] = $somaPeriodo;
+                            $entradasTemp[$key] = $entrada;
                         }
 
-                        $saidasAnaliticoTemp = [];
-                        foreach ($saidasAnalitico as $saida) {
-                            $somaSaidasAnalitico = 0;
+                        $entradas = $entradasTemp;
+
+                        $totalSaidas = 0;
+
+                        $saidasTemp = [];
+                        foreach ($saidas as $key => $saida) {
+                            $somaPeriodo = 0;
 
                             foreach ($saida["data"] as $registroAnalitico) {
-                                $somaSaidasAnalitico += $registroAnalitico["qte_gotas"];
+                                $somaPeriodo += $registroAnalitico["qte_gotas"];
                             }
 
-                            $saida["soma_saidas"] = $somaSaidasAnalitico;
-                            $saidasAnaliticoTemp[] = $saida;
+                            $totalSaidas += $somaPeriodo;
+                            $saida["soma_periodo"] = $somaPeriodo;
+                            $saidasTemp[$key] = $saida;
                         }
 
-                        $entradasAnalitico = $entradasAnaliticoTemp;
-                        $saidasAnalitico = $saidasAnaliticoTemp;
-
-                        $entradas = $entradasAnalitico;
-                        $saidas = $saidasAnalitico;
+                        $saidas = $saidasTemp;
                     }
 
-                    usort($entradas, function ($a, $b) {
-                        return $a["periodo"] > $b["periodo"];
-                    });
+                    // usort($entradas, function ($a, $b) {
+                    //     return $a["periodo"] > $b["periodo"];
+                    // });
 
-                    usort($saidas, function ($a, $b) {
-                        return $a["periodo"] > $b["periodo"];
-                    });
+                    // usort($saidas, function ($a, $b) {
+                    //     return $a["periodo"] > $b["periodo"];
+                    // });
 
                     $clientesPontuacoes[] = [
                         "cliente" => $cliente,
