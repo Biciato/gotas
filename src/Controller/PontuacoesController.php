@@ -1012,6 +1012,12 @@ class PontuacoesController extends AppController
                     $saidas = $saidas->toArray();
                     $somaEntradas = 0;
                     $somaSaidas = 0;
+                    $somaQteSaidas = 0;
+                    $somaReaisSaidas = 0;
+                    $totalEntradas = 0;
+                    $totalSaidas = 0;
+                    $totalQteSaidas = 0;
+                    $totalReaisSaida = 0;
 
                     // obtem somatória
                     foreach ($entradas as $entrada) {
@@ -1020,6 +1026,8 @@ class PontuacoesController extends AppController
 
                     foreach ($saidas as $saida) {
                         $somaSaidas += $saida["qte_gotas"];
+                        $somaQteSaidas += $saida["qte"];
+                        $somaReaisSaidas += $saida["qte_reais"];
                     }
 
                     $entradasAnalitico = [];
@@ -1096,7 +1104,10 @@ class PontuacoesController extends AppController
                                     $recordOut = [
                                         "periodo" => $dataLoop->format("Y-m-d"),
                                         "qte_gotas" => 0,
-                                        "qte_reais" => 0
+                                        "qte_reais" => 0,
+                                        "qte" => 0,
+                                        "funcionario" => "",
+                                        "usuario" => ""
                                     ];
                                 }
 
@@ -1178,6 +1189,8 @@ class PontuacoesController extends AppController
                         "pontuacoes_saidas" => $saidas,
                         "soma_entradas" => $somaEntradas,
                         "soma_saidas" => $somaSaidas,
+                        "soma_reais_saidas" => $somaReaisSaidas,
+                        "soma_qte_saidas" => $somaQteSaidas,
                     ];
 
                     $totalEntradas += $somaEntradas;

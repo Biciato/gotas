@@ -283,7 +283,7 @@ class CuponsTransacoesTable extends GenericTable
             ];
 
 
-            $group = [];
+            $group = ["Funcionarios.id"];
             $join = ["Redes",  "Clientes",  "Brindes",  "Cupons.Usuarios",  "Funcionarios"];
 
             if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
