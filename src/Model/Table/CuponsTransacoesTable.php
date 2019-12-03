@@ -271,8 +271,8 @@ class CuponsTransacoesTable extends GenericTable
 
             $selectList = [
                 "periodo" => "DATE_FORMAT(CuponsTransacoes.data, '%Y-%m')",
-                "qte_gotas" => "ROUND(SUM(Cupons.valor_pago_gotas), 2)",
-                "qte_reais" => "ROUND(SUM(Cupons.valor_pago_reais), 2)",
+                "qte_gotas" => "ROUND(SUM(Cupons.valor_pago_gotas), 0)",
+                "qte_reais" => "ROUND(SUM(Cupons.valor_pago_reais), 0)",
                 "CuponsTransacoes.tipo_operacao",
                 "brinde" => "Brindes.nome",
                 "funcionario" => "Funcionarios.nome",

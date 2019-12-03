@@ -998,7 +998,7 @@ class PontuacoesController extends AppController
 
                 $data = [];
                 $totalEntradas = 0;
-                $totalSaidas = 0;
+                $totalSaidaGotas = 0;
 
                 foreach ($clientes as $cliente) {
                     $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
@@ -1016,9 +1016,9 @@ class PontuacoesController extends AppController
                     $somaQteSaidas = 0;
                     $somaReaisSaidas = 0;
                     $totalEntradas = 0;
-                    $totalSaidas = 0;
-                    $totalQteSaidas = 0;
-                    $totalReaisSaida = 0;
+                    $totalSaidaGotas = 0;
+                    $totalSaidaQte = 0;
+                    $totalSaidaReais = 0;
 
                     // obtem somatória
                     foreach ($entradas as $entrada) {
@@ -1032,7 +1032,7 @@ class PontuacoesController extends AppController
                     }
 
                     $totalEntradas = $somaEntradas;
-                    $totalSaidas = $somaSaidas;
+                    $totalSaidaGotas = $somaSaidas;
                     $entradasAnalitico = [];
                     $saidasAnalitico = [];
 
@@ -1202,7 +1202,9 @@ class PontuacoesController extends AppController
                         }
 
                         $entradas = $entradasTemp;
-                        $totalSaidas = 0;
+                        $totalSaidaGotas = 0;
+                        $totalSaidaReais = 0;
+                        $totalSaidaQte = 0;
                         $saidasTemp = [];
                         // Percorre lista de saidas
 
@@ -1238,7 +1240,9 @@ class PontuacoesController extends AppController
                                 $saidaDia[$keyData] = $data;
                             }
 
-                            $totalSaidas += $somaPeriodo;
+                            $totalSaidaGotas += $somaPeriodoGotas;
+                            $totalSaidaReais += $somaPeriodoReais;
+                            $totalSaidaQte += $somaPeriodoQte;
                             $periodoData["data"] = $saidaDia;
                             $periodoData["soma_periodo_gotas"] = $somaPeriodoGotas;
                             $periodoData["soma_periodo_reais"] = $somaPeriodoReais;
@@ -1268,7 +1272,14 @@ class PontuacoesController extends AppController
                     ];
                 }
 
-                $pontuacoesReport = ["pontuacoes" => $clientesPontuacoes, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];
+                $pontuacoesReport = [
+                    "pontuacoes" => $clientesPontuacoes,
+                    "total_entradas" => $totalEntradas,
+                    "total_saidas_gotas" => $totalSaidaGotas,
+                    "total_saidas_reais" => $totalSaidaReais,
+                    "total_saidas_qte" => $totalSaidaQte,
+
+                ];
                 $dadosRelatorio = ['pontuacoes_report' => $pontuacoesReport];
                 $dataRetorno = ["data" => $dadosRelatorio];
 

@@ -818,7 +818,7 @@ $(function () {
                             var cellInfoCliente = document.createElement("td");
                             var infoCliente = document.createElement("strong");
                             infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                            cellInfoCliente.colSpan = 6;
+                            cellInfoCliente.colSpan = 5;
                             cellInfoCliente.classList.add("text-right");
 
                             cellInfoCliente.append(infoCliente);
@@ -833,144 +833,198 @@ $(function () {
                             // Linhas periodos
 
                             var rowsPeriodos = [];
-                            var pontuacoesLength = element.pontuacoes_entradas.length;
+
+                            var indexPeriodos = Object.keys(element.pontuacoes_saidas);
                             var pontuacoesSaidas = element.pontuacoes_saidas;
 
-                            for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
-                                var pontuacoesSaidaPeriodoList = pontuacoesSaidas[pontuacoesIndex];
+                            // Percorre as pontuacoes de saida
+                            indexPeriodos.forEach(periodo => {
+                                // Titulo de períodos
+                                var rowPeriodo = document.createElement("tr");
 
-                                var pontuacoesDataLength = pontuacoesSaidaPeriodoList.data.length;
-                                var pontuacoesSaidaDataList = pontuacoesSaidaPeriodoList.data;
+                                var cellPeriodoLabel = document.createElement("td");
+                                var labelPeriodo = document.createElement("strong");
+                                labelPeriodo.textContent = "Periodo";
+                                cellPeriodoLabel.append(labelPeriodo);
 
-                                var mesAtual = '';
-                                var ultimaData = '';
+                                var cellPeriodoTextoLabel = document.createElement("td");
+                                var labelPeriodoValue = document.createElement("strong");
 
-                                for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
-                                    var saida = pontuacoesSaidaDataList[indexData];
-                                    var periodoAtual = moment(saida.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                                var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
+                                labelPeriodoValue.textContent = mesAtual;
+                                cellPeriodoTextoLabel.append(labelPeriodoValue);
+                                cellPeriodoTextoLabel.colSpan = 5;
+                                cellPeriodoTextoLabel.classList.add("text-right");
 
-                                    // O header deve ser construído se a data muda
-                                    if (ultimaData !== periodoAtual) {
-                                        ultimaData = periodoAtual;
-                                        // Linha que indica o cabeçalho dos períodos
-                                        var rowPeriodo = document.createElement("tr");
+                                rowPeriodo.append(cellPeriodoLabel);
+                                rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                        var cellPeriodoLabel = document.createElement("td");
-                                        var labelPeriodo = document.createElement("strong");
-                                        labelPeriodo.textContent = "Data";
-                                        cellPeriodoLabel.append(labelPeriodo);
+                                rowsPeriodos.push(rowPeriodo);
 
-                                        var cellPeriodoTextoLabel = document.createElement("td");
-                                        var labelPeriodoValue = document.createElement("strong");
+                                var dataAtual = null;
+                                var dataAnterior = null;
 
-                                        mesAtual = moment(saida.periodo, "YYYY-MM-DD").format("MM/YYYY");
-                                        labelPeriodoValue.textContent = periodoAtual;
-                                        cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                        cellPeriodoTextoLabel.colSpan = 5;
-                                        cellPeriodoTextoLabel.classList.add("text-right");
+                                var datas = Object.keys(element.pontuacoes_saidas[periodo].data);
 
-                                        rowPeriodo.append(cellPeriodoLabel);
-                                        rowPeriodo.append(cellPeriodoTextoLabel);
+                                // Percorre os periodos
 
-                                        rowsPeriodos.push(rowPeriodo);
+                                datas.forEach(data => {
+                                    // Titulo da atual data
+                                    var rowPeriodo = document.createElement("tr");
 
-                                        // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
-                                        var headerDadosPeriodoRow = document.createElement("tr");
+                                    var cellPeriodoLabel = document.createElement("td");
+                                    var labelPeriodo = document.createElement("strong");
+                                    labelPeriodo.textContent = "Data";
+                                    cellPeriodoLabel.append(labelPeriodo);
 
-                                        var cellLabelGota = document.createElement("td");
-                                        var textlabelGota = document.createElement("strong");
-                                        textlabelGota.textContent = "Referência:";
-                                        cellLabelGota.append(textlabelGota);
+                                    var cellPeriodoTextoLabel = document.createElement("td");
+                                    var labelPeriodoValue = document.createElement("strong");
 
-                                        var cellLabelFuncionarioSaida = document.createElement("td");
-                                        var textFuncionarioSaida = document.createElement("strong");
-                                        textFuncionarioSaida.textContent = "Funcionário:";
-                                        cellLabelFuncionarioSaida.append(textFuncionarioSaida);
+                                    labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                                    cellPeriodoTextoLabel.append(labelPeriodoValue);
+                                    cellPeriodoTextoLabel.colSpan = 5;
+                                    cellPeriodoTextoLabel.classList.add("text-right");
 
-                                        var cellLabelUsuarioSaida = document.createElement("td");
-                                        var textUsuarioSaida = document.createElement("strong");
-                                        textUsuarioSaida.textContent = "Usuário:";
-                                        cellLabelUsuarioSaida.append(textUsuarioSaida);
+                                    rowPeriodo.append(cellPeriodoLabel);
+                                    rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                        var cellLabelGotasSaida = document.createElement("td");
-                                        var textSaidaGotas = document.createElement("strong");
-                                        textSaidaGotas.textContent = "Gotas:";
-                                        cellLabelGotasSaida.append(textSaidaGotas);
+                                    rowsPeriodos.push(rowPeriodo);
 
-                                        var cellLabelReaisSaida = document.createElement("td");
-                                        var textSaidaReais = document.createElement("strong");
-                                        textSaidaReais.textContent = "Reais:";
-                                        cellLabelReaisSaida.append(textSaidaReais);
+                                    // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
+                                    var headerDadosPeriodoRow = document.createElement("tr");
 
-                                        var cellLabelQteSaida = document.createElement("td");
-                                        var textSaidaQte = document.createElement("strong");
-                                        textSaidaQte.textContent = "Qtde:";
-                                        cellLabelQteSaida.append(textSaidaQte);
+                                    var cellLabelGota = document.createElement("td");
+                                    var textlabelGota = document.createElement("strong");
+                                    textlabelGota.textContent = "Referência:";
+                                    cellLabelGota.append(textlabelGota);
 
-                                        // headerDadosPeriodoRow.append(document.createElement("td"));
-                                        headerDadosPeriodoRow.append(cellLabelGota);
-                                        headerDadosPeriodoRow.append(cellLabelFuncionarioSaida);
-                                        headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
-                                        headerDadosPeriodoRow.append(cellLabelGotasSaida);
-                                        headerDadosPeriodoRow.append(cellLabelReaisSaida);
-                                        headerDadosPeriodoRow.append(cellLabelQteSaida);
+                                    var cellLabelFuncionarioSaida = document.createElement("td");
+                                    var textFuncionarioSaida = document.createElement("strong");
+                                    textFuncionarioSaida.textContent = "Funcionário:";
+                                    cellLabelFuncionarioSaida.append(textFuncionarioSaida);
 
-                                        rowsPeriodos.push(headerDadosPeriodoRow);
-                                    }
+                                    var cellLabelUsuarioSaida = document.createElement("td");
+                                    var textUsuarioSaida = document.createElement("strong");
+                                    textUsuarioSaida.textContent = "Usuário:";
+                                    cellLabelUsuarioSaida.append(textUsuarioSaida);
 
-                                    // Info de Saida
+                                    var cellLabelGotasSaida = document.createElement("td");
+                                    var textSaidaGotas = document.createElement("strong");
+                                    textSaidaGotas.textContent = "Gotas:";
+                                    cellLabelGotasSaida.append(textSaidaGotas);
 
-                                    console.log(saida);
-                                    // Nome do Brinde
-                                    var cellSaidaNomeBrinde = document.createElement("td");
-                                    var labelSaidaNomeBrinde = document.createElement("span");
-                                    labelSaidaNomeBrinde.textContent = saida !== undefined && saida.brinde !== undefined ? saida.brinde : "";
-                                    cellSaidaNomeBrinde.append(labelSaidaNomeBrinde);
+                                    var cellLabelReaisSaida = document.createElement("td");
+                                    var textSaidaReais = document.createElement("strong");
+                                    textSaidaReais.textContent = "Reais:";
+                                    cellLabelReaisSaida.append(textSaidaReais);
 
-                                    // Funcionário
-                                    var cellSaidaFuncionario = document.createElement("td");
-                                    var labelSaidaFuncionario = document.createElement("span");
-                                    labelSaidaFuncionario = saida !== undefined && saida.funcionario !== undefined ? saida.funcionario : "";
-                                    cellSaidaFuncionario.append(labelSaidaFuncionario);
+                                    var cellLabelQteSaida = document.createElement("td");
+                                    var textSaidaQte = document.createElement("strong");
+                                    textSaidaQte.textContent = "Qte.:";
+                                    cellLabelQteSaida.append(textSaidaQte);
 
-                                    // Cliente Final
-                                    var cellSaidaUsuario = document.createElement("td");
-                                    var labelSaidaUsuario = document.createElement("span");
-                                    labelSaidaUsuario = saida !== undefined && saida.usuario !== undefined ? saida.usuario : "";
-                                    cellSaidaUsuario.append(labelSaidaUsuario);
+                                    headerDadosPeriodoRow.append(cellLabelGota);
+                                    headerDadosPeriodoRow.append(cellLabelFuncionarioSaida);
+                                    headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
+                                    headerDadosPeriodoRow.append(cellLabelGotasSaida);
+                                    headerDadosPeriodoRow.append(cellLabelReaisSaida);
+                                    headerDadosPeriodoRow.append(cellLabelQteSaida);
 
-                                    // Gotas
-                                    var cellSaidaGotas = document.createElement("td");
-                                    var labelSaidaGotas = document.createElement("span");
-                                    labelSaidaGotas.textContent = saida !== undefined ? saida.qte_gotas : 0;
-                                    cellSaidaGotas.classList.add("text-right");
-                                    cellSaidaGotas.append(labelSaidaGotas);
+                                    rowsPeriodos.push(headerDadosPeriodoRow);
 
-                                    // Reais
-                                    var cellSaidaReais = document.createElement("td");
-                                    var labelSaidaReais = document.createElement("span");
-                                    labelSaidaReais.textContent = saida !== undefined ? saida.qte_reais : 0;
-                                    cellSaidaReais.classList.add("text-right");
-                                    cellSaidaReais.append(labelSaidaReais);
+                                    element.pontuacoes_saidas[periodo].data[data].data.forEach(pontuacao => {
+                                        dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
 
-                                    // Qte
-                                    var cellSaidaQte = document.createElement("td");
-                                    var labelSaidaQte = document.createElement("span");
-                                    labelSaidaQte.textContent = saida !== undefined ? saida.qte : 0;
-                                    cellSaidaQte.classList.add("text-right");
-                                    cellSaidaQte.append(labelSaidaQte);
+                                        // Percorre as pontuações
+                                        // Info de saida
+                                        var row = document.createElement("tr");
+
+                                        var cellSaidaGota = document.createElement("td");
+                                        var labelSaidaGota = document.createElement("span");
+                                        labelSaidaGota.textContent = pontuacao.brinde;
+                                        cellSaidaGota.append(labelSaidaGota);
+
+                                        var cellSaidaFuncionario = document.createElement("td");
+                                        var labelSaidaFuncionario = document.createElement("span");
+                                        labelSaidaFuncionario.textContent = pontuacao.funcionario;
+                                        cellSaidaFuncionario.append(labelSaidaFuncionario);
+
+                                        var cellSaidaUsuario = document.createElement("td");
+                                        var labelSaidaUsuario = document.createElement("span");
+                                        labelSaidaUsuario.textContent = pontuacao.usuario;
+                                        cellSaidaUsuario.append(labelSaidaUsuario);
+
+                                        var cellSaidaGotas = document.createElement("td");
+                                        var labelSaidaGotas = document.createElement("span");
+                                        labelSaidaGotas.textContent = pontuacao.qte_gotas;
+                                        cellSaidaGotas.classList.add("text-right");
+                                        cellSaidaGotas.append(labelSaidaGotas);
+
+                                        var cellSaidaReais = document.createElement("td");
+                                        var labelSaidaReais = document.createElement("span");
+                                        labelSaidaReais.textContent = "R$ " + parseFloat(pontuacao.qte_reais).toFixed(2);
+                                        cellSaidaReais.classList.add("text-right");
+                                        cellSaidaReais.append(labelSaidaReais);
+
+                                        var cellSaidaQte = document.createElement("td");
+                                        var labelSaidaQte = document.createElement("span");
+                                        labelSaidaQte.textContent = pontuacao.qte;
+                                        cellSaidaQte.classList.add("text-right");
+                                        cellSaidaQte.append(labelSaidaQte);
+
+                                        row.append(cellSaidaGota);
+                                        row.append(cellSaidaFuncionario);
+                                        row.append(cellSaidaUsuario);
+                                        row.append(cellSaidaGotas);
+                                        row.append(cellSaidaReais);
+                                        row.append(cellSaidaQte);
+
+                                        rowsPeriodos.push(row);
+
+                                    });
+
+                                    // Total Dia
+
+                                    var rowTotalDia = document.createElement("tr");
+                                    var cellLabelTotal = document.createElement("td");
+                                    var labelTotal = document.createElement("strong");
+
+                                    labelTotal.textContent = "Soma Dia: " + moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                                    cellLabelTotal.append(labelTotal);
+
+                                    var cellLabelSaidaDiaGotas = document.createElement("td");
+                                    var labelSaidaGotasDia = document.createElement("strong");
+                                    labelSaidaGotasDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_gotas;
+                                    cellLabelSaidaDiaGotas.classList.add("text-right");
+                                    cellLabelSaidaDiaGotas.colSpan = 1;
+                                    cellLabelSaidaDiaGotas.append(labelSaidaGotasDia);
+
+                                    var cellLabelSaidaDiaReais = document.createElement("td");
+                                    var labelSaidaReaisDia = document.createElement("strong");
+                                    labelSaidaReaisDia.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].data[data].soma_dia_reais).toFixed(2);
+                                    cellLabelSaidaDiaReais.classList.add("text-right");
+                                    cellLabelSaidaDiaReais.colSpan = 1;
+                                    cellLabelSaidaDiaReais.append(labelSaidaReaisDia);
+
+                                    var cellLabelSaidaDiaQte = document.createElement("td");
+                                    var labelSaidaQteDia = document.createElement("strong");
+                                    labelSaidaQteDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_qte;
+                                    cellLabelSaidaDiaQte.classList.add("text-right");
+                                    cellLabelSaidaDiaQte.colSpan = 1;
+                                    cellLabelSaidaDiaQte.append(labelSaidaQteDia);
+
+                                    rowTotalDia.append(cellLabelTotal);
+                                    rowTotalDia.append(document.createElement("td"));
+                                    rowTotalDia.append(document.createElement("td"));
+                                    rowTotalDia.append(cellLabelSaidaDiaGotas);
+                                    rowTotalDia.append(cellLabelSaidaDiaReais);
+                                    rowTotalDia.append(cellLabelSaidaDiaQte);
+
+                                    rowsPeriodos.push(rowTotalDia);
+                                });
 
 
-                                    var row = document.createElement("tr");
-                                    row.append(cellSaidaNomeBrinde);
-                                    row.append(cellSaidaFuncionario);
-                                    row.append(cellSaidaUsuario);
-                                    row.append(cellSaidaGotas);
-                                    row.append(cellSaidaReais);
-                                    row.append(cellSaidaQte);
-
-                                    rowsPeriodos.push(row);
-                                }
+                                // Emite subtotal de período
 
                                 // Total periodo
 
@@ -978,30 +1032,41 @@ $(function () {
                                 var cellLabelTotal = document.createElement("td");
                                 var labelTotal = document.createElement("strong");
 
-                                labelTotal.textContent = "Total Período: " + mesAtual;
+                                labelTotal.textContent = "Soma Período: " + mesAtual;
                                 cellLabelTotal.append(labelTotal);
 
-                                var cellLabelGotasPeriodo = document.createElement("td");
-                                var labelGotasPeriodo = document.createElement("strong");
-                                labelGotasPeriodo.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
-                                cellLabelGotasPeriodo.classList.add("text-right");
-                                cellLabelGotasPeriodo.colSpan = 3;
-                                cellLabelGotasPeriodo.append(labelGotasPeriodo);
+                                var cellLabelSaidaTotalGotas = document.createElement("td");
+                                var labelSaidaTotalGotas = document.createElement("strong");
+                                labelSaidaTotalGotas.textContent = element.pontuacoes_saidas[periodo].soma_periodo_gotas;
+                                cellLabelSaidaTotalGotas.classList.add("text-right");
+                                cellLabelSaidaTotalGotas.colSpan = 1;
+                                cellLabelSaidaTotalGotas.append(labelSaidaTotalGotas);
 
-                                var cellLabelGotasPeriodo = document.createElement("td");
-                                var labelGotasPeriodo = document.createElement("strong");
-                                labelGotasPeriodo.textContent = pontuacoesSaidaPeriodoList.soma_saidas;
-                                cellLabelGotasPeriodo.classList.add("text-right");
-                                cellLabelGotasPeriodo.colSpan = 3;
-                                cellLabelGotasPeriodo.append(labelGotasPeriodo);
+                                var cellLabelSaidaTotalReais = document.createElement("td");
+                                var labelSaidaTotalReais = document.createElement("strong");
+                                labelSaidaTotalReais.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].soma_periodo_reais).toFixed(2);
+                                cellLabelSaidaTotalReais.classList.add("text-right");
+                                cellLabelSaidaTotalReais.colSpan = 1;
+                                cellLabelSaidaTotalReais.append(labelSaidaTotalReais);
+
+                                var cellLabelSaidaTotalQte = document.createElement("td");
+                                var labelSaidaTotalQte = document.createElement("strong");
+                                labelSaidaTotalQte.textContent = element.pontuacoes_saidas[periodo].soma_periodo_qte;
+                                cellLabelSaidaTotalQte.classList.add("text-right");
+                                cellLabelSaidaTotalQte.colSpan = 1;
+                                cellLabelSaidaTotalQte.append(labelSaidaTotalQte);
 
                                 rowTotalPeriodo.append(cellLabelTotal);
-                                rowTotalPeriodo.append(cellLabelGotasPeriodo);
+                                rowTotalPeriodo.append(document.createElement("td"));
+                                rowTotalPeriodo.append(document.createElement("td"));
+                                rowTotalPeriodo.append(cellLabelSaidaTotalGotas);
+                                rowTotalPeriodo.append(cellLabelSaidaTotalReais);
+                                rowTotalPeriodo.append(cellLabelSaidaTotalQte);
 
                                 rowsPeriodos.push(rowTotalPeriodo);
-                            }
+                            });
 
-                            if (pontuacoesLength == 0) {
+                            if (element.pontuacoes_saidas.length == 0) {
                                 // Se não teve registro, adiciona uma linha informando que não teve movimentação
 
                                 var rowEmpty = document.createElement("tr");
@@ -1010,7 +1075,7 @@ $(function () {
 
                                 label.textContent = "Não há registros à serem exibidos!";
                                 cell.append(label);
-                                cell.colSpan = 7;
+                                cell.colSpan = 6;
                                 cell.classList.add("text-center");
                                 rowEmpty.append(cell);
                                 rowsPeriodos.push(rowEmpty);
@@ -1028,32 +1093,30 @@ $(function () {
                             labelTotal.textContent = "Total Geral";
                             cellLabelTotal.append(labelTotal);
 
-                            // Total Gotas
-                            var cellTotalSaidasGotas = document.createElement("td");
                             var textTotalSaidasGotas = document.createElement("strong");
-                            textTotalSaidasGotas.textContent = data.total_saidas;
+                            var cellTotalSaidasGotas = document.createElement("td");
+                            textTotalSaidasGotas.textContent = data.total_saidas_gotas;
                             cellTotalSaidasGotas.classList.add("text-right");
-                            cellTotalSaidasGotas.colSpan = 2;
+                            cellTotalSaidasGotas.colSpan = 1;
                             cellTotalSaidasGotas.append(textTotalSaidasGotas);
 
-                            // Total Reais
-                            var cellTotalSaidasReais = document.createElement("td");
                             var textTotalSaidasReais = document.createElement("strong");
-                            textTotalSaidasReais.textContent = data.total_reais;
+                            var cellTotalSaidasReais = document.createElement("td");
+                            textTotalSaidasReais.textContent = "R$ " + parseFloat(data.total_saidas_reais).toFixed(2);
                             cellTotalSaidasReais.classList.add("text-right");
                             cellTotalSaidasReais.colSpan = 1;
                             cellTotalSaidasReais.append(textTotalSaidasReais);
 
-                            // Total Qte
-                            var cellTotalSaidasQte = document.createElement("td");
                             var textTotalSaidasQte = document.createElement("strong");
-                            textTotalSaidasQte.textContent = data.total_saidas;
+                            var cellTotalSaidasQte = document.createElement("td");
+                            textTotalSaidasQte.textContent = data.total_saidas_qte;
                             cellTotalSaidasQte.classList.add("text-right");
                             cellTotalSaidasQte.colSpan = 1;
                             cellTotalSaidasQte.append(textTotalSaidasQte);
 
                             rowTotal.append(cellLabelTotal);
-                            rowTotal.append(cellTotalEntradas);
+                            rowTotal.append(document.createElement("td"));
+                            rowTotal.append(document.createElement("td"));
                             rowTotal.append(cellTotalSaidasGotas);
                             rowTotal.append(cellTotalSaidasReais);
                             rowTotal.append(cellTotalSaidasQte);
@@ -1064,6 +1127,7 @@ $(function () {
                                 rows.push(element);
                             });
                         });
+
                     }
                 } else {
                     data.pontuacoes.forEach(element => {
