@@ -1031,6 +1031,8 @@ class PontuacoesController extends AppController
                         $somaReaisSaidas += $saida["qte_reais"];
                     }
 
+                    $totalEntradas = $somaEntradas;
+                    $totalSaidas = $somaSaidas;
                     $entradasAnalitico = [];
                     $saidasAnalitico = [];
 
@@ -1192,9 +1194,6 @@ class PontuacoesController extends AppController
                         "soma_reais_saidas" => $somaReaisSaidas,
                         "soma_qte_saidas" => $somaQteSaidas,
                     ];
-
-                    $totalEntradas += $somaEntradas;
-                    $totalSaidas += $somaSaidas;
                 }
 
                 $pontuacoesReport = ["pontuacoes" => $clientesPontuacoes, "total_entradas" => $totalEntradas, "total_saidas" => $totalSaidas];

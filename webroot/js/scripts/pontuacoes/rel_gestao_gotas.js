@@ -601,26 +601,46 @@ $(function () {
                                 // Linhas periodos
 
                                 var rowsPeriodos = [];
-                                var pontuacoesLength = element.pontuacoes_entradas.length;
+
+                                var indexPeriodos = Object.keys(element.pontuacoes_entradas);
                                 var pontuacoesEntradas = element.pontuacoes_entradas;
 
-                                for (var pontuacoesIndex = 0; pontuacoesIndex < pontuacoesLength; pontuacoesIndex++) {
-                                    var pontuacoesEntradaPeriodoList = pontuacoesEntradas[pontuacoesIndex];
+                                // Percorre as pontuacoes de entrada
+                                indexPeriodos.forEach(periodo => {
+                                    // Titulo de períodos
+                                    var rowPeriodo = document.createElement("tr");
 
-                                    var pontuacoesDataLength = pontuacoesEntradaPeriodoList.data.length;
-                                    var pontuacoesEntradaDataList = pontuacoesEntradaPeriodoList.data;
+                                    var cellPeriodoLabel = document.createElement("td");
+                                    var labelPeriodo = document.createElement("strong");
+                                    labelPeriodo.textContent = "Periodo";
+                                    cellPeriodoLabel.append(labelPeriodo);
 
-                                    var mesAtual = '';
-                                    var ultimaData = '';
+                                    var cellPeriodoTextoLabel = document.createElement("td");
+                                    var labelPeriodoValue = document.createElement("strong");
 
-                                    for (var indexData = 0; indexData < pontuacoesDataLength; indexData++) {
-                                        var entrada = pontuacoesEntradaDataList[indexData];
-                                        var periodoAtual = moment(entrada.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                                    var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
+                                    labelPeriodoValue.textContent = mesAtual;
+                                    cellPeriodoTextoLabel.append(labelPeriodoValue);
+                                    cellPeriodoTextoLabel.colSpan = 2;
+                                    cellPeriodoTextoLabel.classList.add("text-right");
 
-                                        // O header deve ser construído se a data muda
-                                        if (ultimaData !== periodoAtual) {
-                                            ultimaData = periodoAtual;
-                                            // Linha que indica o cabeçalho dos períodos
+                                    rowPeriodo.append(cellPeriodoLabel);
+                                    rowPeriodo.append(cellPeriodoTextoLabel);
+
+                                    rowsPeriodos.push(rowPeriodo);
+
+                                    var dataAtual = null;
+                                    var dataAnterior = null;
+
+                                    // Percorre os periodos
+                                    element.pontuacoes_entradas[periodo].data.forEach(pontuacao => {
+                                        dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+
+                                        if (dataAtual !== dataAnterior) {
+                                            dataAnterior = dataAtual;
+                                            // Constrói cabeçalhos
+
+                                            // Titulo da atual data
                                             var rowPeriodo = document.createElement("tr");
 
                                             var cellPeriodoLabel = document.createElement("td");
@@ -631,8 +651,7 @@ $(function () {
                                             var cellPeriodoTextoLabel = document.createElement("td");
                                             var labelPeriodoValue = document.createElement("strong");
 
-                                            mesAtual = moment(entrada.periodo, "YYYY-MM-DD").format("MM/YYYY");
-                                            labelPeriodoValue.textContent = periodoAtual;
+                                            labelPeriodoValue.textContent = dataAtual;
                                             cellPeriodoTextoLabel.append(labelPeriodoValue);
                                             cellPeriodoTextoLabel.colSpan = 2;
                                             cellPeriodoTextoLabel.classList.add("text-right");
@@ -667,22 +686,24 @@ $(function () {
                                             rowsPeriodos.push(headerDadosPeriodoRow);
                                         }
 
+
+                                        // Percorre as pontuações
                                         // Info de entrada
                                         var row = document.createElement("tr");
 
                                         var cellEntradaGota = document.createElement("td");
                                         var labelEntradaGota = document.createElement("span");
-                                        labelEntradaGota.textContent = entrada.gota !== undefined ? entrada.gota.nome_parametro : "";
+                                        labelEntradaGota.textContent = pontuacao.gota !== undefined ? pontuacao.gota.nome_parametro : "";
                                         cellEntradaGota.append(labelEntradaGota);
 
                                         var cellEntradaUsuario = document.createElement("td");
                                         var labelEntradaUsuario = document.createElement("span");
-                                        labelEntradaUsuario.textContent = entrada.usuario !== undefined ? entrada.usuario.nome : "";
+                                        labelEntradaUsuario.textContent = pontuacao.usuario !== undefined ? pontuacao.usuario.nome : "";
                                         cellEntradaUsuario.append(labelEntradaUsuario);
 
                                         var cellEntradaQteGota = document.createElement("td");
                                         var labelEntradaQteGota = document.createElement("span");
-                                        labelEntradaQteGota.textContent = entrada.qte_gotas;
+                                        labelEntradaQteGota.textContent = pontuacao.qte_gotas;
                                         cellEntradaQteGota.classList.add("text-right");
                                         cellEntradaQteGota.append(labelEntradaQteGota);
 
@@ -691,7 +712,10 @@ $(function () {
                                         row.append(cellEntradaQteGota);
 
                                         rowsPeriodos.push(row);
-                                    }
+
+                                    });
+
+                                    // Emite subtotal de período
 
                                     // Total periodo
 
@@ -699,12 +723,12 @@ $(function () {
                                     var cellLabelTotal = document.createElement("td");
                                     var labelTotal = document.createElement("strong");
 
-                                    labelTotal.textContent = "Total Período: " + mesAtual;
+                                    labelTotal.textContent = "Soma Período: " + mesAtual;
                                     cellLabelTotal.append(labelTotal);
 
                                     var cellLabelEntradaTotal = document.createElement("td");
                                     var labelEntradaTotal = document.createElement("strong");
-                                    labelEntradaTotal.textContent = pontuacoesEntradaPeriodoList.soma_entradas;
+                                    labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].soma_periodo;
                                     cellLabelEntradaTotal.classList.add("text-right");
                                     cellLabelEntradaTotal.colSpan = 2;
                                     cellLabelEntradaTotal.append(labelEntradaTotal);
@@ -713,9 +737,9 @@ $(function () {
                                     rowTotalPeriodo.append(cellLabelEntradaTotal);
 
                                     rowsPeriodos.push(rowTotalPeriodo);
-                                }
+                                });
 
-                                if (pontuacoesLength == 0) {
+                                if (element.pontuacoes_entradas.length == 0) {
                                     // Se não teve registro, adiciona uma linha informando que não teve movimentação
 
                                     var rowEmpty = document.createElement("tr");
