@@ -1130,48 +1130,120 @@ class PontuacoesController extends AppController
 
                         foreach ($entradasAnalitico as $entrada) {
                             $dataAgrupamento = new DateTime($entrada["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
                             $entradas[$dataAgrupamento]["data"][] = $entrada;
                         }
 
                         foreach ($saidasAnalitico as $saida) {
                             $dataAgrupamento = new DateTime($saida["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                            $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
                             $saidas[$dataAgrupamento]["data"][] = $saida;
                         }
+
+                        $entradasAnalitico = $entradas;
+                        $saidasAnalitico = $saidas;
+
+                        $entradas = [];
+                        $saidas = [];
+
+                        foreach ($entradasAnalitico as $keyDate => $list) {
+                            foreach ($list as $key => $value) {
+                                $dataAgrupamento = new DateTime($keyDate);
+                                $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                                if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
+                                    $entradas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
+                                }
+                            }
+                        }
+
+                        foreach ($saidasAnalitico as $keyDate => $list) {
+                            foreach ($list as $key => $value) {
+                                $dataAgrupamento = new DateTime($keyDate);
+                                $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                                if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
+                                    $saidas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
+                                }
+                            }
+                        }
+
+                        // return ResponseUtil::successAPI('', $entradas);
 
                         // Agora, faz somatória total e periodo
 
                         $totalEntradas = 0;
 
                         $entradasTemp = [];
-                        foreach ($entradas as $key => $entrada) {
+
+                        // Percorre lista de entradas
+                        foreach ($entradas as $keyEntradas => $periodoData) {
                             $somaPeriodo = 0;
 
-                            foreach ($entrada["data"] as $registroAnalitico) {
-                                $somaPeriodo += $registroAnalitico["qte_gotas"];
+                            $entradaDia = [];
+                            // Percorre periodos
+                            foreach ($periodoData["data"] as $keyData => $data) {
+                                $somaDia = 0;
+
+                                // Percorre agrupamento de dias
+                                foreach ($data["data"] as $keyItem => $item) {
+                                    // Obtem soma Dia
+                                    $somaDia += $item["qte_gotas"];
+                                }
+
+                                $data["soma_dia"] = $somaDia;
+
+                                $somaPeriodo += $somaDia;
+                                $entradaDia[$keyData] = $data;
                             }
 
                             $totalEntradas += $somaPeriodo;
-                            $entrada["soma_periodo"] = $somaPeriodo;
-                            $entradasTemp[$key] = $entrada;
+                            $periodoData["data"] = $entradaDia;
+                            $periodoData["soma_periodo"] = $somaPeriodo;
+                            $entradasTemp[$keyEntradas] = $periodoData;
                         }
 
                         $entradas = $entradasTemp;
-
                         $totalSaidas = 0;
-
                         $saidasTemp = [];
-                        foreach ($saidas as $key => $saida) {
-                            $somaPeriodo = 0;
+                        // Percorre lista de saidas
 
-                            foreach ($saida["data"] as $registroAnalitico) {
-                                $somaPeriodo += $registroAnalitico["qte_gotas"];
+                        // Percorre lista de saidas
+                        // Percorre lista de saidas
+                        foreach ($saidas as $keysaidas => $periodoData) {
+                            $somaPeriodoGotas = 0;
+                            $somaPeriodoReais = 0;
+                            $somaPeriodoQte = 0;
+
+                            $saidaDia = [];
+                            // Percorre periodos
+                            foreach ($periodoData["data"] as $keyData => $data) {
+                                $somaDiaGotas = 0;
+                                $somaDiaReais = 0;
+                                $somaDiaQte = 0;
+
+                                // Percorre agrupamento de dias
+                                foreach ($data["data"] as $keyItem => $item) {
+                                    // Obtem soma Dia
+                                    $somaDiaGotas += $item["qte_gotas"];
+                                    $somaDiaReais += $item["qte_reais"];
+                                    $somaDiaQte += $item["qte"];
+                                }
+                                $data["soma_dia_gotas"] = $somaDiaGotas;
+                                $data["soma_dia_reais"] = $somaDiaReais;
+                                $data["soma_dia_qte"] = $somaDiaQte;
+
+                                $somaPeriodoGotas += $somaDiaGotas;
+                                $somaPeriodoReais += $somaDiaReais;
+                                $somaPeriodoQte += $somaDiaQte;
+
+                                $saidaDia[$keyData] = $data;
                             }
 
                             $totalSaidas += $somaPeriodo;
-                            $saida["soma_periodo"] = $somaPeriodo;
-                            $saidasTemp[$key] = $saida;
+                            $periodoData["data"] = $saidaDia;
+                            $periodoData["soma_periodo_gotas"] = $somaPeriodoGotas;
+                            $periodoData["soma_periodo_reais"] = $somaPeriodoReais;
+                            $periodoData["soma_periodo_qte"] = $somaPeriodoQte;
+                            $saidasTemp[$keysaidas] = $periodoData;
                         }
 
                         $saidas = $saidasTemp;
