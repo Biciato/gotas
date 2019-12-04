@@ -413,7 +413,9 @@ class AppController extends Controller
                     $tokenContent = $tokenArray[1];
                     $tokenValue = explode(".", $tokenContent);
                     $id = 0;
-                    if (!empty($tokenValue) && count($tokenValue) > 0) {
+
+                    // DebugUtil::printArray($tokenValue);
+                    if (!empty($tokenValue) && gettype($tokenValue) === "array" && count($tokenValue) > 0 && isset($tokenValue[1])) {
                         $token = json_decode(base64_decode($tokenValue[1]));
                         $id = $token->id;
                     }
