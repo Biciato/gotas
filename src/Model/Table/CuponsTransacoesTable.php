@@ -139,12 +139,12 @@ class CuponsTransacoesTable extends GenericTable
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['redes_id'], 'Rede'));
-        $rules->add($rules->existsIn(['clientes_id'], 'Cliente'));
-        $rules->add($rules->existsIn(['cupons_id'], 'Cupom'));
-        $rules->add($rules->existsIn(['brindes_id'], 'Brinde'));
-        $rules->add($rules->existsIn(['clientes_has_quadro_horario_id'], 'ClienteHasQuadroHorario'));
-        $rules->add($rules->existsIn(['funcionarios_id'], 'Funcionario'));
+        $rules->add($rules->existsIn(['redes_id'], 'Redes'));
+        $rules->add($rules->existsIn(['clientes_id'], 'Clientes'));
+        $rules->add($rules->existsIn(['cupons_id'], 'Cupons'));
+        $rules->add($rules->existsIn(['brindes_id'], 'Brindes'));
+        $rules->add($rules->existsIn(['clientes_has_quadro_horario_id'], 'ClientesHasQuadroHorarios'));
+        $rules->add($rules->existsIn(['funcionarios_id'], 'Funcionarios'));
 
         return $rules;
     }
