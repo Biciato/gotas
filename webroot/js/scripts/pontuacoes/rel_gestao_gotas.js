@@ -84,9 +84,15 @@ $(function () {
             option.textContent = "Selecione um Estabelecimento para continuar...";
             option.title = "Selecione um Estabelecimento para continuar...";
 
-            brindesList.push(option);
+            var item = {
+                id: 0,
+                nome: "Selecione um Estabelecimento para continuar..."
+            };
+
+            brindesList.push(item);
             brindesSelectListBox.empty();
-            brindesSelectListBox.append(brindesList);
+            brindesSelectListBox.append(option);
+            brindesSelectListBox.val(0);
 
             // Inicializa campos date
             dataInicio.datepicker().datepicker("setDate", dataAtual);
@@ -96,7 +102,9 @@ $(function () {
             option1.value = 0;
             option1.textContent = "Selecione um Estabelecimento para continuar...";
             option1.title = "Selecione um Estabelecimento para continuar...";
+            gotasSelectListBox.empty();
             gotasSelectListBox.append(option1);
+            gotasList.push(item);
 
             // Dispara todos os eventos que precisam de inicializar
             // dataInicioOnChange();
@@ -175,9 +183,36 @@ $(function () {
                 clientesSelectedItem = {};
             }
 
-            // Obtem Brindes
-            getBrindesList(clientesId);
-            getGotasList(clientesId);
+            // Obtem Brindes e Gotas SE estabelecimento selecionado
+
+            if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
+                getBrindesList(clientesId);
+                getGotasList(clientesId);
+            } else {
+                brindesList = [];
+                var option = document.createElement("option");
+                option.value = 0;
+                option.textContent = "Selecione um Estabelecimento para continuar...";
+                option.title = "Selecione um Estabelecimento para continuar...";
+
+                var item = {
+                    id: 0,
+                    nome: "Selecione um Estabelecimento para continuar..."
+                };
+
+                brindesList.push(item);
+                brindesSelectListBox.empty();
+                brindesSelectListBox.append(option);
+                brindesSelectListBox.val(0);
+
+                var option1 = document.createElement("option");
+                option1.value = 0;
+                option1.textContent = "Selecione um Estabelecimento para continuar...";
+                option1.title = "Selecione um Estabelecimento para continuar...";
+                gotasSelectListBox.empty();
+                gotasSelectListBox.append(option1);
+                gotasList.push(item);
+            }
         }
 
         /**
@@ -272,12 +307,24 @@ $(function () {
                 clientesSelectListBox.append(option);
 
                 brindesList = [];
+                var option = document.createElement("option");
+                option.value = 0;
+                option.textContent = "Selecione um Estabelecimento para continuar...";
+                option.title = "Selecione um Estabelecimento para continuar...";
+
+                brindesList.push(option);
                 brindesSelectListBox.empty();
+                brindesSelectListBox.append(brindesList);
                 brindesSelectListBox.append(option);
+                brindesSelectListBox.val(0);
 
                 gotasList = [];
+                var option1 = document.createElement("option");
+                option1.value = 0;
+                option1.textContent = "Selecione um Estabelecimento para continuar...";
+                option1.title = "Selecione um Estabelecimento para continuar...";
                 gotasSelectListBox.empty();
-                gotasSelectListBox.append(option);
+                gotasSelectListBox.append(option1);
             }
         }
 
