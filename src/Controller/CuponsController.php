@@ -23,6 +23,7 @@ use App\Model\Entity\CuponsTransacoes;
 use App\Custom\RTI\NumberUtil;
 use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use DateInterval;
 use Throwable;
 
 /**
@@ -3005,6 +3006,23 @@ class CuponsController extends AppController
         $this->set("_serialize", $arraySet);
     }
 
+    /**
+     * Resumo de brinde
+     *
+     * Obtem dados de resumo de brinde para relatório
+     *
+     * CuponsController.php::getResumoBrindeAPI
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-03
+     *
+     * @param int $clientesId Clientes Id
+     * @param int $brindesId Brindes Id
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data Fim
+     *
+     * @return json_encode Brindes
+     */
     public function getResumoBrindeAPI()
     {
         $sessaoUsuario = $this->getSessionUserVariables();
@@ -3024,10 +3042,8 @@ class CuponsController extends AppController
                 Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
                 Log::write("info", $data);
 
-                $clientesId = !empty($data["clientes_id"]) ? (int) $data["clientes_id"] : $cliente->id;
                 $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : '2099-12-31';
-                // DebugUtil::printArray($data);
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
 
                 $errors = [];
@@ -3035,25 +3051,20 @@ class CuponsController extends AppController
 
                 #region Tratamento de erros
 
-                if (empty($clientesId) && empty($cliente)) {
-                    $errors[] = MSG_CLIENTES_ID_NOT_EMPTY;
-                    $errorCodes[] = MSG_CLIENTES_ID_NOT_EMPTY_CODE;
-                }
-
                 if (empty($brindesId)) {
                     $errors[] = MSG_BRINDES_ID_EMPTY;
                     $errorCodes[] = MSG_BRINDES_ID_EMPTY_CODE;
                 }
 
-
                 $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
                 $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+                $dataDiferenca = $dataFim->diff($dataInicio);
 
-                // // Periodo limite de filtro é 1 ano
-                // if ($dataDiferenca->y >= 1) {
-                //     $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
-                //     $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
-                // }
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
 
                 if ($dataInicio > $dataFim) {
                     $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
@@ -3069,10 +3080,10 @@ class CuponsController extends AppController
                 #endregion
 
                 // Consulta
-                $infoBrinde = $this->Cupons->getSumCupons($rede->id, [$clientesId], $brindesId, $dataInicio, $dataFim);
+                $brinde = $this->Cupons->getSumCupons(null, [], $brindesId, $dataInicio, $dataFim);
 
                 $retorno = [];
-                $retorno["data"]["brinde"] = $infoBrinde;
+                $retorno["data"]["brinde"] = $brinde;
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
             }

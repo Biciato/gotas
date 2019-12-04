@@ -279,9 +279,8 @@ class CuponsTransacoesTable extends GenericTable
                 "usuario" => "Usuarios.nome",
                 "estabelecimento" => "Clientes.nome_fantasia",
                 "rede" => "Redes.nome_rede",
-                "qte" => "COUNT(Cupons.quantidade)"
+                "qte" => "SUM(Cupons.quantidade)"
             ];
-
 
             $group = ["Funcionarios.id"];
             $join = ["Redes",  "Clientes",  "Brindes",  "Cupons.Usuarios",  "Funcionarios"];

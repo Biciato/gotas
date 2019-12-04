@@ -135,6 +135,23 @@ $(function () {
     }
 
     /**
+     * relatorio_entrada_saida.js::gotasSelectListBoxOnChange()
+     *
+     * Comportamento ao trocar o brinde selecionado
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-09-11
+     *
+     * @return void
+     */
+    function gotasSelectListBoxOnChange() {
+        var gota = parseInt(gotasSelectListBox.val());
+
+        gota = isNaN(gota) ? 0 : gota;
+        form.gotasId = gota;
+    }
+
+    /**
      * relatorio_entrada_saida.js::clientesSelectListBoxOnChange()
      *
      * Comportamento ao trocar o cliente selecionado
@@ -512,6 +529,7 @@ $(function () {
      * @since 2019-09-12
      *
      * @param {int} clientesId Id do Cliente
+     * @param {int} gotasId id da Gota (Referência)
      * @param {int} brindesId id do Brinde
      * @param {datetime} dataInicio Data Inicio
      * @param {datetime} dataFim DataFim
@@ -519,7 +537,7 @@ $(function () {
      *
      * @returns HtmlTable
      */
-    function getPontuacoesRelatorioEntradaSaida(clientesId, brindesId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao) {
+    function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao) {
         // Validação
 
         var dataInicioEnvio = moment(dataInicio);
@@ -539,6 +557,7 @@ $(function () {
 
         var data = {
             clientes_id: clientesId,
+            gotas_id: gotasId,
             brindes_id: brindesId,
             data_inicio: dataInicioEnvio,
             data_fim: dataFimEnvio,
@@ -546,6 +565,7 @@ $(function () {
             tipo_movimentacao: tipoMovimentacao
         };
 
+        console.log(data);
 
         $.ajax({
             type: "GET",
@@ -1485,6 +1505,7 @@ $(function () {
 
     // #region Bindings
 
+    gotasSelectListBox.on("change", gotasSelectListBoxOnChange);
     brindesSelectListBox.on("change", brindesSelectListBoxOnChange);
     clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
     dataInicio.on("change", dataInicioOnChange);
@@ -1492,7 +1513,7 @@ $(function () {
     tipoRelatorio.on("change", tipoRelatorioOnChange);
 
     $(pesquisarBtn).on("click", function () {
-        getPontuacoesRelatorioEntradaSaida(form.clientesId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem);
+        getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem);
 
         getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
     });

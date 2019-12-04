@@ -924,6 +924,7 @@ class PontuacoesController extends AppController
                 $data = $this->request->getQueryParams();
                 $redesId = !empty($rede) ? (int) $rede->id : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $gotasId =  !empty($data["gotas_id"]) ? $data["gotas_id"] : null;
                 $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
@@ -1001,7 +1002,7 @@ class PontuacoesController extends AppController
                 $totalSaidaGotas = 0;
 
                 foreach ($clientes as $cliente) {
-                    $entradas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
+                    $entradas = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
                     // @TODO Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
                     // Tabela de pontuações só guarda aquilo que foi GASTO
                     // $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);

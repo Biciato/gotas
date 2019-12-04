@@ -110,6 +110,8 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
         </div>
     </div>
+
+    <h3 class="text-center">Relatório Gestão de Gotas</h3>
     <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
         <tbody>
             <span></span>
@@ -142,11 +144,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <div class="form-group row" id='tabela-resumo-sintetico'>
         <div class="col-lg-6">
-            <label for="total_gotas_ontem">Total Gotas até Ontem</label>
+            <label for="total_gotas_ontem">Total Gotas até Ontem:</label>
             <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">
         </div>
         <div class="col-lg-6">
-            <label for="total_gotas_resgatadas">Total Gotas Resgatadas</label>
+            <label for="total_gotas_resgatadas">Total Gotas Resgatadas:</label>
             <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control text-right">
         </div>
     </div>
@@ -156,7 +158,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control text-right">
         </div>
         <div class="col-lg-6">
-            <label for="gotas_expiradas_periodo">Gotas expiradas no período</label>
+            <label for="gotas_expiradas_periodo">Gotas expiradas no período:</label>
             <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control text-right">
         </div>
     </div>

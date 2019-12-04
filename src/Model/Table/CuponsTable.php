@@ -79,6 +79,16 @@ class CuponsTable extends GenericTable
             'joinType' => 'INNER'
         ]);
 
+        $this->hasOne(
+            "CuponsTransacoes",
+            [
+                "className" => "CuponsTransacoes",
+                "foreignKey" => "cupons_id",
+                "joinType" => Query
+                ::JOIN_TYPE_LEFT
+            ]
+        );
+
         $this->belongsTo("ClienteQuadroHorario", array(
             "className" => "ClientesHasQuadroHorario",
             "foreignKey" => "clientes_has_quadro_horario_id",
@@ -830,7 +840,7 @@ class CuponsTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-11-29
      */
-    public function getSumCupons(int $redesId = 0, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    public function getSumCupons(int $redesId = null, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null)
     {
         try {
             $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
@@ -847,12 +857,14 @@ class CuponsTable extends GenericTable
                 }
 
                 if (!empty($minDate)) {
-                    $exp->gte("DATE_FORMAT(Cupons.data, '%Y-%m-%d')", $minDate->format("Y-m-d 00:00:00"));
+                    $exp->gte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $minDate->format("Y-m-d 00:00:00"));
                 }
 
                 if (!empty($maxDate)) {
-                    $exp->lte("DATE_FORMAT(Cupons.data, '%Y-%m-%d')", $maxDate->format("Y-m-d 23:59:59"));
+                    $exp->lte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $maxDate->format("Y-m-d 23:59:59"));
                 }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_USE);
 
                 return $exp;
             };
@@ -876,7 +888,7 @@ class CuponsTable extends GenericTable
                 ->where($queryConditions)
                 ->select($selectList)
                 ->group($group)
-                ->contain(["Clientes.RedesHasClientes.Redes", "Brindes"])
+                ->contain(["Clientes.RedesHasClientes.Redes", "Brindes", "CuponsTransacoes"])
                 ->first();
 
             return $query;

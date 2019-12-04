@@ -1353,7 +1353,7 @@ class PontuacoesTable extends GenericTable
      * PontuacoesTable.php::getPontuacoesInOutForClientes
      *
      * @param int $clientesId Clientes (Postos)
-     * @param integer $brindesId Id de Brinde
+     * @param integer $gotasId Id de Gota
      * @param DateTime $dataInicio Data Inicio
      * @param DateTime $dataFim Data fim
      * @param string $tipoMovimentacao Entrada / Saída
@@ -1364,7 +1364,7 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      */
-    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
@@ -1381,21 +1381,19 @@ class PontuacoesTable extends GenericTable
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                 $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
-                $selectList[] = "Brindes.nome";
             }
 
             $join = [
                 "Gotas",
                 "Usuarios",
-                "Clientes",
-                "Brindes"
+                "Clientes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
             $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
 
-            if (!empty($brindesId)) {
-                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            if (!empty($gotasId)) {
+                $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
             }
 
             if (!empty($dataInicio)) {
@@ -1413,11 +1411,8 @@ class PontuacoesTable extends GenericTable
             }
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                $groupConditions[] = "Brindes.id";
                 $groupConditions[] = "Usuarios.id";
                 $groupConditions[] = "Gotas.id";
-                $selectList[] = "Brindes.id";
-                $selectList[] = "Brindes.nome";
                 $selectList[] = "Usuarios.id";
                 $selectList[] = "Usuarios.nome";
                 $selectList[] = "Gotas.id";
