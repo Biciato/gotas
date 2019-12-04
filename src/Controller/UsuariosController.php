@@ -1004,7 +1004,7 @@ class UsuariosController extends AppController
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        if (empty($rede) && !empty($redesId)) {
+        if (empty($rede) || !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
             $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
 
@@ -4771,16 +4771,24 @@ class UsuariosController extends AppController
 
                 $user = $this->Usuarios->getUsuarioByEmail($data['email']);
 
-                if (!in_array(
-                    $user->tipo_perfil,
-                    [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_WORKER]
-                )) {
+                if (!empty($user)) {
+                    if (!in_array(
+                        $user->tipo_perfil,
+                        [
+                            PROFILE_TYPE_ADMIN_NETWORK,
+                            PROFILE_TYPE_ADMIN_REGIONAL,
+                            PROFILE_TYPE_ADMIN_LOCAL,
+                            PROFILE_TYPE_MANAGER,
+                            PROFILE_TYPE_WORKER
+                        ]
+                    )) {
 
-                    if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
-                        $validacaoEmail = EmailUtil::validateEmail($email);
+                        if (in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_USER, PROFILE_TYPE_DUMMY_USER])) {
+                            $validacaoEmail = EmailUtil::validateEmail($email);
 
-                        if (!$validacaoEmail["status"]) {
-                            return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                            if (!$validacaoEmail["status"]) {
+                                return ResponseUtil::errorAPI(MESSAGE_GENERIC_ERROR, array($validacaoEmail["message"]), [], [$validacaoEmail["code"]]);
+                            }
                         }
                     }
                 }
