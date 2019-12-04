@@ -113,7 +113,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <div class="print-region">
 
-        <h3 class="text-center">Relatório Gestão de Gotas</h3>
+        <h3 class="text-center"><?= $title ?></h3>
         <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
             <tbody>
                 <span></span>
