@@ -94,14 +94,9 @@ class QRCodeUtil
                 "tipo_operacao_sefaz" => null
             );
 
-            Log::write("info", __LINE__);
-            Log::write("info", $result);
-
             // Retorna Array contendo erros de validações
             return $result;
         }
-
-        Log::write("info", __LINE__);
 
         $arrayConsistency = array();
 
@@ -114,8 +109,6 @@ class QRCodeUtil
 
         // Se estado = MG, o modelo é outro...
 
-        Log::write("info", __LINE__);
-
         $estadoPorURLArray = array(
             "fazenda.mg" => array("estado" => "MG", "qrCodeProcura" => "xhtml?p="),
             "sefaz.rs" => array("estado" => "RS", "qrCodeProcura" => "asp?p="),
@@ -124,8 +117,6 @@ class QRCodeUtil
         $estado = "";
         $qrCodeProcura = "";
         $tratamentoPorEstado = false;
-
-        Log::write("info", __LINE__);
 
         foreach ($estadoPorURLArray as $site => $item) {
             if (strpos($url, $site) !== false) {
@@ -136,15 +127,11 @@ class QRCodeUtil
             }
         }
 
-        Log::write("info", __LINE__);
-
         if ($tratamentoPorEstado) {
             if ($estado == "RS") {
                 $url = str_replace("|", "%7C", $url);
                 $url = str_replace("https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?", "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?", $url);
             }
-
-            Log::write("info", __LINE__);
 
             $posInicioChave = strpos($url, $qrCodeProcura) + strlen($qrCodeProcura);
 
@@ -155,7 +142,6 @@ class QRCodeUtil
 
             $tipoQrCode = count($qrCodeArray) > 6 ? "CONTINGENCIA" : "ONLINE";
             $keysQrCode = [];
-            Log::write("info", __LINE__);
 
             /**
              * chNFe = Chave Nota Fiscal Eletronica
@@ -173,15 +159,10 @@ class QRCodeUtil
             $errors = [];
             $errorCodes = [];
 
-            Log::write("info", __LINE__);
-
-
             if (in_array($estado, ["MG", "BA"])) {
                 $arrayConsistency = [];
 
                 if ($tipoQrCode == "ONLINE") {
-                    Log::write("info", __LINE__);
-
                     $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
                     $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
                     $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
@@ -190,8 +171,6 @@ class QRCodeUtil
                     $arrayConsistency[] = ["key" => 'cHashQRCode', "size" => 40, "fixedSize" => true, "isOptional" => true, "content" => null, "index" => 4, "estado" => $estado];
                 } else {
                     // @todo
-                    Log::write("info", __LINE__);
-
                     $arrayConsistency[] = ["key" => 'chNFe', "size" => 44, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 0, "estado" => $estado];
                     $arrayConsistency[] = ["key" => 'nVersao', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 1, "estado" => $estado];
                     $arrayConsistency[] = ["key" => 'tpAmb', "size" => 1, "fixedSize" => true, "isOptional" => false, "content" => null, "index" => 2, "estado" => $estado];
@@ -203,20 +182,14 @@ class QRCodeUtil
                 }
 
                 if ($tipoQrCode == "ONLINE") {
-                    Log::write("info", __LINE__);
-
                     $keysQrCode = ["chNFe", "nVersao", "tpAmb", "csc", "cHashQRCode"];
                 } else {
-                    Log::write("info", __LINE__);
-
                     $keysQrCode = ["chNFe", "nVersao", "tpAmb", "dtEmi", "vlTot", "digVal", "csc", "cHashQRCode"];
                 }
 
                 $indexQrCodeArray = 0;
                 $qrCodeArrayRetorno = array();
                 foreach ($keysQrCode as $chave) {
-                    Log::write("info", __LINE__);
-
                     if (!empty($qrCodeArray[$indexQrCodeArray])) {
                         $qrCodeArrayRetorno[] = array(
                             "key" => $chave,
@@ -228,10 +201,8 @@ class QRCodeUtil
 
                 $arrayConsistencyReturn = [];
                 foreach ($arrayConsistency as $item) {
-                    Log::write("info", __LINE__);
 
                     foreach ($qrCodeArrayRetorno as $qrCodeItem) {
-                        Log::write("info", __LINE__);
 
                         if ($item["key"] == $qrCodeItem["key"]) {
                             $a = $item;
@@ -247,7 +218,6 @@ class QRCodeUtil
                 $sefazErrors = [];
 
                 foreach ($arrayConsistency as $itemConsistency) {
-                    Log::write("info", __LINE__);
 
                     // Se não é opcional e está vazio o conteúdo, é um erro
                     if (!$itemConsistency["isOptional"] && empty($itemConsistency["content"])) {
@@ -261,8 +231,6 @@ class QRCodeUtil
                 }
 
                 if (count($sefazErrors) > 0) {
-                    Log::write("info", __LINE__);
-
                     $status = 0;
                     $errors = [MSG_QR_CODE_READING_ERROR];
                     $errorCodes = [MSG_QR_CODE_READING_ERROR_CODE];
@@ -287,8 +255,6 @@ class QRCodeUtil
             );
 
             // ResponseUtil::successAPI('', $result);
-            Log::write("info", __LINE__);
-            Log::write("info", $result);
             // Retorna Array contendo erros de validações
             return $result;
         }

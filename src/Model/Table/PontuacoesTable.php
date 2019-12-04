@@ -2,6 +2,8 @@
 
 namespace App\Model\Table;
 
+use \DateTime;
+use Exception;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\ORM\Query;
@@ -9,11 +11,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
-use \DateTime;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Pontuacao;
 use Cake\Database\Expression\QueryExpression;
-use Exception;
 
 /**
  * Pontuacoes Model
@@ -22,13 +22,13 @@ use Exception;
  * @property \App\Model\Table\BrindesHabilitadosTable|\Cake\ORM\Association\BelongsTo $BrindesHabilitados
  * @property \App\Model\Table\GotasTable|\Cake\ORM\Association\BelongsTo $Gotas
  *
- * @method \App\Model\Entity\Pontuaco get($primaryKey, $options = [])
- * @method \App\Model\Entity\Pontuaco newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\Pontuaco[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Pontuaco patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\Pontuaco findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\Pontuacao get($primaryKey, $options = [])
+ * @method \App\Model\Entity\Pontuacao newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\Pontuacao[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\Pontuacao patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\Pontuacao findOrCreate($search, callable $callback = null, $options = [])
  */
 class PontuacoesTable extends GenericTable
 {
@@ -1145,6 +1145,65 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
+     * Obtem soma de pontuações de um estabelecimento/rede
+     *
+     * Obtem soma de gotas, valor_moeda_venda e valor_gota_sefaz de um estabelecimento/rede
+     *
+     * PontuacoesTable::getSumPontuacoesIncoming
+     *
+     * @param integer $redesId Id da Rede
+     * @param array $clientesIds Lista de Clientes
+     * @param DateTime $minDate Data Mínima
+     * @param DateTime $maxDate Data Máxima
+     *
+     * @return \App\Model\Entity\Pontuacao Soma de Valores de pontuações
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-11-28
+     */
+    public function getSumPontuacoesIncoming(int $redesId = 0, array $clientesIds = [], \DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $minDate, $maxDate) {
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (count($clientesIds) > 0) {
+                    $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($minDate)) {
+                    $exp->gte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d %H:%i:%s')", $minDate->format("Y-m-d 00:00:00"));
+                }
+
+                if (!empty($maxDate)) {
+                    $exp->lte("DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d %H:%i:%s')", $maxDate->format("Y-m-d 23:59:59"));
+                }
+
+                return $exp->isNotNull("Pontuacoes.gotas_id");
+            };
+
+            $selectList = [
+                "soma_gotas" => "IF (Pontuacoes.quantidade_gotas > 0, ROUND(SUM(Pontuacoes.quantidade_gotas), 2), 0)",
+                "soma_reais" => "IF (Pontuacoes.valor_moeda_venda > 0, ROUND(SUM(Pontuacoes.valor_moeda_venda), 2), 0)",
+                "soma_gota_sefaz" => "IF (Pontuacoes.valor_gota_sefaz > 0, ROUND(SUM(Pontuacoes.valor_gota_sefaz), 2), 0)"
+            ];
+
+            return $this
+                ->find('all')
+                ->where($queryConditions)
+                ->select($selectList)
+                ->contain(['Clientes.RedesHasClientes.Redes'])
+                ->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+    /**
      * Undocumented function
      *
      * @param array $gotasIds
@@ -1242,7 +1301,6 @@ class PontuacoesTable extends GenericTable
                     "Funcionarios.email",
                     "ano" => "YEAR(Pontuacoes.data)",
                     "mes" => "MONTH(Pontuacoes.data)",
-                    // "data_formatada" => "CONCAT(YEAR(Pontuacoes.data), '/', MONTH(Pontuacoes.data))",
                 ];
 
                 $join = [
@@ -1260,7 +1318,6 @@ class PontuacoesTable extends GenericTable
                 ];
 
                 $order = [
-                    // "data_formatada" => "DESC",
                     "ano" => "ASC",
                     "mes" => "ASC",
                     "Funcionarios.nome" => "ASC"
@@ -1281,8 +1338,8 @@ class PontuacoesTable extends GenericTable
                 return $pontuacoes;
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
-            $code = MESSAGE_LOAD_EXCEPTION_CODE;
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
             throw new Exception($message, $code);
         }
@@ -1296,7 +1353,7 @@ class PontuacoesTable extends GenericTable
      * PontuacoesTable.php::getPontuacoesInOutForClientes
      *
      * @param int $clientesId Clientes (Postos)
-     * @param integer $brindesId Id de Brinde
+     * @param integer $gotasId Id de Gota
      * @param DateTime $dataInicio Data Inicio
      * @param DateTime $dataFim Data fim
      * @param string $tipoMovimentacao Entrada / Saída
@@ -1307,7 +1364,7 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      */
-    public function getPontuacoesInOutForClientes(int $clientesId, int $brindesId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = PONTUACOES_TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
@@ -1324,21 +1381,19 @@ class PontuacoesTable extends GenericTable
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                 $selectList["periodo"] = "DATE_FORMAT(Pontuacoes.data, '%Y-%m-%d')";
-                $selectList[] = "Brindes.nome";
             }
 
             $join = [
                 "Gotas",
                 "Usuarios",
-                "Clientes",
-                "Brindes"
+                "Clientes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
             $whereConditions[] = ["Pontuacoes.clientes_id" => $clientesId];
 
-            if (!empty($brindesId)) {
-                $whereConditions[] = ["Pontuacoes.brindes_id" => $brindesId];
+            if (!empty($gotasId)) {
+                $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
             }
 
             if (!empty($dataInicio)) {
@@ -1349,18 +1404,15 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
-            if ($tipoMovimentacao == PONTUACOES_TYPE_OPERATION_IN) {
+            if ($tipoMovimentacao == TYPE_OPERATION_IN) {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NULL";
             } else {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
             }
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                $groupConditions[] = "Brindes.id";
                 $groupConditions[] = "Usuarios.id";
                 $groupConditions[] = "Gotas.id";
-                $selectList[] = "Brindes.id";
-                $selectList[] = "Brindes.nome";
                 $selectList[] = "Usuarios.id";
                 $selectList[] = "Usuarios.nome";
                 $selectList[] = "Gotas.id";
@@ -1372,6 +1424,7 @@ class PontuacoesTable extends GenericTable
                 ->where($whereConditions)
                 ->contain($join)
                 ->group($groupConditions)
+                ->order(["periodo" => "ASC"])
                 ->select($selectList);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
@@ -1530,7 +1583,7 @@ class PontuacoesTable extends GenericTable
                     if (!empty($gota)) {
                         $pontuacao["gotas"] = $gota;
                         $pontuacao["pontuacoes_comprovante"] = $comprovante;
-                        $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_IN;
+                        $pontuacao["tipo_operacao"] = TYPE_OPERATION_IN;
                         $pontuacoesRetorno[] = $pontuacao;
                     } else {
                         $pontuacao["gotas"] = null;
@@ -1548,7 +1601,7 @@ class PontuacoesTable extends GenericTable
 
                     // $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
-                    $pontuacao["tipo_operacao"] = PONTUACOES_TYPE_OPERATION_OUT;
+                    $pontuacao["tipo_operacao"] = TYPE_OPERATION_OUT;
 
                     $brinde["preco_atual"] = $this->Brindes->PrecoAtual->getUltimoPrecoBrinde($brinde["id"], STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
                     // $pontuacao["brindes_id"] = $brinde;
@@ -1797,6 +1850,8 @@ class PontuacoesTable extends GenericTable
             );
             $camposWhere = array(
                 "expirado" => 0,
+                "gotas_id IS NOT NULL",
+                "utilizado <> " => (int) Configure::read("dropletsUsageStatus")["FullyUsed"],
                 "TIMESTAMPDIFF(MONTH, data, NOW()) > " => $tempoExpiracaoGotasUsuarios,
                 "clientes_id" => $clientesId
             );

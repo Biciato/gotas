@@ -370,10 +370,11 @@ class BrindesTable extends GenericTable
      * @param integer $redesId Redes Id
      * @param integer $clientesId Clientes Id
      * @param integer $apagado Apagado
+     * @param integer $habilitado Habilitado
      *
      * @return array[int, string] Lista de Brindes
      */
-    public function getList(int $redesId = null, int $clientesId = null, int $apagado = null)
+    public function getList(int $redesId = null, int $clientesId = null, int $apagado = null, int $habilitado = null)
     {
         try {
             $where = array();
@@ -394,7 +395,9 @@ class BrindesTable extends GenericTable
                 throw new Exception("Informe um dos seguintes argumentos para obter a lista de brindes: [REDES_ID, CLIENTES_ID]!");
             }
 
-            $where["Brindes.habilitado"] = 1;
+            if (isset($habilitado)) {
+                $where["Brindes.habilitado"] = $habilitado;
+            }
 
             // Só mostra os registros não apagados
             if (!isset($apagado)) {

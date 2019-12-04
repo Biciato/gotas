@@ -21,7 +21,10 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\ShiftUtil;
 use App\Model\Entity\CuponsTransacoes;
 use App\Custom\RTI\NumberUtil;
+use Cake\Http\Client\Request;
 use Cake\I18n\Number;
+use DateInterval;
+use Throwable;
 
 /**
  * Cupons Controller
@@ -1234,7 +1237,7 @@ class CuponsController extends AppController
         $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
         // DebugUtil::printArray($funcionariosList);
         $funcionarioSelecionado = 0;
-        $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1);
+        $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1, null);
         $brindesList = [];
 
         foreach ($brindesQuery as $brinde) {
@@ -3001,6 +3004,104 @@ class CuponsController extends AppController
 
         $this->set(compact($arraySet));
         $this->set("_serialize", $arraySet);
+    }
+
+    /**
+     * Resumo de brinde
+     *
+     * Obtem dados de resumo de brinde para relatório
+     *
+     * CuponsController.php::getResumoBrindeAPI
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-03
+     *
+     * @param int $clientesId Clientes Id
+     * @param int $brindesId Brindes Id
+     * @param DateTime $dataInicio Data Inicio
+     * @param DateTime $dataFim Data Fim
+     *
+     * @return json_encode Brindes
+     */
+    public function getResumoBrindeAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuario = $sessaoUsuario["usuarioLogado"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+
+        if ($usuarioAdministrar) {
+            $usuario = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+
+                Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", $data);
+
+                $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : '2099-12-31';
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                $errors = [];
+                $errorCodes = [];
+
+                #region Tratamento de erros
+
+                if (empty($brindesId)) {
+                    $errors[] = MSG_BRINDES_ID_EMPTY;
+                    $errorCodes[] = MSG_BRINDES_ID_EMPTY_CODE;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+                $dataDiferenca = $dataFim->diff($dataInicio);
+
+                // Periodo limite de filtro é 1 ano
+                if ($dataDiferenca->y >= 1) {
+                    $errors[] = MSG_MAX_FILTER_TIME_ONE_YEAR;
+                    $errorCodes[] = MSG_MAX_FILTER_TIME_ONE_YEAR_CODE;
+                }
+
+                if ($dataInicio > $dataFim) {
+                    $errors[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END;
+                    $errorCodes[] = MSG_DATE_BEGIN_GREATER_THAN_DATE_END_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                // campos de data não tem obrigatoriedade. se não informar estas informações, será o total de tudo
+
+                #endregion
+
+                // Consulta
+                $brinde = $this->Cupons->getSumCupons(null, [], $brindesId, $dataInicio, $dataFim);
+
+                $retorno = [];
+                $retorno["data"]["brinde"] = $brinde;
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $retorno);
+            }
+        } catch (Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
     }
 
     #region Métodos Comuns

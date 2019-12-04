@@ -3,6 +3,8 @@
 namespace App\Model\Table;
 
 use ArrayObject;
+use DateTime;
+use Exception;
 use Cake\Event\Event;
 use Cake\Log\Log;
 use Cake\ORM\Query;
@@ -16,6 +18,7 @@ use Cake\I18n\Number;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\CryptUtil;
 use App\Custom\RTI\StringUtil;
+use Cake\Database\Expression\QueryExpression;
 
 /**
  * Cupons Model
@@ -42,36 +45,6 @@ class CuponsTable extends GenericTable
     protected $cuponsTable = null;
 
     protected $cuponsQuery = null;
-
-
-    /**
-     * -------------------------------------------------------------
-     * Properties
-     * -------------------------------------------------------------
-     */
-
-    /**
-     * Method get of Cupons table property
-     *
-     * @return Cake\ORM\Table Table object
-     */
-    private function _getCuponsTable()
-    {
-        if (is_null($this->cuponsTable)) {
-            $this->_setCuponsTable();
-        }
-        return $this->cuponsTable;
-    }
-
-    /**
-     * Method set of Cupons table property
-     *
-     * @return void
-     */
-    private function _setCuponsTable()
-    {
-        $this->cuponsTable = TableRegistry::get('Cupons');
-    }
 
     /**
      * Initialize method
@@ -105,6 +78,16 @@ class CuponsTable extends GenericTable
             'foreignKey' => 'usuarios_id',
             'joinType' => 'INNER'
         ]);
+
+        $this->hasOne(
+            "CuponsTransacoes",
+            [
+                "className" => "CuponsTransacoes",
+                "foreignKey" => "cupons_id",
+                "joinType" => Query
+                ::JOIN_TYPE_LEFT
+            ]
+        );
 
         $this->belongsTo("ClienteQuadroHorario", array(
             "className" => "ClientesHasQuadroHorario",
@@ -242,7 +225,7 @@ class CuponsTable extends GenericTable
         // 2 - valorPago => (reais e gotas)
 
         try {
-            $cupom = $this->_getCuponsTable()->newEntity();
+            $cupom = $this->newEntity();
 
             $year = date('Y');
             $month = date('m');
@@ -704,7 +687,7 @@ class CuponsTable extends GenericTable
     public function getCuponsById(int $id)
     {
         try {
-            $cupons = $this->_getCuponsTable()->find('all')
+            $cupons = $this->find('all')
                 ->where(
                     [
                         'Cupons.id' => $id
@@ -837,6 +820,82 @@ class CuponsTable extends GenericTable
             Log::write('error', $stringError);
 
             return $stringError;
+        }
+    }
+
+    /**
+     * Obtem soma de pontuações de um estabelecimento/rede
+     *
+     * Obtem soma de gotas, valor_moeda_venda e valor_gota_sefaz de um estabelecimento/rede
+     *
+     * PontuacoesTable::getSumPontuacoesIncoming
+     *
+     * @param integer $redesId Redes Id
+     * @param array $clientesIds Clientes Ids
+     * @param DateTime $minDate Min Date
+     * @param DateTime $maxDate Max Date
+     *
+     * @return \App\Model\Entity\Cupons Soma de Valores de cupons
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-11-29
+     */
+    public function getSumCupons(int $redesId = null, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $queryConditions = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (count($clientesIds) > 0) {
+                    $exp->in("Clientes.id", $clientesIds);
+                }
+
+                if (!empty($brindesId)) {
+                    $exp->eq("Brindes.id", $brindesId);
+                }
+
+                if (!empty($minDate)) {
+                    $exp->gte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $minDate->format("Y-m-d 00:00:00"));
+                }
+
+                if (!empty($maxDate)) {
+                    $exp->lte("DATE_FORMAT(CuponsTransacoes.data, '%Y-%m-%d %H:%i:%s')", $maxDate->format("Y-m-d 23:59:59"));
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_USE);
+
+                return $exp;
+            };
+
+            $query = $this->find();
+            $selectList = [
+                'soma_gotas' => $query->func()->sum('Cupons.valor_pago_gotas'),
+                'soma_reais' => $query->func()->sum('Cupons.valor_pago_reais'),
+                'qte' => $query->func()->sum("Cupons.quantidade"),
+            ];
+
+            $group = [];
+
+            // Traz informações do brinde e agrupamento se o mesmo for especificado.
+            if (!empty($brindesId)) {
+                $selectList["nome_brinde"] = "Brindes.nome";
+                $group = ["Brindes.id"];
+            }
+
+            $query = $this->find("all")
+                ->where($queryConditions)
+                ->select($selectList)
+                ->group($group)
+                ->contain(["Clientes.RedesHasClientes.Redes", "Brindes", "CuponsTransacoes"])
+                ->first();
+
+            return $query;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 
@@ -976,7 +1035,7 @@ class CuponsTable extends GenericTable
     public function deleteAllCuponsByClientesIds(array $clientes_ids)
     {
         try {
-            return $this->_getCuponsTable()
+            return $this
                 ->deleteAll(
                     [
                         'clientes_id in' => $clientes_ids
@@ -1012,7 +1071,7 @@ class CuponsTable extends GenericTable
     public function deleteAllCuponsByUsuariosId(int $usuarios_id)
     {
         try {
-            return $this->_getCuponsTable()
+            return $this
                 ->deleteAll(
                     [
                         'usuarios_id' => $usuarios_id

@@ -179,6 +179,13 @@ Router::scope("/api", function ($routes) {
                     "action" => "getCuponsUsuarioAPI",
                     "method" => Request::METHOD_POST,
                     "path" => "/get_cupons_usuario"
+                ],
+                // utilizado pela parte web
+                "getResumoBrindeAPI" =>
+                [
+                    "action" => "getResumoBrindeAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "get_resumo_brinde"
                 ]
             ]
         ]
@@ -224,7 +231,12 @@ Router::scope("/api", function ($routes) {
                     "action" => "getRelatorioMovimentacaoGotasAPI",
                     "method" => Request::METHOD_GET,
                     "path" => "/get_relatorio_movimentacao_gotas"
-                ]
+                ],
+                "getResumoPontuacoesEstabelecimentoAPI" => [
+                    "action" => "getResumoPontuacoesEstabelecimentoAPI",
+                    "method" => Request::METHOD_GET,
+                    "path" => "/get_resumo_pontuacoes_estabelecimento"
+                ],
             ]
         ]
     );

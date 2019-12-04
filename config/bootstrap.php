@@ -422,10 +422,11 @@ const MSG_QRCODE_EMPTY = "Campo QRCODE (Cupom Fiscal ECF) deve ser informado!";
 const MSG_QRCODE_MISMATCH_FORMAT_CODE = 0x0000001B;
 const MSG_QRCODE_MISMATCH_FORMAT = "Campo QRCODE (Cupom Fiscal ECF) com formato inválido!";
 
-
 const TIME_EXPIRATION_TOKEN_SECONDS = 604800;
 // const TIME_EXPIRATION_TOKEN_SECONDS = 60;
 const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
+const TYPE_OPERATION_IN = 'Entrada';
+const TYPE_OPERATION_OUT = 'Saída';
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
 const FILTER_TYPE_SHIFT = "Turno";
 
@@ -449,6 +450,8 @@ const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY_CODE = 0x00010006;
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
 const MSG_BRINDES_CONFIRM_PURCHASE_CODE = 0x00010007;
 const MSG_BRINDES_CONFIRM_PURCHASE = "Deseja confirmar o resgate dos brindes à seguir?";
+const MSG_BRINDES_ID_EMPTY = "Campo BRINDES_ID não informado!";
+const MSG_BRINDES_ID_EMPTY_CODE = 0x00010008;
 
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
 const STATUS_AUTHORIZATION_PRICE_AUTHORIZED = "Autorizado";
@@ -577,8 +580,7 @@ const MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE = 0x000A0002;
 
 #region Pontuações
 
-const PONTUACOES_TYPE_OPERATION_IN = 'Entrada';
-const PONTUACOES_TYPE_OPERATION_OUT = 'Saída';
+
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
