@@ -1166,6 +1166,11 @@ class BrindesController extends AppController
         try {
             if ($this->request->is("GET")) {
                 $data = $this->request->getQueryParams();
+                $habilitado = isset($data["habilitado"]) ? (int) $data["habilitado"] : 1;
+
+                // Se 2, define como null para buscar todo mundo
+                $habilitado = $habilitado === 2 ? null : $habilitado;
+
                 $redesId = 0;
                 $brindes = null;
 
@@ -1178,7 +1183,7 @@ class BrindesController extends AppController
 
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
-                $brindes = $this->Brindes->getList($redesId, $clientesId, 0);
+                $brindes = $this->Brindes->getList($redesId, $clientesId, 0, $habilitado);
                 $brindes = ["brindes" => $brindes->toArray()];
 
                 return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $brindes]);

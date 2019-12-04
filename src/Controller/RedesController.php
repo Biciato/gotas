@@ -849,10 +849,10 @@ class RedesController extends AppController
                 throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
             }
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
+            return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()], [], [$th->getCode()]);
         }
     }
 
@@ -897,7 +897,7 @@ class RedesController extends AppController
                 $messageLog = sprintf("%s", $th->getMessage(), $code);
                 Log::write("error", $messageLog);
 
-                return ResponseUtil::errorAPI(MESSAGE_LOAD_EXCEPTION, [$message], [], [$code]);
+                return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$message], [], [$code]);
             }
         }
     }
