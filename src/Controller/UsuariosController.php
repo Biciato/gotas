@@ -3085,6 +3085,10 @@ class UsuariosController extends AppController
 
             $usuario = $this->Usuarios->getUsuarioByCPF($data["cpf"]);
 
+            if (!$usuario) {
+                $usuario = $this->Usuarios->newEntity();
+            }
+
             if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuario->conta_ativa) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
