@@ -3083,7 +3083,9 @@ class UsuariosController extends AppController
                 }
             }
 
-            if (isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) {
+            $usuarioCheck = $this->Usuarios->getUsuarioByCPF($data["cpf"]);
+
+            if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuarioCheck->conta_ativa) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
                 $this->Usuarios->validator()->remove('cpf');
@@ -3218,6 +3220,10 @@ class UsuariosController extends AppController
                     ];
                 } else {
                     // senão, grava no banco
+
+                    if (!empty($usuarioCheck)) {
+                        $usuarioData["tipo_perfil"] = $usuarioCheck->tipo_perfil;
+                    }
 
                     // Caso não seja informado senha de usuário no momento do cadastro, a senha padrão é 123456
                     $usuarioData["senha"] = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : 123456;
