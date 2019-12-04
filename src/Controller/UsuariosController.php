@@ -3083,9 +3083,9 @@ class UsuariosController extends AppController
                 }
             }
 
-            $usuarioCheck = $this->Usuarios->getUsuarioByCPF($data["cpf"]);
+            $usuario = $this->Usuarios->getUsuarioByCPF($data["cpf"]);
 
-            if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuarioCheck->conta_ativa) {
+            if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuario->conta_ativa) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
                 $this->Usuarios->validator()->remove('cpf');
@@ -3220,11 +3220,6 @@ class UsuariosController extends AppController
                     ];
                 } else {
                     // senão, grava no banco
-
-                    if (!empty($usuarioCheck)) {
-                        $usuarioData["tipo_perfil"] = $usuarioCheck->tipo_perfil;
-                    }
-
                     // Caso não seja informado senha de usuário no momento do cadastro, a senha padrão é 123456
                     $usuarioData["senha"] = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : 123456;
                     $usuarioData["confirm_senha"] = !empty($usuarioData["confirm_senha"]) ? $usuarioData["confirm_senha"] : 123456;
@@ -3235,7 +3230,13 @@ class UsuariosController extends AppController
                     //     $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
                     // }
 
+                    if (!empty($usuario)) {
+                        $usuarioData["tipo_perfil"] = $usuario->tipo_perfil;
+                        $usuarioData["id"] = $usuario->id;
+                    }
+
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
+
 
                     foreach ($usuario->errors() as $key => $erro) {
                         $errors[] = $erro;
