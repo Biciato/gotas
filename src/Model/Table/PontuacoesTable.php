@@ -1376,7 +1376,9 @@ class PontuacoesTable extends GenericTable
 
             $selectList = [
                 "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
-                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)"
+                "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
+                "Funcionarios.id",
+                "Funcionarios.nome"
             ];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
@@ -1386,7 +1388,8 @@ class PontuacoesTable extends GenericTable
             $join = [
                 "Gotas",
                 "Usuarios",
-                "Clientes"
+                "Clientes",
+                "Funcionarios"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)

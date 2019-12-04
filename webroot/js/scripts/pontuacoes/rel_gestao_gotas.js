@@ -655,7 +655,7 @@ $(function () {
                                 var cellInfoCliente = document.createElement("td");
                                 var infoCliente = document.createElement("strong");
                                 infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                                cellInfoCliente.colSpan = 2;
+                                cellInfoCliente.colSpan = 3;
                                 cellInfoCliente.classList.add("text-right");
 
                                 cellInfoCliente.append(infoCliente);
@@ -690,7 +690,7 @@ $(function () {
                                     var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
                                     labelPeriodoValue.textContent = mesAtual;
                                     cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                    cellPeriodoTextoLabel.colSpan = 2;
+                                    cellPeriodoTextoLabel.colSpan = 3;
                                     cellPeriodoTextoLabel.classList.add("text-right");
 
                                     rowPeriodo.append(cellPeriodoLabel);
@@ -719,7 +719,7 @@ $(function () {
 
                                         labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
                                         cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                        cellPeriodoTextoLabel.colSpan = 2;
+                                        cellPeriodoTextoLabel.colSpan = 3;
                                         cellPeriodoTextoLabel.classList.add("text-right");
 
                                         rowPeriodo.append(cellPeriodoLabel);
@@ -735,6 +735,11 @@ $(function () {
                                         textlabelGota.textContent = "Referência:";
                                         cellLabelGota.append(textlabelGota);
 
+                                        var cellLabelFuncionarioEntrada = document.createElement("td");
+                                        var textFuncionarioEntrada = document.createElement("strong");
+                                        textFuncionarioEntrada.textContent = "Funcionário:";
+                                        cellLabelFuncionarioEntrada.append(textFuncionarioEntrada);
+
                                         var cellLabelUsuarioEntrada = document.createElement("td");
                                         var textUsuarioEntrada = document.createElement("strong");
                                         textUsuarioEntrada.textContent = "Usuário:";
@@ -746,6 +751,7 @@ $(function () {
                                         cellLabelGotasEntrada.append(textEntradaGotas);
 
                                         headerDadosPeriodoRow.append(cellLabelGota);
+                                        headerDadosPeriodoRow.append(cellLabelFuncionarioEntrada);
                                         headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
                                         headerDadosPeriodoRow.append(cellLabelGotasEntrada);
 
@@ -763,6 +769,11 @@ $(function () {
                                             labelEntradaGota.textContent = pontuacao.gota !== undefined ? pontuacao.gota.nome_parametro : "";
                                             cellEntradaGota.append(labelEntradaGota);
 
+                                            var cellEntradaFuncionario = document.createElement("td");
+                                            var labelEntradaFuncionario = document.createElement("span");
+                                            labelEntradaFuncionario.textContent = pontuacao.funcionario !== undefined ? pontuacao.funcionario.nome : "";
+                                            cellEntradaFuncionario.append(labelEntradaFuncionario);
+
                                             var cellEntradaUsuario = document.createElement("td");
                                             var labelEntradaUsuario = document.createElement("span");
                                             labelEntradaUsuario.textContent = pontuacao.usuario !== undefined ? pontuacao.usuario.nome : "";
@@ -775,6 +786,7 @@ $(function () {
                                             cellEntradaQteGota.append(labelEntradaQteGota);
 
                                             row.append(cellEntradaGota);
+                                            row.append(cellEntradaFuncionario);
                                             row.append(cellEntradaUsuario);
                                             row.append(cellEntradaQteGota);
 
@@ -795,7 +807,7 @@ $(function () {
                                         var labelEntradaTotal = document.createElement("strong");
                                         labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].data[data].soma_dia;
                                         cellLabelEntradaTotal.classList.add("text-right");
-                                        cellLabelEntradaTotal.colSpan = 2;
+                                        cellLabelEntradaTotal.colSpan = 3;
                                         cellLabelEntradaTotal.append(labelEntradaTotal);
 
                                         rowTotalDia.append(cellLabelTotal);
@@ -820,7 +832,7 @@ $(function () {
                                     var labelEntradaTotal = document.createElement("strong");
                                     labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].soma_periodo;
                                     cellLabelEntradaTotal.classList.add("text-right");
-                                    cellLabelEntradaTotal.colSpan = 2;
+                                    cellLabelEntradaTotal.colSpan = 3;
                                     cellLabelEntradaTotal.append(labelEntradaTotal);
 
                                     rowTotalPeriodo.append(cellLabelTotal);
