@@ -412,9 +412,12 @@ class AppController extends Controller
                     $tokenArray = explode(" ", $tokenObject[0]);
                     $tokenContent = $tokenArray[1];
                     $tokenValue = explode(".", $tokenContent);
-                    $token = json_decode(base64_decode($tokenValue[1]));
+                    $id = 0;
+                    if (!empty($tokenValue) && count($tokenValue) > 0) {
+                        $token = json_decode(base64_decode($tokenValue[1]));
+                        $id = $token->id;
+                    }
 
-                    $id = $token->id;
 
                     if (!empty($id)) {
                         $usuarioLogado = $this->Usuarios->get($id);
