@@ -233,7 +233,7 @@ $(function () {
      * @since 2019-09-12
      */
     function imprimirRelatorio() {
-        setTimeout(tabela.printThis({
+        setTimeout($(".print-region").printThis({
             importCss: false
         }), 100);
     }

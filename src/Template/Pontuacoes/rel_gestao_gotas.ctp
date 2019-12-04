@@ -111,67 +111,71 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <h3 class="text-center">Relatório Gestão de Gotas</h3>
-    <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
-        <tbody>
-            <span></span>
-        </tbody>
-    </table>
+    <div class="print-region">
 
-    <div id='tabela-resumo-brinde'>
-        <h3>
-            <div>Informações de Brinde "<span id='nome-brinde'></span>"</div>
-        </h3>
+        <h3 class="text-center">Relatório Gestão de Gotas</h3>
+        <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
+            <tbody>
+                <span></span>
+            </tbody>
+        </table>
+
+        <div id='tabela-resumo-brinde'>
+            <h3>
+                <div>Informações de Brinde "<span id='nome-brinde'></span>"</div>
+            </h3>
+            <div class="form-group row">
+
+                <div class="col-lg-4">
+                    <label for="quantidade_emitida">Quantidade Emitida:</label>
+                    <input type="text" name="quantidade_emitida" id="quantidade-emitida" class="form-control text-right" readonly />
+                </div>
+                <div class="col-lg-4">
+                    <label for="total_gotas_brinde">Total Gotas do Brinde:</label>
+                    <input type="text" name="total_gotas_brinde" id="total-gotas-brinde" class="form-control text-right" readonly />
+                </div>
+                <div class="col-lg-4">
+                    <label for="total_reais_brinde">Total Reais do Brinde:</label>
+                    <input type="text" name="total_reais_brinde" id="total-reais-brinde" class="form-control text-right" readonly />
+                </div>
+            </div>
+
+        </div>
+
+        <h3>Resumo Sintético</h3>
+
+        <div class="form-group row" id='tabela-resumo-sintetico'>
+            <div class="col-lg-6">
+                <label for="total_gotas_ontem">Total Gotas até Ontem:</label>
+                <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">
+            </div>
+            <div class="col-lg-6">
+                <label for="total_gotas_resgatadas">Total Gotas Resgatadas:</label>
+                <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control text-right">
+            </div>
+        </div>
         <div class="form-group row">
-
-            <div class="col-lg-4">
-                <label for="quantidade_emitida">Quantidade Emitida:</label>
-                <input type="text" name="quantidade_emitida" id="quantidade-emitida" class="form-control" readonly />
+            <div class="col-lg-6">
+                <label for="gotas_adquiridas_periodo">Total Gotas Adquiridas no Período:</label>
+                <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control text-right">
             </div>
-            <div class="col-lg-4">
-                <label for="total_gotas_brinde">Total Gotas do Brinde:</label>
-                <input type="text" name="total_gotas_brinde" id="total-gotas-brinde" class="form-control" readonly />
-            </div>
-            <div class="col-lg-4">
-                <label for="total_reais_brinde">Total Reais do Brinde:</label>
-                <input type="text" name="total_reais_brinde" id="total-reais-brinde" class="form-control" readonly />
+            <div class="col-lg-6">
+                <label for="gotas_expiradas_periodo">Gotas expiradas no período:</label>
+                <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control text-right">
             </div>
         </div>
+        <div class="form-group row">
+            <div class="col-lg-6">
+                <label for="caixa_hoje_gotas">Caixa de Hoje - Gotas:</label>
+                <input type="text" name="caixa_hoje_gotas" id="caixa-hoje-gotas" readonly class="form-control text-right">
+            </div>
+            <div class="col-lg-6">
+                <label for="caixa_hoje_reais">Caixa de Hoje - Reais:</label>
+                <input type="text" name="caixa_hoje_reais" id="caixa-hoje-reais" readonly class="form-control text-right">
+            </div>
+        </div>
+    </div>
 
-    </div>
-
-    <h3>Resumo Sintético</h3>
-
-    <div class="form-group row" id='tabela-resumo-sintetico'>
-        <div class="col-lg-6">
-            <label for="total_gotas_ontem">Total Gotas até Ontem:</label>
-            <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">
-        </div>
-        <div class="col-lg-6">
-            <label for="total_gotas_resgatadas">Total Gotas Resgatadas:</label>
-            <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control text-right">
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-lg-6">
-            <label for="gotas_adquiridas_periodo">Total Gotas Adquiridas no Período:</label>
-            <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control text-right">
-        </div>
-        <div class="col-lg-6">
-            <label for="gotas_expiradas_periodo">Gotas expiradas no período:</label>
-            <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control text-right">
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-lg-6">
-            <label for="caixa_hoje_gotas">Caixa de Hoje - Gotas:</label>
-            <input type="text" name="caixa_hoje_gotas" id="caixa-hoje-gotas" readonly class="form-control text-right">
-        </div>
-        <div class="col-lg-6">
-            <label for="caixa_hoje_reais">Caixa de Hoje - Reais:</label>
-            <input type="text" name="caixa_hoje_reais" id="caixa-hoje-reais" readonly class="form-control text-right">
-        </div>
-    </div>
 </div>
 
 
