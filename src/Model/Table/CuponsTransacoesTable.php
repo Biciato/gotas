@@ -269,6 +269,8 @@ class CuponsTransacoesTable extends GenericTable
                 return $exp;
             };
 
+            $query = $this->find();
+
             $selectList = [
                 "periodo" => "DATE_FORMAT(CuponsTransacoes.data, '%Y-%m')",
                 "qte_gotas" => "ROUND(SUM(Cupons.valor_pago_gotas), 0)",
@@ -279,10 +281,10 @@ class CuponsTransacoesTable extends GenericTable
                 "usuario" => "Usuarios.nome",
                 "estabelecimento" => "Clientes.nome_fantasia",
                 "rede" => "Redes.nome_rede",
-                "qte" => "SUM(Cupons.quantidade)"
+                "qte" => $query->func()->sum("Cupons.quantidade")
             ];
 
-            $group = ["Funcionarios.id"];
+            $group = ["periodo"];
             $join = ["Redes",  "Clientes",  "Brindes",  "Cupons.Usuarios",  "Funcionarios"];
 
             if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {

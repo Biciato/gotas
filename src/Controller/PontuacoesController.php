@@ -1032,8 +1032,6 @@ class PontuacoesController extends AppController
                         $somaReaisSaidas += $saida["qte_reais"];
                     }
 
-                    $totalEntradas = $somaEntradas;
-                    $totalSaidaGotas = $somaSaidas;
                     $entradasAnalitico = [];
                     $saidasAnalitico = [];
 
@@ -1252,6 +1250,13 @@ class PontuacoesController extends AppController
                         }
 
                         $saidas = $saidasTemp;
+                    } else {
+                        $totalSaidaQte = $somaQteSaidas;
+                        $totalSaidaReais = $somaReaisSaidas;
+                        $totalSaidaGotas = $somaSaidas;
+                        $totalEntradas = $somaEntradas;
+
+
                     }
 
                     // usort($entradas, function ($a, $b) {
@@ -1267,9 +1272,9 @@ class PontuacoesController extends AppController
                         "pontuacoes_entradas" => $entradas,
                         "pontuacoes_saidas" => $saidas,
                         "soma_entradas" => $somaEntradas,
-                        "soma_saidas" => $somaSaidas,
-                        "soma_reais_saidas" => $somaReaisSaidas,
-                        "soma_qte_saidas" => $somaQteSaidas,
+                        "soma_saida_gotas" => $somaSaidas,
+                        "soma_saida_reais" => $somaReaisSaidas,
+                        "soma_saida_qte" => $somaQteSaidas,
                     ];
                 }
 
@@ -1409,7 +1414,7 @@ class PontuacoesController extends AppController
 
                 // Total Gotas Resgatadas
                 // @todo Falta consulta
-                $totalGotasResgatadas = $this->Cupons->getSumCupons($redesId, $clientesIds, null, null, $dataOntem);
+                $totalGotasResgatadas = $this->Cupons->getSumCupons($redesId, $clientesIds, null, $dataInicio, $dataFim);
 
                 // Total Gotas Expiradas
                 // @todo falta fazer ajuste de "Brinde" que faz o débito de pontos expirados.
