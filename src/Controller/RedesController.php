@@ -218,7 +218,17 @@ class RedesController extends AppController
                 if ($this->Redes->updateRede($rede)) {
                     // Atualiza todas as bonificações de gotas dos postos que é de sistema (bonificação extra SEFAZ)
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
-                    $this->Gotas->saveUpdateBonificacaoExtraSefaz($clientesIds, $rede->qte_gotas_bonificacao);
+
+                    // Adiciona bonificação extra sefaz para novo posto
+                    $gotas = [GOTAS_BONUS_SEFAZ];
+
+                    if ($rede->pontuacao_extra_produto_generico) {
+                        $gotas[] = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                    }
+
+                    foreach ($gotas as $value) {
+                        $this->Gotas->saveUpdateExtraPoints($clientesIds, $rede->qte_gotas_bonificacao, $value);
+                    }
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {
                         if (file_exists($imagemOriginal)) {

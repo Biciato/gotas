@@ -205,39 +205,41 @@ class GotasTable extends GenericTable
     }
 
     /**
-     * GotasTable::saveUpdateBonificacaoExtraSefaz
+     * GotasTable::saveUpdateExtraPoints
      *
-     * Insere/Atualiza registros de Gotas de Bonificação SEFAZ
+     * Insere/Atualiza registros de Gotas de Pontuação Extra (como Sefaz e bonificação de produtos extras)
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-07-21
      *
      * @param array $clientesIds Ids de Clientes
      * @param integer $qteGotasBonificacao Qte Bonificação
+     * @param string $nome Nome da Gota/Ponto
      *
      * @return \App\Model\Entity\Gota $gota
      */
-    public function saveUpdateBonificacaoExtraSefaz(array $clientesIds, int $qteGotasBonificacao)
+    public function saveUpdateExtraPoints(array $clientesIds, int $qteGotasBonificacao, string $nome)
     {
         try {
             foreach ($clientesIds as $clienteId) {
-                $gotaBonificacaoSistema = $this->find("all")
+                $gota = $this->find("all")
                     ->where(array(
                         "clientes_id" => $clienteId,
-                        "nome_parametro" => GOTAS_BONUS_SEFAZ
+                        "nome_parametro" => $nome
                     ))
                     ->first();
 
-                if (empty($gotaBonificacaoSistema)) {
-                    $gotaBonificacaoSistema = $this->newEntity();
-                    $gotaBonificacaoSistema->clientes_id = $clienteId;
-                    $gotaBonificacaoSistema->nome_parametro = GOTAS_BONUS_SEFAZ;
-                    $gotaBonificacaoSistema->habilitado = 1;
-                    $gotaBonificacaoSistema->tipo_cadastro = GOTAS_REGISTER_TYPE_AUTOMATIC;
+                if (empty($gota)) {
+                    $gota = $this->newEntity();
+                    $gota->clientes_id = $clienteId;
+                    $gota->nome_parametro = $nome;
+                    $gota->multiplicador_gota = 1;
+                    $gota->habilitado = 1;
+                    $gota->tipo_cadastro = GOTAS_REGISTER_TYPE_AUTOMATIC;
                 }
 
-                $gotaBonificacaoSistema->multiplicador_gota = $qteGotasBonificacao;
-                $this->save($gotaBonificacaoSistema);
+                $gota->multiplicador_gota = $qteGotasBonificacao;
+                return $this->save($gota);
             }
         } catch (\Exception $e) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());

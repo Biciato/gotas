@@ -109,6 +109,9 @@ class RedesTable extends GenericTable
             ->allowEmpty("qte_gotas_bonificacao");
 
         $validator
+            ->boolean("pontuacao_extra_produto_generico");
+
+        $validator
             ->dateTime('audit_insert')
             ->allowEmpty('audit_insert');
 

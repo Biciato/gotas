@@ -23,6 +23,7 @@ use Cake\Core\Configure;
  * @property int $media_assiduidade_clientes
  * @property bool $app_personalizado
  * @property bool $msg_distancia_compra_brinde
+ * @property bool $pontuacao_extra_produto_generico
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  */
