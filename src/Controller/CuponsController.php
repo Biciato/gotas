@@ -3152,7 +3152,7 @@ class CuponsController extends AppController
                 $message = "Usuário já atingiu o número de compras permitido por dia na rede!";
                 $mensagem = array(
                     "status" => 0,
-                    "message" => Configure::read("messageOperationFailureDuringProcessing"),
+                    "message" => MSG_WARNING,
                     "errors" => array($message),
                 );
 
