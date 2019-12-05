@@ -438,7 +438,11 @@ class CuponsTable extends GenericTable
     {
         $whereConditions = array();
 
-        $whereConditions[] = array("Cupons.cupom_emitido = UPPER('{$cupomEmitido}')");
+        if (strlen($cupomEmitido) === 15) {
+            $whereConditions[] = array("Cupons.cupom_emitido = UPPER('{$cupomEmitido}')");
+        } else {
+            $whereConditions[] = array("Cupons.cupom_emitido" => $cupomEmitido);
+        }
 
         if (sizeof($clientesIds) > 0) {
             $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
