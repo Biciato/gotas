@@ -276,6 +276,12 @@ class CuponsTable extends GenericTable
                     )
                 )->first()['senha'];
 
+            $dataHoje = date("Y-m-d");
+
+            // Regra só para o dia 05/12/2019 e cliente Formigão para começar a senha na posição 100
+            if ($dataHoje === "2019-12-05" && $clientesId === 51 && $brinde->tipo_equipamento === TYPE_EQUIPMENT_RTI && $qteSenhas < 99) {
+                $qteSenhas += 99;
+            }
 
             // Processo de Gravação
             $cupom->brindes_id = $brindesId;
