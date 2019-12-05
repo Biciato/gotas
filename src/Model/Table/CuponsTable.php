@@ -327,10 +327,13 @@ class CuponsTable extends GenericTable
                 $cupom->cupom_emitido = CryptUtil::encryptCupomRTI($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
-                $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
+                $novoCupomAleatorio = CryptUtil::   encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
+                $novoCupomAleatorio = strtoupper($novoCupomAleatorio);
 
                 while (count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
+
                     $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
+                    $novoCupomAleatorio = strtoupper($novoCupomAleatorio);
                 }
 
                 $cupom->cupom_emitido = $novoCupomAleatorio;
@@ -403,7 +406,7 @@ class CuponsTable extends GenericTable
     public function getCupomByCupomEmitido(string $cupomEmitido, bool $estornado = null)
     {
         $whereConditions = array();
-        $whereConditions["Cupons.cupom_emitido"] = $cupomEmitido;
+        $whereConditions["Cupons.cupom_emitido"] = strtoupper($cupomEmitido);
 
         if (isset($estornado)) {
             $whereConditions["Cupons.estornado"] = $estornado;
@@ -435,7 +438,7 @@ class CuponsTable extends GenericTable
     {
         $whereConditions = array();
 
-        $whereConditions[] = array('Cupons.cupom_emitido' => $cupomEmitido);
+        $whereConditions[] = array("Cupons.cupom_emitido = UPPER('{$cupomEmitido}')");
 
         if (sizeof($clientesIds) > 0) {
             $whereConditions[] = array("Cupons.clientes_id IN " => $clientesIds);
