@@ -93,6 +93,24 @@ use Cake\Core\Configure;
         </label>
 
     </div>
+    <div class="col-lg-12">
+        <input type="hidden" name='app_personalizado' value='0'>
+        <label for="app_personalizado">
+            <input type="checkbox" <?= $rede->app_personalizado ? 'checked' : '' ?> id="app_personalizado" name="app_personalizado" class="app_personalizado" value="1">
+            Rede com APP Personalizado?
+        </label>
+    </div>
+</div>
+<h4>Opções de Integração entre Sistemas de Postos</h4>
+<div class="form-group row">
+    <div class="col-lg-12">
+        <input type="hidden" name='pontuacao_extra_produto_generico' value='0'>
+        <label for="pontuacao_extra_produto_generico">
+            <input type="checkbox" <?= $rede->pontuacao_extra_produto_generico ? 'checked' : '' ?> id="pontuacao_extra_produto_generico" name="pontuacao_extra_produto_generico" value="1" title="Adiciona Pontos/Gotas para Produtos que não estão cadastrados no Sistema, ao importar o Cupom Fiscal.">
+            Atribuir Pontos Extras para Gotas não Cadastradas?
+        </label>
+
+    </div>
 </div>
 
 <?php if ($imagemOriginal) : ?>

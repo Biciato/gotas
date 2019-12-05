@@ -1791,26 +1791,23 @@ class PontuacoesComprovantesController extends AppController
                 $errorCodes[] = 0;
             }
 
-            $chave = null;
+            $chave = "";
 
             if (strtoupper($cliente["estado"] == "MG")) {
-                if (empty($qrCode)) {
-                    $qrCode = "CUPOM ECF-MG";
-                    $chave = $qrCode;
+                if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
+                    $qrCodeResult = QRCodeUtil::validarUrlQrCode($qrCode);
+
+                    $qrcodeValue = array_filter($qrCodeResult["data"], function ($a) {
+                        return $a["key"] == "chNFe";
+                    });
+
+                    $qrcodeValue = $qrcodeValue[0];
+                    $chave = $qrcodeValue["content"];
                 } else {
-                    if (filter_var($qrCode, FILTER_VALIDATE_URL)) {
-                        $qrCodeResult = QRCodeUtil::validarUrlQrCode($qrCode);
-
-                        $qrcodeValue = array_filter($qrCodeResult["data"], function ($a) {
-                            return $a["key"] == "chNFe";
-                        });
-
-                        $qrcodeValue = $qrcodeValue[0];
-                        $chave = $qrcodeValue["content"];
-                    } else {
-                        $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
-                        $chave = $qrCode;
-                    }
+                    $errors[] = MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN;
+                    $errorCodes[] = MSG_QR_CODE_SEFAZ_MISMATCH_PATTERN_CODE;
+                    // $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
+                    // $chave = $qrCode;
                 }
             } else {
                 if (empty($qrCode)) {
@@ -1830,6 +1827,15 @@ class PontuacoesComprovantesController extends AppController
                 } else {
                     $chave = substr($qrCode, strpos($qrCode, "chNFe=") + strlen("chNFe="), 44);
                 }
+            }
+
+            // Faz a pesquisa do QR Code no sistema, se tiver um registro ignora
+            $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chave, $cliente->estado);
+
+            // Cupom previamente importado, interrompe processamento e avisa usuário
+            if (!$cupomPreviamenteImportado["status"]) {
+                $errors[] = $cupomPreviamenteImportado["errors"][0];
+                $errorCodes[] = 0;
             }
 
             if (sizeof($errors) > 0) {
@@ -1871,6 +1877,12 @@ class PontuacoesComprovantesController extends AppController
             $gotasAtualizarPreco = array();
             $gotasCliente = $gotasCliente->toArray();
 
+            #region
+
+            $gotasPontosExtras = [];
+
+            #endregion
+
             foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
 
                 $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
@@ -1900,7 +1912,10 @@ class PontuacoesComprovantesController extends AppController
                         //     "preco" => $gotaUsuario["gotas_vl_unit"]
                         // );
 
-                        // @todo gustavosg: pendente!
+                        /**
+                         * @todo gustavosg: pendente atualização de preço por envio via REST
+                         * Esta informação será somente para caráter de relatório
+                         */
                         // $gotasAtualizarPreco[] = $gotaPreco;
                     }
 

@@ -5,6 +5,7 @@ namespace App\Model\Table;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\PontuacoesComprovante;
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Log\Log;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
@@ -663,7 +664,6 @@ class PontuacoesComprovantesTable extends GenericTable
             return $this->find()
                 ->where($where)
                 ->select($selectList)->count();
-
         } catch (\Throwable $th) {
             $message = sprintf("%s: %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -746,7 +746,7 @@ class PontuacoesComprovantesTable extends GenericTable
 
                 ]
             )
-            ->order(["PontuacoesComprovantes.data" => "DESC"]);
+                ->order(["PontuacoesComprovantes.data" => "DESC"]);
 
             if (!is_null($options)) {
                 $result = $result->where($options);
