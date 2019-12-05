@@ -137,10 +137,18 @@ $(document).ready(function () {
                             }));
 
                         } else {
-                            $(".list-gifts").append($('<option>', {
-                                value: value.id,
-                                text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
-                            }));
+
+                            if (!isVendaAvulsa) {
+                                $(".list-gifts").append($('<option>', {
+                                    value: value.id,
+                                    text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                                }));
+                            } else if (valorAvulso > 0) {
+                                $(".list-gifts").append($('<option>', {
+                                    value: value.id,
+                                    text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
+                                }));
+                            }
 
                         }
 
