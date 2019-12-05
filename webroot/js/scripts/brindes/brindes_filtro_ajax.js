@@ -127,20 +127,30 @@ $(document).ready(function () {
                         // }));
                     } else {
 
-                        var valorAvulso = (value.preco_atual.valor_moeda_venda_formatado != null) ? value.preco_atual.valor_moeda_venda_formatado : 0;
+                        var valorAvulsoFormatado = (value.preco_atual.valor_moeda_venda_formatado != null) ? value.preco_atual.valor_moeda_venda_formatado : 0;
+                        var valorAvulso = (value.preco_atual.valor_moeda_venda !== undefined) ? value.preco_atual.valor_moeda_venda : 0;
                         var valorGotas = (value.preco_atual.preco != null) ? parseFloat(value.preco_atual.preco) : 0;
+                        var tipoVenda = value.tipo_venda;
 
                         if (desconto){
                             $(".list-gifts").append($('<option>', {
                                 value: value.id,
-                                text: value.nome_brinde_detalhado + " - Gotas: " + valorGotas + " - Reais: " + valorAvulso
+                                text: value.nome_brinde_detalhado + " - Gotas: " + valorGotas + " - Reais: " + valorAvulsoFormatado
                             }));
 
                         } else {
-                            $(".list-gifts").append($('<option>', {
-                                value: value.id,
-                                text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulso : valorGotas)
-                            }));
+
+                            if (!isVendaAvulsa) {
+                                $(".list-gifts").append($('<option>', {
+                                    value: value.id,
+                                    text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulsoFormatado : valorGotas)
+                                }));
+                            } else if (valorAvulso > 0 || tipoVenda === "Isento") {
+                                $(".list-gifts").append($('<option>', {
+                                    value: value.id,
+                                    text: value.nome_brinde_detalhado + " - Preço: " + ((isVendaAvulsa) ? valorAvulsoFormatado : valorGotas)
+                                }));
+                            }
 
                         }
 

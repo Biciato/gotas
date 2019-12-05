@@ -3093,8 +3093,11 @@ class UsuariosController extends AppController
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
                 $this->Usuarios->validator()->remove('cpf');
+                if (!isset($usuario->tipo_perfil)) {
+                    $data['tipo_perfil'] = (int) PROFILE_TYPE_USER;
+                }
             } else {
-                $data['tipo_perfil'] = (int) Configure::read('profileTypes')['UserProfileType'];
+                $data['tipo_perfil'] = (int) PROFILE_TYPE_USER;
             }
             $data["doc_invalido"] = false;
 
@@ -3227,14 +3230,14 @@ class UsuariosController extends AppController
                     // Caso não seja informado senha de usuário no momento do cadastro, a senha padrão é 123456
                     $usuarioData["senha"] = !empty($usuarioData["senha"]) ? $usuarioData["senha"] : 123456;
                     $usuarioData["confirm_senha"] = !empty($usuarioData["confirm_senha"]) ? $usuarioData["confirm_senha"] : 123456;
-                    $usuarioData["necessidades_especiais"] = (int) $usuarioData["necessidades_especiais"];
+                    $usuarioData["necessidades_especiais"] = isset($usuarioData["necessidades_especiais"]) ? (int) $usuarioData["necessidades_especiais"] : 0;
 
                     // Desativado no momento pois não temos certeza que será desenvolvido o aplicativo desktop
                     // if (!empty($senha)) {
                     //     $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
                     // }
 
-                    if (!empty($usuario)) {
+                    if (!empty($usuario) && $usuario->id > 0) {
                         $usuarioData["tipo_perfil"] = $usuario->tipo_perfil;
                         $usuarioData["id"] = $usuario->id;
                     }
