@@ -168,6 +168,7 @@ echo $this->Breadcrumbs->render(
                             "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
                             "required" => "required",
                             "class" => "ilimitado",
+                            "default" => 1,
                             // "readonly" => $editMode == 1 ? 'readonly' : '',
                             "label" => false,
                             "options" => array(
@@ -240,6 +241,7 @@ echo $this->Breadcrumbs->render(
                             "value" => isset($brinde['ilimitado']) ? $brinde["ilimitado"] : null,
                             "required" => "required",
                             "class" => "ilimitado",
+                            "default" => 1,
                             // "readonly" => $editMode == 1 ? 'readonly' : '',
                             "label" => false,
                             "options" => array(

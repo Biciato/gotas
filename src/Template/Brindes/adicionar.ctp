@@ -160,6 +160,7 @@ echo $this->Breadcrumbs->render(
                                 "class" => "ilimitado",
                                 // "readonly" => $editMode == 1 ? 'readonly' : '',
                                 "label" => false,
+                                "default" => 1,
                                 "options" => array(
                                     1 => "Sim",
                                     0 => "Não",

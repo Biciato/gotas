@@ -2103,6 +2103,12 @@ class CuponsController extends AppController
 
                 $cupom_emitido = $data['cupom_emitido'];
 
+                if (strlen($cupom_emitido) === 15 && ($cupom_emitido[0] === "5" && $cupom_emitido[14] === "5")) {
+                    $cupom_emitido = strtoupper($cupom_emitido);
+                    $cupom_emitido[0] = "%";
+                    $cupom_emitido[14] = "%";
+                }
+
                 // TODO: a emissão nova irá utilizar este método
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupom_emitido);
                 $cupons = $cupons->toArray();
@@ -2165,6 +2171,8 @@ class CuponsController extends AppController
                 $funcionariosId = $this->Auth->user()["id"];
 
                 $cupomEmitido = $data['cupom_emitido'];
+
+
 
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
 
@@ -2290,6 +2298,13 @@ class CuponsController extends AppController
 
                 // Validação de funcionário logado
                 $funcionarioId = $usuarioLogado->id;
+
+                if (strlen($cupomEmitido) === 15 && ($cupomEmitido[0] === "5" && $cupomEmitido[14] === "5")) {
+                    $cupomEmitido = strtoupper($cupomEmitido);
+                    $cupomEmitido[0] = "%";
+                    $cupomEmitido[14] = "%";
+                }
+
 
                 $tipoPerfil = $usuarioLogado->tipo_perfil;
                 $funcionario["nome"] = $usuarioLogado->nome;
