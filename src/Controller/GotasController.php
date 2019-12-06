@@ -686,6 +686,45 @@ class GotasController extends AppController
         }
     }
 
+    #region Views para actions de API
+
+    /**
+     * ------------------------------------------------------------
+     * Nota: Temporária até a saída do projeto em Angular 8
+     * ------------------------------------------------------------
+     */
+
+    /**
+     * Index para Gotas de todos os estabelecimentos
+     *
+     * Exibe todos os registros de gotas de estabelecimentos e permite-os configurar com privilégios de Adm de sistema
+     *
+     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-06
+     */
+    public function gotasRedes()
+    {
+        // $cnpjEncontrado = "05508016000123";
+        // $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
+
+        // DebugUtil::printArray($cliente);
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuario = $sessaoUsuario["usuarioLogado"];
+
+        if ($usuario->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $this->Flash->error(USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION);
+            return $this->redirect("/");
+        }
+
+        $arraySet = [
+            "usuario"
+        ];
+
+        $this->set(compact($arraySet));
+    }
 
     public function importacaoGotasSefaz()
     {
@@ -709,12 +748,8 @@ class GotasController extends AppController
         $this->set(compact($arraySet));
     }
 
-    /**
-     * ------------------------------------------------------------
-     * Views para actions de API
-     * Nota: Temporária até a saída do projeto em Angular 8
-     * ------------------------------------------------------------
-     */
+    #endregion
+
 
     #region API Actions
 
@@ -1008,8 +1043,6 @@ class GotasController extends AppController
                     array_push($redes, $redeItem);
                 }
             }
-
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 

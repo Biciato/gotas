@@ -395,7 +395,6 @@ const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenc
 
 #endregion
 
-#endregion
 
 #region Entidades
 
@@ -581,12 +580,9 @@ const MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE = 0x000A0002;
 
 #region Pontuações
 
-
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
-
-
 
 #endregion
 
@@ -690,8 +686,10 @@ const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) 
 
 #endregion
 
+#endregion
 
 #endregion
+
 
 #endregion
 
@@ -717,3 +715,13 @@ const PROFILE_TYPE_WORKER_TRANSLATE = "Funcionário";
 const PROFILE_TYPE_USER_TRANSLATE = "Usuário";
 const PROFILE_TYPE_DUMMY_WORKER_TRANSLATE = "Funcionário Fictício";
 const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
+
+/**
+ * Regra de versão
+ * x.y.z
+ *
+ * x = alteração grande do sistema, conjunto de novos recursos.
+ * y = alteração de banco de dados (tabelas novas, campos novos)
+ * z = alterações pequenas do sistema (ajuste de campos, pequenas novas funcionalidades)
+ */
+const SYSTEM_VERSION = "1.0.0";
