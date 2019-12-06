@@ -288,8 +288,8 @@ class CuponsTable extends GenericTable
             $cupom->clientes_id = $clientesId;
             $cupom->funcionarios_id = $funcionariosId;
             $cupom->usuarios_id = $usuariosId;
-            $cupom->codigo_primario = $codigoPrimario;
-            $cupom->tempo_uso_brinde = $codigoSecundario;
+            $cupom->codigo_principal = $codigoPrimario;
+            $cupom->codigo_secundario = $codigoSecundario;
             $cupom->valor_pago_gotas = $valorPagoGotas;
             $cupom->valor_pago_reais = $valorPagoReais;
             $cupom->senha = $qteSenhas + 1;
@@ -341,8 +341,8 @@ class CuponsTable extends GenericTable
 
             $cupom = $this->save($cupom);
             $cupom = $this->get($cupom->id);
-            unset($cupom->codigo_primario);
-            unset($cupom->codigo_secundario);
+            // unset($cupom->codigo_primario);
+            // unset($cupom->codigo_secundario);
             $cupom->valor_pago_gotas = Number::precision($cupom->valor_pago_gotas, 2);
             $cupom->valor_pago_reais = Number::precision($cupom->valor_pago_reais, 2);
 
