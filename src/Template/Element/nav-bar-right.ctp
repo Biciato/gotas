@@ -465,7 +465,7 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>
                     </li>
                     <li>
-                        <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a>
+                        <!-- <a href="/cupons/relatorioCaixaFuncionariosGerente">Relatório de Caixa de Funcionários</a> -->
                     </li>
 
                     <li>
