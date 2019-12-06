@@ -2308,6 +2308,60 @@ class PontuacoesComprovantesController extends AppController
             // Obtem todos os dados de pontuações
             // Prepara dados de cupom para gravar
             // Só gera o comprovante se tiver alguma pontuação
+
+            #region Verifica se cupom é antigo para posto FORMIGÃO
+
+            // Lista de Clientes que deverá ser verificado qual cupom e qual data será válido
+            $clientesIgnoreOldTickets = [
+                51 => '2019-12-05'
+            ];
+
+            $clientesIdIgnorarCupom = [];
+
+            foreach ($clientesIgnoreOldTickets as $key => $value) {
+                $clientesIdIgnorarCupom[] = $key;
+            }
+
+            $stringPesquisa = $webContent["response"];
+            $posPesquisa = 0;
+
+            if (in_array($cliente->id, $clientesIdIgnorarCupom)) {
+                // Localiza
+
+                $anosComparacao = [2019];
+
+                $found = false;
+                foreach ($anosComparacao as $anoComparacao) {
+                    $posPesquisa = strpos($stringPesquisa, (string) $anoComparacao);
+
+                    if ($posPesquisa) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                // Se encontrou a data, localiza na string a data em questão
+                if ($found) {
+                    $dateCheck = substr($stringPesquisa, $posPesquisa - 6, 10);
+                    $dateCheck = str_replace("/", "-", $dateCheck);
+                    $dateNewer = date("Y-m-d", strtotime($dateCheck));
+
+                    if ($dateNewer < $clientesIgnoreOldTickets[$cliente->id]) {
+
+                        $error = [
+                            MSG_PONTUACOES_COMPROVANTES_TICKET_NOT_AUTHORIZED
+                        ];
+                        $errorCodes = [
+                            MSG_PONTUACOES_COMPROVANTES_TICKET_NOT_AUTHORIZED_CODE
+                        ];
+
+                        return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);
+                    }
+                }
+            }
+
+            #endregion
+
             $produtos = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chave, $cliente, $funcionario, $usuario);
 
             $dataProcessamento = new DateTime('now');
