@@ -12,11 +12,19 @@ use Cake\Log\Log;
  * @property int $brindes_id
  * @property int $clientes_id
  * @property int $usuarios_id
+ * @property int $codigo_principal
+ * @property int $codigo_secundario
+ * @property float $valor_pago_gotas
+ * @property float $valor_pago_reais
+ * @property string $tipo_venda
  * @property int $tipo_banho
- * @property int $tempo_banho
  * @property int $senha
  * @property string $cupom_emitido
  * @property \Cake\I18n\FrozenTime $data
+ * @property bool $resgatado
+ * @property bool $usado
+ * @property int $quantidade
+ * @property bool $estornado
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *
