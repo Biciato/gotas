@@ -1882,7 +1882,8 @@ class PontuacoesComprovantesController extends AppController
             $gotasPontosExtras = new Gota();
 
             // return ResponseUtil::successAPI('', ['data' => $cliente]);
-            $pontosExtras  = 0;
+            $quantidadeExtra = 0;
+            $pontosExtras = 0;
             $isPontuacaoExtraProdutoGenerico = $cliente->redes_has_cliente->rede->pontuacao_extra_produto_generico;
 
             // Se a rede está com a pontuação extra habilitada, atribui
@@ -1895,6 +1896,7 @@ class PontuacoesComprovantesController extends AppController
                     $gota = array_values($gota);
 
                     if (empty($gota)) {
+                        $quantidadeExtra += $gotaUsuario["gotas_qtde"];
                         $pontosExtras += $gotaUsuario["gotas_vl_unit"];
                     }
                 }
@@ -1904,7 +1906,7 @@ class PontuacoesComprovantesController extends AppController
                 // só adiciona a bonificação se o registro existir, para não dar exception
                 if (!empty($gotaBonificacaoPontosExtras)) {
                     $pontuacao = new Pontuacao();
-                    $pontuacao->quantidade_multiplicador = $gotaBonificacaoPontosExtras->multiplicador_gota;
+                    $pontuacao->quantidade_multiplicador = $quantidadeExtra;
                     $pontuacao->clientes_id = $cliente->id;
                     $pontuacao->usuarios_id = $usuario->id;
                     $pontuacao->funcionarios_id = $funcionario->id;
