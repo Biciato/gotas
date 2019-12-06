@@ -3640,7 +3640,7 @@ class UsuariosController extends AppController
 
                         $diff = round(abs($fromTime - $toTime) / 60, 0);
 
-                        if ($tentativasLogin >= 5 && ($diff < 10)) {
+                        if ($tentativasLogin >= 15 && ($diff < 10)) {
                             $message = __('Você já tentou realizar 5 tentativas, é necessário aguardar mais {0} minutos antes da próxima tentativa!', (10 - (int) $diff));
 
                             $statusUsuario = 3;
