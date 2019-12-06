@@ -19,6 +19,7 @@ use App\Custom\RTI\DebugUtil;
 use Cake\Auth\DefaultPasswordHasher;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\StringUtil;
+use App\Model\Entity\Gota;
 use Exception;
 use App\Model\Entity\Rede;
 use Cake\Http\Client\Request;
@@ -220,14 +221,21 @@ class RedesController extends AppController
                     $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede->id);
 
                     // Adiciona bonificação extra sefaz para novo posto
-                    $gotas = [GOTAS_BONUS_SEFAZ];
+                    $gotas = [];
+                    $gota = new Gota();
+                    $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
+                    $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
+                    $gotas[] = $gota;
 
                     if ($rede->pontuacao_extra_produto_generico) {
-                        $gotas[] = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                        $gota = new Gota();
+                        $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                        $gota->multiplicador_gota = 1;
+                        $gotas[] = $gota;
                     }
 
-                    foreach ($gotas as $value) {
-                        $this->Gotas->saveUpdateExtraPoints($clientesIds, $rede->qte_gotas_bonificacao, $value);
+                    foreach ($gotas as $gota) {
+                        $this->Gotas->saveUpdateExtraPoints($clientesIds, $gota->multiplicador_gota, $gota->nome_parametro);
                     }
 
                     if ($trocaImagem == 1 && !is_null($imagemOriginal)) {

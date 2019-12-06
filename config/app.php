@@ -274,7 +274,7 @@ return [
             // 'cacheMetadata' => true,
             'cacheMetadata' => false,
             // true para guardar tudo no arquivo queries
-            'log' => true,
+            // 'log' => true,
             // 'log' => false,
 
 

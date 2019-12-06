@@ -244,14 +244,21 @@ class ClientesController extends AppController
                 $this->ClientesHasQuadroHorario->addHorariosCliente($redes_id, $cliente["id"], $horarios);
 
                 // Adiciona bonificação extra sefaz para novo posto
-                $gotas = [GOTAS_BONUS_SEFAZ];
+                $gotas = [];
+                $gota = new Gota();
+                $gota->nome_parametro = GOTAS_BONUS_SEFAZ;
+                $gota->multiplicador_gota = $rede->qte_gotas_bonificacao;
+                $gotas[] = $gota;
 
                 if ($rede->pontuacao_extra_produto_generico) {
-                    $gotas[] = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                    $gota = new Gota();
+                    $gota->nome_parametro = GOTAS_BONUS_EXTRA_POINTS_SEFAZ;
+                    $gota->multiplicador_gota = 1;
+                    $gotas[] = $gota;
                 }
 
-                foreach ($gotas as $value) {
-                    $this->Gotas->saveUpdateExtraPoints([$cliente->id], $rede->qte_gotas_bonificacao, $value);
+                foreach ($gotas as $gota) {
+                    $this->Gotas->saveUpdateExtraPoints([$cliente->id], $gota->multiplicador_gota, $gota->nome_parametro);
                 }
 
                 // Adiciona Gota de Ajuste de pontos

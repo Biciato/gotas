@@ -1877,9 +1877,46 @@ class PontuacoesComprovantesController extends AppController
             $gotasAtualizarPreco = array();
             $gotasCliente = $gotasCliente->toArray();
 
-            #region
+            #region Pesquisa por todos os produtos extras para gravar se a configuração da rede está definida
 
-            $gotasPontosExtras = [];
+            $gotasPontosExtras = new Gota();
+
+            // return ResponseUtil::successAPI('', ['data' => $cliente]);
+            $pontosExtras  = 0;
+            $isPontuacaoExtraProdutoGenerico = $cliente->redes_has_cliente->rede->pontuacao_extra_produto_generico;
+
+            // Se a rede está com a pontuação extra habilitada, atribui
+            if ($isPontuacaoExtraProdutoGenerico) {
+                foreach ($gotasAbastecidasClienteFinal as $gotaUsuario) {
+                    $gota = array_filter($gotasCliente, function ($item) use ($gotaUsuario) {
+                        return $gotaUsuario["gotas_nome"] == $item["nome_parametro"];
+                    });
+
+                    $gota = array_values($gota);
+
+                    if (empty($gota)) {
+                        $pontosExtras += $gotaUsuario["gotas_vl_unit"];
+                    }
+                }
+
+                $gotaBonificacaoPontosExtras = $this->Gotas->getGotaClienteByName($cliente->id, GOTAS_BONUS_EXTRA_POINTS_SEFAZ);
+
+                // só adiciona a bonificação se o registro existir, para não dar exception
+                if (!empty($gotaBonificacaoPontosExtras)) {
+                    $pontuacao = new Pontuacao();
+                    $pontuacao->quantidade_multiplicador = $gotaBonificacaoPontosExtras->multiplicador_gota;
+                    $pontuacao->clientes_id = $cliente->id;
+                    $pontuacao->usuarios_id = $usuario->id;
+                    $pontuacao->funcionarios_id = $funcionario->id;
+                    $pontuacao->gotas_id = $gotaBonificacaoPontosExtras->id;
+                    $pontuacao->data = $data;
+                    $pontuacao->quantidade_gotas = floor($pontosExtras);
+                    $pontuacao->valor_gota_sefaz = $pontosExtras;
+
+                    // Adiciona registro para posterior processamento
+                    $pontuacoes[] = $pontuacao;
+                }
+            }
 
             #endregion
 
@@ -1894,8 +1931,8 @@ class PontuacoesComprovantesController extends AppController
                 if (!empty($gota)) {
                     $gota = $gota[0];
                     $item = new Pontuacao();
-                    $item->multiplicador_gota = $gotaUsuario["gotas_qtde"];
-                    $item->quantidade_gota = floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]);
+                    $item->quantidade_multiplicador = $gotaUsuario["gotas_qtde"];
+                    $item->quantidade_gotas = floor($gota["multiplicador_gota"] * $gotaUsuario["gotas_qtde"]);
                     $item->valor_gota_sefaz = $gotaUsuario["gotas_vl_unit"];
                     $item->clientes_id = $cliente["id"];
                     $item->usuarios_id = $usuario["id"];
@@ -1947,8 +1984,8 @@ class PontuacoesComprovantesController extends AppController
                 $pontuacao->usuarios_id = $usuario->id;
                 $pontuacao->funcionarios_id = $funcionario->id;
                 $pontuacao->gotas_id = $pontuacaoItem->gotas_id;
-                $pontuacao->quantidade_multiplicador = $pontuacaoItem->multiplicador_gota;
-                $pontuacao->quantidade_gotas = $pontuacaoItem->quantidade_gota;
+                $pontuacao->quantidade_multiplicador = $pontuacaoItem->quantidade_multiplicador;
+                $pontuacao->quantidade_gotas = $pontuacaoItem->quantidade_gotas;
                 $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteSave->id;
                 $pontuacao->valor_gota_sefaz = $pontuacaoItem->valor_gota_sefaz;
                 $pontuacao->data = new DateTime('now');

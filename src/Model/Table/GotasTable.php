@@ -233,7 +233,7 @@ class GotasTable extends GenericTable
                     $gota = $this->newEntity();
                     $gota->clientes_id = $clienteId;
                     $gota->nome_parametro = $nome;
-                    $gota->multiplicador_gota = 1;
+                    // $gota->multiplicador_gota = 1;
                     $gota->habilitado = 1;
                     $gota->tipo_cadastro = GOTAS_REGISTER_TYPE_AUTOMATIC;
                 }
@@ -637,7 +637,7 @@ class GotasTable extends GenericTable
     public function getGotaClienteByName(int $clientesId, string $nome_parametro)
     {
         try {
-            return $this->_getGotasTable()->find('all')
+            return $this->find('all')
                 ->where(
                     [
                         'clientes_id' => $clientesId,
