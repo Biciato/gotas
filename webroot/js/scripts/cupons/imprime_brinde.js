@@ -508,8 +508,13 @@ $(document).ready(function() {
 
                         $("#rti_shower_minutos").text(result.tempo);
 
-                        if (result.usuario.sexo !== undefined) {
-                            var sexo = result.usuario.sexo
+                        if (result.ticket !== undefined) {
+                            // var sexo = result.usuario.sexo
+                            //     ? "Masculino"
+                            //     : "Feminino";
+
+                            var codigoPrincipalMasculino = result.ticket.codigo_principal === 1 || result.ticket.codigo_principal === 2;
+                            var sexo = codigoPrincipalMasculino
                                 ? "Masculino"
                                 : "Feminino";
                             $("#tipos_brinde_box").text(sexo);
