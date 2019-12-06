@@ -479,6 +479,7 @@ $(document).ready(function() {
 
                 error: function(response) {
                     console.log(response);
+                    callModalError(response.responseJSON.mensagem.message, response.responseJSON.mensagem.errors);
                     closeLoaderAnimation();
                 }
             }).done(function(result) {
