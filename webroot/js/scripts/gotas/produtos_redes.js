@@ -1,5 +1,5 @@
 /**
- * Arquivo de 'controller' para src\Template\Gotas\gotas_redes.ctp
+ * Arquivo de 'controller' para src\Template\Gotas\produtos_redes.ctp
  *
  * @file webroot\js\scripts\gotas\gotas_redes.js
  * @author Gustavo Souza Gonçalves
@@ -169,7 +169,6 @@ $(function () {
             },
             complete: function (response) {
                 clientesSelectListBox.change();
-                brindesSelectListBox.change();
             }
         });
     }
@@ -197,7 +196,6 @@ $(function () {
             data: data,
             dataType: "JSON",
             success: function (response) {
-                gotasSelectListBox.empty();
                 gotasData = [];
 
                 var gota = {
@@ -231,7 +229,7 @@ $(function () {
                                 var botaoTrocaStatus = !element.importar ?
                                     geraHabilitarButton(element.id) :
                                     geraDesabilitarButton(element.id);
-        
+
                                 var row =
                                     "<tr><td>" +
                                     element.nomeParametro +
@@ -245,9 +243,9 @@ $(function () {
                                     "</td></tr>";
                                 rows.push(row);
                             });
-        
+
                             tabelaDados.append(rows);
-        
+
                             geraEditarButtonFunctions("form-btn-edit", data);
                             geraHabilitarButtonFunctions("form-btn-enable", data);
                             geraDesabilitarButtonFunctions("form-btn-disable", data);
@@ -259,7 +257,6 @@ $(function () {
                     var option = document.createElement("option");
                     option.value = gota.id;
                     option.textContent = gota.nomeParametro;
-                    gotasSelectListBox.append(option);
                 });
             },
             error: function (response) {
@@ -341,7 +338,44 @@ $(function () {
         });
     }
 
-    function searchGotasByFilter() {  }
+    function searchGotasByFilter(clientesId) {
+        var dataSend = {
+
+        };
+
+        gotasData = [];
+
+        $.ajax({
+            type: "GET",
+            url: "/api/gotas/get_gotas_clientes",
+            data: dataSend,
+            dataType: "JSON",
+            success: function (response) {
+                if (response.data.gotas.length > 0) {
+                    table.empty();
+
+
+                    response.data.gotas.forEach(gota => {
+                        // gotasData.push(new gota() {
+                        //     id: gota.id,
+                        //     nomeParametro: gota.nome_parametro,
+                        //     multiplicadorGota: gota.multiplicador_gota,
+
+                        // });
+                        var item = {
+                            id: gota.id,
+                            nomeParametro: gota.nome_parametro,
+                            multiplicadorGota: gota.multiplicador_gota
+                        }
+                        gotasData.push(item);
+                    })
+
+                }
+
+            }
+        });
+
+    }
 
     // #endregion
 
@@ -349,7 +383,6 @@ $(function () {
 
     redesSelectListBox.on("change", redesSelectListBoxOnChange);
     clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
-    gotasSelectListBox.on("change", gotasSelectListBoxOnChange);
 
     searchBtn.unbind("click");
     searchBtn.on("click", searchGotasByFilter);

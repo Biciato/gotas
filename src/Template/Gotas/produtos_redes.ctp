@@ -1,12 +1,12 @@
 <?php
 
 /**
- * src\Template\Gotas\rel_gestao_gotas.ctp
+ * src\Template\Gotas\produtos_redes.ctp
  *
- * Tela de Relatório de Gestão de Gotas - Entrada e Saída
+ * Tela de Gestão de Produtos
  *
  * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
- * @since 2019-08-30
+ * @since 2019-12-09
  */
 
 use Cake\Core\Configure;
@@ -77,7 +77,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <table class="table table-responsive table-bordered table-hover table-condensed" id="data-table">
+    <table class="table table-responsive table-hover table-condensed" id="data-table">
         <thead>
             <th>Rede</th>
             <th>Estabelecimento</th>
@@ -94,14 +94,12 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </tr>
         </tbody>
     </table>
-    <div class="create-edit-record">
+    <div id="create-edit-record">
         <legend>
-            <?= 'Configurar Métrica de Gotas' ?>
+            <span id="text-action-record"></span> <?= ' Produtos de Redes' ?>
         </legend>
         <fieldset>
-
             <div class="form-group row">
-
                 <div class="col-lg-6">
                     <label for="redes_id">Rede</label>
                     <select name="redes_id" id="redes-id" class="form-control"></select>
@@ -147,5 +145,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/gotas/gotas_redes<?= $debugExtension ?>.js?<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/rel_gestao_gotas<?= $debugExtension ?>.css?<?= SYSTEM_VERSION ?>" />
+<script src="/webroot/js/scripts/gotas/produtos_redes<?= $debugExtension ?>.js?<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/gotas/produtos_redes<?= $debugExtension ?>.css?<?= SYSTEM_VERSION ?>" />

@@ -748,7 +748,7 @@ class ClientesController extends AppController
     {
         $sessao = $this->getSessionUserVariables();
         $rede = $sessao["rede"];
-        $redesId = $rede->id;
+        $redesId = !empty($rede) ? $rede->id : 0;
         $cliente = $sessao["cliente"];
         $clientesIds = [];
         $clientesId = !empty($cliente) && !empty($cliente->id) ? $cliente->id : null;

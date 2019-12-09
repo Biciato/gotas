@@ -695,16 +695,16 @@ class GotasController extends AppController
      */
 
     /**
-     * Index para Gotas de todos os estabelecimentos
+     * Index para Produtos de todos os estabelecimentos
      *
-     * Exibe todos os registros de gotas de estabelecimentos e permite-os configurar com privilégios de Adm de sistema
+     * Exibe todos os registros de produtos de estabelecimentos e permite-os configurar com privilégios de Adm de sistema
      *
      * @return void
      *
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-12-06
      */
-    public function gotasRedes()
+    public function produtosRedes()
     {
         // $cnpjEncontrado = "05508016000123";
         // $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
