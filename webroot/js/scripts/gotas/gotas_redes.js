@@ -15,17 +15,16 @@ $(function () {
     var clientesSelectListBox = $("#clientes-list");
     var clientesSelectedItem = {};
     var clientesList = [];
-    var gotasList = [];
-    var gotasSelectListBox = $("#gotas-list");
+    var gotasData = [];
     var gotasSelectedItem = {};
     var redesList = [];
     var redesSelectListBox = $("#redes-list");
     var redesSelectedItem = {};
 
-    var tabela = $("#tabela-dados");
+    var table = $("#data-table");
 
-    var pesquisarBtn = $("#btn-pesquisar");
-    var imprimirBtn = $("#btn-imprimir");
+    var searchBtn = $("#btn-search");
+    var clearBtn = $("#btn-clear");
 
     // #endregion
 
@@ -34,23 +33,6 @@ $(function () {
     function init() {
 
         getRedesList();
-    }
-
-    /**
-     * relatorio_entrada_saida.js::gotasSelectListBoxOnChange()
-     *
-     * Comportamento ao trocar o brinde selecionado
-     *
-     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-     * @since 2019-09-11
-     *
-     * @return void
-     */
-    function gotasSelectListBoxOnChange() {
-        var gota = parseInt(gotasSelectListBox.val());
-
-        gota = isNaN(gota) ? 0 : gota;
-        form.gotasId = gota;
     }
 
     /**
@@ -76,21 +58,6 @@ $(function () {
         } else {
             clientesSelectedItem = {};
         }
-
-        // Obtem Brindes e Gotas SE estabelecimento selecionado
-
-        if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
-            getBrindesList(clientesId);
-            getGotasList(clientesId);
-        } else {
-            var option1 = document.createElement("option");
-            option1.value = 0;
-            option1.textContent = "Selecione um Estabelecimento para continuar...";
-            option1.title = "Selecione um Estabelecimento para continuar...";
-            gotasSelectListBox.empty();
-            gotasSelectListBox.append(option1);
-            gotasList.push(item);
-        }
     }
 
     /**
@@ -114,7 +81,7 @@ $(function () {
 
         redesSelectedItem = redesList.find(x => x.id == rede);
 
-        if (redesSelectedItem.id > 0) {
+        if (redesSelectedItem !== undefined && redesSelectedItem.id > 0) {
             getClientesList(redesSelectedItem.id);
         } else {
             var option = document.createElement("option");
@@ -126,20 +93,15 @@ $(function () {
             clientesSelectListBox.empty();
             clientesSelectListBox.append(option);
 
-            gotasList = [];
-            var option1 = document.createElement("option");
-            option1.value = 0;
-            option1.textContent = "Selecione um Estabelecimento para continuar...";
-            option1.title = "Selecione um Estabelecimento para continuar...";
-            gotasSelectListBox.empty();
-            gotasSelectListBox.append(option1);
+            gotasData = [];
+            gotasSelectedItem = {};
         }
     }
 
     // #region Get / Set REST Services
 
     /**
-     * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getClientesList
+     * Obtem Clientes
      *
      * Obtem lista de clientes disponível para seleção
      *
@@ -208,7 +170,6 @@ $(function () {
             complete: function (response) {
                 clientesSelectListBox.change();
                 brindesSelectListBox.change();
-
             }
         });
     }
@@ -218,8 +179,6 @@ $(function () {
      *
      * Obtem dados de Gotas do estabelecimento selecionado
      *
-     * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getGotasList()
-     *
      * @param {int} clientesId Id do cliente
      *
      * @return void
@@ -227,7 +186,7 @@ $(function () {
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-11
      */
-    function getGotasList(clientesId) {
+    function getGotasData(clientesId) {
         var data = {
             clientes_id: clientesId
         };
@@ -239,14 +198,14 @@ $(function () {
             dataType: "JSON",
             success: function (response) {
                 gotasSelectListBox.empty();
-                gotasList = [];
+                gotasData = [];
 
                 var gota = {
                     id: 0,
                     nomeParametro: "<Todos>"
                 };
 
-                gotasList.push(gota);
+                gotasData.push(gota);
 
                 response.data.gotas.forEach(element => {
                     var gota = {
@@ -254,10 +213,49 @@ $(function () {
                         nomeParametro: element.nome_parametro
                     };
 
-                    gotasList.push(gota);
+                    gotasData.push(gota);
+
+                    tabelaDados.empty();
+                    tabela.pagination({
+                        pageSize: 10,
+                        showPrevious: true,
+                        showNext: true,
+                        dataSource: function (done) {
+                            done(data);
+                        },
+                        callback: function (data, pagination) {
+                            var rows = [];
+                            data.forEach(element => {
+                                var importar = element.importar ? "Sim" : "Não";
+                                var botaoEditar = geraEditarButton(element.id);
+                                var botaoTrocaStatus = !element.importar ?
+                                    geraHabilitarButton(element.id) :
+                                    geraDesabilitarButton(element.id);
+        
+                                var row =
+                                    "<tr><td>" +
+                                    element.nomeParametro +
+                                    "</td><td>" +
+                                    element.multiplicadorGota +
+                                    "</td><td>" +
+                                    importar +
+                                    "</td><td>" +
+                                    botaoEditar +
+                                    botaoTrocaStatus +
+                                    "</td></tr>";
+                                rows.push(row);
+                            });
+        
+                            tabelaDados.append(rows);
+        
+                            geraEditarButtonFunctions("form-btn-edit", data);
+                            geraHabilitarButtonFunctions("form-btn-enable", data);
+                            geraDesabilitarButtonFunctions("form-btn-disable", data);
+                        }
+                    });
                 });
 
-                gotasList.forEach(gota => {
+                gotasData.forEach(gota => {
                     var option = document.createElement("option");
                     option.value = gota.id;
                     option.textContent = gota.nomeParametro;
@@ -343,6 +341,8 @@ $(function () {
         });
     }
 
+    function searchGotasByFilter() {  }
+
     // #endregion
 
     // #region Bindings
@@ -350,12 +350,12 @@ $(function () {
     redesSelectListBox.on("change", redesSelectListBoxOnChange);
     clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
     gotasSelectListBox.on("change", gotasSelectListBoxOnChange);
-    dataInicio.on("change", dataInicioOnChange);
-    dataFim.on("change", dataFimOnChange);
-    tipoRelatorio.on("change", tipoRelatorioOnChange);
 
-    imprimirBtn.unbind("click");
-    imprimirBtn.on("click", pesquisar);
+    searchBtn.unbind("click");
+    searchBtn.on("click", searchGotasByFilter);
+
+    // Inicializa como desabilitado, se selecionar uma rede ou estabelecimento permite filtrar
+    searchBtn.prop("disabled", true);
 
     // #endregion
 

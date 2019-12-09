@@ -20,12 +20,13 @@ $this->Breadcrumbs->add('Início', ['controller' => 'pages', 'action' => 'displa
 $this->Breadcrumbs->add($title, [], ['class' => 'active']);
 echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
-
 ?>
 
 <nav class="col-lg-3 col-md-2 " id="actions-sidebar">
     <ul class="nav nav-pills nav-stacked">
         <li class="active"><a><?= __('Ações') ?></a></li>
+
+        <li><a href="#"><i class="fas fa-plus-circle"></i> Novo</a></li>
     </ul>
 </nav>
 
@@ -48,29 +49,24 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
                         <input type="hidden" name="cliente-selected" id="cliente-selected">
                         <div class="form-group row">
-                            <div class="col-lg-3">
+                            <div class="col-lg-6">
                                 <label for="redes_list">Rede:</label>
                                 <select name="redes_list" id="redes-list" class="form-control"></select>
                             </div>
-                            <div class="col-lg-3">
-
+                            <div class="col-lg-6">
                                 <label for="clientes_list">Estabelecimento:</label>
                                 <select name="clientes_list" id="clientes-list" class="form-control"></select>
-                            </div>
-                            <div class="col-lg-3">
-                                <label for="gotas_list">Referência:</label>
-                                <select name="gotas_list" id="gotas-list" class="form-control"></select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12 text-right">
-                                <div class="btn btn-primary" id="btn-pesquisar">
+                                <div class="btn btn-primary" id="btn-search">
                                     <span class="fa fa-search"></span>
                                     Pesquisar
                                 </div>
-                                <div class="imprimir btn btn-default print-button-thermal" id="btn-imprimir">
-                                    <i class="fa fa-print"></i>
-                                    Imprimir
+                                <div class="imprimir btn btn-default print-button-thermal" id="btn-clear">
+                                    <i class="fas fa-eraser"></i>
+                                    Limpar
                                 </div>
                             </div>
                         </div>
@@ -81,73 +77,75 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <div class="print-region">
+    <table class="table table-responsive table-bordered table-hover table-condensed" id="data-table">
+        <thead>
+            <th>Rede</th>
+            <th>Estabelecimento</th>
+            <th>Gota</th>
+            <th>Multiplicador</th>
+            <th>Status</th>
+            <th>Ações
+                <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes"><span class=" fa fa-book"> Legendas</span></div>
+            </th>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-warning text-center" colspan="6">A consulta não retornou dados!</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="create-edit-record">
+        <legend>
+            <?= 'Configurar Métrica de Gotas' ?>
+        </legend>
+        <fieldset>
 
-        <h3 class="text-center"><?= $title ?></h3>
-        <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
-            <tbody>
-                <span></span>
-            </tbody>
-        </table>
-
-        <div id='tabela-resumo-brinde'>
-            <h3>
-                <div>Informações de Brinde "<span id='nome-brinde'></span>"</div>
-            </h3>
             <div class="form-group row">
 
-                <div class="col-lg-4">
-                    <label for="quantidade_emitida">Quantidade Emitida:</label>
-                    <input type="text" name="quantidade_emitida" id="quantidade-emitida" class="form-control text-right" readonly />
+                <div class="col-lg-6">
+                    <label for="redes_id">Rede</label>
+                    <select name="redes_id" id="redes-id" class="form-control"></select>
                 </div>
-                <div class="col-lg-4">
-                    <label for="total_gotas_brinde">Total Gotas do Brinde:</label>
-                    <input type="text" name="total_gotas_brinde" id="total-gotas-brinde" class="form-control text-right" readonly />
-                </div>
-                <div class="col-lg-4">
-                    <label for="total_reais_brinde">Total Reais do Brinde:</label>
-                    <input type="text" name="total_reais_brinde" id="total-reais-brinde" class="form-control text-right" readonly />
+                <div class="col-lg-6">
+                    <label for="clientes_id">Estabelecimento</label>
+                    <select name="clientes_id" id="clientes-id" class="form-control"></select>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <label for="nome_parametro">Nome do Parâmetro*</label>
+                    <input value="" type="text" class="form-control" name="nome_parametro" placeholder="Nome do Parâmetro..." id="nome_parametro" required />
+                </div>
+                <div class="col-lg-4">
+                    <label for="multiplicador_gota">Multiplicador de Gotas*</label>
+                    <input value="" type="text" class="form-control" name="multiplicador_gota" id="multiplicador_gota" placeholder="Multiplicador de Gotas..." maxlength="7" required />
+                    <!-- max="1000,00" -->
+                </div>
+                <div class="col-lg-4">
+                    <label for=tipo_cadastro>Tipo de Cadastro</label>
+                    <select name="tipo_cadastro" id="tipo-cadastro" readonly disabled class="form-control">
+                        <option></option>
+                        <option value="1"><?= GOTAS_REGISTER_TYPE_AUTOMATIC ?></option>
+                        <option value="0"><?= GOTAS_REGISTER_TYPE_MANUAL ?></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 text-right">
+                <button type="submit" class="btn btn-primary botao-confirmar">
+                    <i class="fa fa-save"></i>
+                    Salvar
+                </button>
 
-        </div>
+                <a href="/gotas/gotas-minha-rede/" class="btn btn-danger botao-cancelar">
+                    <span class="fa fa-window-close"></span>
+                    Cancelar
+                </a>
+            </div>
+        </fieldset>
 
-        <h3>Resumo Sintético</h3>
-
-        <div class="form-group row" id='tabela-resumo-sintetico'>
-            <div class="col-lg-6">
-                <label for="total_gotas_ontem">Total Gotas até Ontem:</label>
-                <input type="text" name="total_gotas_ontem" id="total-gotas-ontem" readonly class="form-control text-right">
-            </div>
-            <div class="col-lg-6">
-                <label for="total_gotas_resgatadas">Total Gotas Resgatadas:</label>
-                <input type="text" name="total_gotas_resgatadas" id="total-gotas-resgatadas" readonly class="form-control text-right">
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-lg-6">
-                <label for="gotas_adquiridas_periodo">Total Gotas Adquiridas no Período:</label>
-                <input type="text" name="gotas_adquiridas_periodo" id="gotas-adquiridas-periodo" readonly class="form-control text-right">
-            </div>
-            <div class="col-lg-6">
-                <label for="gotas_expiradas_periodo">Gotas expiradas no período:</label>
-                <input type="text" name="gotas_expiradas_periodo" id="gotas-expiradas-periodo" readonly class="form-control text-right">
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-lg-6">
-                <label for="caixa_hoje_gotas">Caixa de Hoje - Gotas:</label>
-                <input type="text" name="caixa_hoje_gotas" id="caixa-hoje-gotas" readonly class="form-control text-right">
-            </div>
-            <div class="col-lg-6">
-                <label for="caixa_hoje_reais">Caixa de Hoje - Reais:</label>
-                <input type="text" name="caixa_hoje_reais" id="caixa-hoje-reais" readonly class="form-control text-right">
-            </div>
-        </div>
     </div>
-
 </div>
 
 
-<script src="/webroot/js/scripts/gotas/gotas_redes<?= $debugExtension ?>.js?"<?= SYSTEM_VERSION ?> ></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/rel_gestao_gotas<?= $debugExtension ?>.css?"<?= SYSTEM_VERSION ?> />
+<script src="/webroot/js/scripts/gotas/gotas_redes<?= $debugExtension ?>.js?<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/gotas/rel_gestao_gotas<?= $debugExtension ?>.css?<?= SYSTEM_VERSION ?>" />
