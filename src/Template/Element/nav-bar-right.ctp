@@ -58,7 +58,7 @@ if (empty($usuarioLogado)) {
                     </li>
                     <li role="separator" class="divider"></li>
                     <li>
-                        <?php echo $this->Html->link('Produtos de Redes', ['controller' => 'gotas', 'action' => 'produtos_redes']) ?>
+                        <!-- <a href="/gotas/produtosRedes">Produtos de Redes</a> -->
                     </li>
                     <li>
                         <a href="/gotas/importacaoGotasSefaz">Importação de Gotas da SEFAZ</a>

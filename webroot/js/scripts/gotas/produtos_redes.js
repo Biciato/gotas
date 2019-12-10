@@ -445,23 +445,28 @@ $
                 dataSource: gotasData,
                 callback: function (data, pagination) {
                     tableGotas.children("tbody").empty();
-                    // tableGotasData.empty();
-
                     var rows = [];
                     data.forEach(element => {
-                        var habilitado = element.habilitado ? "Sim" : "Não";
+                        var habilitado = element.habilitado ? "Habilitado" : "Desabilitado";
                         var botaoEditar = geraEditarButton(element.id);
                         var botaoTrocaStatus = !element.habilitado ?
                             geraHabilitarButton(element.id) :
                             geraDesabilitarButton(element.id);
 
-                        // console.log(element);
-                        // var row =
-                        // "<tr><td>1AAA</td><td>1AAA</td><td>1AAA</td><td>1AAA</td><td>1AAA</td></tr>";
-                        var row = "<tr><td>" + element.id + "</td><td>" + element.nomeParametro + "</td><td>" + element.multiplicadorGota + "</td><td>" + habilitado + "</td><td>" + botaoEditar + botaoTrocaStatus + "</td></tr>";
+                        var row = "<tr><td>" +
+                            element.id +
+                            "</td><td>" +
+                            element.nomeParametro +
+                            "</td><td>" +
+                            parseFloat(element.multiplicadorGota).toFixed(3) +
+                            "</td><td>" +
+                            habilitado +
+                            "</td><td>" +
+                            botaoEditar +
+                            botaoTrocaStatus +
+                            "</td></tr>";
                         rows.push(row);
                     });
-                    // tableGotasData.append(rows);
                     tableGotas.children("tbody").html(rows);
 
                     geraEditarButtonFunctions("form-btn-edit", data);
@@ -507,7 +512,6 @@ $
                             ));
                         });
 
-                        console.log(gotasData);
                         populateGotasTable(gotasData);
                     }
                 },
