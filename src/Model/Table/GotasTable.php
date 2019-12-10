@@ -501,6 +501,7 @@ class GotasTable extends GenericTable
 
             return $this->find("all")
                 ->where($where)
+                ->contain("Clientes.RedesHasClientes.Redes")
                 ->order($orderBy);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());

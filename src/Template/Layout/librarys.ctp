@@ -10,6 +10,10 @@ echo $this->Html->meta('icon');
 
 <link rel="stylesheet" href="/webroot/css/home-rti.css">
 
+<!-- Entidades -->
+
+<script src="/webroot/js/entities/Gota.js"></script>
+
 <!-- jQuery -->
 <script src="/webroot/js/jquery/jquery.js"></script>
 <script src="/webroot/js/jquery/jquery.min.js"></script>

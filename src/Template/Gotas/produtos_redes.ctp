@@ -54,7 +54,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <select name="redes_list" id="redes-list" class="form-control"></select>
                             </div>
                             <div class="col-lg-6">
-                                <label for="clientes_list">Estabelecimento:</label>
+                                <label for="clientes_list">Cliente:</label>
                                 <select name="clientes_list" id="clientes-list" class="form-control"></select>
                             </div>
                         </div>
@@ -77,21 +77,24 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <table class="table table-responsive table-hover table-condensed" id="data-table">
+    <table class="table table-striped table-hover" id="data-table">
         <thead>
-            <th>Rede</th>
-            <th>Estabelecimento</th>
-            <th>Gota</th>
-            <th>Multiplicador</th>
-            <th>Status</th>
-            <th>Ações
-                <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes"><span class=" fa fa-book"> Legendas</span></div>
-            </th>
+            <tr>
+                <th>Id</th>
+                <th>Gota</th>
+                <th>Multiplicador</th>
+                <th>Status</th>
+                <th>Ações
+                    <div class="btn btn-xs btn-default right-align call-modal-how-it-works" data-toggle="modal" data-target="#modalLegendIconsSave" target-id="#legenda-icones-acoes">
+                        <span class="fa fa-book"> Legendas</span>
+                    </div>
+                </th>
+            </tr>
         </thead>
         <tbody>
-            <tr>
+            <!-- <tr>
                 <td class="text-warning text-center" colspan="6">A consulta não retornou dados!</td>
-            </tr>
+            </tr> -->
         </tbody>
     </table>
     <div id="create-edit-record">

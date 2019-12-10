@@ -6,14 +6,14 @@
  * @date 2019-10-10
  */
 
-class Gota {
-    constructor(id, nomeParametro, multiplicadorGota, importar) {
-        this.id = id;
-        this.nomeParametro = nomeParametro;
-        this.multiplicadorGota = multiplicadorGota;
-        this.importar = importar;
-    }
-}
+// class Gota {
+//     constructor(id, nomeParametro, multiplicadorGota, importar) {
+//         this.id = id;
+//         this.nomeParametro = nomeParametro;
+//         this.multiplicadorGota = multiplicadorGota;
+//         this.importar = importar;
+//     }
+// }
 
 $
     (function () {
@@ -128,7 +128,8 @@ $
                 })
                 .indexOf(dataSelecionado.id);
 
-            var gota = new Gota(dataSelecionado.id, nome, multiplicador, dataSelecionado.importar);
+            var gota = new Gota(dataSelecionado.id, nome, multiplicador, null, null);
+            gota.importar = dataSelecionado.importar;
 
             data[index] = gota;
             gerarTabelaGotas(data);
@@ -429,8 +430,11 @@ $
                     index,
                     element.nomeParametro,
                     element.multiplicadorGota,
-                    element.importar
+                    null,
+                    null
                 );
+
+                gota.importar = element.importar;
 
                 data.push(gota);
                 index++;
@@ -528,6 +532,5 @@ $
 
         init();
     })
-    .ajaxStart(function () {
-        callLoaderAnimation();
-    }).ajaxStop(closeLoaderAnimation);
+    .ajaxStart(callLoaderAnimation)
+    .ajaxStop(closeLoaderAnimation);

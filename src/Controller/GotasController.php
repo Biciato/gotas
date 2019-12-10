@@ -768,7 +768,8 @@ class GotasController extends AppController
 
             if ($usuario->tipo_perfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
                 // Só permite especificar a rede se for RTI/Desenvolvedor
-                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $rede->id;
+                $redesIdSessao = !empty($rede) ? $rede->id : 0;
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : $redesIdSessao;
             } else {
                 $redesId = $rede->id;
             }
@@ -781,6 +782,7 @@ class GotasController extends AppController
             }
 
             try {
+
                 if (count($errors) > 0) {
                     throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
                 }
