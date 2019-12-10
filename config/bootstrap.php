@@ -580,6 +580,8 @@ const MSG_GOTAS_NOT_FOUND_IN_COUPON_CODE = 0x000A0002;
 
 #region Pontuações
 
+const TRANSMISSION_MODE_SEFAZ = "SEFAZ";
+const TRANSMISSION_MODE_DIRECT = "DIRETO";
 const MSG_QR_CODE_EMPTY = "O Campo QR_CODE deve ser informado!";
 const MSG_QUANTIDADE_GOTAS_EMPTY = "Necessário informar a quantidade de gotas para ajuste!";
 const MSG_QUANTIDADE_GOTAS_EMPTY_CODE = 0x00120001;
