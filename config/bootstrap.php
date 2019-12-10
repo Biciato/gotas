@@ -726,4 +726,4 @@ const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
  * y = alteração de banco de dados (tabelas novas, campos novos)
  * z = alterações pequenas do sistema (ajuste de campos, pequenas novas funcionalidades)
  */
-const SYSTEM_VERSION = "1.0.0";
+const SYSTEM_VERSION = "1.1.0";

@@ -239,7 +239,7 @@ $(document).ready(function () {
 
         var tipoPerfil = $(".usuarioLogadoTipoPerfil").val();
 
-        if (tipoPerfil == 5){
+        if (tipoPerfil == 5) {
             $("#senha").val(123456);
             $("#confirm_senha").val(123456);
         } else {
@@ -264,7 +264,7 @@ $(document).ready(function () {
                 if (tipoPerfilSelecionado < 1 || tipoPerfilSelecionado > 5) {
                     hideRedesInput();
                 } else {
-                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <=5) {
+                    if (tipoPerfilSelecionado > 2 && tipoPerfilSelecionado <= 5) {
                         showRedesInput(true);
                     } else {
                         showRedesInput(false);
@@ -523,7 +523,8 @@ $(document).ready(function () {
                 $("#user_submit").attr('disabled', false);
                 closeLoaderAnimation();
 
-            }, error: function(error){
+            },
+            error: function (error) {
                 closeLoaderAnimation();
                 var msg = JSON.parse(error.responseText);
                 $("#user_submit").attr('disabled', true);
@@ -536,7 +537,7 @@ $(document).ready(function () {
      * Limpa campo de CPF ao cadastrar documento estrangeiro
      */
     $("#doc_estrangeiro")
-        .on("keyup", function() {
+        .on("keyup", function () {
             $("#cpf").val(null);
         })
         .on("blur", checkDocEstrangeiroRepeated);
@@ -556,37 +557,42 @@ $(document).ready(function () {
      * Verifica se há e-mail em uso
      */
     $("#email").on('blur', function () {
-        $.ajax({
-            url: "/Usuarios/getUsuarioByEmail",
-            type: 'post',
-            data: JSON.stringify({
-                id: 0,
-                email: this.value,
-                tipo_perfil: $("#tipo_perfil").val()
-            }),
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Accept", "application/json");
-                xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-                xhr.setRequestHeader("IsMobile", 1);
 
-                callLoaderAnimation();
-            },
-            success: function (data) {
-                if (data['user'] !== null) {
-                    callModalError('Este e-mail já está em uso. Para logar com este e-mail, use o formulário de "Esqueci minha Senha"');
-                    $("#user_submit").attr('disabled', true);
+        // Só verifica se o usuário informar valor
+        if (this.value.length > 0) {
+            $.ajax({
+                url: "/Usuarios/getUsuarioByEmail",
+                type: 'post',
+                data: JSON.stringify({
+                    id: 0,
+                    email: this.value,
+                    tipo_perfil: $("#tipo_perfil").val()
+                }),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Accept", "application/json");
+                    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                    xhr.setRequestHeader("IsMobile", 1);
 
-                } else {
-                    $("#user_submit").attr('disabled', false);
+                    callLoaderAnimation();
+                },
+                success: function (data) {
+                    if (data['user'] !== null) {
+                        callModalError('Este login já está em uso. Para usar este login, use o formulário de "Esqueci minha Senha"');
+                        $("#user_submit").attr('disabled', true);
+
+                    } else {
+                        $("#user_submit").attr('disabled', false);
+                    }
+
+                },
+                error: function (error) {
+                    callModalError(error.responseJSON.mensagem.message, error.responseJSON.mensagem.errors);
                 }
+            }).done(function () {
+                closeLoaderAnimation();
+            });
+        }
 
-            },
-            error: function (error) {
-                callModalError(error.responseJSON.mensagem.message, error.responseJSON.mensagem.errors);
-            }
-        }).done(function () {
-            closeLoaderAnimation();
-        });
     });
 
     $("#cpf").mask('###.###.###-##');
@@ -600,7 +606,7 @@ $(document).ready(function () {
         } else {
             $("#telefone").mask("(99)99999-9999");
         }
-    }).on("keyup", function(event){
+    }).on("keyup", function (event) {
         this.value = clearNumbers(event.target.value);
     });
 

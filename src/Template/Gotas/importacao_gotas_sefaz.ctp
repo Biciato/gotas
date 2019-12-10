@@ -135,6 +135,6 @@ $extensionDebug = Configure::read("debug") ? '' : '.min';
 
 ?>
 
-<script src="/webroot/js/scripts/gotas/importacao_gotas_sefaz<?= $extensionDebug ?>.js"></script>
+<script src="/webroot/js/scripts/gotas/importacao_gotas_sefaz<?= $extensionDebug ?>.js?<?= SYSTEM_VERSION ?>"></script>
 
-<link rel="stylesheet" href="/webroot/css/styles/gotas/importacao_gotas_sefaz<?= $extensionDebug ?>.css" />
+<link rel="stylesheet" href="/webroot/css/styles/gotas/importacao_gotas_sefaz<?= $extensionDebug ?>.css?<?= SYSTEM_VERSION ?>" />

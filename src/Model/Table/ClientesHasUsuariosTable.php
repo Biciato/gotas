@@ -15,6 +15,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use Cake\Database\Expression\QueryExpression;
 use DateTime;
 use Exception;
 
@@ -934,9 +935,37 @@ class ClientesHasUsuariosTable extends Table
      *
      * @return \App\Entity\Model\ClientesHasUsuario
      */
-    public function updateClientesHasUsuarioRelationship(array $update_array, array $select_array)
+    public function updateClientesHasUsuario(int $clientesId = null, int $usuariosId = null, bool $contaAtiva = true)
     {
-        return $this->updateAll($update_array, $select_array);
+        try {
+            //code...
+
+            $where = function (QueryExpression $exp) use ($clientesId, $usuariosId) {
+
+                if (!empty($clientesId)) {
+                    $exp->eq("clientes_id", $clientesId);
+                }
+
+                if (!empty($usuariosId)) {
+                    $exp->eq("usuarios_id", $usuariosId);
+                }
+
+                $exp->eq("conta_ativa", 0);
+
+                return $exp;
+            };
+
+            $update = [
+                "conta_ativa" => $contaAtiva,
+                "data" => (new DateTime('now'))->format("Y-m-d H:i:s")
+            ];
+
+            return $this->updateAll($update, $where);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
     }
 
 

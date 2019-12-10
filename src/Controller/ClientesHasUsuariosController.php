@@ -236,6 +236,7 @@ class ClientesHasUsuariosController extends AppController
             // array_push($select_array, ['usuarios_id' => $usuario->id]);
             // array_push($select_array, ['tipo_perfil' => Configure::read('profileTypes')['AdminLocalProfileType']]);
 
+            // @deprecated
             // $this->ClientesHasUsuarios->updateClientesHasUsuarioRelationship($update_array, $select_array);
 
             if ($result) {
