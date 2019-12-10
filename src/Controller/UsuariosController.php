@@ -1010,7 +1010,7 @@ class UsuariosController extends AppController
 
             $unidades = array();
             foreach ($unidadesList as $key => $value) {
-                $unidades[$value["clientes_id"]] = $value["cliente"]["razao_social"];
+                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_razao_social"];
             }
             $unidadesRede = $unidades;
         }
