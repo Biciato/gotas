@@ -1044,7 +1044,7 @@ class UsuariosController extends AppController
 
             $unidades = array();
             foreach ($unidadesList as $key => $value) {
-                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_razao_social"];
+                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_municipio_estado"];
             }
             $unidadesRede = $unidades;
         }
@@ -1875,6 +1875,8 @@ class UsuariosController extends AppController
 
         // se for developer / rti / rede, mostra todas as unidades da rede
         $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->usuarioLogado['id']);
+
+        // DebugUtil::printArray($unidadesIds);
 
         if (!is_null($unidadesIds)) {
             foreach ($unidadesIds as $key => $value) {

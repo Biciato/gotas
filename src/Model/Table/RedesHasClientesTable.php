@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -208,7 +209,11 @@ class RedesHasClientesTable extends GenericTable
 
             $redesHasClientes = $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Clientes'])
+                ->order([
+                    "Clientes.matriz" => "DESC",
+                    "Clientes.nome_fantasia" => "ASC"
+                ]);
 
             return $redesHasClientes;
         } catch (\Exception $e) {

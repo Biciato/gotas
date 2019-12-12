@@ -361,6 +361,10 @@ class RedesTable extends GenericTable
                 );
             }
 
+            $redes = $redes->order([
+                "Redes.nome_rede" => "ASC"
+            ]);
+
             return $redes;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
