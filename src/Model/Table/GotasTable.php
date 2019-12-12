@@ -239,7 +239,7 @@ class GotasTable extends GenericTable
                 }
 
                 $gota->multiplicador_gota = $qteGotasBonificacao;
-                return $this->save($gota);
+                $this->save($gota);
             }
         } catch (\Exception $e) {
             $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());

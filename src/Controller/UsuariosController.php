@@ -296,7 +296,17 @@ class UsuariosController extends AppController
             }
 
             // DebugUtil::printArray($data);
+
+            $cpf = preg_replace("/\D/", "", $data["cpf"]);
+
+            $usuarioCheck = $this->Usuarios->getUsuarioByCPF($cpf);
             $usuarioData = $data;
+            // só atribui o id pois o resto é tudo informação nova
+            // $usuarioData["id"] = $usuarioCheck->id;
+            // $usuarioData = $this->Usuarios->patchEntity($usuarioCheck, $usuarioData);
+
+
+
             $cliente = null;
 
             if (isset($this->usuarioLogado)) {
@@ -357,7 +367,24 @@ class UsuariosController extends AppController
                 }
             }
 
+            $usuarioData["cpf"] = preg_replace("/\D/", "", $usuarioData["cpf"]);
+
+            // Se e-mail não informado e cpf informado, copia informação para o campo em questão
+            if (empty($usuarioData["email"]) && !empty($usuarioData["cpf"])) {
+                $usuarioData["email"] = $usuarioData["cpf"];
+            }
+
             $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
+
+            $updateClientesHasUsuarios = false;
+
+            if (!empty($usuarioCheck)) {
+                $usuario->id = $usuarioCheck->id;
+                $usuario->conta_ativa = true;
+                $updateClientesHasUsuarios = true;
+
+                $this->Usuarios->validator('Default')->remove('cpf');
+            }
 
             if (!empty($usuarioData["doc_estrangeiro"]) && strlen($usuarioData['doc_estrangeiro']) > 0) {
                 $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, [
@@ -377,22 +404,29 @@ class UsuariosController extends AppController
             }
             $errors = $usuario->errors();
 
-            // validação de email
-            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+            // Valida o e-mail se tiver fornecido um @
+            if (strpos($usuario->email, "@") !== false) {
+                // validação de email
+                $validacaoEmail = EmailUtil::validateEmail($usuario->email);
 
-            if (!$validacaoEmail["status"]) {
-                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
+                if (!$validacaoEmail["status"]) {
+                    $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
 
-                return;
+                    return;
+                }
             }
 
+            // DebugUtil::printArray($usuarioData);
             $usuario = $this->Usuarios->save($usuario);
 
             if ($usuario) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
                 $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+
+                // Ativa todos os vínculos aos quais ainda não estão ativados
+                $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
 
                 if (isset($this->usuarioLogado)) {
                     if ($transportadora) {
@@ -1010,7 +1044,7 @@ class UsuariosController extends AppController
 
             $unidades = array();
             foreach ($unidadesList as $key => $value) {
-                $unidades[$value["clientes_id"]] = $value["cliente"]["razao_social"];
+                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_razao_social"];
             }
             $unidadesRede = $unidades;
         }
@@ -4735,11 +4769,15 @@ class UsuariosController extends AppController
 
                 $user = $this->Usuarios->getUsuarioByCPF($data['cpf']);
 
+                if (!empty($user) && !$user->conta_ativa) {
+                    $user = null;
+                }
+
                 // Se id informado, verifico se o usuário que está informado é o mesmo da consulta.
                 // Se for, não pode retornar registro, pois se retornar, significa que há outro usuário com este id
                 if (!empty($usuariosId)) {
 
-                    if ($user !== null && $user->id == $data['id']) {
+                    if ($user !== null && $user->id == $data['id'] || !$user->conta_ativa) {
                         $user = null;
                     }
                 }
@@ -4809,7 +4847,8 @@ class UsuariosController extends AppController
 
 
                 if ($data['id'] != 0 && !empty($user)) {
-                    if ($user->id == $data['id']) {
+                    // Se na busca retornou o mesmo id de usuário ou a conta não está ativa, consta como se não existisse
+                    if ($user->id == $data['id'] || !$user->conta_ativa) {
                         $user = null;
                     }
                 }

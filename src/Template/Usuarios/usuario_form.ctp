@@ -213,8 +213,8 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                 </div>
 
                 <div class="form-group col-lg-6">
-                    <label for="email">E-mail*</label>
-                    <input type="text" name="email" required="required" id="email" class="form-control" placeholder="E-mail..." />
+                    <label for="email">E-mail</label>
+                    <input type="text" name="email" id="email" class="form-control" placeholder="E-mail..." />
                     <span id="email_validation" class="text-danger validation-message">
                 </div>
             </div>
@@ -479,8 +479,8 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                         </div>
 
                         <div class="col-lg-4">
-                            <label for="email">E-mail*</label>
-                            <input type="text" name="email" required="required" id="email" class="form-control" placeholder="E-mail..." />
+                            <label for="email">E-mail</label>
+                            <input type="text" name="email" id="email" class="form-control" placeholder="E-mail..." />
                             <span id="email_validation" class="text-danger validation-message">
                         </div>
 
@@ -552,5 +552,5 @@ $extension = Configure::read("debug") ? ""  : ".min";
 // $this->fetch('script');
 ?>
 
-<script src="<?php echo "/webroot/js/scripts/usuarios/add" . $extension . ".js" ?>"></script>
-<link rel="stylesheet" href="<?= "/webroot/css/styles/usuarios/usuario_form" . $extension . ".css" ?>">
+<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?<?= SYSTEM_VERSION ?>"?></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension?>.css?<?php SYSTEM_VERSION ?>" ?>">
