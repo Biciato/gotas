@@ -87,11 +87,11 @@ class UsuariosController extends AppController
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
-        $usuarios = $this->Paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
+        $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
         $unidades_ids = $this->Clientes->find('list')->toArray();
 
-        // DebugUtil::print($usuarios);
+        // DebugUtil::printArray($usuarios);
 
         $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList");
         $this->set(compact($arraySet));
@@ -1923,6 +1923,8 @@ class UsuariosController extends AppController
         $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
+
+        // DebugUtil::printArray($usuarios->toArray());
 
         // $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'usuarioLogado');
         $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId');

@@ -165,7 +165,7 @@ $userIsAdmin = in_array($usuarioLogado['tipo_perfil'], array(PROFILE_TYPE_ADMIN_
                                 if ($usuario['id'] != $usuarioLogado['id']) {
                                     if ($usuario["tipo_perfil"] < PROFILE_TYPE_USER) {
 
-                                        if ($usuario["cliente_has_usuario"]['conta_ativa'] == true) {
+                                        if ($usuario->clientes_has_usuario->conta_ativa == true) {
                                             echo $this->Html->link(
                                                 __(
                                                     '{0} ',
@@ -183,9 +183,9 @@ $userIsAdmin = in_array($usuarioLogado['tipo_perfil'], array(PROFILE_TYPE_ADMIN_
 
                                                             "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
                                                                 array(
-                                                                "id" => $usuario["cliente_has_usuario"]["id"],
+                                                                "id" => $usuario->clientes_has_usuario->id,
                                                                 "usuarios_id" => $usuario->id,
-                                                                "clientes_id" => $usuario["cliente_has_usuario"]["clientes_id"],
+                                                                "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
                                                                 "conta_ativa" => 0,
                                                                 'return_url' => Router::url(
                                                                     array(
@@ -219,9 +219,9 @@ $userIsAdmin = in_array($usuarioLogado['tipo_perfil'], array(PROFILE_TYPE_ADMIN_
 
                                                             "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
                                                                 array(
-                                                                "id" => $usuario["cliente_has_usuario"]["id"],
+                                                                "id" => $usuario->clientes_has_usuario->id,
                                                                 'usuarios_id' => $usuario->id,
-                                                                "clientes_id" => $usuario["cliente_has_usuario"]["clientes_id"],
+                                                                "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
                                                                 "conta_ativa" => 1,
                                                                 'return_url' => Router::url(
                                                                     array(
