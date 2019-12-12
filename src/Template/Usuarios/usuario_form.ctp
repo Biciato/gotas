@@ -552,5 +552,5 @@ $extension = Configure::read("debug") ? ""  : ".min";
 // $this->fetch('script');
 ?>
 
-<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?<?= SYSTEM_VERSION ?>"?></script>
+<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"?></script>
 <link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension?>.css?<?php SYSTEM_VERSION ?>" ?>">
