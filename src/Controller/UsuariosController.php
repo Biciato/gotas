@@ -3176,8 +3176,11 @@ class UsuariosController extends AppController
 
             $email = !empty($data["email"]) ? $data["email"] : null;
             if (empty($email)) {
-                $errors[] = array("email" => "Email deve ser informado!");
-                $canContinue = false;
+                // $errors[] = array("email" => "Email deve ser informado!");
+                // $canContinue = false;
+                // Email pode ser vazio, neste caso, deve ser copiado o campo de cpf 
+
+                $data["email"] = preg_replace("/\D/", "", $data["cpf"]);
             } else {
                 $resultado = EmailUtil::validateEmail($data["email"]);
 
