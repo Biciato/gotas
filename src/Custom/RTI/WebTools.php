@@ -86,6 +86,10 @@ class WebTools
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
 
+            if (strpos($response, "Erro 500") !== false) {
+                $status = 500;
+            }
+
             // só pode prosseguir se houve status= 200
             // $status = 400;
             $result = null;
