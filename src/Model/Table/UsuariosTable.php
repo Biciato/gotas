@@ -192,7 +192,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
+            // ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
             ->allowEmpty('data_nasc');
 
         $validator
@@ -332,7 +332,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create')
+            // ->requirePresence('data_nasc', 'create')
             ->notEmpty('data_nasc');
 
         $validator
@@ -824,15 +824,15 @@ class UsuariosTable extends GenericTable
             }
 
             $usuarios = $this->find("all")
-            ->where($where)
-            ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
-            ->select(
-                [
-                    "Usuarios.id",
-                    "Usuarios.nome",
-                     "Usuarios.cpf"
-                ]
-            );
+                ->where($where)
+                ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
+                ->select(
+                    [
+                        "Usuarios.id",
+                        "Usuarios.nome",
+                        "Usuarios.cpf"
+                    ]
+                );
 
             return $usuarios;
         } catch (\Throwable $th) {
@@ -1416,7 +1416,6 @@ class UsuariosTable extends GenericTable
                     "RedesHasClientes.redes_id",
                     "RedesHasClientes.id",
                 ));
-
             }
 
             if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
