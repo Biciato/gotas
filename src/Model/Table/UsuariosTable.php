@@ -219,7 +219,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 6 dígitos, somente números',
+                        'message' => 'A senha deve conter no mínimo 6 dígitos, letras ou números',
 
                     ],
                     [
@@ -240,7 +240,18 @@ class UsuariosTable extends GenericTable
             ]);
 
         $validator
-            ->allowEmpty('telefone');
+            ->notEmpty(
+                'telefone',
+                "O campo TELEFONE precisa ser informado!",
+                function ($context) {
+                    $tipoPerfil = $context["data"]["tipo_perfil"];
+
+                    if (!in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_USER]) && empty($telefone)) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
 
         $validator
             ->allowEmpty('endereco');
@@ -359,7 +370,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 6 dígitos, somente números',
+                        'message' => 'A senha deve conter no mínimo 6 dígitos, letras ou números',
                     ],
                     [
                         'provider' => 'table',
@@ -2348,6 +2359,8 @@ class UsuariosTable extends GenericTable
             return true;
         }
     }
+
+
 
     /**
      * Checks password for a single instance of each:

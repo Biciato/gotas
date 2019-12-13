@@ -498,7 +498,6 @@ $(document).ready(function () {
                         };
 
                         clientesList.push(cliente);
-                        clientesRede.prop("disabled", false);
 
                         response.data.clientes.forEach(cliente => {
                             var item = {
@@ -521,8 +520,6 @@ $(document).ready(function () {
                         if (clientesList.length == 2) {
                             clientesSelectedItem = clientesList[1];
 
-                            // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                            clientesRede.prop("disabled", true);
                         }
 
                         var clientesId = parseInt($("#clientes_id").val());

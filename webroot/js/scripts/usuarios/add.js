@@ -211,7 +211,6 @@ $(document).ready(function () {
                         };
 
                         clientesList.push(cliente);
-                        clientesRede.prop("disabled", false);
 
                         response.data.clientes.forEach(cliente => {
                             var item = {
@@ -233,9 +232,6 @@ $(document).ready(function () {
                         // Se só tem 2 registros, significa que
                         if (clientesList.length == 2) {
                             clientesSelectedItem = clientesList[1];
-
-                            // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                            clientesRede.prop("disabled", true);
                         }
 
                         if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
@@ -345,28 +341,7 @@ $(document).ready(function () {
                 $("#doc_estrangeiro").prop("required", true);
             }
 
-            // if (this.checked) {
-            //     startScanDocument();
-            // } else {
-            //     stopScanDocument();
-            // }
-
         });
-
-        // if ($("#alternarEstrangeiro").prop("checked") == true) {
-        //     $("#cpf_box").hide();
-        //     $("#doc_estrangeiro_box").show();
-        //     $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
-        //     // startScanDocument();
-        // } else {
-
-        //     $("#cpf_box").show();
-        //     $("#doc_estrangeiro_box").hide();
-        //     $("#doc_estrangeiro_validation").text("É necessário capturar uma cópia do documento para posterior aprovação.");
-
-        //     // $("#doc_estrangeiro_validation").text(null);
-        //     // stopScanDocument();
-        // }
 
         $("#alternarTransportadora").click(function () {
             if ($("#alternarTransportadora").is(":checked")) {
