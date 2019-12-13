@@ -1783,6 +1783,9 @@ class PontuacoesComprovantesController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
+             // Cliente do posto
+             $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
             // Posto de atendimento
             $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
 
@@ -1843,13 +1846,12 @@ class PontuacoesComprovantesController extends AppController
                     Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
                 }
 
+                Log::write("info", sprintf("Cupom: {%s}, Usuário: {%s}, Estabelecimento: {%s}", $qrCode, $usuario->id, $cliente->id);
+
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Fim de Validação
-
-            // Cliente do posto
-            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
 
             if (strlen($cpf) > 11) {
                 Log::write("info", "CNPJ Identificado: " . $cpf);
