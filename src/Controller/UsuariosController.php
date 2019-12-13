@@ -3135,6 +3135,14 @@ class UsuariosController extends AppController
                 $usuario = $this->Usuarios->newEntity();
             }
 
+            // Se o usuário já possui conta ativa, significa que já não é mais pendente ou novo, então retorna e nega cadastro
+            if ($usuario->conta_ativa) {
+                $errors[] = MSG_USUARIOS_CPF_ALREADY_EXISTS;
+                $errorCodes[] = MSG_USUARIOS_CPF_ALREADY_EXISTS_CODE;
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
+            }
+
             if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuario->conta_ativa) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
@@ -3177,6 +3185,36 @@ class UsuariosController extends AppController
                 unset($data["ultima_tentativa_login"]);
             }
 
+            if (empty($data['telefone'])) {
+                $this->Usuarios->validator('Default')->notEmpty('telefone', "O campo TELEFONE precisa ser informado!");
+            }
+
+            if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
+                $errors[] = array("CPF" => "CPF Deve ser informado!");
+                $canContinue = false;
+            } else {
+
+                // Valida se o usuário em questão não é ficticio
+                if ($tipoPerfil < (int) PROFILE_TYPE_DUMMY_WORKER) {
+
+                    $result = NumberUtil::validarCPF($data["cpf"]);
+
+                    if (!$result["status"]) {
+                        $mensagem["status"] = false;
+                        $mensagem["message"] = __($result["message"], $data["cpf"]);
+                        $arraySet = ["mensagem"];
+
+                        $this->set(compact($arraySet));
+                        $this->set("_serialize", $arraySet);
+
+                        return;
+                    }
+                }
+
+
+                $canContinue = true;
+            }
+
             $email = !empty($data["email"]) ? $data["email"] : null;
             if (empty($email)) {
                 // $errors[] = array("email" => "Email deve ser informado!");
@@ -3200,32 +3238,6 @@ class UsuariosController extends AppController
 
                     return;
                 }
-                $canContinue = true;
-            }
-
-            if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
-                $errors[] = array("CPF" => "CPF Deve ser informado!");
-                $canContinue = false;
-            } else {
-
-                // Valida se o usuário em questão não é ficticio
-                if ($tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
-
-                    $result = NumberUtil::validarCPF($data["cpf"]);
-
-                    if (!$result["status"]) {
-                        $mensagem["status"] = false;
-                        $mensagem["message"] = __($result["message"], $data["cpf"]);
-                        $arraySet = ["mensagem"];
-
-                        $this->set(compact($arraySet));
-                        $this->set("_serialize", $arraySet);
-
-                        return;
-                    }
-                }
-
-
                 $canContinue = true;
             }
 
