@@ -1038,14 +1038,19 @@ class UsuariosController extends AppController
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        if (empty($rede) || !empty($redesId)) {
+        if (empty($rede) && !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
-            $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+        }
 
+        if (!empty($rede)) {
+
+            $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
             $unidades = array();
+            
             foreach ($unidadesList as $key => $value) {
                 $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_municipio_estado"];
             }
+            
             $unidadesRede = $unidades;
         }
 
@@ -2173,7 +2178,7 @@ class UsuariosController extends AppController
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
             // DebugUtil::printArray($usuarios->toArray());
-            $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
+            $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['Clientes.matriz_id' => 'ASC', "Usuarios.nome" => "ASC", "Clientes.nome_fantasia" => "ASC"]]);
 
             // DebugUtil::printArray($usuarios->toArray());
 

@@ -211,7 +211,7 @@ class RedesHasClientesTable extends GenericTable
                 ->where($whereCondition)
                 ->contain(['Redes', 'Clientes'])
                 ->order([
-                    "Clientes.matriz" => "DESC",
+                    // "Clientes.matriz" => "DESC",
                     "Clientes.nome_fantasia" => "ASC"
                 ]);
 
@@ -468,7 +468,12 @@ class RedesHasClientesTable extends GenericTable
 
             return $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Clientes'])
+                ->order([
+                    // "Clientes.matriz" => "DESC",
+                    "Clientes.nome_fantasia" => "ASC"
+                ])
+                ;
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

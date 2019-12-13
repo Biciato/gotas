@@ -440,10 +440,6 @@ class ClientesHasUsuariosTable extends Table
                         [
                             'clientes_id in ' => $clientesIds,
                             'usuarios_id' => $usuario["id"],
-                            // 'Usuarios.tipo_perfil IN ' => [
-                            //     (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
-                            //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
-                            // ]
                         ]
                     )->select(array("clientes_id"));
 
