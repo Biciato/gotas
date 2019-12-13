@@ -3056,7 +3056,7 @@ class CuponsController extends AppController
             if ($this->request->is(Request::METHOD_GET)) {
                 $data = $this->request->getQueryParams();
 
-                Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
                 Log::write("info", $data);
 
                 $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';

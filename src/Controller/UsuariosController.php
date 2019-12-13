@@ -1046,11 +1046,11 @@ class UsuariosController extends AppController
 
             $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
             $unidades = array();
-            
+
             foreach ($unidadesList as $key => $value) {
                 $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_municipio_estado"];
             }
-            
+
             $unidadesRede = $unidades;
         }
 
@@ -3108,6 +3108,9 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
+            Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+            Log::write("info", $data);
+
             $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
             // validação de cpf
@@ -3178,7 +3181,7 @@ class UsuariosController extends AppController
             if (empty($email)) {
                 // $errors[] = array("email" => "Email deve ser informado!");
                 // $canContinue = false;
-                // Email pode ser vazio, neste caso, deve ser copiado o campo de cpf 
+                // Email pode ser vazio, neste caso, deve ser copiado o campo de cpf
 
                 $data["email"] = preg_replace("/\D/", "", $data["cpf"]);
             } else {
