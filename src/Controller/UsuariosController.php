@@ -3316,7 +3316,7 @@ class UsuariosController extends AppController
                     }
 
 
-                    return ResponseUtil::errorAPI('', $errors);
+                    // return ResponseUtil::errorAPI('', $errors);
 
                     $usuario = $this->Usuarios->save($usuario);
 
