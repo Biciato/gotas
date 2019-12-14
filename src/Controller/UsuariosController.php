@@ -1133,7 +1133,7 @@ class UsuariosController extends AppController
             if ($usuario->tipo_perfil === PROFILE_TYPE_WORKER) {
                 $this->Usuarios->validator('Default')->remove("telefone");
             }
-            
+
             $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             // $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
@@ -3308,15 +3308,12 @@ class UsuariosController extends AppController
                         $usuarioData["id"] = $usuario->id;
                     }
 
+                    $usuarioData["conta_ativa"] = true;
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
 
                     foreach ($usuario->errors() as $key => $erro) {
                         $errors[] = $erro;
                     }
-
-
-                    // return ResponseUtil::errorAPI('', $errors);
 
                     $usuario = $this->Usuarios->save($usuario);
 
