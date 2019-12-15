@@ -398,9 +398,28 @@ $(document).ready(function () {
             }
         });
 
-        $("#telefone").on("focus", function () {
+        $("#telefone").on('focus', function () {
             $("#telefone").unmask("(99)99999-9999");
             $("#telefone").unmask("(99)9999-9999");
+        }).on('blur', function () {
+            if (this.value.length == 10) {
+                $("#telefone").mask("(99)9999-9999");
+            } else {
+                $("#telefone").mask("(99)99999-9999");
+            }
+        }).on("keyup", function (event) {
+            // console.log(event);
+            this.value = clearNumbers(event.target.value);
+
+        }).on("keydown", function (event) {
+            console.log(event.keyCode);
+            if (event.keyCode == 13) {
+                if (this.value.length == 10) {
+                    $("#telefone").mask("(99)9999-9999");
+                } else {
+                    $("#telefone").mask("(99)99999-9999");
+                }
+            }
         });
 
         var updateTelefoneFormat = function (data) {
