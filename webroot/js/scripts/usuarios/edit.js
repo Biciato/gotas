@@ -622,12 +622,12 @@ $(document).ready(function () {
 
 
             if ($(data).val() != 5) {
-                $("#senha").mask("AAAAAAAA");
-                $("#confirm-senha").mask("AAAAAAAA");
+                $("#senha").mask("AAAAAAAA?AAAAAAAAAAAAAAAA");
+                $("#confirm-senha").mask("AAAAAAAA?AAAAAAAAAAAAAAAA");
                 $(".fields-is-final-customer").hide();
             } else {
-                $("#senha").mask("####");
-                $("#confirm-senha").mask("####");
+                $("#senha").mask("AAAAAA?AAAAAAAAAAAAAAAAAA");
+                $("#confirm-senha").mask("AAAAAA?AAAAAAAAAAAAAAAAAA");
                 $(".fields-is-final-customer").show();
             }
         };

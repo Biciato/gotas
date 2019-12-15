@@ -320,8 +320,8 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                 </div>
 
                 <div class="col-lg-3">
-                    <label for="telefone">Telefone</label>
-                    <input type="telefone" name="telefone" id="telefone" placeholder="Telefone..." class="form-control" value="<?= $usuario['telefone'] ?>">
+                    <label for="telefone">Telefone*</label>
+                    <input type="telefone" name="telefone" id="telefone" placeholder="Telefone..." class="form-control" value="<?= $usuario['telefone'] ?>" required="required">
                 </div>
 
                 <div class="col-lg-3">
@@ -557,5 +557,5 @@ $extension = Configure::read("debug") ? ""  : ".min";
 // $this->fetch('script');
 ?>
 
-<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>" ></script>
-<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>" >
+<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">

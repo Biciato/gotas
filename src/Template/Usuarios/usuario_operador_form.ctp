@@ -26,23 +26,23 @@ use Cake\Routing\Router;
 
         <?php if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
             <div class='col-lg-4'>
-                    <label for="tipo_perfil">Tipo de Perfil*</label>
-                    <?php
-                   $listaPerfis = array();
-                   $perfis = array();
+                <label for="tipo_perfil">Tipo de Perfil*</label>
+                <?php
+                    $listaPerfis = array();
+                    $perfis = array();
 
-                   if (!isset($redesId)){
-                       // $listaPerfis[] = array(0 => "Administradores da RTI / Desenvolvedor");
-                       $perfis[0] = "Administradores da RTI / Desenvolvedor";
-                   }
+                    if (!isset($redesId)) {
+                        // $listaPerfis[] = array(0 => "Administradores da RTI / Desenvolvedor");
+                        $perfis[0] = "Administradores da RTI / Desenvolvedor";
+                    }
 
-                   $perfis[1] = 'Administradores de uma Rede';
-                   $perfis[3] = 'Administrador';
-                   $perfis[4] = 'Gerente';
-                   $perfis[5] = 'Funcionário';
-                   $listaPerfis = $perfis;
+                    $perfis[1] = 'Administradores de uma Rede';
+                    $perfis[3] = 'Administrador';
+                    $perfis[4] = 'Gerente';
+                    $perfis[5] = 'Funcionário';
+                    $listaPerfis = $perfis;
                     ?>
-                    <?= $this->Form->input('tipo_perfil', [
+                <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
                         "empty" => true,
@@ -60,57 +60,57 @@ use Cake\Routing\Router;
             </div>
             <div class='col-lg-4 redes_input'>
                 <?php if (isset($redesId)) {
-                    echo $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']);
-                    echo $this->Form->input(
-                        'redes_id',
-                        [
-                            'type' => 'text',
-                            "id" => "redes_id",
-                            'readonly' => true,
-                            'value' => $redes->toArray(),
-                            'label' => 'Rede de Destino*'
-                        ]
-                    );
-                } else {
-                    echo $this->Form->input(
-                        'redes_id',
-                        [
-                            'type' => 'select',
-                            "id" => "redes_id",
-                            'class' => 'redes_list',
-                            'options' => $redes,
-                            'multiple' => false,
-                            'empty' => true,
-                            'label' => 'Rede de Destino*',
-                        ]
-                    );
-
-                }
-                ?>
+                        echo $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']);
+                        echo $this->Form->input(
+                            'redes_id',
+                            [
+                                'type' => 'text',
+                                "id" => "redes_id",
+                                'readonly' => true,
+                                'value' => $redes->toArray(),
+                                'label' => 'Rede de Destino*'
+                            ]
+                        );
+                    } else {
+                        echo $this->Form->input(
+                            'redes_id',
+                            [
+                                'type' => 'select',
+                                "id" => "redes_id",
+                                'class' => 'redes_list',
+                                'options' => $redes,
+                                'multiple' => false,
+                                'empty' => true,
+                                'label' => 'Rede de Destino*',
+                            ]
+                        );
+                    }
+                    ?>
             </div>
 
             <div class='col-lg-4 redes_input'>
                 <!-- Clientes Id -->
                 <?= $this->Form->input(
-                    'clientes_id',
-                    [
-                        'type' => 'select',
-                        'id' => 'clientes_rede',
-                        'class' => 'clientes_rede',
-                        'label' => 'Unidade da Rede*',
-                        "options" => $unidadesRede,
-                        'value' => $unidadeRedeId
-                    ]
-                )
-                ?>
+                        'clientes_id',
+                        [
+                            'type' => 'select',
+                            'id' => 'clientes_rede',
+                            'class' => 'clientes_rede',
+                            'label' => 'Unidade da Rede*',
+                            "options" => $unidadesRede,
+                            'value' => $unidadeRedeId
+                        ]
+                    )
+                    ?>
             </div>
-            <?php elseif (($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_NETWORK)
-                && ($usuarioLogado["id"] !== $usuario["id"])) : ?>
+        <?php elseif (($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_NETWORK)
+            && ($usuarioLogado["id"] !== $usuario["id"])
+        ) : ?>
 
-                <div class='col-lg-6'>
-                    <!-- Tipo Perfil -->
-                    <label for="tipo_perfil">Tipo de Perfil*</label>
-                    <?= $this->Form->input('tipo_perfil', [
+            <div class='col-lg-6'>
+                <!-- Tipo Perfil -->
+                <label for="tipo_perfil">Tipo de Perfil*</label>
+                <?= $this->Form->input('tipo_perfil', [
                         'type' => 'select',
                         'id' => 'tipo_perfil',
                         "autofocus",
@@ -118,7 +118,7 @@ use Cake\Routing\Router;
                         "label" => false,
                         "empty" => true,
                         'options' =>
-                            [
+                        [
                             1 => 'Administradores de uma Rede',
                             3 => 'Administrador',
                             4 => 'Gerente',
@@ -126,10 +126,10 @@ use Cake\Routing\Router;
 
                         ]
                     ]); ?>
-                </div>
-                <div class='col-lg-6 '>
-                    <?= $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']); ?>
-                    <?= $this->Form->input(
+            </div>
+            <div class='col-lg-6 '>
+                <?= $this->Form->hidden('redes_id', ['value' => $redesId, 'id' => 'redes_id']); ?>
+                <?= $this->Form->input(
                         'clientes_id',
                         [
                             'type' => 'select',
@@ -141,67 +141,67 @@ use Cake\Routing\Router;
                         ]
                     ); ?>
 
-                </div>
-                    <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_REGIONAL) : ?>
+            </div>
+        <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_REGIONAL) : ?>
 
-                        <div class="col-lg-6">
-                            <!-- Tipo Perfil -->
-                            <label for="tipo_perfil">Tipo de Perfil*</label>
-                            <?= $this->Form->input('tipo_perfil', [
-                                'type' => 'select',
-                                'id' => 'tipo_perfil',
-                                "empty" => true,
-                                "label" => false,
-                                "autofocus",
-                                "required" => "required",
-                                "value" => $usuario["tipo_perfil"],
-                                'options' =>
-                                    [
-                                    3 => 'Administrador',
-                                    4 => 'Gerente',
-                                    5 => 'Funcionário',
+            <div class="col-lg-6">
+                <!-- Tipo Perfil -->
+                <label for="tipo_perfil">Tipo de Perfil*</label>
+                <?= $this->Form->input('tipo_perfil', [
+                        'type' => 'select',
+                        'id' => 'tipo_perfil',
+                        "empty" => true,
+                        "label" => false,
+                        "autofocus",
+                        "required" => "required",
+                        "value" => $usuario["tipo_perfil"],
+                        'options' =>
+                        [
+                            3 => 'Administrador',
+                            4 => 'Gerente',
+                            5 => 'Funcionário',
 
-                                ]
-                            ]) ?>
-                        </div>
-                        <div class="col-lg-6">
-                            <?= $this->Form->input(
-                                'clientes_id',
-                                [
-                                    'type' => 'select',
-                                    'id' => 'clientes_rede',
-                                    'class' => 'clientes_rede',
-                                    'label' => 'Unidade da Rede*',
-                                    "empty" => true,
-                                    "options" => $unidadesRede,
-                                    "required" => "required",
-                                    "value" => $unidadeRedeId
-                                ]
-                            ); ?>
-                        </div>
-                    <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_LOCAL) : ?>
-                        <div class="col-lg-12">
-                            <!-- Tipo Perfil -->
-                            <label for="tipo_perfil">Tipo de Perfil*</label>
-                            <?= $this->Form->input('tipo_perfil', [
-                                'type' => 'select',
-                                'id' => 'tipo_perfil',
-                                "label" => false,
-                                "required" => "required",
-                                "autofocus",
-                                "empty" => true,
-                                "value" => $usuario["tipo_perfil"],
-                                'options' =>
-                                    array(
-                                    4 => 'Gerente',
-                                    5 => 'Funcionário',
-                                )
-                            ]) ?>
-                        </div>
-                    <?php elseif ($usuarioLogadoTipoPerfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>
-                        <!-- Tipo Perfil -->
-                        <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_WORKER]) ?>
-                    <?php endif; ?>
+                        ]
+                    ]) ?>
+            </div>
+            <div class="col-lg-6">
+                <?= $this->Form->input(
+                        'clientes_id',
+                        [
+                            'type' => 'select',
+                            'id' => 'clientes_rede',
+                            'class' => 'clientes_rede',
+                            'label' => 'Unidade da Rede*',
+                            "empty" => true,
+                            "options" => $unidadesRede,
+                            "required" => "required",
+                            "value" => $unidadeRedeId
+                        ]
+                    ); ?>
+            </div>
+        <?php elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_LOCAL) : ?>
+            <div class="col-lg-12">
+                <!-- Tipo Perfil -->
+                <label for="tipo_perfil">Tipo de Perfil*</label>
+                <?= $this->Form->input('tipo_perfil', [
+                        'type' => 'select',
+                        'id' => 'tipo_perfil',
+                        "label" => false,
+                        "required" => "required",
+                        "autofocus",
+                        "empty" => true,
+                        "value" => $usuario["tipo_perfil"],
+                        'options' =>
+                        array(
+                            4 => 'Gerente',
+                            5 => 'Funcionário',
+                        )
+                    ]) ?>
+            </div>
+        <?php elseif ($usuarioLogadoTipoPerfil >= Configure::read('profileTypes')['ManagerProfileType']) : ?>
+            <!-- Tipo Perfil -->
+            <?= $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_WORKER]) ?>
+        <?php endif; ?>
     </div>
 
 
@@ -209,44 +209,23 @@ use Cake\Routing\Router;
         <!-- Email -->
         <div class="col-lg-4">
             <label for="email">E-mail*</label>
-            <input type="text"
-                name="email"
-                required="required"
-                id="email"
-                class="form-control email"
-                placeholder="E-mail..."
-                value="<?=$usuario['email']?>"
-                autofocus
-                >
-                <span id="email_validation" class="text-danger validation-message">
+            <input type="text" name="email" required="required" id="email" class="form-control email" placeholder="E-mail..." value="<?= $usuario['email'] ?>" autofocus>
+            <span id="email_validation" class="text-danger validation-message">
         </div>
         <!-- nome -->
         <div class="col-lg-4">
             <label for="nome">Nome*</label>
-            <input type="text" placeholder="Nome" name="nome" id="nome" value="<?= $usuario['nome'] ?>" class="form-control" required/>
+            <input type="text" placeholder="Nome" name="nome" id="nome" value="<?= $usuario['nome'] ?>" class="form-control" required />
         </div>
         <!-- telefone -->
         <div class="col-lg-4">
-            <?php if ($usuario["tipo_perfil"] != PROFILE_TYPE_WORKER): ?>
+            <?php if ($usuario["tipo_perfil"] != PROFILE_TYPE_WORKER) : ?>
                 <label for="telefone" id="label-telefone">Telefone*</label>
-                <input type="text"
-                    placeholder="Telefone"
-                    name="telefone"
-                    id="telefone"
-                    value="<?= $usuario['telefone'] ?>"
-                    class="form-control"
-                    required="required"
-                    />
-            <?php else: ?>
+                <input type="text" placeholder="Telefone" name="telefone" id="telefone" value="<?= $usuario['telefone'] ?>" class="form-control" required="required" />
+            <?php else : ?>
                 <label for="telefone" id="label-telefone">Telefone</label>
-                <input type="text"
-                    placeholder="Telefone"
-                    name="telefone"
-                    id="telefone"
-                    value="<?= $usuario['telefone'] ?>"
-                    class="form-control"
-                    />
-            <?php endif;?>
+                <input type="text" placeholder="Telefone" name="telefone" id="telefone" value="<?= $usuario['telefone'] ?>" class="form-control" />
+            <?php endif; ?>
         </div>
     </div>
     <?php if ($mode == "add") : ?>
@@ -254,35 +233,22 @@ use Cake\Routing\Router;
             <!-- Senha -->
             <div class="col-lg-6">
                 <label for="senha">Senha*</label>
-                <input type="password"
-                    placeholder="Senha..."
-                    name="senha"
-                    id="senha"
-                    value="<?= $usuario['senha'] ?>"
-                    class="form-control"
-                    required/>
+                <input type="password" placeholder="Senha..." name="senha" id="senha" minlength="8" value="<?= $usuario['senha'] ?>" class="form-control" required="required" />
             </div>
             <div class="col-lg-6">
-            <!-- Confirmar Senha -->
+                <!-- Confirmar Senha -->
                 <label for="confirm_senha">Confirmar Senha*</label>
-                <input type="password"
-                    placeholder="Confirmar Senha..."
-                    name="confirm_senha"
-                    id="confirm_senha"
-                    value="<?= $usuario['confirm_senha'] ?>"
-                    class="form-control"
-                    required/>
+                <input type="password" placeholder="Confirmar Senha..." name="confirm_senha" id="confirm_senha" value="<?= $usuario['confirm_senha'] ?>" minlength="8" class="form-control" required="required" />
             </div>
         </div>
-    <?php endif;?>
+    <?php endif; ?>
 
 </fieldset>
 <div class="form-group row">
     <div class="col-lg-12 text-right">
         <button type="submit" class="btn btn-primary botao-confirmar"><i class="fa fa-save"> </i> Salvar</button>
 
-        <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> "
-            class="btn btn-danger botao-cancelar">
+        <a href="/usuarios/usuarios-rede/<?php echo $redesId; ?> " class="btn btn-danger botao-cancelar">
             <i class="fa fa-window-close">
             </i>
             Cancelar
@@ -291,5 +257,3 @@ use Cake\Routing\Router;
 
 </div>
 <?= $this->Form->end() ?>
-
-

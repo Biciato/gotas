@@ -158,7 +158,7 @@ class UsuariosTable extends GenericTable
         $validator
             ->allowEmpty('cpf')
             ->notEmpty("cpf", 'Este CPF já está em uso', function ($context) {
-                $data = $context["data"];
+                $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
 
                 // Não há validação se não for funcionário
                 if ((int) $data["tipo_perfil"] !== PROFILE_TYPE_USER) {
@@ -250,7 +250,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordWorker'],
-                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                        'message' => 'A senha deve conter no mínimo 8 dígitos, letras ou números',
                     ]
                 ]
             );
@@ -269,7 +269,9 @@ class UsuariosTable extends GenericTable
                 'telefone',
                 "O campo TELEFONE precisa ser informado!",
                 function ($context) {
-                    $tipoPerfil = $context["data"]["tipo_perfil"];
+
+                    $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
+                    $tipoPerfil = $data["tipo_perfil"];
 
                     if (!in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_USER]) && empty($telefone)) {
                         return false;
@@ -400,7 +402,7 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordWorker'],
-                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                        'message' => 'A senha deve conter no mínimo 8 dígitos, letras ou números',
                     ]
                 ]
             );
@@ -2378,7 +2380,7 @@ class UsuariosTable extends GenericTable
      */
     public function checkPasswordWorker($password, array $context)
     {
-        if (($context['data']['tipo_perfil'] < 6) && (strlen($password) != 8)) {
+        if (($context['data']['tipo_perfil'] < 6) && (strlen($password) < 8)) {
             return false;
         } else {
             return true;

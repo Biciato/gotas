@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @description Editar detalhes de Usuário (view de administrador)
  * @author      Gustavo Souza Gonçalves
@@ -31,16 +32,15 @@ echo $this->Breadcrumbs->render(
 <?= $this->element('../Usuarios/left_menu', ['controller' => 'usuarios', 'action' => 'meus_clientes', 'mode' => 'back', 'update_password' => true]) ?>
 <div class="usuarios view col-lg-9 col-md-10">
     <?= $this->Form->create($usuario) ?>
-        <?= $this->element('../Usuarios/usuario_operador_form', ['title' => 'Editar', 'mode' => 'edit']) ?>
+    <?= $this->element('../Usuarios/usuario_operador_form', ['title' => 'Editar', 'mode' => 'edit']) ?>
 
     <?= $this->Form->end() ?>
 </div>
 
+<?php
+$extension = Configure::read("debug") ? ""  : ".min";
+// $this->fetch('script');
+?>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/usuarios/edit'); ?>
-<?php else: ?>
-    <?= $this->Html->script('scripts/usuarios/edit.min'); ?>
-<?php endif; ?>
-
-<?= $this->fetch('script'); ?>
+<script src="/webroot/js/scripts/usuarios/edit<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">

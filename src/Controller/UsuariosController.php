@@ -812,6 +812,10 @@ class UsuariosController extends AppController
             $transportadoraData = array();
             $veiculosData = array();
 
+            // Remove caracter de formatação para mínimo de dígitos do jQuery Mask
+            $usuarioData["senha"] = str_replace("?", "", $usuarioData["senha"]);
+            $usuarioData["confirm_senha"] = str_replace("?", "", $usuarioData["confirm_senha"]);
+
             foreach ($usuarioData as $key => $value) {
                 if (substr($key, 0, strlen($transportadoraNomeProcura)) == $transportadoraNomeProcura) {
                     $newKey = substr($key, strlen($transportadoraNomeProcura));
@@ -1102,6 +1106,10 @@ class UsuariosController extends AppController
             $data = $this->request->getData();
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = (int) $data['clientes_id'];
+
+            // Remove caracter de formatação para mínimo de dígitos do jQuery Mask
+            $data["senha"] = str_replace("?", "", $data["senha"]);
+            $data["confirm_senha"] = str_replace("?", "", $data["confirm_senha"]);
 
             if (empty($redesId) && in_array($data["tipo_perfil"], [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
                 $redesId = $data["redes_id"];
@@ -1702,7 +1710,7 @@ class UsuariosController extends AppController
 
                 if ($usuario) {
                     if (!empty($this->request->getData())) {
-                        $passwordEncrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
+                        // $passwordEncrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
 
                         // Limpa campos de requisição de token
                         $this->request->data['token_senha'] = null;
@@ -1711,8 +1719,8 @@ class UsuariosController extends AppController
 
                         $data = $this->request->getData();
                         $senhaAntiga = $data["senha_antiga"] ?? null;
-                        $senha = $data["senha"];
-                        $confirmSenha = $data["confirm_senha"] ?? null;
+                        $senha = str_replace("?", "", $data["senha"]);
+                        $confirmSenha = str_replace("?", "", $data["confirm_senha"] ?? null);
                         $senhaAntigaConfere = false;
                         $errors = array();
 
@@ -1742,7 +1750,7 @@ class UsuariosController extends AppController
                                 $this->Flash->success(__('A senha foi atualizada.'));
 
                                 // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
-                                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+                                // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                                 if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                                     return $this->redirect(array('action' => 'index'));
@@ -3341,6 +3349,9 @@ class UsuariosController extends AppController
                         // Faz vinculação
                         if (!empty($usuarioLogado)) {
                             $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
+                        } else {
+                            // Ativa o usuário em todos os postos se tiver gravado o registro (e não for usuário logado)
+                            $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
                         }
 
                         // Realiza login de autenticação

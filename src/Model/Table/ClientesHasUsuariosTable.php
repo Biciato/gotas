@@ -971,7 +971,7 @@ class ClientesHasUsuariosTable extends Table
                     $exp->eq("usuarios_id", $usuariosId);
                 }
 
-                $exp->eq("conta_ativa", 0);
+                $exp->eq("conta_ativa", false);
 
                 return $exp;
             };

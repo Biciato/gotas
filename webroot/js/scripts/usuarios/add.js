@@ -8,8 +8,7 @@
 $(document).ready(function () {
 
         $("#cpf").focus();
-        var formatSenha = "######?################";
-
+        var formatSenha = "AAAAAA?AAAAAAAAAAAAAAAA";
 
         var imageStored = false;
 
@@ -143,8 +142,7 @@ $(document).ready(function () {
             $(".clientes_rede").val(null);
             $("#redes_id").prop("required", false);
             $("#clientes_rede").prop("required", false);
-
-        }
+        };
 
         hideRedesInput();
 
@@ -315,8 +313,8 @@ $(document).ready(function () {
 
             console.log("validação de perfil...");
             if ($(data).val() != 6) {
-                $("#senha").mask("AAAAAAAA");
-                $("#confirm_senha").mask("AAAAAAAA");
+                $("#senha").mask("AAAAAAAA?AAAAAAAAAAAA");
+                $("#confirm_senha").mask("AAAAAAAA?AAAAAAAAAAAA");
                 $(".fields-is-final-customer").hide();
 
             } else {
@@ -324,7 +322,7 @@ $(document).ready(function () {
                 $("#confirm_senha").mask(formatSenha);
                 $(".fields-is-final-customer").show();
             }
-        }
+        };
 
         changeProfileType($("#tipo_perfil").val());
 
