@@ -35,104 +35,104 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
             <?= $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']); ?>
 
             <?php if (isset($usuarioLogadoTipoPerfil)) {
-                if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
-                    ?>
+                    if ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_DEVELOPER) {
+                        ?>
                     <div class='col-lg-4'>
                         <?php
-                        if (isset($redes_id)) {
-                            echo $this->Form->input('tipo_perfil', array(
-                                'type' => 'select',
-                                'options' =>
-                                array(
-                                    '' => '',
-                                    '1' => 'Administradores de uma Rede',
-                                    '3' => 'Administrador',
-                                    '4' => 'Gerente',
-                                    '5' => 'Funcionário',
-                                    '6' => 'Cliente Final',
-                                )
-                            ));
-                        } else {
-                            echo $this->Form->input(
-                                'tipo_perfil',
-                                array(
-                                    'type' => 'select',
-                                    'options' =>
-                                    array(
-                                        '' => '',
-                                        '0' => 'Administradores da RTI / Desenvolvedor',
-                                        '1' => 'Administradores de uma Rede',
-                                        '3' => 'Administrador',
-                                        '4' => 'Gerente',
-                                        '5' => 'Funcionário',
-                                        '6' => 'Cliente Final',
-                                    )
-                                )
+                                    if (isset($redes_id)) {
+                                        echo $this->Form->input('tipo_perfil', array(
+                                            'type' => 'select',
+                                            'options' =>
+                                            array(
+                                                '' => '',
+                                                '1' => 'Administradores de uma Rede',
+                                                '3' => 'Administrador',
+                                                '4' => 'Gerente',
+                                                '5' => 'Funcionário',
+                                                '6' => 'Cliente Final',
+                                            )
+                                        ));
+                                    } else {
+                                        echo $this->Form->input(
+                                            'tipo_perfil',
+                                            array(
+                                                'type' => 'select',
+                                                'options' =>
+                                                array(
+                                                    '' => '',
+                                                    '0' => 'Administradores da RTI / Desenvolvedor',
+                                                    '1' => 'Administradores de uma Rede',
+                                                    '3' => 'Administrador',
+                                                    '4' => 'Gerente',
+                                                    '5' => 'Funcionário',
+                                                    '6' => 'Cliente Final',
+                                                )
+                                            )
 
-                            );
-                        }
+                                        );
+                                    }
 
-                        ?>
+                                    ?>
                     </div>
                     <div class='col-lg-4 redes_input hidden'>
                         <?php
-                        if (isset($redes_id)) {
-                            echo $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']);
-                            echo $this->Form->input(
-                                'redes_id',
-                                [
-                                    'type' => 'text',
-                                    'readonly' => true,
-                                    'value' => $redes->toArray(),
-                                    'label' => 'Rede de destino'
-                                ]
-                            );
-                        } else {
-                            echo $this->Form->input(
-                                'redes_id',
-                                [
-                                    'type' => 'select',
-                                    'class' => 'redes_list',
-                                    'options' => $redes,
-                                    'multiple' => false,
-                                    'empty' => true,
-                                    'label' => 'Rede de destino'
-                                ]
-                            );
-                        }
-                        ?>
+                                    if (isset($redes_id)) {
+                                        echo $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']);
+                                        echo $this->Form->input(
+                                            'redes_id',
+                                            [
+                                                'type' => 'text',
+                                                'readonly' => true,
+                                                'value' => $redes->toArray(),
+                                                'label' => 'Rede de destino'
+                                            ]
+                                        );
+                                    } else {
+                                        echo $this->Form->input(
+                                            'redes_id',
+                                            [
+                                                'type' => 'select',
+                                                'class' => 'redes_list',
+                                                'options' => $redes,
+                                                'multiple' => false,
+                                                'empty' => true,
+                                                'label' => 'Rede de destino'
+                                            ]
+                                        );
+                                    }
+                                    ?>
                     </div>
 
                     <div class='col-lg-4 redes_input'>
                         <?= $this->Form->input(
-                            'clientes_id',
-                            [
-                                'type' => 'select',
-                                'id' => 'clientes_rede',
-                                'class' => 'clientes_rede',
-                                'label' => 'Unidade da Rede'
-                            ]
-                        )
-                        ?>
+                                        'clientes_id',
+                                        [
+                                            'type' => 'select',
+                                            'id' => 'clientes_rede',
+                                            'class' => 'clientes_rede',
+                                            'label' => 'Unidade da Rede'
+                                        ]
+                                    )
+                                    ?>
                     </div>
                 <?php
 
-                } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_NETWORK) {
-                    ?>
+                        } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_NETWORK) {
+                            ?>
 
                     <div class='col-lg-6'>
                         <?= $this->Form->input('tipo_perfil', [
-                            'type' => 'select',
-                            'options' =>
-                            [
-                                '' => '',
-                                '1' => 'Administradores de uma Rede',
-                                '3' => 'Administrador',
-                                '4' => 'Gerente',
-                                '5' => 'Funcionário',
-                                '6' => 'Cliente Final',
-                            ]
-                        ]); ?>
+                                        'type' => 'select',
+                                        'options' =>
+                                        [
+                                            '' => '',
+                                            '1' => 'Administradores de uma Rede',
+                                            '3' => 'Administrador',
+                                            '4' => 'Gerente',
+                                            '5' => 'Funcionário',
+                                            '6' => 'Cliente Final',
+                                        ]
+                                    ]); ?>
                     </div>
 
                     <div class='col-lg-6 redes_input'>
@@ -140,51 +140,51 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                         <?= $this->Form->hidden('redes_id', ['value' => $redes_id, 'id' => 'redes_id']); ?>
 
                         <?= $this->Form->input(
-                            'clientes_id',
-                            [
-                                'type' => 'select',
-                                'id' => 'clientes_rede',
-                                'class' => 'clientes_rede',
-                                'label' => 'Unidade da Rede'
-                            ]
-                        );
-                        ?>
+                                        'clientes_id',
+                                        [
+                                            'type' => 'select',
+                                            'id' => 'clientes_rede',
+                                            'class' => 'clientes_rede',
+                                            'label' => 'Unidade da Rede'
+                                        ]
+                                    );
+                                    ?>
 
                     </div>
-                <?php
+            <?php
 
-                } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_REGIONAL) {
-                    echo $this->Form->input('tipo_perfil', [
-                        'type' => 'select',
-                        'options' =>
-                        [
-                            '' => '',
-                            '2' => 'Administrador',
-                            '3' => 'Gerente',
-                            '4' => 'Funcionário',
-                            '5' => 'Cliente Final',
-                        ]
-                    ]);
-                } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_MANAGER) {
-                    echo $this->Form->input('tipo_perfil', [
-                        'type' => 'select',
-                        'options' =>
-                        [
-                            '' => '',
-                            '4' => 'Funcionário',
-                            '5' => 'Cliente Final'
-                        ]
-                    ]);
-                } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_WORKER) {
-                    echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_MANAGER]);
+                    } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_ADMIN_REGIONAL) {
+                        echo $this->Form->input('tipo_perfil', [
+                            'type' => 'select',
+                            'options' =>
+                            [
+                                '' => '',
+                                '2' => 'Administrador',
+                                '3' => 'Gerente',
+                                '4' => 'Funcionário',
+                                '5' => 'Cliente Final',
+                            ]
+                        ]);
+                    } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_MANAGER) {
+                        echo $this->Form->input('tipo_perfil', [
+                            'type' => 'select',
+                            'options' =>
+                            [
+                                '' => '',
+                                '4' => 'Funcionário',
+                                '5' => 'Cliente Final'
+                            ]
+                        ]);
+                    } elseif ($usuarioLogadoTipoPerfil == PROFILE_TYPE_WORKER) {
+                        echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_MANAGER]);
+                    } else {
+                        echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
+                    }
                 } else {
                     echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
                 }
-            } else {
-                echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
-            }
 
-            ?>
+                ?>
             <div class="form-group row">
 
                 <div class="col-lg-12">
@@ -261,40 +261,40 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
 
                 <div class="col-lg-3">
                     <?= $this->Form->input(
-                        'sexo',
-                        array(
-                            "placeholder" => "Sexo*...",
-                            "empty" => true,
-                            "label" => "Sexo*",
-                            "required" => true,
-                            'options' =>
+                            'sexo',
                             array(
-                                '2' => 'Não informar',
-                                '1' => 'Masculino',
-                                '0' => 'Feminino'
+                                "placeholder" => "Sexo*...",
+                                "empty" => true,
+                                "label" => "Sexo*",
+                                "required" => true,
+                                'options' =>
+                                array(
+                                    '2' => 'Não informar',
+                                    '1' => 'Masculino',
+                                    '0' => 'Feminino'
+                                )
                             )
-                        )
-                    ); ?>
+                        ); ?>
                 </div>
 
                 <div class="col-lg-4">
                     <?= $this->Form->input(
-                        'data_nasc',
-                        [
-                            'class' => 'datepicker-input',
-                            'div' =>
+                            'data_nasc',
                             [
-                                'class' => 'form-inline',
-                            ],
-                            'type' => 'text',
-                            'id' => 'data_nasc',
-                            'format' => 'd/m/Y',
-                            'default' => date('d/m/Y'),
-                            // 'value' => date('d/m/Y'),
-                            'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
-                            'label' => 'Data de Nascimento'
-                        ]
-                    ); ?>
+                                'class' => 'datepicker-input',
+                                'div' =>
+                                [
+                                    'class' => 'form-inline',
+                                ],
+                                'type' => 'text',
+                                'id' => 'data_nasc',
+                                'format' => 'd/m/Y',
+                                'default' => date('d/m/Y'),
+                                // 'value' => date('d/m/Y'),
+                                'value' => $this->DateUtil->dateToFormat($usuario["data_nasc"], "d/m/Y"),
+                                'label' => 'Data de Nascimento'
+                            ]
+                        ); ?>
                 </div>
             </div>
 
@@ -302,21 +302,21 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                 <div class="col-lg-3">
 
                     <?= $this->Form->input(
-                        'necessidades_especiais',
-                        array(
-                            "type" => "select",
-                            'label' => 'Portador de Nec. Especiais?*',
-                            'empty' => true,
-                            "value" => -1,
-                            'required' => true,
-                            'placeholder' => "Necessidades Especiais...",
-                            'options' =>
+                            'necessidades_especiais',
                             array(
-                                "1" => 'Sim',
-                                "0" => 'Não',
-                            ),
-                        )
-                    ) ?>
+                                "type" => "select",
+                                'label' => 'Portador de Nec. Especiais?*',
+                                'empty' => true,
+                                "value" => -1,
+                                'required' => true,
+                                'placeholder' => "Necessidades Especiais...",
+                                'options' =>
+                                array(
+                                    "1" => 'Sim',
+                                    "0" => 'Não',
+                                ),
+                            )
+                        ) ?>
                 </div>
 
                 <div class="col-lg-3">
@@ -372,14 +372,14 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
 
                 <div class="col-lg-4">
                     <?= $this->Form->input(
-                        'estado',
-                        [
-                            'empty' => true,
-                            'type' => 'select',
-                            'options' => $this->Address->getStatesBrazil(),
-                            'class' => 'estado'
-                        ]
-                    ); ?>
+                            'estado',
+                            [
+                                'empty' => true,
+                                'type' => 'select',
+                                'options' => $this->Address->getStatesBrazil(),
+                                'class' => 'estado'
+                            ]
+                        ); ?>
 
                 </div>
 
@@ -406,11 +406,11 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                         </div>
                         <br />
                         <?php
-                        echo $this->Element('../Transportadoras/transportadoras_form');
-                        ?>
+                                echo $this->Element('../Transportadoras/transportadoras_form');
+                                ?>
 
                     <?php endif; ?>
-                </div>
+                    </div>
         </fieldset>
         <div class="form-group row">
             <div class="col-lg-12 text-right">
@@ -450,20 +450,20 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
     </div>
 <?php else : ?>
     <?php
-    $estiloUsuarioLogado = "container ";
-    $estiloUsuarioLogado .= isset($usuarioLogado) ? "col-lg-12" : "";
-    ?>
-    <div class="<?= $estiloUsuarioLogado?>">
+        $estiloUsuarioLogado = "container ";
+        $estiloUsuarioLogado .= isset($usuarioLogado) ? "col-lg-12" : "";
+        ?>
+    <div class="<?= $estiloUsuarioLogado ?>">
         <div class="row">
             <div class="center-block">
                 <fieldset>
                     <legend> <?= isset($usuarioLogado) ? __('Adicionar conta') : __("Criar Conta") ?> </legend>
 
                     <?php
-                    echo $this->Form->hidden('id');
-                    echo $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']);
-                    echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
-                    ?>
+                        echo $this->Form->hidden('id');
+                        echo $this->Form->hidden('usuarioLogadoTipoPerfil', ['value' => $usuarioLogadoTipoPerfil, 'class' => 'usuarioLogadoTipoPerfil']);
+                        echo $this->Form->hidden('tipo_perfil', ['id' => 'tipo_perfil', 'value' => PROFILE_TYPE_USER]);
+                        ?>
 
                     <div class="form-group row">
                         <div class="col-lg-12">
@@ -479,27 +479,32 @@ if (isset($usuarioLogado) && $usuarioLogado->tipo_perfil != PROFILE_TYPE_WORKER)
                         </div>
 
                         <div class="col-lg-4">
-                            <label for="email">E-mail</label>
-                            <input type="text" name="email" id="email" class="form-control" placeholder="E-mail..." />
-                            <span id="email_validation" class="text-danger validation-message">
-                        </div>
-
-                        <div class="col-lg-4">
                             <label for="nome">Nome*</label>
                             <input type="text" name="nome" required="required" placeholder="Nome..." id="nome" class="form-control">
                         </div>
+
+                        <div class="col-lg-4">
+                            <label for="telefone">Telefone*</label>
+                            <input type="text" name="telefone" id="telefone" class="form-control" placeholder="Telefone..." required="required" />
+                        </div>
+
                     </div>
                     <?= $this->Form->hidden('doc_invalido', ['id' => 'doc_invalido']) ?>
 
                     <div class="form-group row">
-                        <div class="col-lg-6">
-                            <label for="senha">Senha</label>
-                            <input type="password" name="senha" minlength="6" placeholder="Senha..." id="senha" class="form-control senha" value="123456" />
+                        <div class="col-lg-4">
+                            <label for="email">E-mail</label>
+                            <input type="text" name="email" id="email" class="form-control" placeholder="E-mail..." />
+                            <span id="email_validation" class="text-danger validation-message">
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="senha">Senha*</label>
+                            <input type="password" name="senha" minlength="6" placeholder="Senha..." id="senha" class="form-control senha" value="123456" required />
                         </div>
 
-                        <div class="col-lg-6">
-                            <label for="confirm_senha">Confirmar Senha</label>
-                            <input type="password" name="confirm_senha" placeholder="Confirmar Senha..." minlength="6" id="confirm_senha" class="form-control" value="123456" />
+                        <div class="col-lg-4">
+                            <label for="confirm_senha">Confirmar Senha*</label>
+                            <input type="password" name="confirm_senha" placeholder="Confirmar Senha..." minlength="6" id="confirm_senha" class="form-control" value="123456" required />
                         </div>
                     </div>
                 </fieldset>
@@ -552,5 +557,5 @@ $extension = Configure::read("debug") ? ""  : ".min";
 // $this->fetch('script');
 ?>
 
-<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"?></script>
-<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension?>.css?<?php SYSTEM_VERSION ?>" ?>">
+<script src="/webroot/js/scripts/usuarios/add<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>" ></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/usuario_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>" >

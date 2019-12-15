@@ -207,7 +207,7 @@ $(document).ready(function () {
 
                         var cliente = {
                             id: 0,
-                            nomeFantasia:  "<Selecione um estabelecimento para continuar...>"
+                            nomeFantasia: "<Selecione um estabelecimento para continuar...>"
                         };
 
                         clientesList.push(cliente);
@@ -284,11 +284,11 @@ $(document).ready(function () {
             // Gerente
             var tipoPerfilSelecionado = $("#tipo_perfil").val();
 
-            if (tipoPerfilSelecionado >= 5) {
-                $("#telefone").attr("required", null);
+            if (tipoPerfilSelecionado == 5) {
+                $("#telefone").prop("required", null);
                 $("#label-telefone").text("Telefone");
             } else {
-                $("#telefone").attr("required", true);
+                $("#telefone").prop("required", true);
                 $("#label-telefone").text("Telefone*");
             }
 
@@ -326,7 +326,7 @@ $(document).ready(function () {
             }
         }
 
-        changeProfileType($("#tipo_perfil"));
+        changeProfileType($("#tipo_perfil").val());
 
         $("#alternarEstrangeiro").click(function () {
             if (this.checked) {
@@ -620,7 +620,18 @@ $(document).ready(function () {
                 $("#telefone").mask("(99)99999-9999");
             }
         }).on("keyup", function (event) {
+            // console.log(event);
             this.value = clearNumbers(event.target.value);
+
+        }).on("keydown", function (event) {
+            console.log(event.keyCode);
+            if (event.keyCode == 13) {
+                if (this.value.length == 10) {
+                    $("#telefone").mask("(99)9999-9999");
+                } else {
+                    $("#telefone").mask("(99)99999-9999");
+                }
+            }
         });
 
         $("#cep").mask("99.999-999");

@@ -157,15 +157,40 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->allowEmpty('cpf')
-            ->add(
-                'cpf',
-                'unique',
-                [
-                    'rule' => 'validateUnique',
-                    'provider' => 'table',
-                    'message' => 'Este CPF já está em uso'
-                ]
-            );
+            ->notEmpty("cpf", 'Este CPF já está em uso', function ($context) {
+                $data = $context["data"];
+
+                // Não há validação se não for funcionário
+                if ((int) $data["tipo_perfil"] !== PROFILE_TYPE_USER) {
+                    return false;
+                }
+
+                $cpf = preg_replace("/\D/", "", $data["cpf"]);
+
+                $userCpf = $this->getUsuarioByCPF($cpf);
+
+                // Não localizou usuário, não há problema.
+                if (empty($userCpf)) {
+                    return false;
+                }
+
+                // Conta falsa, não há problema
+                if (empty($userCpf["conta_ativa"])) {
+                    return false;
+                }
+
+                // Conta está ativa, então há um usuário identificado
+                return true;
+            });
+        // ->add(
+        //     'cpf',
+        //     'unique',
+        //     [
+        //         'rule' => 'validateUnique',
+        //         'provider' => 'table',
+        //         'message' => 'Este CPF já está em uso'
+        //     ]
+        // );
 
         $validator
             ->integer('sexo')
@@ -2416,7 +2441,7 @@ class UsuariosTable extends GenericTable
         $usuario->nome = isset($usuario["nome"]) ? $usuario['nome'] : null;
 
         if (strlen($usuario['cpf']) > 0) {
-            $usuario->cpf = NumberUtil::limparFormatacaoNumeros($usuario['cpf']);
+            $usuario->cpf = preg_replace("/\D/", "", $usuario['cpf']);
         }
         $usuario->necessidades_especiais = isset($usuario["necessidades_especiais"]) ? $usuario["necessidades_especiais"] : null;
 

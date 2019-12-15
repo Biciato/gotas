@@ -788,7 +788,7 @@ class UsuariosController extends AppController
             $redes_conditions[] = ['id' => $redes_id];
         }
 
-        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
             if (is_null($redes_id) && isset($rede)) {
                 $redes_id = $rede->id;
@@ -803,8 +803,8 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            // DebugUtil::printArray($data);
             $usuarioData = $data;
+            $usuarioData["cpf"] = preg_replace("/\D/", "", $usuarioData["cpf"]);
 
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = $cliente["id"];
@@ -871,31 +871,33 @@ class UsuariosController extends AppController
                             $transportadora = $transportadoraDataBase;
                         } else {
                             $transportadora = $this->Transportadoras->patchEntity($transportadora, $transportadoraData);
-
                             $transportadora = $this->Transportadoras->save($transportadora);
                         }
                     }
                 }
             }
 
+            // Verifica se o usuário já estava registrado neste CPF, se estiver, é atualização.
+            $userCheck = $this->Usuarios->getUsuarioByCPF($usuarioData["cpf"]);
+
+            if (!empty($userCheck)) {
+                $usuario->id = $userCheck->id;
+            }
+
+            // $this->Usuarios->validator('Default')->remove("cpf");
+
             if (!empty($usuarioData["doc_estrangeiro"]) &&  strlen($usuarioData['doc_estrangeiro']) > 0) {
-                $usuario
-                    = $this->Usuarios->patchEntity(
-                        $usuario,
-                        $usuarioData,
-                        [
-                            'validate' => 'CadastroEstrangeiro'
-                        ]
-                    );
+                $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, ['validate' => 'CadastroEstrangeiro']);
 
                 // assegura que em um cadastro de estrangeiro, não tenha CPF vinculado.
                 $usuario['cpf'] = null;
             } else {
-                $usuario
-                    = $this->Usuarios->patchEntity(
-                        $usuario,
-                        $usuarioData
-                    );
+
+                if (!empty($userCheck)) {
+                    // $this->Usuarios->validator('Default')->remove("cpf", "unique");
+                }
+
+                $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
             }
 
             // Se não informou senha, a senha padrão será 123456
@@ -904,24 +906,41 @@ class UsuariosController extends AppController
                 $usuario->confirm_senha = "123456";
             }
 
+            $usuario->conta_ativa = true;
             // $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
-            // validação de email
-            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+            /**
+             * Validação de email
+             * Nota: conforme nova regra, só irá acontecer a validação se for informado um login contendo @
+             */
+            if (!empty($usuario->email) && strpos($usuario->email, "@") !== false) {
+                $validacaoEmail = EmailUtil::validateEmail($usuario->email);
 
-            if (!$validacaoEmail["status"]) {
-                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
+                if (!$validacaoEmail["status"]) {
+                    $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
 
-                return;
+                    return;
+                }
             }
+
+            // Copia o CPF SE o e-mail estiver vazio, para ser usado no campo de login
+            if (empty($usuario->email)) {
+                $usuario->email = preg_replace("/\D/", "", $usuario->cpf);
+            }
+
+            // DebugUtil::printArray($usuario);
+            // return ResponseUtil::successAPI('', $errors);
 
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
                 // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+
+                // Ativa o usuário em todos os postos se tiver gravado o registro
+                $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
 
                 if ($transportadora) {
                     $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
