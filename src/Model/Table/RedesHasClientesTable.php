@@ -14,6 +14,8 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use Cake\Database\Expression\QueryExpression;
+use Exception;
 
 /**
  * RedesHasClientes Model
@@ -66,18 +68,8 @@ class RedesHasClientesTable extends GenericTable
             'Clientes',
             [
                 "className" => "Clientes",
-                'foreignKey' => 'id',
-                'joinType' => Query::JOIN_TYPE_LEFT
-            ]
-        );
-
-        // @todo ver onde isto está sendo usado
-        $this->belongsToMany(
-            'ClientesHasUsuarios',
-            [
-                "className" => "ClientesHasUsuarios",
                 'foreignKey' => 'clientes_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
             ]
         );
     }
@@ -383,6 +375,74 @@ class RedesHasClientesTable extends GenericTable
         }
     }
 
+    /**
+     * Obtêm redes e estabelecimentos (clientes)
+     *
+     * Obtêm redes e todos os estabelecimentos (clientes) que estão associados à um ou mais usuários
+     *
+     * @param int $usuariosId Id de usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-15
+     *
+     * @return Cake\Orm\Query
+     */
+    public function getAllRedesHasClientesAssociatedToUsuariosId(int $usuariosId)
+    {
+        try {
+
+            /**
+             * 1ª Parte:
+             * obtem todas as redes associadas a um usuário
+             */
+
+            $where = function (QueryExpression $exp) use ($usuariosId) {
+
+                $exp->eq("ClientesHasUsuarios.usuarios_id", $usuariosId)
+                    ->eq("Redes.ativado", 1);
+
+                return $exp;
+            };
+
+            $selectRedesId = [
+                "Redes.id"
+            ];
+            $concatRedes = [
+                "Redes",
+                "Clientes"
+            ];
+
+            $joinRedes = array(
+                "ClientesHasUsuarios" => array(
+                    "type" => "left",
+                    "alias" => "ClientesHasUsuarios",
+                    "table" => "clientes_has_usuarios",
+                    "conditions" => "RedesHasClientes.clientes_id = ClientesHasUsuarios.clientes_id"
+                )
+            );
+
+            $orderRedes = [
+                "Redes.id",
+                "Redes.nome_rede"
+            ];
+
+            $redes = $this->find("all")
+                ->where($where)
+                ->contain($concatRedes)
+                ->join($joinRedes)
+                ->select($selectRedesId)
+                ->order($orderRedes)
+                ->toArray();
+
+            return DebugUtil::printArray($redes);
+
+            // return $query;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
+        }
+    }
 
     /**
      * Obtem o vinculo de rede pelo id do cliente
@@ -472,8 +532,7 @@ class RedesHasClientesTable extends GenericTable
                 ->order([
                     // "Clientes.matriz" => "DESC",
                     "Clientes.nome_fantasia" => "ASC"
-                ])
-                ;
+                ]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

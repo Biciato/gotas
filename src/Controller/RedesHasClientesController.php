@@ -862,6 +862,9 @@ class RedesHasClientesController extends AppController
 
                 // Neste serviço, somente os postos que o usuário está vinculado pode retornar
 
+
+                // @todo continuar ajuste de pesquisa
+                // $a = $this->RedesHasClientes->getAllRedesHasClientesAssociatedToUsuariosId($usuario->id);
                 $clientesUsuarioIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($usuario->id, $usuario->tipo_perfil);
 
                 $whereConditions["Clientes.id IN "] = count($clientesUsuarioIds) > 0 ? $clientesUsuarioIds : [0];
