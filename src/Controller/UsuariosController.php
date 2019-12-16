@@ -1488,7 +1488,8 @@ class UsuariosController extends AppController
             }
 
             $this->set('usuario', $usuario);
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -2944,6 +2945,8 @@ class UsuariosController extends AppController
 
         if ($this->request->is("post")) {
             $data = $this->request->getData();
+
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
 
             $email = !empty($data["email"]) ? $data["email"] : null;
             $senha = !empty($data["senha"]) ? $data["senha"] : null;
