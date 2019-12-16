@@ -26,6 +26,7 @@ use App\Model\Table\ClientesTable;
 use App\Custom\RTI\GeolocalizationUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\DateTimeUtil;
+use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Usuario;
 use Cake\Http\Client\Request;
 
@@ -864,8 +865,10 @@ class RedesHasClientesController extends AppController
 
 
                 // @todo continuar ajuste de pesquisa
-                // $a = $this->RedesHasClientes->getAllRedesHasClientesAssociatedToUsuariosId($usuario->id);
-                $clientesUsuarioIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($usuario->id, $usuario->tipo_perfil);
+                $clientesUsuarioIds = $this->RedesHasClientes->getAllRedesHasClientesAssociatedToUsuariosId($usuario->id);
+
+                // return ResponseUtil::successAPI('', $clientesusuarioIds);
+                // $clientesUsuarioIds = $this->ClientesHasUsuarios->getAllClientesIdsByUsuariosId($usuario->id, $usuario->tipo_perfil);
 
                 $whereConditions["Clientes.id IN "] = count($clientesUsuarioIds) > 0 ? $clientesUsuarioIds : [0];
 

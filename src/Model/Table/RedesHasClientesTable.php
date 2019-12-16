@@ -404,9 +404,7 @@ class RedesHasClientesTable extends GenericTable
                 return $exp;
             };
 
-            $selectRedesId = [
-                "Redes.id"
-            ];
+            $selectRedesId = ["redesId" => "Redes.id"];
             $concatRedes = [
                 "Redes",
                 "Clientes"
@@ -421,9 +419,8 @@ class RedesHasClientesTable extends GenericTable
                 )
             );
 
-            $orderRedes = [
-                "Redes.id",
-                "Redes.nome_rede"
+            $groupRedes = [
+                "Redes.id"
             ];
 
             $redes = $this->find("all")
@@ -431,12 +428,41 @@ class RedesHasClientesTable extends GenericTable
                 ->contain($concatRedes)
                 ->join($joinRedes)
                 ->select($selectRedesId)
-                ->order($orderRedes)
+                ->group($groupRedes)
                 ->toArray();
 
-            return DebugUtil::printArray($redes);
+            $redesIds = array_map(function ($o) {
+                return $o->redesId;
+            }, $redes);
 
-            // return $query;
+
+            /**
+             * 2ª Parte:
+             * obtem todos os ids de estabelecimentos das redes localizadas
+             */
+
+
+            $where = function (QueryExpression $exp) use ($redesIds) {
+                return $exp->in("RedesHasClientes.redes_id", $redesIds)
+                    ->eq("Clientes.ativado", true);
+            };
+
+            $containClientes = ["Clientes"];
+            $selectClientesIds = ["clientesId" => "Clientes.id"];
+            $groupClientes = ["Clientes.id"];
+
+            $clientes = $this->find("all")
+                ->where($where)
+                ->contain($containClientes)
+                ->select($selectClientesIds)
+                ->group($groupClientes)
+                ->toArray();
+
+            $clientesIds = array_map(function ($c) {
+                return $c->clientesId;
+            }, $clientes);
+
+            return $clientesIds;
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
