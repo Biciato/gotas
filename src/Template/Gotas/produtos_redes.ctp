@@ -148,5 +148,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/gotas/produtos_redes<?= $debugExtension ?>.js?<?= SYSTEM_VERSION ?>"></script>
-<link rel="stylesheet" href="/webroot/css/styles/gotas/produtos_redes<?= $debugExtension ?>.css?<?= SYSTEM_VERSION ?>" />
+<script src="/webroot/js/scripts/gotas/produtos_redes<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/gotas/produtos_redes<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION ?>" />

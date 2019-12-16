@@ -211,9 +211,10 @@ class RedesController extends AppController
                         $data["nome_img"] = $nomeImgRede;
                         $trocaImagem = 1;
                     }
+                } else {
+                    $data["nome_img"] = $rede->nome_img;
                 }
 
-                $rede = $this->Redes->patchEntity($rede, $data);
                 $rede->msg_distancia_compra_brinde = $rede->app_personalizado ? $rede->msg_distancia_compra_brinde : 0;
 
                 if ($this->Redes->updateRede($rede)) {

@@ -62,7 +62,7 @@ class Cliente extends Entity
 
     protected $_virtual = [
         "propaganda_img_completo",
-        "nome_fantasia_razao_social"
+        "nome_fantasia_municipio_estado"
     ];
 
 
@@ -76,17 +76,22 @@ class Cliente extends Entity
         // return $this->_properties["propaganda_img"];
     }
 
-    protected function _getNomeFantasiaRazaoSocial()
+    protected function _getNomeFantasiaMunicipioEstado()
     {
         $nomeFantasia = !empty($this->_properties["nome_fantasia"]) ? $this->_properties["nome_fantasia"] : null;
-        $razaoSocial = !empty($this->_properties["razao_social"]) ? $this->_properties["razao_social"] : null;
+        $municipio = !empty($this->_properties["municipio"]) ? $this->_properties["municipio"] : null;
+        $estado = !empty($this->_properties["estado"]) ? $this->_properties["estado"] : null;
 
-        if (!empty($nomeFantasia) && !empty($razaoSocial)) {
-            return sprintf("%s / %s", $nomeFantasia, $razaoSocial);
-        } elseif (empty($nomeFantasia) && !empty($razaoSocial)) {
-            return sprintf("%s", $razaoSocial);
-        } elseif (!empty($nomeFantasia) && empty($razaoSocial)) {
-            return sprintf("%s", $nomeFantasia);
-        } else return "";
+        $retorno = $nomeFantasia;
+
+        if (!empty($municipio)) {
+            $retorno .= " / " . $municipio;
+        }
+
+        if (!empty($estado)) {
+            $retorno .= " / " . $estado;
+        }
+
+        return $retorno;
     }
 }

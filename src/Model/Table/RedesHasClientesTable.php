@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -13,6 +14,8 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Custom\RTI\DebugUtil;
+use Cake\Database\Expression\QueryExpression;
+use Exception;
 
 /**
  * RedesHasClientes Model
@@ -65,18 +68,8 @@ class RedesHasClientesTable extends GenericTable
             'Clientes',
             [
                 "className" => "Clientes",
-                'foreignKey' => 'id',
-                'joinType' => Query::JOIN_TYPE_LEFT
-            ]
-        );
-
-        // @todo ver onde isto está sendo usado
-        $this->belongsToMany(
-            'ClientesHasUsuarios',
-            [
-                "className" => "ClientesHasUsuarios",
                 'foreignKey' => 'clientes_id',
-                'joinType' => 'INNER'
+                'joinType' => Query::JOIN_TYPE_LEFT
             ]
         );
     }
@@ -208,7 +201,11 @@ class RedesHasClientesTable extends GenericTable
 
             $redesHasClientes = $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Clientes'])
+                ->order([
+                    // "Clientes.matriz" => "DESC",
+                    "Clientes.nome_fantasia" => "ASC"
+                ]);
 
             return $redesHasClientes;
         } catch (\Exception $e) {
@@ -378,6 +375,100 @@ class RedesHasClientesTable extends GenericTable
         }
     }
 
+    /**
+     * Obtêm redes e estabelecimentos (clientes)
+     *
+     * Obtêm redes e todos os estabelecimentos (clientes) que estão associados à um ou mais usuários
+     *
+     * @param int $usuariosId Id de usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2019-12-15
+     *
+     * @return Cake\Orm\Query
+     */
+    public function getAllRedesHasClientesAssociatedToUsuariosId(int $usuariosId)
+    {
+        try {
+
+            /**
+             * 1ª Parte:
+             * obtem todas as redes associadas a um usuário
+             */
+
+            $where = function (QueryExpression $exp) use ($usuariosId) {
+
+                $exp->eq("ClientesHasUsuarios.usuarios_id", $usuariosId)
+                    ->eq("Redes.ativado", 1);
+
+                return $exp;
+            };
+
+            $selectRedesId = ["redesId" => "Redes.id"];
+            $concatRedes = [
+                "Redes",
+                "Clientes"
+            ];
+
+            $joinRedes = array(
+                "ClientesHasUsuarios" => array(
+                    "type" => "left",
+                    "alias" => "ClientesHasUsuarios",
+                    "table" => "clientes_has_usuarios",
+                    "conditions" => "RedesHasClientes.clientes_id = ClientesHasUsuarios.clientes_id"
+                )
+            );
+
+            $groupRedes = [
+                "Redes.id"
+            ];
+
+            $redes = $this->find("all")
+                ->where($where)
+                ->contain($concatRedes)
+                ->join($joinRedes)
+                ->select($selectRedesId)
+                ->group($groupRedes)
+                ->toArray();
+
+            $redesIds = array_map(function ($o) {
+                return $o->redesId;
+            }, $redes);
+
+
+            /**
+             * 2ª Parte:
+             * obtem todos os ids de estabelecimentos das redes localizadas
+             */
+
+
+            $where = function (QueryExpression $exp) use ($redesIds) {
+                return $exp->in("RedesHasClientes.redes_id", $redesIds)
+                    ->eq("Clientes.ativado", true);
+            };
+
+            $containClientes = ["Clientes"];
+            $selectClientesIds = ["clientesId" => "Clientes.id"];
+            $groupClientes = ["Clientes.id"];
+
+            $clientes = $this->find("all")
+                ->where($where)
+                ->contain($containClientes)
+                ->select($selectClientesIds)
+                ->group($groupClientes)
+                ->toArray();
+
+            $clientesIds = array_map(function ($c) {
+                return $c->clientesId;
+            }, $clientes);
+
+            return $clientesIds;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MSG_LOAD_EXCEPTION_CODE);
+        }
+    }
 
     /**
      * Obtem o vinculo de rede pelo id do cliente
@@ -463,7 +554,11 @@ class RedesHasClientesTable extends GenericTable
 
             return $this->find('all')
                 ->where($whereCondition)
-                ->contain(['Redes', 'Clientes']);
+                ->contain(['Redes', 'Clientes'])
+                ->order([
+                    // "Clientes.matriz" => "DESC",
+                    "Clientes.nome_fantasia" => "ASC"
+                ]);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao obter registro: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);

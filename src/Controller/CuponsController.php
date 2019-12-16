@@ -224,14 +224,16 @@ class CuponsController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-        foreach ($unidades_ids as $key => $value) {
-            $clientes_ids[] = $key;
-        }
+        // foreach ($unidades_ids as $key => $value) {
+        //     $clientes_ids[] = $key;
+        // }
 
-        // No caso do funcionário, ele só estará em
-        // uma unidade, então pega o cliente que ele estiver
+        // // No caso do funcionário, ele só estará em
+        // // uma unidade, então pega o cliente que ele estiver
 
-        $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
+        // $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
+
+        $cliente = $unidades_ids->first();
 
         $clientes_id = $cliente->id;
 
@@ -3054,7 +3056,7 @@ class CuponsController extends AppController
             if ($this->request->is(Request::METHOD_GET)) {
                 $data = $this->request->getQueryParams();
 
-                Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+                Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
                 Log::write("info", $data);
 
                 $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';

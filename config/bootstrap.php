@@ -636,6 +636,8 @@ const MSG_USUARIOS_CPF_EMPTY_CODE = 0x00170001;
 const MSG_USUARIOS_CPF_EMPTY = "O campo CPF deve ser informado!";
 const MSG_USUARIOS_CPF_LENGTH_INVALID_CODE = 0x00170002;
 const MSG_USUARIOS_CPF_LENGTH_INVALID = "Tamanho do CPF inválido!";
+const MSG_USUARIOS_CPF_ALREADY_EXISTS = "Usuário já existe com este CPF!";
+const MSG_USUARIOS_CPF_ALREADY_EXISTS_CODE = 0x00170017;
 const MSG_USUARIOS_CANT_SEARCH_CODE = 0x00170003;
 const MSG_USUARIOS_CANT_SEARCH = "Este serviço só está disponível para funcionários de Posto!";
 const MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS_CODE = 0x00170004;
@@ -726,4 +728,4 @@ const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
  * y = alteração de banco de dados (tabelas novas, campos novos)
  * z = alterações pequenas do sistema (ajuste de campos, pequenas novas funcionalidades)
  */
-const SYSTEM_VERSION = "1.1.0";
+const SYSTEM_VERSION = "1.1.1";

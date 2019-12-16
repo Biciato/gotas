@@ -87,11 +87,11 @@ class UsuariosController extends AppController
 
         $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
-        $usuarios = $this->Paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
+        $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
         $unidades_ids = $this->Clientes->find('list')->toArray();
 
-        // DebugUtil::print($usuarios);
+        // DebugUtil::printArray($usuarios);
 
         $arraySet = array("usuarios", "unidades_ids", "perfisUsuariosList");
         $this->set(compact($arraySet));
@@ -788,7 +788,7 @@ class UsuariosController extends AppController
             $redes_conditions[] = ['id' => $redes_id];
         }
 
-        if ($this->usuarioLogado['tipo_perfil'] == Configure::read('profileTypes')['AdminDeveloperProfileType']) {
+        if ($this->usuarioLogado['tipo_perfil'] == PROFILE_TYPE_ADMIN_DEVELOPER) {
 
             if (is_null($redes_id) && isset($rede)) {
                 $redes_id = $rede->id;
@@ -803,14 +803,18 @@ class UsuariosController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            // DebugUtil::printArray($data);
             $usuarioData = $data;
+            $usuarioData["cpf"] = preg_replace("/\D/", "", $usuarioData["cpf"]);
 
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = $cliente["id"];
             $tipo_perfil = $data['tipo_perfil'];
             $transportadoraData = array();
             $veiculosData = array();
+
+            // Remove caracter de formatação para mínimo de dígitos do jQuery Mask
+            $usuarioData["senha"] = str_replace("?", "", $usuarioData["senha"]);
+            $usuarioData["confirm_senha"] = str_replace("?", "", $usuarioData["confirm_senha"]);
 
             foreach ($usuarioData as $key => $value) {
                 if (substr($key, 0, strlen($transportadoraNomeProcura)) == $transportadoraNomeProcura) {
@@ -871,31 +875,33 @@ class UsuariosController extends AppController
                             $transportadora = $transportadoraDataBase;
                         } else {
                             $transportadora = $this->Transportadoras->patchEntity($transportadora, $transportadoraData);
-
                             $transportadora = $this->Transportadoras->save($transportadora);
                         }
                     }
                 }
             }
 
+            // Verifica se o usuário já estava registrado neste CPF, se estiver, é atualização.
+            $userCheck = $this->Usuarios->getUsuarioByCPF($usuarioData["cpf"]);
+
+            if (!empty($userCheck)) {
+                $usuario->id = $userCheck->id;
+            }
+
+            // $this->Usuarios->validator('Default')->remove("cpf");
+
             if (!empty($usuarioData["doc_estrangeiro"]) &&  strlen($usuarioData['doc_estrangeiro']) > 0) {
-                $usuario
-                    = $this->Usuarios->patchEntity(
-                        $usuario,
-                        $usuarioData,
-                        [
-                            'validate' => 'CadastroEstrangeiro'
-                        ]
-                    );
+                $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData, ['validate' => 'CadastroEstrangeiro']);
 
                 // assegura que em um cadastro de estrangeiro, não tenha CPF vinculado.
                 $usuario['cpf'] = null;
             } else {
-                $usuario
-                    = $this->Usuarios->patchEntity(
-                        $usuario,
-                        $usuarioData
-                    );
+
+                if (!empty($userCheck)) {
+                    // $this->Usuarios->validator('Default')->remove("cpf", "unique");
+                }
+
+                $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
             }
 
             // Se não informou senha, a senha padrão será 123456
@@ -904,24 +910,41 @@ class UsuariosController extends AppController
                 $usuario->confirm_senha = "123456";
             }
 
+            $usuario->conta_ativa = true;
             // $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
 
-            // validação de email
-            $validacaoEmail = EmailUtil::validateEmail($usuario->email);
+            /**
+             * Validação de email
+             * Nota: conforme nova regra, só irá acontecer a validação se for informado um login contendo @
+             */
+            if (!empty($usuario->email) && strpos($usuario->email, "@") !== false) {
+                $validacaoEmail = EmailUtil::validateEmail($usuario->email);
 
-            if (!$validacaoEmail["status"]) {
-                $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
-                $this->set(compact($arraySet));
-                $this->set('_serialize', $arraySet);
+                if (!$validacaoEmail["status"]) {
+                    $this->Flash->error(sprintf("ERRO: %s", $validacaoEmail["message"]));
+                    $this->set(compact($arraySet));
+                    $this->set('_serialize', $arraySet);
 
-                return;
+                    return;
+                }
             }
+
+            // Copia o CPF SE o e-mail estiver vazio, para ser usado no campo de login
+            if (empty($usuario->email)) {
+                $usuario->email = preg_replace("/\D/", "", $usuario->cpf);
+            }
+
+            // DebugUtil::printArray($usuario);
+            // return ResponseUtil::successAPI('', $errors);
 
             if ($usuario = $this->Usuarios->save($usuario)) {
                 // guarda uma senha criptografada de forma diferente no DB (para acesso externo)
                 // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+
+                // Ativa o usuário em todos os postos se tiver gravado o registro
+                $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
 
                 if ($transportadora) {
                     $this->TransportadorasHasUsuarios->addTransportadoraHasUsuario($transportadora->id, $usuario->id);
@@ -1038,14 +1061,19 @@ class UsuariosController extends AppController
         $unidadesRede = array();
         $unidadeRedeId = 0;
 
-        if (empty($rede) || !empty($redesId)) {
+        if (empty($rede) && !empty($redesId)) {
             $rede = $this->Redes->getRedeById($redesId);
-            $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+        }
 
+        if (!empty($rede)) {
+
+            $unidadesList = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
             $unidades = array();
+
             foreach ($unidadesList as $key => $value) {
-                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_razao_social"];
+                $unidades[$value["clientes_id"]] = $value["cliente"]["nome_fantasia_municipio_estado"];
             }
+
             $unidadesRede = $unidades;
         }
 
@@ -1078,6 +1106,10 @@ class UsuariosController extends AppController
             $data = $this->request->getData();
             // guarda qual é a unidade que está sendo cadastrada
             $clientes_id = (int) $data['clientes_id'];
+
+            // Remove caracter de formatação para mínimo de dígitos do jQuery Mask
+            $data["senha"] = str_replace("?", "", $data["senha"]);
+            $data["confirm_senha"] = str_replace("?", "", $data["confirm_senha"]);
 
             if (empty($redesId) && in_array($data["tipo_perfil"], [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
                 $redesId = $data["redes_id"];
@@ -1124,6 +1156,11 @@ class UsuariosController extends AppController
             }
 
             $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
+
+            if ($usuario->tipo_perfil === PROFILE_TYPE_WORKER) {
+                $this->Usuarios->validator('Default')->remove("telefone");
+            }
+
             $passwordEncrypt = $this->cryptUtil->encrypt($usuarioData['senha']);
             // $usuario = $this->Usuarios->formatUsuario(0, $usuario);
             $errors = $usuario->errors();
@@ -1451,7 +1488,8 @@ class UsuariosController extends AppController
             }
 
             $this->set('usuario', $usuario);
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -1673,7 +1711,7 @@ class UsuariosController extends AppController
 
                 if ($usuario) {
                     if (!empty($this->request->getData())) {
-                        $passwordEncrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
+                        // $passwordEncrypt = $this->cryptUtil->encrypt($this->request->getData()['senha']);
 
                         // Limpa campos de requisição de token
                         $this->request->data['token_senha'] = null;
@@ -1682,8 +1720,8 @@ class UsuariosController extends AppController
 
                         $data = $this->request->getData();
                         $senhaAntiga = $data["senha_antiga"] ?? null;
-                        $senha = $data["senha"];
-                        $confirmSenha = $data["confirm_senha"] ?? null;
+                        $senha = str_replace("?", "", $data["senha"]);
+                        $confirmSenha = str_replace("?", "", $data["confirm_senha"] ?? null);
                         $senhaAntigaConfere = false;
                         $errors = array();
 
@@ -1713,7 +1751,7 @@ class UsuariosController extends AppController
                                 $this->Flash->success(__('A senha foi atualizada.'));
 
                                 // atualiza a senha criptografada de forma diferente no DB (para acesso externo)
-                                $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
+                                // $this->UsuariosEncrypted->setUsuarioEncryptedPassword($usuario['id'], $passwordEncrypt);
 
                                 if ($this->usuarioLogado['tipo_perfil'] == (int) Configure::read('profileTypes')['AdminDeveloperProfileType']) {
                                     return $this->redirect(array('action' => 'index'));
@@ -1876,6 +1914,8 @@ class UsuariosController extends AppController
         // se for developer / rti / rede, mostra todas as unidades da rede
         $unidadesIds = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($redesId, $this->usuarioLogado['id']);
 
+        // DebugUtil::printArray($unidadesIds);
+
         if (!is_null($unidadesIds)) {
             foreach ($unidadesIds as $key => $value) {
                 $clientesIds[] = $key;
@@ -1923,6 +1963,8 @@ class UsuariosController extends AppController
         $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
+
+        // DebugUtil::printArray($usuarios->toArray());
 
         // $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'usuarioLogado');
         $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId');
@@ -2169,7 +2211,7 @@ class UsuariosController extends AppController
             $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
             // DebugUtil::printArray($usuarios->toArray());
-            $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['matriz_id' => 'ASC']]);
+            $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['Clientes.matriz_id' => 'ASC', "Usuarios.nome" => "ASC", "Clientes.nome_fantasia" => "ASC"]]);
 
             // DebugUtil::printArray($usuarios->toArray());
 
@@ -2904,6 +2946,8 @@ class UsuariosController extends AppController
         if ($this->request->is("post")) {
             $data = $this->request->getData();
 
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
             $email = !empty($data["email"]) ? $data["email"] : null;
             $senha = !empty($data["senha"]) ? $data["senha"] : null;
             $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
@@ -3099,6 +3143,9 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
+            Log::write("info", sprintf("Info Service REST: %s - %s.", __CLASS__, __METHOD__));
+            Log::write("info", $data);
+
             $tipoPerfil = isset($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
 
             // validação de cpf
@@ -3121,6 +3168,14 @@ class UsuariosController extends AppController
 
             if (!$usuario) {
                 $usuario = $this->Usuarios->newEntity();
+            }
+
+            // Se o usuário já possui conta ativa, significa que já não é mais pendente ou novo, então retorna e nega cadastro
+            if ($usuario->conta_ativa) {
+                $errors[] = MSG_USUARIOS_CPF_ALREADY_EXISTS;
+                $errorCodes[] = MSG_USUARIOS_CPF_ALREADY_EXISTS_CODE;
+
+                return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
             if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuario->conta_ativa) {
@@ -3165,27 +3220,8 @@ class UsuariosController extends AppController
                 unset($data["ultima_tentativa_login"]);
             }
 
-            $email = !empty($data["email"]) ? $data["email"] : null;
-            if (empty($email)) {
-                $errors[] = array("email" => "Email deve ser informado!");
-                $canContinue = false;
-            } else {
-                $resultado = EmailUtil::validateEmail($data["email"]);
-
-                if (!$resultado["status"]) {
-                    $mensagem = [
-                        "status" => $resultado["status"],
-                        "message" => __($resultado["message"], $data["email"])
-                    ];
-
-                    $arraySet = ["mensagem"];
-
-                    $this->set(compact($arraySet));
-                    $this->set("_serialize", $arraySet);
-
-                    return;
-                }
-                $canContinue = true;
+            if (empty($data['telefone'])) {
+                $this->Usuarios->validator('Default')->notEmpty('telefone', "O campo TELEFONE precisa ser informado!");
             }
 
             if (!isset($data["cpf"]) && $tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
@@ -3194,7 +3230,7 @@ class UsuariosController extends AppController
             } else {
 
                 // Valida se o usuário em questão não é ficticio
-                if ($tipoPerfil < (int) Configure::read("DummyWorkerProfileType")) {
+                if ($tipoPerfil < (int) PROFILE_TYPE_DUMMY_WORKER) {
 
                     $result = NumberUtil::validarCPF($data["cpf"]);
 
@@ -3211,6 +3247,32 @@ class UsuariosController extends AppController
                 }
 
 
+                $canContinue = true;
+            }
+
+            $email = !empty($data["email"]) ? $data["email"] : null;
+            if (empty($email)) {
+                // $errors[] = array("email" => "Email deve ser informado!");
+                // $canContinue = false;
+                // Email pode ser vazio, neste caso, deve ser copiado o campo de cpf
+
+                $data["email"] = preg_replace("/\D/", "", $data["cpf"]);
+            } else {
+                $resultado = EmailUtil::validateEmail($data["email"]);
+
+                if (!$resultado["status"]) {
+                    $mensagem = [
+                        "status" => $resultado["status"],
+                        "message" => __($resultado["message"], $data["email"])
+                    ];
+
+                    $arraySet = ["mensagem"];
+
+                    $this->set(compact($arraySet));
+                    $this->set("_serialize", $arraySet);
+
+                    return;
+                }
                 $canContinue = true;
             }
 
@@ -3276,8 +3338,8 @@ class UsuariosController extends AppController
                         $usuarioData["id"] = $usuario->id;
                     }
 
+                    $usuarioData["conta_ativa"] = true;
                     $usuario = $this->Usuarios->patchEntity($usuario, $usuarioData);
-
 
                     foreach ($usuario->errors() as $key => $erro) {
                         $errors[] = $erro;
@@ -3290,6 +3352,9 @@ class UsuariosController extends AppController
                         // Faz vinculação
                         if (!empty($usuarioLogado)) {
                             $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
+                        } else {
+                            // Ativa o usuário em todos os postos se tiver gravado o registro (e não for usuário logado)
+                            $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
                         }
 
                         // Realiza login de autenticação

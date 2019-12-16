@@ -58,6 +58,7 @@ $
             usuarioCpf.unmask();
             usuarioCpf.mask("###.###.###-##");
             usuarioCpf.on("keyup", usuarioCPFOnChange);
+            usuarioCpf.on("change", usuarioCPFOnChange);
 
             // Habilita/desabilita botão de gravar as gotas do cliente final
             updateButtonGravarGotas();
@@ -89,6 +90,7 @@ $
                 getUsuarioByCPF(cpf);
             } else {
                 usuarioSelectedItem = null;
+                usuarioNome.val(null);
                 // usuarioCpf.val(null);
                 usuarioSaldo.val(null);
                 updateButtonGravarGotas();
@@ -160,9 +162,10 @@ $
                 usuarioCpf.val(null);
                 usuarioNome.val(null);
                 usuarioSaldo.val(null);
+                redeSelectedItem = null;
             }
-            getUsuarioPontuacoes(usuarioSelectedItem.id, redeSelectedItem.id);
-            updateButtonGravarGotas();
+
+            usuarioCpf.change();
         }
 
         /**
@@ -269,6 +272,12 @@ $
          * @since 2019-10-13
          */
         function getUsuarioByCPF(cpf) {
+
+            if (redeSelectedItem === undefined || redeSelectedItem === null) {
+                callModalError("Necessário especificar rede antes de continuar!");
+                return;
+            }
+
             $.ajax({
                 type: "POST",
                 url: "/api/usuarios/get_usuario_by_cpf",
@@ -278,6 +287,12 @@ $
                 dataType: "JSON",
                 success: function (response) {
                     var data = response.user;
+
+                    if (data === null || data === undefined) {
+                        callModalError("Usuário não registrado!");
+                        return;
+                    }
+
                     console.log(data);
                     usuarioSelectedItem = data;
                     usuarioNome.val(data.nome);

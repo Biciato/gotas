@@ -469,7 +469,7 @@ $(function () {
                         res.data.clientes.forEach(cliente => {
                             var cliente = {
                                 id: cliente.id,
-                                nomeFantasia: cliente.nome_fantasia
+                                nomeFantasia: cliente.nome_fantasia_municipio_estado
                             };
 
                             clientesList.push(cliente);

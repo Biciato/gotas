@@ -770,7 +770,9 @@ class ClientesController extends AppController
                 "Clientes.id",
                 "Clientes.nome_fantasia",
                 "Clientes.razao_social",
-                "Clientes.propaganda_img"
+                "Clientes.propaganda_img",
+                "Clientes.municipio",
+                "Clientes.estado"
             );
 
             if (empty($redesId)) {

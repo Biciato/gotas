@@ -365,7 +365,8 @@ class PontuacoesComprovantesController extends AppController
      * @return void
      */
     public function pesquisarClienteFinalPontuacoes()
-    { }
+    {
+    }
 
     /**
      * Exibe a Action que mostra todas as pontuações de um usuário informado
@@ -1783,6 +1784,9 @@ class PontuacoesComprovantesController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
+            // Cliente do posto
+            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
+
             // Posto de atendimento
             $cliente = $this->Clientes->getClienteByCNPJ($cnpj);
 
@@ -1843,13 +1847,12 @@ class PontuacoesComprovantesController extends AppController
                     Log::error(sprintf("[%s] %s: %s", MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errorCodes[$i], $errors[$i]));
                 }
 
+                Log::write("info", sprintf("Cupom: {%s}, Usuário: {%s}, Estabelecimento: {%s}", $qrCode, $usuario->id, $cliente->id));
+
                 return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
             }
 
             // Fim de Validação
-
-            // Cliente do posto
-            $usuario = $this->Usuarios->getUsuarioByCPF($cpf);
 
             if (strlen($cpf) > 11) {
                 Log::write("info", "CNPJ Identificado: " . $cpf);
@@ -2313,7 +2316,8 @@ class PontuacoesComprovantesController extends AppController
 
             $qteInsercaoGotas = $this->PontuacoesComprovantes->getCountPontuacoesComprovantesOfUsuario($usuario->id, $clientesIds);
 
-            if ($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) {
+            // Se não for processamento pendente e a quantidade de pontuações do usuário é maior que o permitido pela rede
+            if (($rede->quantidade_pontuacoes_usuarios_dia <= $qteInsercaoGotas) && !$processamentoPendente) {
                 // usar para teste
                 // if ($rede->quantidade_pontuacoes_usuarios_dia <= 1000) {
 

@@ -413,10 +413,20 @@ class ClientesHasUsuariosTable extends Table
 
                 if ($descartarMatriz) {
                     $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientesIds, 'matriz' => false]);
+                        ->where(['id in' => $clientesIds, 'matriz' => false])
+                        ->order(
+                            [
+                                "Clientes.nome_fantasia" => "ASC"
+                            ]
+                        );
                 } else {
                     $clientes = $this->Clientes->find('list')
-                        ->where(['id in' => $clientesIds]);
+                        ->where(['id in' => $clientesIds])
+                        ->order(
+                            [
+                                "Clientes.nome_fantasia" => "ASC"
+                            ]
+                        );
                 }
             } elseif ($usuario["tipo_perfil"] <= PROFILE_TYPE_ADMIN_LOCAL) {
 
@@ -430,10 +440,6 @@ class ClientesHasUsuariosTable extends Table
                         [
                             'clientes_id in ' => $clientesIds,
                             'usuarios_id' => $usuario["id"],
-                            // 'Usuarios.tipo_perfil IN ' => [
-                            //     (int)Configure::read('profileTypes')['AdminRegionalProfileType'],
-                            //     (int)Configure::read('profileTypes')['AdminLocalProfileType']
-                            // ]
                         ]
                     )->select(array("clientes_id"));
 
@@ -451,11 +457,21 @@ class ClientesHasUsuariosTable extends Table
                                 'id IN ' => $clientesIds,
                                 'matriz' => false
                             ]
+                        )
+                        ->order(
+                            [
+                                "Clientes.nome_fantasia" => "ASC"
+                            ]
                         );
                 } else {
                     $clientes = $this->Clientes
                         ->find('list')
-                        ->where(['id IN ' => $clientesIds]);
+                        ->where(['id IN ' => $clientesIds])
+                        ->order(
+                            [
+                                "Clientes.nome_fantasia" => "ASC"
+                            ]
+                        );
                 }
             } else {
 
@@ -483,11 +499,16 @@ class ClientesHasUsuariosTable extends Table
                 }
 
                 $clientes = $this->Clientes
-                    ->find('list')
-                    ->where($whereConditions);
+                    ->find('all')
+                    ->where($whereConditions)
+                    ->order(
+                        [
+                            "Clientes.nome_fantasia" => "ASC"
+                        ]
+                    );
             }
 
-            return $clientes->select(array("id", "razao_social", "nome_fantasia"));
+            return $clientes->select(array("id", "razao_social", "nome_fantasia", "municipio", "estado"));
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
             $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ".");
@@ -950,7 +971,7 @@ class ClientesHasUsuariosTable extends Table
                     $exp->eq("usuarios_id", $usuariosId);
                 }
 
-                $exp->eq("conta_ativa", 0);
+                $exp->eq("conta_ativa", false);
 
                 return $exp;
             };

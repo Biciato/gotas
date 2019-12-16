@@ -157,15 +157,40 @@ class UsuariosTable extends GenericTable
 
         $validator
             ->allowEmpty('cpf')
-            ->add(
-                'cpf',
-                'unique',
-                [
-                    'rule' => 'validateUnique',
-                    'provider' => 'table',
-                    'message' => 'Este CPF já está em uso'
-                ]
-            );
+            ->notEmpty("cpf", 'Este CPF já está em uso', function ($context) {
+                $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
+
+                // Não há validação se não for funcionário
+                if ((int) $data["tipo_perfil"] !== PROFILE_TYPE_USER) {
+                    return false;
+                }
+
+                $cpf = preg_replace("/\D/", "", $data["cpf"]);
+
+                $userCpf = $this->getUsuarioByCPF($cpf);
+
+                // Não localizou usuário, não há problema.
+                if (empty($userCpf)) {
+                    return false;
+                }
+
+                // Conta falsa, não há problema
+                if (empty($userCpf["conta_ativa"])) {
+                    return false;
+                }
+
+                // Conta está ativa, então há um usuário identificado
+                return true;
+            });
+        // ->add(
+        //     'cpf',
+        //     'unique',
+        //     [
+        //         'rule' => 'validateUnique',
+        //         'provider' => 'table',
+        //         'message' => 'Este CPF já está em uso'
+        //     ]
+        // );
 
         $validator
             ->integer('sexo')
@@ -192,7 +217,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
+            // ->requirePresence('data_nasc', 'create', "O campo Data de Nascimento precisa ser informado!")
             ->allowEmpty('data_nasc');
 
         $validator
@@ -219,13 +244,13 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 6 dígitos, somente números',
+                        'message' => 'A senha deve conter no mínimo 6 dígitos, letras ou números',
 
                     ],
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordWorker'],
-                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                        'message' => 'A senha deve conter no mínimo 8 dígitos, letras ou números',
                     ]
                 ]
             );
@@ -240,7 +265,20 @@ class UsuariosTable extends GenericTable
             ]);
 
         $validator
-            ->allowEmpty('telefone');
+            ->notEmpty(
+                'telefone',
+                "O campo TELEFONE precisa ser informado!",
+                function ($context) {
+
+                    $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
+                    $tipoPerfil = $data["tipo_perfil"];
+
+                    if (!in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_USER]) && empty($telefone)) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
 
         $validator
             ->allowEmpty('endereco');
@@ -332,7 +370,7 @@ class UsuariosTable extends GenericTable
             );
 
         $validator
-            ->requirePresence('data_nasc', 'create')
+            // ->requirePresence('data_nasc', 'create')
             ->notEmpty('data_nasc');
 
         $validator
@@ -359,12 +397,12 @@ class UsuariosTable extends GenericTable
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordUsuario'],
-                        'message' => 'A senha deve conter 6 dígitos, somente números',
+                        'message' => 'A senha deve conter no mínimo 6 dígitos, letras ou números',
                     ],
                     [
                         'provider' => 'table',
                         'rule' => [$this, 'checkPasswordWorker'],
-                        'message' => 'A senha deve conter 8 dígitos, letras ou números',
+                        'message' => 'A senha deve conter no mínimo 8 dígitos, letras ou números',
                     ]
                 ]
             );
@@ -824,15 +862,15 @@ class UsuariosTable extends GenericTable
             }
 
             $usuarios = $this->find("all")
-            ->where($where)
-            ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
-            ->select(
-                [
-                    "Usuarios.id",
-                    "Usuarios.nome",
-                     "Usuarios.cpf"
-                ]
-            );
+                ->where($where)
+                ->contain(["ClientesHasUsuarios.Clientes.RedesHasClientes.Redes"])
+                ->select(
+                    [
+                        "Usuarios.id",
+                        "Usuarios.nome",
+                        "Usuarios.cpf"
+                    ]
+                );
 
             return $usuarios;
         } catch (\Throwable $th) {
@@ -1416,7 +1454,6 @@ class UsuariosTable extends GenericTable
                     "RedesHasClientes.redes_id",
                     "RedesHasClientes.id",
                 ));
-
             }
 
             if ($join && ($tipoPerfilMin != PROFILE_TYPE_USER && $tipoPerfilMax != PROFILE_TYPE_USER)) {
@@ -2343,12 +2380,14 @@ class UsuariosTable extends GenericTable
      */
     public function checkPasswordWorker($password, array $context)
     {
-        if (($context['data']['tipo_perfil'] < 6) && (strlen($password) != 8)) {
+        if (($context['data']['tipo_perfil'] < 6) && (strlen($password) < 8)) {
             return false;
         } else {
             return true;
         }
     }
+
+
 
     /**
      * Checks password for a single instance of each:
@@ -2404,7 +2443,7 @@ class UsuariosTable extends GenericTable
         $usuario->nome = isset($usuario["nome"]) ? $usuario['nome'] : null;
 
         if (strlen($usuario['cpf']) > 0) {
-            $usuario->cpf = NumberUtil::limparFormatacaoNumeros($usuario['cpf']);
+            $usuario->cpf = preg_replace("/\D/", "", $usuario['cpf']);
         }
         $usuario->necessidades_especiais = isset($usuario["necessidades_especiais"]) ? $usuario["necessidades_especiais"] : null;
 

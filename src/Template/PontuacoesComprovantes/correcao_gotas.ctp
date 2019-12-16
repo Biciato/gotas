@@ -93,5 +93,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <script src="/webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.js"></script>
-    <link rel="stylesheet" href="/webroot/css/styles/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.css">
+    <script src="/webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION?>"></script>
+    <link rel="stylesheet" href="/webroot/css/styles/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION?>">
