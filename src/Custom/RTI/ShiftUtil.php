@@ -147,7 +147,7 @@ class ShiftUtil
 
         // obtem hora atual em segundos
         $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(date("H"), date("i"), date("s"));
-        $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(0, 30, 0);
+        // $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(0, 30, 0);
 
         // obtem todas as horas e calcula a diferença
         foreach ($horarios as $itemHorario) {
