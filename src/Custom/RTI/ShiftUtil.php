@@ -147,6 +147,7 @@ class ShiftUtil
 
         // obtem hora atual em segundos
         $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(date("H"), date("i"), date("s"));
+        $horaAtualTotalSegundos = TimeUtil::transformaHoraSegundos(0, 30, 0);
 
         // obtem todas as horas e calcula a diferença
         foreach ($horarios as $itemHorario) {
@@ -175,6 +176,13 @@ class ShiftUtil
                 return $item;
             }
         }
+
+        // se chegou até aqui, retorna o registro com menor diferença
+        usort($horasPesquisa, function ($a, $b) {
+            return $a["diferenca"] < $b["diferenca"];
+        });
+
+        return $horasPesquisa[0];
     }
 
     /**
@@ -292,7 +300,7 @@ class ShiftUtil
         $turnoComparacao = $primeiroTurno;
 
         if (!empty($diaInicio)) {
-            $turnoComparacao["horario"] = new DateTime(sprintf("%s %s", $diaInicio->format("Y-m-d") , $turnoComparacao["horario"]->format("H:i:s")));
+            $turnoComparacao["horario"] = new DateTime(sprintf("%s %s", $diaInicio->format("Y-m-d"), $turnoComparacao["horario"]->format("H:i:s")));
         }
 
         $turnos = array();
