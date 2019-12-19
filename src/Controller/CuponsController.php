@@ -3465,7 +3465,12 @@ class CuponsController extends AppController
                 );
 
                 $arraySet = array(
-                    "mensagem"
+                    "mensagem",
+                    "ticket",
+                    "cliente",
+                    "usuario",
+                    "tempo",
+                    "tipo_emissao_codigo_barras"
                 );
 
                 $retorno = array(
