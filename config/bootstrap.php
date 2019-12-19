@@ -561,6 +561,15 @@ const TYPE_PAYMENT_MONEY = "Dinheiro";
 
 #endregion
 
+#region CuponsTransacoes
+
+const MSG_MAX_RETRIEVES_USER_GIFT = "Oops! Você já atingiu o máximo de resgates deste brinde por dia. Retorne em 24 horas para mais resgates.";
+const MSG_MAX_RETRIEVES_USER_GIFT_BY_WORKER = "Usuário atingiu máximo de resgates para este brinde! Retorne em 24 horas para mais resgates.";
+const MSG_MAX_RETRIEVES_USER_GIFT_CODE = 0x00090001;
+
+
+#endregion
+
 #region Gotas
 
 // Nome Comum Gota Bonificacao

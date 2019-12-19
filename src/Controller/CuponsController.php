@@ -3149,6 +3149,9 @@ class CuponsController extends AppController
      */
     private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoPagamento = "", $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false, bool $confirmaDistancia = false, float $latitudeUsuario = null, float $longitudeUsuario = null)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
         $retorno = array();
         $mensagem = array();
 
@@ -3156,6 +3159,7 @@ class CuponsController extends AppController
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $rede = $redesHasClientes["rede"];
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+
 
         // Verifica se o cliente final estourou o número de compras por dia na Rede
 
@@ -3216,7 +3220,6 @@ class CuponsController extends AppController
 
         // Se não encontrado brinde, retorna msg erro com vazio.
         if (empty($brinde)) {
-
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -3242,7 +3245,6 @@ class CuponsController extends AppController
         // Valida se o brinde é ISENTO e se o usuário já fez o resgate dele
 
         if ($brinde->tipo_venda == TYPE_SELL_FREE_TEXT) {
-
             $usuarioBrinde = $this->UsuariosHasBrindes->getUsuarioHasBrinde($usuariosId, $brindesId);
 
             if (!empty($usuarioBrinde)) {
@@ -3284,6 +3286,7 @@ class CuponsController extends AppController
                 $precoGotas = $brinde->preco_atual->preco;
             }
         }
+
         // Verifica se o brinde em questão está com preço zerado.
         /**
          * Apesar desta situação ser difícil de acontecer, pois o FrontEnd possui restrições,
@@ -3408,6 +3411,48 @@ class CuponsController extends AppController
             $rede["id"],
             $clientesIds
         );
+
+        /**
+         * Verifica se o usuário estourou a quantidade de brindes adquiridos
+         * nas últimas 24 horas SE for via pontos/gotas
+         */
+        if ($tipoPagamento === TYPE_PAYMENT_POINTS && !empty($rede->qte_mesmo_brinde_resgate_dia)) {
+            $dataFim = new DateTime('now');
+            $dataInicio = new DateTime('now');
+            $dataInicio = $dataInicio->modify('-1 day');
+
+            // Verifica se o usuário resgatou 2 brindes nas últimas 24 horas para aquele brinde
+            $count = $this->CuponsTransacoes->getSumTransactionsByBrindeUsuario($brinde->id, $usuariosId, TYPE_OPERATION_RETRIEVE, $dataInicio, $dataFim);
+
+            if ($count >= $rede->qte_mesmo_brinde_resgate_dia) {
+                $messageError = !empty($usuarioLogado) && $usuarioLogado->tipo_perfil === PROFILE_TYPE_USER ?
+                    [MSG_MAX_RETRIEVES_USER_GIFT] :
+                    [MSG_MAX_RETRIEVES_USER_GIFT_BY_WORKER];
+                $errorCodes = [MSG_MAX_RETRIEVES_USER_GIFT_CODE];
+
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => MSG_WARNING,
+                    "errors" => $messageError,
+                    "error_codes" => $errorCodes
+                );
+
+                $arraySet = array(
+                    "mensagem"
+                );
+
+                $retorno = array(
+                    "arraySet" => $arraySet,
+                    "mensagem" => $mensagem,
+                    "ticket" => null,
+                    "cliente" => null,
+                    "usuario" => null,
+                    "tempo" => null,
+                    "tipo_emissao_codigo_barras" => null
+                );
+                return $retorno;
+            }
+        }
 
         $usuario['pontuacoes'] = $detalhesPontuacaoResultado["resumo_gotas"]["saldo"];
 

@@ -220,6 +220,56 @@ class CuponsTransacoesTable extends GenericTable
         }
     }
 
+    public function getSumTransactionsByBrindeUsuario(int $brindesId = null, int $usuariosId = null, string $tipoOperacao = TYPE_OPERATION_RETRIEVED, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = array();
+
+            $where = function (QueryExpression $exp) use ($brindesId, $usuariosId, $tipoOperacao, $minDate, $maxDate) {
+                if (!empty($brindesId)) {
+                    $exp->eq("CuponsTransacoes.brindes_id", $brindesId);
+                }
+
+                if (!empty($usuariosId)) {
+                    $exp->eq("Cupons.usuarios_id", $usuariosId);
+                }
+                if (!empty($tipoOperacao)) {
+                    $exp->eq("CuponsTransacoes.tipo_operacao", $tipoOperacao);
+                }
+
+                if (!empty($minDate)) {
+                    $exp->gte("CuponsTransacoes.data", $minDate->format("Y-m-d H:i:s"));
+                }
+                if (!empty($maxDate)) {
+                    $exp->lte("CuponsTransacoes.data", $maxDate->format("Y-m-d H:i:s"));
+                }
+
+                return $exp;
+            };
+
+            $query = $this->find();
+            $selectList = [
+                "count" => $query->func()->count("CuponsTransacoes.id")
+            ];
+
+            $soma = $query
+                ->select($selectList)
+                ->where($where)
+                ->contain(["Cupons"])
+                ->first();
+
+            return $soma["count"];
+        } catch (\Exception $ex) {
+            $message = $ex->getMessage();
+            $trace = $ex->getTraceAsString();
+
+            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message, $trace));
+
+            throw new Exception($message);
+        }
+    }
+
     /**
      * Obtem dados de transacoes
      *

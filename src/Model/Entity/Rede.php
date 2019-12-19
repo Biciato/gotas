@@ -15,6 +15,7 @@ use Cake\Core\Configure;
  * @property int $tempo_expiracao_gotas_usuarios
  * @property int $quantidade_pontuacoes_usuarios_dia
  * @property int $quantidade_consumo_usuarios_dia
+ * @property int $qte_mesmo_brinde_resgate_dia
  * @property int $qte_gotas_minima_bonificacao
  * @property int $qte_gotas_bonificacao
  * @property string $propaganda_img

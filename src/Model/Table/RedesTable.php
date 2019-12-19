@@ -101,6 +101,10 @@ class RedesTable extends GenericTable
             ->notEmpty("quantidade_consumo_usuarios_dia");
 
         $validator
+            ->integer("qte_mesmo_brinde_resgate_dia")
+            ->notEmpty("qte_mesmo_brinde_resgate_dia");
+
+        $validator
             ->integer("qte_gotas_minima_bonificacao")
             ->allowEmpty("qte_gotas_minima_bonificacao");
 
