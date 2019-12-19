@@ -2809,6 +2809,8 @@ class CuponsController extends AppController
 
             $data = $this->request->getData();
 
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
             // Log::write("info", $data);
             // Validação de dados
             $errors = array();
@@ -3057,7 +3059,7 @@ class CuponsController extends AppController
                 $data = $this->request->getQueryParams();
 
                 Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
-                Log::write("info", $data);
+                // Log::write("info", $data);
 
                 $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : '2099-12-31';
