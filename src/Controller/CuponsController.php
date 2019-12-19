@@ -3470,17 +3470,9 @@ class CuponsController extends AppController
 
                 $retorno = array(
                     "arraySet" => $arraySet,
-                    "mensagem" => $mensagem,
-                    "ticket" => null,
-                    "status" => null,
-                    "cliente" => null,
-                    "usuario" => null,
-                    "resumo_gotas" => ["resumo_gotas" => ["saldo" => 0]],
-                    "tempo" => null,
-                    "tipo_emissao_codigo_barras" => null,
-                    "is_brinde_smart_shower" => null,
-                    "dados_impressao" => null
+                    "mensagem" => $mensagem
                 );
+                return ResponseUtil::errorAPI(MSG_WARNING, $messageError, [], $errorCodes);
                 return $retorno;
             }
         }
