@@ -2865,6 +2865,8 @@ class CuponsController extends AppController
                 $longitudeUsuario
             );
 
+            Log::write("debug", "Debug retorno");
+            Log::write("debug", $retorno);
             $arraySet = $retorno["arraySet"];
             $mensagem = $retorno["mensagem"];
             $ticket = $retorno["ticket"];
