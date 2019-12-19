@@ -2875,28 +2875,28 @@ class CuponsController extends AppController
             $tempo = $retorno["tempo"];
             $tipo_emissao_codigo_barras = $retorno["tipo_emissao_codigo_barras"];
 
-            if ($mensagem["status"] == true) {
-                $data = [
-                    "ticket" => $ticket,
-                    "cliente" => $cliente,
-                    "usuario" => $usuario,
-                    "tempo" => $tempo,
-                    "tipo_emissao_codigo_barras" => $tipo_emissao_codigo_barras
-                ];
-                return ResponseUtil::successAPI($mensagem["mensagem"], $data);
-            } else {
-                return ResponseUtil::errorAPI(
-                    $mensagem["mensagem"],
-                    $mensagem["errors"],
-                    [
-                        "ticket" => $ticket,
-                        "cliente" => $cliente,
-                        "usuario" => $usuario,
-                        "tempo" => $tempo,
-                        "tipo_emissao_codigo_barras" => $tipo_emissao_codigo_barras
-                    ]
-                );
-            }
+            // if ($mensagem["status"] == true) {
+            //     $data = [
+            //         "ticket" => $ticket,
+            //         "cliente" => $cliente,
+            //         "usuario" => $usuario,
+            //         "tempo" => $tempo,
+            //         "tipo_emissao_codigo_barras" => $tipo_emissao_codigo_barras
+            //     ];
+            //     return ResponseUtil::successAPI($mensagem["mensagem"], $data);
+            // } else {
+            //     return ResponseUtil::errorAPI(
+            //         $mensagem["mensagem"],
+            //         $mensagem["errors"],
+            //         [
+            //             "ticket" => $ticket,
+            //             "cliente" => $cliente,
+            //             "usuario" => $usuario,
+            //             "tempo" => $tempo,
+            //             "tipo_emissao_codigo_barras" => $tipo_emissao_codigo_barras
+            //         ]
+            //     );
+            // }
         }
 
         $this->set(compact($arraySet));
