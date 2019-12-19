@@ -310,7 +310,7 @@ class CuponsTable extends GenericTable
             // Usado é automatico após 24 horas se for Equipamento RTI
             // Se não for, é definido como usado, quando é feito a baixa.
             // Por isso, o default deverá ser 0
-            $cupom->usado = 0;
+            $cupom->usado = $brinde->tipo_equipamento === TYPE_EQUIPMENT_RTI;
 
             // Antes do save, calcular cupom emitido
 

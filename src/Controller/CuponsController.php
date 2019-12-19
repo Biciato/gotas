@@ -3570,6 +3570,22 @@ class CuponsController extends AppController
 
                 $this->CuponsTransacoes->saveUpdate($cupomTransacao);
 
+                // Se brinde for Equipamento RTI, já define-o como usado
+
+                if ($brinde->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
+                    $cupomTransacao = new CuponsTransacoes();
+                    $cupomTransacao->redes_id = $rede->id;
+                    $cupomTransacao->clientes_id = $cliente->id;
+                    $cupomTransacao->cupons_id = $cupom->id;
+                    $cupomTransacao->brindes_id = $brinde->id;
+                    $cupomTransacao->funcionarios_id = $funcionariosId;
+                    $cupomTransacao->tipo_operacao = TYPE_OPERATION_USE;
+                    $cupomTransacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                    $cupomTransacao->data = new DateTime();
+
+                    $this->CuponsTransacoes->saveUpdate($cupomTransacao);
+                }
+
                 $mensagem = array(
                     "status" => 1,
                     "message" => Configure::read("messageProcessingCompleted"),
