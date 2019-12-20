@@ -268,6 +268,8 @@ class BrindesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                // DebugUtil::printArray($data);
                 $errors = array();
                 $data["clientes_id"] = $clientesId;
 
@@ -284,8 +286,8 @@ class BrindesController extends AppController
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["preco_padrao"])) : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["valor_moeda_venda_padrao"])) : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
                 // Trata tipo de equipamento
@@ -523,8 +525,8 @@ class BrindesController extends AppController
                 $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
+                $precoPadrao = !empty($data["preco_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["preco_padrao"])) : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["valor_moeda_venda_padrao"])) : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
