@@ -1840,6 +1840,8 @@ class PontuacoesComprovantesController extends AppController
             if (!$cupomPreviamenteImportado["status"]) {
                 $errors[] = $cupomPreviamenteImportado["errors"][0];
                 $errorCodes[] = 0;
+
+                Log::write("info", sprintf("Cupom previamente importado! QR Code: {%s}.", $qrCode));
             }
 
             if (sizeof($errors) > 0) {
