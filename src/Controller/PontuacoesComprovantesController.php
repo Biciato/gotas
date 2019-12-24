@@ -2161,6 +2161,8 @@ class PontuacoesComprovantesController extends AppController
 
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
+            Log::write("info", sprintf("Cupom previamente importado! QR Code: {%s}.", $data['qr_code']));
+
             $mensagem = new Mensagem();
             $mensagem->status = $cupomPreviamenteImportado["status"];
             $mensagem->message = $cupomPreviamenteImportado["message"];
