@@ -815,7 +815,7 @@ class ClientesHasUsuariosTable extends Table
             );
             $clientesUsuarios = $this->find("all")
                 ->where($whereConditions)
-                ->contain("Clientes");
+                ->contain("Clientes.RedesHasClientes.Redes");
             // ->order(
             //     array("tipo_perfil" => "ASC")
             // );

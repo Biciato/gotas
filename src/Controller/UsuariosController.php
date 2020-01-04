@@ -3821,8 +3821,8 @@ class UsuariosController extends AppController
                         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
                         $rede = $redeHasCliente->rede;
 
-                        Log::write("info", "cliente");
-                        Log::write("info", $cliente);
+                        // Log::write("info", "cliente");
+                        // Log::write("info", $cliente);
                         // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
                         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
                         $this->request->session()->write('Rede.Grupo', $rede);
@@ -3916,7 +3916,7 @@ class UsuariosController extends AppController
                 } else {
                     // Grava falha de tentativa de login
                     if ($usuario->tentativas_login >= 5) {
-                        $$usuario->tentativas_login = 0;
+                        $usuario->tentativas_login = 0;
                     } else {
                         $usuario->ultima_tentativa_login = new DateTime("now");
                     }

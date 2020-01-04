@@ -1839,7 +1839,7 @@ class PontuacoesComprovantesController extends AppController
             // Cupom previamente importado, interrompe processamento e avisa usuário
             if (!$cupomPreviamenteImportado["status"]) {
                 $errors[] = $cupomPreviamenteImportado["errors"][0];
-                $errorCodes[] = 0;
+                $errorCodes[] = $cupomPreviamenteImportado["error_codes"][0];
 
                 Log::write("info", sprintf("Cupom previamente importado! QR Code: {%s}.", $qrCode));
             }
@@ -1851,7 +1851,7 @@ class PontuacoesComprovantesController extends AppController
 
                 Log::write("info", sprintf("Cupom: {%s}, Usuário: {%s}, Estabelecimento: {%s}", $qrCode, $usuario->id, $cliente->id));
 
-                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data);
+                return ResponseUtil::errorAPI(MESSAGE_OPERATION_FAILURE_DURING_PROCESSING, $errors, $data, $errorCodes);
             }
 
             // Fim de Validação
@@ -2220,8 +2220,25 @@ class PontuacoesComprovantesController extends AppController
         // $webContent["content"] = null;
 
         if ($webContent["statusCode"] == 200) {
-            // Caso Mobile: Cliente não é informado
 
+            // Verifica se retorno contêm palavras chave informando que o CF não foi encontrado, e retorna exatamente esta mensagem
+
+            $msgSefazNotFound = [
+                "Não foi possível obter informações sobre a NFC-e"
+            ];
+
+            foreach ($msgSefazNotFound as $msg) {
+                $searchMsg = strpos($webContent["response"], $msg) !== false;
+
+                // Se encontrar a mensagem, retorna erro e para o processo
+                if ($searchMsg) {
+                    $msg = sprintf("Erro SEFAZ: %s", $msg);
+                    $errors = [$msg];
+                    return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], []);
+                }
+            }
+
+            // Caso Mobile: Cliente não é informado
             // DEBUG: Para teste sem retorno
             // $cliente = $this->Clientes->get(9);
             // $funcionario = $this->Usuarios->get(108);
@@ -2760,12 +2777,14 @@ class PontuacoesComprovantesController extends AppController
 
         $status = true;
         $message = null;
-        $errors = array();
+        $errors = [];
+        $errorCodes = [];
 
         if ($pontuacaoPendente) {
             if ($pontuacaoPendente->registro_processado) {
                 $message = Configure::read("messageOperationFailureDuringProcessing");
-                $errors[] = "Este registro já foi importado previamente!";
+                $errors[] = MSG_PONTUACOES_COMPROVANTES_QR_CODE_ALREADY_IMPORTED;
+                $errorCodes[] = MSG_PONTUACOES_COMPROVANTES_QR_CODE_ALREADY_IMPORTED_CODE;
                 $status = 0;
             } else {
                 $message = Configure::read("messageWarningDefault");
@@ -2775,10 +2794,11 @@ class PontuacoesComprovantesController extends AppController
         } elseif ($pontuacaoComprovante) {
             $status = 0;
             $message = Configure::read("messageOperationFailureDuringProcessing");
-            $errors[] = "Este registro já foi importado previamente!";
+            $errors[] = MSG_PONTUACOES_COMPROVANTES_QR_CODE_ALREADY_IMPORTED;
+            $errorCodes[] = MSG_PONTUACOES_COMPROVANTES_QR_CODE_ALREADY_IMPORTED_CODE;
         }
 
-        return array("status" => $status, "message" => $message, "errors" => $errors, "error_codes" => []);
+        return array("status" => $status, "message" => $message, "errors" => $errors, "error_codes" => $errorCodes);
     }
 
     /**
