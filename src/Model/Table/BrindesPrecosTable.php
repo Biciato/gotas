@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Model\Table;
 
+use App\Model\Entity\BrindesPreco;
 use Cake\Log\Log;
 use Cake\Core\Configure;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-
+use Exception;
 
 /**
  * BrindesPrecos Model
@@ -161,6 +163,27 @@ class BrindesPrecosTable extends GenericTable
 
             Log::write('error', $stringError);
             Log::write("error", $trace);
+        }
+    }
+
+    /**
+     * Salva/Atualiza um registro BrindesPreco
+     *
+     * @param BrindesPreco $brindePreco
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 15/01/2020
+     *
+     * @return int|bool Status de operação ao DB
+     */
+    public function saveUpdate(BrindesPreco $brindePreco)
+    {
+        try {
+            return $this->save($brindePreco);
+        } catch (\Exception $e) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 

@@ -1730,7 +1730,7 @@ class PontuacoesComprovantesController extends AppController
 
             // Informações do POST
             $cnpj = !empty($data["cnpj"]) ? preg_replace("/\D/", "", $data["cnpj"]) : null;
-            $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+            $cpf = !empty($data["cpf"]) ? preg_replace("/\D/", "", $data["cpf"]) : null;
             $gotasAbastecidasClienteFinal = !empty($data["gotas_abastecidas"]) ? $data["gotas_abastecidas"] : array();
             $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
             $funcionario = $sessao["usuarioLogado"];

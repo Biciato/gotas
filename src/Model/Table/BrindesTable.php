@@ -2,6 +2,7 @@
 
 namespace App\Model\Table;
 
+use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
@@ -467,6 +468,8 @@ class BrindesTable extends GenericTable
                 // Se Desconto ou Isento
                 $brindes = $brindesList->toArray();
             }
+
+            // DebugUtil::printArray($brindes);
 
             return $brindes;
         } catch (\Throwable $th) {

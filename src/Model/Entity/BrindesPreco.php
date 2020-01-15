@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -7,9 +8,13 @@ use Cake\I18n\Number;
 /**
  * BrindesPreco Entity
  *
- * @property int $id
- * @property int $brindes_habilitados_id
- * @property float $preco
+ * @property bigint $id
+ * @property bigint $brindes_id  Id de Brindes
+ * @property bigint $clientes_id
+ * @property bigint $usuarios_id Usuário que modificou o preço do Brinde
+ * @property float $preco Preço de Brinde utilizando Pontos de Gotas como troca
+ * @property double $valor_moeda_venda Valor de Venda Avulsa
+ * @property string $status_autorizacao enum('Aguardando','Autorizado','Negado') Status da Alteração
  * @property \Cake\I18n\FrozenTime $data_preco
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
@@ -18,7 +23,6 @@ use Cake\I18n\Number;
  */
 class BrindesPreco extends Entity
 {
-
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -34,10 +38,10 @@ class BrindesPreco extends Entity
     ];
 
     /**
-    * ------------------------------------------------------------------------------------------
-    * Propriedades Virtuais
-    * ------------------------------------------------------------------------------------------
-    */
+     * ------------------------------------------------------------------------------------------
+     * Propriedades Virtuais
+     * ------------------------------------------------------------------------------------------
+     */
 
     protected $_virtual = array("valor_moeda_venda_formatado");
 
@@ -46,7 +50,7 @@ class BrindesPreco extends Entity
         if (!empty($this->_properties["valor_moeda_venda"])) {
             return Number::currency($this->_properties["valor_moeda_venda"]);
         }
-        
+
         return null;
     }
 }
