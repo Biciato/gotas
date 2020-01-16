@@ -187,7 +187,7 @@ class PontuacoesComprovantesController extends AppController
                 );
             }
         } catch (\Exception $e) {
-            $stringError = __("Erro ao realizar aprovação de pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]);
+            $stringError = __("[%s]: %s ", MESSAGE_GENERIC_EXCEPTION, $e->getMessage());
 
             Log::write('error', $stringError);
 
@@ -249,13 +249,9 @@ class PontuacoesComprovantesController extends AppController
                 );
             }
         } catch (\Exception $e) {
-            $message_error = $status ?
-                __("Erro ao realizar tratamento de invalidar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]) : __("Erro ao realizar tratamento de validar pontuação: {0} em: {1} ", $e->getMessage(), $trace[1]);
-
+            $message_error = sprintf("[%s]: %s ", MESSAGE_GENERIC_EXCEPTION, $e->getMessage());
             $stringError = $message_error;
-
             Log::write('error', $stringError);
-
             $this->Flash->error($stringError);
         }
     }
@@ -2464,38 +2460,68 @@ class PontuacoesComprovantesController extends AppController
 
             $dataProcessamento = new DateTime('now');
             $dataProcessamento = $dataProcessamento->format("Y-m-d H:i:s");
-
             $pontuacoes = [];
             $somaMultiplicador = 0;
+            $listProductsToCheck = [];
+            $listProductsForExtraPoints = $produtos;
+
+            foreach ($gotas as $gota) {
+                foreach ($produtos as $produto) {
+                    $percent = 0;
+                    similar_text($gota->nome_parametro, $produto["descricao"], $percent);
+
+                    // Se o percent for no mínimo MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS, adiciona para posterior verificação
+                    if ($percent >= MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS) {
+                        $pontuacao = new Pontuacao();
+                        $pontuacao->clientes_id = $cliente->id;
+                        $pontuacao->usuarios_id = $usuario->id;
+                        $pontuacao->funcionarios_id = $funcionario->id;
+                        $pontuacao->gotas_id = $gota->id;
+                        $pontuacao->descricao =  $produto["descricao"];
+                        $pontuacao->quantidade_multiplicador =  $produto["quantidade"];
+                        $pontuacao->valor_gota_sefaz =  trim($produto["valor"]);
+                        $pontuacao->quantidade_gotas =  floor($gota->multiplicador_gota * (float) $produto["quantidade"]);
+                        $pontuacao->percent =  $percent;
+                        $pontuacao->pontuacoes_comprovante_id = 0;
+                        $pontuacao->data = $dataProcessamento;
+
+                        $listProductsToCheck[$gota->id][] = $pontuacao;
+
+                        // Localiza no array o item para remoção
+                        $output = array_filter($listProductsForExtraPoints, function ($item) use ($pontuacao) {
+                            return $item["descricao"] === $pontuacao->descricao;
+                        });
+
+                        // Obtem os índices na lista para remoção
+                        $indexes = array_keys($output);
+
+                        // Remove os produtos que serão conferidos para pontuação extra
+                        foreach ($indexes as $index) {
+                            unset($listProductsForExtraPoints[$index]);
+                        }
+                    }
+                }
+            }
 
             if ($rede->pontuacao_extra_produto_generico) {
-                $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotas, $produtos, TRANSMISSION_MODE_SEFAZ);
+                $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotas, $listProductsForExtraPoints, TRANSMISSION_MODE_SEFAZ);
 
                 if (!empty($pontuacaoExtra)) {
                     $pontuacoes[] = $pontuacaoExtra;
                 }
             }
 
-            foreach ($gotas as $gota) {
-                foreach ($produtos as $produto) {
-                    if ($gota->nome_parametro == $produto["descricao"]) {
-                        $pontuacao = new Pontuacao();
-                        $pontuacao->clientes_id = $cliente->id;
-                        $pontuacao->usuarios_id = $usuario->id;
-                        $pontuacao->funcionarios_id = $funcionario->id;
-                        $pontuacao->gotas_id = $gota->id;
-                        $pontuacao->quantidade_multiplicador = $produto["quantidade"];
-                        $pontuacao->valor_gota_sefaz = trim($produto["valor"]);
-                        $pontuacao->quantidade_gotas = floor($gota->multiplicador_gota * (float) $produto["quantidade"]);
-                        $pontuacao->pontuacoes_comprovante_id = 0;
-                        $pontuacao->data = $dataProcessamento;
-                        $pontuacoes[] = $pontuacao;
-                        $somaMultiplicador += $pontuacao->quantidade_multiplicador;
-                    }
-                }
-            }
+            foreach ($listProductsToCheck as $key => $itemsToCheck) {
+                // Ordena todo mundo pelo maior valor de percent
+                usort($itemsToCheck, function ($itemA, $itemB) {
+                    return $itemA->percent >= $itemB->percent;
+                });
 
-            // $pontuacoes = [];
+                // Irá retornar um array, obtem o primeiro que é o que tem o maior valor
+                $item = $itemsToCheck[0];
+                $pontuacoes[] = $item;
+                $somaMultiplicador += $item->quantidade_multiplicador;
+            }
 
             if (count($pontuacoes) > 0) {
                 $pontuacoesComprovante = new PontuacoesComprovante();
@@ -2512,7 +2538,6 @@ class PontuacoesComprovantesController extends AppController
                 $pontuacoesComprovanteSave = $this->PontuacoesComprovantes->saveUpdate($pontuacoesComprovante);
                 $pontuacaoComprovanteId = $pontuacoesComprovanteSave->id;
                 $pontuacoesSave = [];
-                $somaMultiplicador = 0;
 
                 foreach ($pontuacoes as $pontuacao) {
                     $pontuacao->pontuacoes_comprovante_id =  $pontuacaoComprovanteId;
