@@ -539,15 +539,24 @@ class PontuacoesTable extends GenericTable
                 array_push($conditions, ['id >= ' => (int) $ultimoIdProcessado]);
             }
 
+            $select = [
+                'id',
+                // "quantidade_gotas" => 'sum(quantidade_gotas)',
+                "quantidade_gotas" => 'quantidade_gotas',
+                'utilizado'
+            ];
+            if ($how_many === 1) {
+                $select = [
+                    'id',
+                    "quantidade_gotas" => 'sum(quantidade_gotas)',
+                    // "quantidade_gotas" => 'quantidade_gotas',
+                    'utilizado'
+                ];
+            }
+
             $result = $this
                 ->find('all')
-                ->select(
-                    [
-                        'id',
-                        "quantidade_gotas" => 'sum(quantidade_gotas)',
-                        'utilizado'
-                    ]
-                )
+                ->select($select)
                 ->where($conditions)
                 ->order(['id' => 'asc'])
                 ->limit($how_many);

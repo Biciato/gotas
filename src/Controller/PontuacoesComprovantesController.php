@@ -2075,12 +2075,8 @@ class PontuacoesComprovantesController extends AppController
          * Passo 1: Obter todos os Cupons Fiscais da rede, com os dados de pontuação;
          */
 
-        $qrcode = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31200113569064001474650010000358461008780539|2|1|1|8B1348C128AD05BE12A2AE6D89AE45DB69FA16C2";
-
-        $where = function (QueryExpression $exp) use ($redesId, $qrcode) {
-            $exp->eq("Redes.id", $redesId)
-                // ->eq("Usuarios.id", 1409);
-                ->eq("PontuacoesComprovantes.conteudo", $qrcode);
+        $where = function (QueryExpression $exp) use ($redesId) {
+            $exp->eq("Redes.id", $redesId);
 
             return $exp;
         };
@@ -2148,7 +2144,7 @@ class PontuacoesComprovantesController extends AppController
             $gotasPostos[$clientesId] = $this->Gotas->find("all")->where($whereGotas)->toArray();
         }
 
-        $pontuacoesComprovantes = [];
+        // $pontuacoesComprovantes = [];
         // DebugUtil::printArray($pontuacoesComprovantes);
         foreach ($pontuacoesComprovantes as $comprovante) {
             /**
@@ -2370,7 +2366,6 @@ class PontuacoesComprovantesController extends AppController
 
             echo sprintf("Total de pontos pendentes uso: {%s}", $pointPendingUsage);
 
-
             if ($pointPendingUsage) {
                 $lastId = $pointPendingUsage->id;
             }
@@ -2384,10 +2379,8 @@ class PontuacoesComprovantesController extends AppController
 
             echo sprintf("Total de pontos para subtrair: {%s}", $pointsGiftsUsed);
 
-            die();
-
-
             $pointsToProcess = $pointsToProcess + $pointsGiftsUsed;
+            echo sprintf("Total de pontos à serem processados: {%s}", $pointsToProcess);
 
             while ($canContinue) {
                 $pointPendingUsage = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
@@ -2421,9 +2414,14 @@ class PontuacoesComprovantesController extends AppController
                             'utilizado' => 1
                         ];
                     }
+                    $pointsToProcess = $pointsToProcess - $point->quantidade_gotas;
+
+                    if ($pointsToProcess <= 0) {
+                        $canContinue = false;
+                        break;
+                    }
                 }
 
-                $pointsToProcess = $pointsToProcess - $point->quantidade_gotas;
                 $lastId = $point->id;
 
                 $count = $count + 1;
@@ -2432,18 +2430,15 @@ class PontuacoesComprovantesController extends AppController
                     $lastId = $point->id + 1;
                 }
 
+                // Atualiza todos os pontos do usuário
+                $this->Pontuacoes->updatePendingPontuacoesForUsuario($pointsPendingUsageListSave);
+
                 if ($pointsToProcess <= 0) {
                     $canContinue = false;
                     break;
                 }
             }
-
-            DebugUtil::printArray($pointsPendingUsageListSave, false);
-            echo "<br />";
-            // Atualiza todos os pontos do usuário
-            // $this->Pontuacoes->updatePendingPontuacoesForUsuario($pointsPendingUsageListSave);
         }
-
 
         echo "Atualização de pontos concluída... <br />";
         die();
