@@ -24,6 +24,7 @@ use App\View\Helper\AddressHelper;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Collection\Collection;
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Event\Event;
 use Cake\Http\Client\Request;
 use Cake\Log\Log;
@@ -2039,6 +2040,416 @@ class PontuacoesComprovantesController extends AppController
     }
 
     /**
+     * PontuacoesComprovantesController::reprocessPointsEntireNetwork
+     *
+     * Método para reprocessar dados de uma rede inteira.
+     * Nota: Este processo ficará desabilitado após a execução para a rede HG no dia 17/01/2020
+     *
+     *
+     * @param int $redesId Id da rede
+     *
+     * @return void
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function reprocessPointsEntireNetwork(int $redesId)
+    {
+        /**
+         * Como será o fluxo deste processo:
+         *
+         * 1 Obter todos os Cupons Fiscais da rede, com os dados de pontuação;
+         * 2 Obter todos os Produtos dos postos, antes de verificar CF a CF;
+         * 3 Para cada cupom da lista, obtem primeiro as pontuações envolvidas e as remove SE a obtenção ao site da
+         * SEFAZ foi efetuada com sucesso;
+         * 4 Grava no banco a nova pontuação;
+         * 5 Após todo o processo, subtrair os pontos ja utilizados pelos usuarios
+         *
+         * Nota: por se tratar de um processo esporádico (provavelmente só será executado uma vez), não será obedecido
+         * os principios MVC, então as consultas e execução ficarão todas aqui
+         */
+
+        $debug = true;
+
+        // $rede = $this->Redes->get($redesId);
+
+        /**
+         * Passo 1: Obter todos os Cupons Fiscais da rede, com os dados de pontuação;
+         */
+
+        $qrcode = "https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=31200113569064001474650010000358461008780539|2|1|1|8B1348C128AD05BE12A2AE6D89AE45DB69FA16C2";
+
+        $where = function (QueryExpression $exp) use ($redesId, $qrcode) {
+            $exp->eq("Redes.id", $redesId)
+                // ->eq("Usuarios.id", 1409);
+                ->eq("PontuacoesComprovantes.conteudo", $qrcode);
+
+            return $exp;
+        };
+        $selectList = [
+            "PontuacoesComprovantes.id",
+            "PontuacoesComprovantes.clientes_id",
+            "PontuacoesComprovantes.funcionarios_id",
+            "PontuacoesComprovantes.usuarios_id",
+            "PontuacoesComprovantes.conteudo",
+            "PontuacoesComprovantes.chave_nfe",
+            "PontuacoesComprovantes.estado_nfe",
+            "PontuacoesComprovantes.data",
+            "Redes.id",
+            "Clientes.id",
+            "Clientes.nome_fantasia",
+            "Clientes.estado",
+            "RedesHasClientes.id",
+            "RedesHasClientes.redes_id",
+            "RedesHasClientes.clientes_id",
+            "Funcionarios.id",
+            "Usuarios.id",
+            "Usuarios.nome"
+        ];
+
+        $join = [
+            "Pontuacoes",
+            "Clientes.RedesHasClientes.Redes",
+            "Funcionarios",
+            "Usuarios"
+        ];
+
+        $pontuacoesComprovantes = $this->PontuacoesComprovantes->find("all")
+            ->where($where)
+            ->contain($join)
+            ->select($selectList)
+            ->toArray();
+
+        $clientesSelectList = [
+            "Clientes.id"
+        ];
+
+        $where = function (QueryExpression $exp) use ($redesId) {
+            $exp->eq("Redes.id", $redesId);
+
+            return $exp;
+        };
+
+        $clientesIds = $this->Clientes->find("all")
+            ->where($where)
+            ->contain(["RedesHasClientes.Redes"])
+            ->select($clientesSelectList)
+            ->toArray();
+
+        $clientesIds = array_column($clientesIds, "id");
+
+        // Ponto 2 Obter todos os Produtos dos postos, antes de verificar CF a CF;
+        $gotasPostos = [];
+        foreach ($clientesIds as $clientesId) {
+            $whereGotas = function (QueryExpression $exp) use ($clientesId) {
+                return $exp->eq("Gotas.clientes_id", $clientesId)
+                    ->eq("Gotas.habilitado", true)
+                    ->eq("Gotas.tipo_cadastro", 0);
+            };
+
+            $gotasPostos[$clientesId] = $this->Gotas->find("all")->where($whereGotas)->toArray();
+        }
+
+        $pontuacoesComprovantes = [];
+        // DebugUtil::printArray($pontuacoesComprovantes);
+        foreach ($pontuacoesComprovantes as $comprovante) {
+            /**
+             * 3 Para cada cupom da lista, obtem primeiro as pontuações envolvidas e as remove SE a obtenção ao site da
+             * SEFAZ foi efetuada com sucesso;
+             */
+
+            // Obtem a lista de gotas
+
+            $contentSefazCoupon = WebTools::getPageContent($comprovante->conteudo);
+            $contentCoupon = $contentSefazCoupon["response"];
+            $statusCode = $contentSefazCoupon["statusCode"];
+            $gotasPosto = $gotasPostos[$comprovante->clientes_id];
+            $cliente = $comprovante->cliente;
+            $rede = $comprovante->cliente->redes_has_cliente->rede;
+            $funcionario = $comprovante->funcionario;
+            $usuario = $comprovante->usuario;
+
+            if ($debug)
+                echo sprintf("Obtendo CF {%s} da Sefaz... <br />", $comprovante->conteudo);
+
+            // Só faz o processamento se teve sucesso em obter os dados
+            if ($statusCode == 200) {
+
+                if ($debug)
+                    echo sprintf("Dados obtidos... <br />");
+
+                // Verifica se usuário estourou o limite de pontuações diarias
+                $produtos = SefazUtil::obtemProdutosSefaz($contentCoupon, $comprovante->conteudo, $comprovante->chave_nfe, $cliente, $funcionario, $usuario);
+
+                $dataProcessamento = new DateTime($comprovante->data);
+                $dataProcessamento = $dataProcessamento->format("Y-m-d H:i:s");
+                $pontuacoes = [];
+                $somaMultiplicador = 0;
+                $listProductsToCheck = [];
+                $listProductsForExtraPoints = $produtos;
+
+                // DebugUtil::printArray($gotasPosto);
+
+                foreach ($gotasPosto as $gota) {
+                    foreach ($produtos as $indexProduto => $produto) {
+                        $percent = 0;
+                        similar_text($gota->nome_parametro, $produto["descricao"], $percent);
+
+                        // Se o percent for no mínimo MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS, adiciona para posterior verificação
+                        if ($percent >= MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS) {
+                            $pontuacao = new Pontuacao();
+                            $pontuacao->clientes_id = $cliente->id;
+                            $pontuacao->usuarios_id = $usuario->id;
+                            $pontuacao->funcionarios_id = $funcionario->id;
+                            $pontuacao->gotas_id = $gota->id;
+                            $pontuacao->descricao =  $produto["descricao"];
+                            $pontuacao->quantidade_multiplicador =  $produto["quantidade"];
+                            $pontuacao->valor_gota_sefaz =  trim($produto["valor"]);
+                            $pontuacao->quantidade_gotas =  floor($gota->multiplicador_gota * (float) $produto["quantidade"]);
+                            $pontuacao->percent =  $percent;
+                            $pontuacao->pontuacoes_comprovante_id = 0;
+                            $pontuacao->data = $dataProcessamento;
+                            $listProductsToCheck[$gota->id][] = $pontuacao;
+
+                            // Remove o registro da lista de produtos à ser verificado no próximo loop
+                            unset($produtos[$indexProduto]);
+
+                            // Localiza no array o item para remoção
+                            $output = array_filter($listProductsForExtraPoints, function ($item) use ($pontuacao) {
+                                return $item["descricao"] === $pontuacao->descricao;
+                            });
+
+                            // Obtem os índices na lista para remoção
+                            $indexes = array_keys($output);
+
+                            // Remove os produtos que serão conferidos para pontuação extra
+                            foreach ($indexes as $index) {
+                                unset($listProductsForExtraPoints[$index]);
+                            }
+                        }
+                    }
+                }
+
+                reset($listProductsForExtraPoints);
+
+                // DebugUtil::printArray($listProductsToCheck);
+
+                if ($rede->pontuacao_extra_produto_generico) {
+                    $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotasPosto, $listProductsForExtraPoints, TRANSMISSION_MODE_SEFAZ);
+
+                    if (!empty($pontuacaoExtra)) {
+                        $pontuacoes[] = $pontuacaoExtra;
+                    }
+                }
+
+                foreach ($listProductsToCheck as $itemsToCheck) {
+                    // Ordena todo mundo pelo maior valor de percent
+                    usort($itemsToCheck, function ($itemA, $itemB) {
+                        return $itemA->percent >= $itemB->percent;
+                    });
+
+                    // Irá retornar um array, obtem o primeiro que é o que tem o maior valor
+                    $item = $itemsToCheck[0];
+                    $pontuacoes[] = $item;
+                    $somaMultiplicador += $item->quantidade_multiplicador;
+                }
+
+                if (count($pontuacoes) > 0) {
+                    // 4 Grava no banco a nova pontuação;
+                    // Remove os registros antigos e grava a nova pontuação
+
+                    if ($debug)
+                        echo sprintf("Pontuações Obtidas. Removendo CF {%s} de usuário {%s}, Posto {%d} - {%s}... <br />", $comprovante->conteudo, $usuario->nome, $cliente->id, $cliente->nome_fantasia);
+
+                    // Se tem pontuações, deleta as pontuações do Cupom atual, deleta o registro e insere novamente
+                    foreach ($comprovante->pontuacoes as $pontuacaoDelete) {
+                        $this->Pontuacoes->delete($pontuacaoDelete);
+                    }
+
+                    $this->PontuacoesComprovantes->delete($comprovante);
+
+                    // Agora, insere uma nova
+                    $pontuacoesComprovante = new PontuacoesComprovante();
+                    $pontuacoesComprovante->clientes_id =  $cliente->id;
+                    $pontuacoesComprovante->usuarios_id =  $usuario->id;
+                    $pontuacoesComprovante->funcionarios_id =  $funcionario->id;
+                    $pontuacoesComprovante->conteudo =  $comprovante->conteudo;
+                    $pontuacoesComprovante->chave_nfe =  $comprovante->chave_nfe;
+                    $pontuacoesComprovante->estado_nfe =  $cliente->estado;
+                    $pontuacoesComprovante->data =  $dataProcessamento;
+                    $pontuacoesComprovante->requer_auditoria =  0;
+                    $pontuacoesComprovante->auditado =  0;
+
+                    $pontuacoesComprovanteSave = $this->PontuacoesComprovantes->saveUpdate($pontuacoesComprovante);
+
+                    if ($debug)
+                        echo sprintf("Inserido CF {%s} para usuário {%d} - {%s}... <br />", $pontuacoesComprovante->conteudo, $usuario->id, $usuario->nome);
+                    $pontuacaoComprovanteId = $pontuacoesComprovanteSave->id;
+                    $pontuacoesSave = [];
+
+                    foreach ($pontuacoes as $pontuacao) {
+                        $pontuacao->pontuacoes_comprovante_id =  $pontuacaoComprovanteId;
+                        $pontuacoesSave[] = $pontuacao;
+                    }
+
+                    if (!empty($rede->qte_gotas_minima_bonificacao) && $rede->qte_gotas_minima_bonificacao <= $somaMultiplicador) {
+                        $gotaBonificacaoSistema = $this->Gotas->getGotaBonificacaoSefaz($cliente->id);
+
+                        // só adiciona a bonificação se o registro existir na tabela.
+                        if (!empty($gotaBonificacaoSistema)) {
+                            $pontuacao = $this->Pontuacoes->newEntity();
+                            $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
+                            $pontuacao->clientes_id = $cliente->id;
+                            $pontuacao->usuarios_id = $usuario->id;
+                            $pontuacao->funcionarios_id = $funcionario->id;
+                            $pontuacao->gotas_id = $gotaBonificacaoSistema->id;
+                            $pontuacao->quantidade_multiplicador = 1;
+                            $pontuacao->quantidade_gotas = $gotaBonificacaoSistema->multiplicador_gota;
+                            $pontuacao->data = $dataProcessamento;
+                            $pontuacoesSave[] = $pontuacao;
+                        }
+                    }
+
+                    foreach ($pontuacoesSave as $pontuacaoSave) {
+                        $pontuacoesSave = $this->Pontuacoes->saveUpdate($pontuacaoSave);
+                    }
+                } else {
+                    echo sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $comprovante->conteudo, $cliente->estado_nfe);
+                }
+            }
+        }
+
+        // 5 Após todo o processo, subtrair os pontos ja utilizados pelos usuarios
+
+        // Obtem todos os pontos gastos dos usuários
+
+        $where = function (QueryExpression $exp) use ($redesId) {
+            return $exp->eq("Redes.id", $redesId)
+                ->isNotNull("Pontuacoes.brindes_id");
+        };
+
+        $contain = ["Clientes.RedesHasClientes.Redes"];
+        $selectPointsList =     [
+            "Pontuacoes.id",
+            "Pontuacoes.quantidade_multiplicador",
+            "Pontuacoes.quantidade_gotas",
+            "Pontuacoes.usuarios_id",
+            "Clientes.id",
+            "Clientes.nome_fantasia",
+            "Redes.nome_rede"
+        ];
+
+        $pointsOutUsers = $this->Pontuacoes
+            ->find("all")
+            ->where($where)
+            ->contain($contain)
+            ->select($selectPointsList)
+            ->order([
+                "Pontuacoes.data" => "ASC"
+            ])
+            ->toArray();
+
+        // DebugUtil::printArray($pointsOutUsers);
+
+        foreach ($pointsOutUsers as $pointOut) {
+            // Para cada Pontuação de usuário, procura a mais antiga para ir diminuindo seus pontos
+
+            $canContinue = true;
+            $pointsPendingUsageListSave = [];
+            $pointsToProcess = $pointOut->quantidade_gotas;
+
+            // Obter pontos não utilizados totalmente
+            // verifica se tem algum pendente para continuar o cálculo sobre ele
+
+            $lastId = 0;
+
+            $pointPendingUsage = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
+                $pointOut->usuarios_id,
+                $clientesIds,
+                1,
+                null
+            );
+
+            echo sprintf("Total de pontos pendentes uso: {%s}", $pointPendingUsage);
+
+
+            if ($pointPendingUsage) {
+                $lastId = $pointPendingUsage->id;
+            }
+
+            $pointsGiftsUsed = $this
+                ->Pontuacoes
+                ->getSumPontuacoesPendingToUsageByUsuario(
+                    $pointOut->usuarios_id,
+                    $clientesIds
+                );
+
+            echo sprintf("Total de pontos para subtrair: {%s}", $pointsGiftsUsed);
+
+            die();
+
+
+            $pointsToProcess = $pointsToProcess + $pointsGiftsUsed;
+
+            while ($canContinue) {
+                $pointPendingUsage = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
+                    $pointOut->usuarios_id,
+                    $clientesIds,
+                    10,
+                    $lastId
+                )->toArray();
+
+                if (empty($pointPendingUsage)) {
+                    break;
+                }
+
+                if (count($pointPendingUsage) == 0) {
+                    $canContinue = false;
+                    break;
+                }
+
+                $maxCount = count($pointPendingUsage);
+
+                $count = 0;
+                foreach ($pointPendingUsage as $point) {
+                    if (($pointsToProcess >= 0) && ($pointsToProcess >= $point->quantidade_gotas)) {
+                        $pointsPendingUsageListSave[] = [
+                            "id" => $point->id,
+                            "utilizado" => 2
+                        ];
+                    } else {
+                        $pointsPendingUsageListSave[] = [
+                            "id" => $point->id,
+                            'utilizado' => 1
+                        ];
+                    }
+                }
+
+                $pointsToProcess = $pointsToProcess - $point->quantidade_gotas;
+                $lastId = $point->id;
+
+                $count = $count + 1;
+
+                if ($count = $maxCount) {
+                    $lastId = $point->id + 1;
+                }
+
+                if ($pointsToProcess <= 0) {
+                    $canContinue = false;
+                    break;
+                }
+            }
+
+            DebugUtil::printArray($pointsPendingUsageListSave, false);
+            echo "<br />";
+            // Atualiza todos os pontos do usuário
+            // $this->Pontuacoes->updatePendingPontuacoesForUsuario($pointsPendingUsageListSave);
+        }
+
+
+        echo "Atualização de pontos concluída... <br />";
+        die();
+    }
+
+    /**
      * Remove Pontuações Ambiente desenvolvimento
      *
      * @return void
@@ -2503,6 +2914,8 @@ class PontuacoesComprovantesController extends AppController
                 }
             }
 
+            reset($listProductsForExtraPoints);
+
             if ($rede->pontuacao_extra_produto_generico) {
                 $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotas, $listProductsForExtraPoints, TRANSMISSION_MODE_SEFAZ);
 
@@ -2546,7 +2959,7 @@ class PontuacoesComprovantesController extends AppController
 
                 $rede = $cliente->redes_has_cliente->rede;
 
-                if (!empty($rede->qte_gotas_minima_bonificacao) && $rede->qte_gotas_minima_bonificacao < $somaMultiplicador) {
+                if (!empty($rede->qte_gotas_minima_bonificacao) && $rede->qte_gotas_minima_bonificacao <= $somaMultiplicador) {
                     $gotaBonificacaoSistema = $this->Gotas->getGotaBonificacaoSefaz($cliente->id);
 
                     // só adiciona a bonificação se o registro existir na tabela.

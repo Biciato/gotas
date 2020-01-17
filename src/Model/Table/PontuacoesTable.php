@@ -541,7 +541,13 @@ class PontuacoesTable extends GenericTable
 
             $result = $this
                 ->find('all')
-                ->select(['id', 'quantidade_gotas', 'utilizado'])
+                ->select(
+                    [
+                        'id',
+                        "quantidade_gotas" => 'sum(quantidade_gotas)',
+                        'utilizado'
+                    ]
+                )
                 ->where($conditions)
                 ->order(['id' => 'asc'])
                 ->limit($how_many);

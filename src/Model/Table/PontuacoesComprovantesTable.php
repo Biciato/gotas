@@ -75,8 +75,9 @@ class PontuacoesComprovantesTable extends GenericTable
             'joinType' => 'INNER',
             'foreignKey' => 'funcionarios_id'
         ]);
+
         $this->hasMany('Pontuacoes', [
-            'joinType' => 'INNER',
+            'joinType' => 'LEFT',
             'foreignKey' => 'pontuacoes_comprovante_id'
         ]);
 
@@ -975,7 +976,8 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             return $this->deleteAll(['id >= ' => 0]);
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+        }
     }
 
     /**
