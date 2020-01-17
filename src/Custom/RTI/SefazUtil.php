@@ -24,7 +24,8 @@ use \Exception;
 class SefazUtil
 {
     public function __construct()
-    { }
+    {
+    }
 
     /**
      * SefazUtil::obtemDadosHTMLCupomSefaz
@@ -786,7 +787,7 @@ class SefazUtil
             "auditado" => 0
         );
 
-        Log::write("debug", $produtosLista);
+        // Log::write("debug", $produtosLista);
 
         $somaPontuacoes = 0;
         foreach ($produtosLista as $produto) {

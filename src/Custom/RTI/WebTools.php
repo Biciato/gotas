@@ -24,7 +24,8 @@ class WebTools
     public $prop = null;
 
     function __construct()
-    { }
+    {
+    }
 
     /**
      * Obtêm conteúdo de página web
@@ -80,7 +81,7 @@ class WebTools
 
             $response = trim(preg_replace('/\s+/', ' ', $response));
 
-            Log::write('debug', $response);
+            // Log::write('debug', $response);
 
             $error = \curl_errno($curl);
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);

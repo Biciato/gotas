@@ -2163,14 +2163,18 @@ class PontuacoesComprovantesController extends AppController
             $funcionario = $comprovante->funcionario;
             $usuario = $comprovante->usuario;
 
-            if ($debug)
+            if ($debug) {
                 echo sprintf("Obtendo CF {%s} da Sefaz... <br />", $comprovante->conteudo);
+                flush();
+            }
 
             // Só faz o processamento se teve sucesso em obter os dados
             if ($statusCode == 200) {
 
-                if ($debug)
+                if ($debug) {
                     echo sprintf("Dados obtidos... <br />");
+                    flush();
+                }
 
                 // Verifica se usuário estourou o limite de pontuações diarias
                 $produtos = SefazUtil::obtemProdutosSefaz($contentCoupon, $comprovante->conteudo, $comprovante->chave_nfe, $cliente, $funcionario, $usuario);
@@ -2252,8 +2256,10 @@ class PontuacoesComprovantesController extends AppController
                     // 4 Grava no banco a nova pontuação;
                     // Remove os registros antigos e grava a nova pontuação
 
-                    if ($debug)
+                    if ($debug) {
                         echo sprintf("Pontuações Obtidas. Removendo CF {%s} de usuário {%s}, Posto {%d} - {%s}... <br />", $comprovante->conteudo, $usuario->nome, $cliente->id, $cliente->nome_fantasia);
+                        flush();
+                    }
 
                     // Se tem pontuações, deleta as pontuações do Cupom atual, deleta o registro e insere novamente
                     foreach ($comprovante->pontuacoes as $pontuacaoDelete) {
@@ -2276,8 +2282,11 @@ class PontuacoesComprovantesController extends AppController
 
                     $pontuacoesComprovanteSave = $this->PontuacoesComprovantes->saveUpdate($pontuacoesComprovante);
 
-                    if ($debug)
+                    if ($debug) {
                         echo sprintf("Inserido CF {%s} para usuário {%d} - {%s}... <br />", $pontuacoesComprovante->conteudo, $usuario->id, $usuario->nome);
+                        flush();
+                    }
+
                     $pontuacaoComprovanteId = $pontuacoesComprovanteSave->id;
                     $pontuacoesSave = [];
 
@@ -2309,6 +2318,7 @@ class PontuacoesComprovantesController extends AppController
                     }
                 } else {
                     echo sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $comprovante->conteudo, $cliente->estado_nfe);
+                    flush();
                 }
             }
         }
