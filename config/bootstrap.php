@@ -713,7 +713,7 @@ const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) 
 // Tipos de Perfil de usuários
 
 // Mínimo de porcentagem para comparação de texto de gotas com os produtos da NF Sefaz
-const MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS = 70.0;
+const MIN_PERCENTAGE_SIMILAR_TEXT_GOTAS = 60.0;
 
 const PROFILE_TYPE_ADMIN_DEVELOPER = 0;
 const PROFILE_TYPE_ADMIN_NETWORK = 1;
