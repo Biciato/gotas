@@ -2882,7 +2882,7 @@ class PontuacoesComprovantesController extends AppController
             $listProductsForExtraPoints = $produtos;
 
             foreach ($gotas as $gota) {
-                foreach ($produtos as $produto) {
+                foreach ($produtos as $indexProduto => $produto) {
                     $percent = 0;
                     similar_text($gota->nome_parametro, $produto["descricao"], $percent);
 
@@ -2902,6 +2902,9 @@ class PontuacoesComprovantesController extends AppController
                         $pontuacao->data = $dataProcessamento;
 
                         $listProductsToCheck[$gota->id][] = $pontuacao;
+
+                        // Remove o registro da lista de produtos à ser verificado no próximo loop
+                        unset($produtos[$indexProduto]);
 
                         // Localiza no array o item para remoção
                         $output = array_filter($listProductsForExtraPoints, function ($item) use ($pontuacao) {
