@@ -11,3 +11,4 @@
 /tools/*
 /cookie.txt
 webroot/cookie.txt
+/webroot/cookie*

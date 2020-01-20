@@ -2067,7 +2067,8 @@ class PontuacoesComprovantesController extends AppController
          * os principios MVC, então as consultas e execução ficarão todas aqui
          */
 
-        $debug = true;
+        $logDebug = true;
+        $isDebug = false;
 
         // $rede = $this->Redes->get($redesId);
 
@@ -2075,9 +2076,14 @@ class PontuacoesComprovantesController extends AppController
          * Passo 1: Obter todos os Cupons Fiscais da rede, com os dados de pontuação;
          */
 
-        $where = function (QueryExpression $exp) use ($redesId) {
+        $where = function (QueryExpression $exp) use ($redesId, $isDebug) {
             $exp->eq("Redes.id", $redesId)
                 ->gte("PontuacoesComprovantes.data", "2020-01-17 17:00:00");
+
+            if ($isDebug) {
+                // só em caso de debug
+                $exp->eq("PontuacoesComprovantes.usuarios_id", 216);
+            }
 
             return $exp;
         };
@@ -2164,7 +2170,7 @@ class PontuacoesComprovantesController extends AppController
             $funcionario = $comprovante->funcionario;
             $usuario = $comprovante->usuario;
 
-            if ($debug) {
+            if ($logDebug) {
                 echo sprintf("Obtendo CF {%s} da Sefaz... <br />", $comprovante->conteudo);
                 flush();
             }
@@ -2172,7 +2178,7 @@ class PontuacoesComprovantesController extends AppController
             // Só faz o processamento se teve sucesso em obter os dados
             if ($statusCode == 200) {
 
-                if ($debug) {
+                if ($logDebug) {
                     echo sprintf("Dados obtidos... <br />");
                     flush();
                 }
@@ -2231,7 +2237,7 @@ class PontuacoesComprovantesController extends AppController
 
                 reset($listProductsForExtraPoints);
 
-                // DebugUtil::printArray($listProductsToCheck);
+                // DebugUtil::printArray($listProductsToCheck, false);
 
                 if ($rede->pontuacao_extra_produto_generico) {
                     $pontuacaoExtra = $this->processaProdutosExtras($cliente, $usuario, $funcionario, $gotasPosto, $listProductsForExtraPoints, TRANSMISSION_MODE_SEFAZ);
@@ -2253,11 +2259,13 @@ class PontuacoesComprovantesController extends AppController
                     $somaMultiplicador += $item->quantidade_multiplicador;
                 }
 
+                // DebugUtil::printArray($pontuacoes);
+
                 if (count($pontuacoes) > 0) {
                     // 4 Grava no banco a nova pontuação;
                     // Remove os registros antigos e grava a nova pontuação
 
-                    if ($debug) {
+                    if ($logDebug) {
                         echo sprintf("Pontuações Obtidas. Removendo CF {%s} de usuário {%s}, Posto {%d} - {%s}... <br />", $comprovante->conteudo, $usuario->nome, $cliente->id, $cliente->nome_fantasia);
                         flush();
                     }
@@ -2283,7 +2291,7 @@ class PontuacoesComprovantesController extends AppController
 
                     $pontuacoesComprovanteSave = $this->PontuacoesComprovantes->saveUpdate($pontuacoesComprovante);
 
-                    if ($debug) {
+                    if ($logDebug) {
                         echo sprintf("Inserido CF {%s} para usuário {%d} - {%s}... <br />", $pontuacoesComprovante->conteudo, $usuario->id, $usuario->nome);
                         flush();
                     }
@@ -2315,7 +2323,7 @@ class PontuacoesComprovantesController extends AppController
                     }
 
                     foreach ($pontuacoesSave as $pontuacaoSave) {
-                        $pontuacoesSave = $this->Pontuacoes->saveUpdate($pontuacaoSave);
+                        $this->Pontuacoes->saveUpdate($pontuacaoSave);
                     }
                 } else {
                     echo sprintf("No Cupom Fiscal %s da SEFAZ do estado %s não há gotas à processar conforme configurações definidas!...", $comprovante->conteudo, $cliente->estado_nfe);
@@ -2327,6 +2335,9 @@ class PontuacoesComprovantesController extends AppController
         // 5 Após todo o processo, subtrair os pontos ja utilizados pelos usuarios
 
         // Obtem todos os pontos gastos dos usuários
+
+        // die();
+
 
         $where = function (QueryExpression $exp) use ($redesId) {
             return $exp->eq("Redes.id", $redesId)
@@ -2375,7 +2386,7 @@ class PontuacoesComprovantesController extends AppController
                 null
             );
 
-            echo sprintf("Total de pontos pendentes uso: {%s}", $pointPendingUsage);
+            echo sprintf("Total de pontos pendentes uso: {%s} <br />", $pointPendingUsage);
 
             if ($pointPendingUsage) {
                 $lastId = $pointPendingUsage->id;
@@ -2388,10 +2399,10 @@ class PontuacoesComprovantesController extends AppController
                     $clientesIds
                 );
 
-            echo sprintf("Total de pontos para subtrair: {%s}", $pointsGiftsUsed);
+            echo sprintf("Total de pontos para subtrair: {%s} <br />", $pointsGiftsUsed);
 
             $pointsToProcess = $pointsToProcess + $pointsGiftsUsed;
-            echo sprintf("Total de pontos à serem processados: {%s}", $pointsToProcess);
+            echo sprintf("Total de pontos à serem processados: {%s} <br />", $pointsToProcess);
 
             while ($canContinue) {
                 $pointPendingUsage = $this->Pontuacoes->getPontuacoesPendentesForUsuario(
@@ -2986,11 +2997,12 @@ class PontuacoesComprovantesController extends AppController
                     }
                 }
 
+                $pontuacoesSaved = false;
                 foreach ($pontuacoesSave as $pontuacaoSave) {
-                    $pontuacoesSave = $this->Pontuacoes->saveUpdate($pontuacaoSave);
+                    $pontuacoesSaved = $this->Pontuacoes->saveUpdate($pontuacaoSave);
                 }
 
-                if ($pontuacoesSave) {
+                if ($pontuacoesSaved) {
                     // Vincula o usuário que está obtendo gotas ao posto de atendimento se ele já não estiver vinculado
 
                     $usuarioClienteCheck = $this->ClientesHasUsuarios->getClienteUsuario($cliente->id, $usuario->id);
