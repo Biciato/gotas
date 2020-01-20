@@ -2076,7 +2076,8 @@ class PontuacoesComprovantesController extends AppController
          */
 
         $where = function (QueryExpression $exp) use ($redesId) {
-            $exp->eq("Redes.id", $redesId);
+            $exp->eq("Redes.id", $redesId)
+                ->gte("PontuacoesComprovantes.data", "2020-01-17 17:00:00");
 
             return $exp;
         };
