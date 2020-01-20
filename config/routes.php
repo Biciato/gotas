@@ -273,6 +273,11 @@ Router::scope("/api", function ($routes) {
                     "method" => Request::METHOD_POST,
                     "path" => "/set_pontuacoes_usuario_via_posto"
                 ),
+                "deleteComprovanteFiscalAPI" => [
+                    "action" => "deleteComprovanteFiscalAPI",
+                    "method" => Request::METHOD_DELETE,
+                    "path" => "/delete_comprovante_fiscal"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "removerPontuacoesDevAPI" => array(
                     "action" => "removerPontuacoesDevAPI",

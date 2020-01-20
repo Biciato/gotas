@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -17,7 +18,7 @@ use Cake\ORM\Entity;
  * @property bool $requer_auditoria
  * @property bool $auditado
  * @property \Cake\I18n\FrozenTime $data
- * @property bool $registro_invalido
+ * @property bool $cancelado
  * @property \Cake\I18n\FrozenTime $audit_insert
  * @property \Cake\I18n\FrozenTime $audit_update
  *

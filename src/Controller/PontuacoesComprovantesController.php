@@ -3,36 +3,27 @@
 namespace App\Controller;
 
 use \DateTime;
+use Exception;
+use stdClass;
+
 use App\Controller\AppController;
 use App\Custom\RTI\DateTimeUtil;
-use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\Entity\Mensagem;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\QRCodeUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\SefazUtil;
-use App\Custom\RTI\StringUtil;
 use App\Custom\RTI\WebTools;
-use App\Model\Entity\Cliente;
-use App\Model\Entity\Usuario;
-use App\Model\Entity\Gota;
 use App\Model\Entity\Pontuacao;
 use App\Model\Entity\PontuacoesComprovante;
-use App\Model\Entity\PontuacoesPendente;
 use App\View\Helper\AddressHelper;
-use Cake\Auth\DefaultPasswordHasher;
-use Cake\Collection\Collection;
+
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Event\Event;
 use Cake\Http\Client\Request;
 use Cake\Log\Log;
-use Cake\Mailer\Email;
-use Cake\Routing\Router;
-use Cake\View\Helper\UrlHelper;
-use Exception;
-use stdClass;
 
 /**
  * PontuacoesComprovantes Controller
@@ -1361,7 +1352,7 @@ class PontuacoesComprovantesController extends AppController
                 $comprovanteSave->requer_auditoria = false;
                 $comprovanteSave->auditado = false;
                 $comprovanteSave->data = $dataProcessamento;
-                $comprovanteSave->registro_invalido = false;
+                $comprovanteSave->cancelado = false;
 
                 $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovanteSave);
 
@@ -1527,9 +1518,8 @@ class PontuacoesComprovantesController extends AppController
                 $comprovanteSave->requer_auditoria = false;
                 $comprovanteSave->auditado = false;
                 $comprovanteSave->data = $dataProcessamento;
-                $comprovanteSave->registro_invalido = false;
+                $comprovanteSave->cancelado = false;
 
-                // @todo Fazer método saveUpdate
                 $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovanteSave);
 
                 foreach ($pontuacoes as $pontuacaoItem) {
@@ -2036,6 +2026,65 @@ class PontuacoesComprovantesController extends AppController
                 )
             );
             return ResponseUtil::successAPI(MSG_PROCESSING_COMPLETED, $retorno);
+        }
+    }
+
+    /**
+     * Cancela um cupom
+     *
+     * Método REST que faz o cancelamento de um cupom fiscal
+     *
+     * @param $data["qr_code"] QRCode à ser cancelado
+     *
+     * @return void
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/01/2020
+     */
+    public function deleteComprovanteFiscalAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+        try {
+            if ($this->request->is([Request::METHOD_DELETE])) {
+                $data = $this->request->getData();
+
+                $qrCode = !empty($data["qr_code"]) ? $data["qr_code"] : null;
+
+                if (empty($qrCode)) {
+                    throw new Exception(MSG_QR_CODE_EMPTY, MSG_QRCODE_EMPTY_CODE);
+                }
+
+                $comprovante = $this->PontuacoesComprovantes->getCouponByQRCode($qrCode);
+
+                if ($comprovante->cancelado) {
+                    throw new Exception(MSG_CUPONS_PRINTED_ALREADY_CANCELLED, MSG_CUPONS_PRINTED_ALREADY_CANCELLED_CODE);
+                }
+
+                $comprovante->cancelado = true;
+                $pontuacoes = [];
+
+                foreach ($comprovante->pontuacoes as $pontuacao) {
+                    $pontuacao->utilizado = 2;
+                    $pontuacoes[] = $pontuacao;
+                }
+
+                $comprovante->pontuacoes = $pontuacoes;
+
+                $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovante);
+
+                if ($comprovante) {
+                    return ResponseUtil::successAPI(MSG_PONTUACOES_COMPROVANTES_QR_CODE_CANCELLED_SUCESSFULLY);
+                }
+            }
+        } catch (\Throwable $th) {
+            $errors[] = $th->getMessage();
+            $errorCodes[] = $th->getCode();
+            $message = sprintf("[%s] %s: %s", MSG_DELETE_EXCEPTION, $th->getCode(), $th->getMessage());
+            Log::write("error", $message);
+
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, $errors, [], $errorCodes);
         }
     }
 

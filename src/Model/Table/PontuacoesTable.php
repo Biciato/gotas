@@ -119,7 +119,7 @@ class PontuacoesTable extends GenericTable
                 'foreignKey' => 'pontuacoes_comprovante_id',
                 'joinType' => 'INNER',
                 'conditions' => [
-                    'PontuacoesAprovadas.registro_invalido' => 0
+                    'PontuacoesAprovadas.cancelado' => 0
                 ]
             ]
         );
@@ -378,11 +378,11 @@ class PontuacoesTable extends GenericTable
      *
      * @param int   $usuarios_id       Id de usu´rio
      * @param array $array_clientes_id Array de Clientes Id
-     * @param bool  $registro_invalido Tipos de registros inválidos (false = válidos / true = inválidos)
+     * @param bool  $cancelado Tipos de registros inválidos (false = válidos / true = inválidos)
      *
      * @return array $pontuacoes
      **/
-    public function getPontuacoesOfUsuario(int $usuarios_id, array $array_clientes_id, bool $registro_invalido)
+    public function getPontuacoesOfUsuario(int $usuarios_id, array $array_clientes_id, bool $cancelado)
     {
         try {
             /*
@@ -403,7 +403,7 @@ class PontuacoesTable extends GenericTable
                     [
                         'usuarios_id' => $usuarios_id,
                         'clientes_id  in ' => $array_clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     ]
                 )
                 ->select('id');
@@ -416,7 +416,7 @@ class PontuacoesTable extends GenericTable
                 }
             }
 
-            if ($registro_invalido) {
+            if ($cancelado) {
                 if (count($pontuacoes_invalidas_array) > 0) {
                     $pontuacoes
                         = $this->find('all')
@@ -508,7 +508,7 @@ class PontuacoesTable extends GenericTable
                     [
                         'usuarios_id' => $usuarios_id,
                         'clientes_id IN ' => $clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     ]
                 )->toArray();
 
@@ -657,7 +657,7 @@ class PontuacoesTable extends GenericTable
                         [
                             "usuarios_id" => $usuariosId,
                             "clientes_id in " => $clientesIds,
-                            "registro_invalido" => 0,
+                            "cancelado" => 0,
                         ]
                     )->select(['id']);
 
@@ -928,7 +928,7 @@ class PontuacoesTable extends GenericTable
                     array(
                         'usuarios_id' => $usuarios_id,
                         'clientes_id IN ' => $clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     )
                 )->toArray();
 
@@ -1588,7 +1588,7 @@ class PontuacoesTable extends GenericTable
                         ->where(
                             array(
                                 "id" => $pontuacao["pontuacoes_comprovante_id"],
-                                "registro_invalido" => 0
+                                "cancelado" => 0
                             )
                         )->first();
 
