@@ -2193,6 +2193,7 @@ class PontuacoesComprovantesController extends AppController
                 $listProductsToCheck = [];
                 $listProductsForExtraPoints = $produtos;
 
+                // DebugUtil::printArray($produtos);
                 // DebugUtil::printArray($gotasPosto);
 
                 foreach ($gotasPosto as $gota) {

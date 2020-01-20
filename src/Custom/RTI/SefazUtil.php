@@ -202,6 +202,12 @@ class SefazUtil
                         $descricao = str_replace(chr(160), '', $descricao);
                         $descricao = preg_replace('!\t+\s+!', ' ', $descricao);
 
+                        if (strpos($texto, "(Código") !== false) {
+                            $posicaoParentese = strpos($texto, "(Código");
+                            $descricao = substr($descricao, 0, $posicaoParentese);
+                            $descricao = trim($descricao);
+                        }
+
                         $item["descricao"] = $descricao;
 
                         // Captura de quantidade
@@ -463,6 +469,16 @@ class SefazUtil
                         $posicaoQuantidade = strpos($texto, " Qtde total de ítens");
                         $descricao = substr($texto, 0, $posicaoQuantidade);
                         $posicaoParentese = strpos($texto, $textoQuantidade);
+
+                        // Remove caracteres especiais de delimitação
+                        $descricao = str_replace(chr(194), ' ', $descricao);
+                        $descricao = str_replace(chr(160), '', $descricao);
+                        $descricao = preg_replace('!\t+\s+!', ' ', $descricao);
+
+                        if (strpos($texto, "(Código") !== false) {
+                            $posicaoParentese = strpos($texto, "(Código");
+                        }
+
                         $descricao = substr($texto, 0, $posicaoParentese);
                         $descricao = trim($descricao);
                         $item["descricao"] = $descricao;
