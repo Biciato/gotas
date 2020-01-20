@@ -2071,12 +2071,9 @@ class PontuacoesComprovantesController extends AppController
                 }
 
                 $comprovante->pontuacoes = $pontuacoes;
-
                 $comprovante = $this->PontuacoesComprovantes->saveUpdate($comprovante);
 
-                if ($comprovante) {
-                    return ResponseUtil::successAPI(MSG_PONTUACOES_COMPROVANTES_QR_CODE_CANCELLED_SUCESSFULLY);
-                }
+                return ResponseUtil::successAPI(MSG_PONTUACOES_COMPROVANTES_QR_CODE_CANCELLED_SUCESSFULLY);
             }
         } catch (\Throwable $th) {
             $errors[] = $th->getMessage();
