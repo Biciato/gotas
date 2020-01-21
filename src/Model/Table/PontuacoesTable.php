@@ -1404,7 +1404,8 @@ class PontuacoesTable extends GenericTable
                 "Gotas",
                 "Usuarios",
                 "Clientes",
-                "Funcionarios"
+                "Funcionarios",
+                "PontuacoesComprovantes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
@@ -1427,6 +1428,10 @@ class PontuacoesTable extends GenericTable
             } else {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
             }
+
+            // Elimina os cupons cancelados
+
+            $whereConditions[] = ["PontuacoesComprovantes.cancelado" => 0];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                 $groupConditions[] = "Usuarios.id";
@@ -1492,7 +1497,7 @@ class PontuacoesTable extends GenericTable
             $gotasTable = $this->Gotas;
 
             $whereConditions = array(
-                "usuarios_id" => $usuariosId
+                "Pontuacoes.usuarios_id" => $usuariosId
             );
 
             $clientesBrindesHabilitadosIds = array();
@@ -1506,7 +1511,7 @@ class PontuacoesTable extends GenericTable
 
             // Senão, verifica se $clientesIds está com valor, se tiver, adiciona na pesquisa
             if (count($clientesIds) > 0) {
-                $whereConditions[] = array("clientes_id in " => $clientesIds);
+                $whereConditions[] = array("Pontuacoes.clientes_id in " => $clientesIds);
             };
 
             /**
@@ -1546,16 +1551,19 @@ class PontuacoesTable extends GenericTable
 
             // Se não especificar data, filtra todo mundo
             if ($dataInicio && $dataFim) {
-                $whereConditions[] = ["data >= " => $dataInicio];
-                $whereConditions[] = ["data <= " => $dataFim];
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             } else if ($dataInicio) {
-                $whereConditions[] = ["data >= " => $dataInicio];
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
             } else if ($dataFim) {
-                $whereConditions[] = ["data <= " => $dataFim];
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
+
+            $whereConditions[] = ["PontuacoesComprovantes.cancelado" => 0];
 
             $pontuacoesQuery = $this->find("all")
                 ->where($whereConditions)
+                ->contain(["PontuacoesComprovantes"])
                 ->order($orderConditions);
 
             // DebugUtil::printArray($pontuacoesQuery->toArray());
@@ -1667,13 +1675,10 @@ class PontuacoesTable extends GenericTable
             );
 
             return $resultado;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao obter pontuações: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 

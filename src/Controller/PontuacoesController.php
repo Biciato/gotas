@@ -806,7 +806,15 @@ class PontuacoesController extends AppController
                 $paginationConditions = array();
 
                 if (isset($data["order_by"])) {
-                    $orderConditions = $data["order_by"];
+                    $ordersTemp = $data["order_by"];
+
+                    foreach ($ordersTemp as $key => $value) {
+                        if (strpos(".", $key) !== false) {
+                            $orderConditions[$key] = $value;
+                        } else {
+                            $orderConditions["Pontuacoes." . $key] = $value;
+                        }
+                    }
                 }
 
                 if (isset($data["pagination"])) {
@@ -880,13 +888,13 @@ class PontuacoesController extends AppController
                 return;
             }
             $mensagem = array("status" => 1, "message" => Configure::read("messageLoadDataWithSuccess"));
-        } catch (\Exception $e) {
-            $messageString = __("Não foi possível obter pontuações do usuário na rede!");
-            $trace = $e->getTrace();
-            $mensagem = array('status' => false, 'message' => $messageString, 'errors' => $trace);
-            $messageStringDebug = __("{0} - {1} em: {2}. [Função: {3} / Arquivo: {4} / Linha: {5}]  ", $messageString, $e->getMessage(), $trace[1], __FUNCTION__, __FILE__, __LINE__);
+        } catch (\Throwable $th) {
+            $errors[] = $th->getMessage();
+            $errorCodes[] = $th->getCode();
+            $message = sprintf("[%s] %s: %s", MSG_DELETE_EXCEPTION, $th->getCode(), $th->getMessage());
+            Log::write("error", $message);
 
-            Log::write("error", $messageStringDebug);
+            return ResponseUtil::errorAPI(MSG_DELETE_EXCEPTION, $errors, [], $errorCodes);
         }
 
         $arraySet = array(
@@ -1255,8 +1263,6 @@ class PontuacoesController extends AppController
                         $totalSaidaReais = $somaReaisSaidas;
                         $totalSaidaGotas = $somaSaidas;
                         $totalEntradas = $somaEntradas;
-
-
                     }
 
                     // usort($entradas, function ($a, $b) {

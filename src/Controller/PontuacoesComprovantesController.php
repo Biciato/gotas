@@ -2058,6 +2058,10 @@ class PontuacoesComprovantesController extends AppController
 
                 $comprovante = $this->PontuacoesComprovantes->getCouponByQRCode($qrCode);
 
+                if (empty($comprovante)) {
+                    throw new Exception(MESSAGE_RECORD_NOT_FOUND, MESSAGE_RECORD_NOT_FOUND_CODE);
+                }
+
                 if ($comprovante->cancelado) {
                     throw new Exception(MSG_CUPONS_PRINTED_ALREADY_CANCELLED, MSG_CUPONS_PRINTED_ALREADY_CANCELLED_CODE);
                 }
