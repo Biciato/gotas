@@ -222,17 +222,10 @@ class PontuacoesComprovantesTable extends GenericTable
             $pontuacoesComprovante['auditado'] = $auditado;
 
             return $this->save($pontuacoesComprovante);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao criar registro: {0}", $e->getMessage());
-
-            $trace = $e->getTrace();
-            Log::write('error', $stringError);
-
-            if (Configure::read("debug")) {
-                Log::write('error', $trace);
-            }
-
-            return $stringError;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MESSAGE_SAVED_EXCEPTION_CODE);
         }
     }
 
