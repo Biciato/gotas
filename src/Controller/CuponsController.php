@@ -2585,9 +2585,14 @@ class CuponsController extends AppController
 
                         if (!$validacaoCodigos) {
                             // @todo ver com samuel como ficará o retorno do erro
+                            // @TODO Este ponto ainda está pendente
                             $errors[] = "Código do Cupom não corresponde ao código do equipamento!";
                             break;
                         }
+
+                        // SE chegou aqui, é pq deu erro
+
+                        return ResponseUtil::errorAPI(MSG_ERROR, [MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK], [], [MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK_ERROR]);
                     }
                 }
 

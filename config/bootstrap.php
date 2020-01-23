@@ -476,6 +476,9 @@ const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
 const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
 
+const MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK = "Estoque insuficiente para brinde solicitado no sistema!";
+const MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK_ERROR = 0x00020001;
+
 #endregion
 
 #region Categorias Brindes
