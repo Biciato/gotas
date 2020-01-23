@@ -1559,7 +1559,7 @@ class PontuacoesTable extends GenericTable
                 $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
 
-            $whereConditions[] = ["PontuacoesComprovantes.cancelado" => 0];
+            $whereConditions[] = ["OR" => ["PontuacoesComprovantes.cancelado" => 0, "Pontuacoes.brindes_id IS NOT NULL"]];
 
             $pontuacoesQuery = $this->find("all")
                 ->where($whereConditions)
@@ -1586,6 +1586,8 @@ class PontuacoesTable extends GenericTable
                 $isCompra = true;
                 $isBrinde = true;
             }
+
+            // return ResponseUtil::successAPI('', $todasPontuacoes);
 
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
@@ -1624,6 +1626,8 @@ class PontuacoesTable extends GenericTable
                                 "habilitado" => 1
                             )
                         )->first();
+
+                    // return ResponseUtil::successAPI('', $brinde);
 
                     // $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
