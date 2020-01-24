@@ -189,6 +189,7 @@ $(document).ready(function () {
             option.value = 0;
             option.textContent = "<Selecione um estabelecimento para continuar...>";
             clientesRede.empty();
+            var clientesSelectedItem = {};
 
             if (redesId === 0 || redesId === undefined || isNaN(parseInt(redesId)))
                 return false;
