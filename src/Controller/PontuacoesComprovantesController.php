@@ -3035,7 +3035,7 @@ class PontuacoesComprovantesController extends AppController
 
                     // só adiciona a bonificação se o registro existir na tabela.
                     if (!empty($gotaBonificacaoSistema)) {
-                        $pontuacao = $this->Pontuacoes->newEntity();
+                        $pontuacao = new Pontuacao();
                         $pontuacao->pontuacoes_comprovante_id = $pontuacaoComprovanteId;
                         $pontuacao->clientes_id = $cliente->id;
                         $pontuacao->usuarios_id = $usuario->id;
