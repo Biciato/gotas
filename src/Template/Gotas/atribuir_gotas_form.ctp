@@ -17,20 +17,20 @@ use Cake\Core\Configure;
 
     <?php if (isset($clientes_id)) : ?>
 
-    <?= $this->Form->input('clientes_id', [
-        'type' => 'text',
-        'class' => 'hidden',
-        'id' => 'clientes_id',
-        'value' => $clientes_id,
-        'label' => false
-    ]) ?>
-    <?= $this->Form->input('clientesCNPJ', [
-        'type' => 'text',
-        'class' => 'hidden',
-        'id' => 'clientesCNPJ',
-        'value' => $clientesCNPJ,
-        'label' => false
-    ]) ?>
+        <?= $this->Form->input('clientes_id', [
+            'type' => 'text',
+            'class' => 'hidden',
+            'id' => 'clientes_id',
+            'value' => $clientes_id,
+            'label' => false
+        ]) ?>
+        <?= $this->Form->input('clientesCNPJ', [
+            'type' => 'text',
+            'class' => 'hidden',
+            'id' => 'clientesCNPJ',
+            'value' => $clientesCNPJ,
+            'label' => false
+        ]) ?>
 
     <?php endif; ?>
 
@@ -359,7 +359,7 @@ use Cake\Core\Configure;
 <div>
     <?php
 
-    if ($estado_funcionario != "MG"){
+    if ($estado_funcionario != "MG") {
         // echo $this->element('../Gotas/gotas_input_form_com_ocr');
     } else {
         echo $this->element('../Gotas/gotas_input_form_sem_ocr');
@@ -378,13 +378,7 @@ $extensionCss = $debug ? ".css" : ".min.css";
 // echo $this->Html->css("styles/gotas/gotas_input_form_sem_ocr" . $extensionCss);
 // echo $this->Html->script("scripts/gotas/gotas_input_form_sem_ocr" . $extensionJs);
 
-if (Configure::read('debug')) : ?>
-<?= $this->Html->css('styles/gotas/atribuir_gotas_form') ?>
-<?= $this->Html->script('scripts/gotas/atribuir_gotas_form') ?>
-<?php else : ?>
-<?= $this->Html->css('styles/gotas/atribuir_gotas_form.min') ?>
-<?= $this->Html->script('scripts/gotas/atribuir_gotas_form.min') ?>
-<?php endif; ?>
-
-<?= $this->fetch('css') ?>
-<?= $this->fetch('script') ?>
+$extension = Configure::read("debug") ? ""  : ".min";
+?>
+<script src="/webroot/js/scripts/gotas/atribuir_gotas_form<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/gotas/atribuir_gotas_form<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">

@@ -217,14 +217,14 @@ $(document).ready(function () {
 
                                 $.each(result.usuarios, function (index, value) {
 
-                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
+                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fas fa-check-circle'></i> Selecionar</div>" + "</td></tr>";
                                     $("#user-result-plates ").append(html);
                                 });
                             }
                             else {
                                 $.each(result.usuarios, function (index, value) {
 
-                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fa fa-check-circle-o'></i> Selecionar</div>" + "</td></tr>";
+                                    var html = "<tr><td>" + value.nome + "</td><td>" + value.data_nasc + "</td><td>" + "<div class='btn btn-primary btn-xs select-button' value='" + value.id + "'><i class='fas fa-check-circle'></i> Selecionar</div>" + "</td></tr>";
 
                                     $("#user-result-names ").append(html);
 

@@ -20,6 +20,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 <?= $this->element('../Pages/left_menu', ['item_selected' => 'atribuir_gotas']) ?>
 
 <?php
-    echo $this->element('../Gotas/atribuir_gotas_form')
+echo $this->element('../Gotas/atribuir_gotas_form')
 ?>
 
