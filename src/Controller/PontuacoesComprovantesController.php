@@ -17,6 +17,7 @@ use App\Custom\RTI\SefazUtil;
 use App\Custom\RTI\WebTools;
 use App\Model\Entity\Pontuacao;
 use App\Model\Entity\PontuacoesComprovante;
+use App\Model\Entity\PontuacoesPendente;
 use App\View\Helper\AddressHelper;
 
 use Cake\Core\Configure;
@@ -2626,6 +2627,7 @@ class PontuacoesComprovantesController extends AppController
             foreach ($validacaoQRCode["data"] as $key => $value) {
                 if ($value["key"] == "chNFe") {
                     $chaveNfe = $value["content"];
+                    break;
                 }
             }
         }
@@ -2928,6 +2930,24 @@ class PontuacoesComprovantesController extends AppController
                             MSG_PONTUACOES_COMPROVANTES_TICKET_NOT_AUTHORIZED_CODE
                         ];
 
+                        // Gera novo registro de pontuação pendente SE ainda não está pendente
+                        $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+
+                        if (empty($pontuacaoPendente)) {
+                            $pontuacaoPendente = new PontuacoesPendente();
+                            $pontuacaoPendente->clientes_id = $cliente->id;
+                            $pontuacaoPendente->usuarios_id = $usuario->id;
+                            $pontuacaoPendente->funcionarios_id = $funcionario->id;
+                            $pontuacaoPendente->conteudo = $url;
+                            $pontuacaoPendente->chave_nfe = $chave;
+                            $pontuacaoPendente->estado_nfe = $cliente->estado;
+                            $pontuacaoPendente->data = (new DateTime('now'))->format("Y-m-d H:i:s");
+                        }
+
+                        $pontuacaoPendente->registro_processado = true;
+
+                        $this->PontuacoesPendentes->saveUpdate($pontuacaoPendente);
+
                         return ResponseUtil::errorAPI(MESSAGE_GENERIC_COMPLETED_ERROR, $error, [], $errorCodes);
                     }
                 }
@@ -2935,7 +2955,17 @@ class PontuacoesComprovantesController extends AppController
 
             #endregion
 
-            $produtos = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chave, $cliente, $funcionario, $usuario);
+            $produtos = [];
+
+            try {
+                $produtos = SefazUtil::obtemProdutosSefaz($webContent["response"], $url, $chave, $cliente, $funcionario, $usuario);
+            } catch (\Throwable $th) {
+                $message = $th->getMessage();
+                $code = $th->getCode();
+                Log::write('error', $message);
+
+                throw new Exception($message, $code);
+            }
 
             $dataProcessamento = new DateTime('now');
             $dataProcessamento = $dataProcessamento->format("Y-m-d H:i:s");
@@ -3125,6 +3155,26 @@ class PontuacoesComprovantesController extends AppController
                 $retorno = new stdClass();
                 $retorno->mensagem = $mensagem;
 
+                Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. SEFAZ operando normalmente. Definindo como processado...", $url));
+
+                // Gera novo registro de pontuação pendente SE ainda não está pendente
+                $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+
+                if (empty($pontuacaoPendente)) {
+                    $pontuacaoPendente = new PontuacoesPendente();
+                    $pontuacaoPendente->clientes_id = $cliente->id;
+                    $pontuacaoPendente->usuarios_id = $usuario->id;
+                    $pontuacaoPendente->funcionarios_id = $funcionario->id;
+                    $pontuacaoPendente->conteudo = $url;
+                    $pontuacaoPendente->chave_nfe = $chave;
+                    $pontuacaoPendente->estado_nfe = $cliente->estado;
+                    $pontuacaoPendente->data = (new DateTime('now'))->format("Y-m-d H:i:s");
+                }
+
+                $pontuacaoPendente->registro_processado = true;
+
+                $this->PontuacoesPendentes->saveUpdate($pontuacaoPendente);
+
                 return $retorno;
             }
         } elseif (!$processamentoPendente) {
@@ -3166,16 +3216,26 @@ class PontuacoesComprovantesController extends AppController
         if ($processamentoPendente) {
             $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
             // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
-            Log::write("info", sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado));
+            $message = sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado);
+            Log::write("info", $message);
+
+            $mensagem = new stdClass();
+            $mensagem->status =  false;
+            $mensagem->message =  $message;
+            $mensagem->errors =  !empty($errors) ? $errors : [];
+            $mensagem->error_codes = [];
+
+            $retorno = new stdClass();
+            $retorno->mensagem = $mensagem;
+
+            return $retorno;
+
+            // return array(
+            //     'mensagem' => $mensagem,
+            //     'pontuacoes_comprovantes' => $pontuacoesComprovantes,
+            //     'resumo' => $resumo
+            // );
         }
-
-        $mensagem = array("status" => $success, "message" => $message, "errors" => $errors);
-
-        return array(
-            'mensagem' => $mensagem,
-            'pontuacoes_comprovantes' => $pontuacoesComprovantes,
-            'resumo' => $resumo
-        );
     }
 
     /**

@@ -131,7 +131,7 @@ class WebTools
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_VERBOSE, $debug);
             // curl_setopt($curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
-            curl_setopt($curl, CURLOPT_PORT, $_SERVER['SERVER_PORT']);
+            // curl_setopt($curl, CURLOPT_PORT, $_SERVER['SERVER_PORT']);
 
 
             $data = array("email" => $email, "senha" => $senha);

@@ -10,8 +10,10 @@ namespace App\Custom\RTI;
 
 use App\Model\Entity\Cliente;
 use App\Model\Entity\Usuario;
+use App\Model\Entity\PontuacoesPendente;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
+use DateTime;
 use DOMDocument;
 use \Exception;
 
@@ -687,7 +689,7 @@ class SefazUtil
 
                 if ($importacaoFuturaAtivada) {
                     if ($code == MSG_SEFAZ_CONTINGENCY_MODE_CODE) {
-                        Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. Adicionando para processamento posterior.", $url));
+                        Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. SEFAZ em Contingência. Adicionando para processamento posterior.", $url));
 
                         $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
 
@@ -699,6 +701,28 @@ class SefazUtil
                         } else {
                             Log::write("info", sprintf("Registro já aguardando processamento, não sendo necessário novo registro. [cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s]. ", $cliente->id, $usuario->id, $funcionario->id, $url, $cliente->estado));
                         }
+                    } elseif ($code === MSG_SEFAZ_NO_DATA_FOUND_TO_IMPORT_CODE) {
+                        Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. SEFAZ operando normalmente. Definindo como processado...", $url));
+
+                        $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
+
+                        // Gera novo registro de pontuação pendente SE ainda não está pendente
+                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+
+                        if (empty($pontuacaoPendenteExiste)) {
+                            $pontuacaoPendenteExiste = new PontuacoesPendente();
+                            $pontuacaoPendenteExiste->clientes_id = $cliente->id;
+                            $pontuacaoPendenteExiste->usuarios_id = $usuario->id;
+                            $pontuacaoPendenteExiste->funcionarios_id = $funcionario->id;
+                            $pontuacaoPendenteExiste->conteudo = $url;
+                            $pontuacaoPendenteExiste->chave_nfe = $chave;
+                            $pontuacaoPendenteExiste->estado_nfe = $cliente->estado;
+                            $pontuacaoPendenteExiste->data = (new DateTime('now'))->format("Y-m-d H:i:s");
+                        }
+
+                        $pontuacaoPendenteExiste->registro_processado = true;
+
+                        $pontuacoesPendentesTable->saveUpdate($pontuacaoPendenteExiste);
                     }
                 }
 
