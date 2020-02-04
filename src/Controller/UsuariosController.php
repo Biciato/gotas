@@ -3805,7 +3805,7 @@ class UsuariosController extends AppController
             if ($user) {
 
                 // Usuário logou, verifica se o mesmo é funcionário e de rede que tem APP_PERSONALIZADO
-                if (in_array($user->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
+                if ($usuario->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuario->tipo_perfil <= PROFILE_TYPE_WORKER) {
 
                     $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
                     $cliente = null;
