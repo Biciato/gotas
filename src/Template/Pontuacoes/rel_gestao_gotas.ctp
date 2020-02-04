@@ -23,11 +23,17 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 ?>
 
-<nav class="col-lg-3 col-md-2 " id="actions-sidebar">
-    <ul class="nav nav-pills nav-stacked">
-        <li class="active"><a><?= __('Ações') ?></a></li>
-    </ul>
-</nav>
+<?php if ($usuarioLogado->tipo_perfil !== PROFILE_TYPE_WORKER) : ?>
+    <nav class="col-lg-3 col-md-2 " id="actions-sidebar">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a><?= __('Ações') ?></a></li>
+        </ul>
+    </nav>
+<?php else : ?>
+
+    <?= $this->element('../Pages/left_menu', ["item_selected" => "rel_gestao_gotas"]) ?>
+<?php endif; ?>
+
 
 <div class="col-lg-9">
     <legend>
@@ -67,7 +73,13 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
+                                <label for="funcionarios_list">Funcionário:</label>
+                                <select name="funcionarios_list" id="funcionarios-list" class="form-control">
+                                </select>
+                            </div>
+
+                            <div class="col-lg-2">
                                 <label for="tipo_movimentacao">Tipo Movimentação:</label>
                                 <select name="tipo_movimentacao" id="tipo-movimentacao" class="form-control">
                                     <option value="<?= TYPE_OPERATION_IN ?>"><?= TYPE_OPERATION_IN ?></option>
@@ -75,7 +87,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 </select>
                             </div>
 
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
                                 <label for="tipo_relatorio">Tipo Relatório:</label>
 
                                 <select name="tipo_relatorio" id="tipo-relatorio" class="form-control">
@@ -83,11 +95,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <option value="<?= REPORT_TYPE_SYNTHETIC ?>" selected><?= REPORT_TYPE_SYNTHETIC ?></option>
                                 </select>
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
                                 <label for="data-fim">Data Fim:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
                             </div>
@@ -105,7 +117,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                             </div>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -179,5 +190,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 </div>
 
 
-<script src="/webroot/js/scripts/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.js"></script>
-<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.css" />
+<script src="/webroot/js/scripts/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/pontuacoes/rel_gestao_gotas<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION ?>" />

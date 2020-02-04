@@ -1,20 +1,25 @@
-$(function () {
+$
+    (function () {
         'use strict';
         // #region Properties
 
         var form = {};
-        var clientesSelectListBox = $("#clientes-list");
-        var clientesSelectedItem = {};
-        var clientesList = [];
-        var brindesSelectListBox = $("#brindes-list");
-        var brindesList = [];
-        var brindesSelectedItem = {};
-        var gotasList = [];
-        var gotasSelectListBox = $("#gotas-list");
-        var gotasSelectedItem = {};
         var redesList = [];
         var redesSelectListBox = $("#redes-list");
         var redesSelectedItem = {};
+        var clientesSelectListBox = $("#clientes-list");
+        var clientesSelectedItem = {};
+        var clientesList = [];
+        // Referência
+        var gotasList = [];
+        var gotasSelectListBox = $("#gotas-list");
+        var gotasSelectedItem = {};
+        var brindesSelectListBox = $("#brindes-list");
+        var brindesList = [];
+        var brindesSelectedItem = {};
+        var funcionariosList = [];
+        var funcionariosSelectedItem = {};
+        var funcionariosSelectListBox = $("#funcionarios-list");
 
         var tabela = $("#tabela-dados");
         var conteudoTabela = $("#tabela-dados tbody");
@@ -105,6 +110,10 @@ $(function () {
             gotasSelectListBox.empty();
             gotasSelectListBox.append(option1);
             gotasList.push(item);
+
+            // Na inicialização, pega todos os funcionários da rede
+            funcionariosSelectListBox.unbind("change");
+            funcionariosSelectListBox.on("change", funcionariosSelectListBoxOnChange);
 
             // Dispara todos os eventos que precisam de inicializar
             // dataInicioOnChange();
@@ -259,6 +268,16 @@ $(function () {
             }
         }
 
+        function funcionariosSelectListBoxOnChange() {
+            var funcionario = parseInt(this.value);
+
+            if (isNaN(funcionario)) {
+                funcionario = 0;
+            }
+
+            funcionariosSelectedItem = funcionariosList.find(x => x.id = funcionario);
+        }
+
         /**
          * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::imprimirRelatorio
          *
@@ -296,6 +315,7 @@ $(function () {
 
             if (redesSelectedItem.id > 0) {
                 getClientesList(redesSelectedItem.id);
+                // getFuncionariosList(redesSelectedItem.id);
             } else {
                 var option = document.createElement("option");
                 option.value = 0;
@@ -305,6 +325,14 @@ $(function () {
                 clientesList = [];
                 clientesSelectListBox.empty();
                 clientesSelectListBox.append(option);
+
+                funcionariosList = [];
+                funcionariosSelectListBox.empty();
+                var option = document.createElement("option");
+                option.value = 0;
+                option.textContent = "Selecione uma Rede/Estabelecimento para continuar...";
+                option.title = "Selecione uma Rede/Estabelecimento para continuar...";
+                funcionariosSelectListBox.append(option);
 
                 brindesList = [];
                 var option = document.createElement("option");
@@ -329,11 +357,11 @@ $(function () {
         }
 
         /**
-         * Redes On Change
+         * Tipo Movimentação On Change
          *
-         * Comportamento ao atualizar rede selecionada
+         * Comportamento ao atualizar tipo de movimentação selecionada
          *
-         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::redesSelectListBoxOnChange
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::tipoMovimentacaoOnChange
          *
          * @returns void
          *
@@ -493,6 +521,7 @@ $(function () {
 
                         if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
                             clientesSelectListBox.val(clientesSelectedItem.id);
+                            getFuncionariosList(redesSelectedItem.id, clientesSelectedItem.id);
                         }
                     }
                 },
@@ -503,9 +532,97 @@ $(function () {
                 complete: function (response) {
                     clientesSelectListBox.change();
                     brindesSelectListBox.change();
-
                 }
             });
+        }
+
+        /**
+         * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getFuncionariosList
+         *
+         * Obtem lista de funcionarios disponível para seleção
+         *
+         * @param {*} redesId Id da Rede
+         * @param {*} clientesId Id do Posto
+         *
+         * @return SelectListBox
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-09-06
+         */
+        function getFuncionariosList(redesId, clientesId) {
+            var data = {
+                tipo_perfil: [5]
+            };
+
+            if (redesId !== undefined && redesId > 0) {
+                data.redes_id = redesId;
+            }
+
+            if (clientesId !== undefined && clientesId > 0) {
+                data.clientes_id = clientesId;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/api/usuarios/get_funcionarios_list",
+                data: data,
+                dataType: "JSON",
+                success: function (response) {
+
+                    if (response.data !== undefined) {
+                        funcionariosSelectListBox.empty();
+                        funcionariosSelectListBox.prop("disabled", false);
+                        funcionariosList = [];
+
+                        var data = response.data.usuarios;
+                        var collection = [];
+                        var options = [];
+                        var option = document.createElement("option");
+                        option.title = "Selecionar Funcionário para filtro específico";
+                        option.textContent = "Todos";
+                        options.push(option);
+                        funcionariosList = [];
+
+                        data.forEach(dataItem => {
+                            var option = document.createElement("option");
+                            var item = {
+                                id: dataItem.usuario.id,
+                                nome: dataItem.usuario.nome
+                            };
+
+                            option.value = item.id;
+                            option.textContent = item.nome;
+                            collection.push(item);
+                            options.push(option);
+
+                            funcionariosList.push(item);
+                        });
+
+                        funcionariosSelectListBox.append(options);
+                        funcionariosList = collection;
+
+                        console.log(options);
+                        console.log(funcionariosList);
+
+                        if (funcionariosList.length === 1) {
+                            funcionariosSelectedItem = funcionariosList[0];
+
+                            // Option vazio e mais um funcionario? Desabilita pois só tem uma seleção possível
+                            funcionariosSelectListBox.prop("disabled", true);
+                        }
+
+                        if (funcionariosSelectedItem !== undefined && funcionariosSelectedItem.id > 0) {
+                            funcionariosSelectListBox.val(funcionariosSelectedItem.id);
+                        }
+                    }
+                },
+                error: function (response) {
+                    var data = response.responseJSON;
+                    console.log(data);
+                    callModalError(data.mensagem.message, data.mensagem.errors);
+                }
+            });
+
         }
 
         /**

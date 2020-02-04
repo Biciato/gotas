@@ -72,7 +72,6 @@ class PagesController extends AppController
         $user = $this->Auth->user();
 
         if (!$this->request->is(['post'])) {
-
             if (!$user) {
                 $this->redirect(
                     [
@@ -82,8 +81,6 @@ class PagesController extends AppController
                 );
             }
         }
-
-
 
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar  = $sessaoUsuario["usuarioAdministrar"];

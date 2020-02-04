@@ -2469,6 +2469,7 @@ class UsuariosController extends AppController
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+                $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
 
                 if ($usuarioLogado->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
                     $redesId = $sessaoUsuario["rede"]["id"];
@@ -2477,6 +2478,11 @@ class UsuariosController extends AppController
                 // Se o usuário trabalha na rede, ele tem que ter vínculo, então não se muda a seleção
                 if ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
                     $redesId = $rede->id;
+                }
+
+                // Funcionário só filtra ele mesmo
+                if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_WORKER) {
+                    $funcionariosId = $usuarioLogado->id;
                 }
 
                 // se não tiver especificado id da rede ou do cliente, retorna erro
@@ -2506,7 +2512,7 @@ class UsuariosController extends AppController
                 $clientesIds = empty($clientesId) ? [] : [$clientesId];
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, null, $tipoPerfis);
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, $funcionariosId, $tipoPerfis);
 
                 if ($usuariosList) {
                     $usuariosList = $usuariosList->toArray();
