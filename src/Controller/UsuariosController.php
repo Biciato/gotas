@@ -1918,7 +1918,7 @@ class UsuariosController extends AppController
 
         if (!is_null($unidadesIds)) {
             foreach ($unidadesIds as $key => $value) {
-                $clientesIds[] = $key;
+                $clientesIds[] = $value->id;
             }
         }
 
@@ -1935,6 +1935,8 @@ class UsuariosController extends AppController
 
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
+
+            // DebugUtil::printArray($data);
 
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
@@ -1960,11 +1962,13 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
+        // DebugUtil::printArray($redesId);
+
         $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
+        // DebugUtil::printArray($usuarios->toArray());
         $usuarios = $this->paginate($usuarios, array('limit' => 10));
 
-        // DebugUtil::printArray($usuarios->toArray());
 
         // $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'usuarioLogado');
         $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId');
