@@ -221,12 +221,19 @@ class PagesController extends AppController
      */
     public function dashboardGestor()
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $brindes_aguardando_autorizacao = [];
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
+
+        $rede = $sessaoUsuario["rede"];
+
+        $this->set(compact(["rede"]));
     }
 
     /**
@@ -371,5 +378,6 @@ class PagesController extends AppController
     }
 
     public function eula()
-    { }
+    {
+    }
 }
