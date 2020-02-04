@@ -1962,7 +1962,7 @@ class UsuariosController extends AppController
 
         $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
-        $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
+        $usuarios = $this->paginate($usuarios, array('limit' => 10));
 
         // DebugUtil::printArray($usuarios->toArray());
 
