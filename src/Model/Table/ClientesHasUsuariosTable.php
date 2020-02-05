@@ -582,7 +582,10 @@ class ClientesHasUsuariosTable extends Table
                         "ClientesHasUsuarios.usuarios_id",
                         "ClientesHasUsuarios.conta_ativa"
                     ]
-                );
+                )
+                ->order([
+                    "Usuarios.nome" => "ASC"
+                ]);
 
             return $usuarios;
         } catch (\Throwable $th) {
