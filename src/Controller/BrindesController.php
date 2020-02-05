@@ -883,7 +883,11 @@ class BrindesController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
-        $cliente = $unidades_ids->first();
+        $unidades_ids = $unidades_ids->toArray();
+        $keys = key($unidades_ids);
+        $clienteId = $keys;
+        // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
+        $cliente = $this->Clientes->get($clienteId);
         // foreach ($unidades_ids as $key => $value) {
         //     $clientes_ids[] = $key;
         // }
