@@ -325,7 +325,7 @@ $
 
             if (redesSelectedItem.id > 0) {
                 getClientesList(redesSelectedItem.id);
-                // getFuncionariosList(redesSelectedItem.id);
+                getFuncionariosList(redesSelectedItem.id);
             } else {
                 var option = document.createElement("option");
                 option.value = 0;

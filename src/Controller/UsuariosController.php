@@ -2459,6 +2459,7 @@ class UsuariosController extends AppController
         }
 
         $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
         $errors = [];
         $errorCodes = [];
 
@@ -2483,6 +2484,7 @@ class UsuariosController extends AppController
                 // Funcionário só filtra ele mesmo
                 if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_WORKER) {
                     $funcionariosId = $usuarioLogado->id;
+                    $clientesId = $cliente->id;
                 }
 
                 // se não tiver especificado id da rede ou do cliente, retorna erro
