@@ -499,7 +499,7 @@ class ClientesHasUsuariosTable extends Table
                 }
 
                 $clientes = $this->Clientes
-                    ->find('all')
+                    ->find('list')
                     ->where($whereConditions)
                     ->order(
                         [
