@@ -259,7 +259,10 @@ class PagesController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
-        $cliente = $unidades_ids->first();
+        $keys = array_keys($unidades_ids);
+        $clienteId = $keys[0];
+
+        $cliente = $this->Clientes->get($clienteId);
 
         // debug($unidades_ids);
         // foreach ($unidades_ids as $key => $value) {
