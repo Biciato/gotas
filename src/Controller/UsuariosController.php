@@ -1918,7 +1918,7 @@ class UsuariosController extends AppController
 
         if (!is_null($unidadesIds)) {
             foreach ($unidadesIds as $key => $value) {
-                $clientesIds[] = $value->id;
+                $clientesIds[] = $key;
             }
         }
 
