@@ -259,19 +259,11 @@ class PagesController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
-        $keys = array_keys($unidades_ids);
-        $clienteId = $keys[0];
-
-        $cliente = $this->Clientes->get($clienteId);
-
-        // debug($unidades_ids);
-        // foreach ($unidades_ids as $key => $value) {
-        //     $clientesIds[] = $key;
-        // }
-
+        $unidades_ids = $unidades_ids->toArray();
+        $keys = key($unidades_ids);
+        $clienteId = $keys;
         // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
-
-        // $cliente = $this->Clientes->getClienteById($clientesIds[0]);
+        $cliente = $this->Clientes->get($clienteId);
 
         // o estado do funcionário é o local onde se encontra o estabelecimento.
         $estado_funcionario = $cliente->estado;
