@@ -1369,6 +1369,7 @@ class PontuacoesTable extends GenericTable
      *
      * @param int $clientesId Clientes (Postos)
      * @param integer $gotasId Id de Gota
+     * @param integer $funcionariosId Id de Funcionário
      * @param DateTime $dataInicio Data Inicio
      * @param DateTime $dataFim Data fim
      * @param string $tipoMovimentacao Entrada / Saída
@@ -1379,7 +1380,7 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      */
-    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, int $funcionariosId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
@@ -1413,6 +1414,10 @@ class PontuacoesTable extends GenericTable
 
             if (!empty($gotasId)) {
                 $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
+            }
+
+            if (!empty($funcionariosId)) {
+                $whereConditions[] = ["Funcionarios.id" => $funcionariosId];
             }
 
             if (!empty($dataInicio)) {

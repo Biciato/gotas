@@ -934,6 +934,7 @@ class PontuacoesController extends AppController
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $gotasId =  !empty($data["gotas_id"]) ? $data["gotas_id"] : null;
                 $brindesId =  !empty($data["brindes_id"]) ? $data["brindes_id"] : null;
+                $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
                 $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
                 $tipoRelatorio = !empty($data["tipo_relatorio"]) ? $data["tipo_relatorio"] : null;
@@ -1010,11 +1011,11 @@ class PontuacoesController extends AppController
                 $totalSaidaGotas = 0;
 
                 foreach ($clientes as $cliente) {
-                    $entradas = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
+                    $entradas = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
                     // @TODO Pontuações de Saída devem vir da tabela de Cupons (pois é o que realmente foi retirado)
                     // Tabela de pontuações só guarda aquilo que foi GASTO
                     // $saidas = $this->Pontuacoes->getPontuacoesInOutForClientes($cliente->id, $brindesId, $dataInicio, $dataFim, TYPE_OPERATION_OUT, $tipoRelatorio);
-                    $saidas = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$clientesId], $brindesId, $dataInicio, $dataFim, $tipoRelatorio);
+                    $saidas = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$clientesId], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio);
 
                     // return ResponseUtil::successAPI('', ['data' => $saidas->toArray()]);
 
@@ -1045,18 +1046,6 @@ class PontuacoesController extends AppController
 
                     // Se o relatório é analítico, o agrupamento dos registros será pelo mês
                     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                        // foreach ($entradas as $entrada) {
-                        //     $dataAgrupamento = new DateTime($entrada["periodo"]);
-                        //     $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                        //     $entradasAnalitico[$dataAgrupamento]["data"][] = $entrada;
-                        // }
-
-                        // foreach ($saidas as $saida) {
-                        //     $dataAgrupamento = new DateTime($saida["periodo"]);
-                        //     $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                        //     $saidasAnalitico[$dataAgrupamento]["data"][] = $saida;
-                        // }
-
                         $entradasAnalitico = $entradas;
                         $saidasAnalitico = $saidas;
                         // Percorre dia a dia e preenche se valor é 0
@@ -1131,8 +1120,6 @@ class PontuacoesController extends AppController
                             return $a["periodo"] > $b["periodo"];
                         });
 
-                        $entradasAnaliticoTemp = [];
-
                         // Faz agrupamento por periodo
 
                         foreach ($entradasAnalitico as $entrada) {
@@ -1173,19 +1160,15 @@ class PontuacoesController extends AppController
                             }
                         }
 
-                        // return ResponseUtil::successAPI('', $entradas);
-
                         // Agora, faz somatória total e periodo
-
                         $totalEntradas = 0;
-
                         $entradasTemp = [];
 
                         // Percorre lista de entradas
                         foreach ($entradas as $keyEntradas => $periodoData) {
                             $somaPeriodo = 0;
-
                             $entradaDia = [];
+
                             // Percorre periodos
                             foreach ($periodoData["data"] as $keyData => $data) {
                                 $somaDia = 0;
@@ -1197,7 +1180,6 @@ class PontuacoesController extends AppController
                                 }
 
                                 $data["soma_dia"] = $somaDia;
-
                                 $somaPeriodo += $somaDia;
                                 $entradaDia[$keyData] = $data;
                             }
@@ -1213,9 +1195,6 @@ class PontuacoesController extends AppController
                         $totalSaidaReais = 0;
                         $totalSaidaQte = 0;
                         $saidasTemp = [];
-                        // Percorre lista de saidas
-
-                        // Percorre lista de saidas
                         // Percorre lista de saidas
                         foreach ($saidas as $keysaidas => $periodoData) {
                             $somaPeriodoGotas = 0;
@@ -1236,14 +1215,13 @@ class PontuacoesController extends AppController
                                     $somaDiaReais += $item["qte_reais"];
                                     $somaDiaQte += $item["qte"];
                                 }
+
                                 $data["soma_dia_gotas"] = $somaDiaGotas;
                                 $data["soma_dia_reais"] = $somaDiaReais;
                                 $data["soma_dia_qte"] = $somaDiaQte;
-
                                 $somaPeriodoGotas += $somaDiaGotas;
                                 $somaPeriodoReais += $somaDiaReais;
                                 $somaPeriodoQte += $somaDiaQte;
-
                                 $saidaDia[$keyData] = $data;
                             }
 
@@ -1264,14 +1242,6 @@ class PontuacoesController extends AppController
                         $totalSaidaGotas = $somaSaidas;
                         $totalEntradas = $somaEntradas;
                     }
-
-                    // usort($entradas, function ($a, $b) {
-                    //     return $a["periodo"] > $b["periodo"];
-                    // });
-
-                    // usort($saidas, function ($a, $b) {
-                    //     return $a["periodo"] > $b["periodo"];
-                    // });
 
                     $clientesPontuacoes[] = [
                         "cliente" => $cliente,

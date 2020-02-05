@@ -280,6 +280,7 @@ class CuponsTransacoesTable extends GenericTable
      * @param integer $redesId Redes Id
      * @param array $clientesIds Clientes Ids
      * @param integer $brindesId Brindes Id
+     * @param integer $funcionariosId Id de Funcionário
      * @param DateTime $minDate Min Date
      * @param DateTime $maxDate Max Date
      * @param string $tipoRelatorio Tipo Relatorio
@@ -289,11 +290,11 @@ class CuponsTransacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-12-02
      */
-    public function getTransactionsForReport(int $redesId = null, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getTransactionsForReport(int $redesId = null, array $clientesIds = [], int $brindesId = null, int $funcionariosId = null, DateTime $minDate = null, DateTime $maxDate = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
 
         try {
-            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $funcionariosId, $minDate, $maxDate) {
                 if (!empty($redesId)) {
                     $exp->eq("Redes.id", $redesId);
                 }
@@ -304,6 +305,10 @@ class CuponsTransacoesTable extends GenericTable
 
                 if (!empty($brindesId)) {
                     $exp->eq("Brindes.id", $brindesId);
+                }
+
+                if (!empty($funcionariosId)) {
+                    $exp->eq("Funcionarios.id", $funcionariosId);
                 }
 
                 if (!empty($minDate)) {

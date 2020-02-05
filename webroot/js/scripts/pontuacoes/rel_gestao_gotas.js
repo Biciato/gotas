@@ -268,6 +268,14 @@ $
             }
         }
 
+        /**
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::funcionariosSelectListBoxOnChange
+         *
+         * Comportamento ao atualizar campo de funcionários
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2020-02-05
+         */
         function funcionariosSelectListBoxOnChange() {
             var funcionario = parseInt(this.value);
 
@@ -276,6 +284,8 @@ $
             }
 
             funcionariosSelectedItem = funcionariosList.find(x => x.id = funcionario);
+
+            form.funcionariosId = funcionario;
         }
 
         /**
@@ -613,6 +623,8 @@ $
 
                         if (funcionariosSelectedItem !== undefined && funcionariosSelectedItem.id > 0) {
                             funcionariosSelectListBox.val(funcionariosSelectedItem.id);
+
+                            funcionariosSelectListBox.change();
                         }
                     }
                 },
@@ -697,13 +709,14 @@ $
          * @param {int} clientesId Id do Cliente
          * @param {int} gotasId id da Gota (Referência)
          * @param {int} brindesId id do Brinde
+         * @param {int} funcionariosId Id de funcionário
          * @param {datetime} dataInicio Data Inicio
          * @param {datetime} dataFim DataFim
          * @param {string} tipoRelatorio Analítico / Sintético
          *
          * @returns HtmlTable
          */
-        function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao) {
+        function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, funcionariosId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao) {
             // Validação
 
             var dataInicioEnvio = moment(dataInicio);
@@ -725,6 +738,7 @@ $
                 clientes_id: clientesId,
                 gotas_id: gotasId,
                 brindes_id: brindesId,
+                funcionarios_id: funcionariosId,
                 data_inicio: dataInicioEnvio,
                 data_fim: dataFimEnvio,
                 tipo_relatorio: tipoRelatorio,
@@ -1596,12 +1610,26 @@ $
             });
         }
 
+        /**
+         * Obtem Resumo de Brinde
+         *
+         * Obtem informações de resumo do brinde selecionado
+         *
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getResumoBrinde
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@gmail.com>
+         * @since 2019-12-04
+         *
+         * @param {int} brindesId
+         * @param {datetime} dataInicio
+         * @param {datetime} dataFim
+         *
+         * @returns HtmlTable
+         */
         function getResumoBrinde(brindesId, dataInicio, dataFim) {
             // Validação
-
             tabelaResumoBrinde.hide();
 
-            console.log(brindesId);
             if (tipoMovimentacaoSelectedItem === "Saída" && (brindesId !== undefined && brindesId > 0)) {
                 tabelaResumoBrinde.show();
 
@@ -1643,8 +1671,6 @@ $
                     }
                 });
             }
-
-
         }
 
         /**
@@ -1795,7 +1821,7 @@ $
         tipoRelatorio.on("change", tipoRelatorioOnChange);
 
         $(pesquisarBtn).on("click", function () {
-            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem);
+            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem);
 
             getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
         });
