@@ -2707,11 +2707,43 @@ class PontuacoesComprovantesController extends AppController
             foreach ($msgSefazNotFound as $msg) {
                 $searchMsg = strpos($webContent["response"], $msg) !== false;
 
-                // Se encontrar a mensagem, retorna erro e para o processo
+                // Se encontrar a mensagem, grava o registro para posterior processamento e retorna erro
                 if ($searchMsg) {
-                    $msg = sprintf("Erro SEFAZ: %s", $msg);
-                    $errors = [$msg];
-                    return ResponseUtil::errorAPI(MSG_WARNING, $errors, [], []);
+
+                    if (!$processamentoPendente) {
+                        $pontuacaoPendente = new PontuacoesPendente();
+                        // não haverá cliente pois não obteve cnpj, mas tenta localizar se for funcionario normal
+
+                        if (!is_null($funcionario) && $funcionario->tipo_perfil === PROFILE_TYPE_WORKER) {
+                            $clienteHasFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($funcionario->id, true);
+
+                            $cliente = $clienteHasFuncionario->cliente;
+                            $pontuacaoPendente->clientes_id = $cliente->id;
+                        }
+                        
+                        $pontuacaoPendente->estado_nfe = $estado;
+                        $pontuacaoPendente->usuarios_id = $usuario->id;
+                        $pontuacaoPendente->funcionarios_id = $funcionario->id;
+                        $pontuacaoPendente->conteudo = $url;
+                        $pontuacaoPendente->chave_nfe = $chave;
+                        $pontuacaoPendente->data = (new DateTime('now'))->format("Y-m-d H:i:s");
+                        $pontuacaoPendente->registro_processado = false;
+
+                        $this->PontuacoesPendentes->saveUpdate($pontuacaoPendente);
+                    }
+
+                    $mensagem = new stdClass();
+                    $mensagem->status = false;
+                    $mensagem->message = MSG_WARNING;
+                    $mensagem->errors = [MSG_SEFAZ_CONTINGENCY_MODE];
+                    $mensagem->error_codes = [MSG_SEFAZ_CONTINGENCY_MODE_CODE];
+
+                    $retorno = new stdClass();
+                    $retorno->mensagem = $mensagem;
+
+                    Log::write("info", sprintf("QR Code [%s] colocado como pendente pois SEFAZ ainda não retorna os dados da nota. ", $url));
+
+                    return $retorno;
                 }
             }
 

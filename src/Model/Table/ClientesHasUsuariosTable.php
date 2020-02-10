@@ -825,8 +825,7 @@ class ClientesHasUsuariosTable extends Table
 
 
             if ($filtrarPrimeiro) {
-                $clientesUsuarios = $clientesUsuarios->first();
-                return $clientesUsuarios;
+                return $clientesUsuarios->first();
             } else {
                 return $clientesUsuarios->toArray();
             }

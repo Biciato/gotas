@@ -3938,7 +3938,7 @@ class UsuariosController extends AppController
                 }
 
                 $status = false;
-                $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
+                $message = MSG_WARNING;
                 $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
                 $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
                 $usuario = null;
