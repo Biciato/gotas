@@ -28,6 +28,7 @@ $
         var tipoRelatorio = $("#tipo-relatorio");
         var pesquisarBtn = $("#btn-pesquisar");
         var imprimirBtn = $("#btn-imprimir");
+        var exportarBtn = $("#btn-exportar");
 
         //#region Dados de Brinde Selecionado
 
@@ -132,6 +133,9 @@ $
             imprimirBtn.addClass("disabled");
             imprimirBtn.addClass("readonly");
             imprimirBtn.unbind("click");
+            exportarBtn.addClass("disabled");
+            exportarBtn.addClass("readonly");
+            exportarBtn.unbind("click");
         }
 
         /**
@@ -266,6 +270,31 @@ $
                 date = moment(this.value, "DD/MM/YYYY").format("YYYY-MM-DD");
                 form.dataFim = date;
             }
+        }
+
+        /**
+         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::exportarExcel
+         *
+         * Gera Relatório Excel
+         *
+         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+         * @since 2019-09-12
+         */
+        function exportarExcel() {
+            // var content = $(".print-region").html();
+            // var regex = RegExp('<td ', 'g');
+            // var replace = "<td style=\"border: 1px solid black; min-width: 300px;\" ";
+            // content = content.replace(regex, replace);
+            // var regex = RegExp('<td>', 'g');
+            // var replace = "<td style=\"border: 1px solid black; min-width: 300px;\">";
+            // content = content.replace(regex, replace);
+            // var regex = RegExp('<span>', 'g');
+            // var replace = "";
+            // content = content.replace(regex, replace);
+            // var regex = RegExp('</span>', 'g');
+            // var replace = "";
+            // content = content.replace(regex, replace);
+            // window.open("data:application/vnd.ms-excel;charset=UTF-8," + encodeURIComponent(content));
         }
 
         /**
@@ -757,6 +786,10 @@ $
                     imprimirBtn.removeClass("readonly");
                     imprimirBtn.unbind("click");
                     imprimirBtn.on("click", imprimirRelatorio);
+                    exportarBtn.removeClass("disabled");
+                    exportarBtn.removeClass("readonly");
+                    exportarBtn.unbind("click");
+                    exportarBtn.on("click", exportarExcel);
 
                     var data = response.data.pontuacoes_report;
 
