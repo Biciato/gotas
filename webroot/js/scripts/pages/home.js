@@ -195,7 +195,7 @@ $(document).ready(function() {
     }
 
     $(".cep").on("blur", function() {
-        getCEP(this);
+        // getCEP(this);
     });
 
     // reseta o form
@@ -373,7 +373,7 @@ var getCEP = function(parameter) {
         if (validacep.test(cep)) {
             callLoaderAnimation("Pesquisando CEP...");
 
-            getGeolocalizationGoogle(cep);
+            // getGeolocalizationGoogle(cep);
 
             //Consulta o webservice viacep.com.br/
             $.ajax({

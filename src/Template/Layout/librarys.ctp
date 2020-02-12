@@ -144,10 +144,8 @@ echo $this->Html->meta('icon');
 <!-- Fim Estilos -->
 
 <!-- Bibliotecas -->
-<script src="/webroot/app/lib/angularjs/angular.min.js">
-    < /li> <
-    script src = "/webroot/app/lib/angularjs/angular-locale_pt-br.js" >
-</script>
+<script src="/webroot/app/lib/angularjs/angular.min.js"></script>
+<script src="/webroot/app/lib/angularjs/angular-locale_pt-br.js"></script>
 <script src="/webroot/app/lib/angularjs/angular-animate.min.js"></script>
 <script src="/webroot/app/lib/angularjs/angular-route.min.js"></script>
 <script src="/webroot/app/lib/angularjs/angular-sanitize.min.js"></script>
