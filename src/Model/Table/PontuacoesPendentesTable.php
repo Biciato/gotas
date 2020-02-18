@@ -8,6 +8,7 @@ use App\Controller\AppController;
 use App\Model\Entity\PontuacoesPendente;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Log\Log;
 use Cake\Event\Event;
 use Cake\ORM\Query;
@@ -175,29 +176,25 @@ class PontuacoesPendentesTable extends GenericTable
      * @param int    $usuarios_id     Id do usuário
      * @param int    $funcionarios_id Id do usuário funcionário
      * @param string $conteudo        Conteúdo da url
-     * @param string $chave_nfe       Chave do Cupom Fiscal Eletrônico
-     * @param string $estado_nfe      Estado do Cupom Fiscal Eletrônico
+     * @param string $chaveNfe       Chave do Cupom Fiscal Eletrônico
+     * @param string $estadoNfe      Estado do Cupom Fiscal Eletrônico
      *
      * @return object $entidade
      */
-    public function createPontuacaoPendenteAwaitingProcessing($clientes_id, $usuarios_id, $funcionarios_id, $conteudo, $chave_nfe, $estado_nfe)
+    public function createPontuacaoPendenteAwaitingProcessing($clientes_id, $usuarios_id, $funcionarios_id, $conteudo, $chaveNfe, $estadoNfe)
     {
         try {
-            $pontuacao_pendente = $this->newEntity();
+            $pontuacao_pendente = new PontuacoesPendente();
+            $pontuacao_pendente->clientes_id = $clientes_id;
+            $pontuacao_pendente->usuarios_id = $usuarios_id;
+            $pontuacao_pendente->funcionarios_id = $funcionarios_id;
+            $pontuacao_pendente->conteudo = $conteudo;
+            $pontuacao_pendente->chave_nfe = $chaveNfe;
+            $pontuacao_pendente->estado_nfe = $estadoNfe;
+            $pontuacao_pendente->registro_processado = false;
+            $pontuacao_pendente->data = date('Y-m-d H:i:s');
 
-            $pontuacao_pendente['clientes_id'] = $clientes_id;
-            $pontuacao_pendente['usuarios_id'] = $usuarios_id;
-            $pontuacao_pendente['funcionarios_id'] = $funcionarios_id;
-            $pontuacao_pendente['conteudo'] = $conteudo;
-            $pontuacao_pendente['chave_nfe'] = $chave_nfe;
-            $pontuacao_pendente['estado_nfe'] = $estado_nfe;
-            $pontuacao_pendente['registro_processado'] = false;
-
-            $pontuacao_pendente['data'] = date('Y-m-d H:i:s');
-
-            $pontuacao_pendente = $this->save($pontuacao_pendente);
-
-            return $pontuacao_pendente;
+            return $this->save($pontuacao_pendente);
         } catch (\Exception $e) {
             $trace = $e->getTrace();
             $stringError = __("Erro ao editar registro: " . $e->getMessage() . ", em: " . $trace[1]);
@@ -260,22 +257,29 @@ class PontuacoesPendentesTable extends GenericTable
     /**
      * Procura por pontuação pendente aguardando processamento
      *
-     * @param string $chave_nfe  Chave da NFE
-     * @param string $estado_nfe Estado de Processamento da NFE
+     * @param string $chaveNfe  Chave da NFE
+     * @param string $estadoNfe Estado de Processamento da NFE
      *
      * @return object $pontuacao_pendente
      */
-    public function findPontuacaoPendenteAwaitingProcessing(string $chave_nfe, string $estado_nfe)
+    public function findPontuacaoPendenteAwaitingProcessing(string $conteudo = null, string $chaveNfe = null, string $estadoNfe = null)
     {
         try {
+            $or1 =  function (QueryExpression $or1) use ($conteudo) {
+                return $or1->eq("PontuacoesPendentes.conteudo", $conteudo);
+            };
+            $or2 = function (QueryExpression $or2) use ($chaveNfe, $estadoNfe) {
+                return $or2->eq("PontuacoesPendentes.chave_nfe", $chaveNfe)
+                    ->eq("PontuacoesPendentes.estado_nfe", $estadoNfe);
+            };
+            $where = function (QueryExpression $exp) use ($or1, $or2) {
+                return $exp->or_([$or1, $or2]);
+            };
+
             $pontuacao_pendente = $this
                 ->find('all')
-                ->where(
-                    [
-                        'PontuacoesPendentes.chave_nfe' => $chave_nfe,
-                        'PontuacoesPendentes.estado_nfe' => $estado_nfe
-                    ]
-                )->contain(["Clientes"])
+                ->where($where)
+                ->contain(["Clientes"])
                 ->first();
 
             return $pontuacao_pendente;

@@ -830,7 +830,7 @@ class PontuacoesComprovantesController extends AppController
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
 
-                $pontuacao_pendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($data['chave_nfe'], $data['estado_nfe']);
+                $pontuacao_pendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing(null, $data['chave_nfe'], $data['estado_nfe']);
 
                 $chave_nfe = $data['chave_nfe'];
                 $estado_nfe = $data['estado_nfe'];
@@ -2634,7 +2634,7 @@ class PontuacoesComprovantesController extends AppController
         $chave = $chaveNfe;
 
         // Valida se o QR Code já foi importado anteriormente
-        $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chaveNfe, $estado);
+        $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($url, $chaveNfe, $estado);
 
         // Cupom previamente importado, interrompe processamento e avisa usuário
         if (!$cupomPreviamenteImportado["status"] && !$processamentoPendente) {
@@ -2720,7 +2720,7 @@ class PontuacoesComprovantesController extends AppController
                             $cliente = $clienteHasFuncionario->cliente;
                             $pontuacaoPendente->clientes_id = $cliente->id;
                         }
-                        
+
                         $pontuacaoPendente->estado_nfe = $estado;
                         $pontuacaoPendente->usuarios_id = $usuario->id;
                         $pontuacaoPendente->funcionarios_id = $funcionario->id;
@@ -2800,6 +2800,18 @@ class PontuacoesComprovantesController extends AppController
                 if ($cnpjEncontrado) {
                     $cnpjEncontrado = NumberUtil::limparFormatacaoNumeros($cnpjEncontrado);
                     $cliente = $this->Clientes->getClienteByCNPJ($cnpjEncontrado);
+
+                    // verifica se na rede encontrada, tem o funcionário informado.
+                    // se não tem, atribui o funcionário ao automático
+
+                    $rede = $cliente->redes_has_cliente->rede;
+
+                    $redeHasFuncionario = $this->ClientesHasUsuarios->getFuncionariosRede($rede->id, [], $funcionario->id)->first();
+
+                    // se não tem registro, então realmente não tem o funcionário informado via POST, e pega o funcionário automático.
+                    if (empty($redeHasFuncionario)) {
+                        $funcionario = $this->Usuarios->getFuncionarioFicticio();
+                    }
                 }
 
                 if (empty($cliente)) {
@@ -2963,7 +2975,7 @@ class PontuacoesComprovantesController extends AppController
                         ];
 
                         // Gera novo registro de pontuação pendente SE ainda não está pendente
-                        $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                        $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url);
 
                         if (empty($pontuacaoPendente)) {
                             $pontuacaoPendente = new PontuacoesPendente();
@@ -3169,7 +3181,7 @@ class PontuacoesComprovantesController extends AppController
                 $arraySet = array("mensagem", "pontuacoes_comprovantes", "resumo");
 
                 if ($processamentoPendente && $pontuacoesSave) {
-                    $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $cliente->estado);
+                    $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chaveNfe, $cliente->estado);
                     $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente->id, $pontuacaoComprovanteSave->id);
                 }
 
@@ -3190,7 +3202,7 @@ class PontuacoesComprovantesController extends AppController
                 Log::write("info", sprintf("URL %s não traz as 'gotas' configuradas do posto. SEFAZ operando normalmente. Definindo como processado...", $url));
 
                 // Gera novo registro de pontuação pendente SE ainda não está pendente
-                $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chave, $cliente->estado);
 
                 if (empty($pontuacaoPendente)) {
                     $pontuacaoPendente = new PontuacoesPendente();
@@ -3246,7 +3258,7 @@ class PontuacoesComprovantesController extends AppController
         Log::write("info", "Pontuação Pendente: " . $pontuacaoPendente);
 
         if ($processamentoPendente) {
-            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
+            $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chaveNfe, $estado);
             // $this->PontuacoesPendentes->setPontuacaoPendenteProcessed($pontuacaoPendente["id"], $pontuacaoComprovanteId);
             $message = sprintf("Pontuação pendente [%s] não processada por falha de comunicação à SEFAZ %s!", $pontuacaoPendente->id, $estado);
             Log::write("info", $message);
@@ -3361,14 +3373,15 @@ class PontuacoesComprovantesController extends AppController
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since  2018-05-09
      *
+     * @param string $url      QR Code da NF
      * @param string $chaveNfe Chave da Nota Fiscal
      * @param string $estado   Estado da Nota Fiscal
      *
      * @return array $array    Resultado
      */
-    public function verificarCupomPreviamenteImportado(string $chaveNfe, string $estado)
+    public function verificarCupomPreviamenteImportado(string $url, string $chaveNfe, string $estado)
     {
-        $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($chaveNfe, $estado);
+        $pontuacaoPendente = $this->PontuacoesPendentes->findPontuacaoPendenteAwaitingProcessing($url, $chaveNfe, $estado);
 
         if (!$pontuacaoPendente) {
             $pontuacaoComprovante = $this->PontuacoesComprovantes->findCouponByKey(
