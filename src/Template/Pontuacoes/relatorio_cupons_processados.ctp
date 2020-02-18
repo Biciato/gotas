@@ -100,21 +100,22 @@ echo $this->Breadcrumbs->render(
 
                         <td class="actions" style="white-space:nowrap">
                             <?=
-                                    $this->Html->link(
-                                        __(
-                                            '{0}',
-                                            $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
-                                        ),
-                                        [
-                                            'action' => 'detalhesCupom', $pontuacao->id
-                                        ],
-                                        [
-                                            'title' => 'Ver detalhes',
-                                            'class' => 'btn btn-default btn-xs',
-                                            'escape' => false
-                                        ]
-                                    )
-                                ?>
+                                $this->Html->link(
+                                    __(
+                                        '{0}',
+                                        $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                                    ),
+                                    [
+                                        'action' => 'detalhesCupom', $pontuacao->id
+                                    ],
+                                    [
+                                        'title' => 'Ver detalhes',
+                                        'class' => 'btn btn-default btn-xs',
+                                        'escape' => false
+                                    ]
+                                )
+                            ?>
+                            <a href="<?= $pontuacao->conteudo ?>" target="_blank" title="Visualizar na SEFAZ"><i class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></i></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
