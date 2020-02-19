@@ -271,6 +271,11 @@ class UsuariosTable extends GenericTable
                 function ($context) {
 
                     $data = !empty($context["data"]) ? $context["data"] : $context["providers"]["entity"];
+
+                    if (empty($data["tipo_perfil"])) {
+                        $data = $this->get($data["id"]);
+                    }
+
                     $tipoPerfil = $data["tipo_perfil"];
 
                     if (!in_array($tipoPerfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_LOCAL, PROFILE_TYPE_MANAGER, PROFILE_TYPE_USER]) && empty($telefone)) {
