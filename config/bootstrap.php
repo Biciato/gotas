@@ -317,7 +317,7 @@ const MESSAGE_RECORD_DOES_NOT_BELONG_NETWORK = 'Este registro não pertence à e
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION_CODE = 0x00000003;
 const USER_NOT_ALLOWED_TO_EXECUTE_FUNCTION = "Usuário não possui permissão para acessar esta funcionalidade!";
 
-const MSG_REPORT_TYPE_EMPTY = "Campo TIPO_RELATORIO não informado!";
+const MSG_REPORT_TYPE_EMPTY = "Campo TIPO_RELATORIO deve ser informado!";
 const MSG_REPORT_TYPE_EMPTY_CODE = 0x00000009;
 
 // Sucesso / Aviso
@@ -368,8 +368,9 @@ const MSG_SEFAZ_ALL_PRODUCTS_ALREADY_IMPORTED_CODE = 0x0000001D;
 
 // Sucesso / Aviso
 const MSG_LOAD_DATA_WITH_SUCCESS = "Dados carregados com sucesso!";
-const MESSAGE_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
-const MESSAGE_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
+const MSG_LOAD_DATA_WITH_ERROR = "Erro durante carregamento dos dados!";
+const MSG_LOAD_DATA_NOT_FOUND = "A consulta não retornou dados!";
+const MSG_LOAD_DATA_NOT_FOUND_CODE = 0x0000001E;
 
 // Mensagens de Suporte
 const MESSAGE_CONTACT_SUPPORT = "Entre em contato com o suporte.";
@@ -392,6 +393,7 @@ const MESSAGE_OPERATION_FAILURE_DURING_PROCESSING = "Erro! Não foi possível co
 const MESSAGE_GENERIC_ERROR = "Houve um erro!";
 const MESSAGE_GENERIC_COMPLETED_ERROR = "Não foi possível realizar a operação!";
 const MESSAGE_GENERIC_CHECK_FIELDS = "Verifique se todos os campos estão preenchidos!";
+const MSG_ERROR_GENERIC_AT_LEAST_ONE_FIELD = "Erro! Ao menos um dos seguintes campos devem ser informados!";
 
 #endregion
 
@@ -404,11 +406,11 @@ const PATH_IMG_NOT_AVAILABLE = "/webroot/img/icons/not-available.jpg";
 const LOGIN_API = "API";
 const LOGIN_WEB = "WEB";
 
-const MSG_ID_EMPTY = "Campo ID não informado!";
+const MSG_ID_EMPTY = "Campo ID deve ser informado!";
 const MSG_ID_EMPTY_CODE = 0x0000000A;
-const MSG_DATE_BEGIN_EMPTY = "Campo DATA_INICIO não informado!";
+const MSG_DATE_BEGIN_EMPTY = "Campo DATA_INICIO deve ser informado!";
 const MSG_DATE_BEGIN_EMPTY_CODE = 0x0000000B;
-const MSG_DATE_END_EMPTY = "Campo DATA_FIM não informado!";
+const MSG_DATE_END_EMPTY = "Campo DATA_FIM deve ser informado!";
 const MSG_DATE_END_EMPTY_CODE = 0x0000000C;
 const MSG_USUARIOS_ID_EMPTY_CODE = 0x00000017;
 const MSG_USUARIOS_ID_EMPTY = "O campo USUARIOS_ID deve ser informado!";
@@ -440,16 +442,16 @@ const MSG_BRINDES_CLIENTE_DOESNT_OFFER = "O posto/loja selecionado(a) não possu
 const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY_CODE = 0x00010002;
 const MSG_BRINDES_TYPE_EQUIPMENT_RTI_PRIMARY_CODE_EMPTY = "Se Equipamento for RTI, é necessário informar o Código Primário!";
 const MSG_BRINDES_CLIENTES_ID_EMPTY_CODE = 0x00010003;
-const MSG_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID não informado!";
+const MSG_BRINDES_CLIENTES_ID_EMPTY = "Campo CLIENTES_ID deve ser informado!";
 const MSG_BRINDES_CLIENTES_ID_REQUIRED_CODE = 0x00010004;
 const MSG_BRINDES_CLIENTES_ID_REQUIRED = "Necessário informar o Posto de Atendimento!";
 const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT_CODE = 0x00010005;
 const MSG_BRINDES_TYPE_EQUIPMENT_INCORRECT = "Campo TIPO_EQUIPAMENTO incorreto!";
 const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY_CODE = 0x00010006;
-const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO não informado!";
+const MSG_BRINDES_TYPE_EQUIPMENT_EMPTY = "Campo TIPO_EQUIPAMENTO deve ser informado!";
 const MSG_BRINDES_CONFIRM_PURCHASE_CODE = 0x00010007;
 const MSG_BRINDES_CONFIRM_PURCHASE = "Deseja confirmar o resgate dos brindes à seguir?";
-const MSG_BRINDES_ID_EMPTY = "Campo BRINDES_ID não informado!";
+const MSG_BRINDES_ID_EMPTY = "Campo BRINDES_ID deve ser informado!";
 const MSG_BRINDES_ID_EMPTY_CODE = 0x00010008;
 
 const STATUS_AUTHORIZATION_PRICE_AWAITING = "Aguardando";
@@ -462,7 +464,7 @@ const TYPE_EQUIPMENT_PRODUCT_SERVICES = "Produtos/Serviços";
 
 #region Brindes Estoque
 
-const MSG_BRINDES_ESTOQUE_QUANTITY_EMPTY = "Campo QUANTIDADE não informado!";
+const MSG_BRINDES_ESTOQUE_QUANTITY_EMPTY = "Campo QUANTIDADE deve ser informado!";
 const TYPE_OPERATION_INITIALIZE = "Criação";
 const TYPE_OPERATION_ADD_STOCK = "Adicionado ao Estoque";
 const TYPE_OPERATION_SELL_BRINDE = "Saída Brinde";
@@ -474,7 +476,7 @@ const TYPE_SELL_DISCOUNT = 1;
 const TYPE_SELL_DISCOUNT_TEXT = "Com Desconto";
 const TYPE_SELL_CURRENCY_OR_POINTS = 2;
 const TYPE_SELL_CURRENCY_OR_POINTS_TEXT = "Gotas ou Reais";
-const TYPE_SELL_EMPTY = "Campo TIPO VENDA não informado!";
+const TYPE_SELL_EMPTY = "Campo TIPO VENDA deve ser informado!";
 
 const MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK = "Estoque insuficiente para brinde solicitado no sistema!";
 const MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK_ERROR = 0x00020001;
@@ -484,13 +486,13 @@ const MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK_ERROR = 0x00020001;
 #region Categorias Brindes
 
 const MSG_CATEGORIAS_BRINDES_ID_EMPTY_CODE = 0x00040001;
-const MSG_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID não informado!";
+const MSG_CATEGORIAS_BRINDES_ID_EMPTY = "Campo ID deve ser informado!";
 const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY_CODE = 0x00040002;
-const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO não informado!";
+const MSG_CATEGORIAS_BRINDES_HABILITADO_EMPTY = "Campo HABILITADO deve ser informado!";
 const MSG_CATEGORIAS_BRINDES_NOME_EMPTY_CODE = 0x00040003;
-const MSG_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME não informado!";
+const MSG_CATEGORIAS_BRINDES_NOME_EMPTY = "Campo NOME deve ser informado!";
 const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY_CODE = 0x00040004;
-const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID não informado!";
+const MSG_CATEGORIAS_BRINDES_REDES_ID_EMPTY = "Campo REDES_ID deve ser informado!";
 
 #endregion
 
@@ -500,7 +502,7 @@ const RULE_CLIENTES_NEED_TO_INFORM = "É necessário especificar o Estabelecimen
 const MSG_CLIENTES_FILTER_REQUIRED = "Necessário selecionar um estabelecimento para filtrar!";
 const MSG_CLIENTES_FILTER_REQUIRED_CODE = 0x00050001;
 
-const MESSAGE_CNPJ_EMPTY = "Campo CNPJ não informado!";
+const MESSAGE_CNPJ_EMPTY = "Campo CNPJ deve ser informado!";
 const MESSAGE_CNPJ_NOT_REGISTERED_ON_SYSTEM = "CNPJ não cadastrado no sistema Web!";
 const MESSAGE_ESTABLISHMENT_WITHOUT_TIME_SHIFTS = "Estabelecimento não possui quadro de horários, não será possível realizar a impressão dos dados emitidos aos clientes!";
 
@@ -658,17 +660,19 @@ const MSG_USUARIOS_CANT_SEARCH = "Este serviço só está disponível para funci
 const MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS_CODE = 0x00170004;
 const MSG_USUARIOS_DOC_ESTRANGEIRO_ALREADY_EXISTS = "Já existe um cadastro com este documento estrangeiro, informe um outro documento!";
 const MSG_USUARIOS_DOC_ESTRANGEIRO_EMPTY_CODE = 0x00170005;
-const MSG_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO não informado!";
+const MSG_USUARIOS_DOC_ESTRANGEIRO_EMPTY = "Campo DOCUMENTO ESTRANGEIRO deve ser informado!";
 const MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY_CODE = 0x00170006;
 const MSG_USUARIOS_DOC_ESTRANGEIRO_SEARCH_EMPTY = "Por favor informe corretamente o Documento de Identificação Estrangeira!";
 const MSG_USUARIOS_EMAIL_EMPTY_CODE = 0x00170007;
-const MSG_USUARIOS_EMAIL_EMPTY = "Campo EMAIL não informado!";
+const MSG_USUARIOS_EMAIL_EMPTY = "Campo EMAIL deve ser informado!";
 const MSG_USUARIOS_EMAIL_INVALID_CODE = 0x00170016;
 const MSG_USUARIOS_EMAIL_INVALID = "EMAIL inválido!";
 const MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY_CODE = 0x00170008;
 const MSG_USUARIOS_LOGGED_IN_SUCCESSFULLY = "Usuário logado com sucesso!";
 const MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE = 0x00170009;
 const MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT = "Usuário ou senha incorreto!";
+const MSG_USUARIOS_NOME_EMPTY = "O campo NOME deve ser informado!";
+const MSG_USUARIOS_NOME_EMPTY_CODE = 0x00170018;
 const MSG_USUARIOS_NOT_AUTHENTICATED_CODE = 0x0017000A;
 const MSG_USUARIOS_NOT_AUTHENTICATED = "Usuário não autenticado!";
 const MSG_USUARIOS_OLD_PASSWORD_DOESNT_MATCH_CODE = 0x0017000B;
@@ -685,6 +689,8 @@ const MSG_USUARIOS_PROFILE_ON_DATE_CODE = 0x00170010;
 const MSG_USUARIOS_PROFILE_ON_DATE = "Perfil está atualizado!";
 const MSG_USUARIOS_PROFILE_OUT_DATE_CODE = 0x00170011;
 const MSG_USUARIOS_PROFILE_OUT_DATE = "Perfil está desatualizado! Verifique seu cadastro!";
+const MSG_USUARIOS_TELEFONE_EMPTY = "O campo TELEFONE deve ser informado!";
+const MSG_USUARIOS_TELEFONE_EMPTY_CODE = 0x00170019;
 const MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP_CODE = 0x00170012;
 const MSG_USUARIOS_WORKER_BELONGS_ANOTHER_APP = "Não é possível efetuar login neste aplicativo, Funcionário pertence à outro aplicativo específico!";
 const MSG_USUARIOS_WORKER_BELONGS_CUSTOM_APP_CODE = 0x00170013;
@@ -703,6 +709,12 @@ const CPF_LENGTH = 11;
 const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT_CODE = 0x0019000B;
 const MSG_USUARIOS_BRINDES_LIMIT_FREE_TEXT = "Este brinde é limitado a 1 (uma) unidade por usuário! Não é possível novo resgate!";
 
+#endregion
+
+#region Veiculos
+
+const MSG_VEICULOS_PLACA_EMPTY = 'O campo PLACA deve ser informado!';
+const MSG_VEICULOS_PLACA_EMPTY_CODE = 0x001C0001;
 #endregion
 
 #endregion

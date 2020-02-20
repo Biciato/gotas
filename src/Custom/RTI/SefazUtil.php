@@ -694,7 +694,7 @@ class SefazUtil
                         $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
 
                         // Gera novo registro de pontuação pendente SE ainda não está pendente
-                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($url, $chave, $cliente->estado);
                         if (empty($pontuacaoPendenteExiste)) {
                             $pontuacoesPendentesTable->createPontuacaoPendenteAwaitingProcessing($cliente->id, $usuario->id, $funcionario->id, $url, $chave, $cliente->estado ?? "");
                             Log::write("info", sprintf("Registro pendente gerado para cliente: %s, usuario: %s, funcionário: %s, url: %s, estado: %s. ", $cliente->id, $usuario->id, $funcionario->id ?? "", $url, $cliente->estado));
@@ -707,7 +707,7 @@ class SefazUtil
                         $pontuacoesPendentesTable = TableRegistry::get("PontuacoesPendentes");
 
                         // Gera novo registro de pontuação pendente SE ainda não está pendente
-                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($chave, $cliente->estado);
+                        $pontuacaoPendenteExiste = $pontuacoesPendentesTable->findPontuacaoPendenteAwaitingProcessing($url, $chave, $cliente->estado);
 
                         if (empty($pontuacaoPendenteExiste)) {
                             $pontuacaoPendenteExiste = new PontuacoesPendente();

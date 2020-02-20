@@ -508,6 +508,11 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/get_usuario_by_email'
             ],
+            "getUsuariosFinaisAPI" => [
+                "action" => "getUsuariosFinaisAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_usuarios_finais"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             'registrarAPI' => [
                 'action' => 'registrarAPI',
@@ -584,6 +589,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Veiculos", [
         "map" => [
+            "getUsuariosByVeiculo" => [
+                "action" => "getUsuariosByVeiculoAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_usuarios_by_veiculo"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getVeiculoByIdAPI" => array(
                 "action" => "getVeiculoByIdAPI",

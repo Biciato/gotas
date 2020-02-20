@@ -539,7 +539,9 @@ class ClientesHasUsuariosTable extends Table
         try {
             $where = [];
             $where[] = [
-                "Redes.id" => $redesId
+                "Redes.id" => $redesId,
+                // Só retorna com conta ativa
+                "Usuarios.conta_ativa" => 1
             ];
 
             if (count($clientesIds) > 0) {
@@ -576,11 +578,18 @@ class ClientesHasUsuariosTable extends Table
                         "Usuarios.nome",
                         "Usuarios.cpf",
                         "Usuarios.email",
+                        "Usuarios.tipo_perfil",
+                        "Usuarios.telefone",
+                        "Usuarios.audit_insert",
+                        "Usuarios.audit_update",
+                        "Usuarios.data_nasc",
                         "Clientes.id",
                         "Clientes.nome_fantasia",
                         "ClientesHasUsuarios.clientes_id",
                         "ClientesHasUsuarios.usuarios_id",
-                        "ClientesHasUsuarios.conta_ativa"
+                        "ClientesHasUsuarios.conta_ativa",
+                        "ClientesHasUsuarios.audit_insert",
+                        "ClientesHasUsuarios.audit_update",
                     ]
                 )
                 ->order([

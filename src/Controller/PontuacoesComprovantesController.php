@@ -985,10 +985,7 @@ class PontuacoesComprovantesController extends AppController
 
                     // usuário não associado, faz associação
                     if (!$user_associated) {
-                        $this->ClientesHasUsuarios->saveClienteHasUsuario(
-                            $cliente->id,
-                            $usuario->id
-                        );
+                        $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, true);
                     }
 
                     $estado_nfe = $data['estado_nfe'];
@@ -1822,7 +1819,7 @@ class PontuacoesComprovantesController extends AppController
             }
 
             // Faz a pesquisa do QR Code no sistema, se tiver um registro ignora
-            $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($chave, $cliente->estado);
+            $cupomPreviamenteImportado = $this->verificarCupomPreviamenteImportado($qrCode, $chave, $cliente->estado);
 
             // Cupom previamente importado, interrompe processamento e avisa usuário
             if (!$cupomPreviamenteImportado["status"]) {
@@ -1853,15 +1850,18 @@ class PontuacoesComprovantesController extends AppController
                 $usuario = $this->Usuarios->addUsuarioAguardandoAtivacao($cpf);
             }
 
-            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
-            if ($usuario) {
-                // @todo se já tiver registro, não faz nada
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], 0);
+            if (empty($funcionario)) {
+                $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
             }
 
-            if (empty($funcionario)) {
-                // @todo isto deverá vir antes do saveClientesHasUsuario
-                $funcionario = $this->Usuarios->findUsuariosByType(PROFILE_TYPE_DUMMY_WORKER)->first();
+            // Se usuário cadastrado, vincula ele ao ponto de atendimento (cliente)
+            if ($usuario) {
+                // se já tiver registro, não faz nada
+                $postoHasUsurio = $this->ClientesHasUsuarios->getClienteUsuario($cliente["id"], $usuario["id"]);
+
+                if (empty($postoHasUsurio)) {
+                    $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente["id"], $usuario["id"], $usuario["conta_ativa"], $funcionario->id);
+                }
             }
 
             $gotasCliente = $this->Gotas->findGotasEnabledByClientesId($cliente["id"]);

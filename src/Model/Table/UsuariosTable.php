@@ -19,6 +19,8 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ResponseUtil;
 use Cake\I18n\Number;
 use App\Custom\RTI\NumberUtil;
+use Cake\Database\Expression\QueryExpression;
+use Exception;
 
 /**
  * Usuarios Model
@@ -879,7 +881,7 @@ class UsuariosTable extends GenericTable
 
             return $usuarios;
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_EXCEPTION, $th->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
 
             $code = $th->getCode();
@@ -1013,6 +1015,40 @@ class UsuariosTable extends GenericTable
             return $stringError;
         }
     }
+
+
+    /**
+     * UsuariosTable::getUsuarioByTelephone
+     *
+     * Encontra usuario por Telefone
+     *
+     * @param string $telefone Telefone
+     *
+     * @return App\Model\Entity\Usuario $usuario
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 2020-02-13
+     */
+    public function getUsuarioByTelephone(string $telefone)
+    {
+        try {
+            $query = function (QueryExpression $exp) use ($telefone) {
+                return $exp->eq("Usuarios.telefone", $telefone);
+            };
+
+            return $this->find("all")
+                ->where($query)
+                ->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+
+            $code = $th->getCode();
+            $message = $th->getMessage();
+            throw new Exception($message, $code);
+        }
+    }
+
 
     /**
      * UsuariosTable::getUsuarioByDocumentoEstrangeiro
@@ -1320,6 +1356,7 @@ class UsuariosTable extends GenericTable
      * @param array $clientesIds
      * @param string $nome
      * @param string $email
+     * @param string $telefone
      * @param array $tiposPerfis
      * @param integer $tipoPerfilMin
      * @param integer $tipoPerfilMax
@@ -1328,6 +1365,7 @@ class UsuariosTable extends GenericTable
      * @param integer $contaAtiva
      * @param boolean $join
      * @param array $usuariosIds
+     * @param boolean $group Group by ClientesHasUsuarios.usuarios_id
      *
      * @return Entity\Model\Usuarios[] $usuarios
      */
@@ -1336,6 +1374,7 @@ class UsuariosTable extends GenericTable
         array $clientesIds = array(),
         string $nome = null,
         string $email = null,
+        string $telefone = null,
         array $tiposPerfis = null,
         int $tipoPerfilMin = null,
         int $tipoPerfilMax = null,
@@ -1343,12 +1382,12 @@ class UsuariosTable extends GenericTable
         string $docEstrangeiro = null,
         int $contaAtiva = null,
         bool $join = true,
-        array $usuariosIds = array()
+        array $usuariosIds = array(),
+        bool $group = false
     ) {
         try {
             $whereConditions = array();
 
-            // @todo gustavosg condição temporária até definir se realmente irá mostrar ou não.
             $whereConditions[] = array("Usuarios.email IS NOT NULL");
 
             if (count($usuariosIds) > 0) {
@@ -1367,6 +1406,10 @@ class UsuariosTable extends GenericTable
 
             if (!empty($email)) {
                 $whereConditions[] = array("Usuarios.email like '%{$email}%'");
+            }
+
+            if (!empty($telefone)) {
+                $whereConditions[] = ["Usuarios.telefone like '%{$telefone}%'"];
             }
 
             if (!empty($tiposPerfis) && count($tiposPerfis) > 0) {
@@ -1478,6 +1521,14 @@ class UsuariosTable extends GenericTable
                     "Clientes.nome_fantasia",
                 );
                 $usuariosSelectFields = array_merge($usuariosSelectFields, $arrayTemp);
+            }
+
+            if ($group && $join) {
+                $usuarios = $usuarios->group(
+                    [
+                        "ClientesHasUsuarios.usuarios_id"
+                    ]
+                );
             }
 
             $usuarios = $usuarios->select($usuariosSelectFields);

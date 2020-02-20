@@ -1231,7 +1231,7 @@ class CuponsController extends AppController
         $dadosRelatorio = array("total", "funcionarios");
 
         // Pega todos os funcionários do posto do gerente alocado
-        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
+        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
         // DebugUtil::printArray($funcionariosList);
         $funcionarioSelecionado = 0;
         $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1, null);
@@ -1325,7 +1325,7 @@ class CuponsController extends AppController
             $brindesCliente = array();
 
             // Obtem lista de usuarios (clientes finais) do posto
-            $usuarios = $this->Usuarios->findAllUsuarios(null, array($cliente->id), null, null, null, PROFILE_TYPE_USER);
+            $usuarios = $this->Usuarios->findAllUsuarios(null, array($cliente->id), null, null, null, null, PROFILE_TYPE_USER);
             $usuariosTemp = array();
 
             foreach ($usuarios as $usuario) {
@@ -3464,7 +3464,7 @@ class CuponsController extends AppController
             $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 
             if (is_null($clientePossuiUsuario)) {
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId);
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId, true);
             }
 
             // Realiza a venda de pontuações

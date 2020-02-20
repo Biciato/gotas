@@ -791,7 +791,7 @@ class ClientesController extends AppController
             }
 
             if (count($clientes) == 0) {
-                return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
+                return ResponseUtil::errorAPI(MSG_LOAD_DATA_NOT_FOUND);
             }
 
             $data = ["data" => ["clientes" => $clientes]];
