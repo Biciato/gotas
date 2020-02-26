@@ -44,7 +44,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <div id="pesquisa-qrcode">
             <div class="form-group row">
                 <div class="col-lg-4">
-                    <label for="redes">Rede</label>
+                    <label for="redes">Rede:</label>
                     <select name="redes" id="redes" class="form-control" placeholder="Redes..." title="Redes"></select>
                 </div>
                 <div class="col-lg-2">
@@ -57,7 +57,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                     </select>
                 </div>
                 <div class="col-lg-6">
-                    <label for="usuario-cpf">Dados de Pesquisa do Usuário</label>
+                    <label for="usuario-cpf">Dados de Pesquisa do Usuário:</label>
                     <input type="text" name="usuario-parameter-search" id="usuario-parameter-search" class="form-control" placeholder="" title="">
                 </div>
             </div>
@@ -71,25 +71,25 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
             </div>
 
             <div id="veiculo-region">
-                <h4>Dados do Veículo</h4>
+                <h4>Dados do Veículo:</h4>
 
                 <div class="form-group row">
                     <div class="col-lg-3">
-                        <label for="veiculo-placa">Placa</label>
+                        <label for="veiculo-placa">Placa:</label>
                         <input type="text" name="veiculo-placa" id="veiculo-placa" class="form-control" disabled placeholder="Placa do Veículo..." title="Placa do Veículo">
                     </div>
                     <div class="col-lg-3">
-                        <label for="veiculo-modelo">Modelo</label>
+                        <label for="veiculo-modelo">Modelo:</label>
                         <input type="text" name="veiculo-modelo" id="veiculo-modelo" class="form-control" disabled placeholder="Modelo do Veículo..." title="Modelo do Veículo">
 
                     </div>
                     <div class="col-lg-3">
-                        <label for="veiculo-fabricante">Fabricante</label>
+                        <label for="veiculo-fabricante">Fabricante:</label>
                         <input type="text" name="veiculo-fabricante" id="veiculo-fabricante" class="form-control" disabled placeholder="Fabricante do Veículo..." title="Fabricante do Veículo">
 
                     </div>
                     <div class="col-lg-3">
-                        <label for="veiculo-ano">Ano</label>
+                        <label for="veiculo-ano">Ano:</label>
                         <input type="text" name="veiculo-ano" id="veiculo-ano" class="form-control" disabled placeholder="Ano do Veículo..." title="Ano do Veículo">
 
                     </div>
@@ -98,7 +98,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
             <!-- Div para lista de seleção de usuários -->
             <div id="usuarios-region">
-                <h4>Usuários Encontrados</h4>
+                <h4>Usuários Encontrados:</h4>
                 <div class="form-group row">
                     <div class="col-lg-12">
                         <table class="table table-bordered table-hover table-striped table-condensed" id='usuarios-table'>
@@ -120,11 +120,11 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
             <div class="form-group row">
                 <div class="col-lg-6">
-                    <label for="usuario-nome">Nome</label>
+                    <label for="usuario-nome">Nome:</label>
                     <input type="text" name="usuario-nome" id="usuario-nome" class="form-control" placeholder="Nome do Usuário..." title="Nome do Usuário" disabled>
                 </div>
                 <div class="col-lg-6">
-                    <label for="usuario-saldo">Saldo de Gotas</label>
+                    <label for="usuario-saldo">Saldo de Gotas:</label>
                     <input type="text" name="usuario-saldo" id="usuario-saldo" class="form-control" placeholder="Saldo de Pontos do Usuário.." title="Saldo de Pontos do Usuário" readonly disabled>
                 </div>
             </div>
@@ -133,7 +133,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         <div id="dados">
             <div class="form-group row">
                 <div class="col-lg-12">
-                    <legend>Dados à Serem Inseridos</legend>
+                    <legend>Dados à Serem Inseridos:</legend>
                 </div>
             </div>
 

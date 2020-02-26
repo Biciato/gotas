@@ -3,10 +3,8 @@ $
     (function () {
         "use strict";
 
-        var gotaSelectedItem = {};
         var quantidadeMultiplicador = $("#quantidade-multiplicador");
         var gravarGotasBtn = $("#botao-gravar-gotas");
-        var idGotaTabela = 0;
         var redes = [];
         var reiniciarBtn = $("#reiniciar");
         var redeSelectedItem = null;
@@ -39,10 +37,6 @@ $
             quantidadeMultiplicador.val(null);
             quantidadeMultiplicador.prop("disabled", true);
             quantidadeMultiplicador.on("keyup", updateButtonGravarGotas);
-            // quantidadeMultiplicador.mask("####", {
-            //     pattern: /-|\d/,
-            //     recursive: true
-            // });
             quantidadeMultiplicador.mask("Z####", {
                 translation: {
                     '#': {
@@ -67,11 +61,6 @@ $
             usuarioNome.val(null);
             usuarioParameterSearch.val(null);
             usuarioSaldo.val(null);
-            // usuarioParameterSearch.unbind("keyup");
-            // usuarioParameterSearch.unmask();
-            // usuarioParameterSearch.mask("###.###.###-##");
-            // usuarioParameterSearch.on("keyup", usuarioCPFOnChange);
-            // usuarioParameterSearch.on("change", usuarioCPFOnChange);
 
             // Habilita/desabilita botão de gravar as gotas do cliente final
             updateButtonGravarGotas();
@@ -79,23 +68,23 @@ $
 
         // #region Funções da tela
 
+        /**
+         * Comportamento de click do button que faz a pesquisa do usuário
+         */
         function usuarioParameterButtonOnClick() {
-
             var url = usuarioParameterOptions.val() === "placa" ? "/api/veiculos/get_usuarios_by_veiculo" : "/api/usuarios/get_usuarios_finais";
 
             var dataToSend = {};
 
-            if (usuarioParameterOptions.val() === "nome")
+            if (usuarioParameterOptions.val() === "nome") {
                 dataToSend.nome = usuarioParameterSearch.val().trim();
-
-            else if (usuarioParameterOptions.val() === "cpf")
+            } else if (usuarioParameterOptions.val() === "cpf") {
                 dataToSend.cpf = clearNumbers(usuarioParameterSearch.val().trim());
-
-            else if (usuarioParameterOptions.val() === "telefone")
+            } else if (usuarioParameterOptions.val() === "telefone") {
                 dataToSend.telefone = clearNumbers(usuarioParameterSearch.val().trim());
-
-            else if (usuarioParameterOptions.val() === "placa")
+            } else if (usuarioParameterOptions.val() === "placa") {
                 dataToSend.placa = usuarioParameterSearch.val().trim();
+            }
 
             veiculoRegion.hide();
 
@@ -331,77 +320,6 @@ $
         }
 
         /**
-         * Evento disparado ao digitar cpf do Usuário
-         *
-         * Ao digitar o cpf do usuário, busca o registro na base de dados se o CPF existir
-         *
-         * webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas.js::usuarioCPFOnChange
-         *
-         * @param {Event} event Event
-         *
-         * @returns void
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-12
-         */
-        function usuarioCPFOnChange(e) {
-            var cpf = e.target.value;
-
-            cpf = cpf.replace(/[^0-9]/g, "");
-
-            if (cpf.length == 11) {
-                console.log(moment());
-                // getUsuarioByCPF(cpf);
-            } else {
-                usuariosSelectedItem = null;
-                usuarioNome.val(null);
-                // usuarioCpf.val(null);
-                usuarioSaldo.val(null);
-                updateButtonGravarGotas();
-            }
-        }
-
-        /**
-         * Gera template
-         *
-         * Gera template para tabela de gotas a ser enviadas
-         *
-         * webroot\js\scripts\pontuacoes_comprovantes\correcao_gotas.js::geraTemplateTabelaGotasEnviadas
-         *
-         * @param {int} id
-         * @param {string} gota
-         * @param {float} quantidade
-         * @param {float} valor
-         *
-         * @returns {string} template
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-10
-         */
-        function geraTemplateTabelaGotasEnviadas(id, gota, quantidade, valor) {
-            var string = [];
-
-            string.push("<tr>");
-            string.push("<td>" + gota + "</td>");
-            string.push("<td class='text-right'>" + quantidade + "</td>");
-            string.push("<td class='text-right'>" + valor + "</td>");
-            string.push("<td>");
-            string.push(
-                "<div class='btn btn-danger btn-xs botao-remover' id='botao-remover' data-value='" +
-                idGotaTabela +
-                "' title='Remover Gota'>"
-            );
-            string.push("<i class='fas fa-remove'></i>");
-            string.push("</div>");
-            string.push("</td>");
-            string.push("</tr>");
-
-            idGotaTabela++;
-
-            return string.join("");
-        }
-
-        /**
          * Redes on Change
          *
          * Atualiza lista de clientes ao selecionar uma rede
@@ -512,56 +430,6 @@ $
                             redeSelectListBox.prop("readonly", true);
                         }
                     }
-                },
-                error: function (response) {
-                    var mensagem = response.responseJSON.mensagem;
-
-                    callModalError(mensagem.message, mensagem.errors);
-                }
-            });
-        }
-
-        /**
-         * Obtem usuário
-         *
-         * Obtem usuário através de seu cpf
-         *
-         * webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas.js::getUsuarioByCPF
-         *
-         * @param {string} cpf CPF de Usuario
-         *
-         * @returns {\App\Model\Entity\Usuario} Usuário
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-13
-         */
-        function getUsuarioByCPF(cpf) {
-
-            if (redeSelectedItem === undefined || redeSelectedItem === null) {
-                callModalError("Necessário especificar rede antes de continuar!");
-                return;
-            }
-
-            $.ajax({
-                type: "POST",
-                url: "/api/usuarios/get_usuario_by_cpf",
-                data: {
-                    cpf: cpf
-                },
-                dataType: "JSON",
-                success: function (response) {
-                    var data = response.user;
-
-                    if (data === null || data === undefined) {
-                        callModalError("Usuário não registrado!");
-                        return;
-                    }
-
-                    console.log(data);
-                    usuariosSelectedItem = data;
-                    usuarioNome.val(data.nome);
-                    getUsuarioPontuacoes(usuariosSelectedItem.id, redeSelectedItem.id);
-                    updateButtonGravarGotas();
                 },
                 error: function (response) {
                     var mensagem = response.responseJSON.mensagem;
