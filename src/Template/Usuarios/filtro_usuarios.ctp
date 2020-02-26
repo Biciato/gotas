@@ -72,7 +72,7 @@ if (isset($filter_redes) && $filter_redes) {
 
                     <div class="form-group row">
                         <?php if ($fixarTipoPerfil) : ?>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -88,7 +88,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 ) ?>
                             </div>
                         <?php else : ?>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -103,7 +103,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 ) ?>
                             </div>
                         <?php endif; ?>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <?= $this->Form->input(
                                 'nome',
                                 [
@@ -115,7 +115,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 ]
                             ) ?>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <?= $this->Form->input(
                                 'email',
                                 [
@@ -127,9 +127,7 @@ if (isset($filter_redes) && $filter_redes) {
                                 ]
                             ) ?>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <?= $this->Form->input(
                                 'cpf',
                                 [
@@ -141,18 +139,22 @@ if (isset($filter_redes) && $filter_redes) {
                                 ]
                             ) ?>
                         </div>
-                        <div class="col-lg-3">
-                            <?= $this->Form->input(
-                                'doc_estrangeiro',
-                                [
-                                    'type' => 'text',
-                                    'id' => 'doc_estrangeiro',
-                                    'label' => 'Documento Estrangeiro',
-                                    'class' => 'form-control col-lg-2',
-                                    'placeHolder' => "Documento Estrangeiro"
-                                ]
-                            ) ?>
-                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <!-- <div class="col-lg-3">
+                            <? // $this->Form->input(
+                            // 'doc_estrangeiro',
+                            // [
+                            //     'type' => 'text',
+                            //     'id' => 'doc_estrangeiro',
+                            //     'label' => 'Documento Estrangeiro',
+                            //     'class' => 'form-control col-lg-2',
+                            //     'placeHolder' => "Documento Estrangeiro"
+                            // ]
+                            // )
+                            ?>
+                        </div> -->
 
                         <div class="col-lg-7">
 

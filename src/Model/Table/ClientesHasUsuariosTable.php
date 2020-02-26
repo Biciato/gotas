@@ -719,6 +719,47 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * Total de Usuários
+     *
+     * Obtem contagem de total de usuários conforme rede e tipo de perfil
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $profileType Tipo de Perfil
+     * @return integer $sum Soma de Usuários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.4
+     */
+    public function getSumUsuariosByRede(int $redesId, int $profileType = PROFILE_TYPE_USER)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $profileType) {
+
+                $exp->eq("Redes.id", $redesId)
+                    ->eq("Usuarios.tipo_perfil", $profileType);
+
+                return $exp;
+            };
+
+            $query = $this->find("all")
+                ->where($where)
+                ->contain(["Clientes.RedesHasClientes.Redes", "Usuarios"])
+                ->select(["ClientesHasUsuarios.id"])
+                ->group(["ClientesHasUsuarios.usuarios_id"])
+                ->count("ClientesHasUsuarios.id");
+
+            return $query;
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
+
+            Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+            throw new Exception($message, $code);
+        }
+    }
+
+    /**
      * ClientesHasUsuariosTable::getUsuariosCadastradosFuncionarios
      *
      * Obtem os usuários que foram cadastrados pelos funcionários

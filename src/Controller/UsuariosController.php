@@ -2104,6 +2104,7 @@ class UsuariosController extends AppController
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
+        $totalUsuariosRede = $this->ClientesHasUsuarios->getSumUsuariosByRede($rede->id);
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -2156,7 +2157,7 @@ class UsuariosController extends AppController
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("Usuarios.nome" => "ASC")));
 
-        $arraySet = array("usuarios");
+        $arraySet = ["usuarios", 'totalUsuariosRede'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
