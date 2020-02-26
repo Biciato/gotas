@@ -508,6 +508,7 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/get_usuario_by_email'
             ],
+            // Usado pela parte WEB e API, para trazer clientes (usuário final) dos postos
             "getUsuariosFinaisAPI" => [
                 "action" => "getUsuariosFinaisAPI",
                 "method" => Request::METHOD_GET,

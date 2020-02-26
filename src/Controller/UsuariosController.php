@@ -52,7 +52,34 @@ class UsuariosController extends AppController
      */
     public function index()
     {
-        $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+
+        $perfisUsuariosList = [];
+
+        if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        } else {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        }
+
+        // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
         $tipoPerfil = null;
         $tipoPerfilMin = Configure::read("profileTypes")["AdminDeveloperProfileType"];
         $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
@@ -4884,11 +4911,13 @@ class UsuariosController extends AppController
      * Pesquisa usuários
      *
      * Pesquisa usuários finais e retorna em formato de lista
-     * Se usuário logado for qualquer perfil exceto PROFILE_TYPE_ADMIN_DEVELOPER, pesquisa pela rede
+     * Se usuário logado for qualquer perfil exceto PROFILE_TYPE_ADMIN_DEVELOPER, pesquisa somente pela rede
+     * Se CPF informado, pesquisa independente se conta está ativa ou não
      *
      * @param $id Id de registro
      * @param $nome Nome
      * @param $cpf CPF
+     * @param $email E-mail
      * @param $telefone Telefone
      * @param $placa Placa do veículo
      *
@@ -4921,6 +4950,7 @@ class UsuariosController extends AppController
                 $id = !empty($data["id"]) ? $data["id"] : null;
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
                 $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+                $email = !empty($data["email"]) ? $data["email"] : null;
                 $telefone = !empty($data["telefone"]) ? $data["telefone"] : null;
                 $redesId = !empty($rede) ? $rede->id : null;
 
@@ -4951,7 +4981,7 @@ class UsuariosController extends AppController
                 $contaAtiva = !empty($cpf) ? null : true;
                 // Se CPF informado, o usuário não precisa estar vinculado à rede
                 $redesId = !empty($cpf) ? null : $redesId;
-                $users = $this->Usuarios->findAllUsuarios($redesId, [], $nome, null, $telefone, [PROFILE_TYPE_USER], null, null, $cpf, null, $contaAtiva, true, [], true);
+                $users = $this->Usuarios->findAllUsuarios($redesId, [], $nome, $email, $telefone, [PROFILE_TYPE_USER], null, null, $cpf, null, $contaAtiva, true, [], true);
 
                 if (count($users->toArray()) === 0) {
                     throw new Exception(MSG_LOAD_DATA_NOT_FOUND, MSG_LOAD_DATA_NOT_FOUND_CODE);

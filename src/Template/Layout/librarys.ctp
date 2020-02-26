@@ -140,6 +140,12 @@ echo $this->Html->meta('icon');
 
 <link rel="stylesheet" href="/webroot/app/lib/ui.select/select.min.css">
 
+<!-- DataTables -->
+
+<link rel="stylesheet" type="text/css" href="/webroot/js/DataTables/datatables.min.css" />
+
+<script type="text/javascript" src="/webroot/js/DataTables/datatables.min.js"></script>
+
 <!-- <script src="/webroot/js/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js"></script> -->
 <!-- Fim Estilos -->
 

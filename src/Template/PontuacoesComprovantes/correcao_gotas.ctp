@@ -43,16 +43,81 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         <div id="pesquisa-qrcode">
             <div class="form-group row">
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <label for="redes">Rede</label>
                     <select name="redes" id="redes" class="form-control" placeholder="Redes..." title="Redes"></select>
                 </div>
-                <div class="col-lg-6">
-                    <label for="usuario-cpf">CPF do Usuário</label>
-                    <input type="text" name="usuario-cpf" id="usuario-cpf" class="form-control" placeholder="Informe o CPF do Usuário..." title="Informe o CPF do Usuário" autofocus>
+                <div class="col-lg-2">
+                    <label for="usuario-cpf">Pesquisar Por:</label>
+                    <select id="usuario-options-search" name="usuario-options-search" class="form-control" autofocus>
+                        <option value="nome">Nome</option>
+                        <option value="cpf">CPF</option>
+                        <option value="telefone" selected>Telefone</option>
+                        <option value="placa">Placa</option>
+                    </select>
                 </div>
-
+                <div class="col-lg-6">
+                    <label for="usuario-cpf">Dados de Pesquisa do Usuário</label>
+                    <input type="text" name="usuario-parameter-search" id="usuario-parameter-search" class="form-control" placeholder="" title="">
+                </div>
             </div>
+
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <div class="pull-right">
+                        <div class="btn btn-primary" title="Pesquisar" id="usuario-parameter-button-search"><i class="fas fa-search-plus"></i> Pesquisar </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="veiculo-region">
+                <h4>Dados do Veículo</h4>
+
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label for="veiculo-placa">Placa</label>
+                        <input type="text" name="veiculo-placa" id="veiculo-placa" class="form-control" disabled placeholder="Placa do Veículo..." title="Placa do Veículo">
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="veiculo-modelo">Modelo</label>
+                        <input type="text" name="veiculo-modelo" id="veiculo-modelo" class="form-control" disabled placeholder="Modelo do Veículo..." title="Modelo do Veículo">
+
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="veiculo-fabricante">Fabricante</label>
+                        <input type="text" name="veiculo-fabricante" id="veiculo-fabricante" class="form-control" disabled placeholder="Fabricante do Veículo..." title="Fabricante do Veículo">
+
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="veiculo-ano">Ano</label>
+                        <input type="text" name="veiculo-ano" id="veiculo-ano" class="form-control" disabled placeholder="Ano do Veículo..." title="Ano do Veículo">
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Div para lista de seleção de usuários -->
+            <div id="usuarios-region">
+                <h4>Usuários Encontrados</h4>
+                <div class="form-group row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered table-hover table-striped table-condensed" id='usuarios-table'>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Data Nasc.</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group row">
                 <div class="col-lg-6">
                     <label for="usuario-nome">Nome</label>
@@ -93,5 +158,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
         </div>
     </div>
 
-    <script src="/webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION?>"></script>
-    <link rel="stylesheet" href="/webroot/css/styles/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION?>">
+    <script src="/webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+    <link rel="stylesheet" href="/webroot/css/styles/pontuacoes_comprovantes/correcao_gotas<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION ?>">
