@@ -8,6 +8,8 @@ use Cake\Core\Configure;
  * @date     13/08/2017
  */
 
+$debugExtension = Configure::read("debug") ? "" : ".min";
+
 $show_filiais = isset($show_filiais) ? $show_filiais : true;
 $fixarTipoPerfil = isset($fixarTipoPerfil) ? $fixarTipoPerfil : false;
 $tipoPerfilFixo = isset($tipoPerfilFixo) ? $tipoPerfilFixo : null;
@@ -196,9 +198,5 @@ if (isset($filter_redes) && $filter_redes) {
 
 </div>
 
-<?php
 
-$extension = Configure::read("debug") ? "" : ".min";
-echo $this->Html->script("scripts/usuarios/filtro_usuarios" . $extension);
-echo $this->fetch('script');
-?>
+<script src="/webroot/js/scripts/usuarios/filtro_usuarios<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>

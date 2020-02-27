@@ -1,7 +1,8 @@
 <?php
 
 use Cake\Core\Configure;
-use Cake\Routing\Router;
+
+$debugExtension = Configure::read("debug") ? '' : '.min';
 
 $title = "Categorias de Brindes";
 
@@ -115,14 +116,5 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
 </div>
 
-
-
-<?php
-
-$extensionDebug = Configure::read("debug") ? '' : '.min';
-
-?>
-
-<script src="/webroot/js/scripts/categoriasBrindes/index<?= $extensionDebug ?>.js"></script>
-
-<link rel="stylesheet" href="/webroot/css/styles/categoriasBrindes/index<?= $extensionDebug ?>.css" />
+<script src="/webroot/js/scripts/categoriasBrindes/index<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/categoriasBrindes/index<?= $debugExtension ?>.css?version=<?= SYSTEM_VERSION ?>">

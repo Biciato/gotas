@@ -335,7 +335,7 @@ $(function() {
     };
 
     var remover = function(val) {
-        data = { id: val };
+        var data = { id: val };
 
         $.ajax({
             url: "/api/categorias_brindes/delete_categorias_brindes",
