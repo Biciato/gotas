@@ -70,6 +70,10 @@ class AppController extends Controller
     {
         parent::initialize();
 
+        $connection = ConnectionManager::get("default");
+        $connection->disconnect();
+        $connection->connect();
+
         $this->loadComponent(
             'Auth',
             [
