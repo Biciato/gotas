@@ -263,6 +263,8 @@ $
                         }
 
                         searchButton.click();
+                    } else {
+                        textElement.unmask();
                     }
                 });
 

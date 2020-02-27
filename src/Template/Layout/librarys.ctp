@@ -28,12 +28,12 @@ echo $this->Html->meta('icon');
 
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.css?version=<?= SYSTEM_VERSION ?>">
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.min.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.css.map">
-<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.min.css.map">
+<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.css?version=<?= SYSTEM_VERSION ?>" .map">
+<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap.min.css?version=<?= SYSTEM_VERSION ?>" .map">
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.css.map">
+<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.css?version=<?= SYSTEM_VERSION ?>" .map">
 <link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.min.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.min.css.map">
+<link rel="stylesheet" href="/webroot/css/bootstrap/css/bootstrap-theme.min.css?version=<?= SYSTEM_VERSION ?>" .map">
 <script src="/webroot/js/bootstrap/js/bootstrap.js?version=<?= SYSTEM_VERSION ?>"></script>
 <!-- <script src="/webroot/js/bootstrap/js/bootstrap.min.js?version=<?= SYSTEM_VERSION ?>"></script> -->
 <!-- <script src="/webroot/js/bootstrap/js/affix.js?version=<?= SYSTEM_VERSION ?>"></script>
@@ -55,7 +55,7 @@ echo $this->Html->meta('icon');
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.css.map">
+<link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.css?version=<?= SYSTEM_VERSION ?>" .map">
 <link rel="stylesheet" href="/webroot/css/font-awesome/css/font-awesome.min.css?version=<?= SYSTEM_VERSION ?>">
 <!-- Font Awesome 5 -->
 <link rel="stylesheet" href="/webroot/css/fontawesome5/css/all.css?version=<?= SYSTEM_VERSION ?>" />
@@ -110,13 +110,13 @@ echo $this->Html->meta('icon');
 <!-- Bootstrap Date Picker -->
 
 <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.css.map">
+<link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.css?version=<?= SYSTEM_VERSION ?>" .map">
 <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min.css?version=<?= SYSTEM_VERSION ?>">
-<link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min.css.map">
+<link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min.css?version=<?= SYSTEM_VERSION ?>" .map">
 <!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.css?version=<?= SYSTEM_VERSION ?>"> -->
-<!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.css.map"> -->
+<!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.css?version=<?= SYSTEM_VERSION ?>".map"> -->
 <!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.min.css?version=<?= SYSTEM_VERSION ?>"> -->
-<!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.min.css.map"> -->
+<!-- <link rel="stylesheet" href="/webroot/css/bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.min.css?version=<?= SYSTEM_VERSION ?>".map"> -->
 
 <script src="/webroot/js/bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker.js?version=<?= SYSTEM_VERSION ?>"></script>
 <script src="/webroot/js/bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker.min.js?version=<?= SYSTEM_VERSION ?>"></script>
@@ -203,69 +203,3 @@ echo $this->Html->meta('icon');
 <script src="/webroot/app/js/directives/loading-spinner.js?version=<?= SYSTEM_VERSION ?>"></script>
 <!-- /webroot/app/js/services/usuarios/relUsuariosFidelizadosService.js -->
 <!-- <script src="/webroot/app/js/controllers/usuarios/relUsuariosAtivos.js?version=<?= SYSTEM_VERSION ?>" ></script> -->
-<?php
-
-// if ($debug) {
-
-
-
-
-
-// } else {
-// echo $this->Html->meta('icon');
-// echo $this->Html->css('home-rti');
-// echo $this->Html->css(['bootstrap/css/bootstrap.min', 'bootstrap/css/bootstrap-theme.min']);
-// echo $this->Html->css(['font-awesome/css/font-awesome.min']);
-
-// echo $this->Html->script('jquery/jquery.min');
-// echo $this->Html->script('jquery-Mask/jquery.mask.min');
-// echo $this->Html->script('jquery-barcode-2.2.0/jquery-barcode.min');
-// echo $this->Html->script('printThis-master/printThis');
-// echo $this->Html->script('plentz-jquery-maskmoney/dist/jquery.maskMoney.min');
-// echo $this->Html->script('bootstrap/js/bootstrap.min');
-// echo $this->Html->css(
-//     array(
-//         "bootstrap-datetimepicker/build/css/bootstrap-datetimepicker",
-//         "bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min",
-//     )
-// );
-// echo $this->Html->script(
-//     array(
-//         "bootstrap-datetimepicker/src/js/bootstrap-datetimepicker",
-//         // "bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min"
-//     )
-// );
-// echo $this->Html->css(
-//     array(
-//         "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker.min",
-//         "bootstrap-datepicker-1.6.4-dist/css/bootstrap-datepicker3.min",
-//     )
-// );
-// echo $this->Html->script(
-//     array(
-//         "bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker.min",
-//         "bootstrap-datepicker-1.6.4-dist/locales/bootstrap-datepicker.pt-BR.min"
-
-//     )
-// );
-
-// echo $this->Html->script('scripts/pages/home');
-// echo $this->Html->script('jquery-qrcode/jquery-qrcode.0.14.0.min');
-// echo $this->Html->script('pdf417-gh-pages/pdf417');
-// echo $this->Html->script('scripts/util/pdf417_helper');
-// echo $this->Html->css("cropper-master/dist/cropper.min");
-// echo $this->Html->script("cropper-master/dist/cropper.min");
-// echo $this->Html->script("jquery-qrcode/jquery-qrcode.0.14.0.min.js?version=<?= SYSTEM_VERSION
-?>");
-
-// }
-
-//
-?>
-
-<?php
-// $this->fetch('meta');
-// $this->fetch('css');
-// $this->fetch('script');
-
-?>
