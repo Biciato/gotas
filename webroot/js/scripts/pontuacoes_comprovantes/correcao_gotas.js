@@ -239,6 +239,11 @@ $
                 textElement.on('focus', function () {
                     textElement.prop("maxlength", 11);
 
+                }).on('focus', function () {
+                    textElement.unmask();
+
+                    textElement.prop("maxlength", 11);
+
                 }).on('blur', function () {
                     if (this.value.length == 10) {
                         textElement.mask("(99)9999-9999");
@@ -250,7 +255,9 @@ $
                     this.value = clearNumbers(event.target.value);
 
                 }).on("keydown", function (event) {
-                    // console.log(event.keyCode);
+                    textElement.prop("maxlength", 11);
+
+                    valueElement = clearNumbers(textElement.val());
 
                     if (event.keyCode == 13) {
 
