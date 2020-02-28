@@ -334,7 +334,7 @@ class CuponsTransacoesTable extends GenericTable
                 "brinde" => "Brindes.nome",
                 "funcionario" => "Funcionarios.nome",
                 "usuario" => "Usuarios.nome",
-                "estabelecimento" => "Clientes.nome_fantasia",
+                "nome_fantasia" => "Clientes.nome_fantasia",
                 "rede" => "Redes.nome_rede",
                 "qte" => $query->func()->sum("Cupons.quantidade")
             ];

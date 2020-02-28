@@ -1638,7 +1638,8 @@ $
                     callModalError(data.mensagem.message, data.mensagem.errors);
                 },
                 complete: function (response) {
-                    getResumoPontuacoesRelatorioEntradaSaida(redesSelectedItem.id, form.clientesId, dataInicio, dataFim);
+                    // desabilitado a pedido do samuel
+                    // getResumoPontuacoesRelatorioEntradaSaida(redesSelectedItem.id, form.clientesId, dataInicio, dataFim);
                 }
             });
         }
@@ -1716,6 +1717,7 @@ $
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 2019-11-28
          *
+         * @deprecated 1.1.5 Desabilitado a pedido do samuel
          *
          * @param {int} redesId Redes Id
          * @param {int} clientesId Clientes Id

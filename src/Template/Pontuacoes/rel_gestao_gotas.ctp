@@ -124,13 +124,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
     <div class="print-region">
 
-        <h3 class="text-center"><?= $title ?></h3>
-        <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
-            <tbody>
-                <span></span>
-            </tbody>
-        </table>
-
         <div id='tabela-resumo-brinde'>
             <h3>
                 <div>Informações de Brinde "<span id='nome-brinde'></span>"</div>
@@ -153,7 +146,16 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         </div>
 
-        <h3>Resumo Sintético</h3>
+        <h3 class="text-center"><?= $title ?></h3>
+        <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
+            <tbody>
+                <span></span>
+            </tbody>
+        </table>
+
+
+
+        <!-- <h3>Resumo Sintético</h3>
 
         <div class="form-group row" id='tabela-resumo-sintetico'>
             <div class="col-lg-6">
@@ -184,7 +186,7 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <label for="caixa_hoje_reais">Caixa de Hoje - Reais:</label>
                 <input type="text" name="caixa_hoje_reais" id="caixa-hoje-reais" readonly class="form-control text-right">
             </div>
-        </div>
+        </div> -->
     </div>
 
 </div>

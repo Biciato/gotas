@@ -3409,7 +3409,7 @@ class UsuariosController extends AppController
                             'token' => JWT::encode(
                                 [
                                     'sub' => $usuario->id,
-                                    'exp' => time() + 604800
+                                    'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
                                 ],
                                 Security::salt()
                             )

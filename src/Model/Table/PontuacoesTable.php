@@ -1394,7 +1394,11 @@ class PontuacoesTable extends GenericTable
                 "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
                 "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
                 "Funcionarios.id",
-                "Funcionarios.nome"
+                "Funcionarios.nome",
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.municipio",
+                "Clientes.estado"
             ];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {

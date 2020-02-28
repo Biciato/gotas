@@ -41,15 +41,6 @@ $listUsersPendingApproval = $userIsAdmin;
                 </th>
 
                 <th>
-                    <?= $this->Paginator->sort('doc_estrangeiro', ['label' => 'Doc. Estrangeiro']) ?>
-                </th>
-                <th>
-                    <?= $this->Paginator->sort('sexo') ?>
-                </th>
-                <th>
-                    <?= $this->Paginator->sort('data_nasc', ['label' => 'Data de Nascimento']) ?>
-                </th>
-                <th>
                     <?= $this->Paginator->sort('email', ['label' => 'E-mail']) ?>
                 </th>
                 <th class="actions">
@@ -63,7 +54,7 @@ $listUsersPendingApproval = $userIsAdmin;
 
                 <?php
 
-                    ?>
+                ?>
                 <tr>
                     <td>
                         <?= h($this->UserUtil->getProfileType($usuario["tipo_perfil"])) ?>
@@ -76,95 +67,132 @@ $listUsersPendingApproval = $userIsAdmin;
                     </td>
 
                     <td>
-                        <?= h($usuario->doc_estrangeiro) ?>
-                    </td>
-                    <td>
-                        <?= h($this->UserUtil->getGenderType($usuario->sexo)) ?>
-                    </td>
-                    <td>
-                        <?= h($this->DateUtil->dateToFormat($usuario->data_nasc, 'd/m/Y')) ?>
-                    </td>
-                    <td>
                         <?= h($usuario->email) ?>
                     </td>
                     <td class="actions" style="white-space:nowrap">
 
                         <?=
-                                $this->Html->link(
-                                    __(
-                                        '{0} ',
-                                        $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
-                                    ),
-                                    [
-                                        'action' => 'view',
-                                        $usuario->id
-                                    ],
-                                    [
-                                        'class' => 'btn btn-xs btn-default botao-navegacao-tabela',
-                                        'escape' => false,
-                                        'title' => 'Ver detalhes'
+                            $this->Html->link(
+                                __(
+                                    '{0} ',
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-info-circle'])
+                                ),
+                                [
+                                    'action' => 'view',
+                                    $usuario->id
+                                ],
+                                [
+                                    'class' => 'btn btn-xs btn-default botao-navegacao-tabela',
+                                    'escape' => false,
+                                    'title' => 'Ver detalhes'
 
-                                    ]
-                                )
-                            ?>
+                                ]
+                            )
+                        ?>
                         <?=
-                                $this->Html->link(
-                                    __(
-                                        '{0}',
-                                        $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
-                                    ),
-                                    [
-                                        'action' => $usuario["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"] ? "editarOperador" : "editar",
-                                        $usuario->id
-                                    ],
-                                    [
-                                        'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
-                                        'escape' => false,
-                                        'title' => 'Editar'
-                                    ]
-                                )
-                            ?>
+                            $this->Html->link(
+                                __(
+                                    '{0}',
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-edit'])
+                                ),
+                                [
+                                    'action' => $usuario["tipo_perfil"] < Configure::read("profileTypes")["UserProfileType"] ? "editarOperador" : "editar",
+                                    $usuario->id
+                                ],
+                                [
+                                    'class' => 'btn btn-xs btn-primary botao-navegacao-tabela',
+                                    'escape' => false,
+                                    'title' => 'Editar'
+                                ]
+                            )
+                        ?>
 
                         <?php if ($usuarioLogado['tipo_perfil'] <= Configure::read('profileTypes')['AdminNetworkProfileType']) {
 
-                                if ($usuario["tipo_perfil"] < PROFILE_TYPE_USER) {
+                            if ($usuario["tipo_perfil"] < PROFILE_TYPE_USER) {
 
-                                    if (!empty($usuario->clientes_has_usuario)) {
+                                if (!empty($usuario->clientes_has_usuario)) {
 
-                                        if ($usuario->clientes_has_usuario->conta_ativa == true) {
-                                            echo $this->Html->link(
-                                                __(
-                                                    '{0} ',
-                                                    $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                                                ),
-                                                '#',
-                                                [
-                                                    'class' => 'btn btn-xs  btn-danger btn-confirm',
-                                                    'title' => 'Desativar',
-                                                    'data-toggle' => 'modal',
-                                                    'data-target' => '#modal-delete-with-message',
-                                                    'data-message' => __(Configure::read('messageDisableAccessUserQuestion'), $usuario->nome),
-                                                    'data-action' =>
-                                                    empty($usuario->clientes_has_usuario) ?
-                                                        Router::url(
+                                    if ($usuario->clientes_has_usuario->conta_ativa == true) {
+                                        echo $this->Html->link(
+                                            __(
+                                                '{0} ',
+                                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                                            ),
+                                            '#',
+                                            [
+                                                'class' => 'btn btn-xs  btn-danger btn-confirm',
+                                                'title' => 'Desativar',
+                                                'data-toggle' => 'modal',
+                                                'data-target' => '#modal-delete-with-message',
+                                                'data-message' => __(Configure::read('messageDisableAccessUserQuestion'), $usuario->nome),
+                                                'data-action' =>
+                                                empty($usuario->clientes_has_usuario) ?
+                                                    Router::url(
+                                                        [
+                                                            'action' => 'desabilitar_usuario', "?" =>
                                                             [
-                                                                'action' => 'desabilitar_usuario', "?" =>
-                                                                [
-                                                                    'usuarios_id' => $usuario->id,
-                                                                    'return_url' => Router::url([
-                                                                        'controller' => 'usuarios',
-                                                                        'action' => 'index'
-                                                                    ])
-                                                                ]
+                                                                'usuarios_id' => $usuario->id,
+                                                                'return_url' => Router::url([
+                                                                    'controller' => 'usuarios',
+                                                                    'action' => 'index'
+                                                                ])
                                                             ]
+                                                        ]
+                                                    )
+                                                    : Router::url(array(
+                                                        "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
+                                                        array(
+                                                            "id" => $usuario->clientes_has_usuario->id,
+                                                            "usuarios_id" => $usuario->id,
+                                                            "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
+                                                            "conta_ativa" => 0,
+                                                            'return_url' => Router::url(
+                                                                array(
+                                                                    'controller' => 'usuarios',
+                                                                    'action' => 'index'
+                                                                )
+                                                            )
                                                         )
-                                                        : Router::url(array(
+                                                    )),
+                                                'escape' => false
+                                            ],
+                                            false
+                                        );
+                                    } else {
+                                        echo $this->Html->link(
+                                            __(
+                                                '{0}',
+                                                $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                                            ),
+                                            '#',
+                                            [
+                                                'class' => 'btn btn-xs  btn-primary btn-confirm',
+                                                'title' => 'Ativar',
+                                                'data-toggle' => 'modal',
+                                                'data-target' => '#modal-delete-with-message',
+                                                'data-message' => __(Configure::read('messageEnableAccessUserQuestion'), $usuario->nome),
+                                                'data-action' =>
+                                                empty($usuario->clientes_has_usuarios) ?
+                                                    Router::url(
+                                                        ['action' => 'habilitar_usuario', "?" =>
+                                                        [
+                                                            'usuarios_id' => $usuario->id,
+                                                            'return_url' => Router::url([
+                                                                'controller' => 'usuarios',
+                                                                'action' => 'index'
+                                                            ])
+                                                        ]]
+                                                    )
+                                                    : Router::url(
+                                                        array(
+
                                                             "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
                                                             array(
                                                                 "id" => $usuario->clientes_has_usuario->id,
-                                                                "usuarios_id" => $usuario->id,
+                                                                'usuarios_id' => $usuario->id,
                                                                 "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
-                                                                "conta_ativa" => 0,
+                                                                "conta_ativa" => 1,
                                                                 'return_url' => Router::url(
                                                                     array(
                                                                         'controller' => 'usuarios',
@@ -172,112 +200,12 @@ $listUsersPendingApproval = $userIsAdmin;
                                                                     )
                                                                 )
                                                             )
-                                                        )),
-                                                    'escape' => false
-                                                ],
-                                                false
-                                            );
-                                        } else {
-                                            echo $this->Html->link(
-                                                __(
-                                                    '{0}',
-                                                    $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                                                ),
-                                                '#',
-                                                [
-                                                    'class' => 'btn btn-xs  btn-primary btn-confirm',
-                                                    'title' => 'Ativar',
-                                                    'data-toggle' => 'modal',
-                                                    'data-target' => '#modal-delete-with-message',
-                                                    'data-message' => __(Configure::read('messageEnableAccessUserQuestion'), $usuario->nome),
-                                                    'data-action' =>
-                                                    empty($usuario->clientes_has_usuarios) ?
-                                                        Router::url(
-                                                            ['action' => 'habilitar_usuario', "?" =>
-                                                            [
-                                                                'usuarios_id' => $usuario->id,
-                                                                'return_url' => Router::url([
-                                                                    'controller' => 'usuarios',
-                                                                    'action' => 'index'
-                                                                ])
-                                                            ]]
                                                         )
-                                                        : Router::url(
-                                                            array(
-
-                                                                "controller" => "clientes_has_usuarios", 'action' => 'alteraContaAtivaUsuario', "?" =>
-                                                                array(
-                                                                    "id" => $usuario->clientes_has_usuario->id,
-                                                                    'usuarios_id' => $usuario->id,
-                                                                    "clientes_id" => $usuario->clientes_has_usuario->clientes_id,
-                                                                    "conta_ativa" => 1,
-                                                                    'return_url' => Router::url(
-                                                                        array(
-                                                                            'controller' => 'usuarios',
-                                                                            'action' => 'index'
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
-                                                        ),
-                                                    'escape' => false
-                                                ],
-                                                false
-                                            );
-                                        }
-                                    } else {
-
-                                        if ($usuario["conta_ativa"] == true) {
-                                            echo $this->Html->link(
-                                                __(
-                                                    '{0} ',
-                                                    $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                                                ),
-                                                '#',
-                                                [
-                                                    'class' => 'btn btn-xs  btn-danger btn-confirm',
-                                                    'title' => 'Desativar',
-                                                    'data-toggle' => 'modal',
-                                                    'data-target' => '#modal-delete-with-message',
-                                                    'data-message' => __(Configure::read('messageDisableAccessUserQuestion'), $usuario->nome),
-                                                    'data-action' => Router::url(['action' => 'desabilitar_usuario', "?" =>
-                                                    [
-                                                        'usuarios_id' => $usuario->id,
-                                                        'return_url' => Router::url([
-                                                            'controller' => 'usuarios',
-                                                            'action' => 'index'
-                                                        ])
-                                                    ]]),
-                                                    'escape' => false
-                                                ],
-                                                false
-                                            );
-                                        } else {
-                                            echo $this->Html->link(
-                                                __(
-                                                    '{0}',
-                                                    $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
-                                                ),
-                                                '#',
-                                                [
-                                                    'class' => 'btn btn-xs  btn-primary btn-confirm',
-                                                    'title' => 'Ativar',
-                                                    'data-toggle' => 'modal',
-                                                    'data-target' => '#modal-delete-with-message',
-                                                    'data-message' => __(Configure::read('messageEnableAccessUserQuestion'), $usuario->nome),
-                                                    'data-action' => Router::url(['action' => 'habilitar_usuario', "?" =>
-                                                    [
-                                                        'usuarios_id' => $usuario->id,
-                                                        'return_url' => Router::url([
-                                                            'controller' => 'usuarios',
-                                                            'action' => 'index'
-                                                        ])
-                                                    ]]),
-                                                    'escape' => false
-                                                ],
-                                                false
-                                            );
-                                        }
+                                                    ),
+                                                'escape' => false
+                                            ],
+                                            false
+                                        );
                                     }
                                 } else {
 
@@ -333,42 +261,96 @@ $listUsersPendingApproval = $userIsAdmin;
                                         );
                                     }
                                 }
+                            } else {
+
+                                if ($usuario["conta_ativa"] == true) {
+                                    echo $this->Html->link(
+                                        __(
+                                            '{0} ',
+                                            $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                                        ),
+                                        '#',
+                                        [
+                                            'class' => 'btn btn-xs  btn-danger btn-confirm',
+                                            'title' => 'Desativar',
+                                            'data-toggle' => 'modal',
+                                            'data-target' => '#modal-delete-with-message',
+                                            'data-message' => __(Configure::read('messageDisableAccessUserQuestion'), $usuario->nome),
+                                            'data-action' => Router::url(['action' => 'desabilitar_usuario', "?" =>
+                                            [
+                                                'usuarios_id' => $usuario->id,
+                                                'return_url' => Router::url([
+                                                    'controller' => 'usuarios',
+                                                    'action' => 'index'
+                                                ])
+                                            ]]),
+                                            'escape' => false
+                                        ],
+                                        false
+                                    );
+                                } else {
+                                    echo $this->Html->link(
+                                        __(
+                                            '{0}',
+                                            $this->Html->tag('i', '', ['class' => 'fa fa-power-off'])
+                                        ),
+                                        '#',
+                                        [
+                                            'class' => 'btn btn-xs  btn-primary btn-confirm',
+                                            'title' => 'Ativar',
+                                            'data-toggle' => 'modal',
+                                            'data-target' => '#modal-delete-with-message',
+                                            'data-message' => __(Configure::read('messageEnableAccessUserQuestion'), $usuario->nome),
+                                            'data-action' => Router::url(['action' => 'habilitar_usuario', "?" =>
+                                            [
+                                                'usuarios_id' => $usuario->id,
+                                                'return_url' => Router::url([
+                                                    'controller' => 'usuarios',
+                                                    'action' => 'index'
+                                                ])
+                                            ]]),
+                                            'escape' => false
+                                        ],
+                                        false
+                                    );
+                                }
                             }
-                            ?>
+                        }
+                        ?>
 
 
                         <?= $this->Html->link(
-                                __(
-                                    '{0}',
-                                    $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
-                                ),
-                                '#',
-                                [
-                                    'class' => 'btn btn-xs  btn-danger btn-confirm',
-                                    'title' => 'Remover',
-                                    'data-toggle' => 'modal',
-                                    'data-target' => '#modal-delete-with-message',
-                                    'data-message' => __(Configure::read('messageDeleteQuestion'), $usuario->nome),
-                                    'data-action' => Router::url(
+                            __(
+                                '{0}',
+                                $this->Html->tag('i', '', ['class' => 'fa fa-trash'])
+                            ),
+                            '#',
+                            [
+                                'class' => 'btn btn-xs  btn-danger btn-confirm',
+                                'title' => 'Remover',
+                                'data-toggle' => 'modal',
+                                'data-target' => '#modal-delete-with-message',
+                                'data-message' => __(Configure::read('messageDeleteQuestion'), $usuario->nome),
+                                'data-action' => Router::url(
+                                    [
+                                        'action' => 'delete', $usuario->id,
+                                        '?' =>
                                         [
-                                            'action' => 'delete', $usuario->id,
-                                            '?' =>
-                                            [
-                                                'usuario_id' => $usuario->id,
-                                                'return_url' => Router::url(
-                                                    [
-                                                        'controller' => 'usuarios',
-                                                        'action' => 'index'
-                                                    ]
-                                                )
-                                            ]
+                                            'usuario_id' => $usuario->id,
+                                            'return_url' => Router::url(
+                                                [
+                                                    'controller' => 'usuarios',
+                                                    'action' => 'index'
+                                                ]
+                                            )
                                         ]
-                                    ),
-                                    'escape' => false
-                                ],
-                                false
-                            );
-                            ?>
+                                    ]
+                                ),
+                                'escape' => false
+                            ],
+                            false
+                        );
+                        ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
