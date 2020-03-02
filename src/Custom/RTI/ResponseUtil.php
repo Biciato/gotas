@@ -47,6 +47,8 @@ class ResponseUtil
     {
         header("HTTP/1.0 200");
 
+        // echo ($data);
+
         $arraySet = array(
             "msg" => $data
         );

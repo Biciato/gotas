@@ -6,6 +6,7 @@ use \DateTime;
 use \Exception;
 use App\Controller\AppController;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\HtmlUtil;
 use Cake\Log\Log;
 use Cake\Core\Configure;
 use Cake\Event\Event;
@@ -1009,8 +1010,6 @@ class PontuacoesController extends AppController
                 // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
 
                 $data = [];
-                $totalEntradas = 0;
-                $totalSaidaGotas = 0;
                 $dadosClientesPontuacoes = [];
                 $titleColumns = [];
 
@@ -1061,22 +1060,23 @@ class PontuacoesController extends AppController
 
                 // Somatória
 
-                $somaEntradaPontos = 0;
-                $somaSaidaPontos = 0;
-                $somaSaidaReais = 0;
-                $somaSaidaQteUnit = 0;
-                $dataToExport = [];
+                $sumPointsIn = 0;
+                $sumPointsOut = 0;
+                $sumMoneyOut = 0;
+                $sumQteOut = 0;
                 $rowsCliente = [];
                 $dataTotal = new stdClass();
+                $resumeWorker = null;
+                $report = null;
 
-                if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
-                    // Exportação tipo Object Array
+                if (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_OBJECT, TYPE_EXPORTATION_DATA_TABLE])) {
+                    // Exportação tipo Object Array ou HTML Table
                     if ($tipoMovimentacao === TYPE_OPERATION_IN) {
                         if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
                             foreach ($dadosClientesPontuacoes as $dadosCliente) {
                                 foreach ($dadosCliente as $recordsCliente) {
                                     foreach ($recordsCliente as $periodo) {
-                                        $somaEntradaPontos += $periodo->qte_gotas;
+                                        $sumPointsIn += $periodo->qte_gotas;
                                         $rowCliente = new stdClass();
                                         $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
                                         $rowCliente->periodo = $periodo->periodo;
@@ -1090,12 +1090,12 @@ class PontuacoesController extends AppController
                                 }
                             }
 
-                            $dataTotal->soma_entrada_pontos = $somaEntradaPontos;
+                            $dataTotal->soma_entrada_pontos = $sumPointsIn;
                         } else {
                             foreach ($dadosClientesPontuacoes as $dadosCliente) {
                                 foreach ($dadosCliente as $recordsCliente) {
                                     foreach ($recordsCliente as $periodo) {
-                                        $somaEntradaPontos += $periodo->qte_gotas;
+                                        $sumPointsIn += $periodo->qte_gotas;
                                         $rowCliente = new stdClass();
                                         $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
                                         $rowCliente->periodo = $periodo->periodo;
@@ -1107,16 +1107,54 @@ class PontuacoesController extends AppController
                                 }
                             }
 
-                            $dataTotal->soma_entrada_pontos = $somaEntradaPontos;
+                            $dataTotal->soma_entrada_pontos = $sumPointsIn;
+                        }
+                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                            $report = new stdClass();
+                            $report->headers = $titleColumns;
+                            $report->rows = $rowsCliente;
+                            $report->total = new stdClass();
+
+                            $report->total = $dataTotal;
+                            // @TODO  a fazer
+                            $resumeWorker = new stdClass();
+                        } else {
+                            // será retornado uma string table html
+
+                            // Adiciona linha de somatórioa
+
+                            $rowSum = new stdClass();
+
+                            if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+
+                                $rowSum->nome_fantasia = "Total: ";
+                                $rowSum->periodo = "";
+                                $rowSum->produto = "";
+                                $rowSum->funcionario = "";
+                                $rowSum->usuario = "";
+                                $rowSum->qte_pontos = $dataTotal->soma_entrada_pontos;
+                            } else {
+
+                                $rowSum->nome_fantasia = "Total: ";
+                                $rowSum->periodo = "";
+                                $rowSum->funcionario = "";
+                                $rowSum->qte_pontos =  $dataTotal->soma_entrada_pontos;
+                            }
+                            $rowsCliente[] = $rowSum;
+
+                            $report = HtmlUtil::generateHTMLTable("Relatório de Gestão de Gotas", $titleColumns, $rowsCliente, true);
+                            return ResponseUtil::success($report);
+                            return ResponseUtil::successAPI('', ['data' => $report]);
+                            $resumeWorker = "";
                         }
                     } else {
                         if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
                             foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
                                 foreach ($dadosCliente as $key => $periodos) {
                                     foreach ($periodos as $key => $periodo) {
-                                        $somaSaidaPontos += $periodo->qte_gotas;
-                                        $somaSaidaReais += $periodo->qte_reais;
-                                        $somaSaidaQteUnit += $periodo->qte;
+                                        $sumPointsOut += $periodo->qte_gotas;
+                                        $sumMoneyOut += $periodo->qte_reais;
+                                        $sumQteOut += $periodo->qte;
 
                                         $rowCliente = new stdClass();
                                         $rowCliente->nome_fantasia = $periodo->nome_fantasia;
@@ -1135,9 +1173,9 @@ class PontuacoesController extends AppController
                             foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
                                 foreach ($dadosCliente as $key => $periodos) {
                                     foreach ($periodos as $key => $periodo) {
-                                        $somaSaidaPontos += $periodo->qte_gotas;
-                                        $somaSaidaReais += $periodo->qte_reais;
-                                        $somaSaidaQteUnit += $periodo->qte;
+                                        $sumPointsOut += $periodo->qte_gotas;
+                                        $sumMoneyOut += $periodo->qte_reais;
+                                        $sumQteOut += $periodo->qte;
                                         $rowCliente = new stdClass();
                                         $rowCliente->nome_fantasia = $periodo->nome_fantasia;
                                         $rowCliente->periodo = $periodo->periodo;
@@ -1150,238 +1188,254 @@ class PontuacoesController extends AppController
                             }
                         }
 
-                        $dataTotal->soma_saida_pontos = $somaSaidaPontos;
-                        $dataTotal->soma_saida_reais = $somaSaidaReais;
-                        $dataTotal->soma_saida_qte_unit = $somaSaidaQteUnit;
+                        $dataTotal->soma_saida_pontos = $sumPointsOut;
+                        $dataTotal->soma_saida_reais = $sumMoneyOut;
+                        $dataTotal->soma_saida_qte_unit = $sumQteOut;
                     }
-                } elseif ($tipoExportacao === TYPE_EXPORTATION_DATA_TABLE) {
-                    // Exportação tabela HTML
                 } else {
                     // Exportação Excel
                 }
 
 
-                $dataToExport = new stdClass();
-                $dataToExport->headers = $titleColumns;
-                $dataToExport->rows = $rowsCliente;
-                $dataToExport->total = new stdClass();
 
-                $dataToExport->total = $dataTotal;
+                if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                    return ResponseUtil::successAPI(
+                        MSG_LOAD_DATA_WITH_SUCCESS,
+                        [
+                            'data' => [
+                                'relatorio' => $report,
+                                'resumo_funcionario' => $resumeWorker
+                            ]
+                        ]
+                    );
+                } elseif ($tipoExportacao === TYPE_EXPORTATION_DATA_TABLE) {
+                    return ResponseUtil::successAPI(
+                        MSG_LOAD_DATA_WITH_SUCCESS,
+                        [
+                            'data' => [
+                                'relatorio' => $report,
+                                'resumo_funcionario' => $resumeWorker
+                            ]
+                        ]
+                    );
+                }
 
                 return ResponseUtil::successAPI(
                     '',
                     [
-                        'export' => $dataToExport,
-                        'data' => $dadosClientesPontuacoes,
+                        // 'export' => $dataToExport,
+                        // 'data' => $dadosClientesPontuacoes,
+                        'data' => $report,
+
                     ]
                 );
 
-                if (true) {
-                    $entradas = $entradas->toArray();
-                    $saidas = $saidas->toArray();
-                    $somaEntradas = 0;
-                    $somaSaidas = 0;
-                    $somaQteSaidas = 0;
-                    $somaReaisSaidas = 0;
-                    $totalEntradas = 0;
-                    $totalSaidaGotas = 0;
-                    $totalSaidaQte = 0;
-                    $totalSaidaReais = 0;
+                // if (true) {
+                //     $entradas = $entradas->toArray();
+                //     $saidas = $saidas->toArray();
+                //     $somaEntradas = 0;
+                //     $somaSaidas = 0;
+                //     $somaQteSaidas = 0;
+                //     $somaReaisSaidas = 0;
+                //     $totalEntradas = 0;
+                //     $totalSaidaGotas = 0;
+                //     $totalSaidaQte = 0;
+                //     $totalSaidaReais = 0;
 
-                    // obtem somatória
-                    foreach ($entradas as $entrada) {
-                        $somaEntradas += $entrada["qte_gotas"];
-                    }
+                //     // obtem somatória
+                //     foreach ($entradas as $entrada) {
+                //         $somaEntradas += $entrada["qte_gotas"];
+                //     }
 
-                    foreach ($saidas as $saida) {
-                        $somaSaidas += $saida["qte_gotas"];
-                        $somaQteSaidas += $saida["qte"];
-                        $somaReaisSaidas += $saida["qte_reais"];
-                    }
+                //     foreach ($saidas as $saida) {
+                //         $somaSaidas += $saida["qte_gotas"];
+                //         $somaQteSaidas += $saida["qte"];
+                //         $somaReaisSaidas += $saida["qte_reais"];
+                //     }
 
-                    $entradasAnalitico = [];
-                    $saidasAnalitico = [];
+                //     $entradasAnalitico = [];
+                //     $saidasAnalitico = [];
 
-                    // Se o relatório é analítico, o agrupamento dos registros será pelo mês
-                    if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                        $entradasAnalitico = $entradas;
-                        $saidasAnalitico = $saidas;
-                        // Percorre dia a dia e preenche se valor é 0
-                        // Fiz em código pq em sql não resolveu
-                        $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
+                //     // Se o relatório é analítico, o agrupamento dos registros será pelo mês
+                //     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
+                //         $entradasAnalitico = $entradas;
+                //         $saidasAnalitico = $saidas;
+                //         // Percorre dia a dia e preenche se valor é 0
+                //         // Fiz em código pq em sql não resolveu
+                //         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
 
-                        while ($dataLoop <= $dataFim) {
-                            // Verifica se existe o registro em tal data
-                            $recordIn = null;
+                //         while ($dataLoop <= $dataFim) {
+                //             // Verifica se existe o registro em tal data
+                //             $recordIn = null;
 
-                            $found = false;
-                            foreach ($entradasAnalitico as $key => $entrada) {
-                                if ($entrada["periodo"] == $dataLoop->format("Y-m-d")) {
-                                    $found = true;
-                                    break;
-                                }
-                            }
+                //             $found = false;
+                //             foreach ($entradasAnalitico as $key => $entrada) {
+                //                 if ($entrada["periodo"] == $dataLoop->format("Y-m-d")) {
+                //                     $found = true;
+                //                     break;
+                //                 }
+                //             }
 
-                            if (!$found) {
-                                $recordIn = new Pontuacao();
-                                $recordIn->periodo = $dataLoop->format("Y-m-d");
-                                $recordIn->qte_gotas = 0;
-                            }
+                //             if (!$found) {
+                //                 $recordIn = new Pontuacao();
+                //                 $recordIn->periodo = $dataLoop->format("Y-m-d");
+                //                 $recordIn->qte_gotas = 0;
+                //             }
 
-                            $dataLoop->modify("+1 day");
+                //             $dataLoop->modify("+1 day");
 
-                            if (!empty($recordIn)) {
-                                $entradasAnalitico[] = $recordIn;
-                            }
-                        }
+                //             if (!empty($recordIn)) {
+                //                 $entradasAnalitico[] = $recordIn;
+                //             }
+                //         }
 
-                        $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
+                //         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
 
-                        // Limpa as variaveis para o que virá a seguir
-                        $entradas = [];
-                        $saidas = [];
+                //         // Limpa as variaveis para o que virá a seguir
+                //         $entradas = [];
+                //         $saidas = [];
 
-                        usort($entradasAnalitico, function ($a, $b) {
-                            return $a["periodo"] > $b["periodo"];
-                        });
+                //         usort($entradasAnalitico, function ($a, $b) {
+                //             return $a["periodo"] > $b["periodo"];
+                //         });
 
-                        usort($saidasAnalitico, function ($a, $b) {
-                            return $a["periodo"] > $b["periodo"];
-                        });
+                //         usort($saidasAnalitico, function ($a, $b) {
+                //             return $a["periodo"] > $b["periodo"];
+                //         });
 
-                        // Faz agrupamento por periodo
+                //         // Faz agrupamento por periodo
 
-                        foreach ($entradasAnalitico as $entrada) {
-                            $dataAgrupamento = new DateTime($entrada["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
-                            $entradas[$dataAgrupamento]["data"][] = $entrada;
-                        }
+                //         foreach ($entradasAnalitico as $entrada) {
+                //             $dataAgrupamento = new DateTime($entrada["periodo"]);
+                //             $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
+                //             $entradas[$dataAgrupamento]["data"][] = $entrada;
+                //         }
 
-                        foreach ($saidasAnalitico as $saida) {
-                            $dataAgrupamento = new DateTime($saida["periodo"]);
-                            $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
-                            $saidas[$dataAgrupamento]["data"][] = $saida;
-                        }
+                //         foreach ($saidasAnalitico as $saida) {
+                //             $dataAgrupamento = new DateTime($saida["periodo"]);
+                //             $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
+                //             $saidas[$dataAgrupamento]["data"][] = $saida;
+                //         }
 
-                        $entradasAnalitico = $entradas;
-                        $saidasAnalitico = $saidas;
+                //         $entradasAnalitico = $entradas;
+                //         $saidasAnalitico = $saidas;
 
-                        $entradas = [];
-                        $saidas = [];
+                //         $entradas = [];
+                //         $saidas = [];
 
-                        foreach ($entradasAnalitico as $keyDate => $list) {
-                            foreach ($list as $key => $value) {
-                                $dataAgrupamento = new DateTime($keyDate);
-                                $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                                if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
-                                    $entradas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
-                                }
-                            }
-                        }
+                //         foreach ($entradasAnalitico as $keyDate => $list) {
+                //             foreach ($list as $key => $value) {
+                //                 $dataAgrupamento = new DateTime($keyDate);
+                //                 $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                //                 if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
+                //                     $entradas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
+                //                 }
+                //             }
+                //         }
 
-                        foreach ($saidasAnalitico as $keyDate => $list) {
-                            foreach ($list as $key => $value) {
-                                $dataAgrupamento = new DateTime($keyDate);
-                                $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                                if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
-                                    $saidas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
-                                }
-                            }
-                        }
+                //         foreach ($saidasAnalitico as $keyDate => $list) {
+                //             foreach ($list as $key => $value) {
+                //                 $dataAgrupamento = new DateTime($keyDate);
+                //                 $dataAgrupamento = $dataAgrupamento->format("Y-m");
+                //                 if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
+                //                     $saidas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
+                //                 }
+                //             }
+                //         }
 
-                        // Agora, faz somatória total e periodo
-                        $totalEntradas = 0;
-                        $entradasTemp = [];
+                //         // Agora, faz somatória total e periodo
+                //         $totalEntradas = 0;
+                //         $entradasTemp = [];
 
-                        // Percorre lista de entradas
-                        foreach ($entradas as $keyEntradas => $periodoData) {
-                            $somaPeriodo = 0;
-                            $entradaDia = [];
+                //         // Percorre lista de entradas
+                //         foreach ($entradas as $keyEntradas => $periodoData) {
+                //             $somaPeriodo = 0;
+                //             $entradaDia = [];
 
-                            // Percorre periodos
-                            foreach ($periodoData["data"] as $keyData => $data) {
-                                $somaDia = 0;
+                //             // Percorre periodos
+                //             foreach ($periodoData["data"] as $keyData => $data) {
+                //                 $somaDia = 0;
 
-                                // Percorre agrupamento de dias
-                                foreach ($data["data"] as $keyItem => $item) {
-                                    // Obtem soma Dia
-                                    $somaDia += $item["qte_gotas"];
-                                }
+                //                 // Percorre agrupamento de dias
+                //                 foreach ($data["data"] as $keyItem => $item) {
+                //                     // Obtem soma Dia
+                //                     $somaDia += $item["qte_gotas"];
+                //                 }
 
-                                $data["soma_dia"] = $somaDia;
-                                $somaPeriodo += $somaDia;
-                                $entradaDia[$keyData] = $data;
-                            }
+                //                 $data["soma_dia"] = $somaDia;
+                //                 $somaPeriodo += $somaDia;
+                //                 $entradaDia[$keyData] = $data;
+                //             }
 
-                            $totalEntradas += $somaPeriodo;
-                            $periodoData["data"] = $entradaDia;
-                            $periodoData["soma_periodo"] = $somaPeriodo;
-                            $entradasTemp[$keyEntradas] = $periodoData;
-                        }
+                //             $totalEntradas += $somaPeriodo;
+                //             $periodoData["data"] = $entradaDia;
+                //             $periodoData["soma_periodo"] = $somaPeriodo;
+                //             $entradasTemp[$keyEntradas] = $periodoData;
+                //         }
 
-                        $entradas = $entradasTemp;
-                        $totalSaidaGotas = 0;
-                        $totalSaidaReais = 0;
-                        $totalSaidaQte = 0;
-                        $saidasTemp = [];
-                        // Percorre lista de saidas
-                        foreach ($saidas as $keysaidas => $periodoData) {
-                            $somaPeriodoGotas = 0;
-                            $somaPeriodoReais = 0;
-                            $somaPeriodoQte = 0;
+                //         $entradas = $entradasTemp;
+                //         $totalSaidaGotas = 0;
+                //         $totalSaidaReais = 0;
+                //         $totalSaidaQte = 0;
+                //         $saidasTemp = [];
+                //         // Percorre lista de saidas
+                //         foreach ($saidas as $keysaidas => $periodoData) {
+                //             $somaPeriodoGotas = 0;
+                //             $somaPeriodoReais = 0;
+                //             $somaPeriodoQte = 0;
 
-                            $saidaDia = [];
-                            // Percorre periodos
-                            foreach ($periodoData["data"] as $keyData => $data) {
-                                $somaDiaGotas = 0;
-                                $somaDiaReais = 0;
-                                $somaDiaQte = 0;
+                //             $saidaDia = [];
+                //             // Percorre periodos
+                //             foreach ($periodoData["data"] as $keyData => $data) {
+                //                 $somaDiaGotas = 0;
+                //                 $somaDiaReais = 0;
+                //                 $somaDiaQte = 0;
 
-                                // Percorre agrupamento de dias
-                                foreach ($data["data"] as $keyItem => $item) {
-                                    // Obtem soma Dia
-                                    $somaDiaGotas += $item["qte_gotas"];
-                                    $somaDiaReais += $item["qte_reais"];
-                                    $somaDiaQte += $item["qte"];
-                                }
+                //                 // Percorre agrupamento de dias
+                //                 foreach ($data["data"] as $keyItem => $item) {
+                //                     // Obtem soma Dia
+                //                     $somaDiaGotas += $item["qte_gotas"];
+                //                     $somaDiaReais += $item["qte_reais"];
+                //                     $somaDiaQte += $item["qte"];
+                //                 }
 
-                                $data["soma_dia_gotas"] = $somaDiaGotas;
-                                $data["soma_dia_reais"] = $somaDiaReais;
-                                $data["soma_dia_qte"] = $somaDiaQte;
-                                $somaPeriodoGotas += $somaDiaGotas;
-                                $somaPeriodoReais += $somaDiaReais;
-                                $somaPeriodoQte += $somaDiaQte;
-                                $saidaDia[$keyData] = $data;
-                            }
+                //                 $data["soma_dia_gotas"] = $somaDiaGotas;
+                //                 $data["soma_dia_reais"] = $somaDiaReais;
+                //                 $data["soma_dia_qte"] = $somaDiaQte;
+                //                 $somaPeriodoGotas += $somaDiaGotas;
+                //                 $somaPeriodoReais += $somaDiaReais;
+                //                 $somaPeriodoQte += $somaDiaQte;
+                //                 $saidaDia[$keyData] = $data;
+                //             }
 
-                            $totalSaidaGotas += $somaPeriodoGotas;
-                            $totalSaidaReais += $somaPeriodoReais;
-                            $totalSaidaQte += $somaPeriodoQte;
-                            $periodoData["data"] = $saidaDia;
-                            $periodoData["soma_periodo_gotas"] = $somaPeriodoGotas;
-                            $periodoData["soma_periodo_reais"] = $somaPeriodoReais;
-                            $periodoData["soma_periodo_qte"] = $somaPeriodoQte;
-                            $saidasTemp[$keysaidas] = $periodoData;
-                        }
+                //             $totalSaidaGotas += $somaPeriodoGotas;
+                //             $totalSaidaReais += $somaPeriodoReais;
+                //             $totalSaidaQte += $somaPeriodoQte;
+                //             $periodoData["data"] = $saidaDia;
+                //             $periodoData["soma_periodo_gotas"] = $somaPeriodoGotas;
+                //             $periodoData["soma_periodo_reais"] = $somaPeriodoReais;
+                //             $periodoData["soma_periodo_qte"] = $somaPeriodoQte;
+                //             $saidasTemp[$keysaidas] = $periodoData;
+                //         }
 
-                        $saidas = $saidasTemp;
-                    } else {
-                        $totalSaidaQte = $somaQteSaidas;
-                        $totalSaidaReais = $somaReaisSaidas;
-                        $totalSaidaGotas = $somaSaidas;
-                        $totalEntradas = $somaEntradas;
-                    }
+                //         $saidas = $saidasTemp;
+                //     } else {
+                //         $totalSaidaQte = $somaQteSaidas;
+                //         $totalSaidaReais = $somaReaisSaidas;
+                //         $totalSaidaGotas = $somaSaidas;
+                //         $totalEntradas = $somaEntradas;
+                //     }
 
-                    $clientesPontuacoes[] = [
-                        "cliente" => $cliente,
-                        "pontuacoes_entradas" => $entradas,
-                        "pontuacoes_saidas" => $saidas,
-                        "soma_entradas" => $somaEntradas,
-                        "soma_saida_gotas" => $somaSaidas,
-                        "soma_saida_reais" => $somaReaisSaidas,
-                        "soma_saida_qte" => $somaQteSaidas,
-                    ];
-                }
+                //     $clientesPontuacoes[] = [
+                //         "cliente" => $cliente,
+                //         "pontuacoes_entradas" => $entradas,
+                //         "pontuacoes_saidas" => $saidas,
+                //         "soma_entradas" => $somaEntradas,
+                //         "soma_saida_gotas" => $somaSaidas,
+                //         "soma_saida_reais" => $somaReaisSaidas,
+                //         "soma_saida_qte" => $somaQteSaidas,
+                //     ];
+                // }
 
                 $pontuacoesReport = [
                     "pontuacoes" => $clientesPontuacoes,

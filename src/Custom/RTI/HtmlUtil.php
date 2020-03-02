@@ -44,29 +44,31 @@ class HtmlUtil
     public static function generateHTMLTable(string $title, array $headers, array $contentData, bool $toggleLineColor = false)
     {
         // Cabeçalho
-        $table = "
-        <table>
-            <tr style='text-align:center;'>
-                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>" . strtoupper($title) . "</td>
-            </tr>
-            <tr>";
+        $table  = "<table>";
+        $table .= "    <tr style='text-align:center;'>";
+        $table .= "        <td colspan=" . count($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>" . strtoupper($title) . "</td>";
+        $table .= "    </tr>";
+        $table .= "    <tr>";
 
         foreach ($headers as $header) {
-            $table .= "<td style='border: 1px solid black; background-color: #D6DCE4; font-weight: bolder;'>" . strtoupper($header) . "</td>";
+            $table .= "<td style='border: 1px solid black; background-color: #D6DCE4; font-weight: bolder;'>" . strtoupper($header)
+                . " </td>";
         }
         $table .= "</tr>";
 
         $backgroundColor = '';
+        $stepColor = 0;
         // Corpo
         foreach ($contentData as $data) {
-            $table .= "<tr>";
+            $backgroundColor = $toggleLineColor && $stepColor === 0 ? "#a1e8ea" : "#FFFFFF";
+            $rowStyle = "style='border:1px solid black;" . "background-color: {$backgroundColor};'";
 
-            $backgroundColor = $toggleLineColor && strlen($backgroundColor) == 0 ? "#a1e8ea" : "#000000";
+            $table .= "<tr {$rowStyle}>";
 
-            $rowStyle = "style='border:1px solid black;" + "background-color: {$backgroundColor};'";
             foreach ($data as $column) {
-                $table .= "<td {$rowStyle}>" . $column . "</td>";
+                $table .= "<td style='border:1px solid black;'>{$column}</td>";
             }
+            $stepColor = $toggleLineColor && $stepColor === 0 ? 1 : 0;
             $table .= "</tr>";
         }
         $table .= "</table>";
