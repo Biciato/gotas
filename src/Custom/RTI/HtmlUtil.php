@@ -44,14 +44,15 @@ class HtmlUtil
     public static function generateHTMLTable(string $title, array $headers, array $contentData, bool $toggleLineColor = false)
     {
         // Cabeçalho
-        $table  = "<table>";
+
+        $table  = "<table style='width: 100%;'>";
         $table .= "    <tr style='text-align:center;'>";
-        $table .= "        <td colspan=" . count($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>" . strtoupper($title) . "</td>";
+        $table .= "        <td colspan=" . count($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder; font-size:24px; font-family: Arial New Black;'>" . mb_strtoupper($title) . "</td>";
         $table .= "    </tr>";
         $table .= "    <tr>";
 
         foreach ($headers as $header) {
-            $table .= "<td style='border: 1px solid black; background-color: #D6DCE4; font-weight: bolder;'>" . strtoupper($header)
+            $table .= "<td style='border: 1px solid black; background-color: #D6DCE4; font-weight: bolder;font-weight: bolder; font-size:24px; font-family: Arial New Black;'>" . mb_strtoupper($header)
                 . " </td>";
         }
         $table .= "</tr>";
@@ -61,12 +62,11 @@ class HtmlUtil
         // Corpo
         foreach ($contentData as $data) {
             $backgroundColor = $toggleLineColor && $stepColor === 0 ? "#a1e8ea" : "#FFFFFF";
-            $rowStyle = "style='border:1px solid black;" . "background-color: {$backgroundColor};'";
-
-            $table .= "<tr {$rowStyle}>";
+            $table .= "<tr>";
 
             foreach ($data as $column) {
-                $table .= "<td style='border:1px solid black;'>{$column}</td>";
+                $rowStyle = "style='border:1px solid black;" . "background-color: {$backgroundColor}; font-size: 18px; font-family: Arial;'";
+                $table .= "<td {$rowStyle}>{$column}</td>";
             }
             $stepColor = $toggleLineColor && $stepColor === 0 ? 1 : 0;
             $table .= "</tr>";
@@ -74,5 +74,28 @@ class HtmlUtil
         $table .= "</table>";
 
         return $table;
+    }
+
+    /**
+     * 'Embrulha' um conteúdo dentro de uma Html
+     *
+     * Converte conteúdo table html em Excel
+     *
+     * @param object $content Conteúdo
+     *
+     * @return string $content Conteúdo Html
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.5
+     */
+    public static function wrapContentToHtml($content)
+    {
+        $htmlContent = "
+        <html>
+        <meta http-equiv='content-type' content='text/html; charset=UTF-8' />
+            {$content}
+        </html>
+        ";
+        return $htmlContent;
     }
 }

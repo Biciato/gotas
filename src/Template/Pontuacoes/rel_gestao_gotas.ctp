@@ -114,6 +114,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                     <i class="fa fa-print"></i>
                                     Imprimir
                                 </div>
+                                <div class="imprimir btn btn-success" id="btn-exportar">
+                                    <i class="fas fa-file-excel-o"></i>
+                                    Exportar
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -146,13 +150,18 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 
         </div>
 
-        <h3 class="text-center"><?= $title ?></h3>
+        <!-- <h3 class="text-center"><?= $title ?></h3>
         <table class="table table-responsive table-bordered table-hover table-condensed" id="tabela-dados">
             <tbody>
                 <span></span>
             </tbody>
-        </table>
+        </table> -->
 
+        <div class="form-group row">
+            <div id="container-report" class="col-lg-12">
+            </div>
+
+        </div>
 
 
         <!-- <h3>Resumo Sintético</h3>

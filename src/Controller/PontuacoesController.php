@@ -6,6 +6,7 @@ use \DateTime;
 use \Exception;
 use App\Controller\AppController;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\ExcelUtil;
 use App\Custom\RTI\HtmlUtil;
 use Cake\Log\Log;
 use Cake\Core\Configure;
@@ -1026,7 +1027,6 @@ class PontuacoesController extends AppController
                     } else {
                         $titleColumns["nome_fantasia"] = "Estabelecimento";
                         $titleColumns["periodo"] = "Periodo";
-                        $titleColumns["produto"] = "Produto";
                         $titleColumns["qte_pontos"] = "Qte. Pontos";
                     }
                 } else {
@@ -1069,134 +1069,175 @@ class PontuacoesController extends AppController
                 $resumeWorker = null;
                 $report = null;
 
-                if (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_OBJECT, TYPE_EXPORTATION_DATA_TABLE])) {
-                    // Exportação tipo Object Array ou HTML Table
-                    if ($tipoMovimentacao === TYPE_OPERATION_IN) {
-                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-                            foreach ($dadosClientesPontuacoes as $dadosCliente) {
-                                foreach ($dadosCliente as $recordsCliente) {
-                                    foreach ($recordsCliente as $periodo) {
-                                        $sumPointsIn += $periodo->qte_gotas;
-                                        $rowCliente = new stdClass();
-                                        $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
-                                        $rowCliente->periodo = $periodo->periodo;
-                                        $rowCliente->produto = $periodo->gota->nome_parametro;
-                                        $rowCliente->funcionario = $periodo->funcionario->nome;
-                                        $rowCliente->usuario = $periodo->usuario->nome;
-                                        $rowCliente->qte_pontos = $periodo->qte_gotas;
+                if ($tipoMovimentacao === TYPE_OPERATION_IN) {
+                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                        foreach ($dadosClientesPontuacoes as $dadosCliente) {
+                            foreach ($dadosCliente as $recordsCliente) {
+                                foreach ($recordsCliente as $periodo) {
+                                    $sumPointsIn += $periodo->qte_gotas;
+                                    $rowCliente = new stdClass();
+                                    $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
 
-                                        $rowsCliente[] = $rowCliente;
-                                    }
+                                    $date = new DateTime($periodo->periodo);
+                                    $rowCliente->periodo = $date->format("d/m/Y");
+                                    $rowCliente->produto = $periodo->gota->nome_parametro;
+                                    $rowCliente->funcionario = $periodo->funcionario->nome;
+                                    $rowCliente->usuario = $periodo->usuario->nome;
+                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
+
+                                    $rowsCliente[] = $rowCliente;
                                 }
                             }
-
-                            $dataTotal->soma_entrada_pontos = $sumPointsIn;
-                        } else {
-                            foreach ($dadosClientesPontuacoes as $dadosCliente) {
-                                foreach ($dadosCliente as $recordsCliente) {
-                                    foreach ($recordsCliente as $periodo) {
-                                        $sumPointsIn += $periodo->qte_gotas;
-                                        $rowCliente = new stdClass();
-                                        $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
-                                        $rowCliente->periodo = $periodo->periodo;
-                                        $rowCliente->funcionario = $periodo->funcionario->nome;
-                                        $rowCliente->qte_pontos = $periodo->qte_gotas;
-
-                                        $rowsCliente[] = $rowCliente;
-                                    }
-                                }
-                            }
-
-                            $dataTotal->soma_entrada_pontos = $sumPointsIn;
                         }
-                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
-                            $report = new stdClass();
-                            $report->headers = $titleColumns;
-                            $report->rows = $rowsCliente;
-                            $report->total = new stdClass();
 
-                            $report->total = $dataTotal;
-                            // @TODO  a fazer
-                            $resumeWorker = new stdClass();
-                        } else {
-                            // será retornado uma string table html
-
-                            // Adiciona linha de somatórioa
-
-                            $rowSum = new stdClass();
-
-                            if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-
-                                $rowSum->nome_fantasia = "Total: ";
-                                $rowSum->periodo = "";
-                                $rowSum->produto = "";
-                                $rowSum->funcionario = "";
-                                $rowSum->usuario = "";
-                                $rowSum->qte_pontos = $dataTotal->soma_entrada_pontos;
-                            } else {
-
-                                $rowSum->nome_fantasia = "Total: ";
-                                $rowSum->periodo = "";
-                                $rowSum->funcionario = "";
-                                $rowSum->qte_pontos =  $dataTotal->soma_entrada_pontos;
-                            }
-                            $rowsCliente[] = $rowSum;
-
-                            $report = HtmlUtil::generateHTMLTable("Relatório de Gestão de Gotas", $titleColumns, $rowsCliente, true);
-                            return ResponseUtil::success($report);
-                            return ResponseUtil::successAPI('', ['data' => $report]);
-                            $resumeWorker = "";
-                        }
+                        $dataTotal->soma_entrada_pontos = $sumPointsIn;
                     } else {
-                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-                            foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
-                                foreach ($dadosCliente as $key => $periodos) {
-                                    foreach ($periodos as $key => $periodo) {
-                                        $sumPointsOut += $periodo->qte_gotas;
-                                        $sumMoneyOut += $periodo->qte_reais;
-                                        $sumQteOut += $periodo->qte;
+                        foreach ($dadosClientesPontuacoes as $dadosCliente) {
+                            foreach ($dadosCliente as $recordsCliente) {
+                                foreach ($recordsCliente as $periodo) {
+                                    $sumPointsIn += $periodo->qte_gotas;
+                                    $rowCliente = new stdClass();
+                                    $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
+                                    $date = new DateTime($periodo->periodo);
+                                    $rowCliente->periodo = $date->format("m/Y");
+                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
 
-                                        $rowCliente = new stdClass();
-                                        $rowCliente->nome_fantasia = $periodo->nome_fantasia;
-                                        $rowCliente->periodo = $periodo->periodo;
-                                        $rowCliente->brinde = $periodo->brinde;
-                                        $rowCliente->funcionario = $periodo->funcionario;
-                                        $rowCliente->usuario = $periodo->usuario;
-                                        $rowCliente->qte_pontos = $periodo->qte_gotas;
-                                        $rowCliente->qte_reais = number_format($periodo->qte_reais, 2);
-                                        $rowCliente->qte_unit = $periodo->qte;
-                                        $rowsCliente[] = $rowCliente;
-                                    }
-                                }
-                            }
-                        } else {
-                            foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
-                                foreach ($dadosCliente as $key => $periodos) {
-                                    foreach ($periodos as $key => $periodo) {
-                                        $sumPointsOut += $periodo->qte_gotas;
-                                        $sumMoneyOut += $periodo->qte_reais;
-                                        $sumQteOut += $periodo->qte;
-                                        $rowCliente = new stdClass();
-                                        $rowCliente->nome_fantasia = $periodo->nome_fantasia;
-                                        $rowCliente->periodo = $periodo->periodo;
-                                        $rowCliente->qte_pontos = $periodo->qte_gotas;
-                                        $rowCliente->qte_reais = number_format($periodo->qte_reais, 2);
-                                        $rowCliente->qte_unit = $periodo->qte;
-                                        $rowsCliente[] = $rowCliente;
-                                    }
+                                    $rowsCliente[] = $rowCliente;
                                 }
                             }
                         }
 
-                        $dataTotal->soma_saida_pontos = $sumPointsOut;
-                        $dataTotal->soma_saida_reais = $sumMoneyOut;
-                        $dataTotal->soma_saida_qte_unit = $sumQteOut;
+                        $dataTotal->soma_entrada_pontos = $sumPointsIn;
+                    }
+                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                        $report = new stdClass();
+                        $report->headers = $titleColumns;
+                        $report->rows = $rowsCliente;
+                        $report->total = new stdClass();
+
+                        $report->total = $dataTotal;
+                        // @TODO  a fazer
+                        $resumeWorker = new stdClass();
+                    } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                        // será retornado uma string table html ou arquivo excel
+
+                        // Adiciona linha de somatórioa
+                        $rowSum = new stdClass();
+
+                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                            $rowSum->nome_fantasia = "Total: ";
+                            $rowSum->periodo = "";
+                            $rowSum->produto = "";
+                            $rowSum->funcionario = "";
+                            $rowSum->usuario = "";
+                            $rowSum->qte_pontos = $dataTotal->soma_entrada_pontos;
+                        } else {
+                            $rowSum->nome_fantasia = "Total: ";
+                            $rowSum->periodo = "";
+                            $rowSum->qte_pontos =  $dataTotal->soma_entrada_pontos;
+                        }
+                        $rowsCliente[] = $rowSum;
+
+                        $report = HtmlUtil::generateHTMLTable("Relatório de Gestão de Gotas", $titleColumns, $rowsCliente, true);
+                        // return ResponseUtil::success($report);
+                        // return ResponseUtil::successAPI('', ['data' => $report]);
+                        // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
+
+                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                            $report = HtmlUtil::wrapContentToHtml($report);
+                        }
                     }
                 } else {
-                    // Exportação Excel
+                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                        foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
+                            foreach ($dadosCliente as $key => $periodos) {
+                                foreach ($periodos as $key => $periodo) {
+                                    $sumPointsOut += $periodo->qte_gotas;
+                                    $sumMoneyOut += $periodo->qte_reais;
+                                    $sumQteOut += $periodo->qte;
+
+                                    $rowCliente = new stdClass();
+                                    $rowCliente->nome_fantasia = $periodo->nome_fantasia;
+                                    $date = new DateTime($periodo->periodo);
+                                    $rowCliente->periodo = $date->format("d/m/Y");
+                                    $rowCliente->brinde = $periodo->brinde;
+                                    $rowCliente->funcionario = $periodo->funcionario;
+                                    $rowCliente->usuario = $periodo->usuario;
+                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
+                                    $rowCliente->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
+                                    $rowCliente->qte_unit = $periodo->qte;
+                                    $rowsCliente[] = $rowCliente;
+                                }
+                            }
+                        }
+                    } else {
+                        foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
+                            foreach ($dadosCliente as $key => $periodos) {
+                                foreach ($periodos as $key => $periodo) {
+                                    $sumPointsOut += $periodo->qte_gotas;
+                                    $sumMoneyOut += $periodo->qte_reais;
+                                    $sumQteOut += $periodo->qte;
+                                    $rowCliente = new stdClass();
+                                    $rowCliente->nome_fantasia = $periodo->nome_fantasia;
+                                    $date = new DateTime($periodo->periodo);
+                                    $rowCliente->periodo = $date->format("m/Y");
+                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
+                                    $rowCliente->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
+                                    $rowCliente->qte_unit = $periodo->qte;
+                                    $rowsCliente[] = $rowCliente;
+                                }
+                            }
+                        }
+                    }
+
+                    $dataTotal->soma_saida_pontos = $sumPointsOut;
+                    $dataTotal->soma_saida_reais = $sumMoneyOut;
+                    $dataTotal->soma_saida_qte_unit = $sumQteOut;
+
+                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                        $report = new stdClass();
+                        $report->headers = $titleColumns;
+                        $report->rows = $rowsCliente;
+                        $report->total = new stdClass();
+
+                        $report->total = $dataTotal;
+                        // @TODO  a fazer
+                        $resumeWorker = new stdClass();
+                    } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                        // será retornado uma string table html ou arquivo excel
+
+                        // Adiciona linha de somatórioa
+                        $rowSum = new stdClass();
+
+                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                            $rowSum->nome_fantasia = "Total: ";
+                            $rowSum->periodo = "";
+                            $rowSum->brinde = "";
+                            $rowSum->funcionario = "";
+                            $rowSum->usuario = "";
+                            $rowSum->qte_pontos = $sumPointsOut;
+                            $rowSum->qte_reais = number_format($sumMoneyOut, 2);
+                            $rowSum->qte_unit = $sumQteOut;
+                        } else {
+                            $rowSum->nome_fantasia = "Total: ";
+                            $rowSum->periodo = "";
+                            $rowSum->qte_pontos = $sumPointsOut;
+                            $rowSum->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
+                            $rowSum->qte_unit = $sumQteOut;
+                        }
+                        $rowsCliente[] = $rowSum;
+
+                        $titleReport = sprintf("Relatório de Gestão de Gotas: %s - %s", $tipoMovimentacao, $tipoRelatorio);
+                        $report = HtmlUtil::generateHTMLTable($titleReport, $titleColumns, $rowsCliente, true);
+                        // return ResponseUtil::success($report);
+                        // return ResponseUtil::successAPI('', ['data' => $report]);
+                        // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
+
+                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                            $report = HtmlUtil::wrapContentToHtml($report);
+                        }
+                    }
                 }
-
-
 
                 if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
                     return ResponseUtil::successAPI(
@@ -1221,12 +1262,9 @@ class PontuacoesController extends AppController
                 }
 
                 return ResponseUtil::successAPI(
-                    '',
+                    MSG_LOAD_DATA_WITH_SUCCESS,
                     [
-                        // 'export' => $dataToExport,
-                        // 'data' => $dadosClientesPontuacoes,
                         'data' => $report,
-
                     ]
                 );
 

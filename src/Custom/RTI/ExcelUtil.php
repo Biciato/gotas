@@ -41,7 +41,7 @@ class ExcelUtil
         <meta http-equiv='content-type' content='text/html; charset=UTF-8' />
         <table>
             <tr style='text-align:center;'>
-                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>".strtoupper($title)."</td>";
+                <td colspan=" . sizeof($headers) . " style='margin: 0px auto; border: 1px solid black !important; background-color: #BDD7EE; font-weight: bolder;'>" . strtoupper($title) . "</td>";
         $excelContent .= "<tr>";
 
         foreach ($headers as $header) {
@@ -60,7 +60,7 @@ class ExcelUtil
         $excelContent .= "</table>
         </html>
         ";
-        return json_encode($excelContent);
+        return $excelContent;
         // return base64_encode($excelContent);
     }
 }

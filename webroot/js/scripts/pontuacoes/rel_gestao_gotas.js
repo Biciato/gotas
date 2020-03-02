@@ -21,8 +21,8 @@ $
         var funcionariosSelectedItem = {};
         var funcionariosSelectListBox = $("#funcionarios-list");
 
-        var tabela = $("#tabela-dados");
-        var conteudoTabela = $("#tabela-dados tbody");
+        var containerReport = $("#container-report");
+
         var tipoMovimentacao = $("#tipo-movimentacao");
         var tipoMovimentacaoSelectedItem = {};
         var tipoRelatorio = $("#tipo-relatorio");
@@ -136,6 +136,13 @@ $
             exportarBtn.addClass("disabled");
             exportarBtn.addClass("readonly");
             exportarBtn.unbind("click");
+
+            // Atribuições de clicks aos botões de obtenção de relatório
+            imprimirBtn.unbind("click");
+            imprimirBtn.on("click", imprimirRelatorio);
+
+            exportarExcel.unbind("click");
+            exportarExcel.on("click", exportarExcel);
         }
 
         /**
@@ -273,28 +280,16 @@ $
         }
 
         /**
-         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::exportarExcel
+         * Gera Excel
          *
-         * Gera Relatório Excel
+         * Realiza pesquisa ao servidor e obtem conteúdo preparado para arquivo em Excel
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-09-12
+         * @since 1.1.5
          */
         function exportarExcel() {
-            // var content = $(".print-region").html();
-            // var regex = RegExp('<td ', 'g');
-            // var replace = "<td style=\"border: 1px solid black; min-width: 300px;\" ";
-            // content = content.replace(regex, replace);
-            // var regex = RegExp('<td>', 'g');
-            // var replace = "<td style=\"border: 1px solid black; min-width: 300px;\">";
-            // content = content.replace(regex, replace);
-            // var regex = RegExp('<span>', 'g');
-            // var replace = "";
-            // content = content.replace(regex, replace);
-            // var regex = RegExp('</span>', 'g');
-            // var replace = "";
-            // content = content.replace(regex, replace);
-            // window.open("data:application/vnd.ms-excel;charset=UTF-8," + encodeURIComponent(content));
+
+            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem, "Excel");
         }
 
         /**
@@ -316,6 +311,8 @@ $
 
             form.funcionariosId = funcionario;
         }
+
+
 
         /**
          * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::imprimirRelatorio
@@ -742,10 +739,11 @@ $
          * @param {datetime} dataInicio Data Inicio
          * @param {datetime} dataFim DataFim
          * @param {string} tipoRelatorio Analítico / Sintético
+         * @param {string} tipoExportacao Tipo de Exportação (Table / Excel)
          *
          * @returns HtmlTable
          */
-        function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, funcionariosId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao) {
+        function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, funcionariosId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao, tipoExportacao) {
             // Validação
 
             var dataInicioEnvio = moment(dataInicio);
@@ -771,7 +769,8 @@ $
                 data_inicio: dataInicioEnvio,
                 data_fim: dataFimEnvio,
                 tipo_relatorio: tipoRelatorio,
-                tipo_movimentacao: tipoMovimentacao
+                tipo_movimentacao: tipoMovimentacao,
+                tipo_exportacao: tipoExportacao,
             };
 
             console.log(data);
@@ -791,846 +790,858 @@ $
                     exportarBtn.unbind("click");
                     exportarBtn.on("click", exportarExcel);
 
-                    var data = response.data.pontuacoes_report;
+                    console.log(response);
 
-                    if (data.pontuacoes.length > 0) {
-                        conteudoTabela.empty();
+                    if (tipoExportacao === "Table") {
+                        $(containerReport).empty();
 
-                        $(tabela).hide();
-                        $(tabela).fadeIn(500);
+                        $(containerReport).append(response.data.resumo_funcionario);
+                        $(containerReport).append(response.data.relatorio);
+                    } else if (tipoExportacao === "Excel") {
+                        console.log(response);
+                        window.open("data:application/vnd.ms-excel," + encodeURIComponent(response.data));
                     }
 
-                    var rows = [];
+                    // var data = response.data.pontuacoes_report;
 
-                    if (form.tipoRelatorio == "Analítico") {
+                    // if (data.pontuacoes.length > 0) {
+                    //     conteudoTabela.empty();
 
-                        if (tipoMovimentacaoSelectedItem == "Entrada") {
+                    //     $(tabela).hide();
+                    //     $(tabela).fadeIn(500);
+                    // }
 
-                            data.pontuacoes.forEach(element => {
-                                // Dados do Estabelecimento
-                                var rowCliente = document.createElement("tr");
+                    // var rows = [];
 
-                                var labelCliente = document.createElement("strong");
-                                labelCliente.textContent = "Estabelecimento: ";
-                                var cellLabelCliente = document.createElement("td");
-                                cellLabelCliente.classList.add("font-weight-bold");
-                                cellLabelCliente.append(labelCliente);
+                    // if (form.tipoRelatorio == "Analítico") {
 
-                                var cellInfoCliente = document.createElement("td");
-                                var infoCliente = document.createElement("strong");
-                                infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                                cellInfoCliente.colSpan = 3;
-                                cellInfoCliente.classList.add("text-right");
+                    //     if (tipoMovimentacaoSelectedItem == "Entrada") {
 
-                                cellInfoCliente.append(infoCliente);
+                    //         data.pontuacoes.forEach(element => {
+                    //             // Dados do Estabelecimento
+                    //             var rowCliente = document.createElement("tr");
 
-                                rowCliente.append(cellLabelCliente);
-                                rowCliente.append(cellInfoCliente);
+                    //             var labelCliente = document.createElement("strong");
+                    //             labelCliente.textContent = "Estabelecimento: ";
+                    //             var cellLabelCliente = document.createElement("td");
+                    //             cellLabelCliente.classList.add("font-weight-bold");
+                    //             cellLabelCliente.append(labelCliente);
 
-                                rows.push(rowCliente);
+                    //             var cellInfoCliente = document.createElement("td");
+                    //             var infoCliente = document.createElement("strong");
+                    //             infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                    //             cellInfoCliente.colSpan = 3;
+                    //             cellInfoCliente.classList.add("text-right");
 
-                                // Fim dados Estabelecimento
+                    //             cellInfoCliente.append(infoCliente);
 
-                                // Linhas periodos
+                    //             rowCliente.append(cellLabelCliente);
+                    //             rowCliente.append(cellInfoCliente);
 
-                                var rowsPeriodos = [];
+                    //             rows.push(rowCliente);
 
-                                var indexPeriodos = Object.keys(element.pontuacoes_entradas);
-                                var pontuacoesEntradas = element.pontuacoes_entradas;
+                    //             // Fim dados Estabelecimento
 
-                                // Percorre as pontuacoes de entrada
-                                indexPeriodos.forEach(periodo => {
-                                    // Titulo de períodos
-                                    var rowPeriodo = document.createElement("tr");
+                    //             // Linhas periodos
 
-                                    var cellPeriodoLabel = document.createElement("td");
-                                    var labelPeriodo = document.createElement("strong");
-                                    labelPeriodo.textContent = "Periodo";
-                                    cellPeriodoLabel.append(labelPeriodo);
+                    //             var rowsPeriodos = [];
 
-                                    var cellPeriodoTextoLabel = document.createElement("td");
-                                    var labelPeriodoValue = document.createElement("strong");
+                    //             var indexPeriodos = Object.keys(element.pontuacoes_entradas);
+                    //             var pontuacoesEntradas = element.pontuacoes_entradas;
 
-                                    var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
-                                    labelPeriodoValue.textContent = mesAtual;
-                                    cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                    cellPeriodoTextoLabel.colSpan = 3;
-                                    cellPeriodoTextoLabel.classList.add("text-right");
+                    //             // Percorre as pontuacoes de entrada
+                    //             indexPeriodos.forEach(periodo => {
+                    //                 // Titulo de períodos
+                    //                 var rowPeriodo = document.createElement("tr");
 
-                                    rowPeriodo.append(cellPeriodoLabel);
-                                    rowPeriodo.append(cellPeriodoTextoLabel);
+                    //                 var cellPeriodoLabel = document.createElement("td");
+                    //                 var labelPeriodo = document.createElement("strong");
+                    //                 labelPeriodo.textContent = "Periodo";
+                    //                 cellPeriodoLabel.append(labelPeriodo);
 
-                                    rowsPeriodos.push(rowPeriodo);
+                    //                 var cellPeriodoTextoLabel = document.createElement("td");
+                    //                 var labelPeriodoValue = document.createElement("strong");
 
-                                    var dataAtual = null;
-                                    var dataAnterior = null;
+                    //                 var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
+                    //                 labelPeriodoValue.textContent = mesAtual;
+                    //                 cellPeriodoTextoLabel.append(labelPeriodoValue);
+                    //                 cellPeriodoTextoLabel.colSpan = 3;
+                    //                 cellPeriodoTextoLabel.classList.add("text-right");
 
-                                    var datas = Object.keys(element.pontuacoes_entradas[periodo].data);
+                    //                 rowPeriodo.append(cellPeriodoLabel);
+                    //                 rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                    // Percorre os periodos
+                    //                 rowsPeriodos.push(rowPeriodo);
 
-                                    datas.forEach(data => {
-                                        // Titulo da atual data
-                                        var rowPeriodo = document.createElement("tr");
+                    //                 var dataAtual = null;
+                    //                 var dataAnterior = null;
 
-                                        var cellPeriodoLabel = document.createElement("td");
-                                        var labelPeriodo = document.createElement("strong");
-                                        labelPeriodo.textContent = "Data";
-                                        cellPeriodoLabel.append(labelPeriodo);
+                    //                 var datas = Object.keys(element.pontuacoes_entradas[periodo].data);
 
-                                        var cellPeriodoTextoLabel = document.createElement("td");
-                                        var labelPeriodoValue = document.createElement("strong");
+                    //                 // Percorre os periodos
 
-                                        labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-                                        cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                        cellPeriodoTextoLabel.colSpan = 3;
-                                        cellPeriodoTextoLabel.classList.add("text-right");
+                    //                 datas.forEach(data => {
+                    //                     // Titulo da atual data
+                    //                     var rowPeriodo = document.createElement("tr");
 
-                                        rowPeriodo.append(cellPeriodoLabel);
-                                        rowPeriodo.append(cellPeriodoTextoLabel);
+                    //                     var cellPeriodoLabel = document.createElement("td");
+                    //                     var labelPeriodo = document.createElement("strong");
+                    //                     labelPeriodo.textContent = "Data";
+                    //                     cellPeriodoLabel.append(labelPeriodo);
 
-                                        rowsPeriodos.push(rowPeriodo);
+                    //                     var cellPeriodoTextoLabel = document.createElement("td");
+                    //                     var labelPeriodoValue = document.createElement("strong");
 
-                                        // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
-                                        var headerDadosPeriodoRow = document.createElement("tr");
+                    //                     labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     cellPeriodoTextoLabel.append(labelPeriodoValue);
+                    //                     cellPeriodoTextoLabel.colSpan = 3;
+                    //                     cellPeriodoTextoLabel.classList.add("text-right");
 
-                                        var cellLabelGota = document.createElement("td");
-                                        var textlabelGota = document.createElement("strong");
-                                        textlabelGota.textContent = "Referência:";
-                                        cellLabelGota.append(textlabelGota);
+                    //                     rowPeriodo.append(cellPeriodoLabel);
+                    //                     rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                        var cellLabelFuncionarioEntrada = document.createElement("td");
-                                        var textFuncionarioEntrada = document.createElement("strong");
-                                        textFuncionarioEntrada.textContent = "Funcionário:";
-                                        cellLabelFuncionarioEntrada.append(textFuncionarioEntrada);
+                    //                     rowsPeriodos.push(rowPeriodo);
 
-                                        var cellLabelUsuarioEntrada = document.createElement("td");
-                                        var textUsuarioEntrada = document.createElement("strong");
-                                        textUsuarioEntrada.textContent = "Usuário:";
-                                        cellLabelUsuarioEntrada.append(textUsuarioEntrada);
+                    //                     // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
+                    //                     var headerDadosPeriodoRow = document.createElement("tr");
 
-                                        var cellLabelGotasEntrada = document.createElement("td");
-                                        var textEntradaGotas = document.createElement("strong");
-                                        textEntradaGotas.textContent = "Qte. Gotas:";
-                                        cellLabelGotasEntrada.append(textEntradaGotas);
+                    //                     var cellLabelGota = document.createElement("td");
+                    //                     var textlabelGota = document.createElement("strong");
+                    //                     textlabelGota.textContent = "Referência:";
+                    //                     cellLabelGota.append(textlabelGota);
 
-                                        headerDadosPeriodoRow.append(cellLabelGota);
-                                        headerDadosPeriodoRow.append(cellLabelFuncionarioEntrada);
-                                        headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
-                                        headerDadosPeriodoRow.append(cellLabelGotasEntrada);
+                    //                     var cellLabelFuncionarioEntrada = document.createElement("td");
+                    //                     var textFuncionarioEntrada = document.createElement("strong");
+                    //                     textFuncionarioEntrada.textContent = "Funcionário:";
+                    //                     cellLabelFuncionarioEntrada.append(textFuncionarioEntrada);
 
-                                        rowsPeriodos.push(headerDadosPeriodoRow);
+                    //                     var cellLabelUsuarioEntrada = document.createElement("td");
+                    //                     var textUsuarioEntrada = document.createElement("strong");
+                    //                     textUsuarioEntrada.textContent = "Usuário:";
+                    //                     cellLabelUsuarioEntrada.append(textUsuarioEntrada);
 
-                                        element.pontuacoes_entradas[periodo].data[data].data.forEach(pontuacao => {
-                                            dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     var cellLabelGotasEntrada = document.createElement("td");
+                    //                     var textEntradaGotas = document.createElement("strong");
+                    //                     textEntradaGotas.textContent = "Qte. Gotas:";
+                    //                     cellLabelGotasEntrada.append(textEntradaGotas);
 
-                                            // Percorre as pontuações
-                                            // Info de entrada
-                                            var row = document.createElement("tr");
+                    //                     headerDadosPeriodoRow.append(cellLabelGota);
+                    //                     headerDadosPeriodoRow.append(cellLabelFuncionarioEntrada);
+                    //                     headerDadosPeriodoRow.append(cellLabelUsuarioEntrada);
+                    //                     headerDadosPeriodoRow.append(cellLabelGotasEntrada);
 
-                                            var cellEntradaGota = document.createElement("td");
-                                            var labelEntradaGota = document.createElement("span");
-                                            labelEntradaGota.textContent = pontuacao.gota !== undefined ? pontuacao.gota.nome_parametro : "";
-                                            cellEntradaGota.append(labelEntradaGota);
+                    //                     rowsPeriodos.push(headerDadosPeriodoRow);
 
-                                            var cellEntradaFuncionario = document.createElement("td");
-                                            var labelEntradaFuncionario = document.createElement("span");
-                                            labelEntradaFuncionario.textContent = pontuacao.funcionario !== undefined ? pontuacao.funcionario.nome : "";
-                                            cellEntradaFuncionario.append(labelEntradaFuncionario);
+                    //                     element.pontuacoes_entradas[periodo].data[data].data.forEach(pontuacao => {
+                    //                         dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
 
-                                            var cellEntradaUsuario = document.createElement("td");
-                                            var labelEntradaUsuario = document.createElement("span");
-                                            labelEntradaUsuario.textContent = pontuacao.usuario !== undefined ? pontuacao.usuario.nome : "";
-                                            cellEntradaUsuario.append(labelEntradaUsuario);
+                    //                         // Percorre as pontuações
+                    //                         // Info de entrada
+                    //                         var row = document.createElement("tr");
 
-                                            var cellEntradaQteGota = document.createElement("td");
-                                            var labelEntradaQteGota = document.createElement("span");
-                                            labelEntradaQteGota.textContent = pontuacao.qte_gotas;
-                                            cellEntradaQteGota.classList.add("text-right");
-                                            cellEntradaQteGota.append(labelEntradaQteGota);
+                    //                         var cellEntradaGota = document.createElement("td");
+                    //                         var labelEntradaGota = document.createElement("span");
+                    //                         labelEntradaGota.textContent = pontuacao.gota !== undefined ? pontuacao.gota.nome_parametro : "";
+                    //                         cellEntradaGota.append(labelEntradaGota);
 
-                                            row.append(cellEntradaGota);
-                                            row.append(cellEntradaFuncionario);
-                                            row.append(cellEntradaUsuario);
-                                            row.append(cellEntradaQteGota);
+                    //                         var cellEntradaFuncionario = document.createElement("td");
+                    //                         var labelEntradaFuncionario = document.createElement("span");
+                    //                         labelEntradaFuncionario.textContent = pontuacao.funcionario !== undefined ? pontuacao.funcionario.nome : "";
+                    //                         cellEntradaFuncionario.append(labelEntradaFuncionario);
 
-                                            rowsPeriodos.push(row);
+                    //                         var cellEntradaUsuario = document.createElement("td");
+                    //                         var labelEntradaUsuario = document.createElement("span");
+                    //                         labelEntradaUsuario.textContent = pontuacao.usuario !== undefined ? pontuacao.usuario.nome : "";
+                    //                         cellEntradaUsuario.append(labelEntradaUsuario);
 
-                                        });
+                    //                         var cellEntradaQteGota = document.createElement("td");
+                    //                         var labelEntradaQteGota = document.createElement("span");
+                    //                         labelEntradaQteGota.textContent = pontuacao.qte_gotas;
+                    //                         cellEntradaQteGota.classList.add("text-right");
+                    //                         cellEntradaQteGota.append(labelEntradaQteGota);
 
-                                        // Total Dia
+                    //                         row.append(cellEntradaGota);
+                    //                         row.append(cellEntradaFuncionario);
+                    //                         row.append(cellEntradaUsuario);
+                    //                         row.append(cellEntradaQteGota);
 
-                                        var rowTotalDia = document.createElement("tr");
-                                        var cellLabelTotal = document.createElement("td");
-                                        var labelTotal = document.createElement("strong");
+                    //                         rowsPeriodos.push(row);
 
-                                        labelTotal.textContent = "Soma Dia: " + moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-                                        cellLabelTotal.append(labelTotal);
+                    //                     });
 
-                                        var cellLabelEntradaTotal = document.createElement("td");
-                                        var labelEntradaTotal = document.createElement("strong");
-                                        labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].data[data].soma_dia;
-                                        cellLabelEntradaTotal.classList.add("text-right");
-                                        cellLabelEntradaTotal.colSpan = 3;
-                                        cellLabelEntradaTotal.append(labelEntradaTotal);
+                    //                     // Total Dia
 
-                                        rowTotalDia.append(cellLabelTotal);
-                                        rowTotalDia.append(cellLabelEntradaTotal);
+                    //                     var rowTotalDia = document.createElement("tr");
+                    //                     var cellLabelTotal = document.createElement("td");
+                    //                     var labelTotal = document.createElement("strong");
 
-                                        rowsPeriodos.push(rowTotalDia);
-                                    });
+                    //                     labelTotal.textContent = "Soma Dia: " + moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     cellLabelTotal.append(labelTotal);
 
+                    //                     var cellLabelEntradaTotal = document.createElement("td");
+                    //                     var labelEntradaTotal = document.createElement("strong");
+                    //                     labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].data[data].soma_dia;
+                    //                     cellLabelEntradaTotal.classList.add("text-right");
+                    //                     cellLabelEntradaTotal.colSpan = 3;
+                    //                     cellLabelEntradaTotal.append(labelEntradaTotal);
 
-                                    // Emite subtotal de período
+                    //                     rowTotalDia.append(cellLabelTotal);
+                    //                     rowTotalDia.append(cellLabelEntradaTotal);
 
-                                    // Total periodo
+                    //                     rowsPeriodos.push(rowTotalDia);
+                    //                 });
 
-                                    var rowTotalPeriodo = document.createElement("tr");
-                                    var cellLabelTotal = document.createElement("td");
-                                    var labelTotal = document.createElement("strong");
 
-                                    labelTotal.textContent = "Soma Período: " + mesAtual;
-                                    cellLabelTotal.append(labelTotal);
+                    //                 // Emite subtotal de período
 
-                                    var cellLabelEntradaTotal = document.createElement("td");
-                                    var labelEntradaTotal = document.createElement("strong");
-                                    labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].soma_periodo;
-                                    cellLabelEntradaTotal.classList.add("text-right");
-                                    cellLabelEntradaTotal.colSpan = 3;
-                                    cellLabelEntradaTotal.append(labelEntradaTotal);
+                    //                 // Total periodo
 
-                                    rowTotalPeriodo.append(cellLabelTotal);
-                                    rowTotalPeriodo.append(cellLabelEntradaTotal);
+                    //                 var rowTotalPeriodo = document.createElement("tr");
+                    //                 var cellLabelTotal = document.createElement("td");
+                    //                 var labelTotal = document.createElement("strong");
 
-                                    rowsPeriodos.push(rowTotalPeriodo);
-                                });
+                    //                 labelTotal.textContent = "Soma Período: " + mesAtual;
+                    //                 cellLabelTotal.append(labelTotal);
 
-                                if (element.pontuacoes_entradas.length == 0) {
-                                    // Se não teve registro, adiciona uma linha informando que não teve movimentação
+                    //                 var cellLabelEntradaTotal = document.createElement("td");
+                    //                 var labelEntradaTotal = document.createElement("strong");
+                    //                 labelEntradaTotal.textContent = element.pontuacoes_entradas[periodo].soma_periodo;
+                    //                 cellLabelEntradaTotal.classList.add("text-right");
+                    //                 cellLabelEntradaTotal.colSpan = 3;
+                    //                 cellLabelEntradaTotal.append(labelEntradaTotal);
 
-                                    var rowEmpty = document.createElement("tr");
-                                    var cell = document.createElement("td");
-                                    var label = document.createElement("strong");
+                    //                 rowTotalPeriodo.append(cellLabelTotal);
+                    //                 rowTotalPeriodo.append(cellLabelEntradaTotal);
 
-                                    label.textContent = "Não há registros à serem exibidos!";
-                                    cell.append(label);
-                                    cell.colSpan = 3;
-                                    cell.classList.add("text-center");
-                                    rowEmpty.append(cell);
-                                    rowsPeriodos.push(rowEmpty);
-                                }
+                    //                 rowsPeriodos.push(rowTotalPeriodo);
+                    //             });
 
-                                // Linhas Periodo
+                    //             if (element.pontuacoes_entradas.length == 0) {
+                    //                 // Se não teve registro, adiciona uma linha informando que não teve movimentação
 
-                                // Linha Total Geral
+                    //                 var rowEmpty = document.createElement("tr");
+                    //                 var cell = document.createElement("td");
+                    //                 var label = document.createElement("strong");
 
-                                var rowTotal = document.createElement("tr");
-                                var cellLabelTotal = document.createElement("td");
-                                var labelTotal = document.createElement("strong");
+                    //                 label.textContent = "Não há registros à serem exibidos!";
+                    //                 cell.append(label);
+                    //                 cell.colSpan = 3;
+                    //                 cell.classList.add("text-center");
+                    //                 rowEmpty.append(cell);
+                    //                 rowsPeriodos.push(rowEmpty);
+                    //             }
 
-                                labelTotal.classList.add("text-bold");
-                                labelTotal.textContent = "Total Geral";
-                                cellLabelTotal.append(labelTotal);
+                    //             // Linhas Periodo
 
-                                var textTotalEntradas = document.createElement("strong");
-                                var cellTotalEntradas = document.createElement("td");
-                                textTotalEntradas.textContent = data.total_entradas;
-                                cellTotalEntradas.classList.add("text-right");
-                                cellTotalEntradas.colSpan = 3;
-                                cellTotalEntradas.append(textTotalEntradas);
+                    //             // Linha Total Geral
 
-                                rowTotal.append(cellLabelTotal);
-                                rowTotal.append(cellTotalEntradas);
+                    //             var rowTotal = document.createElement("tr");
+                    //             var cellLabelTotal = document.createElement("td");
+                    //             var labelTotal = document.createElement("strong");
 
-                                rowsPeriodos.push(rowTotal);
+                    //             labelTotal.classList.add("text-bold");
+                    //             labelTotal.textContent = "Total Geral";
+                    //             cellLabelTotal.append(labelTotal);
 
-                                rowsPeriodos.forEach(element => {
-                                    rows.push(element);
-                                });
-                            });
-                        } else {
+                    //             var textTotalEntradas = document.createElement("strong");
+                    //             var cellTotalEntradas = document.createElement("td");
+                    //             textTotalEntradas.textContent = data.total_entradas;
+                    //             cellTotalEntradas.classList.add("text-right");
+                    //             cellTotalEntradas.colSpan = 3;
+                    //             cellTotalEntradas.append(textTotalEntradas);
 
-                            data.pontuacoes.forEach(element => {
-                                // Dados do Estabelecimento
-                                var rowCliente = document.createElement("tr");
+                    //             rowTotal.append(cellLabelTotal);
+                    //             rowTotal.append(cellTotalEntradas);
 
-                                var labelCliente = document.createElement("strong");
-                                labelCliente.textContent = "Estabelecimento: ";
-                                var cellLabelCliente = document.createElement("td");
-                                cellLabelCliente.classList.add("font-weight-bold");
-                                cellLabelCliente.append(labelCliente);
+                    //             rowsPeriodos.push(rowTotal);
 
-                                var cellInfoCliente = document.createElement("td");
-                                var infoCliente = document.createElement("strong");
-                                infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                                cellInfoCliente.colSpan = 5;
-                                cellInfoCliente.classList.add("text-right");
+                    //             rowsPeriodos.forEach(element => {
+                    //                 rows.push(element);
+                    //             });
+                    //         });
+                    //     } else {
 
-                                cellInfoCliente.append(infoCliente);
+                    //         data.pontuacoes.forEach(element => {
+                    //             // Dados do Estabelecimento
+                    //             var rowCliente = document.createElement("tr");
 
-                                rowCliente.append(cellLabelCliente);
-                                rowCliente.append(cellInfoCliente);
+                    //             var labelCliente = document.createElement("strong");
+                    //             labelCliente.textContent = "Estabelecimento: ";
+                    //             var cellLabelCliente = document.createElement("td");
+                    //             cellLabelCliente.classList.add("font-weight-bold");
+                    //             cellLabelCliente.append(labelCliente);
 
-                                rows.push(rowCliente);
+                    //             var cellInfoCliente = document.createElement("td");
+                    //             var infoCliente = document.createElement("strong");
+                    //             infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                    //             cellInfoCliente.colSpan = 5;
+                    //             cellInfoCliente.classList.add("text-right");
 
-                                // Fim dados Estabelecimento
+                    //             cellInfoCliente.append(infoCliente);
 
-                                // Linhas periodos
+                    //             rowCliente.append(cellLabelCliente);
+                    //             rowCliente.append(cellInfoCliente);
 
-                                var rowsPeriodos = [];
+                    //             rows.push(rowCliente);
 
-                                var indexPeriodos = Object.keys(element.pontuacoes_saidas);
-                                var pontuacoesSaidas = element.pontuacoes_saidas;
+                    //             // Fim dados Estabelecimento
 
-                                // Percorre as pontuacoes de saida
-                                indexPeriodos.forEach(periodo => {
-                                    // Titulo de períodos
-                                    var rowPeriodo = document.createElement("tr");
+                    //             // Linhas periodos
 
-                                    var cellPeriodoLabel = document.createElement("td");
-                                    var labelPeriodo = document.createElement("strong");
-                                    labelPeriodo.textContent = "Periodo";
-                                    cellPeriodoLabel.append(labelPeriodo);
+                    //             var rowsPeriodos = [];
 
-                                    var cellPeriodoTextoLabel = document.createElement("td");
-                                    var labelPeriodoValue = document.createElement("strong");
+                    //             var indexPeriodos = Object.keys(element.pontuacoes_saidas);
+                    //             var pontuacoesSaidas = element.pontuacoes_saidas;
 
-                                    var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
-                                    labelPeriodoValue.textContent = mesAtual;
-                                    cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                    cellPeriodoTextoLabel.colSpan = 5;
-                                    cellPeriodoTextoLabel.classList.add("text-right");
+                    //             // Percorre as pontuacoes de saida
+                    //             indexPeriodos.forEach(periodo => {
+                    //                 // Titulo de períodos
+                    //                 var rowPeriodo = document.createElement("tr");
 
-                                    rowPeriodo.append(cellPeriodoLabel);
-                                    rowPeriodo.append(cellPeriodoTextoLabel);
+                    //                 var cellPeriodoLabel = document.createElement("td");
+                    //                 var labelPeriodo = document.createElement("strong");
+                    //                 labelPeriodo.textContent = "Periodo";
+                    //                 cellPeriodoLabel.append(labelPeriodo);
 
-                                    rowsPeriodos.push(rowPeriodo);
+                    //                 var cellPeriodoTextoLabel = document.createElement("td");
+                    //                 var labelPeriodoValue = document.createElement("strong");
 
-                                    var dataAtual = null;
-                                    var dataAnterior = null;
+                    //                 var mesAtual = moment(periodo, "YYYY-MM-DD").format("MM/YYYY");
+                    //                 labelPeriodoValue.textContent = mesAtual;
+                    //                 cellPeriodoTextoLabel.append(labelPeriodoValue);
+                    //                 cellPeriodoTextoLabel.colSpan = 5;
+                    //                 cellPeriodoTextoLabel.classList.add("text-right");
 
-                                    var datas = Object.keys(element.pontuacoes_saidas[periodo].data);
+                    //                 rowPeriodo.append(cellPeriodoLabel);
+                    //                 rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                    // Percorre os periodos
+                    //                 rowsPeriodos.push(rowPeriodo);
 
-                                    datas.forEach(data => {
-                                        // Titulo da atual data
-                                        var rowPeriodo = document.createElement("tr");
+                    //                 var dataAtual = null;
+                    //                 var dataAnterior = null;
 
-                                        var cellPeriodoLabel = document.createElement("td");
-                                        var labelPeriodo = document.createElement("strong");
-                                        labelPeriodo.textContent = "Data";
-                                        cellPeriodoLabel.append(labelPeriodo);
+                    //                 var datas = Object.keys(element.pontuacoes_saidas[periodo].data);
 
-                                        var cellPeriodoTextoLabel = document.createElement("td");
-                                        var labelPeriodoValue = document.createElement("strong");
+                    //                 // Percorre os periodos
 
-                                        labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-                                        cellPeriodoTextoLabel.append(labelPeriodoValue);
-                                        cellPeriodoTextoLabel.colSpan = 5;
-                                        cellPeriodoTextoLabel.classList.add("text-right");
+                    //                 datas.forEach(data => {
+                    //                     // Titulo da atual data
+                    //                     var rowPeriodo = document.createElement("tr");
 
-                                        rowPeriodo.append(cellPeriodoLabel);
-                                        rowPeriodo.append(cellPeriodoTextoLabel);
+                    //                     var cellPeriodoLabel = document.createElement("td");
+                    //                     var labelPeriodo = document.createElement("strong");
+                    //                     labelPeriodo.textContent = "Data";
+                    //                     cellPeriodoLabel.append(labelPeriodo);
 
-                                        rowsPeriodos.push(rowPeriodo);
+                    //                     var cellPeriodoTextoLabel = document.createElement("td");
+                    //                     var labelPeriodoValue = document.createElement("strong");
 
-                                        // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
-                                        var headerDadosPeriodoRow = document.createElement("tr");
+                    //                     labelPeriodoValue.textContent = moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     cellPeriodoTextoLabel.append(labelPeriodoValue);
+                    //                     cellPeriodoTextoLabel.colSpan = 5;
+                    //                     cellPeriodoTextoLabel.classList.add("text-right");
 
-                                        var cellLabelGota = document.createElement("td");
-                                        var textlabelGota = document.createElement("strong");
-                                        textlabelGota.textContent = "Referência:";
-                                        cellLabelGota.append(textlabelGota);
+                    //                     rowPeriodo.append(cellPeriodoLabel);
+                    //                     rowPeriodo.append(cellPeriodoTextoLabel);
 
-                                        var cellLabelFuncionarioSaida = document.createElement("td");
-                                        var textFuncionarioSaida = document.createElement("strong");
-                                        textFuncionarioSaida.textContent = "Funcionário:";
-                                        cellLabelFuncionarioSaida.append(textFuncionarioSaida);
+                    //                     rowsPeriodos.push(rowPeriodo);
 
-                                        var cellLabelUsuarioSaida = document.createElement("td");
-                                        var textUsuarioSaida = document.createElement("strong");
-                                        textUsuarioSaida.textContent = "Usuário:";
-                                        cellLabelUsuarioSaida.append(textUsuarioSaida);
+                    //                     // linha que indica o cabeçalho das colunas quem compõem o conjunto dos períodos
+                    //                     var headerDadosPeriodoRow = document.createElement("tr");
 
-                                        var cellLabelGotasSaida = document.createElement("td");
-                                        var textSaidaGotas = document.createElement("strong");
-                                        textSaidaGotas.textContent = "Gotas:";
-                                        cellLabelGotasSaida.append(textSaidaGotas);
-
-                                        var cellLabelReaisSaida = document.createElement("td");
-                                        var textSaidaReais = document.createElement("strong");
-                                        textSaidaReais.textContent = "Reais:";
-                                        cellLabelReaisSaida.append(textSaidaReais);
-
-                                        var cellLabelQteSaida = document.createElement("td");
-                                        var textSaidaQte = document.createElement("strong");
-                                        textSaidaQte.textContent = "Qte.:";
-                                        cellLabelQteSaida.append(textSaidaQte);
-
-                                        headerDadosPeriodoRow.append(cellLabelGota);
-                                        headerDadosPeriodoRow.append(cellLabelFuncionarioSaida);
-                                        headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
-                                        headerDadosPeriodoRow.append(cellLabelGotasSaida);
-                                        headerDadosPeriodoRow.append(cellLabelReaisSaida);
-                                        headerDadosPeriodoRow.append(cellLabelQteSaida);
+                    //                     var cellLabelGota = document.createElement("td");
+                    //                     var textlabelGota = document.createElement("strong");
+                    //                     textlabelGota.textContent = "Referência:";
+                    //                     cellLabelGota.append(textlabelGota);
 
-                                        rowsPeriodos.push(headerDadosPeriodoRow);
+                    //                     var cellLabelFuncionarioSaida = document.createElement("td");
+                    //                     var textFuncionarioSaida = document.createElement("strong");
+                    //                     textFuncionarioSaida.textContent = "Funcionário:";
+                    //                     cellLabelFuncionarioSaida.append(textFuncionarioSaida);
 
-                                        element.pontuacoes_saidas[periodo].data[data].data.forEach(pontuacao => {
-                                            dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     var cellLabelUsuarioSaida = document.createElement("td");
+                    //                     var textUsuarioSaida = document.createElement("strong");
+                    //                     textUsuarioSaida.textContent = "Usuário:";
+                    //                     cellLabelUsuarioSaida.append(textUsuarioSaida);
 
-                                            // Percorre as pontuações
-                                            // Info de saida
-                                            var row = document.createElement("tr");
+                    //                     var cellLabelGotasSaida = document.createElement("td");
+                    //                     var textSaidaGotas = document.createElement("strong");
+                    //                     textSaidaGotas.textContent = "Gotas:";
+                    //                     cellLabelGotasSaida.append(textSaidaGotas);
+
+                    //                     var cellLabelReaisSaida = document.createElement("td");
+                    //                     var textSaidaReais = document.createElement("strong");
+                    //                     textSaidaReais.textContent = "Reais:";
+                    //                     cellLabelReaisSaida.append(textSaidaReais);
+
+                    //                     var cellLabelQteSaida = document.createElement("td");
+                    //                     var textSaidaQte = document.createElement("strong");
+                    //                     textSaidaQte.textContent = "Qte.:";
+                    //                     cellLabelQteSaida.append(textSaidaQte);
+
+                    //                     headerDadosPeriodoRow.append(cellLabelGota);
+                    //                     headerDadosPeriodoRow.append(cellLabelFuncionarioSaida);
+                    //                     headerDadosPeriodoRow.append(cellLabelUsuarioSaida);
+                    //                     headerDadosPeriodoRow.append(cellLabelGotasSaida);
+                    //                     headerDadosPeriodoRow.append(cellLabelReaisSaida);
+                    //                     headerDadosPeriodoRow.append(cellLabelQteSaida);
 
-                                            var cellSaidaGota = document.createElement("td");
-                                            var labelSaidaGota = document.createElement("span");
-                                            labelSaidaGota.textContent = pontuacao.brinde;
-                                            cellSaidaGota.append(labelSaidaGota);
+                    //                     rowsPeriodos.push(headerDadosPeriodoRow);
 
-                                            var cellSaidaFuncionario = document.createElement("td");
-                                            var labelSaidaFuncionario = document.createElement("span");
-                                            labelSaidaFuncionario.textContent = pontuacao.funcionario;
-                                            cellSaidaFuncionario.append(labelSaidaFuncionario);
-
-                                            var cellSaidaUsuario = document.createElement("td");
-                                            var labelSaidaUsuario = document.createElement("span");
-                                            labelSaidaUsuario.textContent = pontuacao.usuario;
-                                            cellSaidaUsuario.append(labelSaidaUsuario);
-
-                                            var cellSaidaGotas = document.createElement("td");
-                                            var labelSaidaGotas = document.createElement("span");
-                                            labelSaidaGotas.textContent = pontuacao.qte_gotas;
-                                            cellSaidaGotas.classList.add("text-right");
-                                            cellSaidaGotas.append(labelSaidaGotas);
-
-                                            var cellSaidaReais = document.createElement("td");
-                                            var labelSaidaReais = document.createElement("span");
-                                            labelSaidaReais.textContent = "R$ " + parseFloat(pontuacao.qte_reais).toFixed(2);
-                                            cellSaidaReais.classList.add("text-right");
-                                            cellSaidaReais.append(labelSaidaReais);
-
-                                            var cellSaidaQte = document.createElement("td");
-                                            var labelSaidaQte = document.createElement("span");
-                                            labelSaidaQte.textContent = pontuacao.qte;
-                                            cellSaidaQte.classList.add("text-right");
-                                            cellSaidaQte.append(labelSaidaQte);
-
-                                            row.append(cellSaidaGota);
-                                            row.append(cellSaidaFuncionario);
-                                            row.append(cellSaidaUsuario);
-                                            row.append(cellSaidaGotas);
-                                            row.append(cellSaidaReais);
-                                            row.append(cellSaidaQte);
-
-                                            rowsPeriodos.push(row);
-
-                                        });
-
-                                        // Total Dia
-
-                                        var rowTotalDia = document.createElement("tr");
-                                        var cellLabelTotal = document.createElement("td");
-                                        var labelTotal = document.createElement("strong");
-
-                                        labelTotal.textContent = "Soma Dia: " + moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
-                                        cellLabelTotal.append(labelTotal);
-
-                                        var cellLabelSaidaDiaGotas = document.createElement("td");
-                                        var labelSaidaGotasDia = document.createElement("strong");
-                                        labelSaidaGotasDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_gotas;
-                                        cellLabelSaidaDiaGotas.classList.add("text-right");
-                                        cellLabelSaidaDiaGotas.colSpan = 1;
-                                        cellLabelSaidaDiaGotas.append(labelSaidaGotasDia);
-
-                                        var cellLabelSaidaDiaReais = document.createElement("td");
-                                        var labelSaidaReaisDia = document.createElement("strong");
-                                        labelSaidaReaisDia.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].data[data].soma_dia_reais).toFixed(2);
-                                        cellLabelSaidaDiaReais.classList.add("text-right");
-                                        cellLabelSaidaDiaReais.colSpan = 1;
-                                        cellLabelSaidaDiaReais.append(labelSaidaReaisDia);
-
-                                        var cellLabelSaidaDiaQte = document.createElement("td");
-                                        var labelSaidaQteDia = document.createElement("strong");
-                                        labelSaidaQteDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_qte;
-                                        cellLabelSaidaDiaQte.classList.add("text-right");
-                                        cellLabelSaidaDiaQte.colSpan = 1;
-                                        cellLabelSaidaDiaQte.append(labelSaidaQteDia);
-
-                                        rowTotalDia.append(cellLabelTotal);
-                                        rowTotalDia.append(document.createElement("td"));
-                                        rowTotalDia.append(document.createElement("td"));
-                                        rowTotalDia.append(cellLabelSaidaDiaGotas);
-                                        rowTotalDia.append(cellLabelSaidaDiaReais);
-                                        rowTotalDia.append(cellLabelSaidaDiaQte);
-
-                                        rowsPeriodos.push(rowTotalDia);
-                                    });
-
-
-                                    // Emite subtotal de período
-
-                                    // Total periodo
-
-                                    var rowTotalPeriodo = document.createElement("tr");
-                                    var cellLabelTotal = document.createElement("td");
-                                    var labelTotal = document.createElement("strong");
-
-                                    labelTotal.textContent = "Soma Período: " + mesAtual;
-                                    cellLabelTotal.append(labelTotal);
-
-                                    var cellLabelSaidaTotalGotas = document.createElement("td");
-                                    var labelSaidaTotalGotas = document.createElement("strong");
-                                    labelSaidaTotalGotas.textContent = element.pontuacoes_saidas[periodo].soma_periodo_gotas;
-                                    cellLabelSaidaTotalGotas.classList.add("text-right");
-                                    cellLabelSaidaTotalGotas.colSpan = 1;
-                                    cellLabelSaidaTotalGotas.append(labelSaidaTotalGotas);
-
-                                    var cellLabelSaidaTotalReais = document.createElement("td");
-                                    var labelSaidaTotalReais = document.createElement("strong");
-                                    labelSaidaTotalReais.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].soma_periodo_reais).toFixed(2);
-                                    cellLabelSaidaTotalReais.classList.add("text-right");
-                                    cellLabelSaidaTotalReais.colSpan = 1;
-                                    cellLabelSaidaTotalReais.append(labelSaidaTotalReais);
-
-                                    var cellLabelSaidaTotalQte = document.createElement("td");
-                                    var labelSaidaTotalQte = document.createElement("strong");
-                                    labelSaidaTotalQte.textContent = element.pontuacoes_saidas[periodo].soma_periodo_qte;
-                                    cellLabelSaidaTotalQte.classList.add("text-right");
-                                    cellLabelSaidaTotalQte.colSpan = 1;
-                                    cellLabelSaidaTotalQte.append(labelSaidaTotalQte);
-
-                                    rowTotalPeriodo.append(cellLabelTotal);
-                                    rowTotalPeriodo.append(document.createElement("td"));
-                                    rowTotalPeriodo.append(document.createElement("td"));
-                                    rowTotalPeriodo.append(cellLabelSaidaTotalGotas);
-                                    rowTotalPeriodo.append(cellLabelSaidaTotalReais);
-                                    rowTotalPeriodo.append(cellLabelSaidaTotalQte);
-
-                                    rowsPeriodos.push(rowTotalPeriodo);
-                                });
-
-                                if (element.pontuacoes_saidas.length == 0) {
-                                    // Se não teve registro, adiciona uma linha informando que não teve movimentação
-
-                                    var rowEmpty = document.createElement("tr");
-                                    var cell = document.createElement("td");
-                                    var label = document.createElement("strong");
-
-                                    label.textContent = "Não há registros à serem exibidos!";
-                                    cell.append(label);
-                                    cell.colSpan = 6;
-                                    cell.classList.add("text-center");
-                                    rowEmpty.append(cell);
-                                    rowsPeriodos.push(rowEmpty);
-                                }
-
-                                // Linhas Periodo
-
-                                // Linha Total Geral
-
-                                var rowTotal = document.createElement("tr");
-                                var cellLabelTotal = document.createElement("td");
-                                var labelTotal = document.createElement("strong");
-
-                                labelTotal.classList.add("text-bold");
-                                labelTotal.textContent = "Total Geral";
-                                cellLabelTotal.append(labelTotal);
-
-                                var textTotalSaidasGotas = document.createElement("strong");
-                                var cellTotalSaidasGotas = document.createElement("td");
-                                textTotalSaidasGotas.textContent = data.total_saidas_gotas;
-                                cellTotalSaidasGotas.classList.add("text-right");
-                                cellTotalSaidasGotas.colSpan = 1;
-                                cellTotalSaidasGotas.append(textTotalSaidasGotas);
-
-                                var textTotalSaidasReais = document.createElement("strong");
-                                var cellTotalSaidasReais = document.createElement("td");
-                                textTotalSaidasReais.textContent = "R$ " + parseFloat(data.total_saidas_reais).toFixed(2);
-                                cellTotalSaidasReais.classList.add("text-right");
-                                cellTotalSaidasReais.colSpan = 1;
-                                cellTotalSaidasReais.append(textTotalSaidasReais);
-
-                                var textTotalSaidasQte = document.createElement("strong");
-                                var cellTotalSaidasQte = document.createElement("td");
-                                textTotalSaidasQte.textContent = data.total_saidas_qte;
-                                cellTotalSaidasQte.classList.add("text-right");
-                                cellTotalSaidasQte.colSpan = 1;
-                                cellTotalSaidasQte.append(textTotalSaidasQte);
-
-                                rowTotal.append(cellLabelTotal);
-                                rowTotal.append(document.createElement("td"));
-                                rowTotal.append(document.createElement("td"));
-                                rowTotal.append(cellTotalSaidasGotas);
-                                rowTotal.append(cellTotalSaidasReais);
-                                rowTotal.append(cellTotalSaidasQte);
-
-                                rowsPeriodos.push(rowTotal);
-
-                                rowsPeriodos.forEach(element => {
-                                    rows.push(element);
-                                });
-                            });
-
-                        }
-                    } else {
-                        data.pontuacoes.forEach(element => {
-
-                            // Dados do Estabelecimento
-                            var rowCliente = document.createElement("tr");
-
-                            var cellLabelCliente = document.createElement("td");
-                            var labelCliente = document.createElement("strong");
-                            labelCliente.textContent = "Estabelecimento: ";
-                            cellLabelCliente.append(labelCliente);
-
-                            var cellInfoCliente = document.createElement("td");
-                            var infoCliente = document.createElement("strong");
-                            infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
-                            cellInfoCliente.colSpan = tipoMovimentacaoSelectedItem === "Entrada" ? 2 : 3;
-                            cellInfoCliente.append(infoCliente);
-
-                            rowCliente.append(cellLabelCliente);
-                            rowCliente.append(cellInfoCliente);
-
-                            // Cabeçalho de periodo
-
-                            var rowHeaderPeriodo = document.createElement("tr");
-                            var cellLabelPeriodo = document.createElement("td");
-                            var labelPeriodo = document.createElement("strong");
-                            labelPeriodo.textContent = "Período";
-                            cellLabelPeriodo.append(labelPeriodo);
-
-                            rowHeaderPeriodo.append(cellLabelPeriodo);
-
-                            if (tipoMovimentacaoSelectedItem === "Entrada") {
-                                var cellLabelEntradaGotas = document.createElement("td");
-                                var labelEntradaGotas = document.createElement("strong");
-                                labelEntradaGotas.textContent = "Gotas";
-                                cellLabelEntradaGotas.append(labelEntradaGotas);
-
-                                rowHeaderPeriodo.append(cellLabelEntradaGotas);
-                            } else {
-                                var cellLabelSaidaGotas = document.createElement("td");
-                                var labelSaidaGotas = document.createElement("strong");
-                                labelSaidaGotas.textContent = "Gotas";
-                                cellLabelSaidaGotas.append(labelSaidaGotas);
-
-                                var cellLabelSaidaReais = document.createElement("td");
-                                var labelSaidaReais = document.createElement("strong");
-                                labelSaidaReais.textContent = "Saida";
-                                cellLabelSaidaReais.append(labelSaidaReais);
-
-                                var cellLabelSaidaQte = document.createElement("td");
-                                var labelSaidaQte = document.createElement("strong");
-                                labelSaidaQte.textContent = "Qte";
-                                cellLabelSaidaQte.append(labelSaidaQte);
-
-                                rowHeaderPeriodo.append(cellLabelSaidaGotas);
-                                rowHeaderPeriodo.append(cellLabelSaidaReais);
-                                rowHeaderPeriodo.append(cellLabelSaidaQte);
-                            }
-
-
-                            if (tipoMovimentacaoSelectedItem == "Entrada") {
-                                // Periodos e valores
-                                var rowsDadosPeriodos = [];
-
-                                element.pontuacoes_entradas.forEach(entrada => {
-                                    var item = {
-                                        periodo: moment(entrada.periodo, "YYYY-MM").format("MM/YYYY"),
-                                        saidasGotas: entrada.qte_gotas,
-                                    };
-
-                                    var rowPeriodo = document.createElement("tr");
-
-                                    var labelItemPeriodo = document.createElement("span");
-                                    labelItemPeriodo.textContent = item.periodo;
-
-                                    var cellItemLabelPeriodo = document.createElement("td");
-                                    cellItemLabelPeriodo.append(labelItemPeriodo);
-                                    cellItemLabelPeriodo.classList.add("text-right");
-
-                                    var textSaidasGotas = document.createElement("span");
-                                    textSaidasGotas.textContent = item.saidasGotas;
-
-                                    var cellItemSaidaGotas = document.createElement("td");
-                                    cellItemSaidaGotas.append(textSaidasGotas);
-                                    cellItemSaidaGotas.classList.add("text-right");
-
-                                    rowPeriodo.append(cellItemLabelPeriodo);
-                                    rowPeriodo.append(cellItemSaidaGotas);
-
-                                    rowsDadosPeriodos.push(rowPeriodo);
-                                });
-                            } else {
-                                // Periodos e valores
-                                var rowsDadosPeriodos = [];
-
-                                element.pontuacoes_saidas.forEach(saida => {
-                                    var item = {
-                                        periodo: moment(saida.periodo, "YYYY-MM").format("MM/YYYY"),
-                                        saidasGotas: saida.qte_gotas,
-                                        saidasReais: saida.qte_reais,
-                                        saidasQte: saida.qte,
-                                    };
-
-                                    var rowPeriodo = document.createElement("tr");
-
-                                    var labelItemPeriodo = document.createElement("span");
-                                    labelItemPeriodo.textContent = item.periodo;
+                    //                     element.pontuacoes_saidas[periodo].data[data].data.forEach(pontuacao => {
+                    //                         dataAtual = moment(pontuacao.periodo, "YYYY-MM-DD").format("DD/MM/YYYY");
 
-                                    var cellItemLabelPeriodo = document.createElement("td");
-                                    cellItemLabelPeriodo.append(labelItemPeriodo);
-                                    cellItemLabelPeriodo.classList.add("text-right");
+                    //                         // Percorre as pontuações
+                    //                         // Info de saida
+                    //                         var row = document.createElement("tr");
 
-                                    var textSaidasGotas = document.createElement("span");
-                                    textSaidasGotas.textContent = item.saidasGotas;
+                    //                         var cellSaidaGota = document.createElement("td");
+                    //                         var labelSaidaGota = document.createElement("span");
+                    //                         labelSaidaGota.textContent = pontuacao.brinde;
+                    //                         cellSaidaGota.append(labelSaidaGota);
 
-                                    var cellItemSaidaGotas = document.createElement("td");
-                                    cellItemSaidaGotas.append(textSaidasGotas);
-                                    cellItemSaidaGotas.classList.add("text-right");
+                    //                         var cellSaidaFuncionario = document.createElement("td");
+                    //                         var labelSaidaFuncionario = document.createElement("span");
+                    //                         labelSaidaFuncionario.textContent = pontuacao.funcionario;
+                    //                         cellSaidaFuncionario.append(labelSaidaFuncionario);
+
+                    //                         var cellSaidaUsuario = document.createElement("td");
+                    //                         var labelSaidaUsuario = document.createElement("span");
+                    //                         labelSaidaUsuario.textContent = pontuacao.usuario;
+                    //                         cellSaidaUsuario.append(labelSaidaUsuario);
+
+                    //                         var cellSaidaGotas = document.createElement("td");
+                    //                         var labelSaidaGotas = document.createElement("span");
+                    //                         labelSaidaGotas.textContent = pontuacao.qte_gotas;
+                    //                         cellSaidaGotas.classList.add("text-right");
+                    //                         cellSaidaGotas.append(labelSaidaGotas);
+
+                    //                         var cellSaidaReais = document.createElement("td");
+                    //                         var labelSaidaReais = document.createElement("span");
+                    //                         labelSaidaReais.textContent = "R$ " + parseFloat(pontuacao.qte_reais).toFixed(2);
+                    //                         cellSaidaReais.classList.add("text-right");
+                    //                         cellSaidaReais.append(labelSaidaReais);
+
+                    //                         var cellSaidaQte = document.createElement("td");
+                    //                         var labelSaidaQte = document.createElement("span");
+                    //                         labelSaidaQte.textContent = pontuacao.qte;
+                    //                         cellSaidaQte.classList.add("text-right");
+                    //                         cellSaidaQte.append(labelSaidaQte);
+
+                    //                         row.append(cellSaidaGota);
+                    //                         row.append(cellSaidaFuncionario);
+                    //                         row.append(cellSaidaUsuario);
+                    //                         row.append(cellSaidaGotas);
+                    //                         row.append(cellSaidaReais);
+                    //                         row.append(cellSaidaQte);
+
+                    //                         rowsPeriodos.push(row);
+
+                    //                     });
+
+                    //                     // Total Dia
+
+                    //                     var rowTotalDia = document.createElement("tr");
+                    //                     var cellLabelTotal = document.createElement("td");
+                    //                     var labelTotal = document.createElement("strong");
+
+                    //                     labelTotal.textContent = "Soma Dia: " + moment(data, "YYYY-MM-DD").format("DD/MM/YYYY");
+                    //                     cellLabelTotal.append(labelTotal);
+
+                    //                     var cellLabelSaidaDiaGotas = document.createElement("td");
+                    //                     var labelSaidaGotasDia = document.createElement("strong");
+                    //                     labelSaidaGotasDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_gotas;
+                    //                     cellLabelSaidaDiaGotas.classList.add("text-right");
+                    //                     cellLabelSaidaDiaGotas.colSpan = 1;
+                    //                     cellLabelSaidaDiaGotas.append(labelSaidaGotasDia);
+
+                    //                     var cellLabelSaidaDiaReais = document.createElement("td");
+                    //                     var labelSaidaReaisDia = document.createElement("strong");
+                    //                     labelSaidaReaisDia.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].data[data].soma_dia_reais).toFixed(2);
+                    //                     cellLabelSaidaDiaReais.classList.add("text-right");
+                    //                     cellLabelSaidaDiaReais.colSpan = 1;
+                    //                     cellLabelSaidaDiaReais.append(labelSaidaReaisDia);
+
+                    //                     var cellLabelSaidaDiaQte = document.createElement("td");
+                    //                     var labelSaidaQteDia = document.createElement("strong");
+                    //                     labelSaidaQteDia.textContent = element.pontuacoes_saidas[periodo].data[data].soma_dia_qte;
+                    //                     cellLabelSaidaDiaQte.classList.add("text-right");
+                    //                     cellLabelSaidaDiaQte.colSpan = 1;
+                    //                     cellLabelSaidaDiaQte.append(labelSaidaQteDia);
+
+                    //                     rowTotalDia.append(cellLabelTotal);
+                    //                     rowTotalDia.append(document.createElement("td"));
+                    //                     rowTotalDia.append(document.createElement("td"));
+                    //                     rowTotalDia.append(cellLabelSaidaDiaGotas);
+                    //                     rowTotalDia.append(cellLabelSaidaDiaReais);
+                    //                     rowTotalDia.append(cellLabelSaidaDiaQte);
+
+                    //                     rowsPeriodos.push(rowTotalDia);
+                    //                 });
+
+
+                    //                 // Emite subtotal de período
+
+                    //                 // Total periodo
+
+                    //                 var rowTotalPeriodo = document.createElement("tr");
+                    //                 var cellLabelTotal = document.createElement("td");
+                    //                 var labelTotal = document.createElement("strong");
+
+                    //                 labelTotal.textContent = "Soma Período: " + mesAtual;
+                    //                 cellLabelTotal.append(labelTotal);
+
+                    //                 var cellLabelSaidaTotalGotas = document.createElement("td");
+                    //                 var labelSaidaTotalGotas = document.createElement("strong");
+                    //                 labelSaidaTotalGotas.textContent = element.pontuacoes_saidas[periodo].soma_periodo_gotas;
+                    //                 cellLabelSaidaTotalGotas.classList.add("text-right");
+                    //                 cellLabelSaidaTotalGotas.colSpan = 1;
+                    //                 cellLabelSaidaTotalGotas.append(labelSaidaTotalGotas);
+
+                    //                 var cellLabelSaidaTotalReais = document.createElement("td");
+                    //                 var labelSaidaTotalReais = document.createElement("strong");
+                    //                 labelSaidaTotalReais.textContent = "R$ " + parseFloat(element.pontuacoes_saidas[periodo].soma_periodo_reais).toFixed(2);
+                    //                 cellLabelSaidaTotalReais.classList.add("text-right");
+                    //                 cellLabelSaidaTotalReais.colSpan = 1;
+                    //                 cellLabelSaidaTotalReais.append(labelSaidaTotalReais);
+
+                    //                 var cellLabelSaidaTotalQte = document.createElement("td");
+                    //                 var labelSaidaTotalQte = document.createElement("strong");
+                    //                 labelSaidaTotalQte.textContent = element.pontuacoes_saidas[periodo].soma_periodo_qte;
+                    //                 cellLabelSaidaTotalQte.classList.add("text-right");
+                    //                 cellLabelSaidaTotalQte.colSpan = 1;
+                    //                 cellLabelSaidaTotalQte.append(labelSaidaTotalQte);
+
+                    //                 rowTotalPeriodo.append(cellLabelTotal);
+                    //                 rowTotalPeriodo.append(document.createElement("td"));
+                    //                 rowTotalPeriodo.append(document.createElement("td"));
+                    //                 rowTotalPeriodo.append(cellLabelSaidaTotalGotas);
+                    //                 rowTotalPeriodo.append(cellLabelSaidaTotalReais);
+                    //                 rowTotalPeriodo.append(cellLabelSaidaTotalQte);
+
+                    //                 rowsPeriodos.push(rowTotalPeriodo);
+                    //             });
+
+                    //             if (element.pontuacoes_saidas.length == 0) {
+                    //                 // Se não teve registro, adiciona uma linha informando que não teve movimentação
+
+                    //                 var rowEmpty = document.createElement("tr");
+                    //                 var cell = document.createElement("td");
+                    //                 var label = document.createElement("strong");
+
+                    //                 label.textContent = "Não há registros à serem exibidos!";
+                    //                 cell.append(label);
+                    //                 cell.colSpan = 6;
+                    //                 cell.classList.add("text-center");
+                    //                 rowEmpty.append(cell);
+                    //                 rowsPeriodos.push(rowEmpty);
+                    //             }
+
+                    //             // Linhas Periodo
+
+                    //             // Linha Total Geral
+
+                    //             var rowTotal = document.createElement("tr");
+                    //             var cellLabelTotal = document.createElement("td");
+                    //             var labelTotal = document.createElement("strong");
+
+                    //             labelTotal.classList.add("text-bold");
+                    //             labelTotal.textContent = "Total Geral";
+                    //             cellLabelTotal.append(labelTotal);
+
+                    //             var textTotalSaidasGotas = document.createElement("strong");
+                    //             var cellTotalSaidasGotas = document.createElement("td");
+                    //             textTotalSaidasGotas.textContent = data.total_saidas_gotas;
+                    //             cellTotalSaidasGotas.classList.add("text-right");
+                    //             cellTotalSaidasGotas.colSpan = 1;
+                    //             cellTotalSaidasGotas.append(textTotalSaidasGotas);
+
+                    //             var textTotalSaidasReais = document.createElement("strong");
+                    //             var cellTotalSaidasReais = document.createElement("td");
+                    //             textTotalSaidasReais.textContent = "R$ " + parseFloat(data.total_saidas_reais).toFixed(2);
+                    //             cellTotalSaidasReais.classList.add("text-right");
+                    //             cellTotalSaidasReais.colSpan = 1;
+                    //             cellTotalSaidasReais.append(textTotalSaidasReais);
+
+                    //             var textTotalSaidasQte = document.createElement("strong");
+                    //             var cellTotalSaidasQte = document.createElement("td");
+                    //             textTotalSaidasQte.textContent = data.total_saidas_qte;
+                    //             cellTotalSaidasQte.classList.add("text-right");
+                    //             cellTotalSaidasQte.colSpan = 1;
+                    //             cellTotalSaidasQte.append(textTotalSaidasQte);
+
+                    //             rowTotal.append(cellLabelTotal);
+                    //             rowTotal.append(document.createElement("td"));
+                    //             rowTotal.append(document.createElement("td"));
+                    //             rowTotal.append(cellTotalSaidasGotas);
+                    //             rowTotal.append(cellTotalSaidasReais);
+                    //             rowTotal.append(cellTotalSaidasQte);
+
+                    //             rowsPeriodos.push(rowTotal);
+
+                    //             rowsPeriodos.forEach(element => {
+                    //                 rows.push(element);
+                    //             });
+                    //         });
+
+                    //     }
+                    // } else {
+                    //     data.pontuacoes.forEach(element => {
+
+                    //         // Dados do Estabelecimento
+                    //         var rowCliente = document.createElement("tr");
+
+                    //         var cellLabelCliente = document.createElement("td");
+                    //         var labelCliente = document.createElement("strong");
+                    //         labelCliente.textContent = "Estabelecimento: ";
+                    //         cellLabelCliente.append(labelCliente);
+
+                    //         var cellInfoCliente = document.createElement("td");
+                    //         var infoCliente = document.createElement("strong");
+                    //         infoCliente.textContent = element.cliente.nome_fantasia + " / " + element.cliente.razao_social;
+                    //         cellInfoCliente.colSpan = tipoMovimentacaoSelectedItem === "Entrada" ? 2 : 3;
+                    //         cellInfoCliente.append(infoCliente);
+
+                    //         rowCliente.append(cellLabelCliente);
+                    //         rowCliente.append(cellInfoCliente);
+
+                    //         // Cabeçalho de periodo
+
+                    //         var rowHeaderPeriodo = document.createElement("tr");
+                    //         var cellLabelPeriodo = document.createElement("td");
+                    //         var labelPeriodo = document.createElement("strong");
+                    //         labelPeriodo.textContent = "Período";
+                    //         cellLabelPeriodo.append(labelPeriodo);
+
+                    //         rowHeaderPeriodo.append(cellLabelPeriodo);
+
+                    //         if (tipoMovimentacaoSelectedItem === "Entrada") {
+                    //             var cellLabelEntradaGotas = document.createElement("td");
+                    //             var labelEntradaGotas = document.createElement("strong");
+                    //             labelEntradaGotas.textContent = "Gotas";
+                    //             cellLabelEntradaGotas.append(labelEntradaGotas);
+
+                    //             rowHeaderPeriodo.append(cellLabelEntradaGotas);
+                    //         } else {
+                    //             var cellLabelSaidaGotas = document.createElement("td");
+                    //             var labelSaidaGotas = document.createElement("strong");
+                    //             labelSaidaGotas.textContent = "Gotas";
+                    //             cellLabelSaidaGotas.append(labelSaidaGotas);
+
+                    //             var cellLabelSaidaReais = document.createElement("td");
+                    //             var labelSaidaReais = document.createElement("strong");
+                    //             labelSaidaReais.textContent = "Saida";
+                    //             cellLabelSaidaReais.append(labelSaidaReais);
+
+                    //             var cellLabelSaidaQte = document.createElement("td");
+                    //             var labelSaidaQte = document.createElement("strong");
+                    //             labelSaidaQte.textContent = "Qte";
+                    //             cellLabelSaidaQte.append(labelSaidaQte);
+
+                    //             rowHeaderPeriodo.append(cellLabelSaidaGotas);
+                    //             rowHeaderPeriodo.append(cellLabelSaidaReais);
+                    //             rowHeaderPeriodo.append(cellLabelSaidaQte);
+                    //         }
+
+
+                    //         if (tipoMovimentacaoSelectedItem == "Entrada") {
+                    //             // Periodos e valores
+                    //             var rowsDadosPeriodos = [];
+
+                    //             element.pontuacoes_entradas.forEach(entrada => {
+                    //                 var item = {
+                    //                     periodo: moment(entrada.periodo, "YYYY-MM").format("MM/YYYY"),
+                    //                     saidasGotas: entrada.qte_gotas,
+                    //                 };
+
+                    //                 var rowPeriodo = document.createElement("tr");
+
+                    //                 var labelItemPeriodo = document.createElement("span");
+                    //                 labelItemPeriodo.textContent = item.periodo;
+
+                    //                 var cellItemLabelPeriodo = document.createElement("td");
+                    //                 cellItemLabelPeriodo.append(labelItemPeriodo);
+                    //                 cellItemLabelPeriodo.classList.add("text-right");
+
+                    //                 var textSaidasGotas = document.createElement("span");
+                    //                 textSaidasGotas.textContent = item.saidasGotas;
+
+                    //                 var cellItemSaidaGotas = document.createElement("td");
+                    //                 cellItemSaidaGotas.append(textSaidasGotas);
+                    //                 cellItemSaidaGotas.classList.add("text-right");
+
+                    //                 rowPeriodo.append(cellItemLabelPeriodo);
+                    //                 rowPeriodo.append(cellItemSaidaGotas);
+
+                    //                 rowsDadosPeriodos.push(rowPeriodo);
+                    //             });
+                    //         } else {
+                    //             // Periodos e valores
+                    //             var rowsDadosPeriodos = [];
+
+                    //             element.pontuacoes_saidas.forEach(saida => {
+                    //                 var item = {
+                    //                     periodo: moment(saida.periodo, "YYYY-MM").format("MM/YYYY"),
+                    //                     saidasGotas: saida.qte_gotas,
+                    //                     saidasReais: saida.qte_reais,
+                    //                     saidasQte: saida.qte,
+                    //                 };
+
+                    //                 var rowPeriodo = document.createElement("tr");
+
+                    //                 var labelItemPeriodo = document.createElement("span");
+                    //                 labelItemPeriodo.textContent = item.periodo;
+
+                    //                 var cellItemLabelPeriodo = document.createElement("td");
+                    //                 cellItemLabelPeriodo.append(labelItemPeriodo);
+                    //                 cellItemLabelPeriodo.classList.add("text-right");
 
-                                    var textSaidaReais = document.createElement("span");
-                                    textSaidaReais.textContent = "R$ " + parseFloat(item.saidasReais).toFixed(2);
+                    //                 var textSaidasGotas = document.createElement("span");
+                    //                 textSaidasGotas.textContent = item.saidasGotas;
 
-                                    var cellItemSaidaReais = document.createElement("td");
-                                    cellItemSaidaReais.append(textSaidaReais);
-                                    cellItemSaidaReais.classList.add("text-right");
+                    //                 var cellItemSaidaGotas = document.createElement("td");
+                    //                 cellItemSaidaGotas.append(textSaidasGotas);
+                    //                 cellItemSaidaGotas.classList.add("text-right");
 
-                                    var textSaidaQte = document.createElement("span");
-                                    textSaidaQte.textContent = item.saidasQte;
+                    //                 var textSaidaReais = document.createElement("span");
+                    //                 textSaidaReais.textContent = "R$ " + parseFloat(item.saidasReais).toFixed(2);
 
-                                    var cellItemSaidaQte = document.createElement("td");
-                                    cellItemSaidaQte.append(textSaidaQte);
-                                    cellItemSaidaQte.classList.add("text-right");
+                    //                 var cellItemSaidaReais = document.createElement("td");
+                    //                 cellItemSaidaReais.append(textSaidaReais);
+                    //                 cellItemSaidaReais.classList.add("text-right");
 
-                                    rowPeriodo.append(cellItemLabelPeriodo);
-                                    rowPeriodo.append(cellItemSaidaGotas);
-                                    rowPeriodo.append(cellItemSaidaReais);
-                                    rowPeriodo.append(cellItemSaidaQte);
-
-                                    rowsDadosPeriodos.push(rowPeriodo);
-                                });
-
-
-                                // Linha de soma
-
-                                var rowSomaPeriodo = document.createElement("tr");
-
-                                var labelSomaPeriodo = document.createElement("span");
-                                labelSomaPeriodo.textContent = "Soma Estabelecimento";
-
-                                var cellLabelSomaPeriodo = document.createElement("td");
-                                cellLabelSomaPeriodo.append(labelSomaPeriodo);
-
-                                rowSomaPeriodo.append(cellLabelSomaPeriodo);
-
-                                if (tipoMovimentacaoSelectedItem == "Entrada") {
-                                    var textSomaPeriodoEntrada = document.createElement("span");
-                                    textSomaPeriodoEntrada.textContent = element.soma_entradas;
-
-                                    var cellTextSomaPeriodoEntrada = document.createElement("td");
-                                    cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
-                                    cellTextSomaPeriodoEntrada.classList.add("text-right");
-
-                                    var textSomaPeriodoSaida = document.createElement("span");
-                                    textSomaPeriodoSaida.textContent = element.soma_saidas;
-
-                                    var cellTextSomaPeriodoSaida = document.createElement("td");
-                                    cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
-                                    cellTextSomaPeriodoSaida.classList.add("text-right");
-
-                                    rowSomaPeriodo.append(cellTextSomaPeriodoEntrada);
-                                    rowSomaPeriodo.append(cellTextSomaPeriodoSaida);
-                                } else {
-                                    var textSomaPeriodoSaidaGotas = document.createElement("span");
-                                    textSomaPeriodoSaidaGotas.textContent = element.soma_saida_gotas;
-
-                                    var cellTextSomaPeriodoSaidaGotas = document.createElement("td");
-                                    cellTextSomaPeriodoSaidaGotas.append(textSomaPeriodoSaidaGotas);
-                                    cellTextSomaPeriodoSaidaGotas.classList.add("text-right");
-
-                                    var textSomaPeriodoSaidaReais = document.createElement("span");
-                                    textSomaPeriodoSaidaReais.textContent = "R$ " + parseFloat(element.soma_saida_reais).toFixed(2);
-
-                                    var cellTextSomaPeriodoSaidaReais = document.createElement("td");
-                                    cellTextSomaPeriodoSaidaReais.append(textSomaPeriodoSaidaReais);
-                                    cellTextSomaPeriodoSaidaReais.classList.add("text-right");
-
-                                    var textSomaPeriodoSaidaQte = document.createElement("span");
-                                    textSomaPeriodoSaidaQte.textContent = element.soma_saida_qte;
-
-                                    var cellTextSomaPeriodoSaidaQte = document.createElement("td");
-                                    cellTextSomaPeriodoSaidaQte.append(textSomaPeriodoSaidaQte);
-                                    cellTextSomaPeriodoSaidaQte.classList.add("text-right");
-
-                                    rowSomaPeriodo.append(cellTextSomaPeriodoSaidaGotas);
-                                    rowSomaPeriodo.append(cellTextSomaPeriodoSaidaReais);
-                                    rowSomaPeriodo.append(cellTextSomaPeriodoSaidaQte);
-                                }
-
-                            }
-
-                            rows.push(rowCliente);
-                            rows.push(rowHeaderPeriodo);
-
-                            rowsDadosPeriodos.forEach(item => {
-                                rows.push(item);
-                            });
-
-                            rows.push(rowSomaPeriodo);
-
-                        });
-
-                        // Linha de soma total
-
-                        var rowTotal = document.createElement("tr");
-                        var cellLabelTotal = document.createElement("td");
-                        var labelTotal = document.createElement("strong");
-
-                        labelTotal.classList.add("text-bold");
-                        labelTotal.textContent = "Total";
-                        cellLabelTotal.append(labelTotal);
-
-                        rowTotal.append(cellLabelTotal);
-
-                        if (tipoMovimentacaoSelectedItem === "Entrada") {
-                            var textTotalEntradas = document.createElement("strong");
-                            textTotalEntradas.textContent = data.total_entradas;
-                            var cellTotalEntradas = document.createElement("td");
-                            cellTotalEntradas.classList.add("text-right");
-                            cellTotalEntradas.append(textTotalEntradas);
-
-                            rowTotal.append(cellTotalEntradas);
-                        } else {
-                            var textTotalSaidasGotas = document.createElement("strong");
-                            textTotalSaidasGotas.textContent = data.total_saidas_gotas;
-                            var cellTotalSaidasGotas = document.createElement("td");
-                            cellTotalSaidasGotas.classList.add("text-right");
-                            cellTotalSaidasGotas.append(textTotalSaidasGotas);
-
-                            var textTotalSaidasReais = document.createElement("strong");
-                            textTotalSaidasReais.textContent = "R$ " + parseFloat(data.total_saidas_reais).toFixed(2);
-                            var cellTotalSaidasReais = document.createElement("td");
-                            cellTotalSaidasReais.classList.add("text-right");
-                            cellTotalSaidasReais.append(textTotalSaidasReais);
-
-                            var textTotalSaidasQte = document.createElement("strong");
-                            textTotalSaidasQte.textContent = data.total_saidas_qte;
-                            var cellTotalSaidasQte = document.createElement("td");
-                            cellTotalSaidasQte.classList.add("text-right");
-                            cellTotalSaidasQte.append(textTotalSaidasQte);
-
-                            rowTotal.append(cellTotalSaidasGotas);
-                            rowTotal.append(cellTotalSaidasReais);
-                            rowTotal.append(cellTotalSaidasQte);
-                        }
-
-                        rows.push(rowTotal);
-                    }
-                    conteudoTabela.append(rows);
+                    //                 var textSaidaQte = document.createElement("span");
+                    //                 textSaidaQte.textContent = item.saidasQte;
+
+                    //                 var cellItemSaidaQte = document.createElement("td");
+                    //                 cellItemSaidaQte.append(textSaidaQte);
+                    //                 cellItemSaidaQte.classList.add("text-right");
+
+                    //                 rowPeriodo.append(cellItemLabelPeriodo);
+                    //                 rowPeriodo.append(cellItemSaidaGotas);
+                    //                 rowPeriodo.append(cellItemSaidaReais);
+                    //                 rowPeriodo.append(cellItemSaidaQte);
+
+                    //                 rowsDadosPeriodos.push(rowPeriodo);
+                    //             });
+
+
+                    //             // Linha de soma
+
+                    //             var rowSomaPeriodo = document.createElement("tr");
+
+                    //             var labelSomaPeriodo = document.createElement("span");
+                    //             labelSomaPeriodo.textContent = "Soma Estabelecimento";
+
+                    //             var cellLabelSomaPeriodo = document.createElement("td");
+                    //             cellLabelSomaPeriodo.append(labelSomaPeriodo);
+
+                    //             rowSomaPeriodo.append(cellLabelSomaPeriodo);
+
+                    //             if (tipoMovimentacaoSelectedItem == "Entrada") {
+                    //                 var textSomaPeriodoEntrada = document.createElement("span");
+                    //                 textSomaPeriodoEntrada.textContent = element.soma_entradas;
+
+                    //                 var cellTextSomaPeriodoEntrada = document.createElement("td");
+                    //                 cellTextSomaPeriodoEntrada.append(textSomaPeriodoEntrada);
+                    //                 cellTextSomaPeriodoEntrada.classList.add("text-right");
+
+                    //                 var textSomaPeriodoSaida = document.createElement("span");
+                    //                 textSomaPeriodoSaida.textContent = element.soma_saidas;
+
+                    //                 var cellTextSomaPeriodoSaida = document.createElement("td");
+                    //                 cellTextSomaPeriodoSaida.append(textSomaPeriodoSaida);
+                    //                 cellTextSomaPeriodoSaida.classList.add("text-right");
+
+                    //                 rowSomaPeriodo.append(cellTextSomaPeriodoEntrada);
+                    //                 rowSomaPeriodo.append(cellTextSomaPeriodoSaida);
+                    //             } else {
+                    //                 var textSomaPeriodoSaidaGotas = document.createElement("span");
+                    //                 textSomaPeriodoSaidaGotas.textContent = element.soma_saida_gotas;
+
+                    //                 var cellTextSomaPeriodoSaidaGotas = document.createElement("td");
+                    //                 cellTextSomaPeriodoSaidaGotas.append(textSomaPeriodoSaidaGotas);
+                    //                 cellTextSomaPeriodoSaidaGotas.classList.add("text-right");
+
+                    //                 var textSomaPeriodoSaidaReais = document.createElement("span");
+                    //                 textSomaPeriodoSaidaReais.textContent = "R$ " + parseFloat(element.soma_saida_reais).toFixed(2);
+
+                    //                 var cellTextSomaPeriodoSaidaReais = document.createElement("td");
+                    //                 cellTextSomaPeriodoSaidaReais.append(textSomaPeriodoSaidaReais);
+                    //                 cellTextSomaPeriodoSaidaReais.classList.add("text-right");
+
+                    //                 var textSomaPeriodoSaidaQte = document.createElement("span");
+                    //                 textSomaPeriodoSaidaQte.textContent = element.soma_saida_qte;
+
+                    //                 var cellTextSomaPeriodoSaidaQte = document.createElement("td");
+                    //                 cellTextSomaPeriodoSaidaQte.append(textSomaPeriodoSaidaQte);
+                    //                 cellTextSomaPeriodoSaidaQte.classList.add("text-right");
+
+                    //                 rowSomaPeriodo.append(cellTextSomaPeriodoSaidaGotas);
+                    //                 rowSomaPeriodo.append(cellTextSomaPeriodoSaidaReais);
+                    //                 rowSomaPeriodo.append(cellTextSomaPeriodoSaidaQte);
+                    //             }
+
+                    //         }
+
+                    //         rows.push(rowCliente);
+                    //         rows.push(rowHeaderPeriodo);
+
+                    //         rowsDadosPeriodos.forEach(item => {
+                    //             rows.push(item);
+                    //         });
+
+                    //         rows.push(rowSomaPeriodo);
+
+                    //     });
+
+                    //     // Linha de soma total
+
+                    //     var rowTotal = document.createElement("tr");
+                    //     var cellLabelTotal = document.createElement("td");
+                    //     var labelTotal = document.createElement("strong");
+
+                    //     labelTotal.classList.add("text-bold");
+                    //     labelTotal.textContent = "Total";
+                    //     cellLabelTotal.append(labelTotal);
+
+                    //     rowTotal.append(cellLabelTotal);
+
+                    //     if (tipoMovimentacaoSelectedItem === "Entrada") {
+                    //         var textTotalEntradas = document.createElement("strong");
+                    //         textTotalEntradas.textContent = data.total_entradas;
+                    //         var cellTotalEntradas = document.createElement("td");
+                    //         cellTotalEntradas.classList.add("text-right");
+                    //         cellTotalEntradas.append(textTotalEntradas);
+
+                    //         rowTotal.append(cellTotalEntradas);
+                    //     } else {
+                    //         var textTotalSaidasGotas = document.createElement("strong");
+                    //         textTotalSaidasGotas.textContent = data.total_saidas_gotas;
+                    //         var cellTotalSaidasGotas = document.createElement("td");
+                    //         cellTotalSaidasGotas.classList.add("text-right");
+                    //         cellTotalSaidasGotas.append(textTotalSaidasGotas);
+
+                    //         var textTotalSaidasReais = document.createElement("strong");
+                    //         textTotalSaidasReais.textContent = "R$ " + parseFloat(data.total_saidas_reais).toFixed(2);
+                    //         var cellTotalSaidasReais = document.createElement("td");
+                    //         cellTotalSaidasReais.classList.add("text-right");
+                    //         cellTotalSaidasReais.append(textTotalSaidasReais);
+
+                    //         var textTotalSaidasQte = document.createElement("strong");
+                    //         textTotalSaidasQte.textContent = data.total_saidas_qte;
+                    //         var cellTotalSaidasQte = document.createElement("td");
+                    //         cellTotalSaidasQte.classList.add("text-right");
+                    //         cellTotalSaidasQte.append(textTotalSaidasQte);
+
+                    //         rowTotal.append(cellTotalSaidasGotas);
+                    //         rowTotal.append(cellTotalSaidasReais);
+                    //         rowTotal.append(cellTotalSaidasQte);
+                    //     }
+
+                    //     rows.push(rowTotal);
+                    // }
+                    // conteudoTabela.append(rows);
                 },
                 error: function (response) {
 
@@ -1856,13 +1867,12 @@ $
         tipoRelatorio.on("change", tipoRelatorioOnChange);
 
         $(pesquisarBtn).on("click", function () {
-            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem);
+            getPontuacoesRelatorioEntradaSaida(form.clientesId, form.gotasId, form.brindesId, form.funcionariosId, form.dataInicio, form.dataFim, form.tipoRelatorio, tipoMovimentacaoSelectedItem, "Table");
 
             getResumoBrinde(form.brindesId, form.dataInicio, form.dataFim);
         });
 
-        imprimirBtn.unbind("click");
-        imprimirBtn.on("click", imprimirRelatorio);
+
 
         // #endregion
 
