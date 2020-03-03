@@ -78,21 +78,19 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <select name="funcionarios_list" id="funcionarios-list" class="form-control">
                                 </select>
                             </div>
-
-                            <div class="col-lg-2">
-                                <label for="tipo_movimentacao">Tipo Movimentação:</label>
-                                <select name="tipo_movimentacao" id="tipo-movimentacao" class="form-control">
-                                    <option value="<?= TYPE_OPERATION_IN ?>"><?= TYPE_OPERATION_IN ?></option>
-                                    <option value="<?= TYPE_OPERATION_OUT ?>"><?= TYPE_OPERATION_OUT ?></option>
-                                </select>
-                            </div>
-
                             <div class="col-lg-2">
                                 <label for="tipo_relatorio">Tipo Relatório:</label>
 
                                 <select name="tipo_relatorio" id="tipo-relatorio" class="form-control">
                                     <option value="<?= REPORT_TYPE_ANALYTICAL ?>"><?= REPORT_TYPE_ANALYTICAL ?></option>
                                     <option value="<?= REPORT_TYPE_SYNTHETIC ?>" selected><?= REPORT_TYPE_SYNTHETIC ?></option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label for="tipo_movimentacao">Tipo Movimentação:</label>
+                                <select name="tipo_movimentacao" id="tipo-movimentacao" class="form-control">
+                                    <option value="<?= TYPE_OPERATION_IN ?>"><?= TYPE_OPERATION_IN ?></option>
+                                    <option value="<?= TYPE_OPERATION_OUT ?>"><?= TYPE_OPERATION_OUT ?></option>
                                 </select>
                             </div>
                             <div class="col-lg-2">

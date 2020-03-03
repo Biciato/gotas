@@ -432,6 +432,10 @@ $
          */
         function tipoRelatorioOnChange() {
             form.tipoRelatorio = tipoRelatorio.val();
+
+            // Se sintético, não importa se é entrada ou saída
+            var status = form.tipoRelatorio === "Sintético";
+            tipoMovimentacao.attr('disabled', status);
         }
 
         // #region Get / Set REST Services

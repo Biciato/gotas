@@ -1007,74 +1007,132 @@ class PontuacoesController extends AppController
                 // As gotas que entram/saem do sistema ficam na tabela pontuacoes
                 // Existem dois tipos de relatorio: ANALITICO E SINTETICO
 
-                // SINTETICO traz apenas a soma, o periodo, e a unidade
-                // analítico traz a soma, periodo, o posto, o usuário, a gota, e o cupom + url
-
+                // SINTETICO traz apenas a soma (Entrada e Saída), e a unidade
+                // analítico traz a soma, periodo, o posto, o usuário, a gota
                 $data = [];
                 $dadosClientesPontuacoes = [];
-                $titleColumns = [];
+                $titleColumns = new stdClass();
 
                 // Define título das colunas
-                // Infelizmente será melhor trabalhar com array que stdClass object
-                if ($tipoMovimentacao === TYPE_OPERATION_IN) {
-                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-                        $titleColumns["nome_fantasia"] = "Estabelecimento";
-                        $titleColumns["periodo"] = "Periodo";
-                        $titleColumns["produto"] = "Produto";
-                        $titleColumns["funcionario"] = "Funcionário";
-                        $titleColumns["usuario"] = "Usuário";
-                        $titleColumns["qte_pontos"] = "Qte. Pontos";
+                if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                    if ($tipoMovimentacao === TYPE_OPERATION_IN) {
+                        $titleColumns->nome_fantasia = "Estabelecimento";
+                        $titleColumns->periodo = "Periodo";
+                        $titleColumns->produto = "Produto";
+                        $titleColumns->funcionario = "Funcionário";
+                        $titleColumns->usuario = "Usuário";
+                        $titleColumns->qte_pontos = "Qte. Pontos";
                     } else {
-                        $titleColumns["nome_fantasia"] = "Estabelecimento";
-                        $titleColumns["periodo"] = "Periodo";
-                        $titleColumns["qte_pontos"] = "Qte. Pontos";
-                    }
+                        $titleColumns->nome_fantasia = "Estabelecimento";
+                        $titleColumns->periodo = "Periodo";
+                        $titleColumns->brinde = "Brinde";
+                        $titleColumns->funcionario = "Funcionário";
+                        $titleColumns->usuario = "Usuário";
+                        $titleColumns->qte_pontos = "Qte. Pontos";
+                        $titleColumns->qte_reais = "Qte. Reais";
+                        $titleColumns->qte_unit = "Qte. Unit";
+s                    }
                 } else {
-                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-                        $titleColumns["nome_fantasia"] = "Estabelecimento";
-                        $titleColumns["periodo"] = "Periodo";
-                        $titleColumns["brinde"] = "Brinde";
-                        $titleColumns["funcionario"] = "Funcionário";
-                        $titleColumns["usuario"] = "Usuário";
-                        $titleColumns["qte_pontos"] = "Qte. Pontos";
-                        $titleColumns["qte_reais"] = "Qte. Reais";
-                        $titleColumns["qte_unit"] = "Qte. Unit";
-                    } else {
-                        $titleColumns["nome_fantasia"] = "Estabelecimento";
-                        $titleColumns["periodo"] = "Periodo";
-                        $titleColumns["qte_pontos"] = "Qte. Pontos";
-                        $titleColumns["qte_reais"] = "Qte. Reais";
-                        $titleColumns["qte_unit"] = "Qte. Unit";
-                    }
+                    $titleColumns->nome_fantasia = "Estabelecimento";
+                    $titleColumns->qte_pontos_entrada = "Qte. Pontos (Entrada)";
+                    $titleColumns->qte_pontos_saida = "Qte. Pontos (Saida)";
+                    $titleColumns->qte_reais = "Qte. Reais (Saída)";
                 }
 
-                foreach ($clientes as $cliente) {
-                    if ($tipoMovimentacao === TYPE_OPERATION_IN) {
-                        $dadosClientesPontuacoes[$cliente->id][] = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
-                        // $dadosClientesPontuacoes[] = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio);
-                    } else {
-                        $dadosClientesPontuacoes[$cliente->id][] = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$cliente->id], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio);
-                        // $dadosClientesPontuacoes[] = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$clientesId], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio);
+                $dataInSinthetic = [];
+                $dataOutSinthetic = [];
+
+                if ($tipoRelatorio === REPORT_TYPE_SYNTHETIC) {
+                    foreach ($clientes as $cliente) {
+
+                        $dataInSinthetic[$cliente->id] = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio)->toArray();
+                        $dataOutSinthetic[$cliente->id] = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$cliente->id], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio)->toArray();
+                    }
+                } else {
+
+                    foreach ($clientes as $cliente) {
+                        if ($tipoMovimentacao === TYPE_OPERATION_IN) {
+                            $dadosClientesPontuacoes[$cliente->id][] = $this->Pontuacoes->getPontuacoesInForClientes($cliente->id, $gotasId, $funcionariosId, $dataInicio, $dataFim, TYPE_OPERATION_IN, $tipoRelatorio)->toArray();
+                        } else {
+                            $dadosClientesPontuacoes[$cliente->id][] = $this->CuponsTransacoes->getTransactionsForReport($redesId, [$cliente->id], $brindesId, $funcionariosId, $dataInicio, $dataFim, $tipoRelatorio)->toArray();
+                        }
                     }
                 }
 
                 // Somatória
-
-                $sumPointsIn = 0;
+                $sumInPoints = 0;
                 $sumPointsOut = 0;
                 $sumMoneyOut = 0;
                 $sumQteOut = 0;
+                $totalInPoints = 0;
+                $totalOutPoints = 0;
+                $totalOutMoney = 0;
+                $totalOutQte = 0;
+
+                // Dados de Relatório
                 $rowsCliente = [];
                 $dataTotal = new stdClass();
                 $resumeWorker = null;
                 $report = null;
 
-                if ($tipoMovimentacao === TYPE_OPERATION_IN) {
-                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                if ($tipoRelatorio === REPORT_TYPE_SYNTHETIC) {
+                    // O relatório SINTETICO engloba tanto entrada quanto saída
+                    foreach ($clientes as $cliente) {
+                        $recordsInSinthetic = $dataInSinthetic[$cliente->id];
+                        $recordsOutSinthetic = $dataOutSinthetic[$cliente->id];
+                        $sumInPoints = 0;
+                        $sumOutPoints = 0;
+                        $sumOutMoney = 0;
+
+                        foreach ($recordsInSinthetic as $dataIn) {
+                            $sumInPoints += $dataIn->qte_gotas;
+                        }
+                        foreach ($recordsOutSinthetic as $dataOut) {
+                            $sumOutPoints += $dataOut->qte_gotas;
+                            $sumOutMoney += $dataOut->qte_reais;
+                        }
+
+                        $item = new stdClass();
+                        $item->nome_fantasia = $cliente->nome_fantasia;
+                        $item->qte_pontos_entrada = $sumInPoints;
+                        $item->qte_pontos_saida = $sumOutPoints;
+                        $item->qte_reais = sprintf("R$ %s", number_format($sumOutMoney, 2));
+
+                        $totalInPoints += $sumInPoints;
+                        $totalOutPoints += $sumOutPoints;
+                        $totalOutMoney += $sumOutMoney;
+                        $rowsCliente[] = $item;
+                    }
+
+                    $dataTotal->soma_entrada_pontos = $totalInPoints;
+                    $dataTotal->soma_saida_pontos = $totalOutPoints;
+                    $dataTotal->soma_saida_reais = $totalOutMoney;
+                    $dataTotal->soma_saida_qte_unit = $totalOutQte;
+
+                    $rowSum = new stdClass();
+                    $rowSum->nome_fantasia = "Total: ";
+                    $rowSum->qte_entrada_pontos =  $dataTotal->soma_entrada_pontos;
+                    $rowSum->qte_saida_pontos = $dataTotal->soma_saida_pontos;
+                    $rowSum->qte_saida_reais = sprintf("R$ %s", number_format($dataTotal->soma_saida_reais, 2));
+
+                    $rowsCliente[] = $rowSum;
+                    $titleReport = sprintf("Relatório de Gestão de Gotas (%s - Período: %s à %s)", REPORT_TYPE_SYNTHETIC, $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+
+                    $report = HtmlUtil::generateHTMLTable($titleReport, $titleColumns, $rowsCliente, true);
+                    // @TODO à fazer
+                    // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
+
+                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                        $report = HtmlUtil::wrapContentToHtml($report);
+                    }
+                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                    }
+                } else {
+                    if ($tipoMovimentacao === TYPE_OPERATION_IN) {
                         foreach ($dadosClientesPontuacoes as $dadosCliente) {
                             foreach ($dadosCliente as $recordsCliente) {
                                 foreach ($recordsCliente as $periodo) {
-                                    $sumPointsIn += $periodo->qte_gotas;
+                                    $sumInPoints += $periodo->qte_gotas;
                                     $rowCliente = new stdClass();
                                     $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
 
@@ -1090,65 +1148,40 @@ class PontuacoesController extends AppController
                             }
                         }
 
-                        $dataTotal->soma_entrada_pontos = $sumPointsIn;
-                    } else {
-                        foreach ($dadosClientesPontuacoes as $dadosCliente) {
-                            foreach ($dadosCliente as $recordsCliente) {
-                                foreach ($recordsCliente as $periodo) {
-                                    $sumPointsIn += $periodo->qte_gotas;
-                                    $rowCliente = new stdClass();
-                                    $rowCliente->nome_fantasia = $periodo->cliente->nome_fantasia;
-                                    $date = new DateTime($periodo->periodo);
-                                    $rowCliente->periodo = $date->format("m/Y");
-                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
+                        $dataTotal->soma_entrada_pontos = $sumInPoints;
+                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                            $report = new stdClass();
+                            $report->headers = $titleColumns;
+                            $report->rows = $rowsCliente;
+                            $report->total = new stdClass();
 
-                                    $rowsCliente[] = $rowCliente;
-                                }
-                            }
-                        }
+                            $report->total = $dataTotal;
+                            // @TODO  a fazer
+                            $resumeWorker = new stdClass();
+                        } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                            // será retornado uma string table html ou arquivo excel
 
-                        $dataTotal->soma_entrada_pontos = $sumPointsIn;
-                    }
-                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
-                        $report = new stdClass();
-                        $report->headers = $titleColumns;
-                        $report->rows = $rowsCliente;
-                        $report->total = new stdClass();
+                            // Adiciona linha de somatórioa
+                            $rowSum = new stdClass();
 
-                        $report->total = $dataTotal;
-                        // @TODO  a fazer
-                        $resumeWorker = new stdClass();
-                    } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
-                        // será retornado uma string table html ou arquivo excel
-
-                        // Adiciona linha de somatórioa
-                        $rowSum = new stdClass();
-
-                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
                             $rowSum->nome_fantasia = "Total: ";
                             $rowSum->periodo = "";
                             $rowSum->produto = "";
                             $rowSum->funcionario = "";
                             $rowSum->usuario = "";
                             $rowSum->qte_pontos = $dataTotal->soma_entrada_pontos;
-                        } else {
-                            $rowSum->nome_fantasia = "Total: ";
-                            $rowSum->periodo = "";
-                            $rowSum->qte_pontos =  $dataTotal->soma_entrada_pontos;
-                        }
-                        $rowsCliente[] = $rowSum;
+                            $rowsCliente[] = $rowSum;
 
-                        $report = HtmlUtil::generateHTMLTable("Relatório de Gestão de Gotas", $titleColumns, $rowsCliente, true);
-                        // return ResponseUtil::success($report);
-                        // return ResponseUtil::successAPI('', ['data' => $report]);
-                        // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
+                            $titleReport = sprintf("Relatório de Gestão de Gotas: %s - %s", $tipoMovimentacao, $tipoRelatorio);
+                            $report = HtmlUtil::generateHTMLTable($titleReport, $titleColumns, $rowsCliente, true);
+                            // @TODO à fazer
+                            // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
 
-                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
-                            $report = HtmlUtil::wrapContentToHtml($report);
+                            if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                                $report = HtmlUtil::wrapContentToHtml($report);
+                            }
                         }
-                    }
-                } else {
-                    if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                    } else {
                         foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
                             foreach ($dadosCliente as $key => $periodos) {
                                 foreach ($periodos as $key => $periodo) {
@@ -1170,71 +1203,43 @@ class PontuacoesController extends AppController
                                 }
                             }
                         }
-                    } else {
-                        foreach ($dadosClientesPontuacoes as $key => $dadosCliente) {
-                            foreach ($dadosCliente as $key => $periodos) {
-                                foreach ($periodos as $key => $periodo) {
-                                    $sumPointsOut += $periodo->qte_gotas;
-                                    $sumMoneyOut += $periodo->qte_reais;
-                                    $sumQteOut += $periodo->qte;
-                                    $rowCliente = new stdClass();
-                                    $rowCliente->nome_fantasia = $periodo->nome_fantasia;
-                                    $date = new DateTime($periodo->periodo);
-                                    $rowCliente->periodo = $date->format("m/Y");
-                                    $rowCliente->qte_pontos = $periodo->qte_gotas;
-                                    $rowCliente->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
-                                    $rowCliente->qte_unit = $periodo->qte;
-                                    $rowsCliente[] = $rowCliente;
-                                }
+
+                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
+                            $report = new stdClass();
+                            $report->headers = $titleColumns;
+                            $report->rows = $rowsCliente;
+                            $report->total = new stdClass();
+
+                            $report->total = $dataTotal;
+                            // @TODO  a fazer
+                            $resumeWorker = new stdClass();
+                        } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+                            // será retornado uma string table html ou arquivo excel
+
+                            // Adiciona linha de somatórioa
+                            $rowSum = new stdClass();
+
+                            if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
+                                $rowSum->nome_fantasia = "Total: ";
+                                $rowSum->periodo = "";
+                                $rowSum->brinde = "";
+                                $rowSum->funcionario = "";
+                                $rowSum->usuario = "";
+                                $rowSum->qte_pontos = $sumPointsOut;
+                                $rowSum->qte_reais = number_format($sumMoneyOut, 2);
+                                $rowSum->qte_unit = $sumQteOut;
                             }
-                        }
-                    }
+                            $rowsCliente[] = $rowSum;
 
-                    $dataTotal->soma_saida_pontos = $sumPointsOut;
-                    $dataTotal->soma_saida_reais = $sumMoneyOut;
-                    $dataTotal->soma_saida_qte_unit = $sumQteOut;
+                            $titleReport = sprintf("Relatório de Gestão de Gotas: %s - %s", $tipoMovimentacao, $tipoRelatorio);
+                            $report = HtmlUtil::generateHTMLTable($titleReport, $titleColumns, $rowsCliente, true);
 
-                    if ($tipoExportacao === TYPE_EXPORTATION_DATA_OBJECT) {
-                        $report = new stdClass();
-                        $report->headers = $titleColumns;
-                        $report->rows = $rowsCliente;
-                        $report->total = new stdClass();
+                            // @todo à fazer
+                            // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
 
-                        $report->total = $dataTotal;
-                        // @TODO  a fazer
-                        $resumeWorker = new stdClass();
-                    } elseif (in_array($tipoExportacao, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
-                        // será retornado uma string table html ou arquivo excel
-
-                        // Adiciona linha de somatórioa
-                        $rowSum = new stdClass();
-
-                        if ($tipoRelatorio === REPORT_TYPE_ANALYTICAL) {
-                            $rowSum->nome_fantasia = "Total: ";
-                            $rowSum->periodo = "";
-                            $rowSum->brinde = "";
-                            $rowSum->funcionario = "";
-                            $rowSum->usuario = "";
-                            $rowSum->qte_pontos = $sumPointsOut;
-                            $rowSum->qte_reais = number_format($sumMoneyOut, 2);
-                            $rowSum->qte_unit = $sumQteOut;
-                        } else {
-                            $rowSum->nome_fantasia = "Total: ";
-                            $rowSum->periodo = "";
-                            $rowSum->qte_pontos = $sumPointsOut;
-                            $rowSum->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
-                            $rowSum->qte_unit = $sumQteOut;
-                        }
-                        $rowsCliente[] = $rowSum;
-
-                        $titleReport = sprintf("Relatório de Gestão de Gotas: %s - %s", $tipoMovimentacao, $tipoRelatorio);
-                        $report = HtmlUtil::generateHTMLTable($titleReport, $titleColumns, $rowsCliente, true);
-                        // return ResponseUtil::success($report);
-                        // return ResponseUtil::successAPI('', ['data' => $report]);
-                        // $resumeWorker = HtmlUtil::generateHTMLTable("Resumo de Funcionário", $titleColumnsWorker, $rowsWorker, true);
-
-                        if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
-                            $report = HtmlUtil::wrapContentToHtml($report);
+                            if ($tipoExportacao === TYPE_EXPORTATION_DATA_EXCEL) {
+                                $report = HtmlUtil::wrapContentToHtml($report);
+                            }
                         }
                     }
                 }
@@ -1259,234 +1264,14 @@ class PontuacoesController extends AppController
                             ]
                         ]
                     );
+                } else {
+                    return ResponseUtil::successAPI(
+                        MSG_LOAD_DATA_WITH_SUCCESS,
+                        [
+                            'data' => $report,
+                        ]
+                    );
                 }
-
-                return ResponseUtil::successAPI(
-                    MSG_LOAD_DATA_WITH_SUCCESS,
-                    [
-                        'data' => $report,
-                    ]
-                );
-
-                // if (true) {
-                //     $entradas = $entradas->toArray();
-                //     $saidas = $saidas->toArray();
-                //     $somaEntradas = 0;
-                //     $somaSaidas = 0;
-                //     $somaQteSaidas = 0;
-                //     $somaReaisSaidas = 0;
-                //     $totalEntradas = 0;
-                //     $totalSaidaGotas = 0;
-                //     $totalSaidaQte = 0;
-                //     $totalSaidaReais = 0;
-
-                //     // obtem somatória
-                //     foreach ($entradas as $entrada) {
-                //         $somaEntradas += $entrada["qte_gotas"];
-                //     }
-
-                //     foreach ($saidas as $saida) {
-                //         $somaSaidas += $saida["qte_gotas"];
-                //         $somaQteSaidas += $saida["qte"];
-                //         $somaReaisSaidas += $saida["qte_reais"];
-                //     }
-
-                //     $entradasAnalitico = [];
-                //     $saidasAnalitico = [];
-
-                //     // Se o relatório é analítico, o agrupamento dos registros será pelo mês
-                //     if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
-                //         $entradasAnalitico = $entradas;
-                //         $saidasAnalitico = $saidas;
-                //         // Percorre dia a dia e preenche se valor é 0
-                //         // Fiz em código pq em sql não resolveu
-                //         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
-
-                //         while ($dataLoop <= $dataFim) {
-                //             // Verifica se existe o registro em tal data
-                //             $recordIn = null;
-
-                //             $found = false;
-                //             foreach ($entradasAnalitico as $key => $entrada) {
-                //                 if ($entrada["periodo"] == $dataLoop->format("Y-m-d")) {
-                //                     $found = true;
-                //                     break;
-                //                 }
-                //             }
-
-                //             if (!$found) {
-                //                 $recordIn = new Pontuacao();
-                //                 $recordIn->periodo = $dataLoop->format("Y-m-d");
-                //                 $recordIn->qte_gotas = 0;
-                //             }
-
-                //             $dataLoop->modify("+1 day");
-
-                //             if (!empty($recordIn)) {
-                //                 $entradasAnalitico[] = $recordIn;
-                //             }
-                //         }
-
-                //         $dataLoop = new DateTime($dataInicio->format("Y-m-d"));
-
-                //         // Limpa as variaveis para o que virá a seguir
-                //         $entradas = [];
-                //         $saidas = [];
-
-                //         usort($entradasAnalitico, function ($a, $b) {
-                //             return $a["periodo"] > $b["periodo"];
-                //         });
-
-                //         usort($saidasAnalitico, function ($a, $b) {
-                //             return $a["periodo"] > $b["periodo"];
-                //         });
-
-                //         // Faz agrupamento por periodo
-
-                //         foreach ($entradasAnalitico as $entrada) {
-                //             $dataAgrupamento = new DateTime($entrada["periodo"]);
-                //             $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
-                //             $entradas[$dataAgrupamento]["data"][] = $entrada;
-                //         }
-
-                //         foreach ($saidasAnalitico as $saida) {
-                //             $dataAgrupamento = new DateTime($saida["periodo"]);
-                //             $dataAgrupamento = $dataAgrupamento->format("Y-m-d");
-                //             $saidas[$dataAgrupamento]["data"][] = $saida;
-                //         }
-
-                //         $entradasAnalitico = $entradas;
-                //         $saidasAnalitico = $saidas;
-
-                //         $entradas = [];
-                //         $saidas = [];
-
-                //         foreach ($entradasAnalitico as $keyDate => $list) {
-                //             foreach ($list as $key => $value) {
-                //                 $dataAgrupamento = new DateTime($keyDate);
-                //                 $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                //                 if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
-                //                     $entradas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
-                //                 }
-                //             }
-                //         }
-
-                //         foreach ($saidasAnalitico as $keyDate => $list) {
-                //             foreach ($list as $key => $value) {
-                //                 $dataAgrupamento = new DateTime($keyDate);
-                //                 $dataAgrupamento = $dataAgrupamento->format("Y-m");
-                //                 if ($dataAgrupamento === (new DateTime($keyDate))->format("Y-m")) {
-                //                     $saidas[$dataAgrupamento]["data"][$keyDate]["data"] = $value;
-                //                 }
-                //             }
-                //         }
-
-                //         // Agora, faz somatória total e periodo
-                //         $totalEntradas = 0;
-                //         $entradasTemp = [];
-
-                //         // Percorre lista de entradas
-                //         foreach ($entradas as $keyEntradas => $periodoData) {
-                //             $somaPeriodo = 0;
-                //             $entradaDia = [];
-
-                //             // Percorre periodos
-                //             foreach ($periodoData["data"] as $keyData => $data) {
-                //                 $somaDia = 0;
-
-                //                 // Percorre agrupamento de dias
-                //                 foreach ($data["data"] as $keyItem => $item) {
-                //                     // Obtem soma Dia
-                //                     $somaDia += $item["qte_gotas"];
-                //                 }
-
-                //                 $data["soma_dia"] = $somaDia;
-                //                 $somaPeriodo += $somaDia;
-                //                 $entradaDia[$keyData] = $data;
-                //             }
-
-                //             $totalEntradas += $somaPeriodo;
-                //             $periodoData["data"] = $entradaDia;
-                //             $periodoData["soma_periodo"] = $somaPeriodo;
-                //             $entradasTemp[$keyEntradas] = $periodoData;
-                //         }
-
-                //         $entradas = $entradasTemp;
-                //         $totalSaidaGotas = 0;
-                //         $totalSaidaReais = 0;
-                //         $totalSaidaQte = 0;
-                //         $saidasTemp = [];
-                //         // Percorre lista de saidas
-                //         foreach ($saidas as $keysaidas => $periodoData) {
-                //             $somaPeriodoGotas = 0;
-                //             $somaPeriodoReais = 0;
-                //             $somaPeriodoQte = 0;
-
-                //             $saidaDia = [];
-                //             // Percorre periodos
-                //             foreach ($periodoData["data"] as $keyData => $data) {
-                //                 $somaDiaGotas = 0;
-                //                 $somaDiaReais = 0;
-                //                 $somaDiaQte = 0;
-
-                //                 // Percorre agrupamento de dias
-                //                 foreach ($data["data"] as $keyItem => $item) {
-                //                     // Obtem soma Dia
-                //                     $somaDiaGotas += $item["qte_gotas"];
-                //                     $somaDiaReais += $item["qte_reais"];
-                //                     $somaDiaQte += $item["qte"];
-                //                 }
-
-                //                 $data["soma_dia_gotas"] = $somaDiaGotas;
-                //                 $data["soma_dia_reais"] = $somaDiaReais;
-                //                 $data["soma_dia_qte"] = $somaDiaQte;
-                //                 $somaPeriodoGotas += $somaDiaGotas;
-                //                 $somaPeriodoReais += $somaDiaReais;
-                //                 $somaPeriodoQte += $somaDiaQte;
-                //                 $saidaDia[$keyData] = $data;
-                //             }
-
-                //             $totalSaidaGotas += $somaPeriodoGotas;
-                //             $totalSaidaReais += $somaPeriodoReais;
-                //             $totalSaidaQte += $somaPeriodoQte;
-                //             $periodoData["data"] = $saidaDia;
-                //             $periodoData["soma_periodo_gotas"] = $somaPeriodoGotas;
-                //             $periodoData["soma_periodo_reais"] = $somaPeriodoReais;
-                //             $periodoData["soma_periodo_qte"] = $somaPeriodoQte;
-                //             $saidasTemp[$keysaidas] = $periodoData;
-                //         }
-
-                //         $saidas = $saidasTemp;
-                //     } else {
-                //         $totalSaidaQte = $somaQteSaidas;
-                //         $totalSaidaReais = $somaReaisSaidas;
-                //         $totalSaidaGotas = $somaSaidas;
-                //         $totalEntradas = $somaEntradas;
-                //     }
-
-                //     $clientesPontuacoes[] = [
-                //         "cliente" => $cliente,
-                //         "pontuacoes_entradas" => $entradas,
-                //         "pontuacoes_saidas" => $saidas,
-                //         "soma_entradas" => $somaEntradas,
-                //         "soma_saida_gotas" => $somaSaidas,
-                //         "soma_saida_reais" => $somaReaisSaidas,
-                //         "soma_saida_qte" => $somaQteSaidas,
-                //     ];
-                // }
-
-                $pontuacoesReport = [
-                    "pontuacoes" => $clientesPontuacoes,
-                    "total_entradas" => $totalEntradas,
-                    "total_saidas_gotas" => $totalSaidaGotas,
-                    "total_saidas_reais" => $totalSaidaReais,
-                    "total_saidas_qte" => $totalSaidaQte,
-
-                ];
-                $dadosRelatorio = ['pontuacoes_report' => $pontuacoesReport];
-                $dataRetorno = ["data" => $dadosRelatorio];
-
-                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataRetorno);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();

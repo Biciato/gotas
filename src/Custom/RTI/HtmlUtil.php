@@ -41,9 +41,13 @@ class HtmlUtil
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 1.1.5
      */
-    public static function generateHTMLTable(string $title, array $headers, array $contentData, bool $toggleLineColor = false)
+    public static function generateHTMLTable(string $title, $headers, $contentData, bool $toggleLineColor = false)
     {
         // Cabeçalho
+
+        // Caso seja passado um object, converte para array
+        $headers = gettype($headers) === "object" ? json_decode(json_encode($headers), true) : $headers;
+        $contentData = gettype($contentData) === "object" ? json_decode(json_encode($contentData), true) : $contentData;
 
         $table  = "<table style='width: 100%;'>";
         $table .= "    <tr style='text-align:center;'>";

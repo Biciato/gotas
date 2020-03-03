@@ -182,7 +182,7 @@ echo $this->Breadcrumbs->render(
                 </tr>
                 <tr>
                     <th>
-                        <?= __('Data Impressão ') ?>
+                        <?= __('Data Importação ') ?>
                     </th>
                     <td>
                         <?= h($pontuacao->data->format('d/m/Y H:i:s')) ?>
