@@ -213,8 +213,8 @@ class CuponsTransacoesTable extends GenericTable
             $message = $ex->getMessage();
             $trace = $ex->getTraceAsString();
 
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message));
-            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message, $trace));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_LOAD_DATA_WITH_ERROR, $message, $trace));
 
             throw new Exception($message);
         }
@@ -263,8 +263,8 @@ class CuponsTransacoesTable extends GenericTable
             $message = $ex->getMessage();
             $trace = $ex->getTraceAsString();
 
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message));
-            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message, $trace));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_LOAD_DATA_WITH_ERROR, $message, $trace));
 
             throw new Exception($message);
         }

@@ -119,7 +119,6 @@ $
             // Dispara todos os eventos que precisam de inicializar
             // dataInicioOnChange();
             // dataFimOnChange();
-            tipoRelatorioOnChange();
             getRedesList();
 
             redesSelectListBox.unbind("change");
@@ -128,6 +127,8 @@ $
             tipoMovimentacao.unbind("change");
             tipoMovimentacao.on("change", tipoMovimentacaoOnChange);
             tipoMovimentacao.change();
+
+            tipoRelatorioOnChange();
 
             // Desabilita botão de imprimir até que usuário faça alguma consulta
             imprimirBtn.addClass("disabled");
@@ -436,6 +437,15 @@ $
             // Se sintético, não importa se é entrada ou saída
             var status = form.tipoRelatorio === "Sintético";
             tipoMovimentacao.attr('disabled', status);
+            if (status === true) {
+                gotasSelectListBox.attr('disabled', status);
+                brindesSelectListBox.attr('disabled', status);
+
+                gotasSelectListBox.val(0);
+                brindesSelectListBox.val(0);
+            } else {
+                tipoMovimentacao.change();
+            }
         }
 
         // #region Get / Set REST Services
@@ -803,7 +813,19 @@ $
                         $(containerReport).append(response.data.relatorio);
                     } else if (tipoExportacao === "Excel") {
                         console.log(response);
-                        window.open("data:application/vnd.ms-excel," + encodeURIComponent(response.data));
+                        var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
+                        // window.open(content);
+
+                        // var str = "Name, Price\nApple, 2\nOrange, 3";
+                        // var uri = 'data:text/csv;charset=utf-8,' + str;
+
+                        var downloadLink = document.createElement("a");
+                        downloadLink.href = content;
+                        downloadLink.download = "Relatório de Gestão de Gotas.xls";
+
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
                     }
 
                     // var data = response.data.pontuacoes_report;

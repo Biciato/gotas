@@ -2904,7 +2904,7 @@ class CuponsController extends AppController
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (count($tiposVendas) == 0) {
-                    $message = MESSAGE_LOAD_DATA_WITH_ERROR;
+                    $message = MSG_LOAD_DATA_WITH_ERROR;
                     ResponseUtil::errorAPI($message, array(TYPE_SELL_EMPTY));
                 }
 
@@ -3114,10 +3114,10 @@ class CuponsController extends AppController
             }
 
             for ($i = 0; $i < count($errors); $i++) {
-                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 
