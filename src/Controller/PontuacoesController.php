@@ -1228,7 +1228,9 @@ class PontuacoesController extends AppController
                                     $rowCliente->usuario = $periodo->usuario->nome;
                                     $rowCliente->qte_pontos = $periodo->qte_gotas;
 
-                                    $rowsCliente[] = $rowCliente;
+                                    if (!empty($rowCliente->qte_pontos)) {
+                                        $rowsCliente[] = $rowCliente;
+                                    }
                                 }
                             }
                         }
@@ -1293,11 +1295,14 @@ class PontuacoesController extends AppController
                                     $rowCliente->qte_pontos = $periodo->qte_gotas;
                                     $rowCliente->qte_reais = sprintf("R$ %s", number_format($periodo->qte_reais, 2));
                                     $rowCliente->qte_unit = $periodo->qte;
-                                    $rowsCliente[] = $rowCliente;
 
                                     $totalOutPoints += $periodo->qte_gotas;
                                     $totalOutMoney += $periodo->qte_reais;
                                     $totalOutQte += $periodo->qte;
+
+                                    if (!empty($periodo->qte_gotas) || !empty($periodo->qte_reais) || !empty($periodo->qte)) {
+                                        $rowsCliente[] = $rowCliente;
+                                    }
                                 }
                             }
                         }
