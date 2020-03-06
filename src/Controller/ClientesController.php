@@ -18,7 +18,9 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
+use App\Model\Entity\Gota;
 use Cake\Http\Client\Request;
+use stdClass;
 
 /**
  * Clientes Controller
@@ -341,7 +343,6 @@ class ClientesController extends AppController
                     $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
 
                     if ($clienteJaExistente && $clienteJaExistente["id"] != $cliente["id"]) {
-
                         $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
                         $this->Flash->error($message);
 
@@ -363,7 +364,6 @@ class ClientesController extends AppController
                     $novoTurno = $data["horario"];
 
                     if (($novaQteTurnos != $quantidadeTurnos) || ($novoTurno != $turnoInicial)) {
-
                         $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
 
                         $resultDisable = $this->ClientesHasQuadroHorario->disableHorariosCliente($cliente["id"]);
@@ -587,7 +587,6 @@ class ClientesController extends AppController
     public function configurarPropaganda(int $clientesId = null)
     {
         try {
-
             $sessaoUsuario = $this->getSessionUserVariables();
 
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -684,6 +683,33 @@ class ClientesController extends AppController
 
             Log::write("error", $messageStringDebug);
         }
+    }
+
+    /**
+     * Action para Relatório de Ranking de Operações
+     *
+     * @return void
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     */
+    public function relRankingOperacoes()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $cliente = $sessaoUsuario["cliente"];
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrador) {
+            $usuarioLogado = $usuarioAdministrador;
+        }
+
+        $arraySet = ["clientesId"];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
     }
 
     /**
@@ -805,6 +831,89 @@ class ClientesController extends AppController
         }
     }
 
+    /**
+     * Dados de Relatório de Ranking de Operações
+     *
+     * Obtem Dados de Relatório de Ranking de Operações contendo as seguintes informações:
+     *
+     * 1 - Brinde mais resgatado;
+     * 2 - Combustível mais utilizado;
+     * 3 - Cliente mais pontuado;
+     * 4 - Funcionário que mais prestou atendimento;
+     *
+     * @param int $redes_id Id da Rede
+     * @param int $clientes_id Id do Estabelecimento
+     * @param DateTime $data_inicio Data Início
+     * @param DateTime $data_fim Data Fim
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     *
+     * @return json_encode (json object|table html|excel)
+     */
+    public function rankingOperacoesAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+
+                $redesId = !empty($rede) ? $rede->id : $redesId;
+                $clientesId = !empty($cliente) ? $cliente->id : $clientesId;
+
+                if (empty($redesId)) {
+                    // Necessário ter uma
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                $clientes = [];
+
+                if (empty($clientesId)) {
+                    $cliente = $this->Clientes->get($clientesId);
+                    $clientes[] = $cliente;
+                }
+
+                $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+
+                $clientes = $redesHasClientesQuery->select(["Clientes.id", "Clientes.nome_fantasia"])->toArray();
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+
+                return ResponseUtil::successAPI('', ['cliente' => $clientes]);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
     public function getPostoFuncionarioAPI()
     {
         try {
@@ -825,7 +934,7 @@ class ClientesController extends AppController
                     $errors = array();
                     $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MSG_USUARIOS_WORKER_NOT_ASSOCIATED_CLIENTE : MSG_USUARIOS_CANT_SEARCH;
 
-                    return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
+                    return ResponseUtil::errorAPI(MSG_LOAD_DATA_NOT_FOUND, $errors);
                 }
             }
         } catch (\Exception $e) {

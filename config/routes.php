@@ -336,7 +336,12 @@ Router::scope("/api", function ($routes) {
                 "action" => "getPostoFuncionarioAPI",
                 "method" => "GET",
                 "path" => "/get_posto_funcionario"
-            )
+            ),
+            "rankingOperacoesAPI" => [
+                "action" => "rankingOperacoesAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/ranking_operacoes"
+            ],
         )
     ));
 

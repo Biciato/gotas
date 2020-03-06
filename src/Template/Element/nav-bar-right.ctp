@@ -319,6 +319,7 @@ if (empty($usuarioLogado)) {
                         <?php echo $this->Html->link('Relatório de Cupons Processados', ['controller' => 'Pontuacoes', 'action' => 'relatorio_cupons_processados']) ?>
                         <a href="/pontuacoes/relGestaoGotas">Gestão de Gotas</a>
                         <a href="/pontuacoes/relatorioPontuacaoSimplificado">Relatório de Pontuação Simplificado</a>
+                        <a href="/clientes/relRankingOperacoes">Relatório de Ranking de Operações</a>
                         <a href="/usuarios/relatorioUsuariosCadastradosFuncionarios">Relatório de Usuários Cadastrados</a>
                     </li>
 
