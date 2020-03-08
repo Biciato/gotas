@@ -368,6 +368,127 @@ class CuponsTransacoesTable extends GenericTable
         }
     }
 
+    /**
+     * Obtem melhor brinde de vendas
+     *
+     * Realiza pesquisa no banco pela rede e/ou pelo estabelecimento e obtem  lista de brindes
+     * com melhor estatística de vendas
+     *
+     * @param integer $redesId
+     * @param integer $clientesId
+     *
+     * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
+     */
+    public function getBestSellerBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_RETRIEVE);
+
+                // campos de data são obrigatórios
+                $exp->gte("CuponsTransacoes.data", $minDate);
+                $exp->lte("CuponsTransacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Brindes"
+            ];
+
+            $sum = $this->find()->func()->count("CuponsTransacoes.brindes_id");
+            $selectFields = [
+                "count" => $sum,
+                "brinde" => "Brindes.nome"
+            ];
+            $groupBy = [
+                "Brindes.id"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->group($groupBy)
+                ->select($selectFields);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+    /**
+     * Obtem funcionário que mais vendeu brindes
+     *
+     * Realiza pesquisa no banco pela rede e/ou pelo estabelecimento e obtem  lista de brindes
+     * com melhor estatística de vendas
+     *
+     * @param integer $redesId
+     * @param integer $clientesId
+     *
+     * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
+     */
+    public function getEmployeeMostSoldBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_USE);
+
+                // campos de data são obrigatórios
+                $exp->gte("CuponsTransacoes.data", $minDate);
+                $exp->lte("CuponsTransacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Brindes",
+                "Funcionarios"
+            ];
+
+            $sum = $this->find()->func()->count("CuponsTransacoes.id");
+            $selectFields = [
+                "count" => $sum,
+                "funcionarios_id" => "Funcionarios.id",
+                "funcionarios_nome" => "Funcionarios.nome"
+            ];
+            $groupBy = [
+                "CuponsTransacoes.funcionarios_id"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->group($groupBy)
+                ->select($selectFields);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+
     #endregion
 
     #region Save
@@ -389,9 +510,9 @@ class CuponsTransacoesTable extends GenericTable
         try {
             return $this->save($cupomTransacao);
         } catch (Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
             Log::write("error", $message);
-            throw new Exception($message);
+            throw new Exception($message, $e->getCode());
         }
     }
     #endregion
