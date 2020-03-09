@@ -409,7 +409,7 @@ class CuponsTransacoesTable extends GenericTable
             $sum = $this->find()->func()->count("CuponsTransacoes.brindes_id");
             $selectFields = [
                 "count" => $sum,
-                "brinde" => "Brindes.nome"
+                "nome" => "Brindes.nome"
             ];
             $groupBy = [
                 "Brindes.id"

@@ -59,6 +59,8 @@ $
             // Dispara todos os eventos que precisam de inicializar
             dataInicio.on("change", dataInicioOnChange);
             dataFim.on("change", dataFimOnChange);
+            dataInicio.change();
+            dataFim.change();
 
             redesSelectListBox.unbind("change");
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
@@ -156,15 +158,15 @@ $
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
          * @since 1.1.5
          */
-        function exportarExcel() {
-            var promise = getRankingOperacoes(form.clientesId, form.dataInicio, form.dataFim, "Excel");
+        async function exportarExcel() {
+            try {
+                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Excel");
+                // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
 
-            if (promise === undefined || promise === null) {
-                return false;
-            }
+                if (response === undefined || response === null) {
+                    return false;
+                }
 
-            promise.success(function (response) {
-                console.log(response);
                 var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
                 var downloadLink = document.createElement("a");
                 downloadLink.href = content;
@@ -173,10 +175,21 @@ $
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
-            }).error(function (response) {
-                var msg = response.responseJSON.mensagem;
-                callModalError(msg.message, msg.error);
-            });
+
+            } catch (error) {
+                console.log(error);
+                var msg = {};
+                if (error.responseJSON !== undefined) {
+                    msg = error.responseJSON.mensagem;
+                    callModalError(msg.message, msg.errors);
+                } else if (error.responseText !== undefined) {
+                    msg = error.responseText;
+                    callModalError(msg);
+                } else {
+                    msg = error;
+                    callModalError(msg);
+                }
+            }
         }
 
         /**
@@ -239,12 +252,12 @@ $
         async function pesquisar() {
             try {
                 let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Table");
+                // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
 
                 if (response === undefined || response === null) {
                     return false;
                 }
 
-                console.log(response);
                 imprimirBtn.removeClass("disabled");
                 imprimirBtn.removeClass("readonly");
                 imprimirBtn.unbind("click");
@@ -257,20 +270,26 @@ $
                 console.log(response);
 
                 $(containerReport).empty();
+                var indexesData = Object.keys(response.data);
+                indexesData.forEach(element => {
+                    $(containerReport).append(response.data[element]);
+                });
 
-                $(containerReport).append(response.data.resumo_funcionario);
-                $(containerReport).append(response.data.relatorio);
-
-
+                // $(containerReport).append(response.data);
             } catch (error) {
                 console.log(error);
-                callModalError(error);
-                // var msg = error.responseJSON.mensagem;
-                // callModalError(msg.message, msg.error);
+                var msg = {};
+                if (error.responseJSON !== undefined) {
+                    msg = error.responseJSON.mensagem;
+                    callModalError(msg.message, msg.errors);
+                } else if (error.responseText !== undefined) {
+                    msg = error.responseText;
+                    callModalError(msg);
+                } else {
+                    msg = error;
+                    callModalError(msg);
+                }
             }
-            // var promise = getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Table");
-
-
         };
 
         /**

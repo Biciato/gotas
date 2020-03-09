@@ -15,6 +15,7 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\HtmlUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
@@ -940,11 +941,13 @@ class ClientesController extends AppController
 
                     // Brinde mais resgatado:
                     $reportItem->brinde = new stdClass();
-                    $giftBestSell = $this->CuponsTransacoes->getBestSellerBrindes($redesId, $cliente->id, $dataInicio, $dataFim);
-                    $reportItem->brinde = $giftBestSell->first();
+                    $reportItem->brinde = $this->CuponsTransacoes->getBestSellerBrindes($redesId, $cliente->id, $dataInicio, $dataFim)->first();
 
                     // Combustível mais utilizado
                     $reportItem->gota = $this->Pontuacoes->getBestSellerGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+
+                    // Usuário que mais pontuou
+                    $reportItem->usuario = $this->Pontuacoes->getUserHighestPointsIn($redesId, $cliente->id, $dataInicio, $dataFim)->first();
 
                     // Funcionario que mais abasteceu clientes
                     $employeeTopSoldProducts = $this->Pontuacoes->getEmployeeMostSoldGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
@@ -959,19 +962,31 @@ class ClientesController extends AppController
                 }
 
 
-                $reportColumns = new stdClass();
-                $reportColumns->nome_fantasia = "Estabelecimento";
-                $reportColumns->brinde_nome = "Brinde Mais Resgatado";
-                $reportColumns->brinde_qte = "Qte.";
-                $reportColumns->gota_nome = "Produto Mais Resgatado";
-                $reportColumns->gota_qte = "Qte.";
-                $reportColumns->usuario_nome = "Usuário Mais Pontuado";
-                $reportColumns->usuario_qte = "Qte.";
-                $reportColumns->funcionario_brindes_nome = "Funcionário c/ Mais Atendimentos (Brindes Vendidos)";
-                $reportColumns->funcionario_brindes_qte = "Qte.";
-                $reportColumns->funcionario_gotas_nome = "Funcionário c/ Mais Atendimentos (Produtos Adquiridos)";
-                $reportColumns->funcionario_gotas_qte = "Qte.";
-                $reportDataTemp = [];
+                $headerReportGifts = new stdClass();
+                $headerReportGifts->nome_fantasia = "Estabelecimento";
+                $headerReportGifts->brinde_nome = "Brinde Mais Resgatado";
+                $headerReportGifts->brinde_qte = "Qte.";
+
+                $headerReportDrops = new stdClass();
+                $headerReportDrops->nome_fantasia = "Estabelecimento";
+                $headerReportDrops->gota_nome = "Produto Mais Resgatado";
+                $headerReportDrops->gota_qte = "Qte.";
+
+                $headerReportUser = new stdClass();
+                $headerReportUser->nome_fantasia = "Estabelecimento";
+                $headerReportUser->usuario_nome = "Usuário Mais Pontuado";
+                $headerReportUser->usuario_qte = "Qte.";
+
+                $headerReportEmployee = new stdClass();
+                $headerReportEmployee->nome_fantasia = "Estabelecimento";
+                $headerReportEmployee->funcionario_brindes_nome = "Brindes";
+                $headerReportEmployee->funcionario_brindes_qte = "Qte.";
+                $headerReportEmployee->funcionario_gotas_nome = "Produtos ";
+                $headerReportEmployee->funcionario_gotas_qte = "Qte.";
+                $dataGifts = [];
+                $dataDrops = [];
+                $dataUser = [];
+                $dataEmployee = [];
 
                 $sumBrindeQte = 0;
                 $sumGotaQte = 0;
@@ -980,14 +995,138 @@ class ClientesController extends AppController
                 $sumFuncionarioGotas = 0;
 
                 foreach ($reportData as $data) {
+                    $itemBrinde = new stdClass();
+                    // $item->cientes_id = $data->cliente->id;
+                    $itemBrinde->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemBrinde->brinde_nome = !empty($data->brinde) ? $data->brinde->nome : "";
+                    $itemBrinde->brinde_qte = !empty($data->brinde) ? $data->brinde->count : 0;
+                    $dataGifts[] = $itemBrinde;
+
+                    $itemGota = new stdClass();
+                    $itemGota->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemGota->gota_nome = !empty($data->gota) ? $data->gota->nome : "";
+                    $itemGota->gota_qte = !empty($data->gota) ? $data->gota->sum : 0;
+                    $dataDrops[] = $itemGota;
+
+                    $itemUsuario = new stdClass();
+                    $itemUsuario->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemUsuario->usuario_nome = !empty($data->usuario) ? $data->usuario->nome : "";
+                    $itemUsuario->usuario_qte = !empty($data->usuario) ? $data->usuario->sum : 0;
+                    $dataUser[] = $itemUsuario;
+
+                    $itemFuncionario = new stdClass();
+                    $itemFuncionario->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemFuncionario->funcionario_brindes_nome =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_brindes_qte =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->count : 0;
+                    $itemFuncionario->funcionario_gotas_nome =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_gotas_qte =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->count : 0;
+                    $dataEmployee[] = $itemFuncionario;
+
+                    $sumBrindeQte += $itemBrinde->brinde_qte;
+                    $sumGotaQte += $itemGota->gota_qte;
+                    $sumUsuarioQte += $itemUsuario->usuario_qte;
+                    $sumFuncionarioBrindes += $itemFuncionario->funcionario_brindes_qte;
+                    $sumFuncionarioGotas += $itemFuncionario->funcionario_gotas_qte;
                 }
+
+                $totalGift = new stdClass();
+                $totalGift->sum = $sumBrindeQte;
+                $totalDrop = new stdClass();
+                $totalDrop->sum = $sumGotaQte;
+                $totalUser = new stdClass();
+                $totalUser->sum = $sumUsuarioQte;
+                $totalEmployee = new stdClass();
+                $totalEmployee->sum_brinde = $sumFuncionarioBrindes;
+                $totalEmployee->sum_gota = $sumFuncionarioGotas;
 
                 if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
-                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $reportColumns, 'rows' => $reportData, 'total' => 0]);
+                    $reportGifts = new stdClass();
+                    $reportGifts->headers = $headerReportGifts;
+                    $reportGifts->rows = $dataGifts;
+                    $reportGifts->total = $totalGift;
+
+                    $reportDrops = new stdClass();
+                    $reportDrops->headers = $headerReportDrops;
+                    $reportDrops->rows = $dataDrops;
+                    $reportDrops->total = $totalDrop;
+
+                    $reportUser = new stdClass();
+                    $reportUser->headers = $headerReportGifts;
+                    $reportUser->rows = $dataUser;
+                    $reportUser->total = $totalUser;
+
+                    $reportEmployee = new stdClass();
+                    $reportEmployee->headers = $headerReportEmployee;
+                    $reportEmployee->rows = $dataEmployee;
+                    $reportEmployee->total = $totalEmployee;
+
+                    $dataToReturn = new stdClass();
+                    $dataToReturn->brinde = $reportGifts;
+                    $dataToReturn->gota = $reportDrops;
+                    $dataToReturn->usuario = $reportUser;
+                    $dataToReturn->funcionario = $reportEmployee;
+
+                    // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataToReturn);
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dataToReturn]);
                 } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+
+                    $rowTotal = new stdClass();
+                    $rowTotal->nome_fantasia = "Total:";
+                    $rowTotal->brinde_nome = "";
+                    $rowTotal->brinde_qte = $sumBrindeQte;
+                    $rowTotal->gota_nome = "";
+                    $rowTotal->gota_qte = $sumGotaQte;
+                    $rowTotal->usuario_nome = "";
+                    $rowTotal->usuario_qte = $sumUsuarioQte;
+                    $rowTotal->funcionario_brindes_nome = "";
+                    $rowTotal->funcionario_brindes_qte = $sumFuncionarioBrindes;
+                    $rowTotal->funcionario_gotas_nome = "";
+                    $rowTotal->funcionario_gotas_qte = $sumFuncionarioGotas;
+
+                    $rowTotalGift = new stdClass();
+                    $rowTotalGift->nome_fantasia = "Total:";
+                    $rowTotalGift->brinde_nome = "";
+                    $rowTotalGift->sum = $sumBrindeQte;
+                    $rowTotalDrop = new stdClass();
+                    $rowTotalDrop->nome_fantasia = "Total:";
+                    $rowTotalDrop->gota_nome = "";
+                    $rowTotalDrop->sum = $sumGotaQte;
+                    $rowTotalUser = new stdClass();
+                    $rowTotalUser->nome_fantasia = "Total:";
+                    $rowTotalUser->usuario_nome = "";
+                    $rowTotalUser->sum = $sumUsuarioQte;
+                    $rowTotalEmployee = new stdClass();
+                    $rowTotalEmployee->nome_fantasia = "Total:";
+                    $rowTotalEmployee->funcionario_brindes_nome = "";
+                    $rowTotalEmployee->sum_brinde = $sumFuncionarioBrindes;
+                    $rowTotalEmployee->funcionario_gotas_nome = "";
+                    $rowTotalEmployee->sum_gota = $sumFuncionarioGotas;
+
+                    $dataGifts[] = $rowTotalGift;
+                    $dataDrops[] = $rowTotalDrop;
+                    $dataUser[] = $rowTotalUser;
+                    $dataEmployee[] = $rowTotalEmployee;
+
+                    $dataToReturn = new stdClass();
+                    $titleGift = sprintf("Ranking de Operações: %s (%s à %s)", "Brindes Adquiridos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleDrop = sprintf("Ranking de Operações: %s (%s à %s)", "Produtos Vencidos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleUser = sprintf("Ranking de Operações: %s (%s à %s)", "Usuário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleEmployee = sprintf("Ranking de Operações: %s (%s à %s)", "Funcionário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dataToReturn->brinde = HtmlUtil::generateHTMLTable($titleGift, $headerReportGifts, $dataGifts, true);
+                    $dataToReturn->gota = HtmlUtil::generateHTMLTable($titleDrop, $headerReportGifts, $dataGifts, true);
+                    $dataToReturn->usuario = HtmlUtil::generateHTMLTable($titleUser, $headerReportUser, $dataUser, true);
+                    $dataToReturn->funcionario = HtmlUtil::generateHTMLTable($titleEmployee, $headerReportEmployee, $dataEmployee, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_TABLE) {
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataToReturn]);
+                    } else {
+                        $allTables = sprintf("%s%s%s%s", $dataToReturn->brinde, $dataToReturn->gota, $dataToReturn->usuario, $dataToReturn->funcionario);
+                        $excel = HtmlUtil::wrapContentToHtml($allTables);
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
+                    }
                 }
 
-                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $reportColumns, 'rows' => $reportData]);
+                // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $titleReportColumns, 'rows' => $reportData]);
             }
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
