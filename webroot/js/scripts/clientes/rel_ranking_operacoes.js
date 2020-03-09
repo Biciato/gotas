@@ -1,5 +1,10 @@
 /**
+ * @file webroot\js\scripts\pontuacoes\rel_ranking_operacoes.js
  *
+ * Arquivo de funções para Relatório de Ranking de Operações
+ *
+ * @author  Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2020-03-09
  */
 
 $
@@ -50,8 +55,10 @@ $
 
         // #region Functions
 
+        /**
+         * Constructor
+         */
         function init() {
-
             // Inicializa campos date
             dataInicio.datepicker().datepicker("setDate", dataAtual);
             dataFim.datepicker().datepicker("setDate", dataAtual);
@@ -177,7 +184,6 @@ $
                 document.body.removeChild(downloadLink);
 
             } catch (error) {
-                console.log(error);
                 var msg = {};
                 if (error.responseJSON !== undefined) {
                     msg = error.responseJSON.mensagem;
@@ -267,17 +273,12 @@ $
                 exportarBtn.unbind("click");
                 exportarBtn.on("click", exportarExcel);
 
-                console.log(response);
-
                 $(containerReport).empty();
                 var indexesData = Object.keys(response.data);
                 indexesData.forEach(element => {
                     $(containerReport).append(response.data[element]);
                 });
-
-                // $(containerReport).append(response.data);
             } catch (error) {
-                console.log(error);
                 var msg = {};
                 if (error.responseJSON !== undefined) {
                     msg = error.responseJSON.mensagem;
@@ -401,111 +402,6 @@ $
                 },
                 complete: function (response) {
                     clientesSelectListBox.change();
-                }
-            });
-        }
-
-
-        /**
-         * Obtem dados de pontuações
-         *
-         * Obtem os dados de relatório do servidor
-         *
-         * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::getPontuacoesRelatorioEntradaSaida
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-09-12
-         *
-         * @param {int} clientesId Id do Cliente
-         * @param {int} gotasId id da Gota (Referência)
-         * @param {int} brindesId id do Brinde
-         * @param {int} funcionariosId Id de funcionário
-         * @param {datetime} dataInicio Data Inicio
-         * @param {datetime} dataFim DataFim
-         * @param {string} tipoRelatorio Analítico / Sintético
-         * @param {string} tipoExportacao Tipo de Exportação (Table / Excel)
-         *
-         * @returns HtmlTable
-         */
-        function getPontuacoesRelatorioEntradaSaida(clientesId, gotasId, brindesId, funcionariosId, dataInicio, dataFim, tipoRelatorio, tipoMovimentacao, tipoExportacao) {
-            // Validação
-
-            var dataInicioEnvio = moment(dataInicio);
-            var dataFimEnvio = moment(dataFim);
-
-            if (!dataInicioEnvio.isValid()) {
-                dataInicioEnvio = undefined;
-            } else {
-                dataInicioEnvio = dataInicio;
-            }
-
-            if (!dataFimEnvio.isValid()) {
-                dataFimEnvio = undefined;
-            } else {
-                dataFimEnvio = dataFim;
-            }
-
-            var data = {
-                clientes_id: clientesId,
-                gotas_id: gotasId,
-                brindes_id: brindesId,
-                funcionarios_id: funcionariosId,
-                data_inicio: dataInicioEnvio,
-                data_fim: dataFimEnvio,
-                tipo_relatorio: tipoRelatorio,
-                tipo_movimentacao: tipoMovimentacao,
-                tipo_exportacao: tipoExportacao,
-            };
-
-            console.log(data);
-
-            $.ajax({
-                type: "GET",
-                url: "/api/pontuacoes/get_pontuacoes_relatorio_entrada_saida",
-                data: data,
-                dataType: "JSON",
-                success: function (response) {
-                    imprimirBtn.removeClass("disabled");
-                    imprimirBtn.removeClass("readonly");
-                    imprimirBtn.unbind("click");
-                    imprimirBtn.on("click", imprimirRelatorio);
-                    exportarBtn.removeClass("disabled");
-                    exportarBtn.removeClass("readonly");
-                    exportarBtn.unbind("click");
-                    exportarBtn.on("click", exportarExcel);
-
-                    console.log(response);
-
-                    if (tipoExportacao === "Table") {
-                        $(containerReport).empty();
-
-                        $(containerReport).append(response.data.resumo_funcionario);
-                        $(containerReport).append(response.data.relatorio);
-                    } else if (tipoExportacao === "Excel") {
-                        console.log(response);
-                        var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
-                        // window.open(content);
-
-                        // var str = "Name, Price\nApple, 2\nOrange, 3";
-                        // var uri = 'data:text/csv;charset=utf-8,' + str;
-
-                        var downloadLink = document.createElement("a");
-                        downloadLink.href = content;
-                        downloadLink.download = "Relatório de Gestão de Gotas.xls";
-
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(downloadLink);
-                    }
-                },
-                error: function (response) {
-
-                    var data = response.responseJSON;
-                    callModalError(data.mensagem.message, data.mensagem.errors);
-                },
-                complete: function (response) {
-                    // desabilitado a pedido do samuel
-                    // getResumoPontuacoesRelatorioEntradaSaida(redesSelectedItem.id, form.clientesId, dataInicio, dataFim);
                 }
             });
         }

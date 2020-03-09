@@ -1,3 +1,12 @@
+/**
+ * @file webroot\js\scripts\pontuacoes\rel_gestao_gotas.js
+ *
+ * Arquivo de funções para Relatório de Gestão de Gotas
+ *
+ * @author  Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+ * @since 2019-10-28
+ */
+
 $
     (function () {
         'use strict';
