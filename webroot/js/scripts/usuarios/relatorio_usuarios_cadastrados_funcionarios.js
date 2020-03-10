@@ -497,7 +497,7 @@ $(function() {
 
                                         var cellDataCriacaoUsuario = document.createElement("td");
                                         var dataCriacaoUsuario = document.createElement("span");
-                                        var data = moment(clienteUsuario.data, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                                        var data = moment(clienteUsuario.audit_insert, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
                                         dataCriacaoUsuario.textContent = data;
                                         cellDataCriacaoUsuario.classList.add("text-right");
                                         cellDataCriacaoUsuario.append(dataCriacaoUsuario);
