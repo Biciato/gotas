@@ -791,11 +791,13 @@ class ClientesHasUsuariosTable extends Table
             }
 
             if (!empty($dataInicio)) {
-                $where[] = ["ClientesHasUsuarios.data >= " => $dataInicio];
+                $dataInicio = $dataInicio->modify("-3 hour");
+                $where[] = ["ClientesHasUsuarios.audit_insert >= " => $dataInicio];
             }
 
             if (!empty($dataFim)) {
-                $where[] = ["ClientesHasUsuarios.data <= " => $dataFim];
+                $dataFim = $dataFim->modify("-3 hour");
+                $where[] = ["ClientesHasUsuarios.audit_insert <= " => $dataFim];
             }
 
             // ResponseUtil::successAPI('', $where);
