@@ -497,7 +497,7 @@ $(function() {
 
                                         var cellDataCriacaoUsuario = document.createElement("td");
                                         var dataCriacaoUsuario = document.createElement("span");
-                                        var data = moment(clienteUsuario.audit_insert, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                                        var data = moment(clienteUsuario.audit_insert_localtime, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
                                         dataCriacaoUsuario.textContent = data;
                                         cellDataCriacaoUsuario.classList.add("text-right");
                                         cellDataCriacaoUsuario.append(dataCriacaoUsuario);
@@ -717,8 +717,11 @@ $(function() {
             },
             error: function(response) {
                 closeLoaderAnimation();
+                console.log(response);
                 var data = response.responseJSON;
-                callModalError(data.mensagem.message, data.mensagem.errors);
+                if (data !== undefined) {
+                    callModalError(data.mensagem.message, data.mensagem.errors);
+                }
             },
             complete: function(response) {
                 closeLoaderAnimation();

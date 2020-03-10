@@ -787,17 +787,15 @@ class ClientesHasUsuariosTable extends Table
             }
 
             if (!empty($funcionariosId)) {
-                $where[] = ["ClientesHasUsuarios.audit_user_insert_id" => $funcionariosId];
+                $where["ClientesHasUsuarios.audit_user_insert_id"] = $funcionariosId;
             }
 
             if (!empty($dataInicio)) {
-                $dataInicio = $dataInicio->modify("-3 hour");
-                $where[] = ["ClientesHasUsuarios.audit_insert >= " => $dataInicio];
+                $where["ClientesHasUsuarios.audit_insert >= "] = $dataInicio->format("Y-m-d H:i:s");
             }
 
             if (!empty($dataFim)) {
-                $dataFim = $dataFim->modify("-3 hour");
-                $where[] = ["ClientesHasUsuarios.audit_insert <= " => $dataFim];
+                $where["ClientesHasUsuarios.audit_insert <= "] = $dataFim->format("Y-m-d H:i:s");
             }
 
             // ResponseUtil::successAPI('', $where);

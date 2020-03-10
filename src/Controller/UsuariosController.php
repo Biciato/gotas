@@ -2803,6 +2803,9 @@ class UsuariosController extends AppController
                 $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
                 $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
 
+                $dataInicio = $dataInicio->modify("+3 hour");
+                $dataFim = $dataFim->modify("+3 hour");
+
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
                 if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
