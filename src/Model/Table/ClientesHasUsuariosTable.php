@@ -811,7 +811,8 @@ class ClientesHasUsuariosTable extends Table
             return $this
                 ->find("all")
                 ->where($where)
-                ->contain($contain);
+                ->contain($contain)
+                ->order(["Usuarios.nome" => "ASC"]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
