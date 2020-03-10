@@ -695,6 +695,33 @@ class ClientesController extends AppController
      * @since 1.1.6
      * @date 2020-03-04
      */
+    public function relBalancoGeral()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $cliente = $sessaoUsuario["cliente"];
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $arraySet = ["clientesId"];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    /**
+     * Action para Relatório de Ranking de Operações
+     *
+     * @return void
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     */
     public function relRankingOperacoes()
     {
         $sessaoUsuario = $this->getSessionUserVariables();

@@ -392,6 +392,7 @@ $
 
                         if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
                             clientesSelectListBox.val(clientesSelectedItem.id);
+                            getFuncionariosList(redesSelectedItem.id, clientesSelectedItem.id);
                         }
                     }
                 },
