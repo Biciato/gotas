@@ -16,9 +16,6 @@ $
         var redesList = [];
         var redesSelectListBox = $("#redes-list");
         var redesSelectedItem = {};
-        var clientesSelectListBox = $("#clientes-list");
-        var clientesSelectedItem = {};
-        var clientesList = [];
         var containerReport = $("#container-report");
         var pesquisarBtn = $("#btn-pesquisar");
         var imprimirBtn = $("#btn-imprimir");
@@ -71,8 +68,6 @@ $
 
             redesSelectListBox.unbind("change");
             redesSelectListBox.on("change", redesSelectListBoxOnChange);
-            clientesSelectListBox.unbind("change");
-            clientesSelectListBox.on("change", clientesSelectListBoxOnChange);
 
             // Atribuições de clicks aos botões de obtenção de relatório
             pesquisarBtn.on("click", pesquisar);
@@ -88,30 +83,7 @@ $
             getRedesList();
         }
 
-        /**
-         * relatorio_entrada_saida.js::clientesSelectListBoxOnChange()
-         *
-         * Comportamento ao trocar o cliente selecionado
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-09-11
-         *
-         * @return void
-         */
-        function clientesSelectListBoxOnChange() {
-            var clienteSelected = clientesSelectListBox.val();
 
-            // Se não tiver seleção, será feito via backend.
-            clienteSelected = parseInt(clienteSelected);
-            var clientesId = isNaN(clienteSelected) ? 0 : clienteSelected;
-            form.clientesId = clientesId;
-
-            if (form.clientesId > 0) {
-                clientesSelectedItem = clientesList.find(x => x.id === form.clientesId);
-            } else {
-                clientesSelectedItem = {};
-            }
-        }
 
         /**
          * webroot\js\scripts\pontuacoes\relatorio_entrada_saida.js::dataInicioOnChange
@@ -167,8 +139,7 @@ $
          */
         async function exportarExcel() {
             try {
-                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Excel");
-                // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
+                let response = await getBalancoGeral(form.redesId, form.dataInicio, form.dataFim, "Excel");
 
                 if (response === undefined || response === null) {
                     return false;
@@ -177,7 +148,7 @@ $
                 var content = "data:application/vnd.ms-excel," + encodeURIComponent(response.data);
                 var downloadLink = document.createElement("a");
                 downloadLink.href = content;
-                downloadLink.download = "Relatório de Ranking de Operações.xls";
+                downloadLink.download = "Balanço Geral.xls";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
@@ -199,27 +170,22 @@ $
         }
 
         /**
-         * Obtem dados de Ranking de Operações
+         * Obtem dados de Balanço Geral de Estabelecimentos
          *
          * @param {int} redesId Id da Rede. Se não informado, pesquisa por todos da rede
-         * @param {int} clientesId Id do Estabelecimento. Se não informado, pesquisa por todos da rede
          * @param {DateTime} dataInicio Data de Início da pesquisa
          * @param {DateTime} dataFim Data de Fim da pesquisa
          * @param {string} tipoExportacao Tipo de Exportação (Table / Excel / Object)
          *
          * @returns $promise Retorna uma jqAjax Promise
          */
-        function getRankingOperacoes(redesId, clientesId, dataInicio, dataFim, tipoExportacao) {
+        function getBalancoGeral(redesId, dataInicio, dataFim, tipoExportacao) {
             var data = {
                 redes_id: redesId,
                 data_inicio: dataInicio,
                 data_fim: dataFim,
                 tipo_exportacao: tipoExportacao
             };
-
-            if (clientesId !== undefined && clientesId > 0) {
-                data.clientes_id = form.clientesId;
-            }
 
             if (redesId === undefined || redesId === 0) {
                 callModalError("É necessário escolher uma rede para pesquisar!");
@@ -228,7 +194,7 @@ $
 
             return Promise.resolve($.ajax({
                 type: "GET",
-                url: "/api/clientes/ranking_operacoes",
+                url: "/api/clientes/balanco_geral",
                 data: data,
                 dataType: "JSON",
             }));
@@ -257,8 +223,7 @@ $
          */
         async function pesquisar() {
             try {
-                let response = await getRankingOperacoes(form.redesId, form.clientesId, form.dataInicio, form.dataFim, "Table");
-                // let response = await getRankingOperacoes(form.redesId, form.clientesId, "", "", "Table");
+                let response = await getBalancoGeral(form.redesId, form.dataInicio, form.dataFim, "Table");
 
                 if (response === undefined || response === null) {
                     return false;
@@ -316,95 +281,16 @@ $
 
             if (redesSelectedItem.id > 0) {
                 form.redesId = redesSelectedItem.id;
-                getClientesList(redesSelectedItem.id);
             } else {
                 form.redesId = 0;
                 var option = document.createElement("option");
                 option.value = 0;
                 option.textContent = "Selecione uma Rede para continuar...";
                 option.title = "Selecione uma Rede para continuar...";
-
-                clientesList = [];
-                clientesSelectListBox.empty();
-                clientesSelectListBox.append(option);
             }
         }
 
         // #region Get / Set REST Services
-
-        /**
-         * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getClientesList
-         *
-         * Obtem lista de clientes disponível para seleção
-         *
-         * @param {int} redesId Id da rede
-         *
-         * @return SelectListBox
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-09-06
-         */
-        function getClientesList(redesId) {
-            $.ajax({
-                type: "GET",
-                url: "/api/clientes/get_clientes_list",
-                data: {
-                    redes_id: redesId
-                },
-                dataType: "JSON",
-                success: function (res) {
-                    if (res.data.clientes.length > 0) {
-                        clientesList = [];
-                        clientesSelectListBox.empty();
-
-                        var cliente = {
-                            id: 0,
-                            nomeFantasia: "Todos"
-                        };
-
-                        clientesList.push(cliente);
-                        clientesSelectListBox.prop("disabled", false);
-
-                        res.data.clientes.forEach(cliente => {
-                            var cliente = {
-                                id: cliente.id,
-                                nomeFantasia: cliente.nome_fantasia_municipio_estado
-                            };
-
-                            clientesList.push(cliente);
-                        });
-
-                        clientesList.forEach(cliente => {
-                            var option = document.createElement("option");
-                            option.value = cliente.id;
-                            option.textContent = cliente.nomeFantasia;
-
-                            clientesSelectListBox.append(option);
-                        });
-
-                        // Se só tem 2 registros, significa que
-                        if (clientesList.length == 2) {
-                            clientesSelectedItem = clientesList[1];
-
-                            // Option vazio e mais um Estabelecimento? Desabilita pois só tem uma seleção possível
-                            clientesSelectListBox.prop("disabled", true);
-                        }
-
-                        if (clientesSelectedItem !== undefined && clientesSelectedItem.id > 0) {
-                            clientesSelectListBox.val(clientesSelectedItem.id);
-                            getFuncionariosList(redesSelectedItem.id, clientesSelectedItem.id);
-                        }
-                    }
-                },
-                error: function (response) {
-                    var data = response.responseJSON;
-                    callModalError(data.mensagem.message, data.mensagem.error);
-                },
-                complete: function (response) {
-                    clientesSelectListBox.change();
-                }
-            });
-        }
 
         /**
          * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getRedesList

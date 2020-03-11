@@ -204,11 +204,15 @@ class CuponsTransacoesTable extends GenericTable
                 $where[] = array("CuponsTransacoes.data <= " => $maxDate->format("Y-m-d H:i:s"));
             }
 
-            $query = $this->find();
-            $soma = $query->select(array("count" => $query->func()->count("CuponsTransacoes.id")))
-                ->where($where)->first();
-
-            return $soma["count"];
+            $select = [
+                "count" => $this->find()->func()->count("CuponsTransacoes.id"),
+                'sum_valor_pago_gotas' => $this->find()->func()->sum("Cupons.valor_pago_gotas")
+            ];
+            return $this->find("all")
+                ->select($select)
+                ->contain("Cupons")
+                ->where($where)
+                ->first();
         } catch (\Exception $ex) {
             $message = $ex->getMessage();
             $trace = $ex->getTraceAsString();

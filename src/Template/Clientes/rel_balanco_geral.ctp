@@ -60,16 +60,10 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                                 <select name="redes_list" id="redes-list" class="form-control"></select>
                             </div>
                             <div class="col-lg-4">
-
-                                <label for="clientes_list">Estabelecimento:</label>
-                                <select name="clientes_list" id="clientes-list" class="form-control"></select>
-                            </div>
-
-                            <div class="col-lg-2">
                                 <label for="data-inicio">Data Início:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-inicio" id="data-inicio" placeholder="Data Início...">
                             </div>
-                            <div class="col-lg-2">
+                            <div class="col-lg-4">
                                 <label for="data-fim">Data Fim:</label>
                                 <input type="text" class="form-control datepicker-input" format="d/m/Y" name="data-fim" id="data-fim" placeholder="Data Início...">
                             </div>

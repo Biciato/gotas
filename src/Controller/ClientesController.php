@@ -787,6 +787,180 @@ class ClientesController extends AppController
      * ------------------------------------------------------------
      */
 
+
+    /**
+     * Dados de Relatório de Balanço Geral de Estabelecimentos
+     *
+     * Obtem Dados de Relatório de Balanço Geral de Estabelecimentos contendo as seguintes informações:
+     *
+     * 1 - Quantidade de Gotas de Entrada (Pontos de Produtos ADQUIRIDOS)
+     * 2 - Quantidade de Gotas de Saída (Pontos de Brindes USADOS)
+     *
+     * @param int $redes_id Id da Rede
+     * @param DateTime $data_inicio Data Início
+     * @param DateTime $data_fim Data Fim
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-04
+     *
+     * @return json_encode (json object|table html|excel)
+     */
+    public function balancoGeralAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $errors = [];
+        $errorCodes = [];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $typeExport = !empty($data["tipo_exportacao"]) ? $data["tipo_exportacao"] : TYPE_EXPORTATION_DATA_OBJECT;
+                // Se usuário logado for Adm Rede ou Regional, não precisa estar preso a um posto a pesquisa
+                if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                    $cliente = null;
+                }
+
+                $redesId = !empty($rede) ? $rede->id : $redesId;
+
+                if (empty($redesId)) {
+                    // Necessário ter uma
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+                $redesHasClientes = $redesHasClientesQuery->select(["Clientes.id", "Clientes.nome_fantasia"])->toArray();
+                $clientes = array_column($redesHasClientes, "Clientes");
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                /**
+                 *  Para cada registro de Cliente, obtem os dados de:
+                 *  -> Brindes mais resgatados;
+                 *  -> Combustível mais utilizado;
+                 *  -> Cliente que mais pontuou;
+                 *  -> Funcionário que mais atendeu;
+                 */
+
+                $reportData = [];
+
+                foreach ($clientes as $cliente) {
+                    $reportItem = new stdClass();
+
+                    // Dados do Estabelecimento
+                    $reportItem->cliente = $cliente;
+                    // Total entrada
+                    $reportItem->entrada = $this->Pontuacoes->getSumPointsNetwork($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    // Total Saída
+                    $reportItem->saida = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, null, null, null, TYPE_OPERATION_USE, $dataInicio, $dataFim);
+
+                    $reportData[] = $reportItem;
+                }
+
+                $headersReport = new stdClass();
+                $headersReport->nome_fantasia = "Estabelecimento";
+                $headersReport->entrada = "Pontos de Entrada";
+                $headersReport->saida = "Pontos de Saída";
+                $headersReport->diferenca = "Diferença";
+
+                $dataRows = [];
+                $sumInPoints = 0;
+                $sumOutPoints = 0;
+
+                foreach ($reportData as $data) {
+                    $item = new stdClass();
+                    $item->nome_fantasia = $data->cliente->nome_fantasia;
+                    $item->entrada = !empty($data->entrada) && !empty($data->entrada->sum) ? $data->entrada->sum : 0;
+                    $item->saida = !empty($data->saida) && !empty($data->saida->sum_valor_pago_gotas) ? $data->saida->sum_valor_pago_gotas : 0;
+                    $item->diferenca = $item->entrada - $item->saida;
+                    $dataRows[] = $item;
+
+                    $sumInPoints += $item->entrada;
+                    $sumOutPoints += $item->saida;
+                }
+
+                $total = new stdClass();
+                $total->entrada = $sumInPoints;
+                $total->saida = $sumOutPoints;
+                $total->diferenca = $sumInPoints - $sumOutPoints;
+
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $dataToReturn = new stdClass();
+                    $dataToReturn->headers = $headersReport;
+                    $dataToReturn->rows = $dataRows;
+                    $dataToReturn->total = $total;
+
+                    // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataToReturn);
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dataToReturn]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+
+                    $rowTotal = new stdClass();
+                    $rowTotal->nome_fantasia = "Total:";
+                    $rowTotal->entrada = $sumInPoints;
+                    $rowTotal->saida = $sumOutPoints;
+                    $rowTotal->diferenca = $sumInPoints - $sumOutPoints;
+
+                    $dataRows[] = $rowTotal;
+
+                    $dataToReturn = new stdClass();
+                    $title = sprintf("Balanço Geral: (%s à %s)", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dataToReturn->report = HtmlUtil::generateHTMLTable($title, $headersReport, $dataRows, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_TABLE) {
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataToReturn]);
+                    } else {
+                        $allTables = sprintf("%s", $dataToReturn->report);
+                        $excel = HtmlUtil::wrapContentToHtml($allTables);
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
+                    }
+                }
+
+                throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
+
     /**
      * ClientesController::getClientesListAPI
      *
@@ -1155,6 +1329,8 @@ class ClientesController extends AppController
 
                 // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $titleReportColumns, 'rows' => $reportData]);
             }
+
+            throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
         } catch (\Throwable $th) {
             $errorMessage = $th->getMessage();
             $errorCode = $th->getCode();

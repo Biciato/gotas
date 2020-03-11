@@ -429,6 +429,8 @@ const TIME_EXPIRATION_TOKEN_MINUTES = 10080;
 const TYPE_EXPORTATION_DATA_OBJECT = "Object";
 const TYPE_EXPORTATION_DATA_TABLE = "Table";
 const TYPE_EXPORTATION_DATA_EXCEL = "Excel";
+const TYPE_EXPORTATION_DATA_EMPTY = "Tipo de Exportação não informado!";
+const TYPE_EXPORTATION_DATA_EMPTY_CODE = "0x0000001F";
 const TYPE_OPERATION_IN = 'Entrada';
 const TYPE_OPERATION_OUT = 'Saída';
 const FILTER_TYPE_DATE_TIME = "Data/Hora";
@@ -763,6 +765,6 @@ const PROFILE_TYPE_DUMMY_USER_TRANSLATE = "Usuário Fictítio";
  * y = alteração de banco de dados (tabelas novas, campos novos)
  * z = alterações pequenas do sistema (ajuste de campos, pequenas novas funcionalidades)
  */
-const SYSTEM_VERSION = "1.1.7";
+const SYSTEM_VERSION = "1.1.8";
 
 #endregion

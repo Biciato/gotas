@@ -1107,8 +1107,10 @@ class CuponsController extends AppController
                         }
                     }
 
-                    $resgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                    $usados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $resgatadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $resgatados = $resgatadosTemp["count"];
+                    $usadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $usados = $usadosTemp["count"];
 
                     $somaGotas += $gotas;
                     $somaDinheiro += $dinheiro;
@@ -1399,8 +1401,10 @@ class CuponsController extends AppController
 
                         // Verifica se o cliente final resgatou/usou o brinde no turno e faz a soma das informações
 
-                        $somaBrindeResgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                        $somaBrindeUsados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeResgatadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeResgatados = $somaBrindeResgatadosTemp["count"];
+                        $somaBrindeUsadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeUsados = $somaBrindeUsadosTemp["count"];
 
                         foreach ($usuarios as $usuarioId => $usuarioNome) {
                             $usuario = array(
@@ -1423,8 +1427,10 @@ class CuponsController extends AppController
                             $qteUsuarioUsados = 0;
 
                             foreach ($queryCupons as $key => $item) {
-                                $qteResgatesUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                                $qteUsadosUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteResgatesUsuarioTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteResgatesUsuario = $qteResgatesUsuarioTemp["count"];
+                                $qteUsadosUsuarioTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteUsadosUsuario = $qteUsadosUsuarioTemp["count"];
                                 $cupom = array(
                                     "cupons_id" => $item->id,
                                     "brindes_id" => $brinde["id"],

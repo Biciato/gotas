@@ -463,6 +463,74 @@ class PontuacoesTable extends GenericTable
     }
 
     /**
+     * Obtem Soma de Pontos Adquiridos
+     *
+     * Realiza pesquisa no banco de dados e obtem suma de pontos adquiridos pelos usuários na rede/estabelecimento
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Estabelecimento
+     * @param DateTime $minDate Data de Início
+     * @param DateTime $maxDate Data de Fim
+     * @return mixed[] $items [estabelecimento|sum_gotas|] Array contendo informações de Estabelecimento e soma
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-10
+     */
+    public function getSumPointsNetwork(int $redesId = null, int $clientesId = null, DateTime $minDate, DateTime $maxDate)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+                $exp->eq("Redes.id", $redesId);
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->isNotNull("Pontuacoes.gotas_id");
+                /**
+                 * Somente gotas/produtos cadastradas manualmente, para remover a possibilidade
+                 * de exibir pontuações de gratificação
+                 */
+                $exp->eq("Gotas.tipo_cadastro", 0);
+                $exp->eq("PontuacoesComprovantes.cancelado", 0);
+
+                // campos de data são obrigatórios
+                $exp->gte("Pontuacoes.data", $minDate);
+                $exp->lte("Pontuacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Gotas",
+                "PontuacoesComprovantes",
+                "Usuarios"
+            ];
+
+            $sumGotas = $this->find()->func()->sum("Pontuacoes.quantidade_gotas");
+
+            $select = [
+                "sum" => $sumGotas,
+                "clientes_id" => "Clientes.id",
+                "nome" => "Clientes.nome_fantasia"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->select($select)
+                ->group(["Pontuacoes.clientes_id"])
+                ->order(["SUM" => "DESC"]);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
      * Obtem Usuários que mais adquiriu Produtos
      *
      * Realiza pesquisa no banco de dados e obtem lista de Usuários que mais adquiriu Produtos

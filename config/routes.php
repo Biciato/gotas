@@ -321,6 +321,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Clientes", array(
         "map" => array(
+            "balancoGeralAPI" => [
+                "action" => "balancoGeralAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/balanco_geral"
+            ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
                 "method" => Request::METHOD_POST,
