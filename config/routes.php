@@ -273,6 +273,11 @@ Router::scope("/api", function ($routes) {
                     "method" => Request::METHOD_POST,
                     "path" => "/set_pontuacoes_usuario_via_posto"
                 ),
+                "deleteComprovanteFiscalAPI" => [
+                    "action" => "deleteComprovanteFiscalAPI",
+                    "method" => Request::METHOD_DELETE,
+                    "path" => "/delete_comprovante_fiscal"
+                ],
                 // utilizado pelo APP Mobile. Cuidado ao mexer
                 "removerPontuacoesDevAPI" => array(
                     "action" => "removerPontuacoesDevAPI",
@@ -316,6 +321,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Clientes", array(
         "map" => array(
+            "balancoGeralAPI" => [
+                "action" => "balancoGeralAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/balanco_geral"
+            ],
             "enviaImagemPropagandaAPI" => array(
                 "action" => "enviaImagemPropagandaAPI",
                 "method" => Request::METHOD_POST,
@@ -331,7 +341,12 @@ Router::scope("/api", function ($routes) {
                 "action" => "getPostoFuncionarioAPI",
                 "method" => "GET",
                 "path" => "/get_posto_funcionario"
-            )
+            ),
+            "rankingOperacoesAPI" => [
+                "action" => "rankingOperacoesAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/ranking_operacoes"
+            ],
         )
     ));
 
@@ -503,6 +518,12 @@ Router::scope("/api", function ($routes) {
                 'method' => 'POST',
                 'path' => '/get_usuario_by_email'
             ],
+            // Usado pela parte WEB e API, para trazer clientes (usuário final) dos postos
+            "getUsuariosFinaisAPI" => [
+                "action" => "getUsuariosFinaisAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_usuarios_finais"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             'registrarAPI' => [
                 'action' => 'registrarAPI',
@@ -579,6 +600,11 @@ Router::scope("/api", function ($routes) {
 
     $routes->resources("Veiculos", [
         "map" => [
+            "getUsuariosByVeiculo" => [
+                "action" => "getUsuariosByVeiculoAPI",
+                "method" => Request::METHOD_GET,
+                "path" => "/get_usuarios_by_veiculo"
+            ],
             // utilizado pelo APP Mobile. Cuidado ao mexer
             "getVeiculoByIdAPI" => array(
                 "action" => "getVeiculoByIdAPI",

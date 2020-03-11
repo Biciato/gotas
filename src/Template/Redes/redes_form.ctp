@@ -10,18 +10,22 @@ use Cake\Core\Configure;
 ?>
 
 <div class="form-group row">
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <label for="nome_rede">Nome da Rede*</label>
         <input type="text" name="nome_rede" id="nome_rede" class="form-control" value="<?= $rede['nome_rede'] ?>" placeholder="Nome da Rede..." title="Nome da Rede*" autofocus required />
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <label for="quantidade_pontuacoes_usuarios_dia">Máx. Abast. Gotas Diárias p/ Usuário*</label>
         <input type="number" min="1" max="365" placeholder="Máx. Abast. Gotas Diárias p/ Usuário..." class="form-control" name="quantidade_pontuacoes_usuarios_dia" title="Máximo Abastecimento Gotas Diárias para Usuário" required value="<?= $rede['quantidade_pontuacoes_usuarios_dia'] ?>" />
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <label for="quantidade_consumo_usuarios_dia">Máximo de Compras Diárias p/ Usuário*</label>
         <input type="text" min="1" max="365" placeholder="Máximo de Compras Diárias p/ Usuário*" title="Máximo de Compras Diárias para Usuário" class="form-control" name="quantidade_consumo_usuarios_dia" required value="<?= $rede['quantidade_consumo_usuarios_dia'] ?>" />
+    </div>
+    <div class="col-lg-3">
+        <label for="qte_mesmo_brinde_resgate_dia">Máximo Resgates Mesmo Brinde / Dia*</label>
+        <input type="text" min="1" max="10" placeholder="Máximo Resgates Mesmo Brinde / Dia*" title="Máximo Resgates Mesmo Brinde por Dia para mesmo Usuário" class="form-control" name="qte_mesmo_brinde_resgate_dia" required value="<?= $rede['qte_mesmo_brinde_resgate_dia'] ?>" />
     </div>
 </div>
 

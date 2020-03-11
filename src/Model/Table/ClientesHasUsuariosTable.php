@@ -499,7 +499,7 @@ class ClientesHasUsuariosTable extends Table
                 }
 
                 $clientes = $this->Clientes
-                    ->find('all')
+                    ->find('list')
                     ->where($whereConditions)
                     ->order(
                         [
@@ -539,7 +539,9 @@ class ClientesHasUsuariosTable extends Table
         try {
             $where = [];
             $where[] = [
-                "Redes.id" => $redesId
+                "Redes.id" => $redesId,
+                // Só retorna com conta ativa
+                "Usuarios.conta_ativa" => 1
             ];
 
             if (count($clientesIds) > 0) {
@@ -576,13 +578,23 @@ class ClientesHasUsuariosTable extends Table
                         "Usuarios.nome",
                         "Usuarios.cpf",
                         "Usuarios.email",
+                        "Usuarios.tipo_perfil",
+                        "Usuarios.telefone",
+                        "Usuarios.audit_insert",
+                        "Usuarios.audit_update",
+                        "Usuarios.data_nasc",
                         "Clientes.id",
                         "Clientes.nome_fantasia",
                         "ClientesHasUsuarios.clientes_id",
                         "ClientesHasUsuarios.usuarios_id",
-                        "ClientesHasUsuarios.conta_ativa"
+                        "ClientesHasUsuarios.conta_ativa",
+                        "ClientesHasUsuarios.audit_insert",
+                        "ClientesHasUsuarios.audit_update",
                     ]
-                );
+                )
+                ->order([
+                    "Usuarios.nome" => "ASC"
+                ]);
 
             return $usuarios;
         } catch (\Throwable $th) {
@@ -707,6 +719,47 @@ class ClientesHasUsuariosTable extends Table
     }
 
     /**
+     * Total de Usuários
+     *
+     * Obtem contagem de total de usuários conforme rede e tipo de perfil
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $profileType Tipo de Perfil
+     * @return integer $sum Soma de Usuários
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.4
+     */
+    public function getSumUsuariosByRede(int $redesId, int $profileType = PROFILE_TYPE_USER)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $profileType) {
+
+                $exp->eq("Redes.id", $redesId)
+                    ->eq("Usuarios.tipo_perfil", $profileType);
+
+                return $exp;
+            };
+
+            $query = $this->find("all")
+                ->where($where)
+                ->contain(["Clientes.RedesHasClientes.Redes", "Usuarios"])
+                ->select(["ClientesHasUsuarios.id"])
+                ->group(["ClientesHasUsuarios.usuarios_id"])
+                ->count("ClientesHasUsuarios.id");
+
+            return $query;
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
+
+            Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+            throw new Exception($message, $code);
+        }
+    }
+
+    /**
      * ClientesHasUsuariosTable::getUsuariosCadastradosFuncionarios
      *
      * Obtem os usuários que foram cadastrados pelos funcionários
@@ -734,15 +787,15 @@ class ClientesHasUsuariosTable extends Table
             }
 
             if (!empty($funcionariosId)) {
-                $where[] = ["ClientesHasUsuarios.audit_user_insert_id" => $funcionariosId];
+                $where["ClientesHasUsuarios.audit_user_insert_id"] = $funcionariosId;
             }
 
             if (!empty($dataInicio)) {
-                $where[] = ["ClientesHasUsuarios.data >= " => $dataInicio];
+                $where["ClientesHasUsuarios.audit_insert >= "] = $dataInicio->format("Y-m-d H:i:s");
             }
 
             if (!empty($dataFim)) {
-                $where[] = ["ClientesHasUsuarios.data <= " => $dataFim];
+                $where["ClientesHasUsuarios.audit_insert <= "] = $dataFim->format("Y-m-d H:i:s");
             }
 
             // ResponseUtil::successAPI('', $where);
@@ -756,7 +809,8 @@ class ClientesHasUsuariosTable extends Table
             return $this
                 ->find("all")
                 ->where($where)
-                ->contain($contain);
+                ->contain($contain)
+                ->order(["Usuarios.nome" => "ASC"]);
         } catch (\Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
@@ -815,15 +869,14 @@ class ClientesHasUsuariosTable extends Table
             );
             $clientesUsuarios = $this->find("all")
                 ->where($whereConditions)
-                ->contain("Clientes");
+                ->contain("Clientes.RedesHasClientes.Redes");
             // ->order(
             //     array("tipo_perfil" => "ASC")
             // );
 
 
             if ($filtrarPrimeiro) {
-                $clientesUsuarios = $clientesUsuarios->first();
-                return $clientesUsuarios;
+                return $clientesUsuarios->first();
             } else {
                 return $clientesUsuarios->toArray();
             }

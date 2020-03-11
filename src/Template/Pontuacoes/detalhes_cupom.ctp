@@ -28,7 +28,7 @@ echo $this->Breadcrumbs->render(
 
     <?php if (is_null($pontuacao->nome_img)) : ?>
         <?= $this->element('../Pontuacoes/tabela_descritivo_pontuacoes', ['pontos' => $pontuacao->pontuacoes]) ?>
-        <?php else : ?>
+    <?php else : ?>
         <div class="col-lg-6">
             <legend>Imagem da Captura</legend>
             <?= $this->Html->image($pontuacao->nome_img, ['alt' => 'Comprovante', 'class' => 'image-receipt']) ?>
@@ -41,46 +41,46 @@ echo $this->Breadcrumbs->render(
     <?php endif; ?>
 
     <div class="form-group row">
-    <div class="col-lg-12">
+        <div class="col-lg-12">
 
 
 
-    <?php if ($pontuacao->requer_auditoria && !$pontuacao->auditado) : ?>
-        <h4>Ações</h4>
+            <?php if ($pontuacao->requer_auditoria && !$pontuacao->auditado) : ?>
+                <h4>Ações</h4>
 
-        <table class="table table-striped table-hover">
-            <tr>
-                <th>
-                    <?= __("Aprovar Auditoria") ?>
-                </th>
-                <td>
-                    <?= $this->Html->link(
-                        __(
-                            "{0} Aprovar",
-                            $this->Html->tag('i', '', ['class' => 'fa fa-check'])
-                        ),
-                        '#',
-                        [
-                            'class' => 'btn btn-primary btn-confirm',
-                            'data-toggle' => 'modal',
-                            'data-target' => '#modal-confirm',
-                            'data-action' => Router::url(
+                <table class="table table-striped table-hover">
+                    <tr>
+                        <th>
+                            <?= __("Aprovar Auditoria") ?>
+                        </th>
+                        <td>
+                            <?= $this->Html->link(
+                                __(
+                                    "{0} Aprovar",
+                                    $this->Html->tag('i', '', ['class' => 'fa fa-check'])
+                                ),
+                                '#',
                                 [
-                                    'controller' => 'pontuacoes_comprovantes',
-                                    'action' => 'aprovar_pontuacao_comprovante', $pontuacao->id
+                                    'class' => 'btn btn-primary btn-confirm',
+                                    'data-toggle' => 'modal',
+                                    'data-target' => '#modal-confirm',
+                                    'data-action' => Router::url(
+                                        [
+                                            'controller' => 'pontuacoes_comprovantes',
+                                            'action' => 'aprovar_pontuacao_comprovante', $pontuacao->id
+                                        ]
+                                    ), 'escape' => false
                                 ]
-                            ), 'escape' => false
-                        ]
-                    ) ?>
-                </td>
-            </tr>
-            <tr>
-                <th>
+                            ) ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
 
-                    <?= __("Alternar Validade") ?>
+                            <?= __("Alternar Validade") ?>
                         <td>
                             <?php
-                            if ($pontuacao->registro_invalido) {
+                            if ($pontuacao->cancelado) {
                                 echo $this->Html->link(
                                     __(
                                         "{0} Validar",
@@ -124,72 +124,72 @@ echo $this->Breadcrumbs->render(
                             ?>
                         </td>
 
-                </th>
-            </tr>
-        </table>
-    <?php endif; ?>
+                        </th>
+                    </tr>
+                </table>
+            <?php endif; ?>
 
-    <h4>Dados do Cupom</h4>
-    <table class="table table-striped table-hover">
-        <tr>
-            <th>
-                <?= __('Cliente') ?>
-            </th>
-            <td>
-                <?= h($pontuacao->usuario->nome) ?>
-                <?= $this->Html->link(__("Alterar"), ['action' => 'alterar_cliente_pontuacao', $pontuacao->id], ['class' => 'btn btn-primary btn-xs fa fa-refresh']) ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Funcionário do atendimento') ?>
-            </th>
-            <td>
-                <?= h($pontuacao->funcionario->nome) ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Total de Gotas') ?>
-            </th>
-            <td>
-                <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 0)) ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Chave da NFE') ?>
-            </th>
-            <td>
-                <?= h($pontuacao->chave_nfe) ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Requer Auditoria') ?>
-            </th>
-            <td>
-                <?= h($this->Boolean->convertBooleanToString($pontuacao->requer_auditoria)) ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Registro Auditado') ?>
-            </th>
-            <td>
-                <?= h($this->Boolean->convertBooleanToString($pontuacao->auditado)); ?>
-            </td>
-        </tr>
-        <tr>
-            <th>
-                <?= __('Data Impressão ') ?>
-            </th>
-            <td>
-                <?= h($pontuacao->data->format('d/m/Y H:i:s')) ?>
-            </td>
+            <h4>Dados do Cupom</h4>
+            <table class="table table-striped table-hover">
+                <tr>
+                    <th>
+                        <?= __('Cliente') ?>
+                    </th>
+                    <td>
+                        <?= h($pontuacao->usuario->nome) ?>
+                        <?= $this->Html->link(__("Alterar"), ['action' => 'alterar_cliente_pontuacao', $pontuacao->id], ['class' => 'btn btn-primary btn-xs fa fa-refresh']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Funcionário do atendimento') ?>
+                    </th>
+                    <td>
+                        <?= h($pontuacao->funcionario->nome) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Total de Gotas') ?>
+                    </th>
+                    <td>
+                        <?= h($this->Number->precision($pontuacao->soma_pontuacoes, 0)) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Chave da NFE') ?>
+                    </th>
+                    <td>
+                        <?= h($pontuacao->chave_nfe) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Requer Auditoria') ?>
+                    </th>
+                    <td>
+                        <?= h($this->Boolean->convertBooleanToString($pontuacao->requer_auditoria)) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Registro Auditado') ?>
+                    </th>
+                    <td>
+                        <?= h($this->Boolean->convertBooleanToString($pontuacao->auditado)); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <?= __('Data Importação ') ?>
+                    </th>
+                    <td>
+                        <?= h($pontuacao->data->format('d/m/Y H:i:s')) ?>
+                    </td>
 
-        </tr>
-    </table>
+                </tr>
+            </table>
 
         </div>
     </div>

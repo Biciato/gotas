@@ -52,7 +52,34 @@ class UsuariosController extends AppController
      */
     public function index()
     {
-        $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
+
+        $perfisUsuariosList = [];
+
+        if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_ADMIN_DEVELOPER) {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_DEVELOPER => PROFILE_TYPE_ADMIN_DEVELOPER_TRANSLATE,
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        } else {
+            $perfisUsuariosList = [
+                PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+                PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+                PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+                PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+                PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+                PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+            ];
+        }
+
+        // $perfisUsuariosList = Configure::read("profileTypesTranslatedDevel");
         $tipoPerfil = null;
         $tipoPerfilMin = Configure::read("profileTypes")["AdminDeveloperProfileType"];
         $tipoPerfilMax = Configure::read("profileTypes")["UserProfileType"];
@@ -85,7 +112,7 @@ class UsuariosController extends AppController
             $tipoPerfilMax = $tipoPerfil;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
+        $usuarios = $this->Usuarios->findAllUsuarios(null, array(), $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, 1);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, "order" => array("Usuarios.nome" => "ASC")));
 
@@ -1598,7 +1625,8 @@ class UsuariosController extends AppController
                 return $this->redirect(['controller' => 'usuarios', 'action' => 'reativar_conta']);
             }
 
-            $usuariosComCarros = $this->Veiculos->getUsuariosByVeiculo($data['placa']);
+            // $usuariosComCarros = $this->UsuariosHasVeiculos->getUsuariosByVeiculo(null, $data['placa']);
+            $usuariosComCarros = $this->Veiculos->getUsuariosByVeiculo(null, $data['placa']);
 
             $placaEncontrada = false;
 
@@ -1936,6 +1964,8 @@ class UsuariosController extends AppController
         if ($this->request->is(['post', 'put'])) {
             $data = $this->request->getData();
 
+            // DebugUtil::printArray($data);
+
             $tipoPerfil = strlen($data["tipo_perfil"]) > 0 ? $data["tipo_perfil"] : null;
             $nome = !empty($data["nome"]) ? $data["nome"] : "";
             $docEstrangeiro = !empty($data["doc_estrangeiro"]) ? $data["doc_estrangeiro"] : null;
@@ -1960,11 +1990,13 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
+        // DebugUtil::printArray($redesId);
 
-        $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("ClienteHasUsuario.tipo_perfil" => "ASC")));
+        $usuarios = $this->Usuarios->findAllUsuarios($redesId, $clientesIds, $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, null, true);
 
         // DebugUtil::printArray($usuarios->toArray());
+        $usuarios = $this->paginate($usuarios, array('limit' => 10));
+
 
         // $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId', 'usuarioLogado');
         $arraySet = array('usuarios', 'unidadesIds', "unidadesId", 'redesId');
@@ -2072,6 +2104,7 @@ class UsuariosController extends AppController
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
         $rede = $sessaoUsuario["rede"];
+        $totalUsuariosRede = $this->ClientesHasUsuarios->getSumUsuariosByRede($rede->id);
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
@@ -2120,11 +2153,11 @@ class UsuariosController extends AppController
             $clientesIds[] = 0;
         }
 
-        $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, null, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
+        $usuarios = $this->Usuarios->findAllUsuarios($rede["id"], $clientesIds, $nome, $email, null, null, $tipoPerfil, $tipoPerfil, $cpf, $docEstrangeiro, null, true);
 
         $usuarios = $this->paginate($usuarios, array('limit' => 10, 'order' => array("Usuarios.nome" => "ASC")));
 
-        $arraySet = array("usuarios");
+        $arraySet = ["usuarios", 'totalUsuariosRede'];
         $this->set(compact($arraySet));
         $this->set('_serialize', $arraySet);
     }
@@ -2208,7 +2241,7 @@ class UsuariosController extends AppController
                 $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($redesId);
             }
 
-            $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
+            $usuarios = $this->Usuarios->findAllUsuarios(null, $clientesIds, $nome, $email, null, null, $tipoPerfilMin, $tipoPerfilMax, $cpf, $docEstrangeiro, 1, 1);
 
             // DebugUtil::printArray($usuarios->toArray());
             $usuarios = $this->paginate($usuarios, ['limit' => 10, 'order' => ['Clientes.matriz_id' => 'ASC', "Usuarios.nome" => "ASC", "Clientes.nome_fantasia" => "ASC"]]);
@@ -2455,6 +2488,7 @@ class UsuariosController extends AppController
         }
 
         $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
         $errors = [];
         $errorCodes = [];
 
@@ -2465,6 +2499,7 @@ class UsuariosController extends AppController
                 $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
                 $tipoPerfil = !empty($data["tipo_perfil"]) ? $data["tipo_perfil"] : null;
+                $funcionariosId = !empty($data["funcionarios_id"]) ? $data["funcionarios_id"] : null;
 
                 if ($usuarioLogado->tipo_perfil != PROFILE_TYPE_ADMIN_DEVELOPER) {
                     $redesId = $sessaoUsuario["rede"]["id"];
@@ -2473,6 +2508,12 @@ class UsuariosController extends AppController
                 // Se o usuário trabalha na rede, ele tem que ter vínculo, então não se muda a seleção
                 if ($usuarioLogado->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuarioLogado->tipo_perfil <= PROFILE_TYPE_WORKER) {
                     $redesId = $rede->id;
+                }
+
+                // Funcionário só filtra ele mesmo
+                if ($usuarioLogado->tipo_perfil === PROFILE_TYPE_WORKER) {
+                    $funcionariosId = $usuarioLogado->id;
+                    $clientesId = $cliente->id;
                 }
 
                 // se não tiver especificado id da rede ou do cliente, retorna erro
@@ -2494,7 +2535,13 @@ class UsuariosController extends AppController
                 $tipoPerfis = [];
 
                 if (!empty($tipoPerfil)) {
-                    $tipoPerfis = $tipoPerfil;
+                    if (gettype($tipoPerfil) === "string") {
+                        // se String
+                        $tipoPerfis[] = $tipoPerfil;
+                    } else {
+                        // Senão será array
+                        $tipoPerfis = $tipoPerfil;
+                    }
                 } else {
                     $tipoPerfis = [PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER];
                 }
@@ -2502,7 +2549,7 @@ class UsuariosController extends AppController
                 $clientesIds = empty($clientesId) ? [] : [$clientesId];
 
                 // Modificar este serviço para aceitar uma lista de arrays para tipo_perfil
-                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, null, $tipoPerfis);
+                $usuariosList = $this->ClientesHasUsuarios->getFuncionariosRede($redesId, $clientesIds, $funcionariosId, $tipoPerfis);
 
                 if ($usuariosList) {
                     $usuariosList = $usuariosList->toArray();
@@ -2521,10 +2568,10 @@ class UsuariosController extends AppController
             }
 
             for ($i = 0; $i < count($errors); $i++) {
-                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 
@@ -2755,6 +2802,9 @@ class UsuariosController extends AppController
 
                 $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
                 $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                $dataInicio = $dataInicio->modify("+3 hour");
+                $dataFim = $dataFim->modify("+3 hour");
 
                 $dataDiferenca = $dataFim->diff($dataInicio);
 
@@ -3178,7 +3228,7 @@ class UsuariosController extends AppController
                 return ResponseUtil::errorAPI(MESSAGE_SAVED_EXCEPTION, $errors, [], $errorCodes);
             }
 
-            if ((isset($tipoPerfil) && $tipoPerfil >= Configure::read("profileTypes")["DummyWorkerProfileType"]) || !$usuario->conta_ativa) {
+            if ((isset($tipoPerfil) && $tipoPerfil >= PROFILE_TYPE_DUMMY_WORKER) || !$usuario->conta_ativa) {
                 // Funcionário ou usuário fictício não precisa de validação de cpf
 
                 $this->Usuarios->validator()->remove('cpf');
@@ -3348,13 +3398,12 @@ class UsuariosController extends AppController
                     $usuario = $this->Usuarios->save($usuario);
 
                     if ($usuario) {
+                        // Ativa o usuário em todos os postos se tiver gravado o registro (e não for usuário logado)
+                        $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
                         // Se usuarioLogado, significa que foi registrado através de um funcionário
                         // Faz vinculação
                         if (!empty($usuarioLogado)) {
-                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, 1, $usuarioLogado->id);
-                        } else {
-                            // Ativa o usuário em todos os postos se tiver gravado o registro (e não for usuário logado)
-                            $this->ClientesHasUsuarios->updateClientesHasUsuario(null, $usuario->id, true);
+                            $this->ClientesHasUsuarios->saveClienteHasUsuario($cliente->id, $usuario->id, true, $usuarioLogado->id);
                         }
 
                         // Realiza login de autenticação
@@ -3363,7 +3412,7 @@ class UsuariosController extends AppController
                             'token' => JWT::encode(
                                 [
                                     'sub' => $usuario->id,
-                                    'exp' => time() + 604800
+                                    'exp' => time() + TIME_EXPIRATION_TOKEN_SECONDS
                                 ],
                                 Security::salt()
                             )
@@ -3805,7 +3854,7 @@ class UsuariosController extends AppController
             if ($user) {
 
                 // Usuário logou, verifica se o mesmo é funcionário e de rede que tem APP_PERSONALIZADO
-                if (in_array($user->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_WORKER])) {
+                if ($usuario->tipo_perfil >= PROFILE_TYPE_ADMIN_NETWORK && $usuario->tipo_perfil <= PROFILE_TYPE_WORKER) {
 
                     $postoFuncionario = $this->ClientesHasUsuarios->getVinculoClientesUsuario($user["id"], true);
                     $cliente = null;
@@ -3821,8 +3870,8 @@ class UsuariosController extends AppController
                         $redeHasCliente = $this->RedesHasClientes->getRedesHasClientesByClientesId($cliente["id"]);
                         $rede = $redeHasCliente->rede;
 
-                        Log::write("info", "cliente");
-                        Log::write("info", $cliente);
+                        // Log::write("info", "cliente");
+                        // Log::write("info", $cliente);
                         // Mas se for local ou gerente ou funcionário, é a que ele tem acesso mesmo.
                         $this->request->session()->write('Rede.PontoAtendimento', $cliente);
                         $this->request->session()->write('Rede.Grupo', $rede);
@@ -3916,7 +3965,7 @@ class UsuariosController extends AppController
                 } else {
                     // Grava falha de tentativa de login
                     if ($usuario->tentativas_login >= 5) {
-                        $$usuario->tentativas_login = 0;
+                        $usuario->tentativas_login = 0;
                     } else {
                         $usuario->ultima_tentativa_login = new DateTime("now");
                     }
@@ -3926,7 +3975,7 @@ class UsuariosController extends AppController
                 }
 
                 $status = false;
-                $message = MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT;
+                $message = MSG_WARNING;
                 $errors = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT];
                 $errorCodes = [MSG_USUARIOS_LOGIN_PASSWORD_INCORRECT_CODE];
                 $usuario = null;
@@ -4859,6 +4908,101 @@ class UsuariosController extends AppController
             $this->set("_serialize", $arraySet);
         } catch (\Exception $e) {
             Log::write('debug', $e->getMessage());
+        }
+    }
+
+    /**
+     * Pesquisa usuários
+     *
+     * Pesquisa usuários finais e retorna em formato de lista
+     * Se usuário logado for qualquer perfil exceto PROFILE_TYPE_ADMIN_DEVELOPER, pesquisa somente pela rede
+     * Se CPF informado, pesquisa independente se conta está ativa ou não
+     *
+     * @param $id Id de registro
+     * @param $nome Nome
+     * @param $cpf CPF
+     * @param $email E-mail
+     * @param $telefone Telefone
+     * @param $placa Placa do veículo
+     *
+     * @return \App\Model\Entity\Usuario[] $usuarios
+     *
+     * @since 1.1.4
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     **/
+    public function getUsuariosFinaisAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $users = [];
+                $result = [];
+
+                $id = !empty($data["id"]) ? $data["id"] : null;
+                $nome = !empty($data["nome"]) ? $data["nome"] : null;
+                $cpf = !empty($data["cpf"]) ? $data["cpf"] : null;
+                $email = !empty($data["email"]) ? $data["email"] : null;
+                $telefone = !empty($data["telefone"]) ? $data["telefone"] : null;
+                $redesId = !empty($rede) ? $rede->id : null;
+
+                foreach ($data as $key => $value) {
+                    if (strlen($value) == 0) {
+                        unset($data[$key]);
+                    }
+
+                    reset($data);
+                }
+
+                if (empty($data)) {
+                    $errors = [
+                        MSG_USUARIOS_NOME_EMPTY,
+                        MSG_USUARIOS_CPF_EMPTY,
+                        MSG_USUARIOS_TELEFONE_EMPTY
+                    ];
+                    $errorCodes = [
+                        MSG_USUARIOS_NOME_EMPTY_CODE,
+                        MSG_USUARIOS_CPF_EMPTY_CODE,
+                        MSG_USUARIOS_TELEFONE_EMPTY_CODE,
+                    ];
+
+                    throw new Exception(MSG_ERROR_GENERIC_AT_LEAST_ONE_FIELD);
+                }
+
+                // Se CPF informado, a conta pode ser tanto ativada quanto desativada, senão, só contas ativas
+                $contaAtiva = !empty($cpf) ? null : true;
+                // Se CPF informado, o usuário não precisa estar vinculado à rede
+                $redesId = !empty($cpf) ? null : $redesId;
+                $users = $this->Usuarios->findAllUsuarios($redesId, [], $nome, $email, $telefone, [PROFILE_TYPE_USER], null, null, $cpf, null, $contaAtiva, true, [], true);
+
+                if (count($users->toArray()) === 0) {
+                    throw new Exception(MSG_LOAD_DATA_NOT_FOUND, MSG_LOAD_DATA_NOT_FOUND_CODE);
+                }
+
+                $result = ["data" => ["usuarios" => $users]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $result);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
         }
     }
 

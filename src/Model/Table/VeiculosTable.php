@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Model\Table;
 
+use App\Custom\RTI\ResponseUtil;
 use ArrayObject;
 use Cake\Event\Event;
 use Cake\ORM\Query;
@@ -9,7 +11,9 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Log\Log;
+use Exception;
 
 /**
  * Veiculos Model
@@ -77,11 +81,12 @@ class VeiculosTable extends GenericTable
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsTo(
+        // $this->hasOne(
+        $this->hasMany(
             'UsuariosHasVeiculos',
             array(
-                "foreignKey" => 'id',
-                "joinType" => "LEFT"
+                "foreignKey" => 'veiculos_id',
+                "joinType" => Query::JOIN_TYPE_LEFT
             )
         );
 
@@ -155,10 +160,10 @@ class VeiculosTable extends GenericTable
 
             $veiculo = null;
             if (isset($id) && ($id > 0)) {
-                $veiculo = $this->_getVeiculosTable()->find('all')
+                $veiculo = $this->find('all')
                     ->where(array("id" => $id))->first();
             } else {
-                $veiculo = $this->_getVeiculosTable()->newEntity();
+                $veiculo = $this->newEntity();
             }
 
             $veiculo->placa = $placa;
@@ -166,10 +171,10 @@ class VeiculosTable extends GenericTable
             $veiculo->fabricante = $fabricante;
             $veiculo->ano = $ano;
 
-            $veiculo = $this->_getVeiculosTable()->save($veiculo);
+            $veiculo = $this->save($veiculo);
 
             if ($veiculo) {
-                $veiculo = $this->_getVeiculosTable()->find('all')
+                $veiculo = $this->find('all')
                     ->where(array("id" => $veiculo["id"]))
                     ->select(
                         array(
@@ -206,11 +211,11 @@ class VeiculosTable extends GenericTable
     {
         try {
             if (count($conditions) > 0) {
-                return $this->_getVeiculosTable()
+                return $this
                     ->find('all')
                     ->where($conditions);
             } else {
-                return $this->_getVeiculosTable()
+                return $this
                     ->find('all');
             }
         } catch (\Exception $e) {
@@ -273,7 +278,7 @@ class VeiculosTable extends GenericTable
                 return $retorno;
             }
 
-            $veiculo = $this->_getVeiculosTable()
+            $veiculo = $this
                 ->find('all')
                 ->where(['placa' => $placa])
                 ->select([
@@ -327,7 +332,7 @@ class VeiculosTable extends GenericTable
 
             array_push($conditions, ['placa like ' => '%' . $placa . '%']);
 
-            $users = $this->_getVeiculosTable()
+            $users = $this
                 ->find('all')
                 ->where($conditions)
                 ->contain(
@@ -361,34 +366,62 @@ class VeiculosTable extends GenericTable
      *
      * @return array $veiculos Lista de Veículos com usuários
      **/
-    public function getUsuariosByVeiculo(string $placa, array $where_conditions = [])
+    public function getUsuariosByVeiculo(int $veiculosId = null, string $placa = null, int $redesId = null)
     {
         try {
+            $where = function (QueryExpression $exp) use ($veiculosId, $placa, $redesId) {
+                if (!empty($veiculosId)) {
+                    $exp->eq("id", $veiculosId);
+                }
 
-            $conditions = [];
+                if (!empty($placa)) {
+                    $exp->eq("Veiculos.placa", $placa);
+                }
 
-            foreach ($where_conditions as $key => $condition) {
-                array_push($conditions, $condition);
-            }
+                return $exp;
+            };
 
-            array_push($conditions, ['placa like ' => '%' . $placa . '%']);
+            $veiculo = $this->find("all")
+                ->where($where)
+                ->first();
 
-            $users = $this->_getVeiculosTable()
+            $where = function (QueryExpression $exp) use ($redesId, $veiculo) {
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                $exp->eq("UsuariosHasVeiculos.veiculos_id", $veiculo->id);
+
+                return $exp;
+            };
+
+            /**
+             * Como o CAKEPHP3 é muito bugado, eu tive que fazer a subquery filtrando os usuários agrupados pois
+             * se fizer na query acima, ele dá erro de Coluna não encontrada pois ele não consegue identificar
+             * quando o agrupamento é feito nos resultados aninhados...
+             */
+
+            $usuarios = $this->UsuariosHasVeiculos
                 ->find('all')
-                ->where($conditions)
-                ->contain(['UsuariosHasVeiculos', 'UsuariosHasVeiculos.Usuarios']);
+                ->where($where)
+                ->contain(
+                    [
+                        'Usuarios.ClientesHasUsuarios.Clientes.RedesHasClientes.Redes'
+                    ]
+                )
+                ->group(["ClientesHasUsuarios.usuarios_id"]);
 
-            return $users->toArray();
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-            $stringError = __("Erro ao buscar registro: " . $e->getMessage() . ", em: " . $trace[1]);
+            $veiculo->usuarios_has_veiculos = $usuarios;
 
-            Log::write('error', $stringError);
+            return $veiculo;
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
 
-            return [
-                'result' => false,
-                'data' => $stringError
-            ];
+            Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+            throw new Exception($message, $code);
         }
     }
 
@@ -485,7 +518,7 @@ class VeiculosTable extends GenericTable
         $usuarios = array();
         $data = array("veiculo", "usuarios");
 
-        $veiculo = $this->_getVeiculosTable()->find("all")
+        $veiculo = $this->find("all")
             ->where(["placa" => $placa])->first();
 
 
@@ -590,10 +623,10 @@ class VeiculosTable extends GenericTable
                     null,
                     null,
                     null,
+                    null,
                     false,
                     $usuariosClientesEncontradosIds
                 )->toArray();
-
             }
         }
 

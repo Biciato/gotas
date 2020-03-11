@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use ArrayObject;
@@ -12,6 +13,8 @@ use App\Custom\RTI\DebugUtil;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use App\Custom\RTI\ResponseUtil;
+use Cake\Database\Expression\QueryExpression;
+use Exception;
 
 /**
  * UsuariosHasVeiculos Model
@@ -107,7 +110,7 @@ class UsuariosHasVeiculosTable extends GenericTable
         ]);
         $this->belongsTo('Veiculos', [
             'foreignKey' => 'veiculos_id',
-            'joinType' => 'INNER'
+            'joinType' => Query::JOIN_TYPE_LEFT,
         ]);
     }
 
@@ -156,11 +159,10 @@ class UsuariosHasVeiculosTable extends GenericTable
         try {
             $usuarioHasVeiculo = $this->newEntity();
 
-            $usuarioHasVeiculo->veiculos_id = (int)$veiculos_id;
-            $usuarioHasVeiculo->usuarios_id = (int)$usuarios_id;
+            $usuarioHasVeiculo->veiculos_id = (int) $veiculos_id;
+            $usuarioHasVeiculo->usuarios_id = (int) $usuarios_id;
 
             return $this->save($usuarioHasVeiculo);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -183,7 +185,6 @@ class UsuariosHasVeiculosTable extends GenericTable
             return $this->_getUsuarioHasVeiculosTable()
                 ->find('all')
                 ->where($whereConditions);
-
         } catch (\Exception $e) {
             $trace = $e->getTrace();
 
@@ -237,7 +238,54 @@ class UsuariosHasVeiculosTable extends GenericTable
 
             return $vehicles;
         } catch (\Exception $e) {
+        }
+    }
 
+    /**
+     * Obtêm todos os usuários vinculados à um veículo
+     *
+     * @param string $placa            Placa
+     * @param array  $where_conditions Condições Extras
+     *
+     * @return array $veiculos Lista de Veículos com usuários
+     **/
+    public function getUsuariosByVeiculo(int $veiculosId = null, string $placa = null, int $redesId = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($veiculosId, $placa, $redesId) {
+                if (!empty($veiculosId)) {
+                    $exp->eq("id", $veiculosId);
+                }
+
+                if (!empty($placa)) {
+                    $exp->eq("Veiculos.placa", $placa);
+                }
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                return $exp;
+            };
+
+            return $this
+                ->find('all')
+                ->where($where)
+                ->contain(
+                    [
+                        "Veiculos",
+
+                        'Usuarios.ClientesHasUsuarios.Clientes.RedesHasClientes.Redes'
+                    ]
+                )
+                ->group(["UsuariosHasVeiculos.usuarios_id"]);
+        } catch (\Throwable $th) {
+            $code = $th->getCode();
+            $message = $th->getMessage();
+
+            Log::write("error", sprintf("[%s] - %s: %s.", MSG_LOAD_EXCEPTION, $code, $message));
+
+            throw new Exception($message, $code);
         }
     }
 

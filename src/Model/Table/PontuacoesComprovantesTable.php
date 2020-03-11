@@ -75,8 +75,9 @@ class PontuacoesComprovantesTable extends GenericTable
             'joinType' => 'INNER',
             'foreignKey' => 'funcionarios_id'
         ]);
+
         $this->hasMany('Pontuacoes', [
-            'joinType' => 'INNER',
+            'joinType' => 'LEFT',
             'foreignKey' => 'pontuacoes_comprovante_id'
         ]);
 
@@ -145,8 +146,8 @@ class PontuacoesComprovantesTable extends GenericTable
             ->notEmpty('data');
 
         $validator
-            ->integer('registro_invalido')
-            ->notEmpty('registro_invalido');
+            ->integer('cancelado')
+            ->notEmpty('cancelado');
 
         $validator
             ->dateTime('audit_insert')
@@ -221,17 +222,10 @@ class PontuacoesComprovantesTable extends GenericTable
             $pontuacoesComprovante['auditado'] = $auditado;
 
             return $this->save($pontuacoesComprovante);
-        } catch (\Exception $e) {
-            $stringError = __("Erro ao criar registro: {0}", $e->getMessage());
-
-            $trace = $e->getTrace();
-            Log::write('error', $stringError);
-
-            if (Configure::read("debug")) {
-                Log::write('error', $trace);
-            }
-
-            return $stringError;
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, MESSAGE_SAVED_EXCEPTION_CODE);
         }
     }
 
@@ -409,7 +403,7 @@ class PontuacoesComprovantesTable extends GenericTable
             $whereConditions = array(
                 "usuarios_id" => $usuariosId,
                 // Só irá retornar os dados válidos
-                "registro_invalido" => 0
+                "cancelado" => 0
             );
 
             // Se informou numeração da Chave da NFE
@@ -726,6 +720,34 @@ class PontuacoesComprovantesTable extends GenericTable
     }
 
     /**
+     * Obtem Cupom
+     *
+     * Obtem Cupom do DB pelo QR Code
+     *
+     * @param string $qrCode QR Code
+     * @return \App\Model\Entity\PontuacoesComprovante $pontuacaoComprovante
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 20/01/2020
+     */
+    public function getCouponByQRCode(string $qrCode)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($qrCode) {
+                return $exp->eq("PontuacoesComprovantes.conteudo", $qrCode);
+            };
+
+            $contain = ["Pontuacoes"];
+
+            return $this->find("all")->where($where)->contain($contain)->first();
+        } catch (\Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+    /**
      * Obtem cupons por id de cliente
      *
      * @param array $clientes_ids        Ids dos clientes
@@ -892,7 +914,7 @@ class PontuacoesComprovantesTable extends GenericTable
         try {
             $pontuacao_comprovante = $this->get($id);
 
-            $pontuacao_comprovante->registro_invalido = $status;
+            $pontuacao_comprovante->cancelado = $status;
 
             return $this->save($pontuacao_comprovante);
         } catch (\Exception $e) {
@@ -975,7 +997,8 @@ class PontuacoesComprovantesTable extends GenericTable
     {
         try {
             return $this->deleteAll(['id >= ' => 0]);
-        } catch (\Exception $e) { }
+        } catch (\Exception $e) {
+        }
     }
 
     /**

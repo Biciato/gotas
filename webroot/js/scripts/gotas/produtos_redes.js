@@ -361,9 +361,6 @@ $
             });
         }
 
-
-
-
         /**
          * webroot\js\scripts\gotas\relatorio_entrada_saida.js::getRedesList
          *

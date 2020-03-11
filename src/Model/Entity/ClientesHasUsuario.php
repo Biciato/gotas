@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use DateTime;
 
 /**
  * ClientesHasUsuario Entity
@@ -31,4 +33,21 @@ class ClientesHasUsuario extends Entity
         '*' => true,
         'id' => false
     ];
+
+    /**
+     * ------------------------------------------------------------------------------------------
+     * Propriedades Virtuais
+     * ------------------------------------------------------------------------------------------
+     */
+
+    protected $_virtual = [
+        "audit_insert_localtime",
+    ];
+
+    protected function _getAuditInsertLocaltime()
+    {
+        $date = new DateTime($this->_properties["audit_insert"]);
+
+        return $date->modify("-3 hour")->format("Y-m-d H:i:s");
+    }
 }

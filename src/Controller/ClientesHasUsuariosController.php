@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Controller\AppController;
@@ -196,9 +197,9 @@ class ClientesHasUsuariosController extends AppController
         try {
             $query = $this->request->query();
 
-            $clientes_id = (int)$query['clientes_id'];
-            $usuarios_id = (int)$query['usuarios_id'];
-            $tipo_perfil = (int)$query['tipo_perfil'];
+            $clientes_id = (int) $query['clientes_id'];
+            $usuarios_id = (int) $query['usuarios_id'];
+            $tipo_perfil = (int) $query['tipo_perfil'];
 
             // atualiza o usuário para ser definido como 'Administrador Regional'
 
@@ -210,7 +211,7 @@ class ClientesHasUsuariosController extends AppController
 
             $usuario = $this->Usuarios->addUpdateUsuario($usuario);
 
-            $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id);
+            $result = $this->ClientesHasUsuarios->saveClienteHasUsuario($clientes_id, $usuarios_id, true);
 
             // atualiza todos os outros registros de administrador do usuário citado,
             // dentro daquela rede

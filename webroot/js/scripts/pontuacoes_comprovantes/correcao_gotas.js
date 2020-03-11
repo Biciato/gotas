@@ -3,18 +3,22 @@ $
     (function () {
         "use strict";
 
-        var gotaSelectedItem = {};
         var quantidadeMultiplicador = $("#quantidade-multiplicador");
         var gravarGotasBtn = $("#botao-gravar-gotas");
-        var idGotaTabela = 0;
         var redes = [];
         var reiniciarBtn = $("#reiniciar");
         var redeSelectedItem = null;
         var redeSelectListBox = $("#redes");
-        var usuarioCpf = $("#usuario-cpf");
+        var usuarioParameterOptions = $("#usuario-options-search");
+        var usuarioParameterSearch = $("#usuario-parameter-search");
+        var usuarioParameterButton = $("#usuario-parameter-button-search");
         var usuarioNome = $("#usuario-nome");
         var usuarioSaldo = $("#usuario-saldo");
-        var usuarioSelectedItem = null;
+        var usuariosList = [];
+        var usuariosSelectedItem = null;
+        var usuariosTable = $("#usuarios-table");
+        var usuariosRegion = $("#usuarios-region");
+        var veiculoRegion = $("#veiculo-region");
 
         /**
          * Constructor
@@ -33,10 +37,6 @@ $
             quantidadeMultiplicador.val(null);
             quantidadeMultiplicador.prop("disabled", true);
             quantidadeMultiplicador.on("keyup", updateButtonGravarGotas);
-            // quantidadeMultiplicador.mask("####", {
-            //     pattern: /-|\d/,
-            //     recursive: true
-            // });
             quantidadeMultiplicador.mask("Z####", {
                 translation: {
                     '#': {
@@ -50,15 +50,17 @@ $
 
             });
 
-            usuarioSelectedItem = null;
+            usuarioParameterOptions.unbind("change");
+            usuarioParameterOptions.on("change", usuarioParameterOptionsOnChange);
+            usuarioParameterOptions.change();
+
+            usuarioParameterButton.unbind("click");
+            usuarioParameterButton.bind("click", usuarioParameterButtonOnClick);
+
+            usuariosSelectedItem = null;
             usuarioNome.val(null);
-            usuarioCpf.val(null);
+            usuarioParameterSearch.val(null);
             usuarioSaldo.val(null);
-            usuarioCpf.unbind("keyup");
-            usuarioCpf.unmask();
-            usuarioCpf.mask("###.###.###-##");
-            usuarioCpf.on("keyup", usuarioCPFOnChange);
-            usuarioCpf.on("change", usuarioCPFOnChange);
 
             // Habilita/desabilita botão de gravar as gotas do cliente final
             updateButtonGravarGotas();
@@ -67,74 +69,263 @@ $
         // #region Funções da tela
 
         /**
+         * Comportamento de click do button que faz a pesquisa do usuário
+         */
+        function usuarioParameterButtonOnClick() {
+            var url = usuarioParameterOptions.val() === "placa" ? "/api/veiculos/get_usuarios_by_veiculo" : "/api/usuarios/get_usuarios_finais";
+
+            var dataToSend = {};
+
+            if (usuarioParameterOptions.val() === "nome") {
+                dataToSend.nome = usuarioParameterSearch.val().trim();
+            } else if (usuarioParameterOptions.val() === "cpf") {
+                dataToSend.cpf = clearNumbers(usuarioParameterSearch.val().trim());
+            } else if (usuarioParameterOptions.val() === "telefone") {
+                dataToSend.telefone = clearNumbers(usuarioParameterSearch.val().trim());
+            } else if (usuarioParameterOptions.val() === "placa") {
+                dataToSend.placa = usuarioParameterSearch.val().trim();
+            }
+
+            veiculoRegion.hide();
+
+            usuariosSelectedItem = {};
+            usuarioNome.val(null);
+            usuarioSaldo.val(null);
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: dataToSend,
+                dataType: "JSON",
+                success: function (res) {
+
+                    usuariosRegion.show();
+                    console.log(res);
+                    var veiculo = {};
+
+                    usuariosList = [];
+
+                    if (usuarioParameterOptions.val() === "placa") {
+                        veiculo = res.data.veiculo;
+                        veiculoRegion.show();
+
+                        updateVeiculosDetails(veiculo);
+                        veiculo.usuarios_has_veiculos.forEach(item => {
+
+                            usuariosList.push(item.usuario);
+                        });
+                    } else
+                        usuariosList = res.data.usuarios;
+
+                    var usuarioData = [];
+                    usuariosList.forEach(usuario => {
+
+                        var selectButton = "<div data-id='" + usuario.id + "' class='btn btn-primary usuario-button-select' title='Selecionar'><i class='fas fa-check-circle'></i></div>";
+
+                        usuarioData.push({
+                            id: usuario.id,
+                            nome: usuario.nome,
+                            telefone: usuario.telefone === undefined || usuario.telefone === null ? "" :  convertTextToPhone(usuario.telefone),
+                            data_nasc: usuario.data_nasc === undefined || usuario.data_nasc === null ? "" : moment(usuario.data_nasc, "YYYY-MM-DD").format("DD/MM/YYYY"),
+                            acoes: selectButton
+                        });
+                    });
+
+                    if ($.fn.DataTable.isDataTable("#" + usuariosTable.attr('id'))) {
+                        usuariosTable.DataTable().clear();
+                        usuariosTable.DataTable().destroy();
+                    }
+
+                    usuariosTable.DataTable({
+                        language: {
+                            "url": "/webroot/js/DataTables/i18n/dataTables.pt-BR.lang",
+                            // "url": "https://cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json",
+                        },
+                        columns: [{
+                                data: "id",
+                                name: "Id",
+                                orderable: true,
+                                visible: false,
+                            },
+                            {
+                                data: "nome",
+                                name: "Nome",
+                                orderable: true,
+                            },
+                            {
+                                data: "telefone",
+                                name: "Telefone",
+                                orderable: true,
+                            },
+                            {
+                                data: "data_nasc",
+                                name: "Data Nasc.",
+                                orderable: true,
+                            },
+                            {
+                                data: "acoes",
+                                name: "Ações",
+                                orderable: false,
+                            }
+                        ],
+                        data: usuarioData
+                    });
+
+                    setTimeout(() => {
+
+                        // Após renderizar a tabela, remove e reassocia evento de click dos botões
+                        var usuarioButtonSelect = $(".usuario-button-select");
+                        usuarioButtonSelect.unbind("click");
+
+                        usuarioButtonSelect.on("click", function () {
+
+                            var id = $(this).data('id');
+                            usuariosSelectedItem = usuariosList.find(x => x.id === id);
+
+                            if (usuariosSelectedItem !== undefined) {
+                                usuarioNome.val(usuariosSelectedItem.nome);
+                                getUsuarioPontuacoes(usuariosSelectedItem.id, redeSelectedItem.id);
+                                updateButtonGravarGotas();
+                                veiculoRegion.hide();
+                                usuariosRegion.hide();
+                            }
+                        });
+                    }, 300);
+
+
+                },
+                error: function (res) {
+
+                    var mensagem = res.responseJSON.mensagem;
+                    callModalError(mensagem.message, mensagem.errors);
+                }
+
+            });
+        }
+
+        /**
          * Evento disparado ao digitar cpf do Usuário
          *
          * Ao digitar o cpf do usuário, busca o registro na base de dados se o CPF existir
-         *
-         * webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas.js::usuarioCPFOnChange
          *
          * @param {Event} event Event
          *
          * @returns void
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-12
+         * @since 1.1.4
          */
-        function usuarioCPFOnChange(e) {
-            var cpf = e.target.value;
+        function usuarioParameterOptionsOnChange(e) {
+            var textElement = usuarioParameterSearch;
+            var valueElement = clearNumbers(textElement.val());
+            var listElement = usuarioParameterOptions;
+            var searchButton = usuarioParameterButton;
+            textElement.val(null);
+            textElement.unbind("focus")
+                .unbind("blur")
+                .unbind("keyup")
+                .prop("maxlength", 100)
+                .unmask();
 
-            cpf = cpf.replace(/[^0-9]/g, "");
+            if (listElement.val() === "nome") {
 
-            if (cpf.length == 11) {
-                console.log(moment());
-                getUsuarioByCPF(cpf);
+                return false;
+            } else if (listElement.val() === "cpf") {
+                textElement.mask("999.999.999-99");
+                return false;
+            } else if (listElement.val() === "telefone") {
+                textElement.prop("maxlength", 11);
+
+                textElement.on('focus', function () {
+                    textElement.prop("maxlength", 11);
+
+                }).on('focus', function () {
+                    textElement.unmask();
+
+                    textElement.prop("maxlength", 11);
+
+                }).on('blur', function () {
+                    if (this.value.length == 10) {
+                        textElement.mask("(99)9999-9999");
+                    } else {
+                        textElement.mask("(99)99999-9999");
+                    }
+                }).on("keyup", function (event) {
+                    // console.log(event);
+                    this.value = clearNumbers(event.target.value);
+
+                }).on("keydown", function (event) {
+                    textElement.prop("maxlength", 11);
+
+                    valueElement = clearNumbers(textElement.val());
+
+                    if (event.keyCode == 13) {
+
+                        if (listElement.val() === "telefone") {
+                            if (valueElement.length <= 10) {
+                                textElement.mask("(99)9999-9999");
+                            } else {
+                                textElement.mask("(99)99999-9999");
+                            }
+                        }
+
+                        searchButton.click();
+                    } else {
+                        textElement.unmask();
+                    }
+                });
+
+                return false;
             } else {
-                usuarioSelectedItem = null;
-                usuarioNome.val(null);
-                // usuarioCpf.val(null);
-                usuarioSaldo.val(null);
-                updateButtonGravarGotas();
+                textElement.mask("AAA9B99", {
+                    'translation': {
+                        A: {
+                            pattern: /[A-Za-z]/
+                        },
+                        9: {
+                            pattern: /[0-9]/
+                        },
+                        B: {
+                            pattern: /\D*/
+                        }
+                    },
+                    onKeyPress: function (value, event) {
+                        event.currentTarget.value = value.toUpperCase();
+                    }
+                });
+                return false;
+
             }
+
         }
 
         /**
-         * Gera template
+         * Exibe veículo
          *
-         * Gera template para tabela de gotas a ser enviadas
+         * Atualiza dados de veículos à serem exibidos
          *
-         * webroot\js\scripts\pontuacoes_comprovantes\correcao_gotas.js::geraTemplateTabelaGotasEnviadas
-         *
-         * @param {int} id
-         * @param {string} gota
-         * @param {float} quantidade
-         * @param {float} valor
-         *
-         * @returns {string} template
+         * @param {item} data Item de Veículo
          *
          * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-10
+         * @since 1.1.4
          */
-        function geraTemplateTabelaGotasEnviadas(id, gota, quantidade, valor) {
-            var string = [];
+        function updateVeiculosDetails(data) {
 
-            string.push("<tr>");
-            string.push("<td>" + gota + "</td>");
-            string.push("<td class='text-right'>" + quantidade + "</td>");
-            string.push("<td class='text-right'>" + valor + "</td>");
-            string.push("<td>");
-            string.push(
-                "<div class='btn btn-danger btn-xs botao-remover' id='botao-remover' data-value='" +
-                idGotaTabela +
-                "' title='Remover Gota'>"
-            );
-            string.push("<i class='fas fa-remove'></i>");
-            string.push("</div>");
-            string.push("</td>");
-            string.push("</tr>");
-
-            idGotaTabela++;
-
-            return string.join("");
+            var veiculoPlaca = $("#veiculo-placa");
+            var veiculoModelo = $("#veiculo-modelo");
+            var veiculoFabricante = $("#veiculo-fabricante");
+            var veiculoAno = $("#veiculo-ano");
+            if (data === undefined) {
+                veiculoPlaca.val(null);
+                veiculoModelo.val(null);
+                veiculoFabricante.val(null);
+                veiculoAno.val(null);
+            } else {
+                veiculoPlaca.val(data.placa);
+                veiculoModelo.val(data.modelo);
+                veiculoFabricante.val(data.fabricante);
+                veiculoAno.val(data.ano);
+            }
         }
 
         /**
@@ -158,14 +349,14 @@ $
                 redeSelectedItem = redes.find(x => x.id == id);
                 console.log(redeSelectedItem);
             } else {
-                usuarioSelectedItem = null;
-                usuarioCpf.val(null);
+                usuariosSelectedItem = null;
+                usuarioParameterSearch.val(null);
                 usuarioNome.val(null);
                 usuarioSaldo.val(null);
                 redeSelectedItem = null;
             }
 
-            usuarioCpf.change();
+            usuarioParameterSearch.change();
         }
 
         /**
@@ -183,14 +374,14 @@ $
 
             var value = quantidadeMultiplicador.val();
 
-            if (redeSelectedItem != null && usuarioSelectedItem != null) {
+            if (redeSelectedItem != null && usuariosSelectedItem != null) {
                 quantidadeMultiplicador.prop("disabled", false);
             } else {
                 quantidadeMultiplicador.val(null);
                 quantidadeMultiplicador.prop("disabled", true);
             }
 
-            if (value !== undefined && value != 0 && redeSelectedItem != null && usuarioSelectedItem != null) {
+            if (value !== undefined && value != 0 && redeSelectedItem != null && usuariosSelectedItem != null) {
                 gravarGotasBtn.prop("disabled", false);
             }
         }
@@ -258,56 +449,6 @@ $
         }
 
         /**
-         * Obtem usuário
-         *
-         * Obtem usuário através de seu cpf
-         *
-         * webroot/js/scripts/pontuacoes_comprovantes/correcao_gotas.js::getUsuarioByCPF
-         *
-         * @param {string} cpf CPF de Usuario
-         *
-         * @returns {\App\Model\Entity\Usuario} Usuário
-         *
-         * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
-         * @since 2019-10-13
-         */
-        function getUsuarioByCPF(cpf) {
-
-            if (redeSelectedItem === undefined || redeSelectedItem === null) {
-                callModalError("Necessário especificar rede antes de continuar!");
-                return;
-            }
-
-            $.ajax({
-                type: "POST",
-                url: "/api/usuarios/get_usuario_by_cpf",
-                data: {
-                    cpf: cpf
-                },
-                dataType: "JSON",
-                success: function (response) {
-                    var data = response.user;
-
-                    if (data === null || data === undefined) {
-                        callModalError("Usuário não registrado!");
-                        return;
-                    }
-
-                    console.log(data);
-                    usuarioSelectedItem = data;
-                    usuarioNome.val(data.nome);
-                    getUsuarioPontuacoes(usuarioSelectedItem.id, redeSelectedItem.id);
-                    updateButtonGravarGotas();
-                },
-                error: function (response) {
-                    var mensagem = response.responseJSON.mensagem;
-
-                    callModalError(mensagem.message, mensagem.errors);
-                }
-            });
-        }
-
-        /**
          * Obtem pontuações de usuário
          *
          * Obtem pontuações de usuário após selecionar o usuário e a rede
@@ -323,7 +464,7 @@ $
          * @since 2019-10-13
          */
         function getUsuarioPontuacoes(usuariosId, redesId) {
-            if (redeSelectedItem != null && usuarioSelectedItem != null) {
+            if (redeSelectedItem != null && usuariosSelectedItem != null) {
                 var data = {
                     usuarios_id: usuariosId,
                     redes_id: redesId
@@ -364,7 +505,7 @@ $
         function setGotasManualUsuario() {
             var data = {
                 redes_id: redeSelectedItem.id,
-                usuarios_id: usuarioSelectedItem.id,
+                usuarios_id: usuariosSelectedItem.id,
                 quantidade_gotas: quantidadeMultiplicador.val()
             };
 

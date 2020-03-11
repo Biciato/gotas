@@ -13,6 +13,7 @@ use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
+use App\Model\Entity\BrindesPreco;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Log\Log;
@@ -68,6 +69,11 @@ class BrindesController extends AppController
             }
 
             $cliente = $sessaoUsuario["cliente"];
+
+            // Descarta o cliente que está na session, pois estes usuários podem selecionar outro estabelecimento
+            if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_DEVELOPER, PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                $cliente = null;
+            }
 
             $rede = $sessaoUsuario["rede"];
             $redesId = $rede["id"];
@@ -268,6 +274,8 @@ class BrindesController extends AppController
 
             if ($this->request->is('post')) {
                 $data = $this->request->getData();
+
+                // DebugUtil::printArray($data);
                 $errors = array();
                 $data["clientes_id"] = $clientesId;
 
@@ -284,8 +292,8 @@ class BrindesController extends AppController
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
                 $tipoVenda = !empty($data["tipo_venda"]) ? $data["tipo_venda"] : $brinde["tipo_venda"];
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : 0;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : 0;
+                $precoPadrao = !empty($data["preco_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["preco_padrao"])) : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["valor_moeda_venda_padrao"])) : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
                 // Trata tipo de equipamento
@@ -296,11 +304,11 @@ class BrindesController extends AppController
 
                 // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
                 if (($data['tipo_venda'] == TYPE_SELL_DISCOUNT_TEXT) && (empty($precoPadrao) || empty($valorMoedaVendaPadrao))) {
-                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
                 }
                 // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
                 if (($data['tipo_venda'] == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($precoPadrao) && empty($valorMoedaVendaPadrao))) {
-                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
                 }
 
                 if (empty($tipoEquipamento)) {
@@ -312,7 +320,6 @@ class BrindesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-
                     foreach ($errors as $error) {
                         $this->Flash->error($error);
                     }
@@ -461,7 +468,6 @@ class BrindesController extends AppController
                 throw new Exception(MESSAGE_RECORD_NOT_FOUND);
             }
         } catch (\Throwable $th) {
-
             $trace = $th->getTraceAsString();
             $messageString = __($th->getMessage());
             $messageStringDebug = __("{0} - {1} . [Função: {2} / Arquivo: {3} / Linha: {4}]  ", $messageString, $th->getMessage(), __FUNCTION__, __FILE__, __LINE__);
@@ -510,6 +516,7 @@ class BrindesController extends AppController
             if ($this->request->is(array('post', 'put'))) {
                 $data = $this->request->getData();
 
+                // DebugUtil::printArray($data);
                 $errors = array();
 
                 $nome = !empty($data["nome"]) ? $data["nome"] : null;
@@ -523,19 +530,19 @@ class BrindesController extends AppController
                 $local = !empty($data["local"]) ? $data["local"] : null;
                 $ilimitado = !empty($data["ilimitado"]) ? $data["ilimitado"] : false;
                 $habilitado = !empty($data["habilitado"]) ? $data["habilitado"] : true;
-                $precoPadrao = !empty($data["preco_padrao"]) ? (float) $data["preco_padrao"] : $brinde->preco_padrao;
-                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? (float) $data["valor_moeda_venda_padrao"] : $brinde->valor_moeda_venda_padrao;
+                $precoPadrao = !empty($data["preco_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["preco_padrao"])) : 0;
+                $valorMoedaVendaPadrao = !empty($data["valor_moeda_venda_padrao"]) ? floatval(preg_replace("/[^-0-9\.]/", "", $data["valor_moeda_venda_padrao"])) : 0;
                 $nomeImg = !empty($data["nome_img"]) ? $data["nome_img"] : null;
 
 
                 // Se desconto, preco_padrao e valor_moeda_venda_padrao devem estar preenchidos
-                if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty($precoPadrao) || empty($valorMoedaVendaPadrao))) {
-                    $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
-                }
-                // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
-                if (($tipoVenda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($precoPadrao) && empty($valorMoedaVendaPadrao))) {
-                    $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
-                }
+                // if (($tipoVenda == TYPE_SELL_DISCOUNT_TEXT) && (empty($precoPadrao) || empty($valorMoedaVendaPadrao))) {
+                //     $errors[] = "Preço Padrão e Preço em Reais devem ser informados!";
+                // }
+                // // se é Opcional mas preco_padrao ou valor_moeda_venda_padrao estão vazios
+                // if (($tipoVenda == TYPE_SELL_CURRENCY_OR_POINTS_TEXT) && (empty($precoPadrao) && empty($valorMoedaVendaPadrao))) {
+                //     $errors[] = "Preço Padrão ou Preço em Reais devem ser informados!";
+                // }
 
                 // Se o brinde for do tipo SMART SHOWER, é ilimitado
                 $tipoEquipamento = !empty($data["tipo_equipamento"]) ? $data["tipo_equipamento"] : null;
@@ -554,7 +561,6 @@ class BrindesController extends AppController
                 }
 
                 if (count($errors) > 0) {
-
                     foreach ($errors as $error) {
                         $this->Flash->error($error);
                     }
@@ -591,6 +597,21 @@ class BrindesController extends AppController
 
                     // $brinde = $this->Brindes->patchEntity($brinde, $data);
 
+                    /**
+                     * Se a alteração do brinde é para TYPE_SELL_FREE_TEXT, então verifico se o último registro de
+                     * brindes_preços possui valor zerado. Se não tiver, crio novo registro ao gravar a alteração deste
+                     */
+                    $createNewPrice = false;
+
+                    if ($tipoVenda === TYPE_SELL_FREE_TEXT) {
+                        // Verifico se tem último registro
+                        $brindePreco = $this->BrindesPrecos->getUltimoPrecoBrinde($brinde->id, STATUS_AUTHORIZATION_PRICE_AUTHORIZED);
+
+                        if (!empty($brindePreco->preco) || !empty($brindePreco->valor_moeda_venda)) {
+                            $createNewPrice = true;
+                        }
+                    }
+
                     $brinde->clientes_id = $clientesId;
                     $brinde->categorias_brindes_id = $categoriasBrindesId;
                     $brinde->nome = $nome;
@@ -603,8 +624,8 @@ class BrindesController extends AppController
                     $brinde->tipo_equipamento = $tipoEquipamento;
                     $brinde->tipo_venda = $tipoVenda;
                     $brinde->tipo_codigo_barras = $tipoCodigoBarras;
-                    $brinde->preco_padrao = $precoPadrao;
-                    $brinde->valor_moeda_venda_padrao = $valorMoedaVendaPadrao;
+                    // $brinde->preco_padrao = $precoPadrao;
+                    // $brinde->valor_moeda_venda_padrao = $valorMoedaVendaPadrao;
                     $brinde->nome_img = $enviouNovaImagem ? $nomeImg : $brinde->nome_img;
 
                     $brinde = $this->Brindes->saveUpdate($brinde);
@@ -612,6 +633,22 @@ class BrindesController extends AppController
                     $errors = $brinde->errors();
 
                     if ($brinde) {
+
+                        // Se tiver a condição de criar novo preço, cria
+
+                        if ($createNewPrice) {
+                            $brindePreco = new BrindesPreco();
+                            $brindePreco->brindes_id = $brinde->id;
+                            $brindePreco->clientes_id = $brinde->clientes_id;
+                            $brindePreco->usuarios_id = $usuarioLogado->id;
+                            $brindePreco->status_autorizacao = STATUS_AUTHORIZATION_PRICE_AUTHORIZED;
+                            $brindePreco->data_preco = new DateTime('now');
+                            $brindePreco->preco = 0;
+                            $brindePreco->valor_moeda_venda = 0;
+
+                            $this->BrindesPrecos->saveUpdate($brindePreco);
+                        }
+
                         $this->Flash->success(MESSAGE_SAVED_SUCCESS);
 
                         return $this->redirect(['action' => 'index', $clientesId]);
@@ -677,7 +714,7 @@ class BrindesController extends AppController
             }
 
             if (count($errors) > 0) {
-                foreach ($errors as  $error) {
+                foreach ($errors as $error) {
                     $this->Flash->error($error);
 
                     return $this->redirect("/Pages/display");
@@ -771,9 +808,7 @@ class BrindesController extends AppController
      */
     public function verBrindeRede($id = null)
     {
-
         try {
-
             $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
             $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
             $rede = $this->request->session()->read('Rede.Grupo');
@@ -848,7 +883,11 @@ class BrindesController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
-        $cliente = $unidades_ids->first();
+        $unidades_ids = $unidades_ids->toArray();
+        $keys = key($unidades_ids);
+        $clienteId = $keys;
+        // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
+        $cliente = $this->Clientes->get($clienteId);
         // foreach ($unidades_ids as $key => $value) {
         //     $clientes_ids[] = $key;
         // }
@@ -956,7 +995,6 @@ class BrindesController extends AppController
             $habilitado = $data["habilitado"] ?? null;
 
             if (!empty($redesId)) {
-
                 $redesArrayIds = ['id' => $redesId];
             }
 

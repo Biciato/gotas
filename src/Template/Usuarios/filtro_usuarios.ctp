@@ -8,6 +8,8 @@ use Cake\Core\Configure;
  * @date     13/08/2017
  */
 
+$debugExtension = Configure::read("debug") ? "" : ".min";
+
 $show_filiais = isset($show_filiais) ? $show_filiais : true;
 $fixarTipoPerfil = isset($fixarTipoPerfil) ? $fixarTipoPerfil : false;
 $tipoPerfilFixo = isset($tipoPerfilFixo) ? $tipoPerfilFixo : null;
@@ -18,7 +20,16 @@ $options = [
     'email' => 'e-mail'
 ];
 
-$perfisUsuariosList = Configure::read("profileTypesTranslatedAdminNetwork");
+if (empty($perfisUsuariosList)) {
+    $perfisUsuariosList = [
+        PROFILE_TYPE_ADMIN_NETWORK => PROFILE_TYPE_ADMIN_NETWORK_TRANSLATE,
+        PROFILE_TYPE_ADMIN_REGIONAL => PROFILE_TYPE_ADMIN_REGIONAL_TRANSLATE,
+        PROFILE_TYPE_ADMIN_LOCAL => PROFILE_TYPE_ADMIN_LOCAL_TRANSLATE,
+        PROFILE_TYPE_MANAGER => PROFILE_TYPE_MANAGER_TRANSLATE,
+        PROFILE_TYPE_WORKER => PROFILE_TYPE_WORKER_TRANSLATE,
+        PROFILE_TYPE_USER => PROFILE_TYPE_USER_TRANSLATE
+    ];
+}
 
 if (isset($filter_redes) && $filter_redes) {
     $options = [
@@ -35,15 +46,12 @@ if (isset($filter_redes) && $filter_redes) {
 
     <div class="panel-group">
         <div class="panel panel-default">
-            <div class="panel-heading panel-heading-sm text-center"
-                data-toggle="collapse"
-                href="#collapse1"
-                data-target="#filter-coupons">
+            <div class="panel-heading panel-heading-sm text-center" data-toggle="collapse" href="#collapse1" data-target="#filter-coupons">
                 <!-- <h4 class="panel-title"> -->
-                    <div>
-                        <span class="fa fa-search"></span>
-                            Exibir / Ocultar Filtros
-                    </div>
+                <div>
+                    <span class="fa fa-search"></span>
+                    Exibir / Ocultar Filtros
+                </div>
 
                 <!-- </h4> -->
             </div>
@@ -51,22 +59,22 @@ if (isset($filter_redes) && $filter_redes) {
                 <div class="panel-body">
 
                     <?=
-                    $this->Form->create(
-                        'Post',
-                        [
-                            'url' =>
+                        $this->Form->create(
+                            'Post',
+                            [
+                                'url' =>
                                 [
-                                'controller' => $controller,
-                                'action' => $action,
-                                isset($id) ? $id : null
+                                    'controller' => $controller,
+                                    'action' => $action,
+                                    isset($id) ? $id : null
+                                ]
                             ]
-                        ]
-                    )
+                        )
                     ?>
 
-                        <div class="form-group row">
-                            <?php if ($fixarTipoPerfil): ?>
-                            <div class="col-lg-4">
+                    <div class="form-group row">
+                        <?php if ($fixarTipoPerfil) : ?>
+                            <div class="col-lg-3">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -81,8 +89,8 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
-                            <?php else : ?>
-                            <div class="col-lg-4">
+                        <?php else : ?>
+                            <div class="col-lg-3">
                                 <?= $this->Form->input(
                                     'tipo_perfil',
                                     [
@@ -96,90 +104,91 @@ if (isset($filter_redes) && $filter_redes) {
                                     ]
                                 ) ?>
                             </div>
-                            <?php endif; ?>
-                            <div class="col-lg-4">
-                                <?= $this->Form->input(
-                                    'nome',
-                                    [
-                                        'type' => 'text',
-                                        'id' => 'nome',
-                                        'label' => 'Nome',
-                                        'class' => 'form-control col-lg-2',
-                                        'placeholder' => "Nome..."
-                                    ]
-                                ) ?>
-                            </div>
-                            <div class="col-lg-4">
-                                <?= $this->Form->input(
-                                    'email',
-                                    [
-                                        'type' => 'text',
-                                        'id' => 'email',
-                                        'label' => 'Email',
-                                        'class' => 'form-control col-lg-2',
-                                        'placeholder' => "E-mail..."
-                                    ]
-                                ) ?>
-                            </div>
+                        <?php endif; ?>
+                        <div class="col-lg-3">
+                            <?= $this->Form->input(
+                                'nome',
+                                [
+                                    'type' => 'text',
+                                    'id' => 'nome',
+                                    'label' => 'Nome',
+                                    'class' => 'form-control col-lg-2',
+                                    'placeholder' => "Nome..."
+                                ]
+                            ) ?>
                         </div>
-                        <div class="form-group row">
-                            <div class="col-lg-2">
-                                <?= $this->Form->input(
-                                    'cpf',
-                                    [
-                                        'type' => 'text',
-                                        'id' => 'cpf',
-                                        'label' => 'CPF',
-                                        'class' => 'form-control col-lg-2',
-                                        'placeholder' => "CPF..."
-                                    ]
-                                ) ?>
-                            </div>
-                            <div class="col-lg-3">
-                                <?= $this->Form->input(
-                                    'doc_estrangeiro',
-                                    [
-                                        'type' => 'text',
-                                        'id' => 'doc_estrangeiro',
-                                        'label' => 'Documento Estrangeiro',
-                                        'class' => 'form-control col-lg-2',
-                                        'placeHolder' => "Documento Estrangeiro"
-                                    ]
-                                ) ?>
-                            </div>
-
-                            <div class="col-lg-7">
-
-                                <?php
-
-                                if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
-
-                                    echo $this->Form->input(
-                                        'filtrar_unidade',
-                                        [
-                                            'type' => 'select',
-                                            'id' => 'filtrar_unidade',
-                                            'label' => "Filtrar por unidade?",
-                                            'empty' => 'Todas',
-                                            'options' => $unidades_ids
-                                        ]
-                                    );
-                                }
-                                ?>
-                            </div>
+                        <div class="col-lg-3">
+                            <?= $this->Form->input(
+                                'email',
+                                [
+                                    'type' => 'text',
+                                    'id' => 'email',
+                                    'label' => 'Email',
+                                    'class' => 'form-control col-lg-2',
+                                    'placeholder' => "E-mail..."
+                                ]
+                            ) ?>
                         </div>
-
-                        <div class="form-group row">
-                            <div class="col-lg-12 text-right">
-                                <button type="submit"
-                                    class="btn btn-primary save-button botao-pesquisar">
-                                    <i class="fa fa-search"></i>
-                                    Pesquisar
-                                </button>
-                            </div>
+                        <div class="col-lg-3">
+                            <?= $this->Form->input(
+                                'cpf',
+                                [
+                                    'type' => 'text',
+                                    'id' => 'cpf',
+                                    'label' => 'CPF',
+                                    'class' => 'form-control col-lg-2',
+                                    'placeholder' => "CPF..."
+                                ]
+                            ) ?>
                         </div>
-
                     </div>
+                    <div class="form-group row">
+
+                        <!-- <div class="col-lg-3">
+                            <? // $this->Form->input(
+                            // 'doc_estrangeiro',
+                            // [
+                            //     'type' => 'text',
+                            //     'id' => 'doc_estrangeiro',
+                            //     'label' => 'Documento Estrangeiro',
+                            //     'class' => 'form-control col-lg-2',
+                            //     'placeHolder' => "Documento Estrangeiro"
+                            // ]
+                            // )
+                            ?>
+                        </div> -->
+
+                        <div class="col-lg-7">
+
+                            <?php
+
+                            if (isset($unidades_ids) && sizeof($unidades_ids) > 0) {
+
+                                echo $this->Form->input(
+                                    'filtrar_unidade',
+                                    [
+                                        'type' => 'select',
+                                        'id' => 'filtrar_unidade',
+                                        'label' => "Filtrar por unidade?",
+                                        'empty' => 'Todas',
+                                        'options' => $unidades_ids
+                                    ]
+                                );
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-12 text-right">
+                            <button type="submit" class="btn btn-primary save-button botao-pesquisar">
+                                <i class="fa fa-search"></i>
+                                Pesquisar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
 
                 <?= $this->Form->end() ?>
 
@@ -189,9 +198,5 @@ if (isset($filter_redes) && $filter_redes) {
 
 </div>
 
-<?php
 
-$extension = Configure::read("debug") ? "" : ".min";
-echo $this->Html->script("scripts/usuarios/filtro_usuarios" . $extension);
-echo $this->fetch('script');
-?>
+<script src="/webroot/js/scripts/usuarios/filtro_usuarios<?= $debugExtension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>

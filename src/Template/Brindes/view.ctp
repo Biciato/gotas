@@ -81,10 +81,10 @@ $manageStock = !$brinde["ilimitado"];
         </div>
 
         <?php if ($usuarioLogado["tipo_perfil"] == PROFILE_TYPE_ADMIN_DEVELOPER) : ?>
-        <div class="form-group row">
-            <div class="col-lg-4">
-                <label for="tipo_equipamento">Tipo de Equipamento</label>
-                <?= $this->Form->input(
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <label for="tipo_equipamento">Tipo de Equipamento</label>
+                    <?= $this->Form->input(
                         "tipo_equipamento",
                         array(
                             "id" => "tipo_equipamento",
@@ -101,25 +101,25 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
+                </div>
+                <div class="col-lg-4">
+                    <label for="codigo_primario">Código Primário</label>
+                    <input type="number" name="codigo_primario" id="codigo_primario" class="form-control codigo-primario" required="false" disabled readonly="readonly" min="1" max="99" titleBrindesIndex="Código Primario de Equipamento RTI" placeHolder="Código Primario..." value="<?= $brinde["codigo_primario"] ?>">
+                </div>
+                <div class="col-lg-4">
+                    <label for="tempo_uso_brinde"><?= $textoCodigoSecundario ?></label>
+                    <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" readonly="readonly" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="20" titleBrindesIndex="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
+                </div>
             </div>
-            <div class="col-lg-4">
-                <label for="codigo_primario">Código Primário</label>
-                <input type="number" name="codigo_primario" id="codigo_primario" class="form-control codigo-primario" required="false" disabled readonly="readonly" min="1" max="99" titleBrindesIndex="Código Primario de Equipamento RTI" placeHolder="Código Primario..." value="<?= $brinde["codigo_primario"] ?>">
-            </div>
-            <div class="col-lg-4">
-                <label for="tempo_uso_brinde"><?= $textoCodigoSecundario ?></label>
-                <input type="number" name="tempo_uso_brinde" id="tempo_uso_brinde" required="required" readonly="readonly" placeholder="Tempo de Uso (minutos)..." class="form-control tempo-uso-brinde" min="0" max="20" titleBrindesIndex="Para Brindes que funcionam por tempo, informe valor em minutos" value="<?= $brinde['tempo_uso_brinde'] ?>">
-            </div>
-        </div>
         <?php else : ?>
-        <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
+            <input type="hidden" name="tipo_equipamento" id="tipo_equipamento" value="<?php echo TYPE_EQUIPMENT_PRODUCT_SERVICES ?>">
         <?php endif; ?>
 
         <?php if ($brinde->brinde_rede) : ?>
-        <div class="form-group row">
-            <div class="col-lg-3">
-                <label for="brinde-rede">Brinde de Rede?*</label>
-                <?= $this->Form->input(
+            <div class="form-group row">
+                <div class="col-lg-3">
+                    <label for="brinde-rede">Brinde de Rede?*</label>
+                    <?= $this->Form->input(
                         "brinde_rede",
                         array(
                             "id" => "brinde-rede",
@@ -134,10 +134,10 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
-            <div class="col-lg-3">
-                <label for="ilimitado">Ilimitado</label>
-                <?= $this->Form->input(
+                </div>
+                <div class="col-lg-3">
+                    <label for="ilimitado">Ilimitado</label>
+                    <?= $this->Form->input(
                         "ilimitado",
                         array(
                             "id" => "ilimitado",
@@ -153,10 +153,10 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
-            <div class="col-lg-3">
-                <label for="habilitado">Habilitado</label>
-                <?= $this->Form->input(
+                </div>
+                <div class="col-lg-3">
+                    <label for="habilitado">Habilitado</label>
+                    <?= $this->Form->input(
                         "habilitado",
                         array(
                             "id" => "habilitado",
@@ -172,12 +172,12 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
+                </div>
             </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-lg-4">
-                <label for="tipo_venda">Tipo de Venda</label>
-                <?= $this->Form->input(
+            <div class="form-group row">
+                <div class="col-lg-4">
+                    <label for="tipo_venda">Tipo de Venda</label>
+                    <?= $this->Form->input(
                         "tipo_venda",
                         array(
                             "id" => "tipo_venda",
@@ -195,23 +195,23 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
+                </div>
 
-            <div class="col-lg-4">
-                <label for="preco_padrao">Preço Padrão Gotas</label>
-                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." disabled id="preco_padrao" class="form-control" readonly="readonly" value="<?= $brinde['preco_padrao'] ?>">
+                <div class="col-lg-4">
+                    <label for="preco_padrao">Preço Padrão Gotas</label>
+                    <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." disabled id="preco_padrao" class="form-control" readonly="readonly" value="<?= $brinde['preco_padrao'] ?>">
+                </div>
+                <div class="col-lg-4">
+                    <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
+                    <input type="text" name="valor_moeda_venda_padrao" required="required" readonly="readonly" disabled placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
+                </div>
             </div>
-            <div class="col-lg-4">
-                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
-                <input type="text" name="valor_moeda_venda_padrao" required="required" readonly="readonly" disabled placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
-            </div>
-        </div>
 
         <?php else : ?>
-        <div class="form-group row">
-            <div class="col-lg-2">
-                <label for="ilimitado">Ilimitado</label>
-                <?= $this->Form->input(
+            <div class="form-group row">
+                <div class="col-lg-2">
+                    <label for="ilimitado">Ilimitado</label>
+                    <?= $this->Form->input(
                         "ilimitado",
                         array(
                             "id" => "ilimitado",
@@ -227,10 +227,10 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
-            <div class="col-lg-2">
-                <label for="habilitado">Habilitado</label>
-                <?= $this->Form->input(
+                </div>
+                <div class="col-lg-2">
+                    <label for="habilitado">Habilitado</label>
+                    <?= $this->Form->input(
                         "habilitado",
                         array(
                             "id" => "habilitado",
@@ -246,10 +246,10 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
-            <div class="col-lg-2">
-                <label for="tipo_venda">Tipo de Venda</label>
-                <?= $this->Form->input(
+                </div>
+                <div class="col-lg-2">
+                    <label for="tipo_venda">Tipo de Venda</label>
+                    <?= $this->Form->input(
                         "tipo_venda",
                         array(
                             "id" => "tipo_venda",
@@ -267,17 +267,17 @@ $manageStock = !$brinde["ilimitado"];
                             )
                         )
                     ); ?>
-            </div>
+                </div>
 
-            <div class="col-lg-3">
-                <label for="preco_padrao">Preço Padrão Gotas</label>
-                <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." disabled id="preco_padrao" class="form-control" readonly="readonly" value="<?= $brinde['preco_padrao'] ?>">
+                <div class="col-lg-3">
+                    <label for="preco_padrao">Preço Padrão Gotas</label>
+                    <input type="text" name="preco_padrao" required="required" placeholder="Preço Padrão em Gotas..." disabled id="preco_padrao" class="form-control" readonly="readonly" value="<?= $brinde['preco_padrao'] ?>">
+                </div>
+                <div class="col-lg-3">
+                    <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
+                    <input type="text" name="valor_moeda_venda_padrao" required="required" readonly="readonly" disabled placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'])?>">
+                </div>
             </div>
-            <div class="col-lg-3">
-                <label for="valor_moeda_venda_padrao">Preço Padrão Venda Avulsa (R$)</label>
-                <input type="text" name="valor_moeda_venda_padrao" required="required" readonly="readonly" disabled placeholder="Preço Padrão de Venda Avulsa (R$)..." id="valor_moeda_venda_padrao" class="form-control" value="<?= Number::currency($brinde['valor_moeda_venda_padrao'], 2) ?>">
-            </div>
-        </div>
         <?php endif; ?>
 
         <div class="form-group row">
@@ -314,15 +314,15 @@ $manageStock = !$brinde["ilimitado"];
         </div>
 
         <?php if (strlen($brinde["nome_img"]) > 0) : ?>
-        <div class="form-group row">
-            <div class="col-lg-12">
-                <label for="imagem">
-                    Imagem Atual do Brinde
-                </label>
-                <br />
-                <img src="<?= $imagem ?>" disabled alt="Imagem do Brinde" name="imagem" width="400px" height="300px">
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <label for="imagem">
+                        Imagem Atual do Brinde
+                    </label>
+                    <br />
+                    <img src="<?= $imagem ?>" disabled alt="Imagem do Brinde" name="imagem" width="400px" height="300px">
+                </div>
             </div>
-        </div>
         <?php endif; ?>
     </fieldset>
 

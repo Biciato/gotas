@@ -95,7 +95,7 @@ class CuponsShell extends ExtendedShell
                     $turnoAtual = ShiftUtil::obtemTurnoAtual($postoTurnos);
 
                     // Trata os cupons
-                    $cupons = $this->Cupons->getCuponsResgatadosUsados($cliente->id, true, false, null, true, 1);
+                    $cupons = $this->Cupons->getCuponsResgatadosUsados($cliente->id, true, false, null, true, 0);
 
                     $rowCountPosto = 0;
 

@@ -204,17 +204,71 @@ class CuponsTransacoesTable extends GenericTable
                 $where[] = array("CuponsTransacoes.data <= " => $maxDate->format("Y-m-d H:i:s"));
             }
 
+            $select = [
+                "count" => $this->find()->func()->count("CuponsTransacoes.id"),
+                'sum_valor_pago_gotas' => $this->find()->func()->sum("Cupons.valor_pago_gotas")
+            ];
+            return $this->find("all")
+                ->select($select)
+                ->contain("Cupons")
+                ->where($where)
+                ->first();
+        } catch (\Exception $ex) {
+            $message = $ex->getMessage();
+            $trace = $ex->getTraceAsString();
+
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_LOAD_DATA_WITH_ERROR, $message, $trace));
+
+            throw new Exception($message);
+        }
+    }
+
+    public function getSumTransactionsByBrindeUsuario(int $brindesId = null, int $usuariosId = null, string $tipoOperacao = TYPE_OPERATION_RETRIEVED, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = array();
+
+            $where = function (QueryExpression $exp) use ($brindesId, $usuariosId, $tipoOperacao, $minDate, $maxDate) {
+                if (!empty($brindesId)) {
+                    $exp->eq("CuponsTransacoes.brindes_id", $brindesId);
+                }
+
+                if (!empty($usuariosId)) {
+                    $exp->eq("Cupons.usuarios_id", $usuariosId);
+                }
+                if (!empty($tipoOperacao)) {
+                    $exp->eq("CuponsTransacoes.tipo_operacao", $tipoOperacao);
+                }
+
+                if (!empty($minDate)) {
+                    $exp->gte("CuponsTransacoes.data", $minDate->format("Y-m-d H:i:s"));
+                }
+                if (!empty($maxDate)) {
+                    $exp->lte("CuponsTransacoes.data", $maxDate->format("Y-m-d H:i:s"));
+                }
+
+                return $exp;
+            };
+
             $query = $this->find();
-            $soma = $query->select(array("count" => $query->func()->count("CuponsTransacoes.id")))
-                ->where($where)->first();
+            $selectList = [
+                "count" => $query->func()->count("CuponsTransacoes.id")
+            ];
+
+            $soma = $query
+                ->select($selectList)
+                ->where($where)
+                ->contain(["Cupons"])
+                ->first();
 
             return $soma["count"];
         } catch (\Exception $ex) {
             $message = $ex->getMessage();
             $trace = $ex->getTraceAsString();
 
-            Log::write("error", sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message));
-            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MESSAGE_LOAD_DATA_WITH_ERROR, $message, $trace));
+            Log::write("error", sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $message));
+            Log::write("debug", sprintf("[%s] Error: %s/ Trace: %s", MSG_LOAD_DATA_WITH_ERROR, $message, $trace));
 
             throw new Exception($message);
         }
@@ -230,6 +284,7 @@ class CuponsTransacoesTable extends GenericTable
      * @param integer $redesId Redes Id
      * @param array $clientesIds Clientes Ids
      * @param integer $brindesId Brindes Id
+     * @param integer $funcionariosId Id de Funcionário
      * @param DateTime $minDate Min Date
      * @param DateTime $maxDate Max Date
      * @param string $tipoRelatorio Tipo Relatorio
@@ -239,11 +294,11 @@ class CuponsTransacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-12-02
      */
-    public function getTransactionsForReport(int $redesId = null, array $clientesIds = [], int $brindesId = null, DateTime $minDate = null, DateTime $maxDate = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getTransactionsForReport(int $redesId = null, array $clientesIds = [], int $brindesId = null, int $funcionariosId = null, DateTime $minDate = null, DateTime $maxDate = null, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
 
         try {
-            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $minDate, $maxDate) {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesIds, $brindesId, $funcionariosId, $minDate, $maxDate) {
                 if (!empty($redesId)) {
                     $exp->eq("Redes.id", $redesId);
                 }
@@ -254,6 +309,10 @@ class CuponsTransacoesTable extends GenericTable
 
                 if (!empty($brindesId)) {
                     $exp->eq("Brindes.id", $brindesId);
+                }
+
+                if (!empty($funcionariosId)) {
+                    $exp->eq("Funcionarios.id", $funcionariosId);
                 }
 
                 if (!empty($minDate)) {
@@ -279,7 +338,7 @@ class CuponsTransacoesTable extends GenericTable
                 "brinde" => "Brindes.nome",
                 "funcionario" => "Funcionarios.nome",
                 "usuario" => "Usuarios.nome",
-                "estabelecimento" => "Clientes.nome_fantasia",
+                "nome_fantasia" => "Clientes.nome_fantasia",
                 "rede" => "Redes.nome_rede",
                 "qte" => $query->func()->sum("Cupons.quantidade")
             ];
@@ -313,6 +372,127 @@ class CuponsTransacoesTable extends GenericTable
         }
     }
 
+    /**
+     * Obtem melhor brinde de vendas
+     *
+     * Realiza pesquisa no banco pela rede e/ou pelo estabelecimento e obtem  lista de brindes
+     * com melhor estatística de vendas
+     *
+     * @param integer $redesId
+     * @param integer $clientesId
+     *
+     * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
+     */
+    public function getBestSellerBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_RETRIEVE);
+
+                // campos de data são obrigatórios
+                $exp->gte("CuponsTransacoes.data", $minDate);
+                $exp->lte("CuponsTransacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Brindes"
+            ];
+
+            $sum = $this->find()->func()->count("CuponsTransacoes.brindes_id");
+            $selectFields = [
+                "count" => $sum,
+                "nome" => "Brindes.nome"
+            ];
+            $groupBy = [
+                "Brindes.id"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->group($groupBy)
+                ->select($selectFields);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+    /**
+     * Obtem funcionário que mais vendeu brindes
+     *
+     * Realiza pesquisa no banco pela rede e/ou pelo estabelecimento e obtem  lista de brindes
+     * com melhor estatística de vendas
+     *
+     * @param integer $redesId
+     * @param integer $clientesId
+     *
+     * @return \App\Model\Entity\CuponsTransacoes[] $transacoes
+     */
+    public function getEmployeeMostSoldBrindes(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                if (!empty($redesId)) {
+                    $exp->eq("Redes.id", $redesId);
+                }
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->eq("CuponsTransacoes.tipo_operacao", TYPE_OPERATION_USE);
+
+                // campos de data são obrigatórios
+                $exp->gte("CuponsTransacoes.data", $minDate);
+                $exp->lte("CuponsTransacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Brindes",
+                "Funcionarios"
+            ];
+
+            $sum = $this->find()->func()->count("CuponsTransacoes.id");
+            $selectFields = [
+                "count" => $sum,
+                "funcionarios_id" => "Funcionarios.id",
+                "funcionarios_nome" => "Funcionarios.nome"
+            ];
+            $groupBy = [
+                "CuponsTransacoes.funcionarios_id"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->group($groupBy)
+                ->select($selectFields);
+        } catch (Exception $e) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $e->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
+        }
+    }
+
+
     #endregion
 
     #region Save
@@ -334,9 +514,9 @@ class CuponsTransacoesTable extends GenericTable
         try {
             return $this->save($cupomTransacao);
         } catch (Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_SAVED_ERROR, $e->getMessage());
+            $message = sprintf("[%s] %s", MESSAGE_SAVED_EXCEPTION, $e->getMessage());
             Log::write("error", $message);
-            throw new Exception($message);
+            throw new Exception($message, $e->getCode());
         }
     }
     #endregion

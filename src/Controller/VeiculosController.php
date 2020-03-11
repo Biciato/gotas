@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use \DateTime;
@@ -12,6 +13,8 @@ use Cake\Mailer\Email;
 use Cake\View\Helper\UrlHelper;
 use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\ResponseUtil;
+use Cake\Http\Client\Request;
+use Exception;
 
 /**
  * Veiculos Controller
@@ -321,6 +324,64 @@ class VeiculosController extends AppController
      * ------------------------------------------------------------
      */
 
+
+    /**
+     * Obtem usuários através de placa de veículo
+     *
+     * Realiza a pesquisa no banco de dados através de dados enviados via GET,
+     * obtendo todos os usuários que estão associados à uma placa de veículo
+     *
+     * @param string $data["placa"] Placa do veículo
+     *
+     * @return \App\Model\Entity\Veiculo $veiculo
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.4
+     */
+    public function getUsuariosByVeiculoAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $this->usuarioLogado = $usuarioAdministrar;
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $errors = [];
+        $errorCodes = [];
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $placa = !empty($data["placa"]) ? $data["placa"] : null;
+                $redesId = !empty($rede) ? $rede->id : null;
+
+                if (empty($placa)) {
+                    $errors = [MSG_VEICULOS_PLACA_EMPTY];
+                    $errorCodes = [MSG_VEICULOS_PLACA_EMPTY_CODE];
+
+                    throw new Exception(MSG_ERROR);
+                }
+
+                $vehicle = $this->Veiculos->getUsuariosByVeiculo(null, $placa, $redesId);
+                $result = ["data" => ["veiculo" => $vehicle]];
+
+                return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $result);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI($errorMessage, $errors, [], $errorCodes);
+        }
+    }
+
     /**
      * VeiculosController::getVeiculosUsuarioAPI
      *
@@ -538,7 +599,7 @@ class VeiculosController extends AppController
                         $data['opcoes'] . ' like' => '%' . $valorParametro . '%'
                     ];
 
-                $qteRegistros = (int)$data['qte_registros'];
+                $qteRegistros = (int) $data['qte_registros'];
 
                 $dataHoje = DateTimeUtil::convertDateToUTC((new DateTime('now'))->format('Y-m-d H:i:s'));
 
@@ -582,7 +643,7 @@ class VeiculosController extends AppController
 
                 $usuariosIds = array();
 
-                $rede = $this->Redes->getRedeById((int)$value);
+                $rede = $this->Redes->getRedeById((int) $value);
 
                 $redeItem = array();
 

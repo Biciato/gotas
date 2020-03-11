@@ -2,6 +2,7 @@
 
 namespace App\Model\Table;
 
+use App\Custom\RTI\DebugUtil;
 use Cake\Log\Log;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
@@ -325,8 +326,8 @@ class BrindesTable extends GenericTable
             return $brindes;
         } catch (\Exception $e) {
             $trace = $e->getTraceAsString();
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
-            $messageTrace = sprintf("[%s] %s / %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage(), $trace);
+            $message = sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            $messageTrace = sprintf("[%s] %s / %s", MSG_LOAD_DATA_WITH_ERROR, $e->getMessage(), $trace);
 
             Log::write('error', $message);
             Log::write('debug', $messageTrace);
@@ -352,7 +353,7 @@ class BrindesTable extends GenericTable
                 ->where($where)
                 ->contain(["CategoriaBrinde", "PrecoAtual"]);
         } catch (\Throwable $th) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $e->getMessage());
             Log::write('error', $message);
 
             throw new Exception($message);
@@ -421,7 +422,7 @@ class BrindesTable extends GenericTable
 
             return $brindes;
         } catch (Exception $e) {
-            $message = sprintf("[%s] %s", MESSAGE_LOAD_DATA_WITH_ERROR, $e->getMessage());
+            $message = sprintf("[%s] %s", MSG_LOAD_DATA_WITH_ERROR, $e->getMessage());
 
             throw new Exception($message);
         }
@@ -467,6 +468,8 @@ class BrindesTable extends GenericTable
                 // Se Desconto ou Isento
                 $brindes = $brindesList->toArray();
             }
+
+            // DebugUtil::printArray($brindes);
 
             return $brindes;
         } catch (\Throwable $th) {

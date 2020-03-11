@@ -5,6 +5,7 @@
  * @file     src/Template/Usuarios/filtro_usuarios_ajax.ctp
  * @date     14/08/2017
  */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
@@ -15,59 +16,59 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
     <div class="user-query-region">
 
-    <div class="col-lg-12">
-        <h4>Selecione um cliente</h4>
+        <div class="col-lg-12">
+            <h4>Selecione um cliente</h4>
+        </div>
+
+        <div class="col-lg-3">
+
+            <?= $this->Form->input(
+                'opcoes',
+                array(
+                    'type' => 'select',
+                    'id' => 'opcoes',
+                    'class' => 'form-control col-lg-2 opcoes',
+                    'label' => 'Pesquisar Por',
+                    'options' => array(
+                        'nome' => 'nome',
+                        'cpf' => 'cpf',
+                        'doc_estrangeiro' => 'documento estrangeiro',
+                        'placa' => 'placa'
+                    ),
+                    'default' => 'nome'
+                )
+            ) ?>
+        </div>
+
+        <div class="col-lg-7">
+            <?= $this->Form->input(
+                'parametro',
+                [
+                    'id' => 'parametro',
+                    'label' => 'Parâmetro',
+                    'placeholder' => 'Parâmetro...',
+                    'class' => 'form-control col-lg-5 parametro'
+                ]
+            ) ?>
+        </div>
+
+        <div class="col-lg-2 vertical-align">
+
+            <?= $this->Form->button(
+                __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
+                [
+                    'class' => 'btn btn-primary btn-block',
+                    'type' => 'button',
+                    'id' => 'searchUsuario'
+                ]
+            ) ?>
+        </div>
+
+        <span class="text-danger validation-message" id="userValidationMessage"></span>
+
     </div>
 
-    <div class="col-lg-3">
-
-        <?= $this->Form->input(
-            'opcoes',
-            array(
-                'type' => 'select',
-                'id' => 'opcoes',
-                'class' => 'form-control col-lg-2 opcoes',
-                'label' => 'Pesquisar Por',
-                'options' => array(
-                    'nome' => 'nome',
-                    'cpf' => 'cpf',
-                    'doc_estrangeiro' => 'documento estrangeiro',
-                    'placa' => 'placa'
-                ),
-                'default' => 'nome'
-            )
-        ) ?>
-    </div>
-
-    <div class="col-lg-7">
-        <?= $this->Form->input(
-            'parametro',
-            [
-                'id' => 'parametro',
-                'label' => 'Parâmetro',
-                'placeholder' => 'Parâmetro...',
-                'class' => 'form-control col-lg-5 parametro'
-            ]
-        ) ?>
-    </div>
-
-    <div class="col-lg-2 vertical-align">
-
-        <?= $this->Form->button(
-            __("{0} Pesquisar", '<i class="fa fa-search" aria-hidden="true"></i>'),
-            [
-                'class' => 'btn btn-primary btn-block',
-                'type' => 'button',
-                'id' => 'searchUsuario'
-            ]
-        ) ?>
-    </div>
-
-    <span class="text-danger validation-message" id="userValidationMessage"></span>
-
-    </div>
-
-    <div class="user-result user-result-names" >
+    <div class="user-result user-result-names">
         <div class="col-lg-12">
             <table class="table table-striped table-hover" id="user-result-names">
                 <thead>
@@ -87,7 +88,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
 
 
     <div class="form-group">
-        <div class="user-result user-result-plates" >
+        <div class="user-result user-result-plates">
 
             <div id="vehicle">
                 <h4>Veículo Encontrado</h4>
@@ -138,7 +139,7 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
         </div>
 
         <div class="form-group row  col-lg-12">
-        <!-- <div class="form-group row  "> -->
+            <!-- <div class="form-group row  "> -->
             <div class="col-lg-12">
                 <h4>Cliente selecionado</h4>
             </div>
@@ -179,13 +180,8 @@ $isVendaAvulsa = isset($isVendaAvulsa) ? $isVendaAvulsa : false;
     </div>
 </div>
 
-<?php if (Configure::read('debug') == true) : ?>
-    <?= $this->Html->script('scripts/usuarios/filtro_usuarios_ajax') ?>
-    <?= $this->Html->css('styles/usuarios/filtro_usuarios_ajax') ?>
-<?php else : ?>
-    <?= $this->Html->script('scripts/usuarios/filtro_usuarios_ajax.min') ?>
-    <?= $this->Html->css('styles/usuarios/filtro_usuarios_ajax.min') ?>
-<?php endif; ?>
-
-<?= $this->fetch('script') ?>
-<?= $this->fetch('css') ?>
+<?php
+$extension = Configure::read("debug") ? ""  : ".min";
+?>
+<script src="/webroot/js/scripts/usuarios/filtro_usuarios_ajax<?= $extension ?>.js?version=<?= SYSTEM_VERSION ?>"></script>
+<link rel="stylesheet" href="/webroot/css/styles/usuarios/filtro_usuarios_ajax<?= $extension ?>.css?<?php SYSTEM_VERSION ?>">

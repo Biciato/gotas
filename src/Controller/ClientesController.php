@@ -15,10 +15,14 @@ use App\Custom\RTI\DateTimeUtil;
 use App\Custom\RTI\FilesUtil;
 use App\Custom\RTI\ImageUtil;
 use App\Custom\RTI\DebugUtil;
+use App\Custom\RTI\HtmlUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\NumberUtil;
 use App\Custom\RTI\StringUtil;
+use App\Model\Entity\Cliente;
+use App\Model\Entity\Gota;
 use Cake\Http\Client\Request;
+use stdClass;
 
 /**
  * Clientes Controller
@@ -341,7 +345,6 @@ class ClientesController extends AppController
                     $clienteJaExistente = $this->Clientes->getClienteByCNPJ($cnpj);
 
                     if ($clienteJaExistente && $clienteJaExistente["id"] != $cliente["id"]) {
-
                         $message = __("Este CNPJ já está cadastrado! Cliente Cadastrado com o CNPJ: {0}, Nome Fantasia: {1}, Razão Social: {2}", NumberUtil::formatarCNPJ($clienteJaExistente["cnpj"]), $clienteJaExistente["nome_fantasia"], $clienteJaExistente["razao_social"]);
                         $this->Flash->error($message);
 
@@ -363,7 +366,6 @@ class ClientesController extends AppController
                     $novoTurno = $data["horario"];
 
                     if (($novaQteTurnos != $quantidadeTurnos) || ($novoTurno != $turnoInicial)) {
-
                         $horarios = $this->calculaTurnos($novaQteTurnos, $novoTurno);
 
                         $resultDisable = $this->ClientesHasQuadroHorario->disableHorariosCliente($cliente["id"]);
@@ -587,7 +589,6 @@ class ClientesController extends AppController
     public function configurarPropaganda(int $clientesId = null)
     {
         try {
-
             $sessaoUsuario = $this->getSessionUserVariables();
 
             $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
@@ -687,6 +688,60 @@ class ClientesController extends AppController
     }
 
     /**
+     * Action para Relatório de Ranking de Operações
+     *
+     * @return void
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     */
+    public function relBalancoGeral()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $cliente = $sessaoUsuario["cliente"];
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $arraySet = ["clientesId"];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    /**
+     * Action para Relatório de Ranking de Operações
+     *
+     * @return void
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     */
+    public function relRankingOperacoes()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $cliente = $sessaoUsuario["cliente"];
+        $clientesId = !empty($cliente) ? $cliente->id : 0;
+        $rede = $sessaoUsuario["rede"];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        $arraySet = ["clientesId"];
+
+        $this->set(compact($arraySet));
+        $this->set('_serialize', $arraySet);
+    }
+
+    /**
      * ClientesController::calculaTurnos
      *
      * Calcula os turnos cadastrados para a unidade
@@ -731,6 +786,180 @@ class ClientesController extends AppController
      * Métodos REST
      * ------------------------------------------------------------
      */
+
+
+    /**
+     * Dados de Relatório de Balanço Geral de Estabelecimentos
+     *
+     * Obtem Dados de Relatório de Balanço Geral de Estabelecimentos contendo as seguintes informações:
+     *
+     * 1 - Quantidade de Gotas de Entrada (Pontos de Produtos ADQUIRIDOS)
+     * 2 - Quantidade de Gotas de Saída (Pontos de Brindes USADOS)
+     *
+     * @param int $redes_id Id da Rede
+     * @param DateTime $data_inicio Data Início
+     * @param DateTime $data_fim Data Fim
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-04
+     *
+     * @return json_encode (json object|table html|excel)
+     */
+    public function balancoGeralAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $errors = [];
+        $errorCodes = [];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $typeExport = !empty($data["tipo_exportacao"]) ? $data["tipo_exportacao"] : TYPE_EXPORTATION_DATA_OBJECT;
+                // Se usuário logado for Adm Rede ou Regional, não precisa estar preso a um posto a pesquisa
+                if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                    $cliente = null;
+                }
+
+                $redesId = !empty($rede) ? $rede->id : $redesId;
+
+                if (empty($redesId)) {
+                    // Necessário ter uma
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+                $redesHasClientes = $redesHasClientesQuery->select(["Clientes.id", "Clientes.nome_fantasia"])->toArray();
+                $clientes = array_column($redesHasClientes, "Clientes");
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                /**
+                 *  Para cada registro de Cliente, obtem os dados de:
+                 *  -> Brindes mais resgatados;
+                 *  -> Combustível mais utilizado;
+                 *  -> Cliente que mais pontuou;
+                 *  -> Funcionário que mais atendeu;
+                 */
+
+                $reportData = [];
+
+                foreach ($clientes as $cliente) {
+                    $reportItem = new stdClass();
+
+                    // Dados do Estabelecimento
+                    $reportItem->cliente = $cliente;
+                    // Total entrada
+                    $reportItem->entrada = $this->Pontuacoes->getSumPointsNetwork($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    // Total Saída
+                    $reportItem->saida = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, null, null, null, TYPE_OPERATION_USE, $dataInicio, $dataFim);
+
+                    $reportData[] = $reportItem;
+                }
+
+                $headersReport = new stdClass();
+                $headersReport->nome_fantasia = "Estabelecimento";
+                $headersReport->entrada = "Pontos de Entrada";
+                $headersReport->saida = "Pontos de Saída";
+                $headersReport->diferenca = "Diferença";
+
+                $dataRows = [];
+                $sumInPoints = 0;
+                $sumOutPoints = 0;
+
+                foreach ($reportData as $data) {
+                    $item = new stdClass();
+                    $item->nome_fantasia = $data->cliente->nome_fantasia;
+                    $item->entrada = !empty($data->entrada) && !empty($data->entrada->sum) ? $data->entrada->sum : 0;
+                    $item->saida = !empty($data->saida) && !empty($data->saida->sum_valor_pago_gotas) ? $data->saida->sum_valor_pago_gotas : 0;
+                    $item->diferenca = $item->entrada - $item->saida;
+                    $dataRows[] = $item;
+
+                    $sumInPoints += $item->entrada;
+                    $sumOutPoints += $item->saida;
+                }
+
+                $total = new stdClass();
+                $total->entrada = $sumInPoints;
+                $total->saida = $sumOutPoints;
+                $total->diferenca = $sumInPoints - $sumOutPoints;
+
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $dataToReturn = new stdClass();
+                    $dataToReturn->headers = $headersReport;
+                    $dataToReturn->rows = $dataRows;
+                    $dataToReturn->total = $total;
+
+                    // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataToReturn);
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dataToReturn]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+
+                    $rowTotal = new stdClass();
+                    $rowTotal->nome_fantasia = "Total:";
+                    $rowTotal->entrada = $sumInPoints;
+                    $rowTotal->saida = $sumOutPoints;
+                    $rowTotal->diferenca = $sumInPoints - $sumOutPoints;
+
+                    $dataRows[] = $rowTotal;
+
+                    $dataToReturn = new stdClass();
+                    $title = sprintf("Balanço Geral: (%s à %s)", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dataToReturn->report = HtmlUtil::generateHTMLTable($title, $headersReport, $dataRows, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_TABLE) {
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataToReturn]);
+                    } else {
+                        $allTables = sprintf("%s", $dataToReturn->report);
+                        $excel = HtmlUtil::wrapContentToHtml($allTables);
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
+                    }
+                }
+
+                throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+            }
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+        }
+    }
 
     /**
      * ClientesController::getClientesListAPI
@@ -791,7 +1020,7 @@ class ClientesController extends AppController
             }
 
             if (count($clientes) == 0) {
-                return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND);
+                return ResponseUtil::errorAPI(MSG_LOAD_DATA_NOT_FOUND);
             }
 
             $data = ["data" => ["clientes" => $clientes]];
@@ -802,6 +1031,320 @@ class ClientesController extends AppController
             Log::write("error", $message);
 
             return ResponseUtil::errorAPI(MSG_LOAD_EXCEPTION, [$th->getMessage()]);
+        }
+    }
+
+    /**
+     * Dados de Relatório de Ranking de Operações
+     *
+     * Obtem Dados de Relatório de Ranking de Operações contendo as seguintes informações:
+     *
+     * 1 - Brinde mais resgatado;
+     * 2 - Combustível mais utilizado;
+     * 3 - Cliente mais pontuado;
+     * 4 - Funcionário que mais prestou atendimento;
+     *
+     * @param int $redes_id Id da Rede
+     * @param int $clientes_id Id do Estabelecimento
+     * @param DateTime $data_inicio Data Início
+     * @param DateTime $data_fim Data Fim
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-04
+     *
+     * @return json_encode (json object|table html|excel)
+     */
+    public function rankingOperacoesAPI()
+    {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
+        $rede = $sessaoUsuario["rede"];
+        $cliente = $sessaoUsuario["cliente"];
+        $errors = [];
+        $errorCodes = [];
+
+        if ($usuarioAdministrar) {
+            $usuarioLogado = $usuarioAdministrar;
+        }
+
+        try {
+            if ($this->request->is(Request::METHOD_GET)) {
+                $data = $this->request->getQueryParams();
+                $redesId = !empty($data["redes_id"]) ? $data["redes_id"] : null;
+                $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
+                $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : null;
+                $dataFim =  !empty($data["data_fim"]) ? $data["data_fim"] : null;
+                $typeExport = !empty($data["tipo_exportacao"]) ? $data["tipo_exportacao"] : TYPE_EXPORTATION_DATA_OBJECT;
+                // Se usuário logado for Adm Rede ou Regional, não precisa estar preso a um posto a pesquisa
+                if (in_array($usuarioLogado->tipo_perfil, [PROFILE_TYPE_ADMIN_NETWORK, PROFILE_TYPE_ADMIN_REGIONAL])) {
+                    $cliente = null;
+                }
+
+                $redesId = !empty($rede) ? $rede->id : $redesId;
+                $clientesId = !empty($cliente) ? $cliente->id : $clientesId;
+
+                if (empty($redesId)) {
+                    // Necessário ter uma
+                    $errors[] = MSG_REDES_ID_EMPTY;
+                    $errorCodes[] = MSG_REDES_ID_EMPTY_CODE;
+                }
+
+                if (empty($dataInicio)) {
+                    $errors[] = MSG_DATE_BEGIN_EMPTY;
+                    $errorCodes[] = MSG_DATE_BEGIN_EMPTY_CODE;
+                }
+
+                if (empty($dataFim)) {
+                    $errors[] = MSG_DATE_END_EMPTY;
+                    $errorCodes[] = MSG_DATE_END_EMPTY_CODE;
+                }
+
+                if (count($errors) > 0) {
+                    throw new Exception(MSG_LOAD_EXCEPTION, MSG_LOAD_EXCEPTION_CODE);
+                }
+
+                $clientes = [];
+
+                if (empty($clientesId)) {
+                    $redesHasClientesQuery = $this->RedesHasClientes->getRedesHasClientesByRedesId($redesId);
+
+                    $redesHasClientes = $redesHasClientesQuery->select(["Clientes.id", "Clientes.nome_fantasia"])->toArray();
+
+                    $clientes = array_column($redesHasClientes, "Clientes");
+                } else {
+                    $clienteTemp = $this->Clientes->get($clientesId);
+                    $cliente = new Cliente();
+                    $cliente->id = $clienteTemp->id;
+                    $cliente->nome_fantasia = $clienteTemp->nome_fantasia;
+                    $clientes[] = $cliente;
+                }
+
+                $dataInicio = new DateTime(sprintf("%s 00:00:00", $dataInicio));
+                $dataFim = new DateTime(sprintf("%s 23:59:59", $dataFim));
+
+                /**
+                 *  Para cada registro de Cliente, obtem os dados de:
+                 *  -> Brindes mais resgatados;
+                 *  -> Combustível mais utilizado;
+                 *  -> Cliente que mais pontuou;
+                 *  -> Funcionário que mais atendeu;
+                 */
+
+                $reportData = [];
+
+                foreach ($clientes as $cliente) {
+                    $reportItem = new stdClass();
+
+                    // Dados do Estabelecimento
+                    $reportItem->cliente = $cliente;
+
+                    // Brinde mais resgatado:
+                    $reportItem->brinde = new stdClass();
+                    $reportItem->brinde = $this->CuponsTransacoes->getBestSellerBrindes($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+
+                    // Combustível mais utilizado
+                    $reportItem->gota = $this->Pontuacoes->getBestSellerGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+
+                    // Usuário que mais pontuou
+                    $reportItem->usuario = $this->Pontuacoes->getUserHighestPointsIn($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+
+                    // Funcionario que mais abasteceu clientes
+                    $employeeTopSoldProducts = $this->Pontuacoes->getEmployeeMostSoldGotas($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+                    // Funcionário que mais vendeu Brindes
+                    $employeeTopSoldGifts = $this->CuponsTransacoes->getEmployeeMostSoldBrindes($redesId, $cliente->id, $dataInicio, $dataFim)->first();
+
+                    $reportItem->funcionario = new stdClass;
+                    $reportItem->funcionario->gota = $employeeTopSoldProducts;
+                    $reportItem->funcionario->brinde = $employeeTopSoldGifts;
+
+                    $reportData[] = $reportItem;
+                }
+
+
+                $headerReportGifts = new stdClass();
+                $headerReportGifts->nome_fantasia = "Estabelecimento";
+                $headerReportGifts->brinde_nome = "Brinde Mais Resgatado";
+                $headerReportGifts->brinde_qte = "Qte.";
+
+                $headerReportDrops = new stdClass();
+                $headerReportDrops->nome_fantasia = "Estabelecimento";
+                $headerReportDrops->gota_nome = "Produto Mais Resgatado";
+                $headerReportDrops->gota_qte = "Qte.";
+
+                $headerReportUser = new stdClass();
+                $headerReportUser->nome_fantasia = "Estabelecimento";
+                $headerReportUser->usuario_nome = "Usuário Mais Pontuado";
+                $headerReportUser->usuario_qte = "Qte.";
+
+                $headerReportEmployee = new stdClass();
+                $headerReportEmployee->nome_fantasia = "Estabelecimento";
+                $headerReportEmployee->funcionario_brindes_nome = "Brindes";
+                $headerReportEmployee->funcionario_brindes_qte = "Qte.";
+                $headerReportEmployee->funcionario_gotas_nome = "Produtos ";
+                $headerReportEmployee->funcionario_gotas_qte = "Qte.";
+                $dataGifts = [];
+                $dataDrops = [];
+                $dataUser = [];
+                $dataEmployee = [];
+
+                $sumBrindeQte = 0;
+                $sumGotaQte = 0;
+                $sumUsuarioQte = 0;
+                $sumFuncionarioBrindes = 0;
+                $sumFuncionarioGotas = 0;
+
+                foreach ($reportData as $data) {
+                    $itemBrinde = new stdClass();
+                    // $item->cientes_id = $data->cliente->id;
+                    $itemBrinde->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemBrinde->brinde_nome = !empty($data->brinde) ? $data->brinde->nome : "";
+                    $itemBrinde->brinde_qte = !empty($data->brinde) ? $data->brinde->count : 0;
+                    $dataGifts[] = $itemBrinde;
+
+                    $itemGota = new stdClass();
+                    $itemGota->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemGota->gota_nome = !empty($data->gota) ? $data->gota->nome : "";
+                    $itemGota->gota_qte = !empty($data->gota) ? $data->gota->sum : 0;
+                    $dataDrops[] = $itemGota;
+
+                    $itemUsuario = new stdClass();
+                    $itemUsuario->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemUsuario->usuario_nome = !empty($data->usuario) ? $data->usuario->nome : "";
+                    $itemUsuario->usuario_qte = !empty($data->usuario) ? $data->usuario->sum : 0;
+                    $dataUser[] = $itemUsuario;
+
+                    $itemFuncionario = new stdClass();
+                    $itemFuncionario->nome_fantasia = $data->cliente->nome_fantasia;
+                    $itemFuncionario->funcionario_brindes_nome =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_brindes_qte =  !empty($data->funcionario) && !empty($data->funcionario->brinde) ? $data->funcionario->brinde->count : 0;
+                    $itemFuncionario->funcionario_gotas_nome =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->funcionarios_nome : "";
+                    $itemFuncionario->funcionario_gotas_qte =  !empty($data->funcionario) && !empty($data->funcionario->gota) ? $data->funcionario->gota->count : 0;
+                    $dataEmployee[] = $itemFuncionario;
+
+                    $sumBrindeQte += $itemBrinde->brinde_qte;
+                    $sumGotaQte += $itemGota->gota_qte;
+                    $sumUsuarioQte += $itemUsuario->usuario_qte;
+                    $sumFuncionarioBrindes += $itemFuncionario->funcionario_brindes_qte;
+                    $sumFuncionarioGotas += $itemFuncionario->funcionario_gotas_qte;
+                }
+
+                $totalGift = new stdClass();
+                $totalGift->sum = $sumBrindeQte;
+                $totalDrop = new stdClass();
+                $totalDrop->sum = $sumGotaQte;
+                $totalUser = new stdClass();
+                $totalUser->sum = $sumUsuarioQte;
+                $totalEmployee = new stdClass();
+                $totalEmployee->sum_brinde = $sumFuncionarioBrindes;
+                $totalEmployee->sum_gota = $sumFuncionarioGotas;
+
+                if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
+                    $reportGifts = new stdClass();
+                    $reportGifts->headers = $headerReportGifts;
+                    $reportGifts->rows = $dataGifts;
+                    $reportGifts->total = $totalGift;
+
+                    $reportDrops = new stdClass();
+                    $reportDrops->headers = $headerReportDrops;
+                    $reportDrops->rows = $dataDrops;
+                    $reportDrops->total = $totalDrop;
+
+                    $reportUser = new stdClass();
+                    $reportUser->headers = $headerReportGifts;
+                    $reportUser->rows = $dataUser;
+                    $reportUser->total = $totalUser;
+
+                    $reportEmployee = new stdClass();
+                    $reportEmployee->headers = $headerReportEmployee;
+                    $reportEmployee->rows = $dataEmployee;
+                    $reportEmployee->total = $totalEmployee;
+
+                    $dataToReturn = new stdClass();
+                    $dataToReturn->brinde = $reportGifts;
+                    $dataToReturn->gota = $reportDrops;
+                    $dataToReturn->usuario = $reportUser;
+                    $dataToReturn->funcionario = $reportEmployee;
+
+                    // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, $dataToReturn);
+                    return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ["data" => $dataToReturn]);
+                } elseif (in_array($typeExport, [TYPE_EXPORTATION_DATA_TABLE, TYPE_EXPORTATION_DATA_EXCEL])) {
+
+                    $rowTotal = new stdClass();
+                    $rowTotal->nome_fantasia = "Total:";
+                    $rowTotal->brinde_nome = "";
+                    $rowTotal->brinde_qte = $sumBrindeQte;
+                    $rowTotal->gota_nome = "";
+                    $rowTotal->gota_qte = $sumGotaQte;
+                    $rowTotal->usuario_nome = "";
+                    $rowTotal->usuario_qte = $sumUsuarioQte;
+                    $rowTotal->funcionario_brindes_nome = "";
+                    $rowTotal->funcionario_brindes_qte = $sumFuncionarioBrindes;
+                    $rowTotal->funcionario_gotas_nome = "";
+                    $rowTotal->funcionario_gotas_qte = $sumFuncionarioGotas;
+
+                    $rowTotalGift = new stdClass();
+                    $rowTotalGift->nome_fantasia = "Total:";
+                    $rowTotalGift->brinde_nome = "";
+                    $rowTotalGift->sum = $sumBrindeQte;
+                    $rowTotalDrop = new stdClass();
+                    $rowTotalDrop->nome_fantasia = "Total:";
+                    $rowTotalDrop->gota_nome = "";
+                    $rowTotalDrop->sum = $sumGotaQte;
+                    $rowTotalUser = new stdClass();
+                    $rowTotalUser->nome_fantasia = "Total:";
+                    $rowTotalUser->usuario_nome = "";
+                    $rowTotalUser->sum = $sumUsuarioQte;
+                    $rowTotalEmployee = new stdClass();
+                    $rowTotalEmployee->nome_fantasia = "Total:";
+                    $rowTotalEmployee->funcionario_brindes_nome = "";
+                    $rowTotalEmployee->sum_brinde = $sumFuncionarioBrindes;
+                    $rowTotalEmployee->funcionario_gotas_nome = "";
+                    $rowTotalEmployee->sum_gota = $sumFuncionarioGotas;
+
+                    $dataGifts[] = $rowTotalGift;
+                    $dataDrops[] = $rowTotalDrop;
+                    $dataUser[] = $rowTotalUser;
+                    $dataEmployee[] = $rowTotalEmployee;
+
+                    $dataToReturn = new stdClass();
+                    $titleGift = sprintf("Ranking de Operações: %s (%s à %s)", "Brindes Adquiridos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleDrop = sprintf("Ranking de Operações: %s (%s à %s)", "Produtos Vencidos", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleUser = sprintf("Ranking de Operações: %s (%s à %s)", "Usuário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $titleEmployee = sprintf("Ranking de Operações: %s (%s à %s)", "Funcionário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
+                    $dataToReturn->brinde = HtmlUtil::generateHTMLTable($titleGift, $headerReportGifts, $dataGifts, true);
+                    $dataToReturn->gota = HtmlUtil::generateHTMLTable($titleDrop, $headerReportGifts, $dataGifts, true);
+                    $dataToReturn->usuario = HtmlUtil::generateHTMLTable($titleUser, $headerReportUser, $dataUser, true);
+                    $dataToReturn->funcionario = HtmlUtil::generateHTMLTable($titleEmployee, $headerReportEmployee, $dataEmployee, true);
+
+                    if ($typeExport === TYPE_EXPORTATION_DATA_TABLE) {
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $dataToReturn]);
+                    } else {
+                        $allTables = sprintf("%s%s%s%s", $dataToReturn->brinde, $dataToReturn->gota, $dataToReturn->usuario, $dataToReturn->funcionario);
+                        $excel = HtmlUtil::wrapContentToHtml($allTables);
+                        return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['data' => $excel]);
+                    }
+                }
+
+                // return ResponseUtil::successAPI(MSG_LOAD_DATA_WITH_SUCCESS, ['headers' => $titleReportColumns, 'rows' => $reportData]);
+            }
+
+            throw new Exception(TYPE_EXPORTATION_DATA_EMPTY, TYPE_EXPORTATION_DATA_EMPTY_CODE);
+        } catch (\Throwable $th) {
+            $errorMessage = $th->getMessage();
+            $errorCode = $th->getCode();
+
+            if (count($errors) == 0) {
+                $errors[] = $errorMessage;
+                $errorCodes[] = $errorCode;
+            }
+
+            for ($i = 0; $i < count($errors); $i++) {
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+            }
+
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 
@@ -825,7 +1368,7 @@ class ClientesController extends AppController
                     $errors = array();
                     $errors[] = $usuario["tipo_perfil"] <= PROFILE_TYPE_WORKER ? MSG_USUARIOS_WORKER_NOT_ASSOCIATED_CLIENTE : MSG_USUARIOS_CANT_SEARCH;
 
-                    return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_NOT_FOUND, $errors);
+                    return ResponseUtil::errorAPI(MSG_LOAD_DATA_NOT_FOUND, $errors);
                 }
             }
         } catch (\Exception $e) {

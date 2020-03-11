@@ -189,7 +189,6 @@ class GotasController extends AppController
                 $data = $this->request->getData();
 
                 $gota = $this->Gotas->patchEntity($gota, $data);
-                debug($gota);
 
                 $record_exists = false;
                 // Verifica se há um registro de mesmo nome para aquele cliente, não pode ter dois registros
@@ -398,7 +397,6 @@ class GotasController extends AppController
             if ($usuarioLogado["tipo_perfil"] == Configure::read("profileTypes")["AdminNetworkProfileType"]) {
                 $unidades = $this->Clientes->getClientesListByRedesId($rede["id"]);
             } else {
-
                 $unidades = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
             }
 
@@ -1178,7 +1176,6 @@ class GotasController extends AppController
                     $gotaReturn = $gota;
 
                     if (sizeof($pontuacoesQuery->toArray()) > 0) {
-
                         foreach ($pontuacoesQuery->toArray() as $key => $pontuacao) {
                             $usuarios[] = $pontuacao->usuario;
                         }

@@ -72,7 +72,6 @@ class PagesController extends AppController
         $user = $this->Auth->user();
 
         if (!$this->request->is(['post'])) {
-
             if (!$user) {
                 $this->redirect(
                     [
@@ -82,8 +81,6 @@ class PagesController extends AppController
                 );
             }
         }
-
-
 
         $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
         $usuarioAdministrar  = $sessaoUsuario["usuarioAdministrar"];
@@ -221,12 +218,19 @@ class PagesController extends AppController
      */
     public function dashboardGestor()
     {
-        $usuarioAdministrador = $this->request->session()->read('Usuario.AdministradorLogado');
-        $usuarioAdministrar = $this->request->session()->read('Usuario.Administrar');
+        $brindes_aguardando_autorizacao = [];
+        $sessaoUsuario = $this->getSessionUserVariables();
+
+        $usuarioAdministrador = $sessaoUsuario["usuarioAdministrador"];
+        $usuarioAdministrar = $sessaoUsuario["usuarioAdministrar"];
 
         if ($usuarioAdministrador) {
             $this->usuarioLogado = $usuarioAdministrar;
         }
+
+        $rede = $sessaoUsuario["rede"];
+
+        $this->set(compact(["rede"]));
     }
 
     /**
@@ -255,16 +259,11 @@ class PagesController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede["id"], $this->usuarioLogado['id'], false);
 
-        $cliente = $unidades_ids->first();
-
-        // debug($unidades_ids);
-        // foreach ($unidades_ids as $key => $value) {
-        //     $clientesIds[] = $key;
-        // }
-
+        $unidades_ids = $unidades_ids->toArray();
+        $keys = key($unidades_ids);
+        $clienteId = $keys;
         // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
-
-        // $cliente = $this->Clientes->getClienteById($clientesIds[0]);
+        $cliente = $this->Clientes->get($clienteId);
 
         // o estado do funcionário é o local onde se encontra o estabelecimento.
         $estado_funcionario = $cliente->estado;
@@ -371,5 +370,6 @@ class PagesController extends AppController
     }
 
     public function eula()
-    { }
+    {
+    }
 }

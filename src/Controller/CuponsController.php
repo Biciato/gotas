@@ -224,16 +224,11 @@ class CuponsController extends AppController
 
         $unidades_ids = $this->ClientesHasUsuarios->getClientesFilterAllowedByUsuariosId($rede->id, $this->usuarioLogado['id'], false);
 
-        // foreach ($unidades_ids as $key => $value) {
-        //     $clientes_ids[] = $key;
-        // }
-
-        // // No caso do funcionário, ele só estará em
-        // // uma unidade, então pega o cliente que ele estiver
-
-        // $cliente = $this->Clientes->getClienteById($clientes_ids[0]);
-
-        $cliente = $unidades_ids->first();
+        $unidades_ids = $unidades_ids->toArray();
+        $keys = key($unidades_ids);
+        $clienteId = $keys;
+        // No caso do funcionário, ele só estará em uma unidade, então pega o cliente que ele estiver
+        $cliente = $this->Clientes->get($clienteId);
 
         $clientes_id = $cliente->id;
 
@@ -1112,8 +1107,10 @@ class CuponsController extends AppController
                         }
                     }
 
-                    $resgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                    $usados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $resgatadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $resgatados = $resgatadosTemp["count"];
+                    $usadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation($rede->id, $cliente->id, null, $brinde["id"], $turnoPesquisa["id"], $usuarioLogado["id"], TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                    $usados = $usadosTemp["count"];
 
                     $somaGotas += $gotas;
                     $somaDinheiro += $dinheiro;
@@ -1236,7 +1233,7 @@ class CuponsController extends AppController
         $dadosRelatorio = array("total", "funcionarios");
 
         // Pega todos os funcionários do posto do gerente alocado
-        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
+        $funcionariosList = $this->Usuarios->findAllUsuarios(null, array($cliente["id"]), null, null, null, array(PROFILE_TYPE_WORKER, PROFILE_TYPE_DUMMY_WORKER))->find("list");
         // DebugUtil::printArray($funcionariosList);
         $funcionarioSelecionado = 0;
         $brindesQuery = $this->Brindes->getList(null, $cliente->id, -1, null);
@@ -1330,7 +1327,7 @@ class CuponsController extends AppController
             $brindesCliente = array();
 
             // Obtem lista de usuarios (clientes finais) do posto
-            $usuarios = $this->Usuarios->findAllUsuarios(null, array($cliente->id), null, null, null, PROFILE_TYPE_USER);
+            $usuarios = $this->Usuarios->findAllUsuarios(null, array($cliente->id), null, null, null, null, PROFILE_TYPE_USER);
             $usuariosTemp = array();
 
             foreach ($usuarios as $usuario) {
@@ -1404,8 +1401,10 @@ class CuponsController extends AppController
 
                         // Verifica se o cliente final resgatou/usou o brinde no turno e faz a soma das informações
 
-                        $somaBrindeResgatados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                        $somaBrindeUsados = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeResgatadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeResgatados = $somaBrindeResgatadosTemp["count"];
+                        $somaBrindeUsadosTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, $cliente->id, null, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                        $somaBrindeUsados = $somaBrindeUsadosTemp["count"];
 
                         foreach ($usuarios as $usuarioId => $usuarioNome) {
                             $usuario = array(
@@ -1428,8 +1427,10 @@ class CuponsController extends AppController
                             $qteUsuarioUsados = 0;
 
                             foreach ($queryCupons as $key => $item) {
-                                $qteResgatesUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
-                                $qteUsadosUsuario = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteResgatesUsuarioTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_RETRIEVE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteResgatesUsuario = $qteResgatesUsuarioTemp["count"];
+                                $qteUsadosUsuarioTemp = $this->CuponsTransacoes->getSumTransacoesByTypeOperation(null, null, $item->id, $brinde["id"], $turno["id"], $funcionarioId, TYPE_OPERATION_USE, $dataInicioPesquisa, $dataFimPesquisa);
+                                $qteUsadosUsuario = $qteUsadosUsuarioTemp["count"];
                                 $cupom = array(
                                     "cupons_id" => $item->id,
                                     "brindes_id" => $brinde["id"],
@@ -1673,6 +1674,8 @@ class CuponsController extends AppController
 
                     return;
                 }
+
+                Log::write("info", sprintf("Usuário [%s] resgatando brinde [%s] no estabelecimento [%s], feito pelo funcionário [%s] forma de pagamento [%s]...", $usuariosId, $brindesId, $clientesId, $funcionariosId, $tipoPagamento));
 
                 $retorno = $this->trataCompraCupom(
                     $brindesId,
@@ -2173,9 +2176,6 @@ class CuponsController extends AppController
                 $funcionariosId = $this->Auth->user()["id"];
 
                 $cupomEmitido = $data['cupom_emitido'];
-
-
-
                 $cupons = $this->Cupons->getCuponsByCupomEmitido($cupomEmitido);
 
                 if (!$cupons) {
@@ -2189,6 +2189,7 @@ class CuponsController extends AppController
                 $turnos = $this->ClientesHasQuadroHorario->getHorariosCliente(null, $cliente->id);
                 $turnos = $turnos->toArray();
                 $turnoAtual = ShiftUtil::obtemTurnoAtual($turnos);
+
 
                 // @todo testar
                 foreach ($cupons as $key => $cupom) {
@@ -2207,11 +2208,14 @@ class CuponsController extends AppController
                     // diminuiu estoque, considera o item do cupom como resgatado
                     if ($estoque) {
                         $cupomSave = null;
+                        $cupomStatus = "";
 
                         if ($cupom->brinde->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
                             $cupomSave = $this->Cupons->setCupomResgatado($cupom->id);
+                            $cupomStatus = "RESGATADO";
                         } else {
                             $cupomSave = $this->Cupons->setCupomUsado($cupom->id);
+                            $cupomStatus = "USADO";
 
                             // Gera nova transação para o cupom, definindo como 'resgatado'
                             $transacao = new CuponsTransacoes();
@@ -2226,6 +2230,8 @@ class CuponsController extends AppController
 
                             $this->CuponsTransacoes->saveUpdate($transacao);
                         }
+
+                        Log::write("info", sprintf("Funcionário [%s] efetuou operação e definiu como [%s] o cupom [%s], estabelecimento [%s]...", $usuarioLogado->id, $cupomStatus, $cupom->cupom_emitido, $cliente->id));
                     }
                 }
 
@@ -2378,10 +2384,6 @@ class CuponsController extends AppController
                 $clientesCupom = [];
 
                 foreach ($cupons as $cupom) {
-                    Log::write("info", "cupom");
-                    Log::write("info", $cupom);
-                    Log::write("info", "cliente");
-                    Log::write("info", $cliente);
 
                     if (count($clientesCupom) == 0) {
                         $clientesCupomQuery = $this->RedesHasClientes->getAllRedesHasClientesIdsByClientesId($cupom->clientes_id);
@@ -2525,18 +2527,21 @@ class CuponsController extends AppController
                         );
 
                         $cupomSave = null;
+                        $cupomStatus = null;
 
                         // Equipamento RTI?
                         if ($cupom["brinde"]["tipo_equipamento"] == TYPE_EQUIPMENT_RTI) {
                             $cupomSave = $this->Cupons->setCupomResgatado($cupom["id"]);
+                            $cupomStatus = "RESGATADO";
                         } else {
                             $cupomSave = $this->Cupons->setCuponsResgatadosUsados(array($cupom["id"]));
+                            $cupomStatus = "USADO";
 
                             // Gera nova transação
 
                             $transacao = new CuponsTransacoes();
                             $transacao->redes_id = $rede->id;
-                            $transacao->clientes_id = $cliente["id"];
+                            $transacao->clientes_id = $cliente->id;
                             $transacao->cupons_id = $cupom->id;
                             $transacao->brindes_id = $cupom->brindes_id;
                             $transacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
@@ -2547,17 +2552,7 @@ class CuponsController extends AppController
                             $this->CuponsTransacoes->saveUpdate($transacao);
                         }
 
-                        // adiciona novo registro de pontuação
-
-                        // $pontuacao = $this->Pontuacoes->addPontuacoesBrindesForUsuario(
-                        //     $cupom->clientes_id,
-                        //     $cupom->usuarios_id,
-                        //     $cupom->brindes_id,
-                        //     $cupom->valor_pago_gotas,
-                        //     $cupom->valor_pago_reais,
-                        //     $usuarioLogado["id"],
-                        //     true
-                        // );
+                        Log::write("info", sprintf("Funcionário [%s] efetuou operação e definiu como [%s] o cupom [%s], estabelecimento [%s]...", $usuarioLogado->id, $cupomStatus, $cupom->cupom_emitido, $cliente->id));
 
                         // Obtem dados de retorno
 
@@ -2585,9 +2580,14 @@ class CuponsController extends AppController
 
                         if (!$validacaoCodigos) {
                             // @todo ver com samuel como ficará o retorno do erro
+                            // @TODO Este ponto ainda está pendente
                             $errors[] = "Código do Cupom não corresponde ao código do equipamento!";
                             break;
                         }
+
+                        // SE chegou aqui, é pq deu erro
+
+                        return ResponseUtil::errorAPI(MSG_ERROR, [MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK], [], [MSG_BRINDES_ESTOQUE_INSUFFICIENT_STOCK_ERROR]);
                     }
                 }
 
@@ -2809,6 +2809,8 @@ class CuponsController extends AppController
 
             $data = $this->request->getData();
 
+            Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_POST, __CLASS__, __METHOD__, print_r($data, true)));
+
             // Log::write("info", $data);
             // Validação de dados
             $errors = array();
@@ -2848,6 +2850,8 @@ class CuponsController extends AppController
             $latitudeUsuario = $data["latitude"] ?? null;
             $longitudeUsuario = $data["longitude"] ?? null;
 
+            Log::write("info", sprintf("Usuário [%s] resgatando brinde [%s] no estabelecimento [%s], feito pelo funcionário [%s] forma de pagamento [%s]...", $usuariosId, $brindesId, $clientesId, $funcionario->id, $tipoPagamento));
+
             $retorno = $this->trataCompraCupom(
                 $brindesId,
                 $usuariosId,
@@ -2863,6 +2867,8 @@ class CuponsController extends AppController
                 $longitudeUsuario
             );
 
+            Log::write("debug", "Debug retorno");
+            Log::write("debug", $retorno);
             $arraySet = $retorno["arraySet"];
             $mensagem = $retorno["mensagem"];
             $ticket = $retorno["ticket"];
@@ -2904,7 +2910,7 @@ class CuponsController extends AppController
                 $clientesId = !empty($data["clientes_id"]) ? $data["clientes_id"] : null;
 
                 if (count($tiposVendas) == 0) {
-                    $message = MESSAGE_LOAD_DATA_WITH_ERROR;
+                    $message = MSG_LOAD_DATA_WITH_ERROR;
                     ResponseUtil::errorAPI($message, array(TYPE_SELL_EMPTY));
                 }
 
@@ -3057,7 +3063,7 @@ class CuponsController extends AppController
                 $data = $this->request->getQueryParams();
 
                 Log::write("info", sprintf("Info de %s: %s - %s: %s", Request::METHOD_GET, __CLASS__, __METHOD__, print_r($data, true)));
-                Log::write("info", $data);
+                // Log::write("info", $data);
 
                 $brindesId = !empty($data["brindes_id"]) ? (int) $data["brindes_id"] : '1970-01-01';
                 $dataInicio =  !empty($data["data_inicio"]) ? $data["data_inicio"] : '2099-12-31';
@@ -3114,10 +3120,10 @@ class CuponsController extends AppController
             }
 
             for ($i = 0; $i < count($errors); $i++) {
-                Log::write("error", sprintf("[%s] %s - %s", MESSAGE_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
+                Log::write("error", sprintf("[%s] %s - %s", MSG_LOAD_DATA_WITH_ERROR, $errorCodes[$i], $errors[$i]));
             }
 
-            return ResponseUtil::errorAPI(MESSAGE_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
+            return ResponseUtil::errorAPI(MSG_LOAD_DATA_WITH_ERROR, $errors, [], $errorCodes);
         }
     }
 
@@ -3149,6 +3155,9 @@ class CuponsController extends AppController
      */
     private function trataCompraCupom(int $brindesId, int $usuariosId, int $clientesId, float $quantidade = null, int $funcionariosId = null, string $tipoPagamento = "", $vendaAvulsa = false, string $senhaAtualUsuario = "", bool $usoViaMobile = false, bool $confirmaDistancia = false, float $latitudeUsuario = null, float $longitudeUsuario = null)
     {
+        $sessaoUsuario = $this->getSessionUserVariables();
+        $usuarioLogado = $sessaoUsuario["usuarioLogado"];
+
         $retorno = array();
         $mensagem = array();
 
@@ -3156,6 +3165,7 @@ class CuponsController extends AppController
         $redesHasClientes = $this->RedesHasClientes->getRedesHasClientesByClientesId($clientesId);
         $rede = $redesHasClientes["rede"];
         $clientesIds = $this->RedesHasClientes->getClientesIdsFromRedesHasClientes($rede["id"]);
+
 
         // Verifica se o cliente final estourou o número de compras por dia na Rede
 
@@ -3216,7 +3226,6 @@ class CuponsController extends AppController
 
         // Se não encontrado brinde, retorna msg erro com vazio.
         if (empty($brinde)) {
-
             $mensagem = array(
                 "status" => 0,
                 "message" => Configure::read("messageOperationFailureDuringProcessing"),
@@ -3242,7 +3251,6 @@ class CuponsController extends AppController
         // Valida se o brinde é ISENTO e se o usuário já fez o resgate dele
 
         if ($brinde->tipo_venda == TYPE_SELL_FREE_TEXT) {
-
             $usuarioBrinde = $this->UsuariosHasBrindes->getUsuarioHasBrinde($usuariosId, $brindesId);
 
             if (!empty($usuarioBrinde)) {
@@ -3284,6 +3292,7 @@ class CuponsController extends AppController
                 $precoGotas = $brinde->preco_atual->preco;
             }
         }
+
         // Verifica se o brinde em questão está com preço zerado.
         /**
          * Apesar desta situação ser difícil de acontecer, pois o FrontEnd possui restrições,
@@ -3409,6 +3418,44 @@ class CuponsController extends AppController
             $clientesIds
         );
 
+        /**
+         * Verifica se o usuário estourou a quantidade de brindes adquiridos
+         * nas últimas 24 horas SE for via pontos/gotas
+         */
+        if ($tipoPagamento === TYPE_PAYMENT_POINTS && !empty($rede->qte_mesmo_brinde_resgate_dia)) {
+            $dataFim = new DateTime('now');
+            $dataInicio = new DateTime('now');
+            $dataInicio = $dataInicio->modify('-1 day');
+
+            // Verifica se o usuário resgatou 2 brindes nas últimas 24 horas para aquele brinde
+            $count = $this->CuponsTransacoes->getSumTransactionsByBrindeUsuario($brinde->id, $usuariosId, TYPE_OPERATION_RETRIEVE, $dataInicio, $dataFim);
+
+            if ($count >= $rede->qte_mesmo_brinde_resgate_dia) {
+                $messageError = !empty($usuarioLogado) && $usuarioLogado->tipo_perfil === PROFILE_TYPE_USER ?
+                    [MSG_MAX_RETRIEVES_USER_GIFT] :
+                    [MSG_MAX_RETRIEVES_USER_GIFT_BY_WORKER];
+                $errorCodes = [MSG_MAX_RETRIEVES_USER_GIFT_CODE];
+
+                $mensagem = array(
+                    "status" => 0,
+                    "message" => MSG_WARNING,
+                    "errors" => $messageError,
+                    "error_codes" => $errorCodes
+                );
+
+                $arraySet = array(
+                    "mensagem"
+                );
+
+                $retorno = array(
+                    "arraySet" => $arraySet,
+                    "mensagem" => $mensagem
+                );
+                return ResponseUtil::errorAPI(MSG_WARNING, $messageError, [], $errorCodes);
+                return $retorno;
+            }
+        }
+
         $usuario['pontuacoes'] = $detalhesPontuacaoResultado["resumo_gotas"]["saldo"];
 
         // Se o usuário tiver pontuações suficientes ou for venda avulsa
@@ -3423,7 +3470,7 @@ class CuponsController extends AppController
             $clientePossuiUsuario = $this->ClientesHasUsuarios->findClienteHasUsuario($clientesHasUsuariosConditions);
 
             if (is_null($clientePossuiUsuario)) {
-                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId);
+                $this->ClientesHasUsuarios->saveClienteHasUsuario($clientesId, $usuariosId, true);
             }
 
             // Realiza a venda de pontuações
@@ -3569,6 +3616,22 @@ class CuponsController extends AppController
                 $cupomTransacao->data = new DateTime();
 
                 $this->CuponsTransacoes->saveUpdate($cupomTransacao);
+
+                // Se brinde for Equipamento RTI, já define-o como usado
+
+                if ($brinde->tipo_equipamento == TYPE_EQUIPMENT_RTI) {
+                    $cupomTransacao = new CuponsTransacoes();
+                    $cupomTransacao->redes_id = $rede->id;
+                    $cupomTransacao->clientes_id = $cliente->id;
+                    $cupomTransacao->cupons_id = $cupom->id;
+                    $cupomTransacao->brindes_id = $brinde->id;
+                    $cupomTransacao->funcionarios_id = $funcionariosId;
+                    $cupomTransacao->tipo_operacao = TYPE_OPERATION_USE;
+                    $cupomTransacao->clientes_has_quadro_horario_id = $turnoAtual["id"];
+                    $cupomTransacao->data = new DateTime();
+
+                    $this->CuponsTransacoes->saveUpdate($cupomTransacao);
+                }
 
                 $mensagem = array(
                     "status" => 1,

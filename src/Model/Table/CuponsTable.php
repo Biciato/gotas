@@ -19,6 +19,7 @@ use App\Custom\RTI\ResponseUtil;
 use App\Custom\RTI\CryptUtil;
 use App\Custom\RTI\StringUtil;
 use Cake\Database\Expression\QueryExpression;
+use stdClass;
 
 /**
  * Cupons Model
@@ -309,7 +310,7 @@ class CuponsTable extends GenericTable
             // Usado é automatico após 24 horas se for Equipamento RTI
             // Se não for, é definido como usado, quando é feito a baixa.
             // Por isso, o default deverá ser 0
-            $cupom->usado = 0;
+            $cupom->usado = $brinde->tipo_equipamento === TYPE_EQUIPMENT_RTI;
 
             // Antes do save, calcular cupom emitido
 
@@ -327,7 +328,7 @@ class CuponsTable extends GenericTable
                 $cupom->cupom_emitido = CryptUtil::encryptCupomRTI($identificador_cliente, (int) $day, (int) $month, (int) $year, $codigoPrimario, $codigoSecundario, intval($senha));
             } else {
 
-                $novoCupomAleatorio = CryptUtil::   encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
+                $novoCupomAleatorio = CryptUtil::encryptProductsServices(13, $brinde->codigo_primario, $brinde->tempo_uso_brinde);
                 $novoCupomAleatorio = strtoupper($novoCupomAleatorio);
 
                 while (count($this->getCuponsByCupomEmitido($novoCupomAleatorio)->toArray()) > 0) {
@@ -886,7 +887,9 @@ class CuponsTable extends GenericTable
             $selectList = [
                 'soma_gotas' => $query->func()->sum('Cupons.valor_pago_gotas'),
                 'soma_reais' => $query->func()->sum('Cupons.valor_pago_reais'),
-                'qte' => $query->func()->sum("Cupons.quantidade"),
+                // "nome_brinde" => "Brindes.nome",
+                // 'qte' => $query->func()->sum("Cupons.quantidade"),
+                'qte' => 'IF (SUM(Cupons.quantidade) > 0, SUM(Cupons.quantidade), 0)'
             ];
 
             $group = [];
@@ -902,7 +905,18 @@ class CuponsTable extends GenericTable
                 ->select($selectList)
                 ->group($group)
                 ->contain(["Clientes.RedesHasClientes.Redes", "Brindes", "CuponsTransacoes"])
+                // ->toArray();
                 ->first();
+
+            if (empty($query)) {
+                $query = new stdClass();
+                $query->soma_gotas = 0;
+                $query->soma_reais = 0;
+                $query->qte = 0;
+                $query->nome_brinde = $this->Brindes->get($brindesId)["nome"];
+            }
+
+            // return ResponseUtil::successAPI('AAAAAAAAAAA', ['data' => $query]);
 
             return $query;
         } catch (\Throwable $th) {

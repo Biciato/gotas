@@ -14,6 +14,7 @@ use App\Custom\RTI\DebugUtil;
 use App\Custom\RTI\ResponseUtil;
 use App\Model\Entity\Pontuacao;
 use Cake\Database\Expression\QueryExpression;
+use Throwable;
 
 /**
  * Pontuacoes Model
@@ -119,7 +120,7 @@ class PontuacoesTable extends GenericTable
                 'foreignKey' => 'pontuacoes_comprovante_id',
                 'joinType' => 'INNER',
                 'conditions' => [
-                    'PontuacoesAprovadas.registro_invalido' => 0
+                    'PontuacoesAprovadas.cancelado' => 0
                 ]
             ]
         );
@@ -326,6 +327,279 @@ class PontuacoesTable extends GenericTable
     #region Read
 
     /**
+     * Obtem Produto que mais vendeu
+     *
+     * Realiza pesquisa no banco de dados e obtem lista de produtos mais vendidos conforme parâmetros
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Estabelecimento
+     * @param DateTime $minDate Data de Início
+     * @param DateTime $maxDate Data de Fim
+     * @return mixed[] $pontuacoes [sum_gotas|gota] Array contendo coluna de soma e gota
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-08
+     */
+    public function getBestSellerGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                $exp->eq("Redes.id", $redesId);
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->isNotNull("Pontuacoes.gotas_id");
+                /**
+                 * Somente gotas/produtos cadastradas manualmente, para remover a possibilidade
+                 * de exibir pontuações de gratificação
+                 */
+                $exp->eq("Gotas.tipo_cadastro", 0);
+                $exp->eq("PontuacoesComprovantes.cancelado", false);
+
+                // campos de data são obrigatórios
+                $exp->gte("Pontuacoes.data", $minDate);
+                $exp->lte("Pontuacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Gotas",
+                "PontuacoesComprovantes",
+                "Usuarios"
+            ];
+
+            $sumGotas = $this->find()->func()->sum("Pontuacoes.quantidade_gotas");
+
+            $select = [
+                "sum" => $sumGotas,
+                "nome" => "Gotas.nome_parametro",
+                "usuario" => "Usuarios.nome"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->select($select)
+                ->group(["Pontuacoes.gotas_id"]);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
+     * Obtem Funcionários que mais abasteceu Clientes
+     *
+     * Realiza pesquisa no banco de dados e obtem lista de Funcionários que mais abasteceu Clientes
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Estabelecimento
+     * @param DateTime $minDate Data de Início
+     * @param DateTime $maxDate Data de Fim
+     * @return mixed[] $items [sum_gotas|id_funcionario|nome_funcionario] Array contendo coluna de quantidade de vezes atendida e funcionário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-08
+     */
+    public function getEmployeeMostSoldGotas(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                $exp->eq("Redes.id", $redesId);
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->isNotNull("Pontuacoes.gotas_id");
+                /**
+                 * Somente gotas/produtos cadastradas manualmente, para remover a possibilidade
+                 * de exibir pontuações de gratificação
+                 */
+                $exp->eq("Gotas.tipo_cadastro", 0);
+                $exp->eq("PontuacoesComprovantes.cancelado", 0);
+
+                // campos de data são obrigatórios
+                $exp->gte("Pontuacoes.data", $minDate);
+                $exp->lte("Pontuacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Gotas",
+                "PontuacoesComprovantes",
+                "Funcionarios"
+            ];
+
+            $sumGotas = $this->find()->func()->count("Pontuacoes.quantidade_gotas");
+
+            $select = [
+                "count" => $sumGotas,
+                "funcionarios_id" => "Funcionarios.id",
+                "funcionarios_nome" => "Funcionarios.nome"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->select($select)
+                ->group(["funcionarios_id"]);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
+     * Obtem Soma de Pontos Adquiridos
+     *
+     * Realiza pesquisa no banco de dados e obtem suma de pontos adquiridos pelos usuários na rede/estabelecimento
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Estabelecimento
+     * @param DateTime $minDate Data de Início
+     * @param DateTime $maxDate Data de Fim
+     * @return mixed[] $items [estabelecimento|sum_gotas|] Array contendo informações de Estabelecimento e soma
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.8
+     * @date 2020-03-10
+     */
+    public function getSumPointsNetwork(int $redesId = null, int $clientesId = null, DateTime $minDate, DateTime $maxDate)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+                $exp->eq("Redes.id", $redesId);
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->isNotNull("Pontuacoes.gotas_id");
+                /**
+                 * Somente gotas/produtos cadastradas manualmente, para remover a possibilidade
+                 * de exibir pontuações de gratificação
+                 */
+                $exp->eq("Gotas.tipo_cadastro", 0);
+                $exp->eq("PontuacoesComprovantes.cancelado", 0);
+
+                // campos de data são obrigatórios
+                $exp->gte("Pontuacoes.data", $minDate);
+                $exp->lte("Pontuacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Gotas",
+                "PontuacoesComprovantes",
+                "Usuarios"
+            ];
+
+            $sumGotas = $this->find()->func()->sum("Pontuacoes.quantidade_gotas");
+
+            $select = [
+                "sum" => $sumGotas,
+                "clientes_id" => "Clientes.id",
+                "nome" => "Clientes.nome_fantasia"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->select($select)
+                ->group(["Pontuacoes.clientes_id"])
+                ->order(["SUM" => "DESC"]);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
+     * Obtem Usuários que mais adquiriu Produtos
+     *
+     * Realiza pesquisa no banco de dados e obtem lista de Usuários que mais adquiriu Produtos
+     *
+     * @param integer $redesId Id da Rede
+     * @param integer $clientesId Id do Estabelecimento
+     * @param DateTime $minDate Data de Início
+     * @param DateTime $maxDate Data de Fim
+     * @return mixed[] $items [sum_gotas|usuarios_id|nome] Array contendo informações de pontuação e de usuário
+     *
+     * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
+     * @since 1.1.6
+     * @date 2020-03-09
+     */
+    public function getUserHighestPointsIn(int $redesId = null, int $clientesId = null, DateTime $minDate = null, DateTime $maxDate = null)
+    {
+        try {
+            $where = function (QueryExpression $exp) use ($redesId, $clientesId, $minDate, $maxDate) {
+
+                $exp->eq("Redes.id", $redesId);
+
+                if (!empty($clientesId)) {
+                    $exp->eq("Clientes.id", $clientesId);
+                }
+
+                $exp->isNotNull("Pontuacoes.gotas_id");
+                /**
+                 * Somente gotas/produtos cadastradas manualmente, para remover a possibilidade
+                 * de exibir pontuações de gratificação
+                 */
+                $exp->eq("Gotas.tipo_cadastro", 0);
+                $exp->eq("PontuacoesComprovantes.cancelado", 0);
+
+                // campos de data são obrigatórios
+                $exp->gte("Pontuacoes.data", $minDate);
+                $exp->lte("Pontuacoes.data", $maxDate);
+
+                return $exp;
+            };
+
+            $join = [
+                "Clientes.RedesHasClientes.Redes",
+                "Gotas",
+                "PontuacoesComprovantes",
+                "Usuarios"
+            ];
+
+            $sumGotas = $this->find()->func()->sum("Pontuacoes.quantidade_gotas");
+
+            $select = [
+                "sum" => $sumGotas,
+                "usuarios_id" => "Usuarios.id",
+                "nome" => "Usuarios.nome"
+            ];
+
+            return $this->find("all")
+                ->where($where)
+                ->contain($join)
+                ->select($select)
+                ->group(["Pontuacoes.usuarios_id"])
+                ->order(["SUM" => "DESC"]);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message, $th->getCode());
+        }
+    }
+
+    /**
      * Obtêm pontuação por Id
      *
      * @param int $pontuacoes_id Id de pontuação
@@ -378,11 +652,11 @@ class PontuacoesTable extends GenericTable
      *
      * @param int   $usuarios_id       Id de usu´rio
      * @param array $array_clientes_id Array de Clientes Id
-     * @param bool  $registro_invalido Tipos de registros inválidos (false = válidos / true = inválidos)
+     * @param bool  $cancelado Tipos de registros inválidos (false = válidos / true = inválidos)
      *
      * @return array $pontuacoes
      **/
-    public function getPontuacoesOfUsuario(int $usuarios_id, array $array_clientes_id, bool $registro_invalido)
+    public function getPontuacoesOfUsuario(int $usuarios_id, array $array_clientes_id, bool $cancelado)
     {
         try {
             /*
@@ -403,7 +677,7 @@ class PontuacoesTable extends GenericTable
                     [
                         'usuarios_id' => $usuarios_id,
                         'clientes_id  in ' => $array_clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     ]
                 )
                 ->select('id');
@@ -416,7 +690,7 @@ class PontuacoesTable extends GenericTable
                 }
             }
 
-            if ($registro_invalido) {
+            if ($cancelado) {
                 if (count($pontuacoes_invalidas_array) > 0) {
                     $pontuacoes
                         = $this->find('all')
@@ -508,7 +782,7 @@ class PontuacoesTable extends GenericTable
                     [
                         'usuarios_id' => $usuarios_id,
                         'clientes_id IN ' => $clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     ]
                 )->toArray();
 
@@ -539,9 +813,24 @@ class PontuacoesTable extends GenericTable
                 array_push($conditions, ['id >= ' => (int) $ultimoIdProcessado]);
             }
 
+            $select = [
+                'id',
+                // "quantidade_gotas" => 'sum(quantidade_gotas)',
+                "quantidade_gotas" => 'quantidade_gotas',
+                'utilizado'
+            ];
+            if ($how_many === 1) {
+                $select = [
+                    'id',
+                    "quantidade_gotas" => 'sum(quantidade_gotas)',
+                    // "quantidade_gotas" => 'quantidade_gotas',
+                    'utilizado'
+                ];
+            }
+
             $result = $this
                 ->find('all')
-                ->select(['id', 'quantidade_gotas', 'utilizado'])
+                ->select($select)
                 ->where($conditions)
                 ->order(['id' => 'asc'])
                 ->limit($how_many);
@@ -642,7 +931,7 @@ class PontuacoesTable extends GenericTable
                         [
                             "usuarios_id" => $usuariosId,
                             "clientes_id in " => $clientesIds,
-                            "registro_invalido" => 0,
+                            "cancelado" => 0,
                         ]
                     )->select(['id']);
 
@@ -913,7 +1202,7 @@ class PontuacoesTable extends GenericTable
                     array(
                         'usuarios_id' => $usuarios_id,
                         'clientes_id IN ' => $clientes_id,
-                        'registro_invalido' => true
+                        'cancelado' => true
                     )
                 )->toArray();
 
@@ -1196,7 +1485,7 @@ class PontuacoesTable extends GenericTable
                 ->select($selectList)
                 ->contain(['Clientes.RedesHasClientes.Redes'])
                 ->first();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             Log::write("error", $message);
             throw new Exception($message);
@@ -1337,7 +1626,7 @@ class PontuacoesTable extends GenericTable
             } else {
                 return $pontuacoes;
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
@@ -1354,6 +1643,7 @@ class PontuacoesTable extends GenericTable
      *
      * @param int $clientesId Clientes (Postos)
      * @param integer $gotasId Id de Gota
+     * @param integer $funcionariosId Id de Funcionário
      * @param DateTime $dataInicio Data Inicio
      * @param DateTime $dataFim Data fim
      * @param string $tipoMovimentacao Entrada / Saída
@@ -1364,7 +1654,7 @@ class PontuacoesTable extends GenericTable
      * @author Gustavo Souza Gonçalves <gustavosouzagoncalves@outlook.com>
      * @since 2019-09-10
      */
-    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
+    public function getPontuacoesInForClientes(int $clientesId, int $gotasId = null, int $funcionariosId = null, DateTime $dataInicio = null, DateTime $dataFim = null, string $tipoMovimentacao = TYPE_OPERATION_IN, string $tipoRelatorio = REPORT_TYPE_SYNTHETIC)
     {
         try {
             $whereConditions = [];
@@ -1378,7 +1668,11 @@ class PontuacoesTable extends GenericTable
                 "periodo" => "DATE_FORMAT(Pontuacoes.data, '%Y-%m')",
                 "qte_gotas" => "SUM(Pontuacoes.quantidade_gotas)",
                 "Funcionarios.id",
-                "Funcionarios.nome"
+                "Funcionarios.nome",
+                "Clientes.id",
+                "Clientes.nome_fantasia",
+                "Clientes.municipio",
+                "Clientes.estado"
             ];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
@@ -1389,7 +1683,8 @@ class PontuacoesTable extends GenericTable
                 "Gotas",
                 "Usuarios",
                 "Clientes",
-                "Funcionarios"
+                "Funcionarios",
+                "PontuacoesComprovantes"
             ];
 
             // Irá trazer de um posto ou todos os postos que o usuário tem acesso (conforme tipo_perfil)
@@ -1397,6 +1692,10 @@ class PontuacoesTable extends GenericTable
 
             if (!empty($gotasId)) {
                 $whereConditions[] = ["Pontuacoes.gotas_id" => $gotasId];
+            }
+
+            if (!empty($funcionariosId)) {
+                $whereConditions[] = ["Funcionarios.id" => $funcionariosId];
             }
 
             if (!empty($dataInicio)) {
@@ -1412,6 +1711,10 @@ class PontuacoesTable extends GenericTable
             } else {
                 $whereConditions[] = "Pontuacoes.brindes_id IS NOT NULL";
             }
+
+            // Elimina os cupons cancelados
+
+            $whereConditions[] = ["PontuacoesComprovantes.cancelado" => 0];
 
             if ($tipoRelatorio == REPORT_TYPE_ANALYTICAL) {
                 $groupConditions[] = "Usuarios.id";
@@ -1429,7 +1732,7 @@ class PontuacoesTable extends GenericTable
                 ->group($groupConditions)
                 ->order(["periodo" => "ASC"])
                 ->select($selectList);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
             $code = MSG_LOAD_EXCEPTION_CODE;
             Log::write("error", sprintf("%s - %s", $code, $message));
@@ -1477,7 +1780,7 @@ class PontuacoesTable extends GenericTable
             $gotasTable = $this->Gotas;
 
             $whereConditions = array(
-                "usuarios_id" => $usuariosId
+                "Pontuacoes.usuarios_id" => $usuariosId
             );
 
             $clientesBrindesHabilitadosIds = array();
@@ -1491,7 +1794,7 @@ class PontuacoesTable extends GenericTable
 
             // Senão, verifica se $clientesIds está com valor, se tiver, adiciona na pesquisa
             if (count($clientesIds) > 0) {
-                $whereConditions[] = array("clientes_id in " => $clientesIds);
+                $whereConditions[] = array("Pontuacoes.clientes_id in " => $clientesIds);
             };
 
             /**
@@ -1531,16 +1834,19 @@ class PontuacoesTable extends GenericTable
 
             // Se não especificar data, filtra todo mundo
             if ($dataInicio && $dataFim) {
-                $whereConditions[] = ["data >= " => $dataInicio];
-                $whereConditions[] = ["data <= " => $dataFim];
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             } else if ($dataInicio) {
-                $whereConditions[] = ["data >= " => $dataInicio];
+                $whereConditions[] = ["Pontuacoes.data >= " => $dataInicio];
             } else if ($dataFim) {
-                $whereConditions[] = ["data <= " => $dataFim];
+                $whereConditions[] = ["Pontuacoes.data <= " => $dataFim];
             }
+
+            $whereConditions[] = ["OR" => ["PontuacoesComprovantes.cancelado" => 0, "Pontuacoes.brindes_id IS NOT NULL"]];
 
             $pontuacoesQuery = $this->find("all")
                 ->where($whereConditions)
+                ->contain(["PontuacoesComprovantes"])
                 ->order($orderConditions);
 
             // DebugUtil::printArray($pontuacoesQuery->toArray());
@@ -1564,6 +1870,8 @@ class PontuacoesTable extends GenericTable
                 $isBrinde = true;
             }
 
+            // return ResponseUtil::successAPI('', $todasPontuacoes);
+
             $pontuacoesRetorno = array();
             foreach ($todasPontuacoes as $key => $pontuacao) {
 
@@ -1573,7 +1881,7 @@ class PontuacoesTable extends GenericTable
                         ->where(
                             array(
                                 "id" => $pontuacao["pontuacoes_comprovante_id"],
-                                "registro_invalido" => 0
+                                "cancelado" => 0
                             )
                         )->first();
 
@@ -1601,6 +1909,8 @@ class PontuacoesTable extends GenericTable
                                 "habilitado" => 1
                             )
                         )->first();
+
+                    // return ResponseUtil::successAPI('', $brinde);
 
                     // $clienteBrindeHabilitado["brinde"] = $brinde;
                     $pontuacao["gotas"] = null;
@@ -1652,13 +1962,10 @@ class PontuacoesTable extends GenericTable
             );
 
             return $resultado;
-        } catch (\Exception $e) {
-            $trace = $e->getTrace();
-
-            $stringError = __("Erro ao obter pontuações: {0}. [Função: {1} / Arquivo: {2} / Linha: {3}]  ", $e->getMessage(), __FUNCTION__, __FILE__, __LINE__);
-
-            Log::write('error', $stringError);
-            Log::write('error', $trace);
+        } catch (Throwable $th) {
+            $message = sprintf("[%s] %s", MSG_LOAD_EXCEPTION, $th->getMessage());
+            Log::write("error", $message);
+            throw new Exception($message);
         }
     }
 
