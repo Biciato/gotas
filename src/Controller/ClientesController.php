@@ -1310,7 +1310,7 @@ class ClientesController extends AppController
                     $titleUser = sprintf("Ranking de Operações: %s (%s à %s)", "Usuário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                     $titleEmployee = sprintf("Ranking de Operações: %s (%s à %s)", "Funcionário", $dataInicio->format("d/m/Y"), $dataFim->format("d/m/Y"));
                     $dataToReturn->brinde = HtmlUtil::generateHTMLTable($titleGift, $headerReportGifts, $dataGifts, true);
-                    $dataToReturn->gota = HtmlUtil::generateHTMLTable($titleDrop, $headerReportGifts, $dataDrops, true);
+                    $dataToReturn->gota = HtmlUtil::generateHTMLTable($titleDrop, $headerReportDrops, $dataDrops, true);
                     $dataToReturn->usuario = HtmlUtil::generateHTMLTable($titleUser, $headerReportUser, $dataUser, true);
                     $dataToReturn->funcionario = HtmlUtil::generateHTMLTable($titleEmployee, $headerReportEmployee, $dataEmployee, true);
 
