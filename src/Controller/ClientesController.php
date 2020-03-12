@@ -888,7 +888,6 @@ class ClientesController extends AppController
                 $headersReport->nome_fantasia = "Estabelecimento";
                 $headersReport->entrada = "Pontos de Entrada";
                 $headersReport->saida = "Pontos de Saída";
-                $headersReport->diferenca = "Diferença";
 
                 $dataRows = [];
                 $sumInPoints = 0;
@@ -899,7 +898,6 @@ class ClientesController extends AppController
                     $item->nome_fantasia = $data->cliente->nome_fantasia;
                     $item->entrada = !empty($data->entrada) && !empty($data->entrada->sum) ? $data->entrada->sum : 0;
                     $item->saida = !empty($data->saida) && !empty($data->saida->sum_valor_pago_gotas) ? $data->saida->sum_valor_pago_gotas : 0;
-                    $item->diferenca = $item->entrada - $item->saida;
                     $dataRows[] = $item;
 
                     $sumInPoints += $item->entrada;
@@ -909,7 +907,6 @@ class ClientesController extends AppController
                 $total = new stdClass();
                 $total->entrada = $sumInPoints;
                 $total->saida = $sumOutPoints;
-                $total->diferenca = $sumInPoints - $sumOutPoints;
 
                 if ($typeExport === TYPE_EXPORTATION_DATA_OBJECT) {
                     $dataToReturn = new stdClass();
@@ -925,7 +922,6 @@ class ClientesController extends AppController
                     $rowTotal->nome_fantasia = "Total:";
                     $rowTotal->entrada = $sumInPoints;
                     $rowTotal->saida = $sumOutPoints;
-                    $rowTotal->diferenca = $sumInPoints - $sumOutPoints;
 
                     $dataRows[] = $rowTotal;
 

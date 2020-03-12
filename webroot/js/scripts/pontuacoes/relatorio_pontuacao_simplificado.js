@@ -398,8 +398,8 @@ $(function () {
                         data.forEach(dataItem => {
                             var option = document.createElement("option");
                             var item = {
-                                id: dataItem.id,
-                                nome: dataItem.nome
+                                id: dataItem.usuario.id,
+                                nome: dataItem.usuario.nome
                             };
 
                             option.value = item.id;
