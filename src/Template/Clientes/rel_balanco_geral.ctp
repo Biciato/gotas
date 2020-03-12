@@ -53,7 +53,6 @@ echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
                 <div class="panel-body">
                     <form id="form">
 
-                        <input type="hidden" name="cliente-selected" id="cliente-selected" value="<?= $clientesId ?>">
                         <div class="form-group row">
                             <div class="col-lg-4">
                                 <label for="redes_list">Rede:</label>
